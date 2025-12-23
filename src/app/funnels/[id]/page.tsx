@@ -1,0 +1,709 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Header } from '@/components/layout/header';
+import { Button } from '@/components/ui/button';
+import {
+  Target,
+  Users,
+  Package,
+  Radio,
+  MessageSquare,
+  CheckCircle2,
+  XCircle,
+  Trash2,
+  Clock,
+  AlertCircle,
+  Sparkles,
+  Loader2,
+  ChevronRight,
+  Star,
+  Zap,
+  BookmarkPlus,
+  Check,
+} from 'lucide-react';
+import { doc, onSnapshot, collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
+import type { Funnel, Proposal, ProposalScorecard } from '@/types/database';
+import { useFunnels } from '@/lib/hooks/use-funnels';
+import { cn } from '@/lib/utils';
+import { DecisionTimeline } from '@/components/decisions/decision-timeline';
+
+const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; description: string }> = {
+  draft: { 
+    label: 'Rascunho', 
+    color: 'text-zinc-400', 
+    bg: 'bg-zinc-500/10',
+    description: 'Aguardando geração pelo Conselho',
+  },
+  generating: { 
+    label: 'Gerando Propostas', 
+    color: 'text-blue-400', 
+    bg: 'bg-blue-500/10',
+    description: 'O Conselho está analisando e criando propostas...',
+  },
+  review: { 
+    label: 'Propostas Prontas', 
+    color: 'text-amber-400', 
+    bg: 'bg-amber-500/10',
+    description: 'Avalie as propostas e decida: EXECUTAR, AJUSTAR ou MATAR',
+  },
+  approved: { 
+    label: 'Aprovado', 
+    color: 'text-emerald-400', 
+    bg: 'bg-emerald-500/10',
+    description: 'Pronto para execução',
+  },
+  adjusting: { 
+    label: 'Ajustando', 
+    color: 'text-violet-400', 
+    bg: 'bg-violet-500/10',
+    description: 'Aplicando ajustes solicitados',
+  },
+  executing: { 
+    label: 'Executando', 
+    color: 'text-blue-400', 
+    bg: 'bg-blue-500/10',
+    description: 'Funil em operação',
+  },
+  completed: { 
+    label: 'Concluído', 
+    color: 'text-emerald-400', 
+    bg: 'bg-emerald-500/10',
+    description: 'Ciclo finalizado com sucesso',
+  },
+  killed: { 
+    label: 'Cancelado', 
+    color: 'text-red-400', 
+    bg: 'bg-red-500/10',
+    description: 'Funil descontinuado',
+  },
+};
+
+const AWARENESS_LABELS: Record<string, string> = {
+  fria: 'Audiência Fria',
+  morna: 'Audiência Morna',
+  quente: 'Audiência Quente',
+  unaware: 'Inconsciente',
+  problem: 'Consciente do Problema',
+  solution: 'Consciente da Solução',
+  product: 'Consciente do Produto',
+};
+
+function ProposalCard({ proposal, index, onSelect }: { proposal: Proposal; index: number; onSelect: () => void }) {
+  const scorecard = proposal.scorecard as ProposalScorecard | undefined;
+  const overallScore = scorecard?.overall || 0;
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      className="card-premium p-6 hover:border-emerald-500/30 transition-all cursor-pointer group"
+      onClick={onSelect}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-2">
+            <div className={cn(
+              'flex h-8 w-8 items-center justify-center rounded-lg font-bold text-sm',
+              index === 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-zinc-700/50 text-zinc-400'
+            )}>
+              {index + 1}
+            </div>
+            <h4 className="font-semibold text-white text-lg">{proposal.name}</h4>
+            {index === 0 && (
+              <span className="flex items-center gap-1 text-xs font-medium text-amber-400 bg-amber-500/10 px-2 py-1 rounded-full">
+                <Star className="h-3 w-3" />
+                Recomendado
+              </span>
+            )}
+          </div>
+          <p className="text-zinc-400 text-sm line-clamp-2">{proposal.summary}</p>
+        </div>
+        
+        {scorecard && (
+          <div className="text-right ml-4">
+            <div className={cn(
+              'text-3xl font-bold',
+              overallScore >= 7.5 ? 'text-emerald-400' :
+              overallScore >= 6 ? 'text-amber-400' : 'text-red-400'
+            )}>
+              {overallScore.toFixed(1)}
+            </div>
+            <div className="text-xs text-zinc-500">Score</div>
+          </div>
+        )}
+      </div>
+
+      {/* Stages preview */}
+      {proposal.architecture?.stages && (
+        <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2">
+          {proposal.architecture.stages.slice(0, 5).map((stage, i) => (
+            <div key={i} className="flex items-center">
+              <div className="px-3 py-1.5 bg-zinc-800/50 rounded-lg text-xs text-zinc-300 whitespace-nowrap">
+                {stage.name}
+              </div>
+              {i < Math.min(proposal.architecture.stages.length - 1, 4) && (
+                <ChevronRight className="h-4 w-4 text-zinc-600 mx-1" />
+              )}
+            </div>
+          ))}
+          {proposal.architecture.stages.length > 5 && (
+            <span className="text-xs text-zinc-500">+{proposal.architecture.stages.length - 5}</span>
+          )}
+        </div>
+      )}
+
+      {/* Quick metrics */}
+      {scorecard && (
+        <div className="grid grid-cols-3 gap-3 pt-4 border-t border-white/[0.06]">
+          <div>
+            <div className="text-xs text-zinc-500 mb-1">Clareza</div>
+            <div className="flex items-center gap-1">
+              <div className="h-1.5 flex-1 bg-zinc-800 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-emerald-500 rounded-full" 
+                  style={{ width: `${(scorecard.clarity / 10) * 100}%` }}
+                />
+              </div>
+              <span className="text-xs text-zinc-400">{scorecard.clarity}</span>
+            </div>
+          </div>
+          <div>
+            <div className="text-xs text-zinc-500 mb-1">Oferta</div>
+            <div className="flex items-center gap-1">
+              <div className="h-1.5 flex-1 bg-zinc-800 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-amber-500 rounded-full" 
+                  style={{ width: `${(scorecard.offerStrength / 10) * 100}%` }}
+                />
+              </div>
+              <span className="text-xs text-zinc-400">{scorecard.offerStrength}</span>
+            </div>
+          </div>
+          <div>
+            <div className="text-xs text-zinc-500 mb-1">ROI</div>
+            <div className="flex items-center gap-1">
+              <div className="h-1.5 flex-1 bg-zinc-800 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-blue-500 rounded-full" 
+                  style={{ width: `${(scorecard.expectedRoi / 10) * 100}%` }}
+                />
+              </div>
+              <span className="text-xs text-zinc-400">{scorecard.expectedRoi}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hover indicator */}
+      <div className="flex items-center justify-end mt-4 text-sm text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">
+        Ver detalhes <ChevronRight className="h-4 w-4 ml-1" />
+      </div>
+    </motion.div>
+  );
+}
+
+function GeneratingState() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="card-premium p-12 text-center"
+    >
+      <div className="relative mx-auto mb-8 w-24 h-24">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+          className="absolute inset-0 rounded-full border-2 border-emerald-500/20 border-t-emerald-500"
+        />
+        <div className="absolute inset-3 rounded-full bg-gradient-to-br from-emerald-500/20 to-transparent flex items-center justify-center">
+          <Sparkles className="h-8 w-8 text-emerald-400" />
+        </div>
+      </div>
+      
+      <h3 className="text-xl font-semibold text-white mb-3">
+        O Conselho está trabalhando...
+      </h3>
+      
+      <p className="text-zinc-400 mb-6 max-w-md mx-auto">
+        Russell, Dan, Frank, Sam, Ryan e Perry estão analisando seu contexto
+        e criando propostas personalizadas para seu funil.
+      </p>
+      
+      <div className="flex items-center justify-center gap-6 text-sm text-zinc-500">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+          Analisando contexto
+        </div>
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin text-zinc-500" />
+          Gerando arquiteturas
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+export default function FunnelDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const { remove, update } = useFunnels();
+  const [funnel, setFunnel] = useState<Funnel | null>(null);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSavingToLibrary, setIsSavingToLibrary] = useState(false);
+  const [savedToLibrary, setSavedToLibrary] = useState(false);
+
+  // Subscribe to funnel updates
+  useEffect(() => {
+    if (!params.id) return;
+
+    const unsubscribe = onSnapshot(
+      doc(db, 'funnels', params.id as string),
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = { id: docSnap.id, ...docSnap.data() } as Funnel;
+          setFunnel(data);
+          
+          // If status changed to review, load proposals
+          if (data.status === 'review' || data.status === 'approved') {
+            loadProposals(params.id as string);
+          }
+        } else {
+          setFunnel(null);
+        }
+        setIsLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [params.id]);
+
+  // Load proposals
+  const loadProposals = async (funnelId: string) => {
+    try {
+      const q = query(
+        collection(db, 'funnels', funnelId, 'proposals'),
+        orderBy('version', 'asc')
+      );
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Proposal));
+      setProposals(data);
+    } catch (error) {
+      console.error('Error loading proposals:', error);
+    }
+  };
+
+  // Generate proposals
+  const handleGenerate = async () => {
+    if (!funnel) return;
+    
+    setIsGenerating(true);
+    try {
+      const response = await fetch('/api/funnels/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ funnelId: funnel.id, context: funnel.context }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to generate proposals');
+      }
+      
+      // Status will be updated via onSnapshot
+    } catch (error) {
+      console.error('Error generating proposals:', error);
+      alert('Erro ao gerar propostas. Tente novamente.');
+      setIsGenerating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!funnel || !confirm('Tem certeza que deseja excluir este funil?')) return;
+    await remove(funnel.id);
+    router.push('/funnels');
+  };
+
+  const handleSelectProposal = (proposalId: string) => {
+    router.push(`/funnels/${funnel?.id}/proposals/${proposalId}`);
+  };
+
+  const handleSaveToLibrary = async () => {
+    if (!funnel || proposals.length === 0) return;
+    
+    const selectedProposal = proposals.find(p => p.status === 'selected') || proposals[0];
+    
+    setIsSavingToLibrary(true);
+    try {
+      const response = await fetch('/api/library', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          funnelId: funnel.id,
+          proposalId: selectedProposal.id,
+          name: `Template: ${funnel.name}`,
+          description: selectedProposal.summary,
+          tags: [funnel.context.objective, funnel.context.channel?.main].filter(Boolean),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save template');
+      }
+
+      setSavedToLibrary(true);
+    } catch (error) {
+      console.error('Error saving to library:', error);
+      alert('Erro ao salvar na biblioteca. Tente novamente.');
+    } finally {
+      setIsSavingToLibrary(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header title="Carregando..." showBack />
+        <div className="flex-1 p-8">
+          <div className="animate-pulse space-y-6 max-w-5xl mx-auto">
+            <div className="h-20 rounded-xl bg-zinc-800/50" />
+            <div className="grid gap-5 md:grid-cols-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-40 rounded-xl bg-zinc-800/50" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!funnel) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header title="Funil não encontrado" showBack />
+        <div className="flex-1 p-8 flex items-center justify-center">
+          <div className="text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-800/50 mb-4">
+              <Target className="h-8 w-8 text-zinc-600" />
+            </div>
+            <h3 className="text-lg font-medium text-white">Funil não encontrado</h3>
+            <p className="mt-2 text-zinc-500">O funil pode ter sido excluído ou não existe.</p>
+            <Link href="/funnels">
+              <Button className="mt-6 btn-accent">Voltar para Funis</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const status = STATUS_CONFIG[funnel.status] || STATUS_CONFIG.draft;
+  const isStatusGenerating = funnel.status === 'generating' || isGenerating;
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header
+        title={funnel.name}
+        showBack
+        actions={
+          <div className="flex items-center gap-2">
+            {funnel.status === 'approved' && proposals.length > 0 && (
+              <Button
+                variant="outline"
+                className={cn(
+                  'btn-ghost',
+                  savedToLibrary && 'text-emerald-400 border-emerald-500/50'
+                )}
+                onClick={handleSaveToLibrary}
+                disabled={isSavingToLibrary || savedToLibrary}
+              >
+                {savedToLibrary ? (
+                  <>
+                    <Check className="mr-2 h-4 w-4" />
+                    Salvo
+                  </>
+                ) : isSavingToLibrary ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <BookmarkPlus className="mr-2 h-4 w-4" />
+                    Salvar na Biblioteca
+                  </>
+                )}
+              </Button>
+            )}
+            <Button variant="ghost" className="btn-ghost" onClick={handleDelete}>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Excluir
+            </Button>
+            <Link href={`/chat?funnelId=${funnel.id}`}>
+              <Button className="btn-accent">
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Consultar Conselho
+              </Button>
+            </Link>
+          </div>
+        }
+      />
+
+      <div className="flex-1 p-8">
+        <div className="max-w-5xl mx-auto">
+          {/* Status Banner */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={cn(
+              'card-premium p-5 mb-8 border-l-4',
+              status.color.replace('text', 'border')
+            )}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <div className={cn(
+                  'inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium mb-2',
+                  status.color, status.bg
+                )}>
+                  {funnel.status === 'approved' && <CheckCircle2 className="h-4 w-4" />}
+                  {funnel.status === 'review' && <AlertCircle className="h-4 w-4" />}
+                  {funnel.status === 'killed' && <XCircle className="h-4 w-4" />}
+                  {funnel.status === 'generating' && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {['draft', 'adjusting', 'executing'].includes(funnel.status) && <Clock className="h-4 w-4" />}
+                  {status.label}
+                </div>
+                <p className="text-zinc-400">{status.description}</p>
+              </div>
+              
+              {funnel.status === 'draft' && !isGenerating && (
+                <Button className="btn-accent" onClick={handleGenerate}>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Gerar Propostas
+                </Button>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Generating State */}
+          <AnimatePresence>
+            {isStatusGenerating && <GeneratingState />}
+          </AnimatePresence>
+
+          {/* Proposals Section */}
+          {funnel.status === 'review' && proposals.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8"
+            >
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-emerald-400" />
+                  Propostas do Conselho
+                  <span className="text-sm font-normal text-zinc-500">
+                    ({proposals.length} {proposals.length === 1 ? 'proposta' : 'propostas'})
+                  </span>
+                </h3>
+              </div>
+              
+              <div className="space-y-4">
+                {proposals.map((proposal, index) => (
+                  <ProposalCard
+                    key={proposal.id}
+                    proposal={proposal}
+                    index={index}
+                    onSelect={() => handleSelectProposal(proposal.id)}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Context Info Grid */}
+          {!isStatusGenerating && (
+            <div className="grid gap-5 md:grid-cols-2">
+              {/* Objetivo */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="card-premium p-5"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10">
+                    <Target className="h-5 w-5 text-emerald-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Contexto</h3>
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <span className="text-sm text-zinc-500">Objetivo</span>
+                    <p className="text-white font-medium capitalize">{funnel.context.objective}</p>
+                  </div>
+                  {funnel.context.company && (
+                    <div>
+                      <span className="text-sm text-zinc-500">Empresa</span>
+                      <p className="text-zinc-300">{funnel.context.company}</p>
+                    </div>
+                  )}
+                  {funnel.context.market && (
+                    <div>
+                      <span className="text-sm text-zinc-500">Mercado</span>
+                      <p className="text-zinc-300">{funnel.context.market}</p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Público */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="card-premium p-5"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10">
+                    <Users className="h-5 w-5 text-blue-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Público</h3>
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <span className="text-sm text-zinc-500">Quem é</span>
+                    <p className="text-zinc-300">{funnel.context.audience?.who}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-zinc-500">Dor principal</span>
+                    <p className="text-zinc-300">{funnel.context.audience?.pain}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-zinc-500">Nível de consciência</span>
+                    <p className="text-white font-medium">
+                      {AWARENESS_LABELS[funnel.context.audience?.awareness || ''] || funnel.context.audience?.awareness}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Oferta */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="card-premium p-5"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10">
+                    <Package className="h-5 w-5 text-amber-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Oferta</h3>
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <span className="text-sm text-zinc-500">Produto</span>
+                    <p className="text-white font-medium">{funnel.context.offer?.what}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-sm text-zinc-500">Ticket</span>
+                      <p className="text-emerald-400 font-semibold text-lg">
+                        {funnel.context.offer?.ticket}
+                      </p>
+                    </div>
+                    {funnel.context.offer?.type && (
+                      <div>
+                        <span className="text-sm text-zinc-500">Tipo</span>
+                        <p className="text-zinc-300 capitalize">{funnel.context.offer.type}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Canais */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className="card-premium p-5"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10">
+                    <Radio className="h-5 w-5 text-violet-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Canais</h3>
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <span className="text-sm text-zinc-500">Principal</span>
+                    <p className="text-white font-medium capitalize">{funnel.context.channel?.main}</p>
+                  </div>
+                  {funnel.context.channel?.secondary && (
+                    <div>
+                      <span className="text-sm text-zinc-500">Secundário</span>
+                      <p className="text-zinc-300 capitalize">{funnel.context.channel.secondary}</p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </div>
+          )}
+
+          {/* CTA for draft */}
+          {funnel.status === 'draft' && !isGenerating && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+              className="mt-8 card-premium p-8 text-center"
+            >
+              <div className="relative mx-auto mb-6">
+                <div className="absolute inset-0 rounded-2xl bg-emerald-500/20 blur-2xl" />
+                <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 mx-auto">
+                  <Sparkles className="h-8 w-8 text-white" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">
+                Pronto para criar propostas?
+              </h3>
+              <p className="text-zinc-400 mb-6 max-w-md mx-auto">
+                O Conselho vai analisar seu contexto e gerar propostas de funil
+                com arquitetura, copy e métricas.
+              </p>
+              <Button className="btn-accent" onClick={handleGenerate}>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Gerar Propostas com o Conselho
+              </Button>
+            </motion.div>
+          )}
+
+          {/* Decision History */}
+          {!isStatusGenerating && funnel.status !== 'draft' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mt-8"
+            >
+              <h3 className="text-lg font-semibold text-white mb-5 flex items-center gap-2">
+                <Clock className="h-5 w-5 text-zinc-400" />
+                Histórico de Decisões
+              </h3>
+              <DecisionTimeline funnelId={funnel.id} />
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,66 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users collection - users can only read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Tenants collection
+    match /tenants/{tenantId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    
+    // Funnels - authenticated users can access their own funnels
+    match /funnels/{funnelId} {
+      allow read, write: if true; // TODO: Add auth in production
+      
+      // Proposals subcollection
+      match /proposals/{proposalId} {
+        allow read, write: if true; // TODO: Add auth in production
+      }
+      
+      // Decisions subcollection
+      match /decisions/{decisionId} {
+        allow read, write: if true; // TODO: Add auth in production
+      }
+    }
+    
+    // Conversations (chat history)
+    match /conversations/{conversationId} {
+      allow read, write: if true; // TODO: Add auth in production
+      
+      // Messages subcollection
+      match /messages/{messageId} {
+        allow read, write: if true; // TODO: Add auth in production
+      }
+    }
+    
+    // Knowledge base - read/write for all (public RAG data)
+    // TODO: Restrict write access in production
+    match /knowledge/{chunkId} {
+      allow read: if true; // Public read for RAG
+      allow write: if true; // Temporary: allow unauthenticated writes for setup
+    }
+    
+    // Library templates
+    match /library/{templateId} {
+      allow read: if true; // Public read
+      allow write: if true; // TODO: Add auth in production
+    }
+
+    // Decisions (decision history)
+    match /decisions/{decisionId} {
+      allow read: if true; // Allow listing decisions
+      allow write: if true; // TODO: Add auth in production
+    }
+    
+    // Development fallback - allow all authenticated users
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
