@@ -12,6 +12,7 @@ import {
   Library,
   Settings,
   LogOut,
+  BarChart3,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -30,6 +31,7 @@ const ICONS: Record<string, LucideIcon> = {
   Target,
   Library,
   Settings,
+  BarChart3,
 };
 
 export function Sidebar() {

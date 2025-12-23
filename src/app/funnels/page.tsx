@@ -128,7 +128,7 @@ export default function FunnelsPage() {
                               {funnel.name}
                             </h4>
                             <p className="text-sm text-zinc-500">
-                              {objective} • {funnel.context.channels.primary}
+                              {objective} • {funnel.context.channel?.main || funnel.context.channels?.primary}
                             </p>
                           </div>
                         </div>

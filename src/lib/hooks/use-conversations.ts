@@ -94,7 +94,11 @@ export function useConversation(conversationId: string | null) {
     return () => unsubscribe();
   }, [conversationId]);
 
-  const sendMessage = async (content: string, mode: 'general' | 'funnel_creation' | 'funnel_evaluation' = 'general') => {
+  const sendMessage = async (
+    content: string, 
+    mode: 'general' | 'funnel_creation' | 'funnel_evaluation' = 'general',
+    funnelId?: string
+  ) => {
     if (!conversationId) return;
 
     setIsSending(true);
@@ -117,6 +121,7 @@ export function useConversation(conversationId: string | null) {
           message: content,
           conversationId,
           mode,
+          ...(funnelId ? { funnelId } : {}),
         }),
       });
 

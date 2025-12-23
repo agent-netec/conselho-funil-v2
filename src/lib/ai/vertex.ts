@@ -283,7 +283,7 @@ export async function generateFunnelProposals(
 - **Ticket**: R$ ${context.offer.ticket}
 - **Tipo**: ${context.offer.type || 'Não especificado'}
 - **Diferencial**: ${context.offer.differential || 'Não especificado'}
-- **Canal Principal**: ${context.channels.primary}
+- **Canal Principal**: ${context.channel?.main || context.channels?.primary || 'N/A'}
 - **Canal Secundário**: ${context.channels.secondary || 'Não especificado'}
 
 ## Base de Conhecimento

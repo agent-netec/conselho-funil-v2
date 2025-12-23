@@ -109,11 +109,15 @@ export interface FunnelContext {
     type: 'curso' | 'servico' | 'saas' | 'mentoria' | 'produto_fisico';
   };
   
-  // Channels
-  channel: {
+  // Channels (channel é o novo padrão, channels é legado)
+  channel?: {
     main: string;
     secondary?: string;
     owned?: string;
+  };
+  channels?: {
+    primary: string;
+    secondary?: string;
   };
 }
 
@@ -133,6 +137,9 @@ export interface Proposal {
   scorecard?: Scorecard | ProposalScorecard;
   status: 'pending' | 'evaluated' | 'selected' | 'rejected';
   createdAt: Timestamp;
+  // Campos para propostas ajustadas
+  parentProposalId?: string;
+  appliedAdjustments?: string[];
 }
 
 // Scorecard simplificado para propostas geradas
@@ -338,6 +345,126 @@ export interface LibraryTemplateContent {
   strategy?: FunnelStrategy;
   assets?: FunnelAssets;
   scorecard?: Scorecard | ProposalScorecard;
+}
+
+// ============================================
+// COPY COUNCIL - Conselho de Copywriting
+// ============================================
+
+export type CopyType = 
+  | 'headline'        // Headlines por estágio de consciência
+  | 'email_sequence'  // Sequência de emails de follow-up
+  | 'offer_copy'      // Copy de oferta completa
+  | 'vsl_script'      // Script de VSL
+  | 'ad_creative'     // Copy de anúncios (Meta, Google, etc)
+  | 'landing_page';   // Copy de landing page
+
+export type AwarenessStage = 
+  | 'unaware'         // Não sabe que tem problema
+  | 'problem_aware'   // Sabe que tem problema
+  | 'solution_aware'  // Sabe que existem soluções
+  | 'product_aware'   // Conhece seu produto
+  | 'most_aware';     // Já conhece bem, quer variações
+
+export interface CopyProposal {
+  id: string;
+  funnelId: string;
+  proposalId: string;        // Proposta de funil aprovada
+  type: CopyType;
+  name: string;
+  version: number;
+  status: 'pending' | 'approved' | 'rejected';
+  
+  // Copy content
+  content: CopyContent;
+  
+  // Scorecard de copy
+  scorecard: CopyScorecard;
+  
+  // Metadata
+  awarenessStage?: AwarenessStage;
+  funnelStage?: string;      // Nome do stage do funil (se aplicável)
+  
+  // Reasoning from copywriters
+  reasoning: string;
+  copywriterInsights?: CopywriterInsight[];
+  
+  // Versioning
+  parentCopyId?: string;
+  appliedAdjustments?: string[];
+  
+  createdAt: Timestamp;
+}
+
+export interface CopyContent {
+  // Main copy
+  primary: string;
+  
+  // Variations (A/B testing)
+  variations?: string[];
+  
+  // Structured content (depends on type)
+  structure?: {
+    headline?: string;
+    subheadline?: string;
+    bullets?: string[];
+    cta?: string;
+    guarantee?: string;
+    urgency?: string;
+    proof?: string;
+  };
+  
+  // For email sequences
+  emails?: CopyEmail[];
+  
+  // For VSL scripts
+  vslSections?: VslSection[];
+}
+
+export interface CopyEmail {
+  day: number;
+  subject: string;
+  preheader?: string;
+  body: string;
+  cta: string;
+  goal: string;
+}
+
+export interface VslSection {
+  order: number;
+  name: string;
+  duration?: string;
+  content: string;
+  notes?: string;
+}
+
+export interface CopyScorecard {
+  // 5 dimensões do scorecard de copy
+  headlines: number;         // Peso 20% - Prende atenção, benefício específico, curiosidade
+  structure: number;         // Peso 20% - Clareza, fluxo natural, transições
+  benefits: number;          // Peso 20% - Benefícios vs features, especificidade, voz
+  offer: number;             // Peso 20% - Clareza de oferta, garantia, urgência
+  proof: number;             // Peso 20% - Prova social, validação, CTA
+  overall: number;           // Score consolidado
+}
+
+export interface CopywriterInsight {
+  copywriterId: string;
+  copywriterName: string;
+  expertise: string;
+  insight: string;
+  suggestions?: string[];
+}
+
+export interface CopyDecision {
+  id: string;
+  funnelId: string;
+  copyProposalId: string;
+  type: 'approve' | 'adjust' | 'kill';
+  userId: string;
+  feedback?: string;
+  adjustments?: string[];
+  createdAt: Timestamp;
 }
 
 

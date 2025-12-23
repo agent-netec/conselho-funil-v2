@@ -19,10 +19,57 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import type { Decision, Funnel, Proposal } from '@/types/database';
+import type { Funnel, Proposal } from '@/types/database';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+/**
+ * Sanitize an object recursively to remove undefined/NaN/Infinity values
+ * Firestore does NOT accept these values
+ */
+function sanitizeForFirestore(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return null;
+  }
+  
+  if (typeof obj === 'number') {
+    if (isNaN(obj) || !isFinite(obj)) {
+      return 0;
+    }
+    return obj;
+  }
+  
+  if (typeof obj === 'string') {
+    return obj;
+  }
+  
+  if (typeof obj === 'boolean') {
+    return obj;
+  }
+  
+  if (obj instanceof Timestamp) {
+    return obj;
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj
+      .filter(item => item !== undefined)
+      .map(item => sanitizeForFirestore(item));
+  }
+  
+  if (typeof obj === 'object') {
+    const sanitized: Record<string, any> = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (value !== undefined) {
+        sanitized[key] = sanitizeForFirestore(value);
+      }
+    }
+    return sanitized;
+  }
+  
+  return String(obj);
+}
 
 // GET - List decisions for a funnel
 export async function GET(request: NextRequest) {
@@ -44,10 +91,10 @@ export async function GET(request: NextRequest) {
     );
 
     const snapshot = await getDocs(q);
-    const decisions = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Decision[];
+    const decisions = snapshot.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...docSnap.data(),
+    }));
 
     return NextResponse.json({
       decisions,
@@ -74,9 +121,11 @@ export async function POST(request: NextRequest) {
       userName,
       reason,
       adjustments,
-      scorecard,
     } = body;
 
+    console.log('📝 Creating decision:', { funnelId, proposalId, type, userId });
+
+    // Validate required fields
     if (!funnelId || !proposalId || !type || !userId) {
       return NextResponse.json(
         { error: 'funnelId, proposalId, type, and userId are required' },
@@ -111,10 +160,13 @@ export async function POST(request: NextRequest) {
       'kill': 'killed',
     };
 
-    // Get score safely
-    const proposalScore = typeof proposal.scorecard === 'object' && proposal.scorecard !== null
-      ? (proposal.scorecard as any).overall || (proposal.scorecard as any).totalScore || 0
-      : 0;
+    // Get score safely - ensure it's a valid number
+    let proposalScore = 0;
+    if (proposal.scorecard && typeof proposal.scorecard === 'object') {
+      const sc = proposal.scorecard as Record<string, any>;
+      const rawScore = sc.overall ?? sc.totalScore ?? 0;
+      proposalScore = typeof rawScore === 'number' && isFinite(rawScore) ? rawScore : 0;
+    }
 
     // Map decision type
     const typeMap: Record<string, 'EXECUTAR' | 'AJUSTAR' | 'MATAR'> = {
@@ -123,41 +175,61 @@ export async function POST(request: NextRequest) {
       'kill': 'MATAR',
     };
 
-    // Create decision record
-    const decision = {
-      funnelId,
-      proposalId,
+    // Build nextSteps based on decision type
+    let nextSteps: string[] = ['Arquivar proposta', 'Analisar aprendizados'];
+    if (type === 'execute') {
+      nextSteps = ['Iniciar implementação', 'Configurar métricas', 'Lançar primeira versão'];
+    } else if (type === 'adjust') {
+      const validAdjustments = Array.isArray(adjustments) 
+        ? adjustments.filter((a: unknown): a is string => typeof a === 'string' && a.trim() !== '')
+        : [];
+      nextSteps = validAdjustments.length > 0 
+        ? validAdjustments
+        : ['Revisar proposta', 'Aplicar ajustes', 'Reavaliar'];
+    }
+
+    // Build the decision object - ALL values must be defined and valid
+    const decisionData: Record<string, any> = {
+      funnelId: String(funnelId || ''),
+      proposalId: String(proposalId || ''),
       type: typeMap[type] || 'EXECUTAR',
       parecer: {
         counselors: [],
         consolidated: {
           dimensions: [],
           totalScore: proposalScore,
-          recommendation: type,
+          recommendation: String(type || 'execute'),
         },
-        summary: reason || `Decisão: ${typeMap[type] || type.toUpperCase()}`,
-        nextSteps: type === 'execute' 
-          ? ['Iniciar implementação', 'Configurar métricas', 'Lançar primeira versão']
-          : type === 'adjust'
-          ? adjustments || ['Revisar proposta', 'Aplicar ajustes', 'Reavaliar']
-          : ['Arquivar proposta', 'Analisar aprendizados'],
+        summary: String(reason || `Decisão: ${typeMap[type] || 'EXECUTAR'}`),
+        nextSteps: nextSteps,
       },
-      adjustments: type === 'adjust' ? adjustments : undefined,
       createdAt: Timestamp.now(),
-      createdBy: userId,
+      createdBy: String(userId || 'anonymous'),
+      metadata: {
+        userName: String(userName || 'Usuário'),
+        proposalName: String(proposal.name || 'Proposta'),
+        proposalVersion: typeof proposal.version === 'number' ? proposal.version : 1,
+        funnelName: String(funnel.name || 'Funil'),
+      },
     };
 
-    // Save decision with safe metadata
-    const decisionRef = await addDoc(collection(db, 'decisions'), {
-      ...decision,
-      // Extra metadata for history
-      metadata: {
-        userName: userName || 'Usuário',
-        proposalName: proposal.name || 'Proposta',
-        proposalVersion: proposal.version || 1,
-        funnelName: funnel.name || 'Funil',
-      },
-    });
+    // Only add adjustments if valid
+    if (type === 'adjust') {
+      const validAdjustments = Array.isArray(adjustments)
+        ? adjustments.filter((a: unknown): a is string => typeof a === 'string' && a.trim() !== '')
+        : [];
+      if (validAdjustments.length > 0) {
+        decisionData.adjustments = validAdjustments;
+      }
+    }
+
+    // CRITICAL: Sanitize the entire object to remove any undefined/NaN/Infinity
+    const sanitizedData = sanitizeForFirestore(decisionData);
+
+    console.log('📦 Decision data to save:', JSON.stringify(sanitizedData, null, 2));
+
+    // Save decision
+    const decisionRef = await addDoc(collection(db, 'decisions'), sanitizedData);
     
     console.log('✅ Decision saved:', decisionRef.id);
 
@@ -168,24 +240,56 @@ export async function POST(request: NextRequest) {
     });
 
     // Update proposal status
+    const proposalStatus = type === 'execute' ? 'selected' : type === 'kill' ? 'rejected' : 'evaluated';
     await updateDoc(doc(db, 'funnels', funnelId, 'proposals', proposalId), {
-      status: type === 'execute' ? 'selected' : type === 'kill' ? 'rejected' : 'evaluated',
+      status: proposalStatus,
     });
 
-    console.log(`📋 Decisão registrada: ${type.toUpperCase()} - Funil: ${funnelId}`);
+    console.log(`📋 Decisão registrada: ${typeMap[type] || type} - Funil: ${funnelId}`);
+
+    // If ADJUST, trigger regeneration with adjustments
+    let regenerationTriggered = false;
+    if (type === 'adjust' && adjustments && adjustments.length > 0) {
+      try {
+        console.log('🔄 Triggering regeneration with adjustments...');
+        
+        // Get funnel context for regeneration
+        const funnelContext = funnel.context;
+        
+        // Call generate API with adjustments (fire and forget)
+        fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/api/funnels/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            funnelId,
+            context: funnelContext,
+            adjustments,
+            originalProposalId: proposalId,
+            baseVersion: proposal.version || 1,
+          }),
+        }).catch(err => console.error('Regeneration error:', err));
+        
+        regenerationTriggered = true;
+        console.log('✅ Regeneration triggered');
+      } catch (regenError) {
+        console.error('Error triggering regeneration:', regenError);
+      }
+    }
 
     return NextResponse.json({
       success: true,
       decisionId: decisionRef.id,
+      regenerationTriggered,
       decision: {
         id: decisionRef.id,
-        ...decision,
+        ...sanitizedData,
       },
     });
   } catch (error) {
     console.error('Error creating decision:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: 'Failed to create decision', details: String(error) },
+      { error: 'Failed to create decision', details: errorMessage },
       { status: 500 }
     );
   }

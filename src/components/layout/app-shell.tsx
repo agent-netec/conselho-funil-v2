@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from './sidebar';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { ToastNotifications } from '@/components/ui/toast-notifications';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -151,6 +152,9 @@ export function AppShell({ children }: AppShellProps) {
           </motion.div>
         </AnimatePresence>
       </main>
+      
+      {/* Toast Notifications */}
+      <ToastNotifications />
     </div>
   );
 }

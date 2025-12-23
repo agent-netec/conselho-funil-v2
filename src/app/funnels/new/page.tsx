@@ -142,19 +142,19 @@ export default function NewFunnelPage() {
         maturity: 'em tração',
         objective: formData.objective as 'leads' | 'sales' | 'calls' | 'retention',
         audience: {
-          who: formData.audience,
-          pain: formData.pain,
+          who: formData.audience || '',
+          pain: formData.pain || '',
           awareness: awarenessMap[formData.awareness] || 'morna',
-          objection: formData.objection || undefined,
+          ...(formData.objection ? { objection: formData.objection } : {}),
         },
         offer: {
-          what: formData.product,
-          ticket: formData.ticket,
+          what: formData.product || '',
+          ticket: formData.ticket || '',
           type: (formData.productType?.toLowerCase() as any) || 'servico',
         },
         channel: {
-          main: formData.primaryChannel,
-          secondary: formData.secondaryChannel || undefined,
+          main: formData.primaryChannel || '',
+          ...(formData.secondaryChannel ? { secondary: formData.secondaryChannel } : {}),
         },
       };
 

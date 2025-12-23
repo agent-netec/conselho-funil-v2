@@ -25,12 +25,131 @@ import {
   MessageSquare,
   Library,
   Loader2,
+  Download,
 } from 'lucide-react';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Funnel, Proposal, ProposalScorecard, FunnelStage } from '@/types/database';
 import { cn } from '@/lib/utils';
 import { updateFunnel } from '@/lib/firebase/firestore';
+
+// Generate markdown for a single proposal
+function generateProposalMarkdown(funnel: Funnel, proposal: Proposal): string {
+  const scorecard = proposal.scorecard as any;
+  const score = scorecard?.overall || 'N/A';
+  const date = new Date().toLocaleDateString('pt-BR');
+
+  let md = `# ${proposal.name}
+
+> Funil: ${funnel.name} | Exportado em ${date}
+
+---
+
+**Score Geral:** ${typeof score === 'number' ? score.toFixed(1) : score}/10
+
+${proposal.summary || ''}
+
+`;
+
+  if (proposal.strategy?.rationale) {
+    md += `## 💡 Racional Estratégico
+
+${proposal.strategy.rationale}
+
+`;
+  }
+
+  if (proposal.architecture?.stages?.length) {
+    md += `## 🏗️ Arquitetura do Funil
+
+`;
+    proposal.architecture.stages.forEach(stage => {
+      md += `- **${stage.order}. ${stage.name}** (${stage.type}) - ${stage.objective || ''}\n`;
+    });
+    md += '\n';
+  }
+
+  if (scorecard) {
+    md += `## 📊 Scorecard
+
+- Clareza: ${scorecard.clarity || '-'}
+- Força da Oferta: ${scorecard.offerStrength || '-'}
+- Qualificação: ${scorecard.qualification || '-'}
+- Fricção: ${scorecard.friction || '-'}
+- Potencial LTV: ${scorecard.ltvPotential || '-'}
+- ROI Esperado: ${scorecard.expectedRoi || '-'}
+
+`;
+  }
+
+  if (proposal.strategy?.risks?.length) {
+    md += `## ⚠️ Riscos
+
+${proposal.strategy.risks.map(r => `- ${r}`).join('\n')}
+
+`;
+  }
+
+  if (proposal.strategy?.recommendations?.length) {
+    md += `## ✅ Recomendações
+
+${proposal.strategy.recommendations.map(r => `- ${r}`).join('\n')}
+
+`;
+  }
+
+  if (proposal.assets?.headlines?.length) {
+    md += `## 📝 Headlines
+
+${proposal.assets.headlines.map(h => `- ${h}`).join('\n')}
+
+`;
+  }
+
+  if (proposal.assets?.hooks?.length) {
+    md += `## 🎣 Hooks
+
+${proposal.assets.hooks.map(h => `- ${h}`).join('\n')}
+
+`;
+  }
+
+  if (proposal.assets?.ctas?.length) {
+    md += `## 🎯 CTAs
+
+${proposal.assets.ctas.map(c => `- ${c}`).join('\n')}
+
+`;
+  }
+
+  md += `---\n\n*Documento gerado pelo Conselho de Funil*`;
+  return md;
+}
+
+// Simple markdown to HTML converter
+function simpleMarkdownToHtml(md: string): string {
+  return md
+    .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+    .replace(/^---$/gm, '<hr>')
+    .replace(/\|(.+)\|/g, (match) => {
+      const cells = match.split('|').filter(c => c.trim());
+      if (cells.some(c => c.includes('---'))) return '';
+      const tag = 'td';
+      return `<tr>${cells.map(c => `<${tag}>${c.trim().replace(/\*\*/g, '')}</${tag}>`).join('')}</tr>`;
+    })
+    .replace(/(<tr>.*<\/tr>\n?)+/g, '<table>$&</table>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+    .replace(/\n\n/g, '<br><br>');
+}
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 
 const COUNSELOR_NAMES: Record<string, { name: string; role: string; color: string }> = {
   russell_brunson: { name: 'Russell Brunson', role: 'Arquitetura', color: 'text-blue-400' },
@@ -132,6 +251,9 @@ export default function ProposalDetailPage() {
   const [isActioning, setIsActioning] = useState(false);
   const [isSavingToLibrary, setIsSavingToLibrary] = useState(false);
   const [savedToLibrary, setSavedToLibrary] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogType, setDialogType] = useState<'adjust' | 'kill' | null>(null);
+  const [dialogInput, setDialogInput] = useState('');
 
   useEffect(() => {
     async function loadData() {
@@ -164,26 +286,25 @@ export default function ProposalDetailPage() {
   const handleDecision = async (decision: 'execute' | 'adjust' | 'kill') => {
     if (!funnel || !proposal) return;
     
-    // Opcional: pedir justificativa para AJUSTAR ou MATAR
-    let reason = '';
-    let adjustments: string[] = [];
-    
-    if (decision === 'adjust') {
-      const input = prompt('Quais ajustes são necessários? (separe por vírgula)');
-      if (!input) return;
-      adjustments = input.split(',').map(a => a.trim()).filter(Boolean);
-      reason = `Ajustes solicitados: ${adjustments.join(', ')}`;
-    } else if (decision === 'kill') {
-      const input = prompt('Por que esta proposta deve ser descartada?');
-      if (!input) return;
-      reason = input;
-    } else {
-      reason = 'Proposta aprovada para execução';
+    // Para AJUSTAR ou MATAR, abrir dialog
+    if (decision === 'adjust' || decision === 'kill') {
+      setDialogType(decision);
+      setDialogInput('');
+      setDialogOpen(true);
+      return;
     }
     
+    // EXECUTAR vai direto
+    await submitDecision('execute', 'Proposta aprovada para execução', []);
+  };
+
+  const submitDecision = async (decision: 'execute' | 'adjust' | 'kill', reason: string, adjustments: string[]) => {
+    if (!funnel || !proposal) return;
+    
     setIsActioning(true);
+    setDialogOpen(false);
+    
     try {
-      // Registrar decisão via API
       const response = await fetch('/api/decisions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -194,7 +315,7 @@ export default function ProposalDetailPage() {
           userId: funnel.userId || 'anonymous',
           userName: 'Você',
           reason,
-          adjustments: decision === 'adjust' ? adjustments : undefined,
+          adjustments: decision === 'adjust' ? adjustments : [],
         }),
       });
 
@@ -204,7 +325,6 @@ export default function ProposalDetailPage() {
         throw new Error(errorData.error || 'Failed to save decision');
       }
 
-      // Redirect to funnel page
       router.push(`/funnels/${funnel.id}`);
     } catch (error) {
       console.error('Error updating decision:', error);
@@ -214,11 +334,82 @@ export default function ProposalDetailPage() {
     }
   };
 
+  const handleDialogSubmit = () => {
+    if (!dialogInput.trim() || !dialogType) return;
+    
+    if (dialogType === 'adjust') {
+      const adjustments = dialogInput.split(',').map(a => a.trim()).filter(Boolean);
+      submitDecision('adjust', `Ajustes: ${adjustments.join(', ')}`, adjustments);
+    } else {
+      submitDecision('kill', dialogInput, []);
+    }
+  };
+
   const copyAssets = (type: 'headlines' | 'hooks' | 'ctas') => {
     const assets = proposal?.assets?.[type];
     if (assets) {
       navigator.clipboard.writeText(assets.join('\n'));
       alert(`${type} copiados!`);
+    }
+  };
+
+  const handleExport = async (format: 'markdown' | 'pdf') => {
+    if (!funnel || !proposal) return;
+    
+    try {
+      // Generate markdown locally
+      const markdown = generateProposalMarkdown(funnel, proposal);
+      
+      if (format === 'markdown') {
+        const blob = new Blob([markdown], { type: 'text/markdown' });
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `${proposal.name.replace(/[^a-zA-Z0-9]/g, '_')}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(downloadUrl);
+      } else {
+        // Generate markdown locally for this proposal
+        const markdown = generateProposalMarkdown(funnel, proposal);
+        const html = simpleMarkdownToHtml(markdown);
+        
+        const fullHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${proposal.name} - Export</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; line-height: 1.6; color: #1a1a1a; }
+    h1 { color: #10b981; border-bottom: 2px solid #10b981; padding-bottom: 10px; }
+    h2 { color: #374151; margin-top: 30px; }
+    h3 { color: #4b5563; }
+    h4 { color: #6b7280; }
+    table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+    th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
+    th { background: #f9fafb; }
+    blockquote { border-left: 3px solid #10b981; padding-left: 15px; color: #6b7280; }
+    hr { border: none; border-top: 1px solid #e5e7eb; margin: 30px 0; }
+    ul { padding-left: 25px; }
+    li { margin: 5px 0; }
+    .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; z-index: 1000; }
+    @media print { .print-btn { display: none; } }
+  </style>
+</head>
+<body>
+  <button class="print-btn" onclick="window.print()">🖨️ Imprimir PDF</button>
+  ${html}
+</body>
+</html>`;
+
+        const blob = new Blob([fullHtml], { type: 'text/html' });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Erro ao exportar. Tente novamente.');
     }
   };
 
@@ -299,12 +490,22 @@ export default function ProposalDetailPage() {
         subtitle={funnel.name}
         showBack
         actions={
-          <Link href={`/chat?funnelId=${funnel.id}&proposalId=${proposal.id}`}>
-            <Button variant="outline" className="btn-ghost">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Perguntar ao Conselho
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" className="btn-ghost" onClick={() => handleExport('markdown')}>
+              <FileText className="mr-2 h-4 w-4" />
+              MD
             </Button>
-          </Link>
+            <Button variant="ghost" className="btn-ghost" onClick={() => handleExport('pdf')}>
+              <Download className="mr-2 h-4 w-4" />
+              PDF
+            </Button>
+            <Link href={`/chat?funnelId=${funnel.id}&proposalId=${proposal.id}`}>
+              <Button variant="outline" className="btn-ghost">
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Perguntar ao Conselho
+              </Button>
+            </Link>
+          </div>
         }
       />
 
@@ -649,8 +850,71 @@ export default function ProposalDetailPage() {
               </div>
             </motion.div>
           )}
+
+          {/* Generate Copy (for approved funnels) */}
+          {funnel.status === 'approved' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+              className="card-premium p-6 mt-4 border-violet-500/20 bg-gradient-to-br from-violet-500/5 to-transparent"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-1 flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-violet-400" />
+                    Gerar Copy
+                  </h3>
+                  <p className="text-zinc-400 text-sm">
+                    Ative o Conselho de Copywriting para criar headlines, emails, ofertas, VSL e mais.
+                  </p>
+                </div>
+                <Link href={`/funnels/${funnel.id}/copy?proposalId=${proposal.id}`}>
+                  <Button className="h-11 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500">
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Conselho de Copy
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
+
+      {/* Dialog para AJUSTAR ou MATAR */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="bg-zinc-900 border-zinc-800">
+          <DialogHeader>
+            <DialogTitle className="text-white">
+              {dialogType === 'adjust' ? 'Solicitar Ajustes' : 'Descartar Proposta'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              value={dialogInput}
+              onChange={(e) => setDialogInput(e.target.value)}
+              placeholder={
+                dialogType === 'adjust'
+                  ? 'Quais ajustes são necessários? (separe por vírgula)'
+                  : 'Por que esta proposta deve ser descartada?'
+              }
+              className="min-h-[100px] bg-zinc-800 border-zinc-700 text-white"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleDialogSubmit}
+              disabled={!dialogInput.trim()}
+              className={dialogType === 'adjust' ? 'bg-amber-600 hover:bg-amber-500' : 'bg-red-600 hover:bg-red-500'}
+            >
+              {dialogType === 'adjust' ? 'Solicitar Ajustes' : 'Descartar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

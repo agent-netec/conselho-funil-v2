@@ -20,6 +20,10 @@ export const maxDuration = 120; // 2 minutes for generation
 interface GenerateRequest {
   funnelId: string;
   context: FunnelContext;
+  // Para regeneração com ajustes
+  adjustments?: string[];
+  originalProposalId?: string;
+  baseVersion?: number;
 }
 
 const GENERATION_PROMPT = `Você é o Conselho de Funil, um sistema de inteligência composto por 6 especialistas em marketing e vendas.
@@ -88,17 +92,33 @@ Retorne APENAS um JSON válido, sem markdown, no formato:
 }
 
 ## Regras
-1. Gere exatamente 2 propostas com abordagens diferentes
+1. Gere exatamente 2 propostas com abordagens diferentes (ou 1 se for ajuste)
 2. Cada proposta deve ter 4-7 etapas
 3. Baseie-se no contexto da base de conhecimento
 4. Scores de 1-10, overall é a média
 5. Seja específico e acionável
 6. Retorne APENAS JSON válido, sem explicações adicionais`;
 
+const ADJUSTMENT_PROMPT = `Você é o Conselho de Funil. O usuário solicitou AJUSTES em uma proposta existente.
+
+## Tarefa
+Gere UMA proposta melhorada que incorpore os ajustes solicitados.
+
+## Formato de Saída (JSON)
+Retorne APENAS um JSON válido com a mesma estrutura, mas com apenas 1 proposta no array.
+
+${GENERATION_PROMPT.split('## Regras')[0]}
+
+## Regras
+1. Gere exatamente 1 proposta que incorpore TODOS os ajustes
+2. Mantenha o que funcionava bem na estrutura original
+3. Seja específico sobre as mudanças aplicadas
+4. Retorne APENAS JSON válido`
+
 export async function POST(request: NextRequest) {
   try {
     const body: GenerateRequest = await request.json();
-    const { funnelId, context } = body;
+    const { funnelId, context, adjustments, originalProposalId, baseVersion } = body;
 
     if (!funnelId || !context) {
       return NextResponse.json(
@@ -114,7 +134,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`🎯 Gerando propostas para funil ${funnelId}...`);
+    const isAdjustment = adjustments && adjustments.length > 0;
+    console.log(`🎯 ${isAdjustment ? 'Regenerando com ajustes' : 'Gerando propostas'} para funil ${funnelId}...`);
 
     // Update funnel status to generating
     await updateFunnel(funnelId, { status: 'generating' });
@@ -166,15 +187,25 @@ ${context.audience.objection ? `- **Objeção Dominante:** ${context.audience.ob
 - **Tipo:** ${context.offer.type}
 
 ### Canais
-- **Principal:** ${context.channel.main}
-${context.channel.secondary ? `- **Secundário:** ${context.channel.secondary}` : ''}
-${context.channel.owned ? `- **Owned Media:** ${context.channel.owned}` : ''}
+- **Principal:** ${context.channel?.main || context.channels?.primary || 'N/A'}
+${context.channel?.secondary || context.channels?.secondary ? `- **Secundário:** ${context.channel?.secondary || context.channels?.secondary}` : ''}
+${context.channel?.owned ? `- **Owned Media:** ${context.channel.owned}` : ''}
 
 ## Base de Conhecimento do Conselho
 ${knowledgeContext}
+
+${isAdjustment ? `
+## ⚠️ AJUSTES SOLICITADOS
+Esta é uma REGENERAÇÃO. O usuário analisou a proposta anterior e solicitou os seguintes ajustes:
+
+${adjustments.map((a, i) => `${i + 1}. ${a}`).join('\n')}
+
+**IMPORTANTE:** Gere uma NOVA proposta que incorpore TODOS estes ajustes. Mantenha o que estava bom na proposta original mas aplique as mudanças solicitadas.
+` : ''}
 `;
 
-    const fullPrompt = `${GENERATION_PROMPT}\n\n${contextPrompt}`;
+    const basePrompt = isAdjustment ? ADJUSTMENT_PROMPT : GENERATION_PROMPT;
+    const fullPrompt = `${basePrompt}\n\n${contextPrompt}`;
 
     // 4. Generate proposals with Gemini
     console.log('🤖 Gerando propostas com Gemini...');
@@ -216,24 +247,30 @@ ${knowledgeContext}
 
     // 6. Save proposals to Firestore
     const savedProposals: string[] = [];
+    const startVersion = baseVersion ? baseVersion + 1 : 1;
     
     for (let i = 0; i < proposalsData.proposals.length; i++) {
       const proposal = proposalsData.proposals[i];
+      const version = isAdjustment ? startVersion : i + 1;
       
       const proposalData: Omit<Proposal, 'id' | 'funnelId' | 'createdAt'> = {
-        version: i + 1,
-        name: proposal.name,
+        version,
+        name: isAdjustment ? `${proposal.name} (v${version})` : proposal.name,
         summary: proposal.summary,
         architecture: proposal.architecture,
         strategy: proposal.strategy,
         assets: proposal.assets,
         scorecard: proposal.scorecard,
         status: 'pending',
+        ...(isAdjustment && originalProposalId ? { 
+          parentProposalId: originalProposalId,
+          appliedAdjustments: adjustments 
+        } : {}),
       };
 
       const proposalId = await createProposal(funnelId, proposalData);
       savedProposals.push(proposalId);
-      console.log(`💾 Proposta ${i + 1} salva: ${proposalId}`);
+      console.log(`💾 Proposta ${isAdjustment ? 'ajustada' : ''} v${version} salva: ${proposalId}`);
     }
 
     // 7. Update funnel status to review

@@ -302,7 +302,7 @@ export default function HomePage() {
                               <div>
                                 <h4 className="font-medium text-white">{funnel.name}</h4>
                                 <p className="text-sm text-zinc-500">
-                                  {funnel.context.objective} • {funnel.context.channels.primary}
+                                  {funnel.context.objective} • {funnel.context.channel?.main || funnel.context.channels?.primary}
                                 </p>
                               </div>
                             </div>

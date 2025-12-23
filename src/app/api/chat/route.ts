@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ragQuery, retrieveChunks, formatContextForLLM } from '@/lib/ai/rag';
 import { generateCouncilResponseWithGemini, isGeminiConfigured } from '@/lib/ai/gemini';
-import { addMessage, updateConversation } from '@/lib/firebase/firestore';
+import { addMessage, updateConversation, getFunnel, getFunnelProposals } from '@/lib/firebase/firestore';
+import type { Funnel, Proposal } from '@/types/database';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -51,13 +52,31 @@ export async function POST(request: NextRequest) {
       retrievalConfig.filters.counselor = counselor;
     }
 
+    // Load funnel data if funnelId is provided
+    let funnelContext = '';
+    if (funnelId) {
+      try {
+        const funnel = await getFunnel(funnelId);
+        if (funnel) {
+          const proposals = await getFunnelProposals(funnelId);
+          funnelContext = buildFunnelContext(funnel, proposals);
+          console.log('Loaded funnel context for:', funnel.name);
+        }
+      } catch (err) {
+        console.error('Error loading funnel:', err);
+      }
+    }
+
     // Retrieve relevant chunks from knowledge base
     console.log('Retrieving chunks for:', message.substring(0, 100));
     const chunks = await retrieveChunks(message, retrievalConfig);
     console.log(`Found ${chunks.length} relevant chunks`);
 
-    // Build context from retrieved chunks
-    const context = formatContextForLLM(chunks);
+    // Build context from retrieved chunks + funnel data
+    let context = formatContextForLLM(chunks);
+    if (funnelContext) {
+      context = `## CONTEXTO DO FUNIL DO USUÁRIO\n\n${funnelContext}\n\n---\n\n${context}`;
+    }
 
     // Generate response using Gemini API
     let assistantResponse: string;
@@ -113,6 +132,46 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// Build context string from funnel data
+function buildFunnelContext(funnel: Funnel, proposals: Proposal[]): string {
+  const ctx = funnel.context;
+  const channel = ctx.channel?.main || ctx.channels?.primary || 'N/A';
+  
+  let context = `### Funil: ${funnel.name}
+- **Status**: ${funnel.status}
+- **Objetivo**: ${ctx.objective}
+- **Empresa**: ${ctx.company}
+- **Mercado**: ${ctx.market}
+
+### Público-Alvo
+- **Quem**: ${ctx.audience?.who || 'N/A'}
+- **Dor**: ${ctx.audience?.pain || 'N/A'}
+- **Nível de Consciência**: ${ctx.audience?.awareness || 'N/A'}
+
+### Oferta
+- **Produto**: ${ctx.offer?.what || 'N/A'}
+- **Ticket**: ${ctx.offer?.ticket || 'N/A'}
+- **Tipo**: ${ctx.offer?.type || 'N/A'}
+
+### Canais
+- **Principal**: ${channel}
+`;
+
+  if (proposals.length > 0) {
+    context += `\n### Propostas Geradas (${proposals.length})\n`;
+    proposals.slice(0, 2).forEach((p, i) => {
+      const score = p.scorecard?.overall || 'N/A';
+      context += `\n**${i + 1}. ${p.name}** (Score: ${score})\n`;
+      context += `- ${p.summary?.slice(0, 200) || 'Sem resumo'}...\n`;
+      if (p.strategy?.risks?.length) {
+        context += `- Riscos: ${p.strategy.risks.slice(0, 2).join(', ')}\n`;
+      }
+    });
+  }
+
+  return context;
 }
 
 // Fallback response when AI is not available

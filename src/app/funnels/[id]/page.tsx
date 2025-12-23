@@ -24,6 +24,9 @@ import {
   Zap,
   BookmarkPlus,
   Check,
+  Download,
+  FileText,
+  Share2,
 } from 'lucide-react';
 import { doc, onSnapshot, collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
@@ -31,6 +34,150 @@ import type { Funnel, Proposal, ProposalScorecard } from '@/types/database';
 import { useFunnels } from '@/lib/hooks/use-funnels';
 import { cn } from '@/lib/utils';
 import { DecisionTimeline } from '@/components/decisions/decision-timeline';
+import { VersionHistory } from '@/components/proposals/version-history';
+import { notify } from '@/lib/stores/notification-store';
+import { ShareDialog } from '@/components/funnels/share-dialog';
+import { ExportDialog } from '@/components/funnels/export-dialog';
+
+// Generate markdown from funnel data
+function generateFunnelMarkdown(funnel: Funnel, proposals: Proposal[]): string {
+  const ctx = funnel.context;
+  const channel = ctx.channel?.main || ctx.channels?.primary || 'N/A';
+  const date = new Date().toLocaleDateString('pt-BR');
+
+  let md = `# ${funnel.name}
+
+> Exportado em ${date} | Status: **${funnel.status}**
+
+---
+
+## 📋 Contexto do Negócio
+
+- **Empresa:** ${ctx.company}
+- **Mercado:** ${ctx.market}
+- **Maturidade:** ${ctx.maturity}
+- **Objetivo:** ${ctx.objective}
+
+---
+
+## 👥 Público-Alvo
+
+**Quem é:** ${ctx.audience?.who || 'Não definido'}
+
+**Dor Principal:** ${ctx.audience?.pain || 'Não definido'}
+
+**Nível de Consciência:** ${ctx.audience?.awareness || 'N/A'}
+
+---
+
+## 💰 Oferta
+
+- **Produto/Serviço:** ${ctx.offer?.what || 'N/A'}
+- **Ticket:** ${ctx.offer?.ticket || 'N/A'}
+- **Tipo:** ${ctx.offer?.type || 'N/A'}
+
+---
+
+## 📡 Canais
+
+- **Principal:** ${channel}
+
+---
+
+`;
+
+  if (proposals.length > 0) {
+    md += `## 🎯 Propostas de Funil\n\n`;
+
+    proposals.forEach((proposal, index) => {
+      const scorecard = proposal.scorecard as any;
+      const score = scorecard?.overall || 'N/A';
+
+      md += `### Proposta ${index + 1}: ${proposal.name}
+
+**Score Geral:** ${typeof score === 'number' ? score.toFixed(1) : score}/10
+
+${proposal.summary || ''}
+
+`;
+
+      if (proposal.strategy?.rationale) {
+        md += `#### 💡 Racional Estratégico
+
+${proposal.strategy.rationale}
+
+`;
+      }
+
+      if (proposal.architecture?.stages?.length) {
+        md += `#### 🏗️ Arquitetura do Funil
+
+`;
+        proposal.architecture.stages.forEach(stage => {
+          md += `- **${stage.order}. ${stage.name}** (${stage.type}) - ${stage.objective || ''}\n`;
+        });
+        md += '\n';
+      }
+
+      if (proposal.strategy?.risks?.length) {
+        md += `#### ⚠️ Riscos
+
+${proposal.strategy.risks.map(r => `- ${r}`).join('\n')}
+
+`;
+      }
+
+      if (proposal.assets?.headlines?.length) {
+        md += `#### 📝 Headlines
+
+${proposal.assets.headlines.map(h => `- ${h}`).join('\n')}
+
+`;
+      }
+
+      md += `---\n\n`;
+    });
+  }
+
+  md += `\n*Documento gerado pelo Conselho de Funil*`;
+  return md;
+}
+
+// Simple markdown to HTML converter
+function simpleMarkdownToHtml(md: string): string {
+  return md
+    // Headers
+    .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    // Bold
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // Italic
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // Blockquotes
+    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+    // Horizontal rules
+    .replace(/^---$/gm, '<hr>')
+    // Tables (simple)
+    .replace(/\|(.+)\|/g, (match) => {
+      const cells = match.split('|').filter(c => c.trim());
+      if (cells.some(c => c.includes('---'))) return '';
+      const isHeader = cells.every(c => c.trim().startsWith('**') || cells.length <= 2);
+      const tag = isHeader ? 'th' : 'td';
+      return `<tr>${cells.map(c => `<${tag}>${c.trim().replace(/\*\*/g, '')}</${tag}>`).join('')}</tr>`;
+    })
+    .replace(/(<tr>.*<\/tr>\n?)+/g, '<table>$&</table>')
+    // Lists
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+    // Line breaks
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(.+)$/gm, (match) => {
+      if (match.startsWith('<')) return match;
+      return match;
+    });
+}
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; description: string }> = {
   draft: { 
@@ -259,6 +406,9 @@ export default function FunnelDetailPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSavingToLibrary, setIsSavingToLibrary] = useState(false);
   const [savedToLibrary, setSavedToLibrary] = useState(false);
+  const [prevStatus, setPrevStatus] = useState<string | null>(null);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
 
   // Subscribe to funnel updates
   useEffect(() => {
@@ -271,7 +421,12 @@ export default function FunnelDetailPage() {
           const data = { id: docSnap.id, ...docSnap.data() } as Funnel;
           setFunnel(data);
           
-          // If status changed to review, load proposals
+          // Check if status changed from generating to review (proposals ready)
+          if (funnel?.status === 'generating' && data.status === 'review') {
+            notify.success('🎯 Propostas Prontas!', `O Conselho terminou de analisar "${data.name}"`);
+          }
+          
+          // If status is review or approved, load proposals
           if (data.status === 'review' || data.status === 'approved') {
             loadProposals(params.id as string);
           }
@@ -329,6 +484,69 @@ export default function FunnelDetailPage() {
     if (!funnel || !confirm('Tem certeza que deseja excluir este funil?')) return;
     await remove(funnel.id);
     router.push('/funnels');
+  };
+
+  const handleExport = async (format: 'markdown' | 'pdf') => {
+    if (!funnel) return;
+    
+    try {
+      // Generate markdown locally
+      const markdown = generateFunnelMarkdown(funnel, proposals);
+      
+      if (format === 'markdown') {
+        // Download markdown file
+        const blob = new Blob([markdown], { type: 'text/markdown' });
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `${funnel.name.replace(/[^a-zA-Z0-9]/g, '_')}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(downloadUrl);
+      } else {
+        // For PDF, convert markdown to HTML and open in new tab
+        const html = simpleMarkdownToHtml(markdown);
+        
+        const fullHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${funnel.name} - Export</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; line-height: 1.6; color: #1a1a1a; }
+    h1 { color: #10b981; border-bottom: 2px solid #10b981; padding-bottom: 10px; }
+    h2 { color: #374151; margin-top: 30px; }
+    h3 { color: #4b5563; }
+    h4 { color: #6b7280; }
+    table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+    th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
+    th { background: #f9fafb; }
+    blockquote { border-left: 3px solid #10b981; padding-left: 15px; color: #6b7280; margin: 15px 0; }
+    hr { border: none; border-top: 1px solid #e5e7eb; margin: 30px 0; }
+    ul, ol { padding-left: 25px; }
+    li { margin: 5px 0; }
+    strong { color: #111; }
+    .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; z-index: 1000; }
+    .print-btn:hover { background: #059669; }
+    @media print { .print-btn { display: none; } body { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <button class="print-btn" onclick="window.print()">🖨️ Imprimir PDF</button>
+  ${html}
+</body>
+</html>`;
+
+        // Use Blob URL instead of document.write
+        const blob = new Blob([fullHtml], { type: 'text/html' });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Erro ao exportar. Tente novamente.');
+    }
   };
 
   const handleSelectProposal = (proposalId: string) => {
@@ -443,6 +661,14 @@ export default function FunnelDetailPage() {
                 )}
               </Button>
             )}
+            <Button variant="ghost" className="btn-ghost" onClick={() => setIsExportDialogOpen(true)}>
+              <Download className="mr-2 h-4 w-4" />
+              Exportar
+            </Button>
+            <Button variant="ghost" className="btn-ghost" onClick={() => setIsShareDialogOpen(true)}>
+              <Share2 className="mr-2 h-4 w-4" />
+              Compartilhar
+            </Button>
             <Button variant="ghost" className="btn-ghost" onClick={handleDelete}>
               <Trash2 className="mr-2 h-4 w-4" />
               Excluir
@@ -515,16 +741,10 @@ export default function FunnelDetailPage() {
                 </h3>
               </div>
               
-              <div className="space-y-4">
-                {proposals.map((proposal, index) => (
-                  <ProposalCard
-                    key={proposal.id}
-                    proposal={proposal}
-                    index={index}
-                    onSelect={() => handleSelectProposal(proposal.id)}
-                  />
-                ))}
-              </div>
+              <VersionHistory
+                proposals={proposals}
+                onSelectProposal={handleSelectProposal}
+              />
             </motion.div>
           )}
 
@@ -704,6 +924,22 @@ export default function FunnelDetailPage() {
           )}
         </div>
       </div>
+      
+      {/* Share Dialog */}
+      <ShareDialog
+        isOpen={isShareDialogOpen}
+        onClose={() => setIsShareDialogOpen(false)}
+        funnelId={funnel.id}
+        funnelName={funnel.name}
+      />
+      
+      {/* Export Dialog */}
+      <ExportDialog
+        isOpen={isExportDialogOpen}
+        onClose={() => setIsExportDialogOpen(false)}
+        funnel={funnel}
+        proposals={proposals}
+      />
     </div>
   );
 }

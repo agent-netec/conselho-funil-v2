@@ -259,6 +259,7 @@ export default function ChatPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const conversationId = searchParams.get('id');
+  const funnelId = searchParams.get('funnelId');
   
   const {
     conversations,
@@ -309,10 +310,11 @@ export default function ChatPage() {
   const handleSend = async (message: string) => {
     if (!conversationId) {
       const newId = await createConversation('Nova conversa');
-      router.push(`/chat?id=${newId}`);
+      const url = funnelId ? `/chat?id=${newId}&funnelId=${funnelId}` : `/chat?id=${newId}`;
+      router.push(url);
       return;
     }
-    await sendMessage(message);
+    await sendMessage(message, 'general', funnelId || undefined);
   };
 
   return (
