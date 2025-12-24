@@ -99,31 +99,36 @@ export async function POST(request: NextRequest) {
     }
     const proposal = { id: proposalDoc.id, ...proposalDoc.data() } as Proposal;
 
-    // Create template
-    const template: Omit<LibraryTemplate, 'id'> = {
-      tenantId: funnel.tenantId || undefined,
+    // Create template - filter out undefined values (Firestore doesn't accept them)
+    const template: Record<string, unknown> = {
       type: 'funnel',
       name: name || proposal.name || funnel.name,
       description: description || proposal.summary || '',
-      content: proposal.architecture,
+      content: proposal.architecture || null,
       metadata: {
-        objective: funnel.context.objective,
-        vertical: funnel.context.market,
-        ticket: funnel.context.offer?.ticket,
+        objective: funnel.context.objective || null,
+        vertical: funnel.context.market || null,
+        ticket: funnel.context.offer?.ticket || null,
         tags: tags || [],
-        // Store additional info
         originalFunnelId: funnelId,
         originalProposalId: proposalId,
-        channel: funnel.context.channel?.main,
+        channel: funnel.context.channel?.main || null,
         stages: proposal.architecture?.stages?.length || 0,
-        scorecard: proposal.scorecard,
-        strategy: proposal.strategy,
-        assets: proposal.assets,
+        scorecard: proposal.scorecard || null,
+        strategy: proposal.strategy || null,
+        assets: proposal.assets || null,
       },
       usageCount: 0,
       createdAt: Timestamp.now(),
-      createdBy: funnel.userId,
     };
+
+    // Only add optional fields if they have values
+    if (funnel.tenantId) {
+      template.tenantId = funnel.tenantId;
+    }
+    if (funnel.userId) {
+      template.createdBy = funnel.userId;
+    }
 
     const templateRef = await addDoc(collection(db, 'library'), template);
 

@@ -43,3 +43,4 @@ async function checkFunnel(funnelId: string) {
 const funnelId = process.argv[2] || 'OWXmVUH7Lw5drntKOIEG';
 checkFunnel(funnelId);
 
+

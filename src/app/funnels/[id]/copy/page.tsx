@@ -242,6 +242,61 @@ function CopyProposalCard({
                     {copyProposal.content.primary}
                   </div>
                   
+                  {/* Emails Sequence */}
+                  {copyProposal.content.emails && copyProposal.content.emails.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-zinc-800">
+                      <span className="text-sm font-medium text-zinc-400 block mb-3">
+                        📧 Sequência de Emails ({copyProposal.content.emails.length})
+                      </span>
+                      <div className="space-y-4">
+                        {copyProposal.content.emails.map((email: { subject?: string; body?: string; delay?: string }, i: number) => (
+                          <div key={i} className="bg-zinc-800/50 rounded-lg p-4 border border-zinc-700/50">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs text-emerald-400 font-medium">Email {i + 1}</span>
+                              {email.delay && (
+                                <span className="text-xs text-zinc-500">⏱️ {email.delay}</span>
+                              )}
+                            </div>
+                            {email.subject && (
+                              <div className="mb-2">
+                                <span className="text-xs text-zinc-500">Assunto:</span>
+                                <p className="text-sm font-medium text-white">{email.subject}</p>
+                              </div>
+                            )}
+                            {email.body && (
+                              <div>
+                                <span className="text-xs text-zinc-500">Corpo:</span>
+                                <p className="text-sm text-zinc-300 whitespace-pre-wrap mt-1">{email.body}</p>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* VSL Sections */}
+                  {copyProposal.content.vslSections && copyProposal.content.vslSections.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-zinc-800">
+                      <span className="text-sm font-medium text-zinc-400 block mb-3">
+                        🎬 Seções do VSL ({copyProposal.content.vslSections.length})
+                      </span>
+                      <div className="space-y-3">
+                        {copyProposal.content.vslSections.map((section: { name?: string; content?: string; duration?: string }, i: number) => (
+                          <div key={i} className="bg-zinc-800/50 rounded-lg p-3 border border-zinc-700/50">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs text-violet-400 font-medium">{section.name || `Seção ${i + 1}`}</span>
+                              {section.duration && (
+                                <span className="text-xs text-zinc-500">⏱️ {section.duration}</span>
+                              )}
+                            </div>
+                            <p className="text-sm text-zinc-300 whitespace-pre-wrap">{section.content}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
                   {/* Variations */}
                   {copyProposal.content.variations && copyProposal.content.variations.length > 0 && (
                     <div className="mt-4 pt-4 border-t border-zinc-800">
@@ -249,7 +304,7 @@ function CopyProposalCard({
                         Variações ({copyProposal.content.variations.length})
                       </span>
                       <div className="space-y-2">
-                        {copyProposal.content.variations.map((v, i) => (
+                        {copyProposal.content.variations.map((v: string, i: number) => (
                           <div key={i} className="text-sm text-zinc-300 bg-zinc-800/50 p-2 rounded">
                             {v}
                           </div>
@@ -693,4 +748,5 @@ export default function CopyCouncilPage() {
     </div>
   );
 }
+
 

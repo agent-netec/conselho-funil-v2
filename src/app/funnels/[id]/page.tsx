@@ -426,8 +426,8 @@ export default function FunnelDetailPage() {
             notify.success('🎯 Propostas Prontas!', `O Conselho terminou de analisar "${data.name}"`);
           }
           
-          // If status is review or approved, load proposals
-          if (data.status === 'review' || data.status === 'approved') {
+          // Load proposals for all statuses except draft and generating
+          if (data.status !== 'draft' && data.status !== 'generating') {
             loadProposals(params.id as string);
           }
         } else {
@@ -725,7 +725,7 @@ export default function FunnelDetailPage() {
           </AnimatePresence>
 
           {/* Proposals Section */}
-          {funnel.status === 'review' && proposals.length > 0 && (
+          {proposals.length > 0 && !isStatusGenerating && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

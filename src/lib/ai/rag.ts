@@ -132,6 +132,46 @@ export interface RetrievedChunk extends KnowledgeChunk {
 }
 
 /**
+ * Calculate keyword match score (percentage of query keywords found in content)
+ */
+function keywordMatchScore(queryText: string, content: string): number {
+  const queryWords = queryText.toLowerCase()
+    .replace(/[^\w\sáéíóúãõâêîôûàèìòùç]/g, '')
+    .split(/\s+/)
+    .filter(w => w.length > 2);
+  
+  if (queryWords.length === 0) return 0;
+  
+  const contentLower = content.toLowerCase();
+  let matches = 0;
+  
+  // Key terms for copywriting/funnel domains
+  const domainTerms: Record<string, string[]> = {
+    copy: ['copy', 'headline', 'texto', 'persuasão', 'persuasao', 'escrever', 'copys', 'escrita'],
+    funil: ['funil', 'funnel', 'etapa', 'passo', 'etapas', 'passos', 'landing', 'página', 'pagina'],
+    oferta: ['oferta', 'offer', 'preço', 'preco', 'valor', 'bônus', 'bonus', 'garantia'],
+    headline: ['headline', 'título', 'titulo', 'manchete', 'chamar', 'atenção', 'atencao'],
+    consciencia: ['consciência', 'consciencia', 'awareness', 'consciente', 'dor', 'problema', 'solução', 'solucao'],
+  };
+  
+  // Check for domain term matches (higher weight)
+  for (const word of queryWords) {
+    if (contentLower.includes(word)) {
+      matches++;
+    }
+    // Check domain terms
+    for (const [domain, terms] of Object.entries(domainTerms)) {
+      if (terms.includes(word) && terms.some(t => contentLower.includes(t))) {
+        matches += 0.5;
+        break;
+      }
+    }
+  }
+  
+  return matches / queryWords.length;
+}
+
+/**
  * Retrieve relevant chunks from the knowledge base
  */
 export async function retrieveChunks(
@@ -142,11 +182,11 @@ export async function retrieveChunks(
     // 1. Generate embedding for the query (local, no API needed)
     const queryEmbedding = generateLocalEmbedding(queryText);
     
-    // 2. Fetch chunks from Firestore
+    // 2. Fetch chunks from Firestore (fetch more for better filtering)
     let chunksQuery = query(
       collection(db, 'knowledge'),
       where('metadata.status', '==', 'approved'),
-      limit(100) // Fetch more than needed for filtering
+      limit(200) // Fetch more for better filtering
     );
 
     // Apply filters if provided
@@ -155,7 +195,7 @@ export async function retrieveChunks(
         collection(db, 'knowledge'),
         where('metadata.status', '==', 'approved'),
         where('metadata.docType', '==', config.filters.docType),
-        limit(100)
+        limit(200)
       );
     }
 
@@ -166,35 +206,46 @@ export async function retrieveChunks(
       return [];
     }
 
-    // 3. Calculate similarity for each chunk
+    console.log(`Scanning ${snapshot.size} chunks for relevance...`);
+
+    // 3. Calculate combined similarity for each chunk
     const chunksWithSimilarity: RetrievedChunk[] = [];
+    
+    // Lower the threshold since we're using local embeddings
+    const effectiveMinSimilarity = Math.min(config.minSimilarity, 0.15);
     
     snapshot.docs.forEach(doc => {
       const data = doc.data() as Omit<KnowledgeChunk, 'id'>;
       
-      // Skip if no embedding
-      if (!data.embedding || !Array.isArray(data.embedding)) {
-        return;
-      }
-
       // Apply additional filters
       if (config.filters?.counselor && data.metadata.counselor !== config.filters.counselor) {
         return;
       }
       
-      // Calculate cosine similarity
-      const similarity = cosineSimilarity(queryEmbedding, data.embedding);
+      // Calculate embedding similarity (if embedding exists)
+      let embeddingSimilarity = 0;
+      if (data.embedding && Array.isArray(data.embedding) && data.embedding.length > 0) {
+        embeddingSimilarity = cosineSimilarity(queryEmbedding, data.embedding);
+      }
       
-      // Only include if above threshold
-      if (similarity >= config.minSimilarity) {
+      // Calculate keyword match score
+      const keywordScore = keywordMatchScore(queryText, data.content);
+      
+      // Combined score: weighted average (keywords are more reliable with local embeddings)
+      const similarity = (embeddingSimilarity * 0.4) + (keywordScore * 0.6);
+      
+      // Only include if above threshold OR has good keyword match
+      if (similarity >= effectiveMinSimilarity || keywordScore >= 0.3) {
         chunksWithSimilarity.push({
           id: doc.id,
           ...data,
-          similarity,
+          similarity: Math.max(similarity, keywordScore), // Use best score
           rank: 0, // Will be set after sorting
         });
       }
     });
+
+    console.log(`Found ${chunksWithSimilarity.length} chunks above threshold`);
 
     // 4. Sort by similarity and assign ranks
     chunksWithSimilarity.sort((a, b) => b.similarity - a.similarity);

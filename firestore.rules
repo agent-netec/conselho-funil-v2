@@ -58,9 +58,10 @@ service cloud.firestore {
       allow write: if true; // TODO: Add auth in production
     }
     
-    // Development fallback - allow all authenticated users
+    // Development fallback - allow all during development
+    // TODO: REMOVER EM PRODUÇÃO - Permitir acesso total para desenvolvimento
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if true;
     }
   }
 }

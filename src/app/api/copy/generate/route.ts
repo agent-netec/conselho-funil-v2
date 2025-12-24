@@ -461,8 +461,9 @@ export async function POST(request: NextRequest) {
 
     console.log(`\n✍️  Gerando ${copyType} para funil "${funnel.name}"...`);
 
-    // Generate with Gemini
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    // Generate with Gemini (using model from env or default to gemini-2.0-flash-exp)
+    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp';
+    const model = genAI.getGenerativeModel({ model: modelName });
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
 
@@ -478,14 +479,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Build CopyContent
-    const content: CopyContent = {
+    // Build CopyContent - ensure no undefined values (Firestore doesn't accept them)
+    const content: Record<string, unknown> = {
       primary: parsedResponse.primary || '',
-      variations: parsedResponse.variations,
-      structure: parsedResponse.structure,
-      emails: parsedResponse.emails,
-      vslSections: parsedResponse.vslSections,
     };
+    
+    // Only add optional fields if they have values
+    if (parsedResponse.variations && parsedResponse.variations.length > 0) {
+      content.variations = parsedResponse.variations;
+    }
+    if (parsedResponse.structure) {
+      content.structure = parsedResponse.structure;
+    }
+    if (parsedResponse.emails && parsedResponse.emails.length > 0) {
+      content.emails = parsedResponse.emails;
+    }
+    if (parsedResponse.vslSections && parsedResponse.vslSections.length > 0) {
+      content.vslSections = parsedResponse.vslSections;
+    }
 
     // Build scorecard
     const scorecard: CopyScorecard = parsedResponse.scorecard || {
@@ -497,8 +508,8 @@ export async function POST(request: NextRequest) {
       overall: 7,
     };
 
-    // Create CopyProposal
-    const copyProposalData: Omit<CopyProposal, 'id'> = {
+    // Create CopyProposal - filter out undefined values
+    const copyProposalData: Record<string, unknown> = {
       funnelId,
       proposalId,
       type: copyType as CopyType,
@@ -572,4 +583,5 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
 

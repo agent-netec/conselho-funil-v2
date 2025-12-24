@@ -5,8 +5,14 @@
  * Requer apenas GOOGLE_AI_API_KEY no .env.local
  */
 
-const GEMINI_API_KEY = process.env.GOOGLE_AI_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_AI_API_KEY;
 const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
+
+/**
+ * Get Gemini API Key - lê a variável de ambiente em tempo de execução
+ */
+function getGeminiApiKey(): string | undefined {
+  return process.env.GOOGLE_AI_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_AI_API_KEY;
+}
 
 interface GeminiResponse {
   candidates: Array<{
@@ -33,11 +39,12 @@ export async function generateWithGemini(
     maxOutputTokens = 4096,
   } = options;
 
-  if (!GEMINI_API_KEY) {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
     throw new Error('GOOGLE_AI_API_KEY not configured');
   }
 
-  const url = `${GEMINI_BASE_URL}/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+  const url = `${GEMINI_BASE_URL}/models/${model}:generateContent?key=${apiKey}`;
 
   const response = await fetch(url, {
     method: 'POST',
@@ -85,11 +92,12 @@ export async function* generateWithGeminiStream(
     maxOutputTokens = 4096,
   } = options;
 
-  if (!GEMINI_API_KEY) {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
     throw new Error('GOOGLE_AI_API_KEY not configured');
   }
 
-  const url = `${GEMINI_BASE_URL}/models/${model}:streamGenerateContent?key=${GEMINI_API_KEY}`;
+  const url = `${GEMINI_BASE_URL}/models/${model}:streamGenerateContent?key=${apiKey}`;
 
   const response = await fetch(url, {
     method: 'POST',
@@ -197,6 +205,11 @@ ${query}
  * Check if Gemini API is configured
  */
 export function isGeminiConfigured(): boolean {
-  return !!GEMINI_API_KEY;
+  const apiKey = getGeminiApiKey();
+  const configured = !!apiKey;
+  if (!configured) {
+    console.log('[Gemini] API Key not found. Checked: GOOGLE_AI_API_KEY, NEXT_PUBLIC_GOOGLE_AI_API_KEY');
+  }
+  return configured;
 }
 

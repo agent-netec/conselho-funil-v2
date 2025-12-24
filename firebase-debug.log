@@ -1,0 +1,75 @@
+[debug] [2025-12-24T16:23:55.025Z] ----------------------------------------------------------------------
+[debug] [2025-12-24T16:23:55.027Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\PH\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only firestore:rules
+[debug] [2025-12-24T16:23:55.028Z] CLI Version:   15.1.0
+[debug] [2025-12-24T16:23:55.028Z] Platform:      win32
+[debug] [2025-12-24T16:23:55.028Z] Node Version:  v24.11.1
+[debug] [2025-12-24T16:23:55.028Z] Time:          Wed Dec 24 2025 13:23:55 GMT-0300 (Horário Padrão de Brasília)
+[debug] [2025-12-24T16:23:55.028Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-12-24T16:23:56.260Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-12-24T16:23:56.260Z] > authorizing via signed-in user (phsedicias@gmail.com)
+[debug] [2025-12-24T16:23:56.260Z] [iam] checking project conselho-de-funil for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]
+[debug] [2025-12-24T16:23:56.261Z] Checked if tokens are valid: true, expires at: 1766596164573
+[debug] [2025-12-24T16:23:56.261Z] Checked if tokens are valid: true, expires at: 1766596164573
+[debug] [2025-12-24T16:23:56.262Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/conselho-de-funil:testIamPermissions [none]
+[debug] [2025-12-24T16:23:56.262Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/conselho-de-funil:testIamPermissions x-goog-quota-user=projects/conselho-de-funil
+[debug] [2025-12-24T16:23:56.262Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/conselho-de-funil:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[debug] [2025-12-24T16:23:58.080Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/conselho-de-funil:testIamPermissions 200
+[debug] [2025-12-24T16:23:58.080Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/conselho-de-funil:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[info] 
+[info] === Deploying to 'conselho-de-funil'...
+[info] 
+[info] i  deploying firestore 
+[info] i  firestore: ensuring required API firestore.googleapis.com is enabled... 
+[info] i  firestore: ensuring required API firestore.googleapis.com is enabled... 
+[debug] [2025-12-24T16:23:58.083Z] Checked if tokens are valid: true, expires at: 1766596164573
+[debug] [2025-12-24T16:23:58.084Z] Checked if tokens are valid: true, expires at: 1766596164573
+[debug] [2025-12-24T16:23:58.084Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/conselho-de-funil/databases/(default) [none]
+[debug] [2025-12-24T16:23:58.849Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/conselho-de-funil/databases/(default) 200
+[debug] [2025-12-24T16:23:58.850Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/conselho-de-funil/databases/(default) {"name":"projects/conselho-de-funil/databases/(default)","uid":"5a421170-9371-4446-8826-64c3a7e3f145","createTime":"2025-12-22T22:09:25.954811Z","updateTime":"2025-12-22T22:09:25.954811Z","locationId":"southamerica-east1","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2025-12-24T15:23:30.880371Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"i","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"realtimeUpdatesMode":"REALTIME_UPDATES_MODE_ENABLED","etag":"IKei36XR1pEDMIX9tqGH1JED"}
+[info] i  firestore: reading indexes from firestore.indexes.json... 
+[info] i  cloud.firestore: checking firestore.rules for compilation errors... 
+[debug] [2025-12-24T16:23:58.851Z] Checked if tokens are valid: true, expires at: 1766596164573
+[debug] [2025-12-24T16:23:58.851Z] Checked if tokens are valid: true, expires at: 1766596164573
+[debug] [2025-12-24T16:23:58.851Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/conselho-de-funil:test [none]
+[debug] [2025-12-24T16:23:58.851Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/conselho-de-funil:test [omitted]
+[debug] [2025-12-24T16:24:03.836Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/conselho-de-funil:test 200
+[debug] [2025-12-24T16:24:03.836Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/conselho-de-funil:test {}
+[info] +  cloud.firestore: rules file firestore.rules compiled successfully 
+[debug] [2025-12-24T16:24:03.837Z] Checked if tokens are valid: true, expires at: 1766596164573
+[debug] [2025-12-24T16:24:03.837Z] Checked if tokens are valid: true, expires at: 1766596164573
+[debug] [2025-12-24T16:24:03.837Z] >>> [apiv2][query] GET https://firebaserules.googleapis.com/v1/projects/conselho-de-funil/releases pageSize=10&pageToken=
+[debug] [2025-12-24T16:24:05.009Z] <<< [apiv2][status] GET https://firebaserules.googleapis.com/v1/projects/conselho-de-funil/releases 200
+[debug] [2025-12-24T16:24:05.009Z] <<< [apiv2][body] GET https://firebaserules.googleapis.com/v1/projects/conselho-de-funil/releases {"releases":[{"name":"projects/conselho-de-funil/releases/cloud.firestore","rulesetName":"projects/conselho-de-funil/rulesets/f14e9ff3-0d24-45ce-93f1-be53ad6482b9","createTime":"2025-12-22T22:09:33.756750Z","updateTime":"2025-12-23T17:45:15.410931Z"}]}
+[debug] [2025-12-24T16:24:05.009Z] Checked if tokens are valid: true, expires at: 1766596164573
+[debug] [2025-12-24T16:24:05.009Z] Checked if tokens are valid: true, expires at: 1766596164573
+[debug] [2025-12-24T16:24:05.010Z] >>> [apiv2][query] GET https://firebaserules.googleapis.com/v1/projects/conselho-de-funil/rulesets/f14e9ff3-0d24-45ce-93f1-be53ad6482b9 [none]
+[debug] [2025-12-24T16:24:06.741Z] <<< [apiv2][status] GET https://firebaserules.googleapis.com/v1/projects/conselho-de-funil/rulesets/f14e9ff3-0d24-45ce-93f1-be53ad6482b9 200
+[debug] [2025-12-24T16:24:06.741Z] <<< [apiv2][body] GET https://firebaserules.googleapis.com/v1/projects/conselho-de-funil/rulesets/f14e9ff3-0d24-45ce-93f1-be53ad6482b9 [omitted]
+[info] i  firestore: uploading rules firestore.rules... 
+[debug] [2025-12-24T16:24:06.743Z] Checked if tokens are valid: true, expires at: 1766596164573
+[debug] [2025-12-24T16:24:06.743Z] Checked if tokens are valid: true, expires at: 1766596164573
+[debug] [2025-12-24T16:24:06.743Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/conselho-de-funil/rulesets [none]
+[debug] [2025-12-24T16:24:06.743Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/conselho-de-funil/rulesets [omitted]
+[debug] [2025-12-24T16:24:08.787Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/conselho-de-funil/rulesets 200
+[debug] [2025-12-24T16:24:08.787Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/conselho-de-funil/rulesets {"name":"projects/conselho-de-funil/rulesets/213ed8b6-628b-4f40-85b4-52410c731a9d","source":{"files":[{"content":"rules_version = '2';\n\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    \n    // Users collection - users can only read/write their own data\n    match /users/{userId} {\n      allow read, write: if request.auth != null && request.auth.uid == userId;\n    }\n    \n    // Tenants collection\n    match /tenants/{tenantId} {\n      allow read: if request.auth != null;\n      allow write: if request.auth != null;\n    }\n    \n    // Funnels - authenticated users can access their own funnels\n    match /funnels/{funnelId} {\n      allow read, write: if true; // TODO: Add auth in production\n      \n      // Proposals subcollection\n      match /proposals/{proposalId} {\n        allow read, write: if true; // TODO: Add auth in production\n      }\n      \n      // Decisions subcollection\n      match /decisions/{decisionId} {\n        allow read, write: if true; // TODO: Add auth in production\n      }\n    }\n    \n    // Conversations (chat history)\n    match /conversations/{conversationId} {\n      allow read, write: if true; // TODO: Add auth in production\n      \n      // Messages subcollection\n      match /messages/{messageId} {\n        allow read, write: if true; // TODO: Add auth in production\n      }\n    }\n    \n    // Knowledge base - read/write for all (public RAG data)\n    // TODO: Restrict write access in production\n    match /knowledge/{chunkId} {\n      allow read: if true; // Public read for RAG\n      allow write: if true; // Temporary: allow unauthenticated writes for setup\n    }\n    \n    // Library templates\n    match /library/{templateId} {\n      allow read: if true; // Public read\n      allow write: if true; // TODO: Add auth in production\n    }\n\n    // Decisions (decision history)\n    match /decisions/{decisionId} {\n      allow read: if true; // Allow listing decisions\n      allow write: if true; // TODO: Add auth in production\n    }\n    \n    // Development fallback - allow all during development\n    // TODO: REMOVER EM PRODUÇÃO - Permitir acesso total para desenvolvimento\n    match /{document=**} {\n      allow read, write: if true;\n    }\n  }\n}\n","name":"firestore.rules"}]},"createTime":"2025-12-24T16:23:40.665983Z","metadata":{"services":["cloud.firestore"]}}
+[debug] [2025-12-24T16:24:08.787Z] [rules] created ruleset projects/conselho-de-funil/rulesets/213ed8b6-628b-4f40-85b4-52410c731a9d
+[debug] [2025-12-24T16:24:08.788Z] [rules] releasing cloud.firestore/(default) with ruleset projects/conselho-de-funil/rulesets/213ed8b6-628b-4f40-85b4-52410c731a9d
+[debug] [2025-12-24T16:24:08.788Z] Checked if tokens are valid: true, expires at: 1766596164573
+[debug] [2025-12-24T16:24:08.788Z] Checked if tokens are valid: true, expires at: 1766596164573
+[debug] [2025-12-24T16:24:08.788Z] >>> [apiv2][query] PATCH https://firebaserules.googleapis.com/v1/projects/conselho-de-funil/releases/cloud.firestore/(default) [none]
+[debug] [2025-12-24T16:24:08.788Z] >>> [apiv2][body] PATCH https://firebaserules.googleapis.com/v1/projects/conselho-de-funil/releases/cloud.firestore/(default) {"release":{"name":"projects/conselho-de-funil/releases/cloud.firestore/(default)","rulesetName":"projects/conselho-de-funil/rulesets/213ed8b6-628b-4f40-85b4-52410c731a9d"}}
+[debug] [2025-12-24T16:24:10.903Z] <<< [apiv2][status] PATCH https://firebaserules.googleapis.com/v1/projects/conselho-de-funil/releases/cloud.firestore/(default) 200
+[debug] [2025-12-24T16:24:10.903Z] <<< [apiv2][body] PATCH https://firebaserules.googleapis.com/v1/projects/conselho-de-funil/releases/cloud.firestore/(default) {"name":"projects/conselho-de-funil/releases/cloud.firestore","rulesetName":"projects/conselho-de-funil/rulesets/213ed8b6-628b-4f40-85b4-52410c731a9d","createTime":"2025-12-22T22:09:33.756750Z","updateTime":"2025-12-24T16:23:41.813244Z"}
+[debug] [2025-12-24T16:24:10.904Z] [rules] updated release projects/conselho-de-funil/releases/cloud.firestore
+[info] +  firestore: released rules firestore.rules to cloud.firestore 
+[info] 
+[info] +  Deploy complete! 
+[info] 
+[info] Project Console: https://console.firebase.google.com/project/conselho-de-funil/overview
+[debug] [2025-12-24T16:24:20.915Z] Error: Timed out.
+    at Timeout._onTimeout (C:\Users\PH\AppData\Roaming\npm\node_modules\firebase-tools\lib\utils.js:275:49)
+    at listOnTimeout (node:internal/timers:605:17)
+    at process.processTimers (node:internal/timers:541:7)
+[error] 
+[error] Error: An unexpected error has occurred.
