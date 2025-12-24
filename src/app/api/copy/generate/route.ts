@@ -86,7 +86,7 @@ ${funnel.context.audience.objection ? `- Objeção: ${funnel.context.audience.ob
 **Resumo:** ${proposal.summary}
 
 **Etapas do Funil:**
-${proposal.stages?.map((s, i) => `${i + 1}. ${s.name} — ${s.objective || s.description || ''}`).join('\n') || 'Não especificado'}
+${proposal.architecture?.stages?.map((s, i) => `${i + 1}. ${s.name} — ${s.objective || ''}`).join('\n') || 'Não especificado'}
 
 ## TAREFA
 

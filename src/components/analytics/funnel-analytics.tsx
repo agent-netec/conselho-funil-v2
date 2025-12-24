@@ -183,9 +183,9 @@ export function FunnelAnalytics({ funnels, decisions, className }: FunnelAnalyti
       return date >= thisMonth;
     }).length;
     
-    const approvedDecisions = decisions.filter(d => d.type === 'approve').length;
-    const adjustDecisions = decisions.filter(d => d.type === 'adjust').length;
-    const killDecisions = decisions.filter(d => d.type === 'kill').length;
+    const approvedDecisions = decisions.filter(d => d.type === 'EXECUTAR').length;
+    const adjustDecisions = decisions.filter(d => d.type === 'AJUSTAR').length;
+    const killDecisions = decisions.filter(d => d.type === 'MATAR').length;
     
     // Approval rate
     const totalDecisions = approvedDecisions + adjustDecisions + killDecisions;

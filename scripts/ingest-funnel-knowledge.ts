@@ -75,14 +75,14 @@ function parseFrontmatter(content: string): { metadata: Record<string, any>; bod
     const colonIndex = line.indexOf(':');
     if (colonIndex > 0) {
       const key = line.slice(0, colonIndex).trim();
-      let value = line.slice(colonIndex + 1).trim().replace(/^["']|["']$/g, '');
+      const rawValue = line.slice(colonIndex + 1).trim().replace(/^["']|["']$/g, '');
       
       // Handle arrays (simple case)
-      if (value.startsWith('[') && value.endsWith(']')) {
-        value = value.slice(1, -1).split(',').map(v => v.trim().replace(/^["']|["']$/g, ''));
-        metadata[key] = value;
+      if (rawValue.startsWith('[') && rawValue.endsWith(']')) {
+        const arrayValue = rawValue.slice(1, -1).split(',').map(v => v.trim().replace(/^["']|["']$/g, ''));
+        metadata[key] = arrayValue;
       } else {
-        metadata[key] = value;
+        metadata[key] = rawValue;
       }
     }
   });

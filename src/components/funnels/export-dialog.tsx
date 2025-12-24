@@ -36,7 +36,7 @@ const EXPORT_OPTIONS: { format: ExportFormat; label: string; icon: any; descript
 
 function generateMarkdown(funnel: Funnel, proposals: Proposal[]): string {
   let md = `# ${funnel.name}\n\n`;
-  md += `> ${funnel.description || 'Funil criado com Conselho de Funil'}\n\n`;
+  md += `> ${funnel.context?.objective ? `Objetivo: ${funnel.context.objective}` : 'Funil criado com Conselho de Funil'}\n\n`;
   
   md += `## 📋 Contexto\n\n`;
   md += `| Campo | Valor |\n`;
@@ -59,19 +59,18 @@ function generateMarkdown(funnel: Funnel, proposals: Proposal[]): string {
       md += `**Score:** ${(proposal.scorecard as any)?.overall?.toFixed(1) || 'N/A'}/10\n\n`;
       md += `${proposal.summary}\n\n`;
       
-      if (proposal.stages && proposal.stages.length > 0) {
+      if (proposal.architecture?.stages && proposal.architecture.stages.length > 0) {
         md += `#### Etapas do Funil\n\n`;
-        proposal.stages.forEach((stage, j) => {
+        proposal.architecture.stages.forEach((stage, j) => {
           md += `${j + 1}. **${stage.name}**\n`;
           if (stage.objective) md += `   - Objetivo: ${stage.objective}\n`;
-          if (stage.metrics) md += `   - Métricas: ${stage.metrics.join(', ')}\n`;
           md += '\n';
         });
       }
 
-      if (proposal.reasoning) {
+      if (proposal.strategy?.rationale) {
         md += `#### Raciocínio\n\n`;
-        md += `${proposal.reasoning}\n\n`;
+        md += `${proposal.strategy.rationale}\n\n`;
       }
 
       md += '---\n\n';
@@ -108,7 +107,7 @@ function generateHTML(funnel: Funnel, proposals: Proposal[]): string {
 </head>
 <body>
   <h1>🎯 ${funnel.name}</h1>
-  <blockquote>${funnel.description || 'Funil criado com Conselho de Funil'}</blockquote>
+  <blockquote>${funnel.context?.objective ? `Objetivo: ${funnel.context.objective}` : 'Funil criado com Conselho de Funil'}</blockquote>
   
   <h2>📋 Contexto</h2>
   <table>
@@ -136,20 +135,20 @@ function generateHTML(funnel: Funnel, proposals: Proposal[]): string {
       <p><span class="score ${scoreClass}">${score.toFixed(1)}/10</span></p>
       <p>${proposal.summary}</p>`;
       
-      if (proposal.stages && proposal.stages.length > 0) {
+      if (proposal.architecture?.stages && proposal.architecture.stages.length > 0) {
         html += `<h4>Etapas do Funil</h4>`;
-        proposal.stages.forEach((stage, j) => {
+        proposal.architecture.stages.forEach((stage, j) => {
           html += `
           <div class="stage">
             <strong>${j + 1}. ${stage.name}</strong>
             ${stage.objective ? `<br><small>Objetivo: ${stage.objective}</small>` : ''}
-            ${stage.metrics ? `<br><small>Métricas: ${stage.metrics.join(', ')}</small>` : ''}
+            ${stage.metrics?.target ? `<br><small>Meta: ${stage.metrics.target}</small>` : ''}
           </div>`;
         });
       }
 
-      if (proposal.reasoning) {
-        html += `<h4>Raciocínio</h4><p>${proposal.reasoning}</p>`;
+      if (proposal.strategy?.rationale) {
+        html += `<h4>Raciocínio</h4><p>${proposal.strategy.rationale}</p>`;
       }
 
       html += '<hr>';
@@ -171,7 +170,6 @@ function generateJSON(funnel: Funnel, proposals: Proposal[]): string {
     funnel: {
       id: funnel.id,
       name: funnel.name,
-      description: funnel.description,
       status: funnel.status,
       context: funnel.context,
       createdAt: funnel.createdAt,
@@ -184,8 +182,8 @@ function generateJSON(funnel: Funnel, proposals: Proposal[]): string {
       summary: p.summary,
       status: p.status,
       scorecard: p.scorecard,
-      stages: p.stages,
-      reasoning: p.reasoning,
+      architecture: p.architecture,
+      strategy: p.strategy,
     })),
     exportedAt: new Date().toISOString(),
     source: 'Conselho de Funil',
@@ -197,7 +195,7 @@ function generateJSON(funnel: Funnel, proposals: Proposal[]): string {
 function generateNotionBlocks(funnel: Funnel, proposals: Proposal[]): string {
   // Format optimized for pasting into Notion
   let text = `# ${funnel.name}\n\n`;
-  text += `> ${funnel.description || ''}\n\n`;
+  text += `> Objetivo: ${funnel.context?.objective || ''}\n\n`;
   
   text += `## 📋 Contexto\n`;
   text += `- **Empresa:** ${funnel.context.company}\n`;
@@ -213,9 +211,9 @@ function generateNotionBlocks(funnel: Funnel, proposals: Proposal[]): string {
     text += `**Score:** ${score.toFixed(1)}/10\n\n`;
     text += `${proposal.summary}\n\n`;
     
-    if (proposal.stages && proposal.stages.length > 0) {
+    if (proposal.architecture?.stages && proposal.architecture.stages.length > 0) {
       text += `### Etapas\n`;
-      proposal.stages.forEach((stage, j) => {
+      proposal.architecture.stages.forEach((stage, j) => {
         text += `${j + 1}. **${stage.name}** - ${stage.objective || ''}\n`;
       });
       text += '\n';

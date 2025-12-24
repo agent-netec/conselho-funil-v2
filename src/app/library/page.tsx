@@ -46,8 +46,9 @@ const FILTER_OPTIONS = [
 function TemplateCard({ template, onUse }: { template: LibraryTemplate; onUse: () => void }) {
   const objective = template.metadata?.objective as string;
   const config = OBJECTIVE_CONFIG[objective] || { label: 'Funil', icon: '🎯', color: 'text-zinc-400' };
-  const scorecard = template.metadata?.scorecard as ProposalScorecard | undefined;
-  const stages = template.metadata?.stages || 0;
+  const metadata = template.metadata as Record<string, unknown> | undefined;
+  const scorecard = metadata?.scorecard as ProposalScorecard | undefined;
+  const stages = (metadata?.stages as number) || 0;
 
   return (
     <motion.div
@@ -98,18 +99,18 @@ function TemplateCard({ template, onUse }: { template: LibraryTemplate; onUse: (
           <Layers className="h-3.5 w-3.5" />
           {stages} etapas
         </div>
-        {template.metadata?.channel && (
+        {metadata?.channel ? (
           <div className="flex items-center gap-1">
             <Target className="h-3.5 w-3.5" />
-            {template.metadata.channel}
+            {String(metadata.channel)}
           </div>
-        )}
-        {template.metadata?.ticket && (
+        ) : null}
+        {metadata?.ticket ? (
           <div className="flex items-center gap-1">
             <Package className="h-3.5 w-3.5" />
-            {template.metadata.ticket}
+            {String(metadata.ticket)}
           </div>
-        )}
+        ) : null}
         <div className="flex items-center gap-1">
           <Copy className="h-3.5 w-3.5" />
           {template.usageCount}x usado

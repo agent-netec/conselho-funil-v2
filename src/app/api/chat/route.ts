@@ -162,7 +162,7 @@ function buildFunnelContext(funnel: Funnel, proposals: Proposal[]): string {
   if (proposals.length > 0) {
     context += `\n### Propostas Geradas (${proposals.length})\n`;
     proposals.slice(0, 2).forEach((p, i) => {
-      const score = p.scorecard?.overall || 'N/A';
+      const score = (p.scorecard as { overall?: number })?.overall || 'N/A';
       context += `\n**${i + 1}. ${p.name}** (Score: ${score})\n`;
       context += `- ${p.summary?.slice(0, 200) || 'Sem resumo'}...\n`;
       if (p.strategy?.risks?.length) {

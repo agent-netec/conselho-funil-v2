@@ -142,8 +142,8 @@ export default function SharedFunnelPage() {
             Conselho de Funil
           </div>
           <h1 className="text-3xl font-bold text-white">{funnel.name}</h1>
-          {funnel.description && (
-            <p className="text-zinc-400 mt-2">{funnel.description}</p>
+          {funnel.context?.objective && (
+            <p className="text-zinc-400 mt-2">Objetivo: {funnel.context.objective}</p>
           )}
         </motion.div>
 
@@ -234,9 +234,9 @@ export default function SharedFunnelPage() {
                       <p className="text-sm text-zinc-400 mt-1">{proposal.summary}</p>
                       
                       {/* Stages */}
-                      {proposal.stages && proposal.stages.length > 0 && (
+                      {proposal.architecture?.stages && proposal.architecture.stages.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">
-                          {proposal.stages.slice(0, 5).map((stage, i) => (
+                          {proposal.architecture.stages.slice(0, 5).map((stage, i) => (
                             <span 
                               key={i}
                               className="text-xs bg-zinc-800/50 text-zinc-400 px-2 py-1 rounded"
@@ -244,9 +244,9 @@ export default function SharedFunnelPage() {
                               {stage.name}
                             </span>
                           ))}
-                          {proposal.stages.length > 5 && (
+                          {proposal.architecture.stages.length > 5 && (
                             <span className="text-xs text-zinc-500">
-                              +{proposal.stages.length - 5} mais
+                              +{proposal.architecture.stages.length - 5} mais
                             </span>
                           )}
                         </div>

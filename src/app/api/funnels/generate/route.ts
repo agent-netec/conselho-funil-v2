@@ -146,15 +146,15 @@ export async function POST(request: NextRequest) {
       Mercado: ${context.market}
       Público: ${context.audience.who}
       Dor: ${context.audience.pain}
-      Oferta: ${context.offer.what}
-      Ticket: ${context.offer.ticket}
-      Canal: ${context.channel.main}
+      Oferta: ${context.offer?.what || 'N/A'}
+      Ticket: ${context.offer?.ticket || 'N/A'}
+      Canal: ${context.channel?.main || 'N/A'}
     `;
 
     const chunks = await retrieveForFunnelCreation(
       context.objective,
-      context.channel.main,
-      context.audience.who,
+      context.channel?.main || 'generic',
+      context.audience?.who || 'general',
       20 // More chunks for funnel creation
     );
 

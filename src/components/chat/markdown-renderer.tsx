@@ -57,10 +57,6 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
           pre: ({ node, ...props }) => (
             <pre className="overflow-x-auto p-4 text-sm" {...props} />
           ),
-          // Fix code element
-          code: ({ node, inline, ...props }: { node?: unknown; inline?: boolean; [key: string]: unknown }) => (
-            <code {...props} />
-          ),
         }}
       >
         {content}

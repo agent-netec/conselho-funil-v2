@@ -98,10 +98,10 @@ export default function NewFunnelPage() {
         setFormData(prev => ({
           ...prev,
           name: searchParams.get('name') || templateData.name + ' (cópia)',
-          objective: (meta?.objective as any) || '',
+          objective: (meta?.objective as '' | 'leads' | 'sales' | 'calls' | 'retention') || '',
           productType: meta?.vertical || '',
           ticket: meta?.ticket?.toString() || '',
-          primaryChannel: meta?.channel || '',
+          primaryChannel: (meta?.sourceContext?.channel?.main as string) || '',
         }));
       }
     } catch (error) {
