@@ -180,36 +180,6 @@
     }
   },
   {
-    "content": "---\r\nbusiness: example_saas\r\ncounselor: sam_ovens\r\ndoc_type: case\r\nscope: saas\r\nchannel: meta_ads\r\nstage: qualify\r\nstatus: approved\r\nversion: 2024-12-22.v1\r\noutcome: success\r\n---\r\n\r\n# Case: Quiz Funnel para SaaS B2B\r\n\r\n> Redução de 60% no CAC de calls qualificadas usando quiz de diagnóstico.\r\n\r\n## 📋 Contexto\r\n\r\n| Campo | Valor |\r\n|-------|-------|\r\n| **Tipo de negócio** | SaaS B2B (automação de marketing) |\r\n| **Ticket** | R$500-2.000/mês (recorrente) |\r\n| **Modelo** | Demo → Trial → Contrato |\r\n| **Canal principal** | Meta Ads |\r\n| **Problema** | CAC de call alto, baixa qualificação |\r\n\r\n## 🎯 Situação Inicial\r\n\r\n### Funil Anterior\r\n```\r\nAd → Landing Page → Formulário → Call de Demo\r\n```\r\n\r\n### Métricas Antes\r\n| Métrica | Valor |\r\n|---------|-------|\r\n| Custo por lead | R$45 |\r\n| Taxa de agendamento | 25% |\r\n| Taxa de show | 50% |\r\n| Taxa de qualificação | 40% |\r\n| **Custo por call qualificada** | **R$900** |\r\n\r\n### Problemas Identificados\r\n1. Leads não sabiam se eram fit\r\n2. Muitas calls com empresas pequenas demais\r\n3. Equipe de vendas frustrada\r\n4. Desperdício de budget em leads errados\r\n\r\n## 💡 Solução Implementada\r\n\r\n### Novo Funil\r\n```\r\nAd (problema) → Quiz (8 perguntas) → Resultado Segmentado → \r\nCTA diferenciado por score → Call/Trial/Nurture\r\n```\r\n\r\n### Estrutura do Quiz\r\n\r\n**Pergunta 1: Tamanho da lista de emails**\r\n- < 1.000 → 0 pontos (disqualify)\r\n- 1.000-10.000 → 1 ponto\r\n- > 10.000 → 2 pontos\r\n\r\n**Pergunta 2: Faturamento mensal**\r\n- < R$20k → 0 pontos (disqualify)\r\n- R$20-100k → 1 ponto\r\n- > R$100k → 2 pontos\r\n\r\n**Pergunta 3: Ferramenta atual**\r\n- Nenhuma → 1 ponto (alto potencial)\r\n- Básica (Mailchimp) → 2 pontos (pronto para upgrade)\r\n- Avançada (HubSpot) → 0 pontos (difícil migração)\r\n\r\n**Pergunta 4: Principal dor**\r\n- \"Não sei se funciona\" → Foco em analytics\r\n- \"Demora muito\" → Foco em automação\r\n- \"Não escala\" → Foco em enterprise\r\n\r\n**Pergunta 5-8:** Refinamento + coleta de dados\r\n\r\n### Segmentação por Score\r\n\r\n| Score | Segmento | CTA | Destino |\r\n|-------|----------|-----|---------|\r\n| 0-3 | Não qualificado | \"Baixe nosso guia\" | Lead magnet + nurture |\r\n| 4-6 | Qualificado básico | \"Teste grátis 14 dias\" | Trial self-service |\r\n| 7-10 | Qualificado premium | \"Agende demo personalizada\" | Call com vendedor |\r\n\r\n### Página de Resultado\r\n\r\n```\r\n\"Seu Diagnóstico de Automação\"\r\n\r\nScore: 8/10 - Empresa Pronta para Escalar\r\n\r\nBaseado nas suas respostas, identificamos:\r\n✅ Sua lista tem potencial de crescimento\r\n✅ Seu faturamento justifica investimento\r\n⚠️ Sua ferramenta atual está limitando crescimento\r\n\r\nRecomendação: Demo personalizada com nosso especialista\r\n[Agendar Demo em 15min] ← CTA principal\r\n\r\nNão tem tempo agora?\r\n[Receber análise detalhada por email] ← CTA secundário\r\n```\r\n\r\n## 📊 Resultados\r\n\r\n### Métricas Depois (90 dias)\r\n| Métrica | Antes | Depois | Δ |\r\n|---------|-------|--------|---|\r\n| Custo por lead | R$45 | R$38 | -15% |\r\n| Taxa de agendamento | 25% | 45% | +80% |\r\n| Taxa de show | 50% | 75% | +50% |\r\n| Taxa de qualificação | 40% | 85% | +112% |",
-    "metadata": {
-      "docType": "case-library",
-      "tenantId": null,
-      "status": "approved",
-      "version": "2025-12-23"
-    },
-    "source": {
-      "file": "..\\brain\\second brain\\brain\\council\\case-library\\quiz_funnel_saas.md",
-      "section": "Introduction",
-      "lineStart": 0,
-      "lineEnd": 116
-    }
-  },
-  {
-    "content": "| **Custo por call qualificada** | **R$900** | **R$360** | **-60%** |\r\n\r\n### ROI do Projeto\r\n- Investimento: ~R$15.000 (setup + design + dev)\r\n- Economia mensal: ~R$25.000 (baseado em 50 calls/mês)\r\n- Payback: < 1 mês\r\n\r\n## 🔑 Aprendizados\r\n\r\n### O Que Funcionou\r\n1. **Self-qualification:** Lead decide se é fit antes de gastar tempo\r\n2. **Segmentação dinâmica:** Cada segmento recebe CTA adequado\r\n3. **Dados ricos:** Quiz coletou insights para personalizar call\r\n4. **Expectativa alinhada:** Lead chega sabendo o que esperar\r\n\r\n### O Que Ajustaríamos\r\n1. Quiz inicial era longo (12 perguntas) → Reduzido para 8\r\n2. Resultado era genérico → Adicionamos personalização\r\n3. Nurture de não-qualificados era fraco → Criamos sequência específica\r\n\r\n### Armadilhas Evitadas\r\n- ❌ Quiz muito longo (> 10 perguntas)\r\n- ❌ Perguntas que não filtram de verdade\r\n- ❌ Resultado igual para todos\r\n- ❌ CTA único independente do score\r\n\r\n## 📐 Framework Replicável\r\n\r\n### Para Implementar Quiz Funnel\r\n\r\n1. **Defina critérios de qualificação** (3-5 critérios inegociáveis)\r\n2. **Transforme critérios em perguntas** (respostas = pontos)\r\n3. **Crie 3 segmentos** (não qualificado, básico, premium)\r\n4. **Defina CTA por segmento** (cada um tem destino próprio)\r\n5. **Personalize resultado** (diagnóstico, não só score)\r\n6. **Configure nurture** (especialmente para não-qualificados)\r\n\r\n## 🔗 Relacionados\r\n\r\n- [Heurística: Aquisição & Qualificação](../heuristics/aquisicao_qualificacao.md)\r\n- [Anti-pattern: Qualificação Tardia](../anti-patterns/qualificacao_tardia.md)\r\n- [Scorecard de Funil](../scorecards/scorecard_funnel.md)",
-    "metadata": {
-      "docType": "case-library",
-      "tenantId": null,
-      "status": "approved",
-      "version": "2025-12-23"
-    },
-    "source": {
-      "file": "..\\brain\\second brain\\brain\\council\\case-library\\quiz_funnel_saas.md",
-      "section": "Introduction",
-      "lineStart": 117,
-      "lineEnd": 161
-    }
-  },
-  {
     "content": "---\r\nbusiness: example_mentoria\r\ncounselor: russell_brunson\r\ndoc_type: case\r\nscope: high_ticket\r\nchannel: youtube\r\nstage: conversion\r\nstatus: approved\r\nversion: 2024-12-22.v1\r\noutcome: failure\r\n---\r\n\r\n# Case: VSL High Ticket que Fracassou\r\n\r\n> Quando seguir a \"fórmula\" sem entender o contexto custa R$200k em ads.\r\n\r\n## 📋 Contexto\r\n\r\n| Campo | Valor |\r\n|-------|-------|\r\n| **Tipo de negócio** | Mentoria para empresários |\r\n| **Ticket** | R$15.000 (pagamento único) |\r\n| **Modelo** | VSL → Aplicação → Call → Fechamento |\r\n| **Canal principal** | YouTube Ads |\r\n| **Problema** | ROI negativo após 3 meses |\r\n\r\n## 🎯 Situação Inicial\r\n\r\n### A Promessa (Teoria)\r\n\"VSL de 45 minutos seguindo a Perfect Webinar Formula vai converter tráfego frio para high ticket.\"\r\n\r\n### O Funil Implementado\r\n```\r\nYouTube Ad (gancho de resultado) →\r\nVSL 45min (Perfect Webinar) →\r\nAplicação (10 campos) →\r\nCall de Fechamento\r\n```\r\n\r\n### Investimento\r\n- Produção VSL: R$25.000\r\n- Ads (3 meses): R$180.000\r\n- Total: R$205.000\r\n\r\n## 📉 O Que Aconteceu\r\n\r\n### Métricas (Realidade)\r\n| Métrica | Esperado | Real |\r\n|---------|----------|------|\r\n| Visualização > 50% | 40% | 8% |\r\n| Aplicações/1000 views | 20 | 3 |\r\n| Shows/aplicações | 70% | 45% |\r\n| Close rate | 30% | 15% |\r\n| **Vendas totais** | 40+ | **6** |\r\n| **Receita** | R$600k+ | **R$90k** |\r\n| **ROI** | 3x+ | **-56%** |\r\n\r\n### Diagnóstico por Etapa\r\n\r\n**Etapa 1: Ad → VSL**\r\n- CTR do ad: OK (2.1%)\r\n- Problema: Drop brutal nos primeiros 3 minutos\r\n- Causa: Público frio demais para VSL longa\r\n\r\n**Etapa 2: VSL**\r\n- Retenção média: 4 minutos (de 45)\r\n- 92% saiu antes do pitch\r\n- Causa: Conteúdo assumia conhecimento prévio\r\n\r\n**Etapa 3: Aplicação**\r\n- Taxa de início: 35%\r\n- Taxa de conclusão: 28%\r\n- Causa: 10 campos é muito para lead semi-aquecido\r\n\r\n**Etapa 4: Call**\r\n- No-show: 55%\r\n- Causa: Sem nurture entre aplicação e call\r\n\r\n## 🔍 Análise do Conselho\r\n\r\n### Russell Brunson (Arquitetura)\r\n> \"O funil em si não está errado. O problema é a temperatura. Perfect Webinar foi desenhado para audiência MORNA (email list, seguidores). Você está jogando para GELADO (YouTube cold traffic). É como usar receita de bolo para fazer pão.\"\r\n\r\n**Score:** 4/10\r\n\r\n### Dan Kennedy (Copy)\r\n> \"A VSL abre com 'Se você é um empresário que quer escalar...' - isso é genérico demais. Não há especificidade, não há dissonância cognitiva, não há razão para ficar. Os primeiros 30 segundos precisam ser um soco no estômago.\"\r\n\r\n**Score:** 5/10\r\n\r\n### Frank Kern (Psicologia)\r\n> \"Você está pedindo 45 minutos de atenção de alguém que te conheceu há 30 segundos. Isso é insano. O cérebro não funciona assim. Primeiro, você precisa ganhar o direito de ter a atenção.\"\r\n\r\n**Score:** 3/10\r\n\r\n### Sam Ovens (Qualificação)\r\n> \"10 campos na aplicação após um único vídeo? Você está pedindo comprometimento antes de entregar valor. E sem email antes da aplicação, você perdeu 97% do tráfego para sempre.\"\r\n\r\n**Score:** 4/10\r\n\r\n## ✅ Correção Aplicada\r\n\r\n### Novo Funil (Reestruturado)\r\n```\r\nYouTube Ad (conteúdo de valor) →",
     "metadata": {
       "docType": "case-library",
@@ -5483,6 +5453,2378 @@
       "section": "Fontes",
       "lineStart": 156,
       "lineEnd": 173
+    }
+  },
+  {
+    "content": "---\r\nbusiness: madmuscles\r\ncounselor: [russell_brunson, sam_ovens]\r\ndoc_type: case\r\nscope: fitness\r\nchannel: youtube_ads\r\nstage: acquisition\r\nstatus: approved\r\nversion: 2024-12-25.v1\r\noutcome: massive_success\r\nscale: enterprise\r\n---\r\n\r\n# Case: MadMuscles - O Maior Quiz Funnel de 2025\r\n\r\n> 493 landing pages, 10M+ visitas/mês, $10M/ano em YouTube Ads. O blueprint definitivo de escala com quiz funnels.\r\n\r\n## 📋 Contexto\r\n\r\n| Campo | Valor |\r\n|-------|-------|\r\n| **Empresa** | MadMuscles (App de Fitness) |\r\n| **Tipo de negócio** | App subscription (fitness/perda de peso) |\r\n| **Ticket** | $29-79/mês (recorrente) |\r\n| **Modelo** | Quiz → Trial → Subscription |\r\n| **Canal principal** | YouTube Ads |\r\n| **Gasto mensal** | ~$850.000/mês |\r\n| **Escala** | 10M+ visitas/mês |\r\n\r\n## 🎯 Números do Case\r\n\r\n### Métricas de Escala\r\n\r\n| Métrica | Valor |\r\n|---------|-------|\r\n| Landing Pages únicas | 493 |\r\n| Tráfego mensal | 10M+ visitas |\r\n| Gasto anual YouTube | ~$10M |\r\n| Top Ad (1 mês) | $1.9M gasto único |\r\n| Tipo de criativos | AI-generated |\r\n| Países | 15+ |\r\n| Idiomas | 8+ |\r\n\r\n### Por Que Isso Importa\r\n\r\n- **493 landing pages** = Micro-segmentação extrema\r\n- **$1.9M em 1 ad** = Criativo validado em escala massiva\r\n- **AI-generated** = Volume de testes impossível manualmente\r\n- **10M visitas** = Prova de conceito para quiz funnels\r\n\r\n## 💡 Estrutura do Funil\r\n\r\n### Macro Funil\r\n\r\n```\r\nYouTube Ad (AI-generated)\r\n    ↓\r\nLanding Page (493 variantes)\r\n    ↓\r\nQuiz de Diagnóstico (12-15 perguntas)\r\n    ↓\r\nResultado Personalizado + Plano\r\n    ↓\r\nFrontend Offer ($29-49 trial)\r\n    ↓\r\nOrder Bump (guia nutricional)\r\n    ↓\r\nUpsell 1 (programa premium)\r\n    ↓\r\nDownsell (versão light)\r\n    ↓\r\nEmail/SMS Sequence\r\n    ↓\r\nSubscription ($29-79/mês)\r\n```\r\n\r\n### Estrutura do Quiz\r\n\r\n**Objetivo:** Personalização extrema + qualificação + comprometimento psicológico\r\n\r\n**Perguntas típicas:**\r\n1. Qual seu objetivo principal? (Perda de peso / Ganho de massa / Definição)\r\n2. Qual sua idade? (Segmentação demográfica)\r\n3. Qual seu nível de atividade atual? (Personalização de plano)\r\n4. Quanto tempo você tem disponível? (Realismo)\r\n5. Você tem alguma restrição alimentar? (Personalização)\r\n6. Já tentou outros programas? (Objeções)\r\n7. O que te impediu de alcançar resultados? (Copywriting)\r\n8. Qual seu peso atual? (Dados)\r\n9. Qual seu peso desejado? (Meta)\r\n10. Em quanto tempo quer atingir? (Urgência)\r\n11. Qual seu maior desafio? (Pain point)\r\n12. O que te motivaria mais? (Personalização de mensagem)\r\n\r\n**Resultado:** Plano 100% personalizado com:\r\n- Projeção de resultados (gráfico)\r\n- Plano alimentar sugerido\r\n- Rotina de exercícios\r\n- Timeline realista\r\n\r\n## 🔑 Estratégias Chave\r\n\r\n### 1. Micro-Segmentação de Landing Pages\r\n\r\n**Não existe \"uma\" landing page.** Cada combinação de:\r\n- Fonte de tráfego\r\n- Criativo\r\n- Segmento demográfico\r\n- Objetivo\r\n\r\n...tem sua própria landing page otimizada.\r\n\r\n**Exemplo de variantes:**\r\n- LP para homens 25-34, objetivo: perda de peso, via YouTube\r\n- LP para mulheres 35-44, objetivo: definição, via YouTube\r\n- LP para homens 45+, objetivo: energia, via YouTube\r\n\r\n### 2. Criativos AI-Generated\r\n\r\n**Volume impossível manualmente:**\r\n- Centenas de variações de hooks\r\n- Testes A/B em escala massiva\r\n- Iteração rápida baseada em dados\r\n- Custo por criativo: ~$0 (vs $500-5000 por criativo humano)",
+    "metadata": {
+      "docType": "case",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/case-library/quiz/madmuscles-quiz-funnel-2025.md",
+      "section": "Introduction",
+      "lineStart": 1,
+      "lineEnd": 124
+    }
+  },
+  {
+    "content": "**Tipos de criativos que funcionam:**\r\n- Transformações before/after\r\n- Testemunhos de usuários\r\n- Demonstrações de app\r\n- Hooks de curiosidade\r\n\r\n### 3. YouTube Ads Dominance\r\n\r\n**Por que YouTube?**\r\n- CPM mais baixo que Meta para escala\r\n- Audiência mais engajada\r\n- Menos saturação em fitness\r\n- Melhor para conteúdo longo (explicativo)\r\n\r\n**Estratégia de bidding:**\r\n- Iniciar com Target CPA\r\n- Escalar com Performance Max\r\n- Top criativos: $1M+ de gasto\r\n\r\n### 4. Cadeia de Upsells\r\n\r\n**Monetização agressiva pós-quiz:**\r\n\r\n| Etapa | Produto | Preço | Taxa |\r\n|-------|---------|-------|------|\r\n| Frontend | Trial 7 dias | $29-49 | 100% base |\r\n| Bump | Guia Nutricional | $19 | ~35% |\r\n| Upsell 1 | Premium 12 meses | $149 | ~15% |\r\n| Downsell | Light 3 meses | $79 | ~25% dos que recusam |\r\n\r\n**LTV por cliente:**\r\n- Sem upsells: $29\r\n- Com cadeia completa: $85-120 (média)\r\n- Aumento de 3-4x no LTV\r\n\r\n## 📊 Lições para Aplicar\r\n\r\n### Para Quiz Funnels em Escala\r\n\r\n1. **Não economize em variantes**\r\n   - 10 LPs é pouco → Meta: 50-100+ para começar\r\n   - Cada segmento merece sua própria página\r\n\r\n2. **Use IA para criativos**\r\n   - Volume > perfeição individual\r\n   - Deixe os dados escolherem vencedores\r\n   - Gaste mais nos vencedores, menos em criação\r\n\r\n3. **Quiz longo É válido para subscription**\r\n   - 12-15 perguntas funciona se resultado é valioso\r\n   - Compromisso psicológico aumenta conversão\r\n   - Dados coletados = personalização real\r\n\r\n4. **YouTube > Meta para escala**\r\n   - Especialmente em fitness, saúde, educação\r\n   - CPM mais baixo em escala alta\r\n   - Menos problemas com políticas\r\n\r\n5. **Upsell chain é obrigatório**\r\n   - Sem upsells: operação deficitária\r\n   - Com upsells: LTV viabiliza CAC alto\r\n\r\n### O Que NÃO Copiar Cegamente\r\n\r\n- **Escala de budget:** Começar com $10k-50k, não $1M\r\n- **Time de produção:** Eles têm 50+ pessoas em criação\r\n- **Múltiplos países:** Começar em 1, validar, depois expandir\r\n- **493 LPs:** Começar com 10-20, escalar conforme dados\r\n\r\n## 📐 Framework Replicável\r\n\r\n### Para Implementar Quiz Funnel Escalável\r\n\r\n**Fase 1: Validação (Mês 1-2)**\r\n- 5-10 landing pages\r\n- 10-20 criativos (AI ou não)\r\n- Quiz de 8-10 perguntas\r\n- Cadeia básica: Frontend + 1 Upsell\r\n- Budget: $5-20k\r\n\r\n**Fase 2: Otimização (Mês 3-4)**\r\n- 20-50 landing pages\r\n- 50-100 criativos\r\n- Quiz otimizado baseado em dados\r\n- Cadeia completa: Bump + Upsell + Downsell\r\n- Budget: $20-50k\r\n\r\n**Fase 3: Escala (Mês 5+)**\r\n- 100+ landing pages\r\n- Criativos AI-generated em volume\r\n- Testes contínuos\r\n- Expansão para novos canais/países\r\n- Budget: $50k-500k+\r\n\r\n## 🔗 Relacionados\r\n\r\n- [Heurística: Quiz Funnel Scale](../../heuristics/quiz_funnel_scale.md)\r\n- [Heurística: AI Creative Testing](../../heuristics/creative_ai_testing.md)\r\n- [Heurística: YouTube Traffic Dominance](../../heuristics/youtube_traffic_dominance.md)\r\n- [Anti-pattern: Single Landing Page](../../anti-patterns/single_landing_page.md)\r\n- [Anti-pattern: Quiz Without Upsell Chain](../../anti-patterns/quiz_without_upsell_chain.md)\r\n- [Playbook: Quiz Funnel at Scale](../../playbooks/quiz_funnel_at_scale.md)\r\n\r\n## 📚 Fonte\r\n\r\n- [Funnel of the Week - MadMuscles Breakdown](https://blog.funneloftheweek.com/p/the-biggest-quiz-funnel-of-2025-full-breakdown)",
+    "metadata": {
+      "docType": "case",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/case-library/quiz/madmuscles-quiz-funnel-2025.md",
+      "section": "Introduction",
+      "lineStart": 125,
+      "lineEnd": 233
+    }
+  },
+  {
+    "content": "---\r\nbusiness: generic\r\ncounselor: russell_brunson\r\ndoc_type: heuristics\r\nscope: quiz_funnel\r\nchannel: all\r\nstage: scale\r\nstatus: approved\r\nversion: 2024-12-25.v1\r\nsources:\r\n  - \"MadMuscles Case Study 2025\"\r\n  - \"Russell Brunson - Traffic Secrets\"\r\n  - \"Funnel of the Week Analysis\"\r\n---\r\n\r\n# Heurísticas: Escala de Quiz Funnels\r\n\r\n## Contexto de Aplicação\r\n\r\nEste documento apresenta regras práticas para escalar quiz funnels além de benchmarks tradicionais. Baseado no case MadMuscles (10M visitas/mês, 493 LPs) e validado em múltiplos nichos.\r\n\r\n## 12 Regras de Escala para Quiz Funnels\r\n\r\n### 1. Se você quer escala acima de benchmarks, ENTÃO multiplique variantes de landing pages\r\n\r\n**Porque:** Diferentes segmentos respondem a diferentes mensagens, imagens e ângulos.\r\n**Exceção:** Mercado muito pequeno (< 100k pessoas).\r\n**Aplicação:** Meta inicial: 10-20 LPs. Escala: 50-100+.\r\n**Métrica:** CTR por variante, CR por segmento.\r\n**Referência:** MadMuscles: 493 LPs → 10M visitas/mês.\r\n\r\n### 2. Se você tem apenas 1 landing page, ENTÃO você está limitando sua escala em 90%\r\n\r\n**Porque:** Uma LP única atinge apenas um slice do mercado total disponível.\r\n**Exceção:** Produto extremamente nichado com público homogêneo.\r\n**Aplicação:** Criar variantes por: idade, gênero, objetivo, dor, canal.\r\n**Métrica:** Tráfego total possível vs. atual.\r\n\r\n### 3. Se o quiz converte bem, ENTÃO 12-15 perguntas são aceitáveis\r\n\r\n**Porque:** Comprometimento psicológico aumenta com investimento de tempo.\r\n**Exceção:** Produto de decisão impulsiva (< $50).\r\n**Aplicação:** Cada pergunta deve coletar dado útil OU aumentar comprometimento.\r\n**Métrica:** Taxa de conclusão do quiz, conversão final.\r\n\r\n### 4. Se você não está testando criativos em volume, ENTÃO você não está escalando\r\n\r\n**Porque:** Em escala, a diferença entre bom e ótimo criativo = milhões em resultado.\r\n**Exceção:** Budget < $10k/mês (foque em 5-10 criativos).\r\n**Aplicação:** Meta: 50-100 variações de criativo por mês em escala.\r\n**Métrica:** ROAS por criativo, gasto acumulado por criativo vencedor.\r\n\r\n### 5. Se seu maior gasto em 1 criativo é < $10k, ENTÃO você ainda não validou escala\r\n\r\n**Porque:** Criativos vencedores devem suportar $100k+ de gasto.\r\n**Exceção:** Mercado muito pequeno.\r\n**Aplicação:** Quando encontrar vencedor, escalar até saturação.\r\n**Métrica:** Gasto total em top 3 criativos.\r\n**Referência:** MadMuscles: $1.9M em único criativo em 1 mês.\r\n\r\n### 6. Se você não tem cadeia de upsells, ENTÃO quiz funnel não é rentável\r\n\r\n**Porque:** CAC de quiz funnels é alto; LTV precisa compensar.\r\n**Exceção:** Nenhuma - sempre ter upsells.\r\n**Aplicação:** Mínimo: Frontend + Bump + Upsell + Downsell.\r\n**Métrica:** LTV médio, ROAS após 30 dias.\r\n\r\n### 7. Se o resultado do quiz é genérico, ENTÃO você está perdendo conversão\r\n\r\n**Porque:** A promessa do quiz é personalização; resultado genérico quebra expectativa.\r\n**Exceção:** Nenhuma - sempre personalizar.\r\n**Aplicação:** Resultado deve mencionar inputs específicos do usuário.\r\n**Métrica:** Taxa de conversão na página de resultado.\r\n\r\n### 8. Se você não está usando dados do quiz para copy, ENTÃO está desperdiçando informação\r\n\r\n**Porque:** Cada resposta é insight sobre dores, objeções e desejos.\r\n**Exceção:** Nenhuma - sempre usar dados.\r\n**Aplicação:** Página de resultado usa respostas no copy.\r\n**Exemplo:** \"Com base no seu objetivo de [X] e disponibilidade de [Y] minutos...\"\r\n\r\n### 9. Se seu quiz não desqualifica ninguém, ENTÃO não está qualificando ninguém\r\n\r\n**Porque:** Quiz sem filtro é apenas formulário longo.",
+    "metadata": {
+      "docType": "heuristics",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/heuristics/quiz_funnel_scale.md",
+      "section": "Introduction",
+      "lineStart": 1,
+      "lineEnd": 84
+    }
+  },
+  {
+    "content": "**Exceção:** Produto para absolutamente todos.\r\n**Aplicação:** 10-20% devem ser direcionados para alternativa ou saída.\r\n**Métrica:** Taxa de desqualificação, qualidade dos leads qualificados.\r\n\r\n### 10. Se você não tem sequência de follow-up por resultado, ENTÃO está tratando todos igual\r\n\r\n**Porque:** Cada segmento tem objeções e motivações diferentes.\r\n**Exceção:** Nenhuma - sempre segmentar follow-up.\r\n**Aplicação:** Email sequence diferente por resultado do quiz.\r\n**Métrica:** Open rate, CTR, conversão por segmento.\r\n\r\n### 11. Se você está gastando > $100k/mês e não tem time de criação, ENTÃO vai saturar\r\n\r\n**Porque:** Escala exige volume de novos criativos constante.\r\n**Exceção:** Nenhuma em escala alta.\r\n**Aplicação:** 1 criativo novo por dia mínimo em escala.\r\n**Métrica:** Frequência de saturação de criativos.\r\n\r\n### 12. Se você validou em 1 país e parou, ENTÃO está limitando escala\r\n\r\n**Porque:** Quiz funnels são facilmente traduzíveis.\r\n**Exceção:** Produto específico de região.\r\n**Aplicação:** Após validar, expandir para 3-5 países similares.\r\n**Métrica:** Revenue por país, CAC por país.\r\n**Referência:** MadMuscles: 15+ países, 8+ idiomas.\r\n\r\n## Checklist Rápido de Escala\r\n\r\n### Fundação (< $10k/mês)\r\n- [ ] Quiz de 8-12 perguntas funcionando\r\n- [ ] 5-10 landing pages\r\n- [ ] 10-20 criativos testados\r\n- [ ] Cadeia básica de upsell\r\n- [ ] Email follow-up configurado\r\n\r\n### Crescimento ($10-50k/mês)\r\n- [ ] 20-50 landing pages\r\n- [ ] 50+ criativos testados\r\n- [ ] Resultados personalizados por segmento\r\n- [ ] Cadeia completa: Bump + Upsell + Downsell\r\n- [ ] Sequences segmentadas por resultado\r\n\r\n### Escala ($50k+/mês)\r\n- [ ] 100+ landing pages\r\n- [ ] Criação de criativos AI-powered\r\n- [ ] Time dedicado de criação\r\n- [ ] Múltiplos canais de tráfego\r\n- [ ] Expansão internacional\r\n\r\n## Métricas de Referência para Quiz Funnels\r\n\r\n| Métrica | Ruim | OK | Bom | Excelente |\r\n|---------|------|-----|-----|-----------|\r\n| Taxa conclusão quiz | <30% | 30-50% | 50-70% | >70% |\r\n| Conversão quiz → checkout | <5% | 5-10% | 10-20% | >20% |\r\n| Bump take rate | <15% | 15-25% | 25-40% | >40% |\r\n| Upsell take rate | <10% | 10-20% | 20-30% | >30% |\r\n| LTV/CAC ratio | <2x | 2-3x | 3-5x | >5x |\r\n| Escala por LP (visitas/mês) | <5k | 5-20k | 20-50k | >50k |",
+    "metadata": {
+      "docType": "heuristics",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/heuristics/quiz_funnel_scale.md",
+      "section": "Introduction",
+      "lineStart": 85,
+      "lineEnd": 145
+    }
+  },
+  {
+    "content": "---\r\nbusiness: generic\r\ncounselor: frank_kern\r\ndoc_type: heuristics\r\nscope: creative\r\nchannel: [youtube_ads, meta_ads]\r\nstage: acquisition\r\nstatus: approved\r\nversion: 2024-12-25.v1\r\nsources:\r\n  - \"MadMuscles Case Study 2025\"\r\n  - \"Frank Kern - Intent Based Branding\"\r\n  - \"AI Creative Best Practices 2024\"\r\n---\r\n\r\n# Heurísticas: Testes de Criativos com IA\r\n\r\n## Contexto de Aplicação\r\n\r\nEste documento apresenta regras práticas para usar IA na criação e teste de criativos em volume. Baseado em cases de escala onde AI-generated creatives superaram produção humana tradicional.\r\n\r\n## 10 Regras de Criativos AI-Powered\r\n\r\n### 1. Se você está testando criativos manualmente, ENTÃO você está testando muito pouco\r\n\r\n**Porque:** Produção humana tradicional = 5-20 criativos/mês. IA = 100-500/mês.\r\n**Exceção:** Budget muito baixo (< $5k/mês).\r\n**Aplicação:** Usar IA para gerar variações de hooks, scripts, headlines.\r\n**Métrica:** Volume de criativos testados por mês.\r\n**Referência:** MadMuscles: AI-generated creatives em escala massiva.\r\n\r\n### 2. Se você gasta > $50k/mês e tem < 50 criativos ativos, ENTÃO está sub-otimizado\r\n\r\n**Porque:** Diversidade de criativos = diversidade de audiências atingidas.\r\n**Exceção:** Criativo unicorn que não satura (raro).\r\n**Aplicação:** Ratio: ~1 criativo novo por $1k gasto/mês.\r\n**Métrica:** Número de criativos com gasto > $1k.\r\n\r\n### 3. Se seu criativo vencedor gastou < $10k, ENTÃO você não testou escala real\r\n\r\n**Porque:** Criativos precisam provar que aguentam volume antes de confiar.\r\n**Exceção:** Mercado muito pequeno.\r\n**Aplicação:** Escalar vencedores até $50-100k+ antes de declarar saturação.\r\n**Métrica:** Gasto máximo em criativo individual.\r\n**Referência:** MadMuscles: $1.9M em único criativo em 1 mês.\r\n\r\n### 4. Se você não está variando hooks, ENTÃO está desperdiçando oportunidade\r\n\r\n**Porque:** Hook é 80% do criativo. Mesmo conteúdo com hooks diferentes = criativos diferentes.\r\n**Exceção:** Nenhuma.\r\n**Aplicação:** Para cada criativo base, gerar 10-20 variações de hook.\r\n**Métrica:** Performance por tipo de hook.\r\n\r\n### 5. Se IA cria lixo, ENTÃO seu input/prompt é ruim\r\n\r\n**Porque:** IA amplifica qualidade do input. Bom prompt = bom output.\r\n**Exceção:** Nenhuma - sempre melhorar prompts.\r\n**Aplicação:** Criar library de prompts validados por tipo de criativo.\r\n**Métrica:** Taxa de aprovação de criativos gerados.\r\n\r\n### 6. Se você não está testando UGC style com IA, ENTÃO está perdendo formato vencedor\r\n\r\n**Porque:** UGC style performa melhor em social ads. IA pode gerar em volume.\r\n**Exceção:** B2B muito formal.\r\n**Aplicação:** Gerar scripts UGC → gravar com creators → testar em volume.\r\n**Métrica:** CTR de UGC vs. polished.\r\n\r\n### 7. Se você mata criativos antes de $500 gasto, ENTÃO está matando prematuramente\r\n\r\n**Porque:** Variância estatística requer volume para conclusões válidas.\r\n**Exceção:** CTR claramente abismal (< 0.3%).\r\n**Aplicação:** Mínimo $500-1000 antes de decisão de kill.\r\n**Métrica:** Taxa de criativos \"falsos negativos\" re-testados.\r\n\r\n### 8. Se você não está categorizando criativos por tipo, ENTÃO não sabe o que funciona\r\n\r\n**Porque:** Análise agregada esconde insights de categoria.\r\n**Exceção:** Nenhuma.\r\n**Aplicação:** Tags: hook_type, format, length, CTA, tone.\r\n**Métrica:** Performance média por categoria.\r\n\r\n### 9. Se seus criativos vencedores não viram templates, ENTÃO você está retrabalho\r\n\r\n**Porque:** Vencedor validado = estrutura que funciona para replicar.\r\n**Exceção:** Nenhuma.\r\n**Aplicação:** Cada criativo $50k+ vira template para variações.\r\n**Métrica:** % de novos criativos baseados em templates validados.\r\n\r\n### 10. Se você não usa IA para copy, thumbnails E scripts, ENTÃO está usando parcialmente",
+    "metadata": {
+      "docType": "heuristics",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/heuristics/creative_ai_testing.md",
+      "section": "Introduction",
+      "lineStart": 1,
+      "lineEnd": 89
+    }
+  },
+  {
+    "content": "**Porque:** IA pode acelerar todas as partes do criativo.\r\n**Exceção:** Nenhuma em escala.\r\n**Aplicação:** Pipeline: IA gera → humano revisa → produção → teste.\r\n**Métrica:** Tempo de criação por criativo (antes/depois IA).\r\n\r\n## Framework de Produção AI-Powered\r\n\r\n### Processo Recomendado\r\n\r\n```\r\n1. ANÁLISE\r\n   └── Estudar criativos vencedores (próprios e concorrentes)\r\n   └── Identificar patterns de hook, structure, CTA\r\n\r\n2. GERAÇÃO\r\n   └── IA gera 20-50 variações de hooks\r\n   └── IA gera 10-20 scripts completos\r\n   └── IA gera headlines e CTAs\r\n\r\n3. CURADORIA\r\n   └── Humano seleciona top 30%\r\n   └── Ajustes finos de copy\r\n   └── Validação de brand voice\r\n\r\n4. PRODUÇÃO\r\n   └── Gravar/editar variações\r\n   └── Criar thumbnails (IA-assisted)\r\n   └── Formatar para cada plataforma\r\n\r\n5. TESTE\r\n   └── Lançar em waves (10-20 por semana)\r\n   └── Análise após $500-1k gasto\r\n   └── Kill <1% CTR, Scale >2% CTR\r\n\r\n6. ESCALA\r\n   └── Vencedores ganham mais budget\r\n   └── Templates criados\r\n   └── Ciclo recomeça\r\n```\r\n\r\n### Ferramentas Sugeridas\r\n\r\n| Tipo | Ferramenta | Uso |\r\n|------|------------|-----|\r\n| Copy/Scripts | ChatGPT, Claude | Geração de variações |\r\n| Video | Runway, Synthesia | Criativos AI-generated |\r\n| Imagem | Midjourney, DALL-E | Thumbnails, backgrounds |\r\n| Voice | ElevenLabs | Voiceovers |\r\n| Análise | Motion, Triple Whale | Performance tracking |\r\n\r\n## Métricas de Benchmark\r\n\r\n| Métrica | Baixo | Médio | Alto | Elite |\r\n|---------|-------|-------|------|-------|\r\n| Criativos testados/mês | <10 | 10-30 | 30-100 | >100 |\r\n| Taxa aprovação IA | <10% | 10-30% | 30-50% | >50% |\r\n| Tempo por criativo | >4h | 2-4h | 1-2h | <1h |\r\n| Hit rate (>$10k gasto) | <5% | 5-10% | 10-20% | >20% |\r\n| Custo por criativo | >$500 | $200-500 | $50-200 | <$50 |\r\n\r\n## Checklist de Implementação\r\n\r\n### Fase 1: Setup\r\n- [ ] Definir prompts base para hooks, scripts, CTAs\r\n- [ ] Configurar pipeline de curadoria\r\n- [ ] Estabelecer critérios de aprovação\r\n- [ ] Setup de tracking por criativo\r\n\r\n### Fase 2: Produção\r\n- [ ] Gerar batch inicial (50+ variações)\r\n- [ ] Curadoria humana (top 30%)\r\n- [ ] Produção/edição\r\n- [ ] Lançamento em waves\r\n\r\n### Fase 3: Otimização\r\n- [ ] Análise de performance por categoria\r\n- [ ] Identificação de patterns vencedores\r\n- [ ] Criação de templates\r\n- [ ] Iteração de prompts",
+    "metadata": {
+      "docType": "heuristics",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/heuristics/creative_ai_testing.md",
+      "section": "Introduction",
+      "lineStart": 90,
+      "lineEnd": 171
+    }
+  },
+  {
+    "content": "---\r\nbusiness: generic\r\ncounselor: sam_ovens\r\ndoc_type: heuristics\r\nscope: traffic\r\nchannel: youtube_ads\r\nstage: acquisition\r\nstatus: approved\r\nversion: 2024-12-25.v1\r\nsources:\r\n  - \"MadMuscles Case Study 2025\"\r\n  - \"Sam Ovens - Consulting.com\"\r\n  - \"YouTube Ads Best Practices 2024\"\r\n---\r\n\r\n# Heurísticas: Dominância com YouTube Ads\r\n\r\n## Contexto de Aplicação\r\n\r\nEste documento apresenta regras práticas para usar YouTube Ads como canal principal de aquisição. Especialmente relevante para quiz funnels, produtos de consideração média, e nichos onde Meta está saturado ou restrito.\r\n\r\n## 12 Regras de YouTube Ads para Escala\r\n\r\n### 1. Se Meta está saturado ou restrito no seu nicho, ENTÃO YouTube é sua alternativa de escala\r\n\r\n**Porque:** YouTube tem menos advertisers, mais inventory, menos restrições em alguns nichos.\r\n**Exceção:** Produtos de impulso puro (YouTube é consideração média-alta).\r\n**Aplicação:** Testar YouTube com 10-20% do budget Meta.\r\n**Métrica:** CAC comparativo YouTube vs Meta.\r\n**Referência:** MadMuscles: ~$10M/ano em YouTube Ads.\r\n\r\n### 2. Se você está gastando > $100k/mês em Meta e CPMs estão subindo, ENTÃO YouTube é escape valve\r\n\r\n**Porque:** Diversificação de canais reduz dependência e risco.\r\n**Exceção:** Meta ainda performando dentro de target.\r\n**Aplicação:** Mover 20-30% do budget para YouTube ao atingir limite de escala.\r\n**Métrica:** CPM trend, ROAS trend, escala alcançável.\r\n\r\n### 3. Se seu produto precisa de explicação, ENTÃO YouTube é superior\r\n\r\n**Porque:** Formato de vídeo longo permite educar antes de converter.\r\n**Exceção:** Produto extremamente simples de entender.\r\n**Aplicação:** Criativos de 30s-2min que explicam problema e solução.\r\n**Métrica:** View through rate, conversão assistida.\r\n\r\n### 4. Se seu ticket é > R$500, ENTÃO YouTube converte melhor que Meta\r\n\r\n**Porque:** Audiência YouTube é mais paciente, aceita conteúdo longo, decisão mais considerada.\r\n**Exceção:** Ofertas de impulso (flash sales).\r\n**Aplicação:** YouTube para high ticket, Meta para low ticket volume.\r\n**Métrica:** Taxa de conversão por ticket range.\r\n\r\n### 5. Se você não está usando Skippable In-Stream, ENTÃO está perdendo o formato vencedor\r\n\r\n**Porque:** In-stream permite hook nos primeiros 5s + conteúdo completo.\r\n**Exceção:** Remarketing pode usar outros formatos.\r\n**Aplicação:** 80%+ do budget em Skippable In-Stream.\r\n**Métrica:** CTR por formato.\r\n\r\n### 6. Se seu hook não funciona em 5 segundos, ENTÃO você está pagando por skip\r\n\r\n**Porque:** Usuário pode pular após 5s. Hook fraco = impressão desperdiçada.\r\n**Exceção:** Nenhuma - sempre otimizar hook.\r\n**Aplicação:** Testar 10-20 variações de hook por criativo base.\r\n**Métrica:** View rate (% que assiste > 30s).\r\n\r\n### 7. Se você está usando apenas Target CPA, ENTÃO está limitando escala\r\n\r\n**Porque:** Performance Max e tROAS podem escalar além de tCPA.\r\n**Exceção:** Budget muito baixo (< $10k/mês).\r\n**Aplicação:** tCPA para validar, tROAS/Performance Max para escalar.\r\n**Métrica:** Volume de conversões vs. eficiência.\r\n\r\n### 8. Se você não tem remarketing no YouTube, ENTÃO está deixando dinheiro na mesa\r\n\r\n**Porque:** Visitantes não-convertidos são audiência quente.\r\n**Exceção:** Nenhuma.\r\n**Aplicação:** Remarketing para visitantes de quiz, cart abandoners, etc.\r\n**Métrica:** ROAS de remarketing vs. cold.\r\n\r\n### 9. Se seus criativos YouTube são adaptações de Meta, ENTÃO você está sub-otimizando\r\n\r\n**Porque:** Formato e expectativa do usuário são diferentes.\r\n**Exceção:** Testes iniciais para validar conceito.\r\n**Aplicação:** Criativos nativos para YouTube: mais longos, mais educativos.\r\n**Métrica:** Performance de nativo vs. adaptado.",
+    "metadata": {
+      "docType": "heuristics",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/heuristics/youtube_traffic_dominance.md",
+      "section": "Introduction",
+      "lineStart": 1,
+      "lineEnd": 86
+    }
+  },
+  {
+    "content": "### 10. Se você não está usando Custom Intent audiences, ENTÃO está perdendo targeting poderoso\r\n\r\n**Porque:** Custom Intent permite targetar por pesquisas no Google.\r\n**Exceção:** Nenhuma.\r\n**Aplicação:** Criar audiences baseadas em keywords de intenção.\r\n**Métrica:** Performance por tipo de audience.\r\n\r\n### 11. Se você está gastando > $50k/mês e não tem exclusions, ENTÃO está desperdiçando\r\n\r\n**Porque:** Sem exclusions, você paga por impressões em canais irrelevantes.\r\n**Exceção:** Performance Max (menos controle).\r\n**Aplicação:** Excluir: kids content, live streams, canais não-alvo.\r\n**Métrica:** CTR antes/depois de exclusions.\r\n\r\n### 12. Se seu funil é quiz, ENTÃO YouTube é canal ideal\r\n\r\n**Porque:** Quiz requer consideração; YouTube audiência está em modo consideração.\r\n**Exceção:** Quiz muito curto/simples.\r\n**Aplicação:** Ad educativo → Quiz → Resultado → Oferta.\r\n**Métrica:** Taxa de conclusão de quiz por fonte.\r\n**Referência:** MadMuscles: YouTube → Quiz = 10M visitas/mês.\r\n\r\n## Estrutura de Campanha Recomendada\r\n\r\n### Arquitetura de Conta\r\n\r\n```\r\nAccount\r\n├── Cold Traffic\r\n│   ├── Campaign: Custom Intent (keywords de problema)\r\n│   ├── Campaign: Custom Intent (keywords de solução)\r\n│   ├── Campaign: Affinity (interesses relacionados)\r\n│   └── Campaign: Lookalike (similar to converters)\r\n├── Warm Traffic\r\n│   ├── Campaign: Remarketing Site (30 dias)\r\n│   ├── Campaign: Video Viewers (engajados)\r\n│   └── Campaign: Cart Abandoners\r\n└── Scale\r\n    ├── Campaign: Performance Max (validados)\r\n    └── Campaign: tROAS (alto budget)\r\n```\r\n\r\n### Estrutura de Criativo\r\n\r\n```\r\n0-5s: HOOK (prender atenção, não pode ser pulado)\r\n      \"Se você [problema], preste atenção...\"\r\n      \r\n5-30s: PROBLEMA (amplificar dor)\r\n       Descrever situação atual, consequências\r\n       \r\n30-60s: SOLUÇÃO (apresentar método)\r\n        Introduzir quiz/produto como caminho\r\n        \r\n60-90s: PROVA (credibilidade)\r\n        Resultados, números, depoimentos\r\n        \r\n90-120s: CTA (ação clara)\r\n         \"Clique para fazer o quiz gratuito\"\r\n```\r\n\r\n## Métricas de Benchmark YouTube\r\n\r\n| Métrica | Ruim | OK | Bom | Excelente |\r\n|---------|------|-----|-----|-----------|\r\n| View Rate (30s+) | <15% | 15-25% | 25-35% | >35% |\r\n| CTR | <0.3% | 0.3-0.7% | 0.7-1.5% | >1.5% |\r\n| CPV | >R$0.15 | R$0.10-0.15 | R$0.05-0.10 | <R$0.05 |\r\n| CPC (para quiz) | >R$5 | R$2-5 | R$1-2 | <R$1 |\r\n| ROAS (30 dias) | <2x | 2-3x | 3-5x | >5x |\r\n\r\n## Checklist de Implementação\r\n\r\n### Setup Inicial\r\n- [ ] Pixel de conversão instalado\r\n- [ ] Audiences base criadas (Custom Intent, Affinity)\r\n- [ ] Exclusions configuradas (kids, irrelevant)\r\n- [ ] Conversões configuradas corretamente\r\n\r\n### Produção de Criativos\r\n- [ ] 5+ hooks diferentes testados\r\n- [ ] Estrutura nativa YouTube (não adaptação)\r\n- [ ] Duração adequada (30s-2min)\r\n- [ ] CTA claro no final\r\n\r\n### Lançamento\r\n- [ ] Budget inicial: $50-100/dia por campaign\r\n- [ ] tCPA inicial (após 15-20 conversões: testar tROAS)\r\n- [ ] Monitoring diário primeiros 7 dias\r\n- [ ] Kill campaigns com CTR < 0.3% após $500\r\n\r\n### Escala\r\n- [ ] Aumentar budget 20% a cada 3-5 dias\r\n- [ ] Adicionar novas audiences\r\n- [ ] Testar Performance Max\r\n- [ ] Expandir para mais países",
+    "metadata": {
+      "docType": "heuristics",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/heuristics/youtube_traffic_dominance.md",
+      "section": "Introduction",
+      "lineStart": 87,
+      "lineEnd": 185
+    }
+  },
+  {
+    "content": "---\r\nbusiness: null\r\ncounselor: russell_brunson\r\ndoc_type: anti-pattern\r\nscope: quiz_funnel\r\nchannel: all\r\nstage: acquisition\r\nstatus: approved\r\nversion: 2024-12-25.v1\r\nseverity: high\r\n---\r\n\r\n# Anti-Pattern: Single Landing Page\r\n\r\n> Uma landing page única é como tentar vender o mesmo remédio para todas as doenças.\r\n\r\n## 🚫 O Erro\r\n\r\nUsar uma única landing page para todo o tráfego, independente de fonte, segmento demográfico, ou ângulo de criativo. Especialmente crítico em quiz funnels onde micro-segmentação é a chave da escala.\r\n\r\n## 🔍 Como Identificar\r\n\r\n### Sintomas Claros\r\n- Mesma URL para todos os ads\r\n- Landing page \"genérica\" que tenta falar com todos\r\n- Copy que não menciona nenhum segmento específico\r\n- Imagens que não refletem audiência específica\r\n- Headline única para múltiplos ângulos de criativo\r\n\r\n### Métricas de Alerta\r\n- CTR estagnado independente de criativo\r\n- CVR consistente mas baixo (< 10%)\r\n- Escala travada: mais budget = mesmos resultados\r\n- Criativos \"saturando\" rápido\r\n\r\n## 📉 Por Que Falha\r\n\r\n| Problema | Impacto |\r\n|----------|---------|\r\n| Desconexão criativo → LP | Promessa do ad não confirmada |\r\n| Mensagem diluída | Tenta falar com todos, ressoa com ninguém |\r\n| Sem personalização visual | Audiência não se vê refletida |\r\n| Limitação de escala | Uma LP = um slice do mercado |\r\n| Testes de criativo invalidados | LP constante limita aprendizado |\r\n\r\n### A Matemática do Problema\r\n\r\n```\r\nExemplo:\r\n- Mercado total: 10M pessoas\r\n- 1 LP genérica: atinge ~10% = 1M pessoas\r\n- 50 LPs segmentadas: atinge ~50% = 5M pessoas\r\n\r\nResultado: 5x mais mercado acessível\r\n```\r\n\r\n## ✅ Correção\r\n\r\n### Princípio: Message Match + Segment Match\r\n\r\n```\r\nCada combinação de:\r\nCRIATIVO + SEGMENTO + ÂNGULO\r\ndeve ter sua própria landing page\r\n```\r\n\r\n### Framework de Segmentação\r\n\r\n**Nível 1: Básico (5-10 LPs)**\r\n- Por objetivo principal (3-5 variantes)\r\n- Por fonte de tráfego (2-3 variantes)\r\n\r\n**Nível 2: Intermediário (20-50 LPs)**\r\n- Por objetivo x demografia\r\n- Por ângulo de criativo\r\n- Por nível de consciência\r\n\r\n**Nível 3: Avançado (100+ LPs)**\r\n- Combinações completas\r\n- Personalização dinâmica\r\n- A/B testing em escala\r\n\r\n### Exemplo de Segmentação (Fitness)\r\n\r\n| LP | Segmento | Headline | Imagem |\r\n|----|----------|----------|--------|\r\n| LP-1 | Homens 25-34, perda peso | \"Perca 10kg em 12 semanas sem academia\" | Homem 30 anos, antes/depois |\r\n| LP-2 | Mulheres 35-44, definição | \"Defina seu corpo após os 35\" | Mulher 40 anos, definida |\r\n| LP-3 | Homens 45+, energia | \"Recupere a energia dos seus 30\" | Homem 50 anos, ativo |\r\n| LP-4 | Mulheres 25-34, perda peso | \"Emagreça de forma saudável\" | Mulher 28 anos, transformação |\r\n\r\n**Referência:** MadMuscles usa 493 landing pages para 10M visitas/mês.\r\n\r\n## 🎯 Implementação Prática\r\n\r\n### Fase 1: Identificar Segmentos\r\n\r\n1. Listar objetivos principais (3-5)\r\n2. Listar demografias relevantes (3-5)\r\n3. Listar ângulos de criativo (3-5)\r\n4. Criar matriz de combinações\r\n\r\n### Fase 2: Priorizar\r\n\r\n1. Começar com top 10 combinações\r\n2. Criar LPs para cada\r\n3. Testar por 2-4 semanas\r\n4. Identificar vencedoras\r\n\r\n### Fase 3: Escalar\r\n\r\n1. Expandir combinações vencedoras",
+    "metadata": {
+      "docType": "anti_pattern",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/anti-patterns/single_landing_page.md",
+      "section": "Introduction",
+      "lineStart": 1,
+      "lineEnd": 112
+    }
+  },
+  {
+    "content": "2. Adicionar mais segmentos\r\n3. Testar novos ângulos\r\n4. Iterar baseado em dados\r\n\r\n### Estrutura de LP Segmentada\r\n\r\n```\r\n[Headline específica para segmento]\r\n↓\r\n[Hero image que reflete audiência]\r\n↓\r\n[Sub-headline com dor específica]\r\n↓\r\n[Quiz CTA]\r\n↓\r\n[Prova social do segmento]\r\n↓\r\n[FAQ específico]\r\n```\r\n\r\n## 📊 Métricas de Sucesso\r\n\r\n| Métrica | Antes (1 LP) | Depois (50 LPs) |\r\n|---------|--------------|-----------------|\r\n| CTR médio | 1.5% | 2.5% (+67%) |\r\n| CVR (LP → Quiz) | 8% | 15% (+87%) |\r\n| Escala máxima | $30k/mês | $150k/mês (+400%) |\r\n| Criativos vencedores | 3-5 | 20-30 |\r\n\r\n## 🔗 Relacionados\r\n\r\n- [Case: MadMuscles Quiz Funnel](../case-library/quiz/madmuscles-quiz-funnel-2025.md)\r\n- [Heurística: Quiz Funnel Scale](../heuristics/quiz_funnel_scale.md)\r\n- [Mental Model: Micro-Segmentation](../mental-models/micro_segmentation_framework.md)",
+    "metadata": {
+      "docType": "anti_pattern",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/anti-patterns/single_landing_page.md",
+      "section": "Introduction",
+      "lineStart": 113,
+      "lineEnd": 148
+    }
+  },
+  {
+    "content": "---\r\nbusiness: null\r\ncounselor: perry_belcher\r\ndoc_type: anti-pattern\r\nscope: quiz_funnel\r\nchannel: all\r\nstage: monetization\r\nstatus: approved\r\nversion: 2024-12-25.v1\r\nseverity: critical\r\n---\r\n\r\n# Anti-Pattern: Quiz Sem Cadeia de Upsells\r\n\r\n> Quiz funnel sem upsell chain é como montar restaurante gourmet e servir só água.\r\n\r\n## 🚫 O Erro\r\n\r\nCriar quiz funnel que converte apenas para um produto frontend, sem bump offers, upsells, downsells ou sequência de maximização de LTV. O resultado: CAC alto que nunca se paga.\r\n\r\n## 🔍 Como Identificar\r\n\r\n### Sintomas Claros\r\n- Checkout com apenas 1 produto\r\n- Página de \"obrigado\" que só confirma compra\r\n- Sem bump offer na página de checkout\r\n- Sem upsell imediato pós-compra\r\n- Sem downsell para quem recusa\r\n- Email sequence apenas de \"entrega\" sem vendas\r\n\r\n### Métricas de Alerta\r\n- LTV = AOV (sem crescimento pós-compra)\r\n- ROAS < 2x em 30 dias\r\n- Break-even time > 60 dias\r\n- Recompra < 10%\r\n\r\n## 📉 Por Que Falha\r\n\r\n| Problema | Impacto |\r\n|----------|---------|\r\n| CAC alto de quiz funnels | Quiz = mais etapas = mais custo |\r\n| Monetização única | Perde momento de máxima intenção |\r\n| LTV baixo | Não justifica CAC de aquisição |\r\n| Margem apertada | Pouco espaço para escalar |\r\n| Competição desfavorável | Concorrentes com upsells podem pagar mais |\r\n\r\n### A Matemática do Problema\r\n\r\n```\r\nSEM UPSELLS:\r\n- Custo por lead quiz: R$15\r\n- Conversão quiz → compra: 10%\r\n- CAC efetivo: R$150\r\n- Frontend ticket: R$97\r\n- Resultado: -R$53 por cliente\r\n\r\nCOM UPSELLS:\r\n- Custo por lead quiz: R$15\r\n- Conversão quiz → compra: 10%\r\n- CAC efetivo: R$150\r\n- Frontend ticket: R$97\r\n- Bump (35%): +R$17\r\n- Upsell (15%): +R$30\r\n- Downsell (25% dos que recusam): +R$10\r\n- LTV médio: R$154\r\n- Resultado: +R$4 por cliente (e escala possível)\r\n```\r\n\r\n## ✅ Correção\r\n\r\n### Princípio: Maximize Revenue Per Session\r\n\r\n```\r\nO momento de máxima intenção é DURANTE o checkout.\r\nCada segundo após compra, intenção diminui.\r\nMonetize agressivamente no pico.\r\n```\r\n\r\n### Cadeia Completa de Upsells\r\n\r\n```\r\nQUIZ (qualifica + compromete)\r\n    ↓\r\nRESULTADO (personalizado + CTA)\r\n    ↓\r\nCHECKOUT\r\n├── Produto Principal ($X)\r\n└── BUMP OFFER ($Y) ← +25-40% take rate\r\n    ↓\r\nUPSELL 1 - OTO (One Time Offer)\r\n├── Aceita → Upsell 2\r\n└── Recusa → Downsell 1\r\n    ↓\r\nUPSELL 2 (para quem aceitou)\r\n├── Aceita → Thank You Premium\r\n└── Recusa → Downsell 2\r\n    ↓\r\nTHANK YOU PAGE\r\n└── Cross-sell ou preview de próxima oferta\r\n    ↓\r\nEMAIL SEQUENCE\r\n└── Mais ofertas segmentadas por compra\r\n```\r\n\r\n### Tipos de Ofertas por Posição\r\n\r\n| Posição | Tipo | Preço Relativo | Take Rate Esperado |\r\n|---------|------|----------------|---------------------|\r\n| Bump | Complemento | 20-30% do frontend | 25-40% |\r\n| Upsell 1 | Premium/Upgrade | 1.5-3x do frontend | 10-20% |\r\n| Downsell 1 | Versão Lite | 50-70% do upsell | 20-35% |\r\n| Upsell 2 | Add-on | Similar ao frontend | 5-15% |\r\n| Downsell 2 | Trial/Split | 30-50% do upsell 2 | 15-25% |\r\n\r\n### Exemplos de Cadeia (Fitness App)",
+    "metadata": {
+      "docType": "anti_pattern",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/anti-patterns/quiz_without_upsell_chain.md",
+      "section": "Introduction",
+      "lineStart": 1,
+      "lineEnd": 115
+    }
+  },
+  {
+    "content": "| Posição | Oferta | Preço | Take Rate |\r\n|---------|--------|-------|-----------|\r\n| Frontend | Trial 7 dias | $29 | 100% (base) |\r\n| Bump | Guia Nutricional PDF | $19 | 35% |\r\n| Upsell 1 | Programa 12 meses | $149 | 15% |\r\n| Downsell 1 | Programa 3 meses | $79 | 25% |\r\n| Upsell 2 | 1-on-1 Coaching | $199 | 10% |\r\n| Downsell 2 | Group Coaching | $49 | 20% |\r\n\r\n**LTV Médio Calculado:**\r\n- Base: $29\r\n- Bump: $19 × 35% = $6.65\r\n- Upsell 1: $149 × 15% = $22.35\r\n- Downsell 1: $79 × 25% × 85% = $16.79\r\n- Upsell 2: $199 × 10% × (15% + 25%×85%) = $7.16\r\n- Downsell 2: $49 × 20% × restante = ~$3.50\r\n\r\n**Total LTV: ~$85 (vs $29 sem upsells = 2.9x)**\r\n\r\n## 🎯 Implementação Prática\r\n\r\n### Fase 1: Bump Offer (Dia 1)\r\n\r\n1. Criar produto complementar de baixo atrito\r\n2. Adicionar checkbox no checkout\r\n3. Copy: \"Adicione X por apenas $Y (70% off)\"\r\n4. Testar 2-3 bumps diferentes\r\n\r\n### Fase 2: Upsell Principal (Semana 1)\r\n\r\n1. Criar OTO page com urgência real\r\n2. Oferta premium com desconto único\r\n3. Countdown timer\r\n4. Testimonials de upgrade\r\n\r\n### Fase 3: Downsell (Semana 2)\r\n\r\n1. Criar versão lite/split do upsell\r\n2. Page aparecer apenas para quem recusou\r\n3. Copy: \"Entendo, que tal essa opção?\"\r\n\r\n### Fase 4: Sequência (Semana 3-4)\r\n\r\n1. Email sequence com mais ofertas\r\n2. Segmentação por compras anteriores\r\n3. Cross-sells relacionados\r\n\r\n## 📊 Métricas de Sucesso\r\n\r\n| Métrica | Sem Upsells | Com Cadeia Completa |\r\n|---------|-------------|---------------------|\r\n| AOV | $50 | $85 (+70%) |\r\n| LTV 30 dias | $50 | $120 (+140%) |\r\n| ROAS | 1.5x | 3.5x (+133%) |\r\n| Break-even | 90 dias | 15 dias (-83%) |\r\n| Escala possível | $20k/mês | $100k+/mês |\r\n\r\n## 📚 Referências\r\n\r\n- Perry Belcher: \"Upsell Stack\"\r\n- Ryan Deiss: \"Machine\" funnel\r\n- MadMuscles: Cadeia completa implementada em escala\r\n\r\n## 🔗 Relacionados\r\n\r\n- [Case: MadMuscles Quiz Funnel](../case-library/quiz/madmuscles-quiz-funnel-2025.md)\r\n- [Heurística: Quiz Funnel Scale](../heuristics/quiz_funnel_scale.md)\r\n- [Heurística: Monetização Simples](../heuristics/monetizacao_simples.md)\r\n- [Playbook: Quiz Funnel at Scale](../playbooks/quiz_funnel_at_scale.md)",
+    "metadata": {
+      "docType": "anti_pattern",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/anti-patterns/quiz_without_upsell_chain.md",
+      "section": "Introduction",
+      "lineStart": 116,
+      "lineEnd": 187
+    }
+  },
+  {
+    "content": "---\r\nbusiness: generic\r\ncounselor: [sam_ovens, russell_brunson]\r\ndoc_type: mental_model\r\nscope: quiz_funnel\r\nchannel: all\r\nstage: strategy\r\nstatus: approved\r\nversion: 2024-12-25.v1\r\nsources:\r\n  - \"MadMuscles Case Study 2025\"\r\n  - \"Sam Ovens - Consulting Accelerator\"\r\n  - \"Russell Brunson - Traffic Secrets\"\r\n---\r\n\r\n# Mental Model: Framework de Micro-Segmentação\r\n\r\n## O Que É\r\n\r\nMicro-segmentação é a prática de dividir seu mercado em segmentos cada vez menores e criar experiências personalizadas para cada um. Em quiz funnels, isso significa múltiplas landing pages, criativos específicos, e jornadas customizadas por segmento.\r\n\r\n## A Grande Ideia\r\n\r\n> **Um mercado de 10M de pessoas não é um mercado. São 100 mercados de 100k pessoas cada.**\r\n\r\nA maioria dos marketers trata seu público como monolítico. Micro-segmentação reconhece que dentro de qualquer mercado existem sub-mercados com:\r\n- Dores diferentes\r\n- Motivações diferentes\r\n- Linguagem diferente\r\n- Objeções diferentes\r\n- Triggers de compra diferentes\r\n\r\n## O Framework\r\n\r\n### Dimensões de Segmentação\r\n\r\n```\r\n┌─────────────────────────────────────────────────────────┐\r\n│                    MERCADO TOTAL                        │\r\n│                                                         │\r\n│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │\r\n│  │ DEMOGRÁFICO  │  │   OBJETIVO   │  │ CONSCIÊNCIA  │  │\r\n│  │              │  │              │  │              │  │\r\n│  │ • Idade      │  │ • Resultado  │  │ • Unaware    │  │\r\n│  │ • Gênero     │  │ • Problema   │  │ • Problem    │  │\r\n│  │ • Renda      │  │ • Desejo     │  │ • Solution   │  │\r\n│  │ • Localização│  │ • Medo       │  │ • Product    │  │\r\n│  │ • Profissão  │  │              │  │ • Most Aware │  │\r\n│  └──────────────┘  └──────────────┘  └──────────────┘  │\r\n│                                                         │\r\n│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │\r\n│  │    CANAL     │  │   ÂNGULO     │  │  OBJEÇÃO     │  │\r\n│  │              │  │              │  │              │  │\r\n│  │ • YouTube    │  │ • Dor        │  │ • Preço      │  │\r\n│  │ • Meta       │  │ • Desejo     │  │ • Tempo      │  │\r\n│  │ • Google     │  │ • Medo       │  │ • Confiança  │  │\r\n│  │ • TikTok     │  │ • Aspiração  │  │ • Capacidade │  │\r\n│  │ • Email      │  │ • Urgência   │  │ • Prioridade │  │\r\n│  └──────────────┘  └──────────────┘  └──────────────┘  │\r\n│                                                         │\r\n└─────────────────────────────────────────────────────────┘\r\n```\r\n\r\n### Matriz de Combinações\r\n\r\nPara cada dimensão, você tem opções. Combinações = segmentos.\r\n\r\n**Exemplo (Fitness):**\r\n\r\n| Dimensão | Opções |\r\n|----------|--------|\r\n| Gênero | Homem, Mulher |\r\n| Idade | 25-34, 35-44, 45+ |\r\n| Objetivo | Perda peso, Ganho massa, Definição |\r\n| Canal | YouTube, Meta |\r\n\r\n**Combinações possíveis:** 2 × 3 × 3 × 2 = **36 segmentos**\r\n\r\nCada segmento merece:\r\n- Landing page específica\r\n- Criativos específicos\r\n- Copy específico\r\n- Jornada de quiz adaptada\r\n\r\n### Hierarquia de Impacto\r\n\r\nNem todas as dimensões têm mesmo peso. Priorize:\r\n\r\n```\r\n1. OBJETIVO (maior impacto em conversão)\r\n   \"O que a pessoa quer alcançar\"\r\n   \r\n2. NÍVEL DE CONSCIÊNCIA (segundo maior)\r\n   \"Quanto ela já sabe sobre o problema/solução\"\r\n   \r\n3. DEMOGRÁFICO (terceiro)\r\n   \"Quem ela é\"\r\n   \r\n4. CANAL (quarto)\r\n   \"De onde ela vem\"\r\n   \r\n5. ÂNGULO (quinto)\r\n   \"Que hook a trouxe\"\r\n```\r\n\r\n## Como Aplicar\r\n\r\n### Fase 1: Mapeamento (Dia 1-2)",
+    "metadata": {
+      "docType": "mental_model",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/mental-models/micro_segmentation_framework.md",
+      "section": "Introduction",
+      "lineStart": 1,
+      "lineEnd": 108
+    }
+  },
+  {
+    "content": "1. **Liste seus objetivos principais** (máx 5)\r\n   - Ex: Perder peso, Ganhar massa, Ter energia\r\n\r\n2. **Liste demografia relevante** (máx 5)\r\n   - Ex: Homens 25-34, Mulheres 35-44\r\n\r\n3. **Liste canais de aquisição** (máx 3)\r\n   - Ex: YouTube, Meta\r\n\r\n4. **Crie matriz de prioridade**\r\n   - Top 10-20 combinações por potencial de mercado\r\n\r\n### Fase 2: Criação (Semana 1-2)\r\n\r\n1. **Para cada segmento prioritário:**\r\n   - Criar landing page específica\r\n   - Adaptar headline para objetivo\r\n   - Adaptar imagem para demografia\r\n   - Adaptar copy para nível de consciência\r\n\r\n2. **Para cada canal:**\r\n   - Criativos nativos para plataforma\r\n   - Message match com LP\r\n\r\n### Fase 3: Teste (Semana 3-4)\r\n\r\n1. **Lançar todos os segmentos simultaneamente**\r\n2. **Budget igual por segmento (teste justo)**\r\n3. **Após $500-1000/segmento:**\r\n   - Identificar vencedores\r\n   - Kill perdedores\r\n   - Escalar vencedores\r\n\r\n### Fase 4: Escala (Mês 2+)\r\n\r\n1. **Expandir segmentos vencedores**\r\n   - Mais variações dentro do segmento\r\n   - Mais criativos para o segmento\r\n   - Mais budget para o segmento\r\n\r\n2. **Adicionar novos segmentos**\r\n   - Combinações não testadas\r\n   - Novos ângulos\r\n   - Novos canais\r\n\r\n## Exemplo Prático\r\n\r\n### Mercado: App de Meditação\r\n\r\n**Segmentos Mapeados:**\r\n\r\n| # | Segmento | Headline | Hook |\r\n|---|----------|----------|------|\r\n| 1 | Executivos estressados | \"5min/dia para decisões mais claras\" | Produtividade |\r\n| 2 | Mães sobrecarregadas | \"Encontre paz no caos diário\" | Equilíbrio |\r\n| 3 | Jovens ansiosos | \"Durma melhor esta noite\" | Sono |\r\n| 4 | Aposentados | \"Mente afiada aos 60+\" | Longevidade |\r\n| 5 | Atletas | \"Performance mental de elite\" | Alta performance |\r\n\r\n**Resultado esperado:**\r\n- 5x mais mercado acessível\r\n- 2-3x melhor CTR (message match)\r\n- 50%+ melhor conversão\r\n\r\n## Armadilhas a Evitar\r\n\r\n### ❌ Over-segmentation\r\n- Problema: Segmentos pequenos demais\r\n- Solução: Mínimo 100k pessoas por segmento\r\n\r\n### ❌ Under-personalization\r\n- Problema: Segmento definido mas LP genérica\r\n- Solução: Cada segmento = experiência única\r\n\r\n### ❌ Complexity Paralysis\r\n- Problema: Tentar fazer tudo de uma vez\r\n- Solução: Começar com top 5-10, escalar\r\n\r\n### ❌ Data Blindness\r\n- Problema: Não rastrear por segmento\r\n- Solução: UTMs + tracking granular\r\n\r\n## Métricas por Segmento\r\n\r\n| Métrica | O que mostra |\r\n|---------|--------------|\r\n| CTR por segmento | Relevância da mensagem |\r\n| CVR por segmento | Fit produto-mercado |\r\n| CAC por segmento | Eficiência de aquisição |\r\n| LTV por segmento | Qualidade de cliente |\r\n| Tamanho de mercado | Potencial de escala |\r\n\r\n## Referência de Escala\r\n\r\n| Nível | Segmentos | Budget/mês | Resultado típico |\r\n|-------|-----------|------------|------------------|\r\n| Iniciante | 5-10 | $5-20k | Validação |\r\n| Intermediário | 20-50 | $20-50k | Crescimento |\r\n| Avançado | 50-100 | $50-200k | Escala |\r\n| Enterprise | 100-500 | $200k+ | Dominância |\r\n\r\n**Referência:** MadMuscles: 493 segmentos/LPs → 10M visitas/mês\r\n\r\n## 🔗 Relacionados\r\n\r\n- [Case: MadMuscles Quiz Funnel](../case-library/quiz/madmuscles-quiz-funnel-2025.md)\r\n- [Anti-pattern: Single Landing Page](../anti-patterns/single_landing_page.md)\r\n- [Heurística: Quiz Funnel Scale](../heuristics/quiz_funnel_scale.md)",
+    "metadata": {
+      "docType": "mental_model",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/mental-models/micro_segmentation_framework.md",
+      "section": "Introduction",
+      "lineStart": 109,
+      "lineEnd": 219
+    }
+  },
+  {
+    "content": "---\r\nbusiness: generic\r\ncounselor: [russell_brunson, perry_belcher, sam_ovens]\r\ndoc_type: playbook\r\nscope: quiz_funnel\r\nchannel: [youtube_ads, meta_ads]\r\nstage: full_funnel\r\nstatus: approved\r\nversion: 2024-12-25.v1\r\nsources:\r\n  - \"MadMuscles Case Study 2025\"\r\n  - \"Russell Brunson - Funnel Hacking\"\r\n  - \"Perry Belcher - Upsell Stacking\"\r\n  - \"Sam Ovens - Consulting.com\"\r\n---\r\n\r\n# Playbook: Quiz Funnel do Zero à Escala\r\n\r\n## Visão Geral\r\n\r\nEste playbook detalha o processo completo para criar, validar e escalar um quiz funnel. Baseado no case MadMuscles (10M visitas/mês) e validado em múltiplos nichos.\r\n\r\n**Tempo estimado:** 8-12 semanas do zero à escala\r\n**Budget mínimo para validação:** $5-10k\r\n**Budget para escala:** $50k+/mês\r\n\r\n## Fase 1: Fundação (Semana 1-2)\r\n\r\n### 1.1 Definição de Mercado\r\n\r\n**Perguntas a responder:**\r\n- [ ] Qual o tamanho do mercado? (mín: 1M pessoas)\r\n- [ ] Quais os 3-5 objetivos principais do público?\r\n- [ ] Quais as 3-5 dores mais intensas?\r\n- [ ] Quem são os 5-10 concorrentes?\r\n- [ ] Qual o ticket médio do mercado?\r\n\r\n**Output:** Documento de mercado com segmentos mapeados\r\n\r\n### 1.2 Arquitetura do Quiz\r\n\r\n**Estrutura recomendada:**\r\n\r\n```\r\nENTRADA (LP)\r\n    ↓\r\nQUIZ (8-12 perguntas)\r\n├── Perguntas 1-3: Qualificação (filtrar não-fit)\r\n├── Perguntas 4-6: Segmentação (personalizar resultado)\r\n├── Perguntas 7-9: Dados (enriquecer perfil)\r\n└── Perguntas 10-12: Comprometimento (aumentar conversão)\r\n    ↓\r\nRESULTADO (personalizado)\r\n    ↓\r\nCHECKOUT + UPSELLS\r\n    ↓\r\nENTREGA + NURTURE\r\n```\r\n\r\n**Exemplo de perguntas (Fitness):**\r\n\r\n| # | Pergunta | Propósito |\r\n|---|----------|-----------|\r\n| 1 | Qual seu objetivo? | Segmentação |\r\n| 2 | Você já tentou antes? | Qualificação |\r\n| 3 | O que te impediu? | Copy insight |\r\n| 4 | Quanto tempo disponível? | Personalização |\r\n| 5 | Restrições alimentares? | Personalização |\r\n| 6 | Nível de atividade atual? | Segmentação |\r\n| 7 | Seu peso atual? | Dados |\r\n| 8 | Peso desejado? | Dados |\r\n| 9 | Em quanto tempo? | Urgência |\r\n| 10 | Comprometimento? | Psicológico |\r\n\r\n### 1.3 Cadeia de Ofertas\r\n\r\n**Definir ANTES de construir:**\r\n\r\n| Posição | Produto | Preço | Objetivo |\r\n|---------|---------|-------|----------|\r\n| Frontend | [Principal] | $X | Aquisição |\r\n| Bump | [Complemento] | $Y (20-30% de X) | +AOV |\r\n| Upsell 1 | [Premium] | $Z (1.5-3x de X) | +LTV |\r\n| Downsell 1 | [Lite] | $W (50-70% de Z) | Recuperação |\r\n| Upsell 2 | [Add-on] | $V | +LTV |\r\n\r\n**Output:** Documento de ofertas com preços e posicionamento\r\n\r\n## Fase 2: Construção (Semana 3-4)\r\n\r\n### 2.1 Landing Pages\r\n\r\n**Criar mínimo 5 LPs:**\r\n1. LP por objetivo principal #1\r\n2. LP por objetivo principal #2\r\n3. LP por objetivo principal #3\r\n4. LP por demografia #1\r\n5. LP por demografia #2\r\n\r\n**Estrutura de cada LP:**\r\n\r\n```\r\n[Headline específica para segmento]\r\n[Hero image que reflete audiência]\r\n[Sub-headline com dor]\r\n[CTA: \"Fazer Quiz Gratuito\"]\r\n[Benefícios rápidos - 3 bullets]\r\n[Social proof]\r\n[CTA secundário]\r\n[FAQ mínimo]\r\n```\r\n\r\n### 2.2 Quiz Builder\r\n\r\n**Ferramentas recomendadas:**\r\n- Typeform (simplicidade)\r\n- Interact (marketing focused)\r\n- Custom (máximo controle)\r\n- LeadQuizzes (budget)\r\n\r\n**Checklist de quiz:**\r\n- [ ] Perguntas fluem naturalmente",
+    "metadata": {
+      "docType": "playbook",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/playbooks/quiz_funnel_at_scale.md",
+      "section": "Introduction",
+      "lineStart": 1,
+      "lineEnd": 122
+    }
+  },
+  {
+    "content": "- [ ] Progress bar visível\r\n- [ ] Skip não permitido em perguntas críticas\r\n- [ ] Mobile-first design\r\n- [ ] Loading de \"cálculo\" antes do resultado\r\n- [ ] Resultado personalizado com inputs do usuário\r\n\r\n### 2.3 Página de Resultado\r\n\r\n**Elementos obrigatórios:**\r\n\r\n```\r\n[Headline personalizada com resultado]\r\n\"Seu Diagnóstico: [Segmento]\"\r\n\r\n[Resumo do perfil]\r\n\"Baseado nas suas respostas, você é...\"\r\n\r\n[Recomendação específica]\r\n\"O plano ideal para você é...\"\r\n\r\n[Visualização de progresso]\r\nGráfico ou timeline de transformação\r\n\r\n[CTA principal]\r\n\"Começar Agora - $X\"\r\n\r\n[Garantia]\r\n\"7 dias de garantia incondicional\"\r\n\r\n[Urgência]\r\n\"Oferta válida por [timer]\"\r\n```\r\n\r\n### 2.4 Checkout + Upsells\r\n\r\n**Checkout:**\r\n- [ ] Produto + preço claros\r\n- [ ] Bump offer com checkbox\r\n- [ ] Garantia visível\r\n- [ ] Badges de segurança\r\n- [ ] Testimonials\r\n\r\n**Upsell Page:**\r\n- [ ] OTO (One Time Offer) headline\r\n- [ ] Urgência real (timer)\r\n- [ ] Desconto exclusivo\r\n- [ ] Botões: Sim/Não (não X de fechar)\r\n- [ ] Copy de benefício, não features\r\n\r\n### 2.5 Criativos\r\n\r\n**Criar mínimo 10 criativos:**\r\n- 3-5 para YouTube (30-90s)\r\n- 3-5 para Meta (15-30s)\r\n- 2 variações de cada hook\r\n\r\n**Estrutura de criativo:**\r\n\r\n```\r\n0-5s: HOOK (curiosidade, problema, promessa)\r\n5-15s: PROBLEMA (amplificar dor)\r\n15-30s: SOLUÇÃO (introduzir quiz)\r\n30-45s: PROVA (resultados, números)\r\n45-60s: CTA (\"Faça o quiz gratuito\")\r\n```\r\n\r\n## Fase 3: Validação (Semana 5-6)\r\n\r\n### 3.1 Setup de Tracking\r\n\r\n**Eventos a rastrear:**\r\n- [ ] LP View\r\n- [ ] Quiz Start\r\n- [ ] Quiz Complete\r\n- [ ] Result View\r\n- [ ] Checkout View\r\n- [ ] Purchase\r\n- [ ] Bump Purchase\r\n- [ ] Upsell 1 View\r\n- [ ] Upsell 1 Purchase\r\n- [ ] Downsell 1 View\r\n- [ ] Downsell 1 Purchase\r\n\r\n**UTM Structure:**\r\n```\r\nutm_source: youtube|meta|google\r\nutm_medium: cpc|cpm|organic\r\nutm_campaign: [objetivo]_[demo]_[data]\r\nutm_content: [criativo_id]\r\nutm_term: [segmento]\r\n```\r\n\r\n### 3.2 Lançamento Inicial\r\n\r\n**Budget inicial:** $100-200/dia\r\n**Distribuição:** Equal entre segmentos/criativos\r\n\r\n**Campanhas:**\r\n1. YouTube: Custom Intent (keywords problema)\r\n2. YouTube: Custom Intent (keywords solução)\r\n3. Meta: Broad (se ticket > $50)\r\n4. Meta: Lookalike (se tiver seed audience)\r\n\r\n### 3.3 Análise Semanal\r\n\r\n**Métricas a analisar:**\r\n\r\n| Métrica | Target Mínimo | Bom | Excelente |\r\n|---------|---------------|-----|-----------|\r\n| CTR (ad) | 0.5% | 1% | 2%+ |\r\n| Quiz Start Rate | 30% | 50% | 70% |\r\n| Quiz Complete Rate | 50% | 70% | 85% |\r\n| Checkout Rate | 10% | 20% | 30% |\r\n| Purchase Rate | 5% | 10% | 15% |\r\n| Bump Take Rate | 20% | 30% | 40% |\r\n| Upsell Take Rate | 10% | 15% | 25% |\r\n\r\n### 3.4 Otimização\r\n\r\n**Prioridade de fix:**\r\n\r\n1. **CTR baixo:** Problema de hook/criativo\r\n2. **Quiz Start baixo:** Problema de LP\r\n3. **Quiz Complete baixo:** Quiz longo ou confuso\r\n4. **Checkout baixo:** Resultado não convincente\r\n5. **Purchase baixo:** Preço ou oferta\r\n6. **Upsell baixo:** Timing ou relevância\r\n\r\n## Fase 4: Escala (Semana 7-12)\r\n\r\n### 4.1 Escala Vertical\r\n\r\n**Aumentar budget em vencedores:**\r\n- Aumentar 20% a cada 3-5 dias",
+    "metadata": {
+      "docType": "playbook",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/playbooks/quiz_funnel_at_scale.md",
+      "section": "Introduction",
+      "lineStart": 123,
+      "lineEnd": 256
+    }
+  },
+  {
+    "content": "- Monitorar CPA/ROAS diariamente\r\n- Pausar se CPA aumentar > 30%\r\n\r\n### 4.2 Escala Horizontal\r\n\r\n**Adicionar:**\r\n- Mais LPs (objetivo: 20-50)\r\n- Mais criativos (objetivo: 50-100)\r\n- Mais segmentos\r\n- Novos canais\r\n- Novos países (após validar)\r\n\r\n### 4.3 Automação\r\n\r\n**Implementar:**\r\n- [ ] Email sequence por resultado de quiz\r\n- [ ] SMS para cart abandonment\r\n- [ ] Remarketing dinâmico\r\n- [ ] Lookalike de compradores\r\n\r\n### 4.4 Otimização Contínua\r\n\r\n**Ciclo semanal:**\r\n1. Analisar métricas por segmento\r\n2. Kill perdedores (< 50% do benchmark)\r\n3. Scale vencedores (+20% budget)\r\n4. Lançar novos testes (5-10/semana)\r\n\r\n## Checklist Final\r\n\r\n### Fundação\r\n- [ ] Mercado mapeado (>1M pessoas)\r\n- [ ] 3-5 objetivos identificados\r\n- [ ] Cadeia de ofertas definida\r\n- [ ] Personas documentadas\r\n\r\n### Construção\r\n- [ ] 5+ landing pages\r\n- [ ] Quiz de 8-12 perguntas\r\n- [ ] Resultado personalizado\r\n- [ ] Checkout otimizado\r\n- [ ] Bump offer\r\n- [ ] Upsell + Downsell\r\n- [ ] 10+ criativos\r\n\r\n### Validação\r\n- [ ] Tracking completo\r\n- [ ] $2-5k investidos em testes\r\n- [ ] Métricas por segmento\r\n- [ ] 2-3 combinações vencedoras identificadas\r\n\r\n### Escala\r\n- [ ] 20+ landing pages\r\n- [ ] 50+ criativos\r\n- [ ] $20k+/mês de budget\r\n- [ ] ROAS > 2x sustentado\r\n- [ ] Time/processo de criação\r\n\r\n## Métricas de Sucesso por Fase\r\n\r\n| Fase | Métrica | Target |\r\n|------|---------|--------|\r\n| Validação | Quiz complete rate | >60% |\r\n| Validação | Checkout rate | >15% |\r\n| Validação | ROAS (30 dias) | >1.5x |\r\n| Escala | ROAS (30 dias) | >2.5x |\r\n| Escala | Budget sustentável | >$50k/mês |\r\n| Escala | LPs ativas | >50 |\r\n| Dominância | Escala total | >$200k/mês |\r\n\r\n## 🔗 Relacionados\r\n\r\n- [Case: MadMuscles Quiz Funnel](../case-library/quiz/madmuscles-quiz-funnel-2025.md)\r\n- [Heurística: Quiz Funnel Scale](../heuristics/quiz_funnel_scale.md)\r\n- [Heurística: Creative AI Testing](../heuristics/creative_ai_testing.md)\r\n- [Heurística: YouTube Traffic Dominance](../heuristics/youtube_traffic_dominance.md)\r\n- [Anti-pattern: Single Landing Page](../anti-patterns/single_landing_page.md)\r\n- [Anti-pattern: Quiz Without Upsell Chain](../anti-patterns/quiz_without_upsell_chain.md)\r\n- [Mental Model: Micro-Segmentation](../mental-models/micro_segmentation_framework.md)\r\n- [Scorecard: Quiz Funnel](../scorecards/quiz_funnel_scorecard.md)",
+    "metadata": {
+      "docType": "playbook",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/playbooks/quiz_funnel_at_scale.md",
+      "section": "Introduction",
+      "lineStart": 257,
+      "lineEnd": 338
+    }
+  },
+  {
+    "content": "---\r\nbusiness: generic\r\ncounselor: [russell_brunson, perry_belcher, sam_ovens, frank_kern, dan_kennedy, ryan_deiss]\r\ndoc_type: scorecard\r\nscope: quiz_funnel\r\nchannel: all\r\nstage: evaluation\r\nstatus: approved\r\nversion: 2024-12-25.v1\r\n---\r\n\r\n# Scorecard: Avaliação de Quiz Funnel\r\n\r\n## Visão Geral\r\n\r\nEste scorecard avalia quiz funnels em 10 dimensões críticas. Use para auditar funis existentes ou validar novos antes de escalar.\r\n\r\n**Score final:** Média ponderada das 10 dimensões\r\n**Threshold mínimo para escala:** 7.0/10\r\n\r\n## Dimensões de Avaliação\r\n\r\n### 1. Arquitetura de Quiz (Russell Brunson)\r\n**Peso: 15%**\r\n\r\n| Score | Critério |\r\n|-------|----------|\r\n| 1-2 | Quiz genérico, perguntas irrelevantes |\r\n| 3-4 | Quiz básico, pouca personalização |\r\n| 5-6 | Quiz estruturado, alguma segmentação |\r\n| 7-8 | Quiz bem desenhado, boa qualificação |\r\n| 9-10 | Quiz excelente: qualifica, segmenta, compromete |\r\n\r\n**Checklist:**\r\n- [ ] 8-15 perguntas (não mais, não menos)\r\n- [ ] Perguntas qualificam (filtram não-fit)\r\n- [ ] Perguntas segmentam (personalizam resultado)\r\n- [ ] Progress bar visível\r\n- [ ] Flow lógico e natural\r\n- [ ] Mobile-first\r\n\r\n### 2. Personalização de Resultado (Sam Ovens)\r\n**Peso: 15%**\r\n\r\n| Score | Critério |\r\n|-------|----------|\r\n| 1-2 | Resultado idêntico para todos |\r\n| 3-4 | Resultado com 2-3 variações |\r\n| 5-6 | Resultado usa algumas respostas |\r\n| 7-8 | Resultado altamente personalizado |\r\n| 9-10 | Resultado único por combinação de respostas |\r\n\r\n**Checklist:**\r\n- [ ] Resultado menciona inputs do usuário\r\n- [ ] Recomendação específica por segmento\r\n- [ ] Visualização de transformação\r\n- [ ] Dados do quiz usados no copy\r\n- [ ] Diagnóstico, não só score\r\n\r\n### 3. Micro-Segmentação (Sam Ovens)\r\n**Peso: 10%**\r\n\r\n| Score | Critério |\r\n|-------|----------|\r\n| 1-2 | 1 landing page para tudo |\r\n| 3-4 | 2-5 landing pages |\r\n| 5-6 | 5-20 landing pages |\r\n| 7-8 | 20-50 landing pages |\r\n| 9-10 | 50+ landing pages por segmento |\r\n\r\n**Checklist:**\r\n- [ ] LPs por objetivo principal\r\n- [ ] LPs por demografia\r\n- [ ] LPs por canal de tráfego\r\n- [ ] Message match criativo → LP\r\n- [ ] Copy específico por segmento\r\n\r\n### 4. Cadeia de Upsells (Perry Belcher)\r\n**Peso: 15%**\r\n\r\n| Score | Critério |\r\n|-------|----------|\r\n| 1-2 | Apenas produto frontend |\r\n| 3-4 | Frontend + 1 upsell |\r\n| 5-6 | Frontend + bump + upsell |\r\n| 7-8 | Cadeia completa (bump + upsell + downsell) |\r\n| 9-10 | Cadeia otimizada com múltiplos paths |\r\n\r\n**Checklist:**\r\n- [ ] Bump offer no checkout (target: 25-40% take rate)\r\n- [ ] Upsell 1 pós-compra (target: 10-20% take rate)\r\n- [ ] Downsell para recusas (target: 20-30% take rate)\r\n- [ ] Upsell 2 opcional\r\n- [ ] LTV > 2x AOV frontend\r\n\r\n### 5. Copy & Persuasão (Dan Kennedy)\r\n**Peso: 10%**\r\n\r\n| Score | Critério |\r\n|-------|----------|\r\n| 1-2 | Copy genérico, sem hook |\r\n| 3-4 | Copy básico, benefícios vagos |\r\n| 5-6 | Copy decente, algumas provas |\r\n| 7-8 | Copy forte, urgência real |",
+    "metadata": {
+      "docType": "scorecard",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/scorecards/quiz_funnel_scorecard.md",
+      "section": "Introduction",
+      "lineStart": 1,
+      "lineEnd": 104
+    }
+  },
+  {
+    "content": "| 9-10 | Copy excepcional, impossível ignorar |\r\n\r\n**Checklist:**\r\n- [ ] Headlines específicas com benefício\r\n- [ ] Prova social relevante\r\n- [ ] Urgência real (não fake)\r\n- [ ] Garantia clara\r\n- [ ] CTA irresistível\r\n- [ ] Objeções tratadas\r\n\r\n### 6. Volume de Criativos (Frank Kern)\r\n**Peso: 10%**\r\n\r\n| Score | Critério |\r\n|-------|----------|\r\n| 1-2 | 1-3 criativos |\r\n| 3-4 | 5-10 criativos |\r\n| 5-6 | 10-30 criativos |\r\n| 7-8 | 30-50 criativos |\r\n| 9-10 | 50+ criativos ativos |\r\n\r\n**Checklist:**\r\n- [ ] Múltiplos hooks testados\r\n- [ ] Formatos variados (vídeo, imagem, UGC)\r\n- [ ] Criativos nativos por plataforma\r\n- [ ] AI-assisted para volume\r\n- [ ] Processo de criação escalável\r\n\r\n### 7. Qualidade de Tráfego (Sam Ovens)\r\n**Peso: 10%**\r\n\r\n| Score | Critério |\r\n|-------|----------|\r\n| 1-2 | Tráfego frio genérico |\r\n| 3-4 | Algum targeting básico |\r\n| 5-6 | Targeting por interesse |\r\n| 7-8 | Custom audiences + lookalikes |\r\n| 9-10 | Full stack: cold + warm + hot |\r\n\r\n**Checklist:**\r\n- [ ] Cold: Custom intent / interesse\r\n- [ ] Warm: Site visitors, video viewers\r\n- [ ] Hot: Cart abandoners, buyers\r\n- [ ] Exclusions configuradas\r\n- [ ] Frequency caps adequados\r\n\r\n### 8. Email/Nurture Sequence (Ryan Deiss)\r\n**Peso: 5%**\r\n\r\n| Score | Critério |\r\n|-------|----------|\r\n| 1-2 | Sem sequence |\r\n| 3-4 | Sequence genérica |\r\n| 5-6 | Sequence por resultado de quiz |\r\n| 7-8 | Sequence segmentada + personalizada |\r\n| 9-10 | Automation completa por behavior |\r\n\r\n**Checklist:**\r\n- [ ] Welcome sequence (Day 0-3)\r\n- [ ] Nurture sequence (Day 4-14)\r\n- [ ] Segmentação por resultado de quiz\r\n- [ ] Cart abandonment emails\r\n- [ ] Re-engagement para inativos\r\n\r\n### 9. Métricas & Tracking (Ryan Deiss)\r\n**Peso: 5%**\r\n\r\n| Score | Critério |\r\n|-------|----------|\r\n| 1-2 | Sem tracking |\r\n| 3-4 | Google Analytics básico |\r\n| 5-6 | Pixel + eventos principais |\r\n| 7-8 | Tracking completo por etapa |\r\n| 9-10 | Attribution multi-touch + LTV tracking |\r\n\r\n**Checklist:**\r\n- [ ] Eventos de funil completos\r\n- [ ] UTMs padronizados\r\n- [ ] Tracking por segmento/LP\r\n- [ ] ROAS por criativo\r\n- [ ] LTV tracking (30/60/90 dias)\r\n\r\n### 10. Potencial de Escala (Russell Brunson)\r\n**Peso: 5%**\r\n\r\n| Score | Critério |\r\n|-------|----------|\r\n| 1-2 | Mercado muito pequeno |\r\n| 3-4 | Mercado limitado |\r\n| 5-6 | Mercado médio (100k-1M) |\r\n| 7-8 | Mercado grande (1-10M) |\r\n| 9-10 | Mercado massivo (10M+) |\r\n\r\n**Checklist:**\r\n- [ ] TAM > 1M pessoas\r\n- [ ] Múltiplos canais possíveis\r\n- [ ] Expansão internacional viável\r\n- [ ] Produto evergreen\r\n- [ ] CAC sustentável em escala\r\n\r\n## Template de Avaliação\r\n\r\n### Informações do Funil\r\n\r\n| Campo | Valor |\r\n|-------|-------|\r\n| Nome do Funil | |\r\n| Nicho | |\r\n| Frontend Ticket | |\r\n| URL de Teste | |",
+    "metadata": {
+      "docType": "scorecard",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/scorecards/quiz_funnel_scorecard.md",
+      "section": "Introduction",
+      "lineStart": 105,
+      "lineEnd": 214
+    }
+  },
+  {
+    "content": "| Data da Avaliação | |\r\n\r\n### Scores por Dimensão\r\n\r\n| # | Dimensão | Peso | Score (1-10) | Ponderado |\r\n|---|----------|------|--------------|-----------|\r\n| 1 | Arquitetura de Quiz | 15% | | |\r\n| 2 | Personalização | 15% | | |\r\n| 3 | Micro-Segmentação | 10% | | |\r\n| 4 | Cadeia de Upsells | 15% | | |\r\n| 5 | Copy & Persuasão | 10% | | |\r\n| 6 | Volume de Criativos | 10% | | |\r\n| 7 | Qualidade de Tráfego | 10% | | |\r\n| 8 | Email/Nurture | 5% | | |\r\n| 9 | Métricas & Tracking | 5% | | |\r\n| 10 | Potencial de Escala | 5% | | |\r\n| | **TOTAL** | 100% | | **X.X/10** |\r\n\r\n### Interpretação do Score\r\n\r\n| Score Final | Classificação | Recomendação |\r\n|-------------|---------------|--------------|\r\n| 9.0 - 10.0 | Excelente | Escalar agressivamente |\r\n| 7.0 - 8.9 | Bom | Escalar com otimizações |\r\n| 5.0 - 6.9 | Médio | Otimizar antes de escalar |\r\n| 3.0 - 4.9 | Fraco | Revisão significativa necessária |\r\n| 1.0 - 2.9 | Crítico | Reconstruir do zero |\r\n\r\n### Plano de Ação\r\n\r\n**Top 3 Dimensões para Melhorar:**\r\n1. [Dimensão] - Score atual: X - Target: Y\r\n2. [Dimensão] - Score atual: X - Target: Y\r\n3. [Dimensão] - Score atual: X - Target: Y\r\n\r\n**Próximos Passos:**\r\n1. [ ]\r\n2. [ ]\r\n3. [ ]\r\n\r\n## Benchmarks de Referência\r\n\r\n### Métricas Operacionais (para quiz funnels validados)\r\n\r\n| Métrica | Ruim | OK | Bom | Elite |\r\n|---------|------|-----|-----|-------|\r\n| Quiz Start Rate | <30% | 30-50% | 50-70% | >70% |\r\n| Quiz Complete Rate | <50% | 50-70% | 70-85% | >85% |\r\n| Result → Checkout | <10% | 10-20% | 20-30% | >30% |\r\n| Checkout → Purchase | <30% | 30-50% | 50-70% | >70% |\r\n| Bump Take Rate | <20% | 20-30% | 30-40% | >40% |\r\n| Upsell Take Rate | <10% | 10-15% | 15-25% | >25% |\r\n| ROAS (30 dias) | <1.5x | 1.5-2.5x | 2.5-4x | >4x |\r\n| LTV/CAC | <2x | 2-3x | 3-5x | >5x |\r\n\r\n### Referência: MadMuscles\r\n\r\n| Métrica | Valor |\r\n|---------|-------|\r\n| Landing Pages | 493 |\r\n| Tráfego/mês | 10M+ |\r\n| Budget/ano | ~$10M |\r\n| Top criativo gasto | $1.9M |\r\n\r\n## 🔗 Relacionados\r\n\r\n- [Case: MadMuscles Quiz Funnel](../case-library/quiz/madmuscles-quiz-funnel-2025.md)\r\n- [Playbook: Quiz Funnel at Scale](../playbooks/quiz_funnel_at_scale.md)\r\n- [Scorecard: Funil Geral](./scorecard_funnel.md)",
+    "metadata": {
+      "docType": "scorecard",
+      "scope": "quiz_funnel",
+      "tenantId": null,
+      "status": "approved",
+      "version": "2024-12-25"
+    },
+    "source": {
+      "file": "brain/second brain/brain/council/scorecards/quiz_funnel_scorecard.md",
+      "section": "Introduction",
+      "lineStart": 215,
+      "lineEnd": 285
+    }
+  },
+  {
+    "content": "# Identity: Algoritmo & Descoberta",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/algoritmo_descoberta.md",
+      "section": "Identity: Algoritmo & Descoberta",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## Papel em Uma Frase\n\n**A cadeira de Algoritmo & Descoberta é o guardião das mudanças de plataforma — entende como cada algoritmo funciona AGORA, o que está morrendo, e como otimizar para descoberta orgânica.**",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/algoritmo_descoberta.md",
+      "section": "Papel em Uma Frase",
+      "lineStart": 4,
+      "lineEnd": 7
+    }
+  },
+  {
+    "content": "## Expertise\n\nEsta cadeira domina:\n- **Como cada algoritmo funciona** (TikTok, Instagram, X, LinkedIn)\n- **O que mudou recentemente** (últimas 2-4 semanas)\n- **O que está funcionando AGORA** (não o que funcionava em 2023)\n- **Formatos emergentes** (novos tipos de conteúdo que o algoritmo favorece)\n- **Sinais de ranking** (o que o algoritmo mede para ranquear conteúdo)\n- **Impacto direto no topo do funil** (descoberta e tráfego)",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/algoritmo_descoberta.md",
+      "section": "Expertise",
+      "lineStart": 8,
+      "lineEnd": 17
+    }
+  },
+  {
+    "content": "## Estilo Cognitivo\n\n- **Obsessivo com mudanças** — Rastreia atualizações de produto em tempo real\n- **Baseado em dados** — Sempre com evidência de o que funciona\n- **Prático e acionável** — Traduz mudanças em ações imediatas\n- **Sem nostalgia** — O que funcionava em 2023 é irrelevante",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/algoritmo_descoberta.md",
+      "section": "Estilo Cognitivo",
+      "lineStart": 18,
+      "lineEnd": 24
+    }
+  },
+  {
+    "content": "## Quando Consultar\n\n✅ **Quando você precisa:**\n- Entender por que seu conteúdo não está sendo descoberto\n- Saber quais formatos o algoritmo favorece AGORA\n- Identificar mudanças recentes que afetam seu tráfego\n- Otimizar para descoberta orgânica\n- Entender sinais de ranking por plataforma\n- Planejar estratégia de conteúdo para próximas 4 semanas\n\n❌ **Quando NÃO consultar:**\n- Se você quer \"estratégia evergreen\" (algoritmo muda constantemente)\n- Se você quer dicas de 2023 (irrelevantes)\n- Se você não quer adaptar (algoritmo exige adaptação contínua)",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/algoritmo_descoberta.md",
+      "section": "Quando Consultar",
+      "lineStart": 25,
+      "lineEnd": 39
+    }
+  },
+  {
+    "content": "## Princípios Fundamentais\n\n### 1. Algoritmo Muda Constantemente\n\nO algoritmo não é estático. Muda a cada 2-4 semanas. O que funcionava em janeiro pode não funcionar em fevereiro.\n\n**Implicação**: Você precisa de sistema de monitoramento contínuo, não de \"estratégia fixa\".\n\n### 2. Cada Plataforma Tem Lógica Diferente\n\nTikTok prioriza retenção. Instagram prioriza engajamento. X prioriza viralidade. LinkedIn prioriza autoridade.\n\n**Implicação**: Estratégia que funciona em TikTok não funciona em LinkedIn.\n\n### 3. Sinais de Ranking São Mensuráveis\n\nCada plataforma tem sinais específicos que o algoritmo mede: retenção, engajamento, cliques, compartilhamentos, etc.\n\n**Implicação**: Você pode otimizar para esses sinais.\n\n### 4. Formatos Emergentes Têm Vantagem Inicial\n\nQuando um novo formato emerge (ex: Reels em 2021, Shorts em 2022), o algoritmo favorece para incentivar adoção.\n\n**Implicação**: Primeiros a adotar novo formato ganham tráfego desproporcionalmente alto.\n\n### 5. Descoberta Orgânica é Mais Valiosa que Pago\n\nConteúdo descoberto organicamente tem taxa de conversão mais alta porque é menos interruptivo.\n\n**Implicação**: Otimizar para algoritmo é mais importante que pagar por tráfego.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/algoritmo_descoberta.md",
+      "section": "Princípios Fundamentais",
+      "lineStart": 40,
+      "lineEnd": 71
+    }
+  },
+  {
+    "content": "## Perguntas Recorrentes\n\n**P: Por que meu conteúdo não está sendo descoberto?**\nR: Pode ser: (1) formato não alinhado com o que o algoritmo favorece AGORA, (2) sinais de ranking fracos (retenção, engajamento), (3) mudança recente no algoritmo que você não adaptou.\n\n**P: O que funciona em TikTok vai funcionar em Instagram?**\nR: Parcialmente. TikTok favorece retenção (watch time). Instagram favorece engajamento (likes, comentários). Adapte para cada plataforma.\n\n**P: Como sei se o algoritmo mudou?**\nR: Sinais: (1) queda repentina em impressões, (2) novo formato aparecendo em explore, (3) mudanças anunciadas pela plataforma.\n\n**P: Qual é o melhor formato AGORA?**\nR: Depende da plataforma e da semana. Consulte alg-updates para resposta atualizada.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/algoritmo_descoberta.md",
+      "section": "Perguntas Recorrentes",
+      "lineStart": 72,
+      "lineEnd": 85
+    }
+  },
+  {
+    "content": "## O Que Mata Esta Cadeira\n\n❌ **Estratégia fixa** — Esta cadeira mata quem não adapta quando o algoritmo muda.\n\n❌ **Copiar o que funcionava em 2023** — Esta cadeira mata quem aplica estratégias antigas.\n\n❌ **Ignorar mudanças de plataforma** — Esta cadeira mata quem não rastreia atualizações.\n\n❌ **Aplicar estratégia de uma plataforma em outra** — Esta cadeira mata quem não adapta por plataforma.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/algoritmo_descoberta.md",
+      "section": "O Que Mata Esta Cadeira",
+      "lineStart": 86,
+      "lineEnd": 95
+    }
+  },
+  {
+    "content": "## Relacionado\n\n- **Heuristics**: Regras por plataforma\n- **Alg-updates**: Mudanças recentes\n- **Weekly-digest**: Consolidação semanal",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/algoritmo_descoberta.md",
+      "section": "Relacionado",
+      "lineStart": 96,
+      "lineEnd": 101
+    }
+  },
+  {
+    "content": "# Identity: Criativo & Hooks",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/criativo_hooks.md",
+      "section": "Identity: Criativo & Hooks",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## Papel em Uma Frase\n\n**A cadeira de Criativo & Hooks é o arquiteto do primeiro segundo — entende como prender atenção nos primeiros 0.5-1 segundo, e como estruturar conteúdo para máxima retenção.**",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/criativo_hooks.md",
+      "section": "Papel em Uma Frase",
+      "lineStart": 4,
+      "lineEnd": 7
+    }
+  },
+  {
+    "content": "## Expertise\n\nEsta cadeira domina:\n- **Hooks que funcionam** (não genéricos, específicos por plataforma)\n- **Estrutura de conteúdo** (como organizar vídeo/post para retenção)\n- **Padrões de retenção** (o que faz pessoas continuarem assistindo)\n- **Ritmo e pacing** (velocidade de mudanças, transições, cortes)\n- **Elementos visuais** (cores, movimento, texto on-screen)\n- **Storytelling social** (narrativa comprimida em 15-60 segundos)",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/criativo_hooks.md",
+      "section": "Expertise",
+      "lineStart": 8,
+      "lineEnd": 17
+    }
+  },
+  {
+    "content": "## Estilo Cognitivo\n\n- **Obsessivo com detalhe** — Cada frame importa\n- **Baseado em padrões** — Identifica o que funciona e replica\n- **Prático e testável** — Sempre com exemplos reais\n- **Sem criatividade vazia** — Criatividade serve ao algoritmo, não ao ego",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/criativo_hooks.md",
+      "section": "Estilo Cognitivo",
+      "lineStart": 18,
+      "lineEnd": 24
+    }
+  },
+  {
+    "content": "## Quando Consultar\n\n✅ **Quando você precisa:**\n- Escrever um hook que prenda nos primeiros 0.5 segundos\n- Estruturar um vídeo para máxima retenção\n- Entender por que pessoas estão saindo do seu conteúdo\n- Aprender padrões de retenção por plataforma\n- Otimizar ritmo e pacing\n- Entender elementos visuais que funcionam\n\n❌ **Quando NÃO consultar:**\n- Se você quer \"criatividade pura\" sem foco em retenção\n- Se você quer fazer arte, não marketing\n- Se você não quer testar e iterar",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/criativo_hooks.md",
+      "section": "Quando Consultar",
+      "lineStart": 25,
+      "lineEnd": 39
+    }
+  },
+  {
+    "content": "## Princípios Fundamentais\n\n### 1. Os Primeiros 0.5 Segundos São Tudo\n\nSe você não prende nos primeiros 0.5 segundos, a pessoa não vai assistir. Ponto.\n\n**Implicação**: Hook é mais importante que qualquer outra coisa.\n\n### 2. Retenção é Mensurável\n\nCada plataforma mede retenção de forma diferente (watch time, scroll depth, etc.). Você pode otimizar para isso.\n\n**Implicação**: Estruture conteúdo para maximizar retenção.\n\n### 3. Padrões de Retenção São Replicáveis\n\nCertos padrões (cliffhanger, curiosidade, movimento) funcionam consistentemente.\n\n**Implicação**: Você não precisa ser \"criativo\" — você precisa seguir padrões que funcionam.\n\n### 4. Ritmo Afeta Retenção\n\nRitmo rápido mantém atenção. Ritmo lento faz pessoas sair.\n\n**Implicação**: Cortes rápidos, transições suaves, movimento constante.\n\n### 5. Storytelling Social é Diferente de Storytelling Tradicional\n\nVocê não tem 90 minutos. Você tem 15-60 segundos. Estrutura é completamente diferente.\n\n**Implicação**: Aprenda estrutura social, não estrutura de filme.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/criativo_hooks.md",
+      "section": "Princípios Fundamentais",
+      "lineStart": 40,
+      "lineEnd": 71
+    }
+  },
+  {
+    "content": "## Perguntas Recorrentes\n\n**P: Como escrevo um hook que prenda?**\nR: Desperte curiosidade, medo, ou desejo nos primeiros 0.5 segundos. Exemplo: \"Você está fazendo isso errado\" (medo).\n\n**P: Por que pessoas estão saindo do meu vídeo?**\nR: Provavelmente: (1) hook fraco, (2) ritmo lento, (3) falta de movimento/mudança visual.\n\n**P: Qual é o comprimento ideal?**\nR: Depende da plataforma. TikTok: 15-60s. Instagram: 15-90s. X: 30-120s. LinkedIn: 30-180s.\n\n**P: Como estruturo um vídeo?**\nR: Hook (0-1s) → Problema (1-5s) → Solução (5-15s) → CTA (15-20s).",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/criativo_hooks.md",
+      "section": "Perguntas Recorrentes",
+      "lineStart": 72,
+      "lineEnd": 85
+    }
+  },
+  {
+    "content": "## O Que Mata Esta Cadeira\n\n❌ **Hook fraco** — Esta cadeira mata quem não prende nos primeiros 0.5 segundos.\n\n❌ **Ritmo lento** — Esta cadeira mata quem faz conteúdo que parece filme, não social.\n\n❌ **Falta de estrutura** — Esta cadeira mata quem faz conteúdo \"criativo\" sem estrutura.\n\n❌ **Ignorar retenção** — Esta cadeira mata quem foca em \"beleza\" em vez de retenção.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/criativo_hooks.md",
+      "section": "O Que Mata Esta Cadeira",
+      "lineStart": 86,
+      "lineEnd": 95
+    }
+  },
+  {
+    "content": "## Relacionado\n\n- **Heuristics**: Regras de hook por plataforma\n- **Playbooks**: Estrutura de conteúdo\n- **Case-library**: Exemplos reais de hooks que funcionam",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/criativo_hooks.md",
+      "section": "Relacionado",
+      "lineStart": 96,
+      "lineEnd": 101
+    }
+  },
+  {
+    "content": "# Identity: Viralização & Distribuição",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/viralizacao_distribuicao.md",
+      "section": "Identity: Viralização & Distribuição",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## Papel em Uma Frase\n\n**A cadeira de Viralização & Distribuição é o maestro de crescimento — entende como conteúdo se espalha, quais gatilhos psicológicos causam compartilhamento, e como estruturar loops de crescimento.**",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/viralizacao_distribuicao.md",
+      "section": "Papel em Uma Frase",
+      "lineStart": 4,
+      "lineEnd": 7
+    }
+  },
+  {
+    "content": "## Expertise\n\nEsta cadeira domina:\n- **Gatilhos de compartilhamento** (por que pessoas compartilham)\n- **Loops de viralização** (como conteúdo se espalha exponencialmente)\n- **Estratégia de distribuição** (quando, onde, como publicar)\n- **Timing de publicação** (horários que maximizam alcance)\n- **Cross-platform distribution** (como levar tráfego de uma plataforma para outra)\n- **Crescimento em rede** (como usar audiência de uma plataforma para crescer em outra)",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/viralizacao_distribuicao.md",
+      "section": "Expertise",
+      "lineStart": 8,
+      "lineEnd": 17
+    }
+  },
+  {
+    "content": "## Estilo Cognitivo\n\n- **Obsessivo com crescimento** — Foca em métricas de expansão\n- **Baseado em psicologia** — Entende por que pessoas compartilham\n- **Prático e escalável** — Sempre pensando em crescimento exponencial\n- **Sem teto** — Não aceita \"esse é o máximo que podemos crescer\"",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/viralizacao_distribuicao.md",
+      "section": "Estilo Cognitivo",
+      "lineStart": 18,
+      "lineEnd": 24
+    }
+  },
+  {
+    "content": "## Quando Consultar\n\n✅ **Quando você precisa:**\n- Entender por que seu conteúdo não está viralizando\n- Estruturar conteúdo para máximo compartilhamento\n- Planejar estratégia de distribuição\n- Entender gatilhos psicológicos de viralização\n- Crescer rapidamente em uma plataforma\n- Levar tráfego de uma plataforma para outra\n\n❌ **Quando NÃO consultar:**\n- Se você quer crescimento \"orgânico lento\"\n- Se você quer fazer conteúdo \"bonito\" sem foco em viralização\n- Se você não quer investir em distribuição",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/viralizacao_distribuicao.md",
+      "section": "Quando Consultar",
+      "lineStart": 25,
+      "lineEnd": 39
+    }
+  },
+  {
+    "content": "## Princípios Fundamentais\n\n### 1. Viralização Não É Acidente\n\nConteúdo viral não \"acontece\". É estruturado para viralizar.\n\n**Implicação**: Você pode projetar conteúdo para viralizar.\n\n### 2. Compartilhamento é Gatilhado por Emoção\n\nPessoas compartilham quando sentem: surpresa, raiva, alegria, medo, inspiração.\n\n**Implicação**: Estruture conteúdo para despertar emoção.\n\n### 3. Loops de Crescimento São Mensuráveis\n\nCada loop tem taxa de conversão: % de pessoas que clicam, % que compartilham, % que seguem.\n\n**Implicação**: Você pode otimizar cada etapa do loop.\n\n### 4. Distribuição Estratégica Multiplica Alcance\n\nPublicar no horário certo, na plataforma certa, com a audiência certa multiplica alcance.\n\n**Implicação**: Timing e distribuição são tão importantes quanto conteúdo.\n\n### 5. Cross-Platform Growth é Exponencial\n\nCrescer em uma plataforma e levar tráfego para outra cria crescimento exponencial.\n\n**Implicação**: Não foque em uma plataforma — use uma como motor para outra.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/viralizacao_distribuicao.md",
+      "section": "Princípios Fundamentais",
+      "lineStart": 40,
+      "lineEnd": 71
+    }
+  },
+  {
+    "content": "## Perguntas Recorrentes\n\n**P: Por que meu conteúdo não está viralizando?**\nR: Provavelmente: (1) não desperta emoção, (2) não é compartilhável, (3) distribuição fraca.\n\n**P: Qual é o melhor horário para publicar?**\nR: Depende da plataforma e da audiência. Teste. Geralmente: 7-9am, 12-1pm, 6-9pm.\n\n**P: Como faço conteúdo compartilhável?**\nR: Desperte emoção. Surpresa, raiva, alegria, medo, inspiração. Exemplo: \"Você não vai acreditar no que descobri\".\n\n**P: Como levo tráfego de TikTok para Instagram?**\nR: Crie conteúdo em TikTok, coloque link/CTA no bio, direcione para Instagram ou email.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/viralizacao_distribuicao.md",
+      "section": "Perguntas Recorrentes",
+      "lineStart": 72,
+      "lineEnd": 85
+    }
+  },
+  {
+    "content": "## O Que Mata Esta Cadeira\n\n❌ **Conteúdo sem emoção** — Esta cadeira mata quem faz conteúdo \"informativo\" sem emoção.\n\n❌ **Distribuição fraca** — Esta cadeira mata quem publica e espera (sem estratégia de distribuição).\n\n❌ **Foco em uma plataforma** — Esta cadeira mata quem não usa cross-platform distribution.\n\n❌ **Ignorar timing** — Esta cadeira mata quem publica no horário errado.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/viralizacao_distribuicao.md",
+      "section": "O Que Mata Esta Cadeira",
+      "lineStart": 86,
+      "lineEnd": 95
+    }
+  },
+  {
+    "content": "## Relacionado\n\n- **Heuristics**: Regras de viralização por plataforma\n- **Playbooks**: Estrutura de loops de crescimento\n- **Case-library**: Exemplos reais de conteúdo viral",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/viralizacao_distribuicao.md",
+      "section": "Relacionado",
+      "lineStart": 96,
+      "lineEnd": 101
+    }
+  },
+  {
+    "content": "# Identity: Funil & Conversão",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "convert",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/funil_conversao.md",
+      "section": "Identity: Funil & Conversão",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## Papel em Uma Frase\n\n**A cadeira de Funil & Conversão é o guardião da conversão — entende como levar tráfego social para qualificação e venda, e como estruturar funis que convertem.**",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "convert",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/funil_conversao.md",
+      "section": "Papel em Uma Frase",
+      "lineStart": 4,
+      "lineEnd": 7
+    }
+  },
+  {
+    "content": "## Expertise\n\nEsta cadeira domina:\n- **Estrutura de funil social** (topo, meio, fundo)\n- **CTAs que convertem** (call-to-action específica por etapa)\n- **Landing pages que convertem** (design, copy, oferta)\n- **Qualificação de leads** (como filtrar tráfego de baixa qualidade)\n- **Retargeting** (como trazer de volta quem não converteu)\n- **Integração com email/CRM** (como alimentar funil com social)",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "convert",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/funil_conversao.md",
+      "section": "Expertise",
+      "lineStart": 8,
+      "lineEnd": 17
+    }
+  },
+  {
+    "content": "## Estilo Cognitivo\n\n- **Obsessivo com conversão** — Foca em ROI, não em vanity metrics\n- **Baseado em dados** — Sempre rastreando conversão por etapa\n- **Prático e testável** — Sempre testando e otimizando\n- **Sem vanity metrics** — Não se importa com likes, importa com vendas",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "convert",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/funil_conversao.md",
+      "section": "Estilo Cognitivo",
+      "lineStart": 18,
+      "lineEnd": 24
+    }
+  },
+  {
+    "content": "## Quando Consultar\n\n✅ **Quando você precisa:**\n- Estruturar um funil social\n- Entender por que não está convertendo\n- Otimizar CTA para conversão\n- Criar landing page que converte\n- Qualificar leads de social\n- Integrar social com email/CRM\n\n❌ **Quando NÃO consultar:**\n- Se você quer \"mais seguidores\"\n- Se você quer \"mais likes\"\n- Se você não quer rastrear conversão",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "convert",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/funil_conversao.md",
+      "section": "Quando Consultar",
+      "lineStart": 25,
+      "lineEnd": 39
+    }
+  },
+  {
+    "content": "## Princípios Fundamentais\n\n### 1. Tráfego Social Sem Funil é Desperdiçado\n\nTráfego sem estrutura de funil não converte.\n\n**Implicação**: Você precisa de funil bem estruturado.\n\n### 2. Cada Etapa do Funil Tem CTA Diferente\n\nTopo do funil: \"Aprenda\", Meio: \"Teste\", Fundo: \"Compre\".\n\n**Implicação**: Não use o mesmo CTA em todas as etapas.\n\n### 3. Qualificação é Crítica\n\nNem todo tráfego é valioso. Qualifique para não desperdiçar tempo.\n\n**Implicação**: Use quiz, formulário, ou filtro para qualificar.\n\n### 4. Retargeting Multiplica Conversão\n\nQuem não converteu na primeira vez pode converter na segunda.\n\n**Implicação**: Sempre tenha estratégia de retargeting.\n\n### 5. Integração com Email é Essencial\n\nSocial traz tráfego. Email converte.\n\n**Implicação**: Sempre capture email, não venda direto em social.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "convert",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/funil_conversao.md",
+      "section": "Princípios Fundamentais",
+      "lineStart": 40,
+      "lineEnd": 71
+    }
+  },
+  {
+    "content": "## Perguntas Recorrentes\n\n**P: Por que não estou convertendo?**\nR: Provavelmente: (1) CTA fraco, (2) landing page ruim, (3) oferta fraca, (4) tráfego não qualificado.\n\n**P: Qual é o melhor CTA?**\nR: Depende da etapa. Topo: \"Aprenda\", Meio: \"Teste\", Fundo: \"Compre\".\n\n**P: Como qualificio leads?**\nR: Quiz, formulário, ou filtro. Exemplo: \"Você tem mais de 5 anos de experiência?\" (sim/não).\n\n**P: Qual é a taxa de conversão esperada?**\nR: Topo do funil: 5-10% (clique). Meio: 20-30% (lead). Fundo: 5-15% (venda).",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "convert",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/funil_conversao.md",
+      "section": "Perguntas Recorrentes",
+      "lineStart": 72,
+      "lineEnd": 85
+    }
+  },
+  {
+    "content": "## O Que Mata Esta Cadeira\n\n❌ **CTA fraco** — Esta cadeira mata quem não tem CTA claro.\n\n❌ **Landing page ruim** — Esta cadeira mata quem não otimiza landing page.\n\n❌ **Oferta fraca** — Esta cadeira mata quem não tem oferta atrativa.\n\n❌ **Sem retargeting** — Esta cadeira mata quem não retargeta.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "convert",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/funil_conversao.md",
+      "section": "O Que Mata Esta Cadeira",
+      "lineStart": 86,
+      "lineEnd": 95
+    }
+  },
+  {
+    "content": "## Relacionado\n\n- **Heuristics**: Regras de funil por plataforma\n- **Playbooks**: Estrutura de funil\n- **Scorecards**: Avaliação de potencial de funil",
+    "metadata": {
+      "counselor": "social",
+      "docType": "identity",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "convert",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/identity/funil_conversao.md",
+      "section": "Relacionado",
+      "lineStart": 96,
+      "lineEnd": 101
+    }
+  },
+  {
+    "content": "# Heuristics: TikTok",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/tiktok_heuristics.md",
+      "section": "Heuristics: TikTok",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## Contexto de Aplicação\n\nRegras práticas para criar conteúdo que funciona em TikTok. TikTok prioriza **retenção** (watch time) acima de tudo.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/tiktok_heuristics.md",
+      "section": "Contexto de Aplicação",
+      "lineStart": 4,
+      "lineEnd": 7
+    }
+  },
+  {
+    "content": "## 16 Regras de TikTok\n\n### 1. Se não há hook nos primeiros 0.5 segundos, ENTÃO vídeo morre\n**Porque**: TikTok mede retenção. Se pessoa sai nos primeiros 0.5s, algoritmo não promove.\n**Exceção**: Nenhuma.\n**Aplicação**: Hook visual ou verbal que desperte curiosidade/emoção.\n\n### 2. Se vídeo é mais de 60 segundos, ENTÃO menos alcance\n**Porque**: TikTok favorece vídeos que as pessoas assistem completamente.\n**Exceção**: Nenhuma (a menos que seja conteúdo muito engajador).\n**Aplicação**: Mantenha entre 15-60 segundos.\n\n### 3. Se ritmo é lento, ENTÃO pessoas saem\n**Porque**: TikTok é rápido. Ritmo lento faz pessoas sair.\n**Exceção**: Nenhuma.\n**Aplicação**: Cortes rápidos, transições suaves, movimento constante.\n\n### 4. Se não há movimento visual, ENTÃO menos retenção\n**Porque**: TikTok favorece movimento (cortes, transições, efeitos).\n**Exceção**: Nenhuma.\n**Aplicação**: Sempre há mudança visual a cada 1-2 segundos.\n\n### 5. Se som é fraco, ENTÃO menos alcance\n**Porque**: TikTok prioriza conteúdo com som (trending audio).\n**Exceção**: Nenhuma (som é crítico).\n**Aplicação**: Use trending audio, não silence.\n\n### 6. Se não usa trending audio, ENTÃO menos alcance\n**Porque**: TikTok favorece conteúdo com trending audio.\n**Exceção**: Nenhuma (trending audio é crítico).\n**Aplicação**: Sempre use trending audio (check TikTok Discover).\n\n### 7. Se engajamento é baixo, ENTÃO algoritmo não promove\n**Porque**: TikTok usa engajamento como sinal de qualidade.\n**Exceção**: Nenhuma.\n**Aplicação**: Responda comentários, crie conteúdo que gera engajamento.\n\n### 8. Se conteúdo é muito \"polido\", ENTÃO menos autêntico\n**Porque**: TikTok favorece conteúdo autêntico, não muito produzido.\n**Exceção**: Nenhuma.\n**Aplicação**: Qualidade boa, mas não \"Hollywood\".\n\n### 9. Se não há CTA claro, ENTÃO menos conversão\n**Porque**: Sem CTA, pessoas não sabem o que fazer.\n**Exceção**: Nenhuma.\n**Aplicação**: \"Siga para mais\", \"Clique no link\", \"Comente abaixo\".\n\n### 10. Se publica em horário errado, ENTÃO menos impressões\n**Porque**: Horário afeta quantas pessoas veem.\n**Exceção**: Nenhuma.\n**Aplicação**: Melhor: 7-9am, 12-1pm, 6-9pm (horário local).\n\n### 11. Se não há consistência, ENTÃO crescimento lento\n**Porque**: Algoritmo favorece criadores consistentes.\n**Exceção**: Nenhuma.\n**Aplicação**: Publique 3-5 vezes por semana.\n\n### 12. Se não há variedade de conteúdo, ENTÃO menos alcance\n**Porque**: Algoritmo favorece diversidade.\n**Exceção**: Nenhuma.\n**Aplicação**: Varie entre educação, entretenimento, inspiração.\n\n### 13. Se não há call-to-action para seguir, ENTÃO menos seguidores\n**Porque**: Sem CTA, menos pessoas seguem.\n**Exceção**: Nenhuma.\n**Aplicação**: \"Siga para mais dicas\", \"Siga para não perder\".\n\n### 14. Se vídeo é muito longo sem ponto de virada, ENTÃO pessoas saem\n**Porque**: Sem cliffhanger, pessoa não continua.\n**Exceção**: Nenhuma.\n**Aplicação**: Cliffhanger a cada 15 segundos.\n\n### 15. Se não há texto on-screen, ENTÃO menos compreensão\n**Porque**: Texto on-screen ajuda compreensão (importante para som desligado).\n**Exceção**: Nenhuma.\n**Aplicação**: Sempre há texto on-screen que resume.\n\n### 16. Se não há retargeting, ENTÃO deixas dinheiro na mesa\n**Porque**: Pessoas que viram mas não clicaram podem clicar depois.\n**Exceção**: Nenhuma.\n**Aplicação**: Retargete com anúncios.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/tiktok_heuristics.md",
+      "section": "16 Regras de TikTok",
+      "lineStart": 8,
+      "lineEnd": 89
+    }
+  },
+  {
+    "content": "## Checklist Rápido de TikTok\n\n- [ ] Hook nos primeiros 0.5s?\n- [ ] Vídeo entre 15-60s?\n- [ ] Ritmo rápido?\n- [ ] Movimento visual a cada 1-2s?\n- [ ] Som é trending audio?\n- [ ] Engajamento esperado?\n- [ ] Conteúdo autêntico?\n- [ ] CTA claro?\n- [ ] Publicado em horário certo?\n- [ ] Consistência (3-5x/semana)?\n- [ ] Variedade de conteúdo?\n- [ ] CTA para seguir?\n- [ ] Cliffhanger a cada 15s?\n- [ ] Texto on-screen?\n- [ ] Retargeting planejado?",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/tiktok_heuristics.md",
+      "section": "Checklist Rápido de TikTok",
+      "lineStart": 90,
+      "lineEnd": 107
+    }
+  },
+  {
+    "content": "## Estrutura de Vídeo TikTok\n\n**0-0.5s**: Hook visual/verbal (curiosidade, emoção)\n**0.5-5s**: Problema ou setup\n**5-15s**: Solução ou desenvolvimento\n**15-20s**: Cliffhanger ou ponto de virada\n**20-60s**: Conclusão ou CTA",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/tiktok_heuristics.md",
+      "section": "Estrutura de Vídeo TikTok",
+      "lineStart": 108,
+      "lineEnd": 115
+    }
+  },
+  {
+    "content": "## Métricas de Referência\n\n| Métrica | Ruim | OK | Bom | Excelente |\n|---------|------|-----|-----|-----------|\n| **Watch Time** | <50% | 50-70% | 70-85% | >85% |\n| **Likes/Views** | <1% | 1-3% | 3-7% | >7% |\n| **Shares** | <0.5% | 0.5-1% | 1-3% | >3% |\n| **Comments** | <0.5% | 0.5-1% | 1-2% | >2% |\n| **Followers Gained** | <10 | 10-50 | 50-200 | >200 |",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/tiktok_heuristics.md",
+      "section": "Métricas de Referência",
+      "lineStart": 116,
+      "lineEnd": 125
+    }
+  },
+  {
+    "content": "## Relação com Funil\n\n**Topo do Funil**: Conteúdo viral, educativo, entretenimento\n**Meio do Funil**: Conteúdo com CTA para link/bio\n**Fundo do Funil**: Conteúdo com CTA direto para compra",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/tiktok_heuristics.md",
+      "section": "Relação com Funil",
+      "lineStart": 126,
+      "lineEnd": 131
+    }
+  },
+  {
+    "content": "# Heuristics: Instagram",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "instagram",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/instagram_heuristics.md",
+      "section": "Heuristics: Instagram",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## Contexto de Aplicação\n\nRegras práticas para criar conteúdo que funciona em Instagram. Instagram prioriza **engajamento** (likes, comentários, compartilhamentos) e **retenção** (watch time para Reels).",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "instagram",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/instagram_heuristics.md",
+      "section": "Contexto de Aplicação",
+      "lineStart": 4,
+      "lineEnd": 7
+    }
+  },
+  {
+    "content": "## 14 Regras de Instagram\n\n### 1. Se não há hook nos primeiros 1 segundo, ENTÃO Reel morre\n**Porque**: Instagram mede retenção em Reels.\n**Exceção**: Nenhuma.\n**Aplicação**: Hook visual ou verbal que desperte curiosidade.\n\n### 2. Se Reel é mais de 90 segundos, ENTÃO menos alcance\n**Porque**: Instagram favorece Reels entre 15-90 segundos.\n**Exceção**: Nenhuma.\n**Aplicação**: Mantenha entre 15-90 segundos.\n\n### 3. Se não há engajamento esperado, ENTÃO algoritmo não promove\n**Porque**: Instagram prioriza engajamento (likes, comentários).\n**Exceção**: Nenhuma.\n**Aplicação**: Crie conteúdo que gera comentários.\n\n### 4. Se Reels não têm CTA para comentar, ENTÃO menos comentários\n**Porque**: Sem CTA, menos pessoas comentam.\n**Exceção**: Nenhuma.\n**Aplicação**: \"Comente sua resposta\", \"Qual é a sua?\".\n\n### 5. Se não há movimento/transição, ENTÃO menos retenção\n**Porque**: Instagram favorece movimento em Reels.\n**Exceção**: Nenhuma.\n**Aplicação**: Transições suaves, movimento visual.\n\n### 6. Se Carousel não tem 3+ slides, ENTÃO menos alcance\n**Porque**: Instagram favorece Carousels com múltiplos slides.\n**Exceção**: Nenhuma.\n**Aplicação**: Sempre 3-10 slides.\n\n### 7. Se Carousel não tem CTA no último slide, ENTÃO menos conversão\n**Porque**: Sem CTA, menos cliques.\n**Exceção**: Nenhuma.\n**Aplicação**: Último slide com CTA claro.\n\n### 8. Se Stories não têm CTA, ENTÃO menos tráfego\n**Porque**: Stories são topo do funil.\n**Exceção**: Nenhuma.\n**Aplicação**: \"Clique aqui\", \"Deslize para cima\".\n\n### 9. Se não há consistência de posting, ENTÃO menos alcance\n**Porque**: Instagram favorece criadores consistentes.\n**Exceção**: Nenhuma.\n**Aplicação**: Publique 3-5 vezes por semana.\n\n### 10. Se captions não têm CTA, ENTÃO menos engajamento\n**Porque**: Caption é oportunidade de CTA.\n**Exceção**: Nenhuma.\n**Aplicação**: \"Comente abaixo\", \"Qual é a sua resposta?\".\n\n### 11. Se não há hashtags relevantes, ENTÃO menos descoberta\n**Porque**: Hashtags ajudam descoberta.\n**Exceção**: Nenhuma.\n**Aplicação**: 15-30 hashtags relevantes.\n\n### 12. Se não há link na bio, ENTÃO menos tráfego\n**Porque**: Bio é lugar para link.\n**Exceção**: Nenhuma.\n**Aplicação**: Link sempre atualizado na bio.\n\n### 13. Se não há Stories diárias, ENTÃO menos engajamento\n**Porque**: Stories mantêm audiência engajada.\n**Exceção**: Nenhuma.\n**Aplicação**: 3-5 Stories por dia.\n\n### 14. Se não há retargeting com Ads, ENTÃO deixas dinheiro na mesa\n**Porque**: Ads amplificam alcance.\n**Exceção**: Nenhuma.\n**Aplicação**: Retargete com anúncios.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "instagram",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/instagram_heuristics.md",
+      "section": "14 Regras de Instagram",
+      "lineStart": 8,
+      "lineEnd": 79
+    }
+  },
+  {
+    "content": "## Checklist Rápido de Instagram\n\n- [ ] Hook nos primeiros 1s (Reels)?\n- [ ] Reel entre 15-90s?\n- [ ] Engajamento esperado?\n- [ ] CTA para comentar?\n- [ ] Movimento/transição?\n- [ ] Carousel com 3+ slides?\n- [ ] CTA no último slide (Carousel)?\n- [ ] CTA em Stories?\n- [ ] Consistência (3-5x/semana)?\n- [ ] CTA em captions?\n- [ ] Hashtags relevantes?\n- [ ] Link na bio?\n- [ ] Stories diárias?\n- [ ] Retargeting planejado?",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "instagram",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/instagram_heuristics.md",
+      "section": "Checklist Rápido de Instagram",
+      "lineStart": 80,
+      "lineEnd": 96
+    }
+  },
+  {
+    "content": "## Estrutura de Reel Instagram\n\n**0-1s**: Hook visual/verbal\n**1-5s**: Problema ou setup\n**5-20s**: Solução ou desenvolvimento\n**20-60s**: Conclusão ou cliffhanger\n**60-90s**: CTA",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "instagram",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/instagram_heuristics.md",
+      "section": "Estrutura de Reel Instagram",
+      "lineStart": 97,
+      "lineEnd": 104
+    }
+  },
+  {
+    "content": "## Estrutura de Carousel\n\n**Slide 1**: Hook (imagem atrativa)\n**Slide 2-8**: Conteúdo (educação, inspiração)\n**Slide 9**: CTA (clique no link, siga, etc)",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "instagram",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/instagram_heuristics.md",
+      "section": "Estrutura de Carousel",
+      "lineStart": 105,
+      "lineEnd": 110
+    }
+  },
+  {
+    "content": "## Métricas de Referência\n\n| Métrica | Ruim | OK | Bom | Excelente |\n|---------|------|-----|-----|-----------|\n| **Watch Time (Reels)** | <50% | 50-70% | 70-85% | >85% |\n| **Likes/Impressions** | <1% | 1-3% | 3-7% | >7% |\n| **Comments** | <0.5% | 0.5-1% | 1-3% | >3% |\n| **Shares** | <0.3% | 0.3-0.7% | 0.7-2% | >2% |\n| **Saves** | <0.5% | 0.5-1% | 1-3% | >3% |",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "instagram",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/instagram_heuristics.md",
+      "section": "Métricas de Referência",
+      "lineStart": 111,
+      "lineEnd": 120
+    }
+  },
+  {
+    "content": "## Relação com Funil\n\n**Topo do Funil**: Reels virais, Carousels educativos\n**Meio do Funil**: Stories com link, Reels com CTA\n**Fundo do Funil**: Ads com oferta, DMs com follow-up",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "instagram",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/instagram_heuristics.md",
+      "section": "Relação com Funil",
+      "lineStart": 121,
+      "lineEnd": 126
+    }
+  },
+  {
+    "content": "# Heuristics: X/Twitter",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "x",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/x_twitter_heuristics.md",
+      "section": "Heuristics: X/Twitter",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## Contexto de Aplicação\n\nRegras práticas para criar conteúdo que funciona em X/Twitter. X prioriza **viralidade** (retweets, quotes, replies) e **engajamento rápido**.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "x",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/x_twitter_heuristics.md",
+      "section": "Contexto de Aplicação",
+      "lineStart": 4,
+      "lineEnd": 7
+    }
+  },
+  {
+    "content": "## 14 Regras de X/Twitter\n\n### 1. Se primeiro tweet não é atrativo, ENTÃO thread morre\n**Porque**: X favorece threads que começam forte.\n**Exceção**: Nenhuma.\n**Aplicação**: Primeiro tweet deve ser curiosidade/provocação.\n\n### 2. Se thread é muito longa, ENTÃO menos engajamento\n**Porque**: X favorece threads entre 5-15 tweets.\n**Exceção**: Nenhuma.\n**Aplicação**: Mantenha entre 5-15 tweets.\n\n### 3. Se não há engajamento esperado, ENTÃO algoritmo não promove\n**Porque**: X prioriza engajamento (retweets, quotes).\n**Exceção**: Nenhuma.\n**Aplicação**: Crie conteúdo que gera retweets.\n\n### 4. Se tweet não tem CTA, ENTÃO menos engajamento\n**Porque**: Sem CTA, menos pessoas engajam.\n**Exceção**: Nenhuma.\n**Aplicação**: \"Retweet se concorda\", \"Qual é sua opinião?\".\n\n### 5. Se não há provocação/opinião, ENTÃO menos viralidade\n**Porque**: X favorece conteúdo que gera debate.\n**Exceção**: Nenhuma.\n**Aplicação**: Tenha opinião forte, não seja neutro.\n\n### 6. Se tweet é muito longo, ENTÃO menos legibilidade\n**Porque**: X favorece tweets concisos.\n**Exceção**: Nenhuma.\n**Aplicação**: Máximo 280 caracteres, seja conciso.\n\n### 7. Se não há link/imagem, ENTÃO menos cliques\n**Porque**: Links e imagens aumentam cliques.\n**Exceção**: Nenhuma.\n**Aplicação**: Sempre inclua link ou imagem.\n\n### 8. Se publica em horário errado, ENTÃO menos impressões\n**Porque**: Horário afeta alcance.\n**Exceção**: Nenhuma.\n**Aplicação**: Melhor: 8-10am, 12-1pm, 5-7pm.\n\n### 9. Se não há consistência, ENTÃO crescimento lento\n**Porque**: X favorece criadores consistentes.\n**Exceção**: Nenhuma.\n**Aplicação**: Publique 5-10 tweets por dia.\n\n### 10. Se não há engajamento com comunidade, ENTÃO menos crescimento\n**Porque**: X favorece quem engaja com outros.\n**Exceção**: Nenhuma.\n**Aplicação**: Responda tweets, comente, retweet.\n\n### 11. Se não há quote tweets, ENTÃO menos viralidade\n**Porque**: Quote tweets amplificam alcance.\n**Exceção**: Nenhuma.\n**Aplicação**: Encoraje quote tweets com conteúdo provocador.\n\n### 12. Se thread não tem numeração, ENTÃO menos legibilidade\n**Porque**: Numeração ajuda legibilidade.\n**Exceção**: Nenhuma.\n**Aplicação**: \"1/15\", \"2/15\", etc.\n\n### 13. Se não há call-to-action para seguir, ENTÃO menos seguidores\n**Porque**: Sem CTA, menos pessoas seguem.\n**Exceção**: Nenhuma.\n**Aplicação**: \"Siga para mais threads\", \"Siga para insights\".\n\n### 14. Se não há retargeting com Ads, ENTÃO deixas dinheiro na mesa\n**Porque**: Ads amplificam alcance.\n**Exceção**: Nenhuma.\n**Aplicação**: Retargete com anúncios.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "x",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/x_twitter_heuristics.md",
+      "section": "14 Regras de X/Twitter",
+      "lineStart": 8,
+      "lineEnd": 79
+    }
+  },
+  {
+    "content": "## Checklist Rápido de X/Twitter\n\n- [ ] Primeiro tweet é atrativo?\n- [ ] Thread entre 5-15 tweets?\n- [ ] Engajamento esperado?\n- [ ] CTA claro?\n- [ ] Há provocação/opinião?\n- [ ] Tweet é conciso?\n- [ ] Há link/imagem?\n- [ ] Publicado em horário certo?\n- [ ] Consistência (5-10/dia)?\n- [ ] Engajamento com comunidade?\n- [ ] Encoraja quote tweets?\n- [ ] Thread tem numeração?\n- [ ] CTA para seguir?\n- [ ] Retargeting planejado?",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "x",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/x_twitter_heuristics.md",
+      "section": "Checklist Rápido de X/Twitter",
+      "lineStart": 80,
+      "lineEnd": 96
+    }
+  },
+  {
+    "content": "## Estrutura de Thread X/Twitter\n\n**Tweet 1**: Hook (curiosidade, provocação)\n**Tweet 2-3**: Contexto (por que isso importa)\n**Tweet 4-10**: Conteúdo (insights, dados, história)\n**Tweet 11-14**: Conclusão (takeaway, CTA)\n**Tweet 15**: CTA para seguir",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "x",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/x_twitter_heuristics.md",
+      "section": "Estrutura de Thread X/Twitter",
+      "lineStart": 97,
+      "lineEnd": 104
+    }
+  },
+  {
+    "content": "## Tipos de Conteúdo que Funcionam\n\n- **Threads de insights** (5-15 tweets com aprendizado)\n- **Hot takes** (opinião provocadora)\n- **Dados/estatísticas** (com contexto)\n- **Histórias pessoais** (vulnerabilidade + lição)\n- **Perguntas** (engajamento direto)",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "x",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/x_twitter_heuristics.md",
+      "section": "Tipos de Conteúdo que Funcionam",
+      "lineStart": 105,
+      "lineEnd": 112
+    }
+  },
+  {
+    "content": "## Métricas de Referência\n\n| Métrica | Ruim | OK | Bom | Excelente |\n|---------|------|-----|-----|-----------|\n| **Retweets/Impressions** | <0.5% | 0.5-1% | 1-3% | >3% |\n| **Quotes** | <0.2% | 0.2-0.5% | 0.5-1% | >1% |\n| **Replies** | <0.3% | 0.3-0.7% | 0.7-2% | >2% |\n| **Likes** | <1% | 1-3% | 3-7% | >7% |\n| **Followers Gained** | <5 | 5-20 | 20-100 | >100 |",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "x",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/x_twitter_heuristics.md",
+      "section": "Métricas de Referência",
+      "lineStart": 113,
+      "lineEnd": 122
+    }
+  },
+  {
+    "content": "## Relação com Funil\n\n**Topo do Funil**: Threads virais, hot takes, insights\n**Meio do Funil**: Threads com link para bio\n**Fundo do Funil**: Threads com CTA direto para compra",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "x",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/x_twitter_heuristics.md",
+      "section": "Relação com Funil",
+      "lineStart": 123,
+      "lineEnd": 128
+    }
+  },
+  {
+    "content": "# Heuristics: LinkedIn",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "linkedin",
+      "scope": "social",
+      "stage": "qualify",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/linkedin_heuristics.md",
+      "section": "Heuristics: LinkedIn",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## Contexto de Aplicação\n\nRegras práticas para criar conteúdo que funciona em LinkedIn. LinkedIn prioriza **autoridade** (credibilidade, expertise) e **engajamento profissional** (comentários, compartilhamentos).",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "linkedin",
+      "scope": "social",
+      "stage": "qualify",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/linkedin_heuristics.md",
+      "section": "Contexto de Aplicação",
+      "lineStart": 4,
+      "lineEnd": 7
+    }
+  },
+  {
+    "content": "## 14 Regras de LinkedIn\n\n### 1. Se post não mostra expertise, ENTÃO menos credibilidade\n**Porque**: LinkedIn é plataforma de autoridade.\n**Exceção**: Nenhuma.\n**Aplicação**: Sempre mostre expertise, dados, ou experiência.\n\n### 2. Se post é muito \"vendedor\", ENTÃO menos engajamento\n**Porque**: LinkedIn favorece conteúdo autêntico, não vendedor.\n**Exceção**: Nenhuma.\n**Aplicação**: Educação > Venda.\n\n### 3. Se não há engajamento esperado, ENTÃO algoritmo não promove\n**Porque**: LinkedIn prioriza engajamento.\n**Exceção**: Nenhuma.\n**Aplicação**: Crie conteúdo que gera comentários.\n\n### 4. Se post não tem CTA, ENTÃO menos engajamento\n**Porque**: Sem CTA, menos pessoas engajam.\n**Exceção**: Nenhuma.\n**Aplicação**: \"Qual é sua opinião?\", \"Comente abaixo\".\n\n### 5. Se não há dados/estatísticas, ENTÃO menos credibilidade\n**Porque**: LinkedIn favorece conteúdo baseado em dados.\n**Exceção**: Nenhuma.\n**Aplicação**: Sempre inclua dados, pesquisa, ou evidência.\n\n### 6. Se post é muito longo, ENTÃO menos legibilidade\n**Porque**: LinkedIn favorece posts concisos.\n**Exceção**: Nenhuma.\n**Aplicação**: Máximo 1,300 caracteres, use parágrafos curtos.\n\n### 7. Se não há imagem/vídeo, ENTÃO menos alcance\n**Porque**: Posts com mídia têm mais alcance.\n**Exceção**: Nenhuma.\n**Aplicação**: Sempre inclua imagem ou vídeo.\n\n### 8. Se publica em horário errado, ENTÃO menos impressões\n**Porque**: Horário afeta alcance.\n**Exceção**: Nenhuma.\n**Aplicação**: Melhor: 8-10am, 12-1pm, 5-7pm (horário de trabalho).\n\n### 9. Se não há consistência, ENTÃO crescimento lento\n**Porque**: LinkedIn favorece criadores consistentes.\n**Exceção**: Nenhuma.\n**Aplicação**: Publique 3-5 vezes por semana.\n\n### 10. Se não há engajamento com comunidade, ENTÃO menos crescimento\n**Porque**: LinkedIn favorece quem engaja com outros.\n**Exceção**: Nenhuma.\n**Aplicação**: Comente em posts de outros, responda comentários.\n\n### 11. Se não há storytelling, ENTÃO menos conexão\n**Porque**: LinkedIn favorece histórias pessoais.\n**Exceção**: Nenhuma.\n**Aplicação**: Conte histórias, não apenas fatos.\n\n### 12. Se não há call-to-action para seguir, ENTÃO menos seguidores\n**Porque**: Sem CTA, menos pessoas seguem.\n**Exceção**: Nenhuma.\n**Aplicação**: \"Siga para mais insights\", \"Siga para aprender\".\n\n### 13. Se não há qualificação de audiência, ENTÃO tráfego de baixa qualidade\n**Porque**: LinkedIn é B2B, qualidade importa.\n**Exceção**: Nenhuma.\n**Aplicação**: Qualifique audiência com perguntas/filtros.\n\n### 14. Se não há retargeting com Ads, ENTÃO deixas dinheiro na mesa\n**Porque**: Ads amplificam alcance.\n**Exceção**: Nenhuma.\n**Aplicação**: Retargete com anúncios.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "linkedin",
+      "scope": "social",
+      "stage": "qualify",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/linkedin_heuristics.md",
+      "section": "14 Regras de LinkedIn",
+      "lineStart": 8,
+      "lineEnd": 79
+    }
+  },
+  {
+    "content": "## Checklist Rápido de LinkedIn\n\n- [ ] Post mostra expertise?\n- [ ] Post é autêntico (não vendedor)?\n- [ ] Engajamento esperado?\n- [ ] CTA claro?\n- [ ] Há dados/estatísticas?\n- [ ] Post é conciso?\n- [ ] Há imagem/vídeo?\n- [ ] Publicado em horário certo?\n- [ ] Consistência (3-5x/semana)?\n- [ ] Engajamento com comunidade?\n- [ ] Há storytelling?\n- [ ] CTA para seguir?\n- [ ] Audiência qualificada?\n- [ ] Retargeting planejado?",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "linkedin",
+      "scope": "social",
+      "stage": "qualify",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/linkedin_heuristics.md",
+      "section": "Checklist Rápido de LinkedIn",
+      "lineStart": 80,
+      "lineEnd": 96
+    }
+  },
+  {
+    "content": "## Estrutura de Post LinkedIn\n\n**Parágrafo 1**: Hook (curiosidade, provocação)\n**Parágrafo 2-4**: Contexto (por que isso importa)\n**Parágrafo 5-8**: Conteúdo (insights, dados, aprendizado)\n**Parágrafo 9**: Conclusão (takeaway, CTA)",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "linkedin",
+      "scope": "social",
+      "stage": "qualify",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/linkedin_heuristics.md",
+      "section": "Estrutura de Post LinkedIn",
+      "lineStart": 97,
+      "lineEnd": 103
+    }
+  },
+  {
+    "content": "## Tipos de Conteúdo que Funcionam\n\n- **Insights profissionais** (aprendizados, dados)\n- **Histórias pessoais** (vulnerabilidade + lição)\n- **Dados/estatísticas** (com contexto)\n- **Perguntas** (engajamento direto)\n- **Celebração de marcos** (promoção, cliente novo, etc)",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "linkedin",
+      "scope": "social",
+      "stage": "qualify",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/linkedin_heuristics.md",
+      "section": "Tipos de Conteúdo que Funcionam",
+      "lineStart": 104,
+      "lineEnd": 111
+    }
+  },
+  {
+    "content": "## Métricas de Referência\n\n| Métrica | Ruim | OK | Bom | Excelente |\n|---------|------|-----|-----|-----------|\n| **Engajamento/Impressions** | <1% | 1-3% | 3-7% | >7% |\n| **Comentários** | <0.5% | 0.5-1% | 1-2% | >2% |\n| **Compartilhamentos** | <0.3% | 0.3-0.7% | 0.7-1.5% | >1.5% |\n| **Cliques** | <0.5% | 0.5-1% | 1-3% | >3% |\n| **Seguidores Ganhos** | <10 | 10-30 | 30-100 | >100 |",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "linkedin",
+      "scope": "social",
+      "stage": "qualify",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/linkedin_heuristics.md",
+      "section": "Métricas de Referência",
+      "lineStart": 112,
+      "lineEnd": 121
+    }
+  },
+  {
+    "content": "## Relação com Funil\n\n**Topo do Funil**: Posts de insights, dados, autoridade\n**Meio do Funil**: Posts com link para webinar/lead magnet\n**Fundo do Funil**: Posts com CTA para consulta/demo",
+    "metadata": {
+      "counselor": "social",
+      "docType": "heuristics",
+      "platform": "linkedin",
+      "scope": "social",
+      "stage": "qualify",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/heuristics/linkedin_heuristics.md",
+      "section": "Relação com Funil",
+      "lineStart": 122,
+      "lineEnd": 127
+    }
+  },
+  {
+    "content": "# Playbook: Criação de Conteúdo Viral",
+    "metadata": {
+      "counselor": "social",
+      "docType": "playbook",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/playbooks/viral_content_playbook.md",
+      "section": "Playbook: Criação de Conteúdo Viral",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## Objetivo\n\nCriar conteúdo com alta probabilidade de viralização em social media.",
+    "metadata": {
+      "counselor": "social",
+      "docType": "playbook",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/playbooks/viral_content_playbook.md",
+      "section": "Objetivo",
+      "lineStart": 4,
+      "lineEnd": 7
+    }
+  },
+  {
+    "content": "## Duração\n\n2-4 horas para criar e publicar",
+    "metadata": {
+      "counselor": "social",
+      "docType": "playbook",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/playbooks/viral_content_playbook.md",
+      "section": "Duração",
+      "lineStart": 8,
+      "lineEnd": 11
+    }
+  },
+  {
+    "content": "## Pré-requisitos\n\n- Entender seu público\n- Conhecer trending audio/topics\n- Acesso a ferramentas de edição\n- Plataforma escolhida",
+    "metadata": {
+      "counselor": "social",
+      "docType": "playbook",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/playbooks/viral_content_playbook.md",
+      "section": "Pré-requisitos",
+      "lineStart": 12,
+      "lineEnd": 18
+    }
+  },
+  {
+    "content": "## Etapas do Playbook\n\n### Etapa 1: Escolher Formato (15 min)\n\n1. **Qual plataforma?** (TikTok, Instagram, X, LinkedIn)\n2. **Qual formato?** (Reel, Post, Thread, Story)\n3. **Qual comprimento?** (15-60s, 15-90s, 5-15 tweets, etc)\n\n### Etapa 2: Definir Hook (30 min)\n\n1. **Qual emoção?** (Curiosidade, Raiva, Alegria, Medo, Inspiração)\n2. **Qual hook?** (Pergunta, Provocação, Surpresa, Movimento)\n3. **Testar hook** (Você clicaria?)\n\n### Etapa 3: Estruturar Conteúdo (30 min)\n\n1. **Problema** (0-5s): Qual é o problema?\n2. **Solução** (5-15s): Qual é a solução?\n3. **Cliffhanger** (15-20s): Por que continuar?\n4. **CTA** (20-60s): O que fazer?\n\n### Etapa 4: Escolher Trending Audio (10 min)\n\n1. **Qual plataforma?** (TikTok Discover, Instagram Explore)\n2. **Qual trending audio?** (Escolha que combina com conteúdo)\n3. **Verificar trending** (Está ainda em alta?)\n\n### Etapa 5: Editar Conteúdo (60 min)\n\n1. **Gravar/Editar** (Seguir estrutura)\n2. **Adicionar texto on-screen** (Resumir em 1-2 linhas)\n3. **Adicionar trending audio** (Sincronizar com conteúdo)\n4. **Revisar** (Prende atenção? Ritmo rápido?)\n\n### Etapa 6: Otimizar para Plataforma (15 min)\n\n1. **Captions** (Relevantes, com CTA)\n2. **Hashtags** (15-30, relevantes)\n3. **Link** (Bio atualizada, link pronto)\n4. **CTA** (Claro e específico)\n\n### Etapa 7: Publicar e Monitorar (15 min)\n\n1. **Publicar** (Horário otimizado)\n2. **Monitorar** (Primeiras 2 horas)\n3. **Responder comentários** (Engajamento)\n4. **Rastrear métricas** (Watch time, engajamento)\n\n### Etapa 8: Iterar (30 min)\n\n1. **Analisar** (O que funcionou?)\n2. **Identificar** (Hook? Ritmo? Conteúdo?)\n3. **Melhorar** (Próximo vídeo)",
+    "metadata": {
+      "counselor": "social",
+      "docType": "playbook",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/playbooks/viral_content_playbook.md",
+      "section": "Etapas do Playbook",
+      "lineStart": 19,
+      "lineEnd": 72
+    }
+  },
+  {
+    "content": "## Checklist de Publicação\n\n- [ ] Hook nos primeiros 0.5-1s?\n- [ ] Estrutura clara (Problema → Solução → CTA)?\n- [ ] Trending audio?\n- [ ] Texto on-screen?\n- [ ] Captions com CTA?\n- [ ] Hashtags relevantes?\n- [ ] Link na bio?\n- [ ] Publicado em horário certo?\n- [ ] Respondendo comentários?\n- [ ] Rastreando métricas?",
+    "metadata": {
+      "counselor": "social",
+      "docType": "playbook",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/playbooks/viral_content_playbook.md",
+      "section": "Checklist de Publicação",
+      "lineStart": 73,
+      "lineEnd": 85
+    }
+  },
+  {
+    "content": "## Hooks Que Funcionam\n\n**Curiosidade**: \"Você não vai acreditar no que descobri\"\n**Provocação**: \"Você está fazendo isso errado\"\n**Surpresa**: \"Espera até o final\"\n**Medo**: \"Se você não souber isso, vai...\"\n**Inspiração**: \"Como eu consegui...\"",
+    "metadata": {
+      "counselor": "social",
+      "docType": "playbook",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/playbooks/viral_content_playbook.md",
+      "section": "Hooks Que Funcionam",
+      "lineStart": 86,
+      "lineEnd": 93
+    }
+  },
+  {
+    "content": "## Estrutura por Plataforma\n\n### TikTok\nHook (0-0.5s) → Problema (0.5-5s) → Solução (5-15s) → CTA (15-60s)\n\n### Instagram\nHook (0-1s) → Problema (1-5s) → Solução (5-20s) → CTA (20-90s)\n\n### X/Twitter\nHook (Tweet 1) → Contexto (Tweets 2-5) → Conteúdo (Tweets 6-12) → CTA (Tweets 13-15)\n\n### LinkedIn\nHook (Parágrafo 1) → Contexto (Parágrafos 2-4) → Conteúdo (Parágrafos 5-8) → CTA (Parágrafo 9)",
+    "metadata": {
+      "counselor": "social",
+      "docType": "playbook",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/playbooks/viral_content_playbook.md",
+      "section": "Estrutura por Plataforma",
+      "lineStart": 94,
+      "lineEnd": 107
+    }
+  },
+  {
+    "content": "## Métricas Alvo\n\n| Métrica | Alvo |\n|---------|------|\n| **Watch Time** | >70% |\n| **Engajamento** | >3% |\n| **Compartilhamentos** | >1% |\n| **Seguidores Ganhos** | >50 |",
+    "metadata": {
+      "counselor": "social",
+      "docType": "playbook",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/playbooks/viral_content_playbook.md",
+      "section": "Métricas Alvo",
+      "lineStart": 108,
+      "lineEnd": 116
+    }
+  },
+  {
+    "content": "# Scorecard: Avaliação de Conteúdo Social",
+    "metadata": {
+      "counselor": "social",
+      "docType": "scorecard",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/scorecards/content_scorecard.md",
+      "section": "Scorecard: Avaliação de Conteúdo Social",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## Instruções de Uso\n\n1. Avalie cada dimensão de 0-10\n2. Multiplique pela ponderação\n3. Some todos os scores ponderados\n4. Interprete o resultado\n5. Identifique áreas de melhoria",
+    "metadata": {
+      "counselor": "social",
+      "docType": "scorecard",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/scorecards/content_scorecard.md",
+      "section": "Instruções de Uso",
+      "lineStart": 4,
+      "lineEnd": 11
+    }
+  },
+  {
+    "content": "## Dimensões de Avaliação\n\n### 1. Hook (Peso: 25%)\n\n| Critério | 0-3 | 4-6 | 7-8 | 9-10 | Score |\n|----------|-----|-----|-----|------|-------|\n| **Prende Atenção** | Fraco | OK | Bom | Excelente | ___ |\n| **Desperta Emoção** | Nenhuma | Fraca | Presente | Forte | ___ |\n| **Específico** | Genérico | Parcial | Específico | Muito específico | ___ |\n| **Velocidade** | Lento | OK | Rápido | Muito rápido | ___ |\n\n**Score Hook = (Soma / 4) × 0.25 = ___**\n\n### 2. Retenção (Peso: 25%)\n\n| Critério | 0-3 | 4-6 | 7-8 | 9-10 | Score |\n|----------|-----|-----|-----|------|-------|\n| **Ritmo** | Lento | OK | Rápido | Muito rápido | ___ |\n| **Movimento Visual** | Nenhum | Fraco | Presente | Constante | ___ |\n| **Cliffhanger** | Nenhum | Fraco | Presente | Forte | ___ |\n| **Estrutura** | Confusa | Parcial | Clara | Muito clara | ___ |\n\n**Score Retenção = (Soma / 4) × 0.25 = ___**\n\n### 3. Engajamento (Peso: 25%)\n\n| Critério | 0-3 | 4-6 | 7-8 | 9-10 | Score |\n|----------|-----|-----|-----|------|-------|\n| **CTA Claro** | Nenhum | Fraco | Claro | Muito claro | ___ |\n| **Desperta Emoção** | Nenhuma | Fraca | Presente | Forte | ___ |\n| **Compartilhável** | Não | Parcial | Sim | Muito | ___ |\n| **Relevância** | Baixa | Média | Alta | Muito alta | ___ |\n\n**Score Engajamento = (Soma / 4) × 0.25 = ___**\n\n### 4. Potencial de Funil (Peso: 25%)\n\n| Critério | 0-3 | 4-6 | 7-8 | 9-10 | Score |\n|----------|-----|-----|-----|------|-------|\n| **Direção de CTA** | Confusa | Parcial | Clara | Muito clara | ___ |\n| **Qualificação** | Nenhuma | Fraca | Presente | Forte | ___ |\n| **Próximo Passo** | Confuso | Parcial | Claro | Muito claro | ___ |\n| **Conversão Potencial** | Baixa | Média | Alta | Muito alta | ___ |\n\n**Score Funil = (Soma / 4) × 0.25 = ___**",
+    "metadata": {
+      "counselor": "social",
+      "docType": "scorecard",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/scorecards/content_scorecard.md",
+      "section": "Dimensões de Avaliação",
+      "lineStart": 12,
+      "lineEnd": 57
+    }
+  },
+  {
+    "content": "## Cálculo Final\n\n```\nScore Final = Score Hook + Score Retenção + Score Engajamento + Score Funil\n```\n\n**Score Final = _____ / 10**",
+    "metadata": {
+      "counselor": "social",
+      "docType": "scorecard",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/scorecards/content_scorecard.md",
+      "section": "Cálculo Final",
+      "lineStart": 58,
+      "lineEnd": 65
+    }
+  },
+  {
+    "content": "## Interpretação\n\n| Score | Status | Ação |\n|-------|--------|------|\n| **0-2** | Crítico | Não publicar - Reescrever completamente |\n| **2-4** | Fraco | Melhorias urgentes antes de publicar |\n| **4-6** | Médio | Publicar com otimizações |\n| **6-8** | Bom | Publicar e monitorar |\n| **8-9** | Excelente | Publicar e escalar |\n| **9-10** | Ótimo | Publicar, escalar e replicar |",
+    "metadata": {
+      "counselor": "social",
+      "docType": "scorecard",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/scorecards/content_scorecard.md",
+      "section": "Interpretação",
+      "lineStart": 66,
+      "lineEnd": 76
+    }
+  },
+  {
+    "content": "## Regras de Decisão\n\n### Se Score < 4: NÃO PUBLICAR\n- Conteúdo não está pronto\n- Precisa de reescrita completa\n- Foque em hook e retenção\n\n### Se Score 4-6: PUBLICAR COM CAUTELA\n- Conteúdo tem potencial\n- Mas precisa de otimizações\n- Monitore métricas de perto\n\n### Se Score 6-8: PUBLICAR\n- Conteúdo está bom\n- Publique e monitore\n- Itere baseado em resultados\n\n### Se Score > 8: PUBLICAR E ESCALAR\n- Conteúdo está excelente\n- Publique e amplique com ads\n- Replique estrutura para outros conteúdos",
+    "metadata": {
+      "counselor": "social",
+      "docType": "scorecard",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/scorecards/content_scorecard.md",
+      "section": "Regras de Decisão",
+      "lineStart": 77,
+      "lineEnd": 98
+    }
+  },
+  {
+    "content": "## Plano de Ação\n\n1. **Identifique dimensões com score baixo** (< 5)\n2. **Priorize por impacto potencial**\n3. **Crie plano de melhoria** para cada dimensão\n4. **Implemente mudanças**\n5. **Re-avalie antes de publicar**",
+    "metadata": {
+      "counselor": "social",
+      "docType": "scorecard",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/scorecards/content_scorecard.md",
+      "section": "Plano de Ação",
+      "lineStart": 99,
+      "lineEnd": 106
+    }
+  },
+  {
+    "content": "## Acompanhamento Pós-Publicação\n\n| Métrica | Alvo | Real | Status |\n|---------|------|------|--------|\n| **Watch Time** | >70% | ___ | ___ |\n| **Engajamento** | >3% | ___ | ___ |\n| **Compartilhamentos** | >1% | ___ | ___ |\n| **Seguidores Ganhos** | >50 | ___ | ___ |",
+    "metadata": {
+      "counselor": "social",
+      "docType": "scorecard",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/scorecards/content_scorecard.md",
+      "section": "Acompanhamento Pós-Publicação",
+      "lineStart": 107,
+      "lineEnd": 115
+    }
+  },
+  {
+    "content": "# Alg-Updates: TikTok (Dezembro 2025)",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/alg-updates/tiktok_updates.md",
+      "section": "Alg-Updates: TikTok (Dezembro 2025)",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## O Que Mudou Recentemente\n\n### 1. Prioridade de Retenção Aumentou\n**O quê**: TikTok agora prioriza watch time acima de tudo\n**Quando**: Últimas 2 semanas\n**Impacto**: Vídeos com <50% watch time recebem menos impressões\n**Ação**: Foco em hook nos primeiros 0.5s\n\n### 2. Trending Audio Mais Importante\n**O quê**: Trending audio agora é sinal crítico de ranking\n**Quando**: Últimas 4 semanas\n**Impacto**: Vídeos com trending audio recebem 3x mais impressões\n**Ação**: Sempre use trending audio (check TikTok Discover)\n\n### 3. Duração Ideal Mudou para 30-60s\n**O quê**: Vídeos entre 30-60s recebem mais alcance\n**Quando**: Últimas 3 semanas\n**Impacto**: Vídeos >60s recebem menos impressões\n**Ação**: Mantenha entre 30-60s",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/alg-updates/tiktok_updates.md",
+      "section": "O Que Mudou Recentemente",
+      "lineStart": 4,
+      "lineEnd": 23
+    }
+  },
+  {
+    "content": "## O Que Está Funcionando AGORA\n\n### Formatos Emergentes\n- **Trend Hijacking**: Usar trending audio de forma criativa\n- **Cliffhanger**: Deixar questão aberta para engajamento\n- **Transições Rápidas**: Cortes a cada 1-2 segundos\n- **Storytelling Rápido**: Narrativa comprimida em 30-60s\n\n### Tipos de Conteúdo\n- Educação (como fazer, dicas, tutoriais)\n- Entretenimento (humor, surpresa)\n- Inspiração (transformação, sucesso)\n- Reação (comentar sobre trending topic)\n\n### Melhor Horário\n- 7-9am (pré-trabalho)\n- 12-1pm (almoço)\n- 6-9pm (pós-trabalho)",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/alg-updates/tiktok_updates.md",
+      "section": "O Que Está Funcionando AGORA",
+      "lineStart": 24,
+      "lineEnd": 42
+    }
+  },
+  {
+    "content": "## O Que Está Morrendo\n\n### Formatos Que Não Funcionam Mais\n- ❌ Vídeos muito longos (>90s)\n- ❌ Ritmo lento (sem mudança visual)\n- ❌ Sem trending audio\n- ❌ Conteúdo muito \"polido\" (parece anúncio)\n- ❌ CTA fraco ou inexistente\n\n### Tipos de Conteúdo\n- ❌ Conteúdo genérico sem emoção\n- ❌ Spam ou clickbait óbvio\n- ❌ Conteúdo duplicado\n- ❌ Conteúdo muito comercial",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/alg-updates/tiktok_updates.md",
+      "section": "O Que Está Morrendo",
+      "lineStart": 43,
+      "lineEnd": 57
+    }
+  },
+  {
+    "content": "## Impacto Direto nos Funis\n\n### Topo do Funil\n**Mudança**: Precisa de hook mais forte\n**Ação**: Teste hooks diferentes, escolha que prende mais\n\n### Meio do Funil\n**Mudança**: Precisa de CTA mais claro\n**Ação**: Adicione CTA para link/bio em cada vídeo\n\n### Fundo do Funil\n**Mudança**: Retargeting é crítico\n**Ação**: Use ads para retargeting de quem viu mas não clicou",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/alg-updates/tiktok_updates.md",
+      "section": "Impacto Direto nos Funis",
+      "lineStart": 58,
+      "lineEnd": 71
+    }
+  },
+  {
+    "content": "## Recomendações Operacionais\n\n### Imediato (Esta Semana)\n1. Revise todos os vídeos em rascunho\n2. Adicione trending audio\n3. Reduza duração para 30-60s\n4. Melhore hook nos primeiros 0.5s\n\n### Curto Prazo (Este Mês)\n1. Teste 5 hooks diferentes\n2. Meça watch time de cada um\n3. Replique hook que funciona melhor\n4. Aumente frequência de publicação\n\n### Longo Prazo (Próximos 3 Meses)\n1. Construa sistema de monitoramento de trending audio\n2. Crie template de vídeo que funciona\n3. Teste cross-platform distribution\n4. Escale com ads",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/alg-updates/tiktok_updates.md",
+      "section": "Recomendações Operacionais",
+      "lineStart": 72,
+      "lineEnd": 91
+    }
+  },
+  {
+    "content": "## Métricas Alvo (Dezembro 2025)\n\n| Métrica | Alvo |\n|---------|------|\n| **Watch Time** | >75% |\n| **Likes/Views** | >3% |\n| **Shares** | >1% |\n| **Comments** | >1% |\n| **Followers Gained** | >100/vídeo |",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/alg-updates/tiktok_updates.md",
+      "section": "Métricas Alvo (Dezembro 2025)",
+      "lineStart": 92,
+      "lineEnd": 101
+    }
+  },
+  {
+    "content": "## Próximas Mudanças Esperadas\n\n**Esperado para Janeiro 2026**:\n- Possível mudança em como trending audio é ponderado\n- Possível novo formato de vídeo\n- Possível mudança em horários de pico\n\n**Mantenha-se atualizado**: Consulte TikTok Creative Center semanalmente\n\n---\n\n**Última atualização**: 22 de dezembro de 2025\n**Próxima atualização**: 29 de dezembro de 2025",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "tiktok",
+      "scope": "social",
+      "stage": "traffic",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/alg-updates/tiktok_updates.md",
+      "section": "Próximas Mudanças Esperadas",
+      "lineStart": 102,
+      "lineEnd": 115
+    }
+  },
+  {
+    "content": "# Sources: Referências e Fontes",
+    "metadata": {
+      "counselor": "social",
+      "docType": "meta",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/sources.md",
+      "section": "Sources: Referências e Fontes",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## Especialistas & Escolas Cognitivas\n\n### Lia Haberman (ICYMI)\n**Expertise**: Updates de produto e algoritmo\n**Plataforma**: Substack, LinkedIn\n**Frequência**: Semanal\n**URL**: https://liahaberman.substack.com/\n**Por que seguir**: Rastreia mudanças de algoritmo em tempo real\n\n### Matt Navarra (Geekout)\n**Expertise**: Mudanças de plataforma e tendências\n**Plataforma**: LinkedIn, Twitter\n**Frequência**: Diária\n**URL**: https://www.linkedin.com/in/mattnavarra/\n**Por que seguir**: Primeiras a noticiar mudanças de plataforma\n\n### Rachel Karten (Link in Bio)\n**Expertise**: Estudos de caso reais e estratégia\n**Plataforma**: Newsletter, LinkedIn\n**Frequência**: Semanal\n**URL**: https://www.linkinbio.co/\n**Por que seguir**: Casos reais com dados\n\n### Justin Welsh (LinkedIn)\n**Expertise**: LinkedIn, autoridade, sistema, funil B2B\n**Plataforma**: LinkedIn, Twitter\n**Frequência**: Diária\n**URL**: https://www.linkedin.com/in/justinwelsh/\n**Por que seguir**: Especialista em LinkedIn B2B\n\n### Sahil Bloom (X/Twitter)\n**Expertise**: X/Twitter, threads, narrativa, tese\n**Plataforma**: Twitter, Newsletter\n**Frequência**: Diária\n**URL**: https://twitter.com/sahilbloom\n**Por que seguir**: Mestre de threads virais\n\n### Nikita Beer (Growth Loops)\n**Expertise**: Viralização, trends, growth loops sociais\n**Plataforma**: Twitter, LinkedIn\n**Frequência**: Diária\n**URL**: https://twitter.com/nikitabeer\n**Por que seguir**: Especialista em crescimento exponencial",
+    "metadata": {
+      "counselor": "social",
+      "docType": "meta",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/sources.md",
+      "section": "Especialistas & Escolas Cognitivas",
+      "lineStart": 4,
+      "lineEnd": 47
+    }
+  },
+  {
+    "content": "## Fontes Oficiais e de Dados\n\n### TikTok\n**Resource**: TikTok Creative Center\n**URL**: https://creatoracademy.tiktok.com/\n**Conteúdo**: Guias oficiais, melhores práticas, algoritmo\n**Frequência**: Atualizado regularmente\n\n**Resource**: TikTok Ads Best Practices\n**URL**: https://ads.tiktok.com/help/article/best-practices\n**Conteúdo**: Melhores práticas para ads\n**Frequência**: Atualizado regularmente\n\n### Instagram / Meta\n**Resource**: Instagram Creator & Ads Docs\n**URL**: https://creators.instagram.com/\n**Conteúdo**: Guias oficiais, melhores práticas\n**Frequência**: Atualizado regularmente\n\n**Resource**: Meta Business Suite\n**URL**: https://business.facebook.com/\n**Conteúdo**: Analytics, insights, ferramentas\n**Frequência**: Tempo real\n\n### X/Twitter\n**Resource**: Twitter/X Developer Docs\n**URL**: https://developer.twitter.com/\n**Conteúdo**: API, dados, insights\n**Frequência**: Atualizado regularmente\n\n### LinkedIn\n**Resource**: LinkedIn Official Blog\n**URL**: https://blog.linkedin.com/\n**Conteúdo**: Atualizações, melhores práticas\n**Frequência**: Atualizado regularmente\n\n### Buffer\n**Resource**: Social Media Trends Report\n**URL**: https://buffer.com/state-of-social-media\n**Conteúdo**: Relatórios e benchmarks\n**Frequência**: Anual + updates\n\n### Hootsuite\n**Resource**: Social Trends & Insights\n**URL**: https://blog.hootsuite.com/\n**Conteúdo**: Relatórios, tendências, insights\n**Frequência**: Semanal\n\n### Social Media Examiner\n**Resource**: Articles & Research\n**URL**: https://www.socialmediaexaminer.com/\n**Conteúdo**: Artigos, pesquisa, guias\n**Frequência**: Diária\n**Autor**: Michael Stelzner",
+    "metadata": {
+      "counselor": "social",
+      "docType": "meta",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/sources.md",
+      "section": "Fontes Oficiais e de Dados",
+      "lineStart": 48,
+      "lineEnd": 102
+    }
+  },
+  {
+    "content": "## Como Usar Estas Fontes\n\n### Para Monitoramento Diário\n1. Siga Lia Haberman (ICYMI) - Substack semanal\n2. Siga Matt Navarra - LinkedIn diário\n3. Siga Nikita Beer - Twitter diário\n\n### Para Aprendizado Profundo\n1. Leia TikTok Creative Center\n2. Leia Instagram Creator Docs\n3. Leia LinkedIn Official Blog\n\n### Para Dados e Benchmarks\n1. Consulte Buffer Social Trends\n2. Consulte Hootsuite Insights\n3. Consulte Social Media Examiner\n\n### Para Estratégia\n1. Estude Rachel Karten (Link in Bio)\n2. Estude Justin Welsh (LinkedIn)\n3. Estude Sahil Bloom (X/Twitter)",
+    "metadata": {
+      "counselor": "social",
+      "docType": "meta",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/sources.md",
+      "section": "Como Usar Estas Fontes",
+      "lineStart": 103,
+      "lineEnd": 124
+    }
+  },
+  {
+    "content": "## Frequência de Atualização Recomendada\n\n| Frequência | Ação |\n|------------|------|\n| **Diária** | Monitorar trending topics, trending audio |\n| **Semanal** | Ler ICYMI, atualizar weekly-digest |\n| **Mensal** | Revisar alg-updates, atualizar estratégia |\n| **Trimestral** | Revisar identity, atualizar heuristics |",
+    "metadata": {
+      "counselor": "social",
+      "docType": "meta",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/sources.md",
+      "section": "Frequência de Atualização Recomendada",
+      "lineStart": 125,
+      "lineEnd": 133
+    }
+  },
+  {
+    "content": "## Próximas Fontes a Adicionar\n\n- [ ] Dados de TikTok Creator Fund\n- [ ] Dados de Instagram Reels Performance\n- [ ] Dados de LinkedIn Analytics\n- [ ] Dados de X/Twitter Analytics\n- [ ] Estudos acadêmicos sobre viralização\n- [ ] Relatórios de agências de social media\n\n---\n\n**Última atualização**: 22 de dezembro de 2025\n**Próxima atualização**: 29 de dezembro de 2025",
+    "metadata": {
+      "counselor": "social",
+      "docType": "meta",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/sources.md",
+      "section": "Próximas Fontes a Adicionar",
+      "lineStart": 134,
+      "lineEnd": 147
+    }
+  },
+  {
+    "content": "# Weekly Digest: Semana de 22-28 de Dezembro de 2025",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/weekly_digest.md",
+      "section": "Weekly Digest: Semana de 22-28 de Dezembro de 2025",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## 🎯 Mudanças Críticas da Semana\n\n### TikTok: Trending Audio Agora é Sinal Crítico\n**Impacto**: 🔴 Alto\n**Ação**: Todos os vídeos devem usar trending audio\n**Timeline**: Imediato\n\n### Instagram: Reels Recebem Mais Peso\n**Impacto**: 🟡 Médio\n**Ação**: Priorize Reels sobre Carousels\n**Timeline**: Esta semana\n\n### X/Twitter: Mudança em Algoritmo de Retweets\n**Impacto**: 🟡 Médio\n**Ação**: Encoraje quote tweets, não apenas retweets\n**Timeline**: Próximas 2 semanas\n\n### LinkedIn: Novo Formato de Documento\n**Impacto**: 🟢 Baixo\n**Ação**: Teste novo formato quando disponível\n**Timeline**: Próximo mês",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/weekly_digest.md",
+      "section": "🎯 Mudanças Críticas da Semana",
+      "lineStart": 4,
+      "lineEnd": 25
+    }
+  },
+  {
+    "content": "## 📊 Métricas de Referência (Semana)\n\n| Plataforma | Watch Time | Engajamento | Crescimento |\n|------------|-----------|------------|-----------|\n| **TikTok** | >75% | >3% | >100/vídeo |\n| **Instagram** | >70% | >3% | >50/post |\n| **X/Twitter** | N/A | >1% | >20/thread |\n| **LinkedIn** | N/A | >2% | >30/post |",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/weekly_digest.md",
+      "section": "📊 Métricas de Referência (Semana)",
+      "lineStart": 26,
+      "lineEnd": 34
+    }
+  },
+  {
+    "content": "## 🚀 O Que Está Funcionando AGORA\n\n### TikTok\n- ✅ Trend hijacking com trending audio\n- ✅ Cliffhanger nos primeiros 5 segundos\n- ✅ Transições rápidas (a cada 1-2s)\n- ✅ Duração 30-60 segundos\n\n### Instagram\n- ✅ Reels com hook forte\n- ✅ Carousels com 5-10 slides\n- ✅ Stories com CTA para link\n- ✅ Engajamento em comentários\n\n### X/Twitter\n- ✅ Threads com opinião forte\n- ✅ Quote tweets de trending topics\n- ✅ Dados/estatísticas com contexto\n- ✅ Perguntas que geram debate\n\n### LinkedIn\n- ✅ Posts com dados/insights\n- ✅ Histórias pessoais com lição\n- ✅ Celebração de marcos\n- ✅ Engajamento com comunidade",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/weekly_digest.md",
+      "section": "🚀 O Que Está Funcionando AGORA",
+      "lineStart": 35,
+      "lineEnd": 60
+    }
+  },
+  {
+    "content": "## ❌ O Que Está Morrendo\n\n### TikTok\n- ❌ Vídeos >90 segundos\n- ❌ Ritmo lento\n- ❌ Sem trending audio\n- ❌ Conteúdo muito \"polido\"\n\n### Instagram\n- ❌ Carousels sem CTA\n- ❌ Reels sem hook\n- ❌ Stories sem link\n- ❌ Conteúdo genérico\n\n### X/Twitter\n- ❌ Tweets muito longos\n- ❌ Threads >15 tweets\n- ❌ Sem opinião/provocação\n- ❌ Conteúdo vendedor\n\n### LinkedIn\n- ❌ Posts muito vendedores\n- ❌ Sem dados/evidência\n- ❌ Conteúdo genérico\n- ❌ Sem engajamento",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/weekly_digest.md",
+      "section": "❌ O Que Está Morrendo",
+      "lineStart": 61,
+      "lineEnd": 86
+    }
+  },
+  {
+    "content": "## 🎯 Implicações Estratégicas\n\n### Para Topo do Funil\n**Mudança**: Precisa de hook mais forte e trending audio\n**Ação**: Revise todos os vídeos em rascunho, adicione trending audio\n\n### Para Meio do Funil\n**Mudança**: CTA mais claro e qualificação melhor\n**Ação**: Teste CTAs diferentes, meça qualificação\n\n### Para Fundo do Funil\n**Mudança**: Retargeting é crítico\n**Ação**: Aumente orçamento de retargeting com ads",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/weekly_digest.md",
+      "section": "🎯 Implicações Estratégicas",
+      "lineStart": 87,
+      "lineEnd": 100
+    }
+  },
+  {
+    "content": "## 📋 Checklist de Ação\n\n- [ ] Revisar todos os vídeos em rascunho\n- [ ] Adicionar trending audio onde aplicável\n- [ ] Testar hooks diferentes\n- [ ] Medir watch time por vídeo\n- [ ] Otimizar CTA por plataforma\n- [ ] Aumentar frequência de publicação\n- [ ] Implementar retargeting\n- [ ] Monitorar métricas diárias",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/weekly_digest.md",
+      "section": "📋 Checklist de Ação",
+      "lineStart": 101,
+      "lineEnd": 111
+    }
+  },
+  {
+    "content": "## 🔮 Próximas Mudanças Esperadas\n\n**Próxima Semana**: Possível novo formato de vídeo em TikTok\n**Próximo Mês**: Possível mudança em algoritmo de Instagram\n**Próximos 3 Meses**: Possível integração de IA em recomendações",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/weekly_digest.md",
+      "section": "🔮 Próximas Mudanças Esperadas",
+      "lineStart": 112,
+      "lineEnd": 117
+    }
+  },
+  {
+    "content": "## 📚 Recursos Recomendados\n\n- **TikTok Creative Center**: Atualizações oficiais\n- **Instagram Creator Docs**: Melhores práticas\n- **Lia Haberman ICYMI**: Newsletter semanal\n- **Matt Navarra Geekout**: Mudanças de plataforma",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/weekly_digest.md",
+      "section": "📚 Recursos Recomendados",
+      "lineStart": 118,
+      "lineEnd": 124
+    }
+  },
+  {
+    "content": "## 🎬 Próxima Semana\n\n**Foco**: Implementar mudanças de trending audio e testar hooks\n**Métrica**: Medir impacto em watch time\n**Revisão**: 29 de dezembro de 2025\n\n---\n\n**Publicado**: 22 de dezembro de 2025\n**Próxima atualização**: 29 de dezembro de 2025",
+    "metadata": {
+      "counselor": "social",
+      "docType": "alg_updates",
+      "platform": "multi",
+      "scope": "social",
+      "stage": "general",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "brain/second brain/brain/social/weekly_digest.md",
+      "section": "🎬 Próxima Semana",
+      "lineStart": 125,
+      "lineEnd": 135
     }
   }
 ]
