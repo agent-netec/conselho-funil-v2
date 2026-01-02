@@ -1,12 +1,11 @@
-import * as pdfjsLib from 'pdfjs-dist';
-
-// Configurar worker do PDF.js
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-}
+// Este módulo é apenas para uso no cliente (navegador)
+// O processamento no servidor deve usar uma biblioteca diferente ou API externa
 
 /**
  * Extrai texto de um arquivo PDF a partir de uma URL.
+ * 
+ * ⚠️ ATENÇÃO: Esta função só funciona no navegador (client-side).
+ * Para uso em server components ou API routes, use uma solução server-side.
  * 
  * @param url - URL pública do Firebase Storage ou qualquer URL acessível.
  * @returns Promise com o texto extraído do PDF.
@@ -18,7 +17,17 @@ if (typeof window !== 'undefined') {
  * ```
  */
 export async function extractTextFromPDF(url: string): Promise<string> {
+  // Importação dinâmica apenas no navegador
+  if (typeof window === 'undefined') {
+    throw new Error('extractTextFromPDF só pode ser usado no navegador. Use uma solução server-side para API routes.');
+  }
+
   try {
+    const pdfjsLib = await import('pdfjs-dist');
+    
+    // Configurar worker do PDF.js
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+    
     // Carregar o documento PDF
     const loadingTask = pdfjsLib.getDocument(url);
     const pdf = await loadingTask.promise;
