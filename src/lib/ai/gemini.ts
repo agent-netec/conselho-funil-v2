@@ -5,6 +5,8 @@
  * Requer apenas GOOGLE_AI_API_KEY no .env.local
  */
 
+import { buildChatPrompt } from './prompts/chat-system';
+
 const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
 
 /**
@@ -23,7 +25,17 @@ interface GeminiResponse {
 }
 
 /**
- * Generate a response using Gemini API
+ * Gera uma resposta usando a API do Google Gemini.
+ * 
+ * @param prompt - O comando ou texto de entrada para o modelo.
+ * @param options - Configurações opcionais (modelo, temperatura, tokens de saída).
+ * @returns Uma promessa que resolve para o texto gerado.
+ * @throws Erro se a chave da API não estiver configurada ou se a requisição falhar.
+ * 
+ * @example
+ * ```ts
+ * const text = await generateWithGemini("Escreva um título para um funil de quiz.");
+ * ```
  */
 export async function generateWithGemini(
   prompt: string,
@@ -76,7 +88,11 @@ export async function generateWithGemini(
 }
 
 /**
- * Generate streaming response using Gemini API
+ * Gera uma resposta em streaming usando a API do Google Gemini.
+ * 
+ * @param prompt - O comando ou texto de entrada.
+ * @param options - Configurações opcionais de geração.
+ * @yields Pedaços de texto conforme são gerados pela API.
  */
 export async function* generateWithGeminiStream(
   prompt: string,
@@ -162,47 +178,27 @@ export async function* generateWithGeminiStream(
 }
 
 /**
- * Generate Council response using Gemini
+ * Gera uma resposta formatada para o Conselho de Estrategistas.
+ * Utiliza um builder de prompt para combinar a consulta, o contexto RAG e as instruções do sistema.
+ * 
+ * @param query - A pergunta do usuário.
+ * @param context - O contexto recuperado via RAG.
+ * @param systemPrompt - Instruções específicas do sistema ou do conselheiro.
+ * @returns Uma promessa com a resposta gerada.
  */
 export async function generateCouncilResponseWithGemini(
   query: string,
   context: string,
   systemPrompt?: string
 ): Promise<string> {
-  const defaultSystemPrompt = `Você é o Conselho de Funil, um sistema de inteligência para criação e avaliação de funis de marketing.
-
-Você tem acesso ao conhecimento de 6 especialistas:
-- **Russell Brunson**: Arquitetura de Funil, Value Ladder, sequências
-- **Dan Kennedy**: Oferta & Copy, headlines, urgência
-- **Frank Kern**: Psicologia & Comportamento, persuasão
-- **Sam Ovens**: Aquisição & Qualificação, tráfego pago
-- **Ryan Deiss**: LTV & Retenção, Customer Value Journey
-- **Perry Belcher**: Monetização Simples, ofertas de entrada
-
-## Regras de Resposta
-1. Sempre baseie suas respostas no contexto fornecido
-2. Cite qual conselheiro embasa cada recomendação
-3. Se não souber, diga claramente
-4. Seja prático e acionável
-5. Use exemplos específicos quando possível
-6. Responda em português brasileiro
-7. Formate com markdown (headers, bullets, negrito)`;
-
-  const fullPrompt = `${systemPrompt || defaultSystemPrompt}
-
-## Contexto da Base de Conhecimento
-${context || 'Nenhum contexto específico encontrado. Responda com conhecimento geral.'}
-
-## Pergunta do Usuário
-${query}
-
-## Resposta do Conselho`;
-
+  const fullPrompt = buildChatPrompt(query, context, systemPrompt);
   return generateWithGemini(fullPrompt);
 }
 
 /**
- * Check if Gemini API is configured
+ * Verifica se as credenciais da API do Gemini estão configuradas corretamente.
+ * 
+ * @returns True se a chave da API estiver presente nas variáveis de ambiente.
  */
 export function isGeminiConfigured(): boolean {
   const apiKey = getGeminiApiKey();

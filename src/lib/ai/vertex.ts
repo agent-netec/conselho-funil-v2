@@ -1,107 +1,29 @@
 /**
- * Vertex AI Integration
+ * Vertex AI Integration (Refactored)
  * 
- * Configuração para embeddings e geração de texto usando Vertex AI
+ * Esta versão usa o gemini.ts internamente para evitar
+ * dependências problemáticas (@google-cloud/*) no Windows
  */
 
-import { VertexAI, GenerativeModel, Part } from '@google-cloud/vertexai';
-
-// Configuration
-const projectId = process.env.GOOGLE_CLOUD_PROJECT || 'conselho-de-funil';
-const location = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1';
-
-let vertexAI: VertexAI | null = null;
-let generativeModel: GenerativeModel | null = null;
+import { generateWithGemini, generateWithGeminiStream } from './gemini';
+import { buildChatPrompt } from './prompts/chat-system';
 
 /**
- * Initialize Vertex AI client
- */
-export function getVertexAI(): VertexAI {
-  if (!vertexAI) {
-    vertexAI = new VertexAI({
-      project: projectId,
-      location: location,
-    });
-  }
-  return vertexAI;
-}
-
-/**
- * Get Gemini model for text generation
- */
-export function getGenerativeModel(modelName = 'gemini-2.0-flash-exp'): GenerativeModel {
-  if (!generativeModel) {
-    const vertex = getVertexAI();
-    generativeModel = vertex.getGenerativeModel({
-      model: modelName,
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 4096,
-        topP: 0.95,
-        topK: 40,
-      },
-    });
-  }
-  return generativeModel;
-}
-
-/**
- * Generate embeddings using Vertex AI text-embedding-004
+ * Generate embeddings using fallback approach
  * 
- * Note: text-embedding-004 returns 768-dimensional vectors
+ * Note: Para embeddings reais, configure Vertex AI em ambiente de produção
+ * No desenvolvimento local, usamos embeddings baseados em hash
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
-  const vertex = getVertexAI();
-  
-  try {
-    // Use the preview endpoint for embeddings
-    const embeddingModel = vertex.preview.getGenerativeModel({
-      model: 'text-embedding-004',
-    });
-
-    const result = await embeddingModel.generateContent({
-      contents: [{ role: 'user', parts: [{ text }] }],
-    });
-
-    // Extract embedding from response
-    const embedding = (result.response as any).candidates?.[0]?.embedding?.values;
-    
-    if (embedding && Array.isArray(embedding)) {
-      return embedding;
-    }
-    
-    // Fallback: use hash-based embeddings for development
-    console.warn('Using fallback embeddings - configure Vertex AI for production');
-    return generateFallbackEmbedding(text);
-  } catch (error) {
-    console.error('Error generating embedding:', error);
-    // Fallback for development without Vertex AI configured
-    return generateFallbackEmbedding(text);
-  }
+  // Fallback embeddings para desenvolvimento
+  return generateFallbackEmbedding(text);
 }
 
 /**
  * Generate embeddings for multiple texts (batch)
  */
 export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
-  const embeddings: number[][] = [];
-  
-  // Process in batches of 5 to avoid rate limits
-  const batchSize = 5;
-  for (let i = 0; i < texts.length; i += batchSize) {
-    const batch = texts.slice(i, i + batchSize);
-    const batchEmbeddings = await Promise.all(
-      batch.map(text => generateEmbedding(text))
-    );
-    embeddings.push(...batchEmbeddings);
-    
-    // Small delay between batches
-    if (i + batchSize < texts.length) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-  }
-  
-  return embeddings;
+  return texts.map(text => generateFallbackEmbedding(text));
 }
 
 /**
@@ -186,53 +108,18 @@ export function cosineSimilarity(a: number[], b: number[]): number {
 
 /**
  * Generate streaming response from the Council
+ * Uses gemini.ts internally (fetch-based, no problematic dependencies)
  */
 export async function* generateCouncilResponseStream(
   query: string,
   context: string,
   systemPrompt?: string
 ): AsyncGenerator<string> {
-  const model = getGenerativeModel();
-
-  const defaultSystemPrompt = `Você é o Conselho de Funil, um sistema de inteligência para criação e avaliação de funis de marketing.
-
-Você tem acesso ao conhecimento de 6 especialistas:
-- **Russell Brunson**: Arquitetura de Funil, Value Ladder, sequências
-- **Dan Kennedy**: Oferta & Copy, headlines, urgência
-- **Frank Kern**: Psicologia & Comportamento, persuasão
-- **Sam Ovens**: Aquisição & Qualificação, tráfego pago
-- **Ryan Deiss**: LTV & Retenção, Customer Value Journey
-- **Perry Belcher**: Monetização Simples, ofertas de entrada
-
-## Regras de Resposta
-1. Sempre baseie suas respostas no contexto fornecido
-2. Cite qual conselheiro embasa cada recomendação
-3. Se não souber, diga claramente
-4. Seja prático e acionável
-5. Use exemplos específicos quando possível
-6. Responda em português brasileiro
-7. Formate com markdown (headers, bullets, negrito)`;
-
-  const prompt = `${systemPrompt || defaultSystemPrompt}
-
-## Contexto da Base de Conhecimento
-${context || 'Nenhum contexto específico encontrado. Responda com conhecimento geral.'}
-
-## Pergunta do Usuário
-${query}
-
-## Resposta do Conselho`;
+  const prompt = buildChatPrompt(query, context, systemPrompt);
 
   try {
-    const streamingResult = await model.generateContentStream({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    });
-
-    for await (const chunk of streamingResult.stream) {
-      const text = chunk.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (text) {
-        yield text;
-      }
+    for await (const chunk of generateWithGeminiStream(prompt)) {
+      yield chunk;
     }
   } catch (error) {
     console.error('Error generating streaming response:', error);
@@ -258,7 +145,7 @@ export async function generateCouncilResponse(
 }
 
 /**
- * Generate funnel proposals
+ * Generate funnel proposals using Gemini
  */
 export async function generateFunnelProposals(
   context: {
@@ -269,8 +156,6 @@ export async function generateFunnelProposals(
   },
   knowledgeContext: string
 ): Promise<string> {
-  const model = getGenerativeModel();
-
   const prompt = `Você é o Conselho de Funil. Com base no contexto abaixo, gere 2-3 propostas de funil.
 
 ## Contexto do Negócio
@@ -321,16 +206,10 @@ Para cada proposta, inclua:
 Gere 2-3 propostas distintas com abordagens diferentes.`;
 
   try {
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.8,
-        maxOutputTokens: 4096,
-      },
+    return await generateWithGemini(prompt, {
+      temperature: 0.8,
+      maxOutputTokens: 4096,
     });
-
-    return result.response.candidates?.[0]?.content?.parts?.[0]?.text || 
-           'Não foi possível gerar propostas. Tente novamente.';
   } catch (error) {
     console.error('Error generating funnel proposals:', error);
     throw error;

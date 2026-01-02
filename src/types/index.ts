@@ -29,7 +29,11 @@ export type CounselorId =
   | 'frank_kern'
   | 'sam_ovens'
   | 'ryan_deiss'
-  | 'perry_belcher';
+  | 'perry_belcher'
+  | 'lia_haberman'
+  | 'rachel_karten'
+  | 'nikita_beer'
+  | 'justin_welsh';
 
 export interface Counselor {
   id: CounselorId;

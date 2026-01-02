@@ -27,12 +27,18 @@ export function useUser() {
 
         // If user doesn't exist in Firestore, create it
         if (!userData) {
-          await createUser(authUser.uid, {
+          const newUserData: any = {
             email: authUser.email || '',
             name: authUser.displayName || authUser.email?.split('@')[0] || 'Usuário',
-            avatar: authUser.photoURL || undefined,
             role: 'admin', // First user is admin
-          });
+          };
+          
+          // Só adiciona avatar se existir
+          if (authUser.photoURL) {
+            newUserData.avatar = authUser.photoURL;
+          }
+          
+          await createUser(authUser.uid, newUserData);
           userData = await getUser(authUser.uid);
         } else {
           // Update last login

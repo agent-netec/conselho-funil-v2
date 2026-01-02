@@ -60,6 +60,75 @@ export interface TenantSettings {
 }
 
 // ============================================
+// BRAND - Sistema Multi-Marcas
+// ============================================
+
+export interface Brand {
+  id: string;
+  userId: string;
+  name: string;
+  vertical: string; // Ex: 'SaaS', 'Education', 'E-commerce'
+  positioning: string;
+  voiceTone: string;
+  
+  // Contexto Estratégico (usado pelo RAG)
+  audience: {
+    who: string;
+    pain: string;
+    awareness: string;
+    objections: string[];
+  };
+  
+  offer: {
+    what: string;
+    ticket: number;
+    type: string;
+    differentiator: string;
+  };
+
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+/**
+ * Representa um arquivo de contexto (asset) vinculado a uma marca.
+ * Usado para enriquecer o RAG com guidelines, brand books, estratégias, etc.
+ */
+export interface BrandAsset {
+  id: string;
+  brandId: string;           // FK para brands collection
+  userId: string;            // FK para auth user
+  name: string;              // Nome editável pelo usuário
+  originalName: string;      // Nome original do arquivo
+  type: 'guideline' | 'brand_book' | 'strategy' | 'reference' | 'other';
+  mimeType: string;          // MIME type do arquivo (ex: 'application/pdf', 'image/png')
+  size: number;              // Tamanho em bytes
+  url: string;               // Firebase Storage download URL
+  status: 'uploaded' | 'processing' | 'ready' | 'error';
+  processingError?: string;  // Mensagem de erro se status = 'error'
+  extractedText?: string;    // Texto extraído de PDFs (US-13.2)
+  chunkCount?: number;       // Número de chunks gerados (US-13.3)
+  description?: string;      // Descrição opcional do arquivo
+  tags?: string[];           // Tags para organização e busca
+  createdAt: Timestamp;
+  processedAt?: Timestamp;   // Timestamp quando ficou 'ready'
+}
+
+/**
+ * Representa um pedaço (chunk) de texto de um asset para RAG.
+ */
+export interface AssetChunk {
+  id: string;
+  brandId: string;
+  assetId: string;
+  userId: string;
+  content: string;
+  embedding?: number[];      // Vetor numérico (768 dimensões para text-embedding-004)
+  order: number;             // Índice do chunk no documento original
+  createdAt: Timestamp;
+}
+
+// ============================================
 // FUNNEL
 // ============================================
 
@@ -70,6 +139,7 @@ export interface Funnel {
   name: string;
   status: FunnelStatus;
   context: FunnelContext;
+  brandId?: string; // Sistema multi-marcas (opcional para retrocompatibilidade)
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -266,6 +336,7 @@ export interface Conversation {
     funnelId?: string;
     mode: 'general' | 'funnel_review' | 'creation';
   };
+  brandId?: string; // Sistema multi-marcas (opcional para retrocompatibilidade)
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -384,6 +455,7 @@ export interface CopyProposal {
   // Metadata
   awarenessStage?: AwarenessStage;
   funnelStage?: string;      // Nome do stage do funil (se aplicável)
+  brandId?: string;          // Sistema multi-marcas (opcional para retrocompatibilidade)
   
   // Reasoning from copywriters
   reasoning: string;

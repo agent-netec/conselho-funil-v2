@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { PostHogProvider } from "@/components/providers/posthog-provider";
 import { AppShell } from "@/components/layout/app-shell";
+import { Toaster } from "sonner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,9 +31,12 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} min-h-screen bg-zinc-950 font-sans text-white antialiased`}
       >
-        <AuthProvider>
-          <AppShell>{children}</AppShell>
-        </AuthProvider>
+        <PostHogProvider>
+          <AuthProvider>
+            <AppShell>{children}</AppShell>
+          </AuthProvider>
+        </PostHogProvider>
+        <Toaster position="bottom-right" theme="dark" />
       </body>
     </html>
   );

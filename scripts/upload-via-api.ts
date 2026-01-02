@@ -17,7 +17,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const API_URL = process.env.API_URL || 'http://localhost:3002';
+const API_URL = process.env.API_URL || 'http://localhost:3001';
 
 interface ProcessedChunk {
   content: string;
@@ -146,7 +146,7 @@ async function uploadChunks() {
     // Ignore status check errors
   }
 
-  console.log('\n🎯 Próximo passo: Teste o chat em http://localhost:3002/chat');
+  console.log('\n🎯 Próximo passo: Teste o chat em http://localhost:3001/chat');
 }
 
 // Run

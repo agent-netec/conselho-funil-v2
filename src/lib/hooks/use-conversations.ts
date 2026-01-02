@@ -42,13 +42,14 @@ export function useConversations() {
     loadConversations();
   }, [loadConversations]);
 
-  const create = async (title: string = 'Nova conversa') => {
+  const create = async (title: string = 'Nova conversa', brandId?: string) => {
     if (!user) throw new Error('User not authenticated');
 
     const conversationId = await createConversation({
       userId: user.uid,
       title,
       context: { mode: 'general' },
+      brandId, // Vincula à marca se fornecido
     });
 
     await loadConversations();

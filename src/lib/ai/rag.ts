@@ -16,8 +16,12 @@ import {
   limit, 
   getDocs,
   DocumentData,
+  collectionGroup,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { getBrandAssets } from '@/lib/firebase/assets';
+import { generateEmbedding, cosineSimilarity } from './embeddings';
+import type { AssetChunk } from '@/types/database';
 
 /**
  * Simple string hash function
@@ -73,26 +77,6 @@ function generateLocalEmbedding(text: string): number[] {
   return vector;
 }
 
-/**
- * Calculate cosine similarity between two vectors
- */
-function cosineSimilarity(a: number[], b: number[]): number {
-  if (a.length !== b.length) return 0;
-  
-  let dotProduct = 0;
-  let normA = 0;
-  let normB = 0;
-  
-  for (let i = 0; i < a.length; i++) {
-    dotProduct += a[i] * b[i];
-    normA += a[i] * a[i];
-    normB += b[i] * b[i];
-  }
-  
-  const magnitude = Math.sqrt(normA) * Math.sqrt(normB);
-  return magnitude > 0 ? dotProduct / magnitude : 0;
-}
-
 // Types
 export interface KnowledgeChunk {
   id: string;
@@ -127,6 +111,15 @@ export interface RetrievalConfig {
 }
 
 export interface RetrievedChunk extends KnowledgeChunk {
+  similarity: number;
+  rank: number;
+}
+
+export interface RetrievedBrandChunk {
+  id: string;
+  assetId: string;
+  assetName: string;
+  content: string;
   similarity: number;
   rank: number;
 }
@@ -172,7 +165,16 @@ function keywordMatchScore(queryText: string, content: string): number {
 }
 
 /**
- * Retrieve relevant chunks from the knowledge base
+ * Recupera chunks relevantes da base de conhecimento com base em similaridade semântica e palavras-chave.
+ * 
+ * @param queryText - O texto da consulta do usuário.
+ * @param config - Configurações de recuperação (topK, minSimilarity, filtros).
+ * @returns Uma promessa que resolve para um array de chunks recuperados, ordenados por relevância.
+ * 
+ * @example
+ * ```ts
+ * const chunks = await retrieveChunks("Como estruturar um funil de quiz?", { topK: 5 });
+ * ```
  */
 export async function retrieveChunks(
   queryText: string,
@@ -262,7 +264,12 @@ export async function retrieveChunks(
 }
 
 /**
- * Retrieve chunks filtered by counselor
+ * Recupera chunks filtrados por um conselheiro específico.
+ * 
+ * @param queryText - O texto da consulta.
+ * @param counselor - O identificador do conselheiro (ex: 'vsl_expert').
+ * @param topK - Número máximo de chunks a retornar (padrão: 5).
+ * @returns Uma promessa com os chunks mais relevantes do conselheiro.
  */
 export async function retrieveByCouncelor(
   queryText: string,
@@ -277,7 +284,14 @@ export async function retrieveByCouncelor(
 }
 
 /**
- * Retrieve chunks for funnel creation
+ * Recupera conhecimento especializado para a criação de um novo funil.
+ * Combina busca geral com busca em heurísticas específicas.
+ * 
+ * @param objective - O objetivo do funil (ex: 'leads', 'vendas').
+ * @param channel - O canal de tráfego (ex: 'Facebook Ads', 'YouTube').
+ * @param audience - O público-alvo.
+ * @param topK - Número total de chunks a recuperar (padrão: 15).
+ * @returns Uma promessa com uma lista consolidada de chunks relevantes.
  */
 export async function retrieveForFunnelCreation(
   objective: string,
@@ -319,7 +333,10 @@ export async function retrieveForFunnelCreation(
 }
 
 /**
- * Format retrieved chunks into context string for LLM
+ * Formata os chunks recuperados em uma string de contexto adequada para prompts de LLM.
+ * 
+ * @param chunks - Array de chunks recuperados.
+ * @returns Uma string formatada contendo conteúdo, fonte e relevância de cada chunk.
  */
 export function formatContextForLLM(chunks: RetrievedChunk[]): string {
   if (chunks.length === 0) {
@@ -347,7 +364,11 @@ ${chunk.content}
 }
 
 /**
- * Full RAG query - retrieves and formats context
+ * Executa uma consulta RAG completa: recupera chunks e os formata em contexto.
+ * 
+ * @param queryText - A pergunta ou termo de busca.
+ * @param config - Opcional: configurações de recuperação.
+ * @returns Uma promessa com os chunks originais e a string de contexto formatada.
  */
 export async function ragQuery(
   queryText: string,
@@ -360,7 +381,11 @@ export async function ragQuery(
 }
 
 /**
- * Search by semantic similarity (simpler interface)
+ * Realiza uma busca semântica simplificada, retornando apenas informações essenciais.
+ * 
+ * @param query - O termo de busca.
+ * @param limit - Limite de resultados (padrão: 5).
+ * @returns Uma promessa com conteúdo, similaridade e fonte de cada resultado.
  */
 export async function semanticSearch(
   query: string,
@@ -374,3 +399,138 @@ export async function semanticSearch(
     source: `${chunk.source.file} > ${chunk.source.section}`,
   }));
 }
+
+/**
+ * Busca chunks de uma marca que sejam semanticamente similares a uma query.
+ * 
+ * @param brandId - O ID da marca.
+ * @param queryEmbedding - O vetor da pergunta do usuário.
+ * @param limitCount - Número máximo de resultados (padrão 5).
+ * @returns Lista de chunks ordenados por similaridade.
+ */
+export async function searchSimilarChunks(
+  brandId: string,
+  queryEmbedding: number[],
+  limitCount: number = 5
+): Promise<RetrievedBrandChunk[]> {
+  const assets = await getBrandAssets(brandId);
+  const readyAssets = assets.filter(a => a.status === 'ready');
+  
+  if (readyAssets.length === 0) return [];
+
+  const allRelevantChunks: RetrievedBrandChunk[] = [];
+
+  // 1. Coletar todos os chunks de todos os assets da marca
+  // Nota: Em produção com muitos arquivos, isso seria otimizado com um banco de vetores dedicado
+  // ou filtragem prévia por metadados. Para o v3.0 Early, fazemos a comparação em memória.
+  for (const asset of readyAssets) {
+    const chunksCollectionRef = collection(db, 'brand_assets', asset.id, 'chunks');
+    const chunksSnap = await getDocs(chunksCollectionRef);
+    
+    chunksSnap.docs.forEach(doc => {
+      const data = doc.data() as AssetChunk;
+      
+      // Se o chunk não tiver embedding, pula (retrocompatibilidade)
+      if (!data.embedding || !Array.isArray(data.embedding)) return;
+
+      const similarity = cosineSimilarity(queryEmbedding, data.embedding);
+      
+      allRelevantChunks.push({
+        id: doc.id,
+        assetId: asset.id,
+        assetName: asset.name,
+        content: data.content,
+        similarity,
+        rank: 0
+      });
+    });
+  }
+
+  // 2. Ordenar e retornar Top-N
+  return allRelevantChunks
+    .sort((a, b) => b.similarity - a.similarity)
+    .slice(0, limitCount)
+    .map((chunk, index) => ({ ...chunk, rank: index + 1 }));
+}
+
+/**
+ * Recupera chunks relevantes dos assets da marca usando busca vetorial.
+ * 
+ * @param brandId - O ID da marca.
+ * @param queryText - O texto da consulta do usuário.
+ * @param topK - Número máximo de chunks a retornar.
+ */
+export async function retrieveBrandChunks(
+  brandId: string,
+  queryText: string,
+  topK: number = 5
+): Promise<RetrievedBrandChunk[]> {
+  try {
+    // 1. Gerar embedding para a query
+    const queryEmbedding = await generateEmbedding(queryText);
+    
+    // 2. Buscar por similaridade de cosseno
+    const results = await searchSimilarChunks(brandId, queryEmbedding, topK);
+    
+    // 3. Fallback para busca por palavra-chave se não houver resultados semânticos bons
+    // Usamos um threshold mais rigoroso (0.65) conforme US-15.3 AC-3
+    const SIMILARITY_THRESHOLD = 0.65;
+    
+    if (results.length === 0 || results[0].similarity < SIMILARITY_THRESHOLD) {
+      console.log(`[RAG] Similaridade baixa (${results[0]?.similarity || 0}). Fallback para keyword search...`);
+      const assets = await getBrandAssets(brandId);
+      const readyAssets = assets.filter(a => a.status === 'ready');
+      
+      const keywordResults: RetrievedBrandChunk[] = [];
+      for (const asset of readyAssets) {
+        const chunksSnap = await getDocs(collection(db, 'brand_assets', asset.id, 'chunks'));
+        chunksSnap.docs.forEach(doc => {
+          const data = doc.data();
+          const score = keywordMatchScore(queryText, data.content);
+          if (score > 0.1) {
+            keywordResults.push({
+              id: doc.id,
+              assetId: asset.id,
+              assetName: asset.name,
+              content: data.content,
+              similarity: score,
+              rank: 0
+            });
+          }
+        });
+      }
+      
+      // Se o keyword match for melhor que o vetor (ou se o vetor falhou), usa ele
+      if (keywordResults.length > 0) {
+        keywordResults.sort((a, b) => b.similarity - a.similarity);
+        keywordResults.forEach((c, i) => c.rank = i + 1);
+        return keywordResults.slice(0, topK);
+      }
+    }
+
+    return results;
+  } catch (error) {
+    console.error('Error retrieving brand chunks:', error);
+    // Fallback absoluto: busca local sem API se o embedding falhar
+    const queryEmbeddingLocal = generateLocalEmbedding(queryText);
+    return searchSimilarChunks(brandId, queryEmbeddingLocal, topK);
+  }
+}
+
+/**
+ * Formata os chunks da marca para injeção no prompt do LLM.
+ * Segue o formato especificado na US-15.3 AC-2.
+ */
+export function formatBrandContextForLLM(chunks: RetrievedBrandChunk[]): string {
+  if (chunks.length === 0) return '';
+
+  const formatted = chunks.map(c => {
+    return `### CONTEXTO DA MARCA (ARQUIVOS)
+- Fonte: [${c.assetName}]
+- Relevância: ${(c.similarity * 100).toFixed(1)}%
+- Conteúdo: ${c.content}`;
+  }).join('\n\n');
+
+  return `## CONHECIMENTO EXTRAÍDO DOS ARQUIVOS DA MARCA\n\n${formatted}\n\n⚠️ INSTRUÇÃO CRÍTICA: Se você usar as informações acima, deve citar o nome do arquivo fonte explicitamente (ex: "De acordo com o arquivo [Nome]...").`;
+}
+

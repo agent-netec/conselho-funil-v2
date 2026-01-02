@@ -10,8 +10,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ragQuery, retrieveForFunnelCreation } from '@/lib/ai/rag';
 import { generateWithGemini, isGeminiConfigured } from '@/lib/ai/gemini';
-import { updateFunnel, createProposal } from '@/lib/firebase/firestore';
-import type { FunnelContext, Proposal } from '@/types/database';
+import { updateFunnel, createProposal, getFunnel } from '@/lib/firebase/firestore';
+import { getBrand } from '@/lib/firebase/brands';
+import type { FunnelContext, Proposal, Brand } from '@/types/database';
+import { 
+  FUNNEL_GENERATION_PROMPT, 
+  FUNNEL_ADJUSTMENT_PROMPT, 
+  buildFunnelContextPrompt 
+} from '@/lib/ai/prompts';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -25,95 +31,6 @@ interface GenerateRequest {
   originalProposalId?: string;
   baseVersion?: number;
 }
-
-const GENERATION_PROMPT = `Você é o Conselho de Funil, um sistema de inteligência composto por 6 especialistas em marketing e vendas.
-
-## Especialistas do Conselho
-- **Russell Brunson**: Arquitetura de Funil, Value Ladder, sequências de conversão
-- **Dan Kennedy**: Oferta & Copy, headlines magnéticas, urgência
-- **Frank Kern**: Psicologia & Comportamento, persuasão, conexão emocional  
-- **Sam Ovens**: Aquisição & Qualificação, tráfego pago, leads qualificados
-- **Ryan Deiss**: LTV & Retenção, Customer Value Journey, relacionamento
-- **Perry Belcher**: Monetização Simples, ofertas de entrada, upsells
-
-## Tarefa
-Com base no contexto do negócio e na base de conhecimento, gere **2 propostas** de funil distintas.
-
-## Formato de Saída (JSON)
-Retorne APENAS um JSON válido, sem markdown, no formato:
-
-{
-  "proposals": [
-    {
-      "name": "Nome descritivo do funil",
-      "summary": "Resumo de 2-3 linhas da estratégia",
-      "architecture": {
-        "stages": [
-          {
-            "order": 1,
-            "name": "Nome da etapa",
-            "type": "ad|landing|quiz|vsl|checkout|email|call|webinar",
-            "objective": "Objetivo psicológico",
-            "description": "Descrição detalhada",
-            "metrics": {
-              "expectedConversion": "X%",
-              "kpi": "métrica principal"
-            }
-          }
-        ]
-      },
-      "strategy": {
-        "rationale": "Por que essa estrutura funciona",
-        "counselorInsights": [
-          {
-            "counselor": "russell_brunson",
-            "insight": "Insight específico deste conselheiro"
-          }
-        ],
-        "risks": ["Risco 1", "Risco 2"],
-        "recommendations": ["Recomendação 1", "Recomendação 2"]
-      },
-      "assets": {
-        "headlines": ["Headline 1", "Headline 2", "Headline 3"],
-        "hooks": ["Hook 1", "Hook 2"],
-        "ctas": ["CTA 1", "CTA 2"]
-      },
-      "scorecard": {
-        "clarity": 8,
-        "offerStrength": 7,
-        "qualification": 8,
-        "friction": 6,
-        "ltvPotential": 7,
-        "expectedRoi": 7,
-        "overall": 7.2
-      }
-    }
-  ]
-}
-
-## Regras
-1. Gere exatamente 2 propostas com abordagens diferentes (ou 1 se for ajuste)
-2. Cada proposta deve ter 4-7 etapas
-3. Baseie-se no contexto da base de conhecimento
-4. Scores de 1-10, overall é a média
-5. Seja específico e acionável
-6. Retorne APENAS JSON válido, sem explicações adicionais`;
-
-const ADJUSTMENT_PROMPT = `Você é o Conselho de Funil. O usuário solicitou AJUSTES em uma proposta existente.
-
-## Tarefa
-Gere UMA proposta melhorada que incorpore os ajustes solicitados.
-
-## Formato de Saída (JSON)
-Retorne APENAS um JSON válido com a mesma estrutura, mas com apenas 1 proposta no array.
-
-${GENERATION_PROMPT.split('## Regras')[0]}
-
-## Regras
-1. Gere exatamente 1 proposta que incorpore TODOS os ajustes
-2. Mantenha o que funcionava bem na estrutura original
-3. Seja específico sobre as mudanças aplicadas
-4. Retorne APENAS JSON válido`
 
 export async function POST(request: NextRequest) {
   try {
@@ -140,6 +57,21 @@ export async function POST(request: NextRequest) {
     // Update funnel status to generating
     await updateFunnel(funnelId, { status: 'generating' });
 
+    // Load brand context if funnel has brandId
+    let brandContext = '';
+    try {
+      const funnel = await getFunnel(funnelId);
+      if (funnel?.brandId) {
+        const brand = await getBrand(funnel.brandId);
+        if (brand) {
+          brandContext = buildBrandContextForFunnel(brand);
+          console.log(`🏷️ Usando contexto da marca: ${brand.name}`);
+        }
+      }
+    } catch (err) {
+      console.error('Error loading brand:', err);
+    }
+
     // 1. Retrieve relevant knowledge
     const queryText = `
       Funil para ${context.objective}
@@ -165,46 +97,12 @@ export async function POST(request: NextRequest) {
       `[${c.metadata.counselor || 'General'}] ${c.content}`
     ).join('\n\n---\n\n');
 
-    // 3. Build the full prompt
-    const contextPrompt = `
-## Contexto do Negócio
-
-**Empresa/Projeto:** ${context.company}
-**Mercado/Nicho:** ${context.market}
-**Maturidade:** ${context.maturity}
-**Objetivo:** ${context.objective}
-${context.restrictions ? `**Restrições:** ${context.restrictions}` : ''}
-
-### Público-Alvo
-- **Quem:** ${context.audience.who}
-- **Dor Principal:** ${context.audience.pain}
-- **Nível de Consciência:** ${context.audience.awareness}
-${context.audience.objection ? `- **Objeção Dominante:** ${context.audience.objection}` : ''}
-
-### Oferta
-- **Produto/Serviço:** ${context.offer.what}
-- **Ticket:** ${context.offer.ticket}
-- **Tipo:** ${context.offer.type}
-
-### Canais
-- **Principal:** ${context.channel?.main || context.channels?.primary || 'N/A'}
-${context.channel?.secondary || context.channels?.secondary ? `- **Secundário:** ${context.channel?.secondary || context.channels?.secondary}` : ''}
-${context.channel?.owned ? `- **Owned Media:** ${context.channel.owned}` : ''}
-
-## Base de Conhecimento do Conselho
-${knowledgeContext}
-
-${isAdjustment ? `
-## ⚠️ AJUSTES SOLICITADOS
-Esta é uma REGENERAÇÃO. O usuário analisou a proposta anterior e solicitou os seguintes ajustes:
-
-${adjustments.map((a, i) => `${i + 1}. ${a}`).join('\n')}
-
-**IMPORTANTE:** Gere uma NOVA proposta que incorpore TODOS estes ajustes. Mantenha o que estava bom na proposta original mas aplique as mudanças solicitadas.
-` : ''}
-`;
-
-    const basePrompt = isAdjustment ? ADJUSTMENT_PROMPT : GENERATION_PROMPT;
+    // 3. Build the full prompt (include brand context if available)
+    let contextPrompt = buildFunnelContextPrompt(context, knowledgeContext, adjustments);
+    if (brandContext) {
+      contextPrompt = `${brandContext}\n\n${contextPrompt}`;
+    }
+    const basePrompt = isAdjustment ? FUNNEL_ADJUSTMENT_PROMPT : FUNNEL_GENERATION_PROMPT;
     const fullPrompt = `${basePrompt}\n\n${contextPrompt}`;
 
     // 4. Generate proposals with Gemini
@@ -292,5 +190,39 @@ ${adjustments.map((a, i) => `${i + 1}. ${a}`).join('\n')}
       { status: 500 }
     );
   }
+}
+
+// Build brand context string for funnel generation
+function buildBrandContextForFunnel(brand: Brand): string {
+  return `## CONTEXTO DA MARCA (PRIORIDADE MÁXIMA)
+
+**Marca:** ${brand.name}
+**Vertical:** ${brand.vertical}
+**Posicionamento:** ${brand.positioning}
+**Tom de Voz:** ${brand.voiceTone}
+
+### Público-Alvo da Marca
+- **Perfil:** ${brand.audience.who}
+- **Dor Principal:** ${brand.audience.pain}
+- **Consciência:** ${brand.audience.awareness}
+${brand.audience.objections.length > 0 ? `- **Objeções Conhecidas:** ${brand.audience.objections.join(', ')}` : ''}
+
+### Oferta Principal
+- **Produto/Serviço:** ${brand.offer.what}
+- **Ticket:** R$ ${brand.offer.ticket.toLocaleString('pt-BR')}
+- **Tipo:** ${brand.offer.type}
+- **Diferencial Competitivo:** ${brand.offer.differentiator}
+
+---
+
+**INSTRUÇÕES IMPORTANTES:**
+1. Todas as propostas DEVEM alinhar-se com o tom de voz "${brand.voiceTone}"
+2. As headlines e copy DEVEM refletir o posicionamento da marca
+3. O funil DEVE endereçar as objeções conhecidas do público
+4. Use o diferencial competitivo como eixo central da estratégia
+5. Considere o ticket de R$ ${brand.offer.ticket.toLocaleString('pt-BR')} ao sugerir estratégias de conversão
+
+---
+`;
 }
 

@@ -42,29 +42,29 @@ interface ProcessedChunk {
 // Lista de arquivos do Social Brain
 const SOCIAL_BRAIN_FILES = [
   // Identity (4 cadeiras)
-  'brain/second brain/brain/social/identity/algoritmo_descoberta.md',
-  'brain/second brain/brain/social/identity/criativo_hooks.md',
-  'brain/second brain/brain/social/identity/viralizacao_distribuicao.md',
-  'brain/second brain/brain/social/identity/funil_conversao.md',
+  'brain/social/identity/algoritmo_descoberta.md',
+  'brain/social/identity/criativo_hooks.md',
+  'brain/social/identity/viralizacao_distribuicao.md',
+  'brain/social/identity/funil_conversao.md',
   
   // Heuristics (por plataforma)
-  'brain/second brain/brain/social/heuristics/tiktok_heuristics.md',
-  'brain/second brain/brain/social/heuristics/instagram_heuristics.md',
-  'brain/second brain/brain/social/heuristics/x_twitter_heuristics.md',
-  'brain/second brain/brain/social/heuristics/linkedin_heuristics.md',
+  'brain/social/heuristics/tiktok_heuristics.md',
+  'brain/social/heuristics/instagram_heuristics.md',
+  'brain/social/heuristics/x_twitter_heuristics.md',
+  'brain/social/heuristics/linkedin_heuristics.md',
   
   // Playbooks
-  'brain/second brain/brain/social/playbooks/viral_content_playbook.md',
+  'brain/social/playbooks/viral_content_playbook.md',
   
   // Scorecards
-  'brain/second brain/brain/social/scorecards/content_scorecard.md',
+  'brain/social/scorecards/content_scorecard.md',
   
   // Alg Updates
-  'brain/second brain/brain/social/alg-updates/tiktok_updates.md',
+  'brain/social/alg-updates/tiktok_updates.md',
   
   // Sources e Digest
-  'brain/second brain/brain/social/sources.md',
-  'brain/second brain/brain/social/weekly_digest.md',
+  'brain/social/sources.md',
+  'brain/social/weekly_digest.md',
 ];
 
 // Parse YAML frontmatter
@@ -289,4 +289,5 @@ async function main() {
 }
 
 main().catch(console.error);
+
 

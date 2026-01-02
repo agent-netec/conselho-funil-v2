@@ -35,13 +35,14 @@ export function useFunnels() {
     loadFunnels();
   }, [user]);
 
-  const create = async (data: { name: string; context: FunnelContext }) => {
+  const create = async (data: { name: string; context: FunnelContext; brandId?: string }) => {
     if (!user) throw new Error('User not authenticated');
 
     const funnelId = await createFunnel({
       userId: user.uid,
       name: data.name,
       context: data.context,
+      brandId: data.brandId, // Vincula à marca se fornecido
     });
 
     await loadFunnels();

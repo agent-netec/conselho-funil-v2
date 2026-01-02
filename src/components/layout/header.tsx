@@ -4,15 +4,17 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Search, Command } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BrandSelector } from '@/components/brands/brand-selector';
 
 interface HeaderProps {
   title: string;
   subtitle?: string;
   showBack?: boolean;
   actions?: React.ReactNode;
+  showBrandSelector?: boolean; // Controla visibilidade do seletor de marca
 }
 
-export function Header({ title, subtitle, showBack, actions }: HeaderProps) {
+export function Header({ title, subtitle, showBack, actions, showBrandSelector = true }: HeaderProps) {
   const router = useRouter();
 
   return (
@@ -52,6 +54,9 @@ export function Header({ title, subtitle, showBack, actions }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-3">
+        {/* Brand Selector */}
+        {showBrandSelector && <BrandSelector />}
+
         {/* Quick search hint */}
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.04]">
           <Search className="h-4 w-4 text-zinc-500" />

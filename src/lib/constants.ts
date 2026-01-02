@@ -44,13 +44,59 @@ export const COUNSELORS: Record<CounselorId, Counselor> = {
     color: '#84cc16', // lime
     icon: '💰',
   },
+  // ============================================
+  // SOCIAL COUNSELORS - Conselho Social (E12)
+  // ============================================
+  lia_haberman: {
+    id: 'lia_haberman',
+    name: 'Lia Haberman',
+    expertise: 'Algoritmo & Mudanças',
+    color: '#06b6d4', // cyan
+    icon: '📊',
+  },
+  rachel_karten: {
+    id: 'rachel_karten',
+    name: 'Rachel Karten',
+    expertise: 'Criativo & Hooks',
+    color: '#f43f5e', // rose
+    icon: '🪝',
+  },
+  nikita_beer: {
+    id: 'nikita_beer',
+    name: 'Nikita Beer',
+    expertise: 'Viralização & Trends',
+    color: '#8b5cf6', // violet
+    icon: '🚀',
+  },
+  justin_welsh: {
+    id: 'justin_welsh',
+    name: 'Justin Welsh',
+    expertise: 'Funil Social',
+    color: '#10b981', // emerald
+    icon: '⛓️',
+  },
 };
+
+// Update CounselorId type
+export type CounselorId = 
+  | 'russell_brunson'
+  | 'dan_kennedy'
+  | 'frank_kern'
+  | 'sam_ovens'
+  | 'ryan_deiss'
+  | 'perry_belcher'
+  | 'lia_haberman'
+  | 'rachel_karten'
+  | 'nikita_beer'
+  | 'justin_welsh';
 
 // Navigation items
 export const NAV_ITEMS = [
   { id: 'home', label: 'Home', href: '/', icon: 'Home' },
   { id: 'chat', label: 'Chat', href: '/chat', icon: 'MessageSquare' },
   { id: 'funnels', label: 'Funis', href: '/funnels', icon: 'Target' },
+  { id: 'social', label: 'Social', href: '/social', icon: 'Share2' },
+  { id: 'brands', label: 'Marcas', href: '/brands', icon: 'Building2' },
   { id: 'analytics', label: 'Analytics', href: '/analytics', icon: 'BarChart3' },
   { id: 'library', label: 'Biblioteca', href: '/library', icon: 'Library' },
   { id: 'settings', label: 'Configurações', href: '/settings', icon: 'Settings' },
@@ -191,6 +237,50 @@ export const AWARENESS_STAGES = {
   solution_aware: { label: 'Consciente da Solução', description: 'Sabe que existem soluções', copyLength: 'Média' },
   product_aware: { label: 'Consciente do Produto', description: 'Conhece seu produto', copyLength: 'Curta' },
   most_aware: { label: 'Mais Consciente', description: 'Já conhece bem', copyLength: 'Muito curta' },
+} as const;
+
+// Chat modes configuration
+export const CHAT_MODES = {
+  general: {
+    id: 'general',
+    label: 'Conselho',
+    title: 'Conselho',
+    subtitle: '15 especialistas',
+    placeholder: 'Pergunte ao Conselho...',
+    footer: 'Pressione Enter para enviar, Shift+Enter para nova linha',
+    accentColor: 'emerald',
+    counselors: ['Russell Brunson', 'Dan Kennedy', 'Frank Kern', 'Sam Ovens', 'Ryan Deiss', 'Perry Belcher', 'Schwartz', 'Hopkins', 'Halbert', 'Sugarman', 'Ogilvy', 'Carlton', 'Bird'],
+  },
+  funnel: {
+    id: 'funnel',
+    label: 'Funil',
+    title: 'Conselho de Funil',
+    subtitle: '6 especialistas',
+    placeholder: 'Pergunte sobre arquitetura de funis...',
+    footer: '🎯 Consultando: Russell Brunson, Dan Kennedy, Frank Kern, Sam Ovens, Ryan Deiss, Perry Belcher',
+    accentColor: 'indigo',
+    counselors: ['Russell Brunson', 'Dan Kennedy', 'Frank Kern', 'Sam Ovens', 'Ryan Deiss', 'Perry Belcher'],
+  },
+  copy: {
+    id: 'copy',
+    label: 'Copy',
+    title: 'Conselho de Copy',
+    subtitle: '9 copywriters',
+    placeholder: 'Pergunte sobre copy e persuasão...',
+    footer: '✍️ Consultando: Schwartz, Hopkins, Halbert, Sugarman, Ogilvy, Carlton, Bird, Kern',
+    accentColor: 'amber',
+    counselors: ['Schwartz', 'Hopkins', 'Halbert', 'Sugarman', 'Ogilvy', 'Carlton', 'Bird', 'Kern'],
+  },
+  social: {
+    id: 'social',
+    label: 'Social',
+    title: 'Conselho Social',
+    subtitle: '4 especialistas',
+    placeholder: 'Pergunte sobre redes sociais e viralização...',
+    footer: '🚀 Consultando: Lia Haberman, Rachel Karten, Nikita Beer, Justin Welsh',
+    accentColor: 'rose',
+    counselors: ['Lia Haberman', 'Rachel Karten', 'Nikita Beer', 'Justin Welsh'],
+  },
 } as const;
 
 
