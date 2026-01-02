@@ -97,7 +97,7 @@ export function useConversation(conversationId: string | null) {
 
   const sendMessage = async (
     content: string, 
-    mode: 'general' | 'funnel_creation' | 'funnel_evaluation' = 'general',
+    mode: 'general' | 'funnel_creation' | 'funnel_evaluation' | 'copy' | 'social' | 'funnel_review' = 'general',
     funnelId?: string
   ) => {
     if (!conversationId) return;

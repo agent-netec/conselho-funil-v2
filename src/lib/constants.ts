@@ -1,7 +1,7 @@
-import type { Counselor, CounselorId } from '@/types';
+import type { Counselor, CounselorId as CounselorIdType } from '@/types';
 
 // Counselors data
-export const COUNSELORS: Record<CounselorId, Counselor> = {
+export const COUNSELORS: Record<CounselorIdType, Counselor> = {
   russell_brunson: {
     id: 'russell_brunson',
     name: 'Russell Brunson',

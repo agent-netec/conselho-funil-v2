@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { BrandSelector } from '@/components/brands/brand-selector';
 
 interface HeaderProps {
-  title: string;
+  title?: string;
   subtitle?: string;
   showBack?: boolean;
   actions?: React.ReactNode;
