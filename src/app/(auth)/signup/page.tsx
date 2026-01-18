@@ -1,29 +1,203 @@
 'use client';
-
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState, ChangeEvent, FormEvent, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { signupWithEmail } from '@/lib/firebase/auth';
-import { ArrowRight, Loader2, Mail, Lock, User, AlertCircle, Check } from 'lucide-react';
+import {
+  Ripple,
+  AuthTabs,
+  TechOrbitDisplay,
+} from '@/components/ui/modern-animated-sign-in';
+import Image from 'next/image';
+
+type FormData = {
+  name: string;
+  email: string;
+  password: string;
+};
+
+interface OrbitIcon {
+  component: () => ReactNode;
+  className: string;
+  duration?: number;
+  delay?: number;
+  radius?: number;
+  path?: boolean;
+  reverse?: boolean;
+}
+
+const iconsArray: OrbitIcon[] = [
+  {
+    component: () => (
+      <Image
+        width={100}
+        height={100}
+        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg'
+        alt='HTML5'
+      />
+    ),
+    className: 'size-[30px] border-none bg-transparent',
+    duration: 20,
+    delay: 20,
+    radius: 100,
+    path: false,
+    reverse: false,
+  },
+  {
+    component: () => (
+      <Image
+        width={100}
+        height={100}
+        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg'
+        alt='CSS3'
+      />
+    ),
+    className: 'size-[30px] border-none bg-transparent',
+    duration: 20,
+    delay: 10,
+    radius: 100,
+    path: false,
+    reverse: false,
+  },
+  {
+    component: () => (
+      <Image
+        width={100}
+        height={100}
+        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg'
+        alt='TypeScript'
+      />
+    ),
+    className: 'size-[50px] border-none bg-transparent',
+    radius: 210,
+    duration: 20,
+    path: false,
+    reverse: false,
+  },
+  {
+    component: () => (
+      <Image
+        width={100}
+        height={100}
+        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg'
+        alt='JavaScript'
+      />
+    ),
+    className: 'size-[50px] border-none bg-transparent',
+    radius: 210,
+    duration: 20,
+    delay: 20,
+    path: false,
+    reverse: false,
+  },
+  {
+    component: () => (
+      <Image
+        width={100}
+        height={100}
+        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg'
+        alt='TailwindCSS'
+      />
+    ),
+    className: 'size-[30px] border-none bg-transparent',
+    duration: 20,
+    delay: 20,
+    radius: 150,
+    path: false,
+    reverse: true,
+  },
+  {
+    component: () => (
+      <Image
+        width={100}
+        height={100}
+        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg'
+        alt='Nextjs'
+      />
+    ),
+    className: 'size-[30px] border-none bg-transparent',
+    duration: 20,
+    delay: 10,
+    radius: 150,
+    path: false,
+    reverse: true,
+  },
+  {
+    component: () => (
+      <Image
+        width={100}
+        height={100}
+        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg'
+        alt='React'
+      />
+    ),
+    className: 'size-[50px] border-none bg-transparent',
+    radius: 270,
+    duration: 20,
+    path: false,
+    reverse: true,
+  },
+  {
+    component: () => (
+      <Image
+        width={100}
+        height={100}
+        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg'
+        alt='Figma'
+      />
+    ),
+    className: 'size-[50px] border-none bg-transparent',
+    radius: 270,
+    duration: 20,
+    delay: 60,
+    path: false,
+    reverse: true,
+  },
+  {
+    component: () => (
+      <Image
+        width={100}
+        height={100}
+        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg'
+        alt='Git'
+      />
+    ),
+    className: 'size-[50px] border-none bg-transparent',
+    radius: 320,
+    duration: 20,
+    delay: 20,
+    path: false,
+    reverse: false,
+  },
+];
 
 export default function SignupPage() {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    email: '',
+    password: '',
+  });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleInputChange = (
+    event: ChangeEvent<HTMLInputElement>,
+    name: keyof FormData
+  ) => {
+    const value = event.target.value;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setError('');
     setIsLoading(true);
 
     try {
-      await signupWithEmail(email, password, name);
+      await signupWithEmail(formData.email, formData.password, formData.name);
       router.push('/');
     } catch (err: any) {
       if (err.code === 'auth/email-already-in-use') {
@@ -38,164 +212,61 @@ export default function SignupPage() {
     }
   };
 
-  const features = [
-    'Crie funis com inteligência artificial',
-    'Avalie com o parecer de 6 especialistas',
-    'Construa memória estratégica contínua',
-  ];
+  const handleGoToLogin = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    router.push('/login');
+  };
+
+  const formFields = {
+    header: 'Criar conta',
+    subHeader: 'Comece sua jornada estratégica agora',
+    fields: [
+      {
+        label: 'Nome',
+        required: true,
+        type: 'text' as any,
+        placeholder: 'Seu nome completo',
+        onChange: (event: ChangeEvent<HTMLInputElement>) =>
+          handleInputChange(event, 'name'),
+      },
+      {
+        label: 'Email',
+        required: true,
+        type: 'email' as any,
+        placeholder: 'seu@email.com',
+        onChange: (event: ChangeEvent<HTMLInputElement>) =>
+          handleInputChange(event, 'email'),
+      },
+      {
+        label: 'Senha',
+        required: true,
+        type: 'password' as any,
+        placeholder: 'Mínimo 6 caracteres',
+        onChange: (event: ChangeEvent<HTMLInputElement>) =>
+          handleInputChange(event, 'password'),
+      },
+    ],
+    submitButton: isLoading ? 'Criando...' : 'Criar Conta',
+    textVariantButton: 'Já tem conta? Fazer login',
+    errorField: error,
+  };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center px-4">
-      {/* Logo */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="absolute top-8 left-8"
-      >
-        <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/20">
-            <svg 
-              viewBox="0 0 24 24" 
-              className="h-5 w-5 text-white"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
-          </div>
-          <span className="text-lg font-semibold text-white">Conselho de Funil</span>
-        </Link>
-      </motion.div>
+    <section className='flex max-lg:justify-center min-h-screen bg-zinc-950 overflow-hidden'>
+      {/* Left Side */}
+      <div className='flex flex-col justify-center w-1/2 max-lg:hidden relative overflow-hidden bg-zinc-950 border-r border-white/[0.05]'>
+        <Ripple mainCircleSize={100} />
+        <TechOrbitDisplay iconsArray={iconsArray} text="Conselho de Funil" />
+      </div>
 
-      {/* Form Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="w-full max-w-md"
-      >
-        <div className="card-premium p-8">
-          <div className="mb-8 text-center">
-            <h1 className="text-2xl font-bold text-white">Criar conta</h1>
-            <p className="mt-2 text-zinc-400">
-              Comece a usar o Conselho de Funil
-            </p>
-          </div>
-
-          {/* Features */}
-          <div className="mb-8 space-y-3">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
-                className="flex items-center gap-3"
-              >
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/10">
-                  <Check className="h-3 w-3 text-emerald-400" />
-                </div>
-                <span className="text-sm text-zinc-400">{feature}</span>
-              </motion.div>
-            ))}
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400"
-              >
-                <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                {error}
-              </motion.div>
-            )}
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300">Nome</label>
-              <div className="relative">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <Input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Seu nome"
-                  required
-                  className="input-premium pl-10"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300">Email</label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="seu@email.com"
-                  required
-                  className="input-premium pl-10"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300">Senha</label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
-                  required
-                  minLength={6}
-                  className="input-premium pl-10"
-                />
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full btn-accent h-11"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <>
-                  Criar conta
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </>
-              )}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-zinc-500">
-              Já tem conta?{' '}
-              <Link
-                href="/login"
-                className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
-              >
-                Fazer login
-              </Link>
-            </p>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <p className="mt-8 text-center text-xs text-zinc-600">
-          Ao criar sua conta, você concorda com nossos termos de uso
-        </p>
-      </motion.div>
-    </div>
+      {/* Right Side */}
+      <div className='w-1/2 h-[100dvh] flex flex-col justify-center items-center max-lg:w-full max-lg:px-[10%] relative z-10'>
+        <AuthTabs
+          formFields={formFields}
+          goTo={handleGoToLogin}
+          handleSubmit={handleSubmit}
+        />
+      </div>
+    </section>
   );
 }
