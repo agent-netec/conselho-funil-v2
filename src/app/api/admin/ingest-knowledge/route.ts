@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase/config';
-import { collection, doc, setDoc, Timestamp } from 'firebase/firestore';
-import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {

@@ -33,19 +33,22 @@ if (typeof window !== 'undefined') {
 }
 
 // Initialize Firebase only once
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+// US-11.24 Fix: Evitar crash durante o build da Vercel se as chaves estiverem vazias
+const app = getApps().length === 0 && apiKey 
+  ? initializeApp(firebaseConfig) 
+  : (getApps()[0] || null);
 
 // Export services
 // Scripts (ex: ingest) podem desativar auth via SKIP_AUTH=1 para evitar erros de key/host
-const skipAuth = process.env.SKIP_AUTH === '1';
+const skipAuth = process.env.SKIP_AUTH === '1' || !app;
 export const auth = skipAuth ? null : getAuth(app);
 
 // QA Hardening: Force Long Polling to avoid ERR_QUIC_PROTOCOL_ERROR
-export const db = initializeFirestore(app, {
+export const db = app ? initializeFirestore(app, {
   experimentalForceLongPolling: true,
-});
+}) : null as any;
 
-export const storage = getStorage(app);
+export const storage = app ? getStorage(app) : null as any;
 export default app;
 
 
