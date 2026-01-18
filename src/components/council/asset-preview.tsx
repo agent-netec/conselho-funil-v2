@@ -70,6 +70,11 @@ export function AssetPreview({ data }: AssetPreviewProps) {
       assets: raw.assets || []
     };
 
+    // US-11.24 Ultra-Resiliência: Se temos passos mas o summary falhou, forçamos um summary padrão
+    if (!normalized.strategy.summary && normalized.strategy.steps && normalized.strategy.steps.length > 0) {
+      normalized.strategy.summary = 'Estratégia Detalhada';
+    }
+
     // Se não tem nem passos nem resumo, não é um payload válido
     if (!normalized.strategy?.summary && (!normalized.strategy?.steps || normalized.strategy.steps.length === 0)) {
       return null;
