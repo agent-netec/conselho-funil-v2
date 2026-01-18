@@ -50,8 +50,38 @@ export function AssetPreview({ data }: AssetPreviewProps) {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   // ST-11.6: Fail-safe para dados ausentes ou malformados (QA: INC-003)
-  if (!data || !data.strategy) {
-    console.warn('AssetPreview: Dados de estratégia ausentes no payload.', data);
+  // US-11.24 Fix: Mapeamento resiliente para variações de JSON da IA
+  const getNormalizedData = (raw: any): CouncilOutput | null => {
+    if (!raw) return null;
+
+    // Se já estiver no formato correto, retorna
+    if (raw.strategy?.summary || raw.strategy?.steps) {
+      return raw as CouncilOutput;
+    }
+
+    // Tentar normalizar variações comuns detectadas no console
+    const normalized: Partial<CouncilOutput> = {
+      strategy: {
+        summary: raw.strategy?.summary || raw.funnel_strategy?.summary || raw.summary || 'Estratégia Sugerida',
+        rationale: raw.strategy?.rationale || raw.funnel_strategy?.rationale || raw.rationale || '',
+        steps: raw.strategy?.steps || raw.funnel_strategy?.steps || raw.steps || raw.estrategias_aumento_ltv || []
+      },
+      market_data: raw.market_data || raw.data || [],
+      assets: raw.assets || []
+    };
+
+    // Se não tem nem passos nem resumo, não é um payload válido
+    if (!normalized.strategy?.summary && (!normalized.strategy?.steps || normalized.strategy.steps.length === 0)) {
+      return null;
+    }
+
+    return normalized as CouncilOutput;
+  };
+
+  const normalizedData = getNormalizedData(data);
+
+  if (!normalizedData) {
+    console.warn('AssetPreview: Não foi possível normalizar o payload da IA.', data);
     return null;
   }
 
@@ -81,15 +111,17 @@ export function AssetPreview({ data }: AssetPreviewProps) {
           Estratégia Recomendada
         </div>
         <Card className="card-premium p-6">
-          <h3 className="text-xl font-bold text-white mb-2">{data.strategy.summary}</h3>
-          <p className="text-zinc-400 text-sm mb-4 leading-relaxed">{data.strategy.rationale}</p>
+          <h3 className="text-xl font-bold text-white mb-2">{normalizedData.strategy.summary}</h3>
+          {normalizedData.strategy.rationale && (
+            <p className="text-zinc-400 text-sm mb-4 leading-relaxed">{normalizedData.strategy.rationale}</p>
+          )}
           <div className="space-y-2">
-            {data.strategy.steps?.map((step, idx) => (
+            {normalizedData.strategy.steps?.map((step, idx) => (
               <div key={idx} className="flex items-start gap-3 text-zinc-300 text-sm">
                 <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-[10px] font-bold text-emerald-400">
                   {idx + 1}
                 </div>
-                <span>{step}</span>
+                <span>{typeof step === 'string' ? step : JSON.stringify(step)}</span>
               </div>
             ))}
           </div>
@@ -97,7 +129,7 @@ export function AssetPreview({ data }: AssetPreviewProps) {
       </div>
 
       {/* Market Data Grid */}
-      {data.market_data && data.market_data.length > 0 && (
+      {normalizedData.market_data && normalizedData.market_data.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-emerald-400 font-semibold uppercase tracking-wider text-xs">
             <BarChart3 className="h-4 w-4" />
