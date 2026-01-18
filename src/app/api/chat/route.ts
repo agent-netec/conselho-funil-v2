@@ -132,10 +132,10 @@ export async function POST(request: NextRequest) {
           const campaign = await getCampaign(cleanCampaignId);
           if (campaign) {
             let context = `## MANIFESTO DA CAMPANHA (LINHA DE OURO)\n` +
-              `ID da Campanha: ${campaign.id}\n` +
-              `Status: ${campaign.status}\n` +
-              `Objetivo: ${campaign.funnel?.mainGoal}\n` +
-              `Público: ${campaign.funnel?.targetAudience}\n`;
+              `ID da Campanha: ${campaign.id || cleanCampaignId}\n` +
+              `Status: ${campaign.status || 'active'}\n` +
+              `Objetivo: ${campaign.funnel?.mainGoal || 'N/A'}\n` +
+              `Público: ${campaign.funnel?.targetAudience || 'N/A'}\n`;
             
             if (campaign.copywriting) {
               context += `\n[COPY APROVADA]\nBig Idea: ${campaign.copywriting.bigIdea}\n`;
@@ -376,6 +376,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       response: assistantResponse,
       sources: sources, // US-1.2.3: UI agora recebe snippets e rerankScore
+      version: '11.24.5-perf'
     });
   } catch (error) {
     console.error('Error in chat API:', error);

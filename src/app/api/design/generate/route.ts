@@ -279,6 +279,7 @@ Retorne apenas o JSON array de strings.`;
       imageUrl: generationResponses[0]?.url,
       processId: generationResponses[0]?.processId,
       images: generationResponses,
+      version: '11.24.5-parallel',
       metadata: {
         type,
         aspectRatio,
