@@ -77,14 +77,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // US-16.1: Validação de Créditos do Usuário
-    const conversation = await getConversation(conversationId);
+    // ST-11.24 Optimization: Parallelize metadata and context gathering
+    const [conversation, userCredits] = await Promise.all([
+      getConversation(conversationId),
+      getUserCredits(null as any) // We'll get userId from conversation first
+    ]);
+
     if (!conversation) {
       return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
     }
 
     const userId = conversation.userId;
-    const credits = await getUserCredits(userId);
+    const credits = await getUserCredits(userId); // Re-fetch with correct userId
 
     // Só bloqueia se o limite estiver ativado
     if (CONFIG.ENABLE_CREDIT_LIMIT && credits <= 0) {
@@ -100,6 +104,97 @@ export async function POST(request: NextRequest) {
     // Fix campaignId if it comes as "undefined" string
     const cleanCampaignId = campaignId === 'undefined' ? undefined : campaignId;
 
+    // Parallelize all independent context fetching
+    const contextPromises: Promise<any>[] = [];
+
+    // 1. Funnel Context
+    let funnelPromise = Promise.resolve('');
+    if (funnelId) {
+      funnelPromise = (async () => {
+        try {
+          const funnel = await getFunnel(funnelId);
+          if (funnel) {
+            const proposals = await getFunnelProposals(funnelId);
+            return formatFunnelContextForChat(funnel, proposals);
+          }
+        } catch (err) {
+          console.error('Error loading funnel:', err);
+        }
+        return '';
+      })();
+    }
+
+    // 2. Campaign Context
+    let campaignPromise = Promise.resolve('');
+    if (cleanCampaignId) {
+      campaignPromise = (async () => {
+        try {
+          const campaign = await getCampaign(cleanCampaignId);
+          if (campaign) {
+            let context = `## MANIFESTO DA CAMPANHA (LINHA DE OURO)\n` +
+              `ID da Campanha: ${campaign.id}\n` +
+              `Status: ${campaign.status}\n` +
+              `Objetivo: ${campaign.funnel?.mainGoal}\n` +
+              `Público: ${campaign.funnel?.targetAudience}\n`;
+            
+            if (campaign.copywriting) {
+              context += `\n[COPY APROVADA]\nBig Idea: ${campaign.copywriting.bigIdea}\n`;
+            }
+            if (campaign.social) {
+              context += `\n[ESTRATÉGIA SOCIAL]\n${campaign.social.hooks?.length || 0} Hooks aprovados.\n`;
+            }
+            if (campaign.design) {
+              context += `\n[ESTILO VISUAL]\n${campaign.design.visualStyle}\n`;
+            }
+            return context;
+          }
+        } catch (err) {
+          console.error('Error loading campaign:', err);
+        }
+        return '';
+      })();
+    }
+
+    // 3. User Funnels (if keywords present)
+    let userFunnelsPromise = Promise.resolve('');
+    const listFunnelsKeywords = ['meus funis', 'quais funis', 'listar funis', 'lista de funis', 'funis que temos'];
+    const isListingFunnels = listFunnelsKeywords.some(k => message.toLowerCase().includes(k));
+    if (isListingFunnels) {
+      userFunnelsPromise = (async () => {
+        try {
+          const userFunnels = await getUserFunnels(userId);
+          if (userFunnels.length > 0) {
+            return `## SEUS FUNIS EXISTENTES (${userFunnels.length})\n\n` + 
+              userFunnels.map(f => `- **${f.name}**: ${f.description || 'Sem descrição'} (Status: ${f.status}, ID: ${f.id})`).join('\n') +
+              `\n\n⚠️ INSTRUÇÃO: O usuário pediu para ver seus funis. Liste-os de forma amigável e pergunte se ele deseja analisar algum deles especificamente.`;
+          }
+          return `## SEUS FUNIS EXISTENTES\n\nVocê ainda não possui funis criados.`;
+        } catch (err) {
+          console.error('Error loading user funnels:', err);
+        }
+        return '';
+      })();
+    }
+
+    // 4. Brand Context and Brand Assets RAG
+    let brandContextPromise = Promise.resolve({ context: '', brandChunks: [] as any[] });
+    if (conversation?.brandId) {
+      brandContextPromise = (async () => {
+        try {
+          const brand = await getBrand(conversation.brandId);
+          if (brand) {
+            const bContext = formatBrandContextForChat(brand);
+            const bChunks = await retrieveBrandChunks(conversation.brandId, message, 5);
+            return { context: bContext, brandChunks: bChunks };
+          }
+        } catch (err) {
+          console.error('Error loading brand:', err);
+        }
+        return { context: '', brandChunks: [] };
+      })();
+    }
+
+    // 5. Knowledge Base RAG
     // Configure retrieval based on mode
     let retrievalConfig = {
       topK: 10,
@@ -118,7 +213,7 @@ export async function POST(request: NextRequest) {
       retrievalConfig.topK = 15;
     } else if (effectiveMode === 'ads') {
       systemPrompt = ADS_CHAT_SYSTEM_PROMPT;
-      retrievalConfig.filters.scope = 'traffic'; // Added in ingest script
+      retrievalConfig.filters.scope = 'traffic'; 
       retrievalConfig.topK = 15;
     } else if (effectiveMode === 'design') {
       systemPrompt = DESIGN_CHAT_SYSTEM_PROMPT;
@@ -126,7 +221,6 @@ export async function POST(request: NextRequest) {
       retrievalConfig.topK = 15;
     }
 
-    // Adjust config based on mode
     switch (effectiveMode) {
       case 'funnel_creation':
         retrievalConfig.topK = 15;
@@ -139,105 +233,31 @@ export async function POST(request: NextRequest) {
         break;
     }
 
-    // Filter by counselor if specified
     if (counselor) {
       retrievalConfig.filters.counselor = counselor;
     }
 
-    // Load funnel data if funnelId is provided
-    let funnelContext = '';
-    if (funnelId) {
-      try {
-        const funnel = await getFunnel(funnelId);
-        if (funnel) {
-          const proposals = await getFunnelProposals(funnelId);
-          funnelContext = formatFunnelContextForChat(funnel, proposals);
-          console.log('Loaded funnel context for:', funnel.name);
-        }
-      } catch (err) {
-        console.error('Error loading funnel:', err);
-      }
-    }
+    const knowledgePromise = retrieveChunks(message, retrievalConfig);
 
-    // ST-11.15: Load Campaign Manifesto (Golden Thread Context)
-    let campaignContext = '';
-    if (cleanCampaignId) {
-      try {
-        const campaign = await getCampaign(cleanCampaignId);
-        if (campaign) {
-          campaignContext = `## MANIFESTO DA CAMPANHA (LINHA DE OURO)\n` +
-            `ID da Campanha: ${campaign.id}\n` +
-            `Status: ${campaign.status}\n` +
-            `Objetivo: ${campaign.funnel?.mainGoal}\n` +
-            `Público: ${campaign.funnel?.targetAudience}\n`;
-          
-          if (campaign.copywriting) {
-            campaignContext += `\n[COPY APROVADA]\nBig Idea: ${campaign.copywriting.bigIdea}\n`;
-          }
-          if (campaign.social) {
-            campaignContext += `\n[ESTRATÉGIA SOCIAL]\n${campaign.social.hooks?.length || 0} Hooks aprovados.\n`;
-          }
-          if (campaign.design) {
-            campaignContext += `\n[ESTILO VISUAL]\n${campaign.design.visualStyle}\n`;
-          }
-          
-          console.log('Loaded campaign context for:', campaign.id);
-        }
-      } catch (err) {
-        console.error('Error loading campaign:', err);
-      }
-    }
+    // Wait for everything in parallel
+    console.log('[Chat API] Starting parallel context retrieval...');
+    const [
+      funnelContext,
+      campaignContext,
+      userFunnelsContext,
+      brandResult,
+      chunks
+    ] = await Promise.all([
+      funnelPromise,
+      campaignPromise,
+      userFunnelsPromise,
+      brandContextPromise,
+      knowledgePromise
+    ]);
+    console.log('[Chat API] Context retrieval completed.');
 
-    // US-LIST-FUNNELS: Detect intent to list user funnels
-    let userFunnelsContext = '';
-    const listFunnelsKeywords = ['meus funis', 'quais funis', 'listar funis', 'lista de funis', 'funis que temos'];
-    const isListingFunnels = listFunnelsKeywords.some(k => message.toLowerCase().includes(k));
-    
-    if (isListingFunnels) {
-      try {
-        const userFunnels = await getUserFunnels(userId);
-        if (userFunnels.length > 0) {
-          userFunnelsContext = `## SEUS FUNIS EXISTENTES (${userFunnels.length})\n\n` + 
-            userFunnels.map(f => `- **${f.name}**: ${f.description || 'Sem descrição'} (Status: ${f.status}, ID: ${f.id})`).join('\n') +
-            `\n\n⚠️ INSTRUÇÃO: O usuário pediu para ver seus funis. Liste-os de forma amigável e pergunte se ele deseja analisar algum deles especificamente.`;
-          console.log(`Loaded ${userFunnels.length} funnels for listing context`);
-        } else {
-          userFunnelsContext = `## SEUS FUNIS EXISTENTES\n\nVocê ainda não possui funis criados.`;
-        }
-      } catch (err) {
-        console.error('Error loading user funnels:', err);
-      }
-    }
-
-    // Load brand context if conversation has a brandId
-    let brandContext = '';
-    let brandFilesContext = ''; // Context from uploaded files (RAG)
-    let brandChunks: any[] = [];
-    try {
-      if (conversation?.brandId) {
-        const brandId = conversation.brandId;
-        const brand = await getBrand(brandId);
-        if (brand) {
-          brandContext = formatBrandContextForChat(brand);
-          console.log('Loaded brand context for:', brand.name);
-          
-          // US-15.3: Retrieve relevant chunks from brand assets using Vector Search
-          console.log('Retrieving brand assets context (Semantic Search)...');
-          brandChunks = await retrieveBrandChunks(brandId, message, 5);
-          if (brandChunks.length > 0) {
-            brandFilesContext = formatBrandContextForLLM(brandChunks);
-            console.log(`Found ${brandChunks.length} relevant chunks in brand assets`);
-          }
-        }
-      }
-    } catch (err) {
-      console.error('Error loading brand or asset context:', err);
-    }
-
-    // Retrieve relevant chunks from knowledge base
-    console.log('Retrieving chunks for:', message.substring(0, 100));
-    const chunks = await retrieveChunks(message, retrievalConfig);
-    console.log(`Found ${chunks.length} relevant chunks`);
+    const { context: brandContext, brandChunks } = brandResult;
+    const brandFilesContext = brandChunks.length > 0 ? formatBrandContextForLLM(brandChunks) : '';
 
     // Build context from retrieved chunks + brand + funnel data
     // US-1.2.3: Preparar sources estruturados para a UI
@@ -315,14 +335,13 @@ export async function POST(request: NextRequest) {
       assistantResponse = generateFallbackResponse(message, chunks, systemPrompt);
     }
 
-    // Save assistant message to Firestore
+    // Save assistant message to Firestore and update metadata in parallel
     try {
       // US-1.3: Se for party mode, os conselheiros são os selecionados
       let activeCounselors = effectiveMode === 'party' 
         ? selectedAgents 
         : [...new Set(chunks.map(c => c.metadata.counselor).filter(Boolean) as string[])];
       
-      // ST-11.23: Garantir que o selo do conselheiro apareça mesmo sem chunks de RAG
       if (activeCounselors.length === 0) {
         if (effectiveMode === 'copy') activeCounselors = ['copy_director'];
         else if (effectiveMode === 'social') activeCounselors = ['social_director'];
@@ -330,31 +349,28 @@ export async function POST(request: NextRequest) {
         else if (effectiveMode === 'design') activeCounselors = ['design_director'];
       }
 
-      await addMessage(conversationId, {
+      const saveMessagePromise = addMessage(conversationId, {
         role: 'assistant',
         content: assistantResponse,
         metadata: {
-          sources: sources, // US-1.2.3: Enviando sources estruturados (snippets + scores)
+          sources: sources,
           counselors: activeCounselors,
         },
       });
 
-      // US-16.1: Decrementar crédito após sucesso da resposta
-      if (CONFIG.ENABLE_CREDIT_LIMIT) {
-        console.log(`Decrementing 1 credit for user: ${userId}`);
-        await updateUserUsage(userId, -1);
-      } else {
-        console.log(`Credit limit disabled, skipping decrement for user: ${userId}`);
-      }
+      const usagePromise = CONFIG.ENABLE_CREDIT_LIMIT 
+        ? updateUserUsage(userId, -1)
+        : Promise.resolve();
 
-      // Update conversation title if it's the first message
-      const firstWords = message.slice(0, 50);
-      await updateConversation(conversationId, {
-        title: firstWords + (message.length > 50 ? '...' : ''),
+      const titlePromise = updateConversation(conversationId, {
+        title: message.slice(0, 50) + (message.length > 50 ? '...' : ''),
       });
+
+      // Fire and forget or wait? Better to wait for data integrity, but in parallel
+      await Promise.all([saveMessagePromise, usagePromise, titlePromise]);
+      console.log('[Chat API] Post-processing completed.');
     } catch (dbError) {
-      console.error('Error saving to Firestore:', dbError);
-      // Continue even if saving fails
+      console.error('Error in post-processing:', dbError);
     }
 
     return NextResponse.json({

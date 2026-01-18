@@ -49,6 +49,9 @@ interface AssetPreviewProps {
 export function AssetPreview({ data }: AssetPreviewProps) {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
+  // ST-11.24: Forçar atualização via build
+  console.log('[AssetPreview] Build Version: 11.24.4 (Ultra-Resilient Parser Active)');
+
   // ST-11.6: Fail-safe para dados ausentes ou malformados (QA: INC-003)
   // US-11.24 Fix: Mapeamento resiliente para variações de JSON da IA
   const getNormalizedData = (raw: any): CouncilOutput | null => {
@@ -86,7 +89,7 @@ export function AssetPreview({ data }: AssetPreviewProps) {
   const normalizedData = getNormalizedData(data);
 
   if (!normalizedData) {
-    console.warn('AssetPreview: Não foi possível normalizar o payload da IA.', data);
+    console.warn('[AssetPreview] Payload da IA não pôde ser normalizado. Chaves encontradas:', Object.keys(data || {}));
     return null;
   }
 
