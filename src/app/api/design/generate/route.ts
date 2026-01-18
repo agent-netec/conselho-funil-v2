@@ -41,7 +41,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'GOOGLE_AI_API_KEY não configurada' }, { status: 500 });
     }
 
-    // US-22.2: Carregar referências visuais da marca
+    // ST-11.24 Optimization: Se o prompt já vem detalhado (do card), não precisamos gerar variantes
+    // Isso economiza tempo (uma chamada a menos de LLM) e evita timeouts de 3 imagens.
+    const isSingleGeneration = !body.generateVariants;
+    
+    // ... (keep brand/asset loading) ...
     let brandData = null;
     let imageReferences: string[] = [];
     let brandColors: string[] = [];
@@ -116,30 +120,41 @@ Briefing base: ${basePrompt}.
 Retorne apenas o JSON array de strings.`;
 
     let promptVariants: string[] = [];
-    try {
-      const flashModel = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
-      const flashResult = await flashModel.generateContent(promptRequest);
-      const text = flashResult.response?.text?.();
-      if (text) {
-        try {
-          const parsed = JSON.parse(text);
-          if (Array.isArray(parsed) && parsed.length >= 3) {
-            promptVariants = parsed.slice(0, 3).map((p) => String(p));
+    
+    if (isSingleGeneration) {
+      // Caso simples: usa o prompt base diretamente com as heurísticas
+      promptVariants = [`${basePrompt} | ${seniorHeuristics.lighting} | ${seniorHeuristics.composition} | ${seniorHeuristics.sharpness} | ${logoInstruction}`];
+      console.log('✨ Usando modo de geração única para acelerar resposta.');
+    } else {
+      try {
+        const flashModel = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+        const flashResult = await flashModel.generateContent(promptRequest);
+        const text = flashResult.response?.text?.();
+        if (text) {
+          try {
+            const parsed = JSON.parse(text);
+            if (Array.isArray(parsed) && parsed.length >= 3) {
+              promptVariants = parsed.slice(0, 3).map((p) => String(p));
+            }
+          } catch (parseError) {
+            console.warn('⚠️ Resposta do Flash não pôde ser parseada como JSON.', parseError);
           }
-        } catch (parseError) {
-          console.warn('⚠️ Resposta do Flash não pôde ser parseada como JSON.', parseError);
         }
+      } catch (flashError) {
+        console.warn('⚠️ Falha ao gerar variações no Flash, caindo para fallback.', flashError);
       }
-    } catch (flashError) {
-      console.warn('⚠️ Falha ao gerar variações no Flash, caindo para fallback.', flashError);
     }
 
-    if (promptVariants.length < 3) {
+    if (promptVariants.length === 0) {
       promptVariants = [
         `[STANDARD] ${basePrompt} | ${seniorHeuristics.lighting} | ${seniorHeuristics.composition} | ${seniorHeuristics.sharpness} | ${logoInstruction}`,
-        `[ALTERNATIVE] ${basePrompt} | cinematic mood | ${seniorHeuristics.composition} | ${logoInstruction}`,
-        `[CREATIVE] ${basePrompt} | bold contrast, experimental angles | ${seniorHeuristics.sharpness} | ${logoInstruction}`,
       ];
+      if (!isSingleGeneration) {
+        promptVariants.push(
+          `[ALTERNATIVE] ${basePrompt} | cinematic mood | ${seniorHeuristics.composition} | ${logoInstruction}`,
+          `[CREATIVE] ${basePrompt} | bold contrast, experimental angles | ${seniorHeuristics.sharpness} | ${logoInstruction}`
+        );
+      }
     }
 
     // US-20.3: Geração de imagens com Gemini 3 Pro Image (Nano Banana Pro)
