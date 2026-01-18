@@ -3,21 +3,16 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getUserStats } from '@/lib/firebase/firestore';
-
-interface Stats {
-  activeFunnels: number;
-  pendingEvaluations: number;
-  decisionsThisMonth: number;
-  totalConversations: number;
-}
+import { DashboardStats } from '@/types';
 
 export function useStats() {
   const { user } = useAuthStore();
-  const [stats, setStats] = useState<Stats>({
+  const [stats, setStats] = useState<DashboardStats>({
     activeFunnels: 0,
     pendingEvaluations: 0,
     decisionsThisMonth: 0,
     totalConversations: 0,
+    performance_benchmarks: [],
   });
   const [isLoading, setIsLoading] = useState(true);
 

@@ -84,17 +84,24 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // ST-11.6: Simplified query to avoid composite index (INC-004)
     const q = query(
       collection(db, 'decisions'),
-      where('funnelId', '==', funnelId),
-      orderBy('createdAt', 'desc')
+      where('funnelId', '==', funnelId)
     );
 
     const snapshot = await getDocs(q);
     const decisions = snapshot.docs.map(docSnap => ({
       id: docSnap.id,
-      ...docSnap.data(),
+      ...docSnap.data() as any,
     }));
+
+    // Sort in memory to avoid needing a composite index
+    decisions.sort((a, b) => {
+      const dateA = a.createdAt?.seconds || 0;
+      const dateB = b.createdAt?.seconds || 0;
+      return dateB - dateA;
+    });
 
     return NextResponse.json({
       decisions,

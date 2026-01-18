@@ -5,12 +5,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
+    // Hardening: Verificar role de admin
+    await verifyAdminRole(request);
+
     const q = query(
       collection(db, 'funnels'),
       orderBy('updatedAt', 'desc'),
@@ -26,11 +30,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ funnels, total: funnels.length });
   } catch (error) {
-    console.error('Error listing funnels:', error);
-    return NextResponse.json(
-      { error: 'Failed to list funnels', details: String(error) },
-      { status: 500 }
-    );
+    return handleSecurityError(error);
   }
 }
 

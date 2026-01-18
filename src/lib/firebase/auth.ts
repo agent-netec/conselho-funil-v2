@@ -11,6 +11,7 @@ import { auth } from './config';
 
 // Sign in with email and password
 export async function signIn(email: string, password: string) {
+  if (!auth) throw new Error('Firebase Auth não inicializado.');
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
     return { user: result.user, error: null };
@@ -21,6 +22,7 @@ export async function signIn(email: string, password: string) {
 
 // Sign up with email and password
 export async function signUp(email: string, password: string) {
+  if (!auth) throw new Error('Firebase Auth não inicializado.');
   try {
     const result = await createUserWithEmailAndPassword(auth, email, password);
     return { user: result.user, error: null };
@@ -31,6 +33,7 @@ export async function signUp(email: string, password: string) {
 
 // Sign in with Google
 export async function signInWithGoogle() {
+  if (!auth) throw new Error('Firebase Auth não inicializado.');
   try {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
@@ -42,6 +45,7 @@ export async function signInWithGoogle() {
 
 // Sign out
 export async function signOut() {
+  if (!auth) return { error: 'Auth não disponível' };
   try {
     await firebaseSignOut(auth);
     return { error: null };
@@ -55,12 +59,14 @@ export const logout = signOut;
 
 // Alias for signIn (used in login page)
 export const loginWithEmail = async (email: string, password: string) => {
+  if (!auth) throw new Error('Auth não disponível');
   const result = await signInWithEmailAndPassword(auth, email, password);
   return result.user;
 };
 
 // Alias for signUp (used in signup page)
 export const signupWithEmail = async (email: string, password: string, displayName?: string) => {
+  if (!auth) throw new Error('Auth não disponível');
   const result = await createUserWithEmailAndPassword(auth, email, password);
   // Update display name if provided
   if (displayName && result.user) {
@@ -72,12 +78,13 @@ export const signupWithEmail = async (email: string, password: string, displayNa
 
 // Subscribe to auth state changes
 export function onAuthChange(callback: (user: User | null) => void) {
+  if (!auth) return () => {};
   return onAuthStateChanged(auth, callback);
 }
 
 // Get current user
 export function getCurrentUser() {
-  return auth.currentUser;
+  return auth?.currentUser || null;
 }
 
 // Error messages in Portuguese

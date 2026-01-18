@@ -131,22 +131,22 @@ export function AppShell({ children }: AppShellProps) {
 
   // Protected pages - with sidebar
   return (
-    <div className="min-h-screen bg-[#09090b]">
+    <div className="min-h-screen bg-background selection:bg-emerald-500/20 selection:text-emerald-200">
       {/* Background effects */}
-      <div className="fixed inset-0 bg-dot-pattern opacity-20 pointer-events-none" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_-10%,rgba(16,185,129,0.06),transparent)] pointer-events-none" />
+      <div className="fixed inset-0 bg-dot-pattern opacity-[0.15] pointer-events-none" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(16,185,129,0.08),transparent)] pointer-events-none" />
       
       <Sidebar />
       
-      <main className="ml-[72px] min-h-screen relative">
+      <main className="md:ml-[72px] min-h-screen relative flex flex-col">
         <AnimatePresence mode="wait">
           <motion.div
             key={pathname}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="min-h-screen"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="flex-1"
           >
             {children}
           </motion.div>

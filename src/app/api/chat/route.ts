@@ -6,11 +6,39 @@ import {
   retrieveBrandChunks, 
   formatBrandContextForLLM 
 } from '@/lib/ai/rag';
-import { generateCouncilResponseWithGemini, isGeminiConfigured } from '@/lib/ai/gemini';
-import { addMessage, updateConversation, getFunnel, getFunnelProposals, getConversation } from '@/lib/firebase/firestore';
+import { 
+  generateCouncilResponseWithGemini, 
+  generatePartyResponseWithGemini,
+  isGeminiConfigured 
+} from '@/lib/ai/gemini';
+import { 
+  addMessage, 
+  updateConversation, 
+  getFunnel, 
+  getFunnelProposals, 
+  getConversation,
+  getUserCredits,
+  updateUserUsage,
+  getUserFunnels,
+  getCampaign
+} from '@/lib/firebase/firestore';
 import { getBrand } from '@/lib/firebase/brands';
 import type { Funnel, Proposal, Brand } from '@/types/database';
-import { buildChatPrompt, CHAT_SYSTEM_PROMPT, COPY_CHAT_SYSTEM_PROMPT, SOCIAL_CHAT_SYSTEM_PROMPT } from '@/lib/ai/prompts';
+import { 
+  buildChatPrompt, 
+  CHAT_SYSTEM_PROMPT, 
+  COPY_CHAT_SYSTEM_PROMPT, 
+  SOCIAL_CHAT_SYSTEM_PROMPT,
+  ADS_CHAT_SYSTEM_PROMPT,
+  DESIGN_CHAT_SYSTEM_PROMPT
+} from '@/lib/ai/prompts';
+import { CONFIG } from '@/lib/config';
+import { COUNSELORS_REGISTRY } from '@/lib/constants';
+import { CounselorId } from '@/types';
+import { 
+  formatBrandContextForChat, 
+  formatFunnelContextForChat 
+} from '@/lib/ai/formatters';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -18,15 +46,29 @@ export const dynamic = 'force-dynamic';
 interface ChatRequest {
   message: string;
   conversationId: string;
-  mode?: 'general' | 'funnel_creation' | 'funnel_evaluation' | 'funnel_review' | 'copy' | 'social';
+  mode?: 'general' | 'funnel_creation' | 'funnel_evaluation' | 'funnel_review' | 'copy' | 'social' | 'ads' | 'design' | 'party';
+  partyMode?: boolean;
   counselor?: string;
   funnelId?: string;
+  campaignId?: string;
+  selectedAgents?: string[];
+  intensity?: 'debate' | 'consensus';
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: ChatRequest = await request.json();
-    const { message, conversationId, mode = 'general', counselor, funnelId } = body;
+    const { 
+      message, 
+      conversationId, 
+      mode = 'general', 
+      partyMode = false,
+      counselor, 
+      funnelId,
+      campaignId,
+      selectedAgents = [],
+      intensity = 'debate'
+    } = body;
 
     if (!message || !conversationId) {
       return NextResponse.json(
@@ -35,26 +77,57 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // US-16.1: Validação de Créditos do Usuário
+    const conversation = await getConversation(conversationId);
+    if (!conversation) {
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
+    }
+
+    const userId = conversation.userId;
+    const credits = await getUserCredits(userId);
+
+    // Só bloqueia se o limite estiver ativado
+    if (CONFIG.ENABLE_CREDIT_LIMIT && credits <= 0) {
+      return NextResponse.json(
+        { error: 'insufficient_credits', message: 'Saldo de créditos insuficiente. Faça upgrade para continuar.' },
+        { status: 403 }
+      );
+    }
+
+    const isPartyMode = mode === 'party' || partyMode === true;
+    const effectiveMode = isPartyMode ? 'party' : mode;
+
+    // Fix campaignId if it comes as "undefined" string
+    const cleanCampaignId = campaignId === 'undefined' ? undefined : campaignId;
+
     // Configure retrieval based on mode
     let retrievalConfig = {
       topK: 10,
       minSimilarity: 0.25,
-      filters: {} as { counselor?: string; docType?: string },
+      filters: {} as { counselor?: string; docType?: string; scope?: string },
     };
     
     // Choose system prompt based on mode
     let systemPrompt = CHAT_SYSTEM_PROMPT;
-    if (mode === 'copy') {
+    if (effectiveMode === 'copy') {
       systemPrompt = COPY_CHAT_SYSTEM_PROMPT;
       retrievalConfig.filters.docType = 'copywriting';
-    } else if (mode === 'social') {
+    } else if (effectiveMode === 'social') {
       systemPrompt = SOCIAL_CHAT_SYSTEM_PROMPT;
       retrievalConfig.filters.counselor = 'social';
+      retrievalConfig.topK = 15;
+    } else if (effectiveMode === 'ads') {
+      systemPrompt = ADS_CHAT_SYSTEM_PROMPT;
+      retrievalConfig.filters.scope = 'traffic'; // Added in ingest script
+      retrievalConfig.topK = 15;
+    } else if (effectiveMode === 'design') {
+      systemPrompt = DESIGN_CHAT_SYSTEM_PROMPT;
+      retrievalConfig.filters.counselor = 'design_director';
       retrievalConfig.topK = 15;
     }
 
     // Adjust config based on mode
-    switch (mode) {
+    switch (effectiveMode) {
       case 'funnel_creation':
         retrievalConfig.topK = 15;
         retrievalConfig.minSimilarity = 0.2;
@@ -78,11 +151,61 @@ export async function POST(request: NextRequest) {
         const funnel = await getFunnel(funnelId);
         if (funnel) {
           const proposals = await getFunnelProposals(funnelId);
-          funnelContext = buildFunnelContext(funnel, proposals);
+          funnelContext = formatFunnelContextForChat(funnel, proposals);
           console.log('Loaded funnel context for:', funnel.name);
         }
       } catch (err) {
         console.error('Error loading funnel:', err);
+      }
+    }
+
+    // ST-11.15: Load Campaign Manifesto (Golden Thread Context)
+    let campaignContext = '';
+    if (cleanCampaignId) {
+      try {
+        const campaign = await getCampaign(cleanCampaignId);
+        if (campaign) {
+          campaignContext = `## MANIFESTO DA CAMPANHA (LINHA DE OURO)\n` +
+            `ID da Campanha: ${campaign.id}\n` +
+            `Status: ${campaign.status}\n` +
+            `Objetivo: ${campaign.funnel?.mainGoal}\n` +
+            `Público: ${campaign.funnel?.targetAudience}\n`;
+          
+          if (campaign.copywriting) {
+            campaignContext += `\n[COPY APROVADA]\nBig Idea: ${campaign.copywriting.bigIdea}\n`;
+          }
+          if (campaign.social) {
+            campaignContext += `\n[ESTRATÉGIA SOCIAL]\n${campaign.social.hooks?.length || 0} Hooks aprovados.\n`;
+          }
+          if (campaign.design) {
+            campaignContext += `\n[ESTILO VISUAL]\n${campaign.design.visualStyle}\n`;
+          }
+          
+          console.log('Loaded campaign context for:', campaign.id);
+        }
+      } catch (err) {
+        console.error('Error loading campaign:', err);
+      }
+    }
+
+    // US-LIST-FUNNELS: Detect intent to list user funnels
+    let userFunnelsContext = '';
+    const listFunnelsKeywords = ['meus funis', 'quais funis', 'listar funis', 'lista de funis', 'funis que temos'];
+    const isListingFunnels = listFunnelsKeywords.some(k => message.toLowerCase().includes(k));
+    
+    if (isListingFunnels) {
+      try {
+        const userFunnels = await getUserFunnels(userId);
+        if (userFunnels.length > 0) {
+          userFunnelsContext = `## SEUS FUNIS EXISTENTES (${userFunnels.length})\n\n` + 
+            userFunnels.map(f => `- **${f.name}**: ${f.description || 'Sem descrição'} (Status: ${f.status}, ID: ${f.id})`).join('\n') +
+            `\n\n⚠️ INSTRUÇÃO: O usuário pediu para ver seus funis. Liste-os de forma amigável e pergunte se ele deseja analisar algum deles especificamente.`;
+          console.log(`Loaded ${userFunnels.length} funnels for listing context`);
+        } else {
+          userFunnelsContext = `## SEUS FUNIS EXISTENTES\n\nVocê ainda não possui funis criados.`;
+        }
+      } catch (err) {
+        console.error('Error loading user funnels:', err);
       }
     }
 
@@ -91,12 +214,11 @@ export async function POST(request: NextRequest) {
     let brandFilesContext = ''; // Context from uploaded files (RAG)
     let brandChunks: any[] = [];
     try {
-      const conversation = await getConversation(conversationId);
       if (conversation?.brandId) {
         const brandId = conversation.brandId;
         const brand = await getBrand(brandId);
         if (brand) {
-          brandContext = buildBrandContext(brand);
+          brandContext = formatBrandContextForChat(brand);
           console.log('Loaded brand context for:', brand.name);
           
           // US-15.3: Retrieve relevant chunks from brand assets using Vector Search
@@ -118,6 +240,28 @@ export async function POST(request: NextRequest) {
     console.log(`Found ${chunks.length} relevant chunks`);
 
     // Build context from retrieved chunks + brand + funnel data
+    // US-1.2.3: Preparar sources estruturados para a UI
+    const sources = [
+      ...chunks.map(c => ({
+        file: c.source.file,
+        section: c.source.section,
+        content: c.content.slice(0, 400) + (c.content.length > 400 ? '...' : ''),
+        counselor: c.metadata.counselor,
+        similarity: c.similarity,
+        rerankScore: c.rerankScore,
+        type: c.metadata.docType,
+      })),
+      ...brandChunks.map(c => ({
+        file: c.assetName,
+        section: 'Asset da Marca',
+        content: c.content.slice(0, 400) + (c.content.length > 400 ? '...' : ''),
+        counselor: 'brand',
+        similarity: c.similarity,
+        rerankScore: c.rerankScore,
+        type: 'brand_asset',
+      }))
+    ];
+
     let context = formatContextForLLM(chunks);
     if (brandContext) {
       context = `## CONTEXTO DA MARCA (SEMPRE CONSIDERE)\n\n${brandContext}\n\n---\n\n${context}`;
@@ -128,6 +272,12 @@ export async function POST(request: NextRequest) {
     if (funnelContext) {
       context = `## CONTEXTO DO FUNIL DO USUÁRIO\n\n${funnelContext}\n\n---\n\n${context}`;
     }
+    if (campaignContext) {
+      context = `${campaignContext}\n\n---\n\n${context}`;
+    }
+    if (userFunnelsContext) {
+      context = `${userFunnelsContext}\n\n---\n\n${context}`;
+    }
 
     // Generate response using Gemini API
     let assistantResponse: string;
@@ -136,31 +286,66 @@ export async function POST(request: NextRequest) {
       if (!isGeminiConfigured()) {
         console.warn('Gemini API not configured, using fallback response');
         assistantResponse = generateFallbackResponse(message, chunks, systemPrompt);
+      } else if (effectiveMode === 'party' && selectedAgents.length > 0) {
+        console.log('Generating Party Mode response with agents:', selectedAgents);
+        assistantResponse = await generatePartyResponseWithGemini(
+          message, 
+          context, 
+          selectedAgents, 
+          { intensity }
+        );
       } else {
-        assistantResponse = await generateCouncilResponseWithGemini(message, context, systemPrompt);
+        // US-1.2.3: Se o RAG falhar em modo específico, avisamos a IA mas deixamos ela responder
+        // Removida a trava que forçava fallback em caso de chunks vazios
+        // ST-11.23: Não distrai o conselho de design com notas de falta de contexto se ele tiver contexto da marca/funil
+        const hasStrategicContext = brandContext.length > 0 || funnelContext.length > 0 || campaignContext.length > 0;
+        const enrichedContext = (chunks.length === 0 && context.length < 100 && !hasStrategicContext)
+          ? `${context}\n\n⚠️ NOTA: A busca na base de conhecimento não retornou resultados específicos para esta pergunta. Responda com base no seu conhecimento geral como especialista de 2026, mas mencione se houver incerteza sobre diretrizes internas específicas.`
+          : context;
+
+        console.log(`Generating council response for mode: ${effectiveMode}`);
+        // ST-11.6: Alinhamento com Benchmark 2026 - Flash para Design Chat
+        const model = effectiveMode === 'design' ? 'gemini-3-flash-preview' : undefined;
+        assistantResponse = await generateCouncilResponseWithGemini(message, enrichedContext, systemPrompt, model);
       }
     } catch (aiError) {
       console.error('AI generation error:', aiError);
       
-      // Fallback response if AI fails
+      // Se houver erro na IA, aí sim usamos o fallback de segurança
       assistantResponse = generateFallbackResponse(message, chunks, systemPrompt);
     }
 
     // Save assistant message to Firestore
     try {
-      const allSources = [
-        ...chunks.map(c => c.source.file),
-        ...brandChunks.map(c => c.assetName)
-      ];
+      // US-1.3: Se for party mode, os conselheiros são os selecionados
+      let activeCounselors = effectiveMode === 'party' 
+        ? selectedAgents 
+        : [...new Set(chunks.map(c => c.metadata.counselor).filter(Boolean) as string[])];
       
+      // ST-11.23: Garantir que o selo do conselheiro apareça mesmo sem chunks de RAG
+      if (activeCounselors.length === 0) {
+        if (effectiveMode === 'copy') activeCounselors = ['copy_director'];
+        else if (effectiveMode === 'social') activeCounselors = ['social_director'];
+        else if (effectiveMode === 'ads') activeCounselors = ['traffic_director'];
+        else if (effectiveMode === 'design') activeCounselors = ['design_director'];
+      }
+
       await addMessage(conversationId, {
         role: 'assistant',
         content: assistantResponse,
         metadata: {
-          sources: allSources,
-          counselors: [...new Set(chunks.map(c => c.metadata.counselor).filter(Boolean) as string[])],
+          sources: sources, // US-1.2.3: Enviando sources estruturados (snippets + scores)
+          counselors: activeCounselors,
         },
       });
+
+      // US-16.1: Decrementar crédito após sucesso da resposta
+      if (CONFIG.ENABLE_CREDIT_LIMIT) {
+        console.log(`Decrementing 1 credit for user: ${userId}`);
+        await updateUserUsage(userId, -1);
+      } else {
+        console.log(`Credit limit disabled, skipping decrement for user: ${userId}`);
+      }
 
       // Update conversation title if it's the first message
       const firstWords = message.slice(0, 50);
@@ -174,82 +359,15 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       response: assistantResponse,
-      sources: chunks.map(c => ({
-        file: c.source.file,
-        section: c.source.section,
-        counselor: c.metadata.counselor,
-        similarity: c.similarity,
-      })),
+      sources: sources, // US-1.2.3: UI agora recebe snippets e rerankScore
     });
   } catch (error) {
-    console.error('Chat API error:', error);
+    console.error('Error in chat API:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
   }
-}
-
-// Build context string from funnel data
-function buildFunnelContext(funnel: Funnel, proposals: Proposal[]): string {
-  const ctx = funnel.context;
-  const channel = ctx.channel?.main || ctx.channels?.primary || 'N/A';
-  
-  let context = `### Funil: ${funnel.name}
-- **Status**: ${funnel.status}
-- **Objetivo**: ${ctx.objective}
-- **Empresa**: ${ctx.company}
-- **Mercado**: ${ctx.market}
-
-### Público-Alvo
-- **Quem**: ${ctx.audience?.who || 'N/A'}
-- **Dor**: ${ctx.audience?.pain || 'N/A'}
-- **Nível de Consciência**: ${ctx.audience?.awareness || 'N/A'}
-
-### Oferta
-- **Produto**: ${ctx.offer?.what || 'N/A'}
-- **Ticket**: ${ctx.offer?.ticket || 'N/A'}
-- **Tipo**: ${ctx.offer?.type || 'N/A'}
-
-### Canais
-- **Principal**: ${channel}
-`;
-
-  if (proposals.length > 0) {
-    context += `\n### Propostas Geradas (${proposals.length})\n`;
-    proposals.slice(0, 2).forEach((p, i) => {
-      const score = (p.scorecard as { overall?: number })?.overall || 'N/A';
-      context += `\n**${i + 1}. ${p.name}** (Score: ${score})\n`;
-      context += `- ${p.summary?.slice(0, 200) || 'Sem resumo'}...\n`;
-      if (p.strategy?.risks?.length) {
-        context += `- Riscos: ${p.strategy.risks.slice(0, 2).join(', ')}\n`;
-      }
-    });
-  }
-
-  return context;
-}
-
-// Build context string from brand data
-function buildBrandContext(brand: Brand): string {
-  return `### Marca: ${brand.name}
-- **Vertical**: ${brand.vertical}
-- **Posicionamento**: ${brand.positioning}
-- **Tom de Voz**: ${brand.voiceTone}
-
-### Público-Alvo da Marca
-- **Quem**: ${brand.audience.who}
-- **Dor Principal**: ${brand.audience.pain}
-- **Nível de Consciência**: ${brand.audience.awareness}
-${brand.audience.objections.length > 0 ? `- **Objeções**: ${brand.audience.objections.join(', ')}` : ''}
-
-### Oferta da Marca
-- **Produto/Serviço**: ${brand.offer.what}
-- **Ticket Médio**: R$ ${brand.offer.ticket.toLocaleString('pt-BR')}
-- **Tipo**: ${brand.offer.type}
-- **Diferencial**: ${brand.offer.differentiator}
-
-**⚠️ IMPORTANTE:** Todas as respostas devem respeitar o tom de voz, posicionamento e contexto desta marca.`;
 }
 
 // Fallback response when AI is not available
@@ -267,88 +385,63 @@ function generateFallbackResponse(
 
 Desculpe, não encontrei informações específicas sobre redes sociais na base de conhecimento para responder sua pergunta.
 
-🔧 **Possíveis causas:**
-- A base de conhecimento do Social Brain pode não estar carregada
-- Sua pergunta pode precisar de mais contexto sobre a plataforma (Instagram, TikTok, etc)
-
-💡 **Sugestões:**
-- Peça ideias de hooks para um vídeo de 15 segundos
-- Pergunte sobre as heurísticas do TikTok para 2025
-- Solicite uma estrutura de post para o LinkedIn
-- Explore como converter seguidores em leads de funil
-
 Os 4 especialistas sociais estão prontos para ajudar:
-- Lia Haberman (Algoritmo)
-- Rachel Karten (Criativo)
-- Nikita Beer (Viralização)
-- Justin Welsh (Funil Social)`;
+${Object.values(COUNSELORS_REGISTRY)
+  .filter(c => ['lia_haberman', 'rachel_karten', 'nikita_beer', 'justin_welsh'].includes(c.id))
+  .map(c => `- ${c.name} (${c.expertise})`)
+  .join('\n')}`;
+    }
+
+    const isAds = systemPrompt?.includes('Ads');
+    if (isAds) {
+      return `**Conselho de Ads**
+
+Desculpe, não encontrei informações específicas sobre tráfego na base de conhecimento para responder sua pergunta.
+
+Os 4 especialistas de Ads estão prontos para ajudar:
+${Object.values(COUNSELORS_REGISTRY)
+  .filter(c => ['justin_brooke', 'nicholas_kusmich', 'jon_loomer', 'savannah_sanchez'].includes(c.id))
+  .map(c => `- ${c.name} (${c.expertise})`)
+  .join('\n')}`;
+    }
+
+    const isDesign = systemPrompt?.includes('Design');
+    if (isDesign) {
+      return `**Conselho de Design**
+
+Desculpe, não encontrei informações específicas sobre design na base de conhecimento para responder sua pergunta.
+
+O Diretor de Design está pronto para ajudar:
+- Diretor de Design (Direção de Arte & Briefing)`;
     }
     
+    const relevantIds = isCopy 
+      ? ['eugene_schwartz', 'claude_hopkins', 'gary_halbert', 'joseph_sugarman', 'dan_kennedy_copy', 'david_ogilvy', 'john_carlton', 'drayton_bird', 'frank_kern_copy']
+      : ['russell_brunson', 'dan_kennedy', 'frank_kern', 'sam_ovens', 'ryan_deiss', 'perry_belcher'];
+
     return `**Conselho de ${isCopy ? 'Copywriting' : 'Funil'}**
 
 Desculpe, não encontrei informações específicas na base de conhecimento para responder sua pergunta.
 
-🔧 **Possíveis causas:**
-- A base de conhecimento pode não estar carregada
-- Sua pergunta pode precisar de mais contexto
-
-💡 **Sugestões:**
-${isCopy ? `
-- Peça análise de uma headline
-- Pergunte sobre estágios de consciência (Schwartz)
-- Solicite ganchos de curiosidade
-- Explore gatilhos mentais e oferta
-` : `
-- Pergunte sobre arquitetura de funis
-- Peça estratégias de copy e oferta
-- Consulte sobre qualificação de leads
-- Explore modelos mentais de marketing
-`}
-
 Os ${isCopy ? '9 copywriters' : '6 conselheiros'} estão prontos para ajudar:
-${isCopy ? `
-- Eugene Schwartz (Consciência)
-- Gary Halbert (Headlines)
-- Dan Kennedy (Ofertas)
-- Joseph Sugarman (Narrativa)
-- Claude Hopkins (Científico)
-- David Ogilvy (Branding)
-- John Carlton (Voz)
-- Drayton Bird (Simplicidade)
-- Frank Kern (Comportamental)
-` : `
-- Russell Brunson (Arquitetura)
-- Dan Kennedy (Copy)
-- Frank Kern (Psicologia)
-- Sam Ovens (Aquisição)
-- Ryan Deiss (LTV)
-- Perry Belcher (Monetização)
-`}`;
+${relevantIds.map(id => {
+  const c = COUNSELORS_REGISTRY[id as CounselorId];
+  return `- ${c?.name} (${c?.expertise})`;
+}).join('\n')}`;
   }
 
   // Build a response from chunks
   const counselorsInvolved = [...new Set(
     chunks.map(c => c.metadata.counselor).filter(Boolean)
-  )];
-
-  const counselorNames: Record<string, string> = {
-    russell_brunson: 'Russell Brunson',
-    dan_kennedy: 'Dan Kennedy',
-    frank_kern: 'Frank Kern',
-    sam_ovens: 'Sam Ovens',
-    ryan_deiss: 'Ryan Deiss',
-    perry_belcher: 'Perry Belcher',
-    lia_haberman: 'Lia Haberman',
-    rachel_karten: 'Rachel Karten',
-    nikita_beer: 'Nikita Beer',
-    justin_welsh: 'Justin Welsh',
-    social: 'Conselho Social',
-  };
+  )] as CounselorId[];
 
   let response = `## Análise do Conselho de Funil\n\n`;
 
   if (counselorsInvolved.length > 0) {
-    response += `*Consultando: ${counselorsInvolved.map(c => counselorNames[c!] || c).join(', ')}*\n\n`;
+    const names = counselorsInvolved
+      .map(id => COUNSELORS_REGISTRY[id]?.name || id)
+      .join(', ');
+    response += `*Consultando: ${names}*\n\n`;
   }
 
   response += `Encontrei **${chunks.length}** referência(s) relevante(s) para sua pergunta:\n\n`;
@@ -356,7 +449,7 @@ ${isCopy ? `
   // Add top 3 chunks as quotes
   chunks.slice(0, 3).forEach((chunk, i) => {
     const counselor = chunk.metadata.counselor 
-      ? counselorNames[chunk.metadata.counselor] 
+      ? (COUNSELORS_REGISTRY[chunk.metadata.counselor as CounselorId]?.name || chunk.metadata.counselor)
       : 'Base de Conhecimento';
     
     const relevance = (chunk.similarity * 100).toFixed(0);

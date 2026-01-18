@@ -12,7 +12,7 @@
   --font-mono: var(--font-geist-mono);
   
   /* Custom accent colors */
-  --color-emerald: 160 84% 39%;
+  --color-emerald: 160 84% 45%;
   --color-amber: 38 92% 50%;
   
   /* Surface colors */
@@ -97,37 +97,37 @@
 
 /* ===== DARK THEME - PREMIUM AESTHETIC ===== */
 .dark {
-  --background: #09090b;
+  --background: hsl(var(--surface-0));
   --foreground: #fafafa;
-  --card: #0c0c0f;
+  --card: hsl(var(--surface-1));
   --card-foreground: #fafafa;
-  --popover: #0c0c0f;
+  --popover: hsl(var(--surface-1));
   --popover-foreground: #fafafa;
-  --primary: #10b981;
+  --primary: hsl(160, 84%, 45%);
   --primary-foreground: #022c22;
-  --secondary: #18181b;
+  --secondary: hsl(var(--surface-2));
   --secondary-foreground: #fafafa;
-  --muted: #18181b;
+  --muted: hsl(var(--surface-2));
   --muted-foreground: #71717a;
-  --accent: #18181b;
+  --accent: hsl(var(--surface-2));
   --accent-foreground: #fafafa;
   --destructive: #ef4444;
-  --border: rgba(255, 255, 255, 0.06);
-  --input: rgba(255, 255, 255, 0.08);
-  --ring: #10b981;
-  --chart-1: #10b981;
+  --border: rgba(255, 255, 255, 0.04);
+  --input: rgba(255, 255, 255, 0.06);
+  --ring: hsl(160, 84%, 45%);
+  --chart-1: hsl(160, 84%, 45%);
   --chart-2: #f59e0b;
   --chart-3: #3b82f6;
   --chart-4: #8b5cf6;
   --chart-5: #ec4899;
-  --sidebar: #0c0c0f;
+  --sidebar: hsl(var(--surface-1));
   --sidebar-foreground: #fafafa;
-  --sidebar-primary: #10b981;
+  --sidebar-primary: hsl(160, 84%, 45%);
   --sidebar-primary-foreground: #fafafa;
-  --sidebar-accent: #18181b;
+  --sidebar-accent: hsl(var(--surface-2));
   --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
-  --sidebar-ring: #10b981;
+  --sidebar-border: rgba(255, 255, 255, 0.04);
+  --sidebar-ring: hsl(160, 84%, 45%);
 }
 
 @layer base {
@@ -161,11 +161,12 @@
 @layer components {
   /* Premium Card */
   .card-premium {
-    @apply relative rounded-xl border border-white/[0.04] bg-zinc-900/40;
+    @apply relative rounded-2xl border border-white/[0.03] bg-[#0c0c0e]/60;
+    backdrop-filter: blur(16px);
     background: linear-gradient(
       180deg,
-      rgba(24, 24, 27, 0.5) 0%,
-      rgba(9, 9, 11, 0.8) 100%
+      rgba(24, 24, 27, 0.4) 0%,
+      rgba(9, 9, 11, 0.6) 100%
     );
   }
   
@@ -176,14 +177,25 @@
     border-radius: inherit;
     padding: 1px;
     background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.06) 0%,
-      rgba(255, 255, 255, 0) 100%
+      165deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0) 60%,
+      rgba(16, 185, 129, 0.05) 100%
     );
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
+  }
+
+  /* Sidebar Circular Item */
+  .sidebar-icon-container {
+    @apply relative flex h-11 w-11 items-center justify-center rounded-full transition-all duration-300;
+  }
+  
+  .sidebar-icon-active {
+    @apply bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_15px_-3px_rgba(16,185,129,0.2)];
   }
 
   /* Hover card effect */
@@ -192,8 +204,8 @@
   }
   
   .card-hover:hover {
-    @apply border-white/[0.08] bg-zinc-800/50;
-    box-shadow: 0 0 40px -12px rgba(16, 185, 129, 0.15);
+    @apply border-white/[0.06] bg-zinc-900/50;
+    box-shadow: 0 0 40px -12px rgba(16, 185, 129, 0.12);
   }
 
   /* Accent button */
@@ -325,8 +337,8 @@
 
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -334,12 +346,28 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 
 /* ===== CUSTOM UTILITIES ===== */

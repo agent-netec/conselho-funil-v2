@@ -14,8 +14,10 @@ import {
   Timestamp,
   onSnapshot,
   DocumentReference,
+  increment,
 } from 'firebase/firestore';
 import { db } from './config';
+import { withResilience } from './resilience';
 import type {
   User,
   Tenant,
@@ -26,7 +28,11 @@ import type {
   Conversation,
   Message,
   LibraryTemplate,
+  Brand,
+  DashboardStats,
+  Integration,
 } from '@/types/database';
+import type { CampaignContext } from '@/types/campaign';
 
 // ============================================
 // USERS
@@ -39,17 +45,65 @@ import type {
  * @param data - Dados básicos do usuário (nome, e-mail, etc.).
  * @returns O ID do usuário criado.
  */
-export async function createUser(userId: string, data: Omit<User, 'id' | 'createdAt' | 'lastLogin'>) {
+export async function createUser(userId: string, data: Omit<User, 'id' | 'createdAt' | 'lastLogin' | 'credits' | 'usage'>) {
   const userRef = doc(db, 'users', userId);
   const now = Timestamp.now();
   
   await setDoc(userRef, {
     ...data,
+    credits: 10, // MVP Default: 10 credits (US-16.1)
+    usage: 0,
     createdAt: now,
     lastLogin: now,
   });
   
   return userId;
+}
+
+/**
+ * Busca o saldo de créditos do usuário.
+ * US-16.1
+ * 
+ * @param userId - O ID do usuário.
+ * @returns O saldo de créditos ou 0 se não encontrar.
+ */
+export async function getUserCredits(userId: string): Promise<number> {
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+  
+  if (!userSnap.exists()) return 0;
+  
+  const userData = userSnap.data();
+  return userData.credits ?? 0;
+}
+
+/**
+ * Atualiza os créditos e o uso do usuário de forma atômica.
+ * US-16.1
+ * 
+ * @param userId - O ID do usuário.
+ * @param amount - Quantidade a incrementar/decrementar (ex: -1).
+ */
+export async function updateUserUsage(userId: string, amount: number = -1) {
+  const userRef = doc(db, 'users', userId);
+  await updateDoc(userRef, {
+    credits: increment(amount),
+    usage: increment(Math.abs(amount)),
+  });
+}
+
+/**
+ * Define uma quantidade específica de créditos para o usuário.
+ * US-16.3 (Apenas para Dev Mode)
+ * 
+ * @param userId - O ID do usuário.
+ * @param amount - Quantidade de créditos.
+ */
+export async function setCredits(userId: string, amount: number) {
+  const userRef = doc(db, 'users', userId);
+  await updateDoc(userRef, {
+    credits: amount,
+  });
 }
 
 /**
@@ -164,27 +218,37 @@ export async function getFunnel(funnelId: string): Promise<Funnel | null> {
  * @returns Array de funis ordenados pela última atualização.
  */
 export async function getUserFunnels(userId: string): Promise<Funnel[]> {
+  // ST-11.6: Simplified query to avoid composite index (INC-004)
   const q = query(
     collection(db, 'funnels'),
-    where('userId', '==', userId),
-    orderBy('updatedAt', 'desc')
+    where('userId', '==', userId)
   );
   
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Funnel));
+  const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Funnel));
+  
+  // Sort in memory
+  return data.sort((a, b) => {
+    const dateA = a.updatedAt?.seconds || 0;
+    const dateB = b.updatedAt?.seconds || 0;
+    return dateB - dateA;
+  });
 }
 
 /**
  * Atualiza os dados de um funil existente.
+ * Implementa resiliência via retry (ST-11.23).
  * 
  * @param funnelId - O ID do funil.
  * @param data - Objeto parcial com os dados a serem atualizados.
  */
 export async function updateFunnel(funnelId: string, data: Partial<Funnel>) {
   const funnelRef = doc(db, 'funnels', funnelId);
-  await updateDoc(funnelRef, {
-    ...data,
-    updatedAt: Timestamp.now(),
+  await withResilience(async () => {
+    await updateDoc(funnelRef, {
+      ...data,
+      updatedAt: Timestamp.now(),
+    });
   });
 }
 
@@ -287,8 +351,14 @@ export async function createConversation(data: {
   brandId?: string;
 }): Promise<string> {
   const now = Timestamp.now();
+  
+  // US-20.2: Remover campos undefined para evitar erro do Firestore
+  const cleanData = Object.fromEntries(
+    Object.entries(data).filter(([_, v]) => v !== undefined)
+  );
+
   const convRef = await addDoc(collection(db, 'conversations'), {
-    ...data,
+    ...cleanData,
     createdAt: now,
     updatedAt: now,
   });
@@ -318,28 +388,38 @@ export async function getConversation(conversationId: string): Promise<Conversat
  * @returns Array das últimas 50 conversas.
  */
 export async function getUserConversations(userId: string): Promise<Conversation[]> {
+  // ST-11.6: Simplified query to avoid composite index (INC-004)
   const q = query(
     collection(db, 'conversations'),
     where('userId', '==', userId),
-    orderBy('updatedAt', 'desc'),
     limit(50)
   );
   
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Conversation));
+  const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Conversation));
+  
+  // Sort in memory
+  return data.sort((a, b) => {
+    const dateA = a.updatedAt?.seconds || 0;
+    const dateB = b.updatedAt?.seconds || 0;
+    return dateB - dateA;
+  });
 }
 
 /**
  * Atualiza metadados de uma conversa (ex: título).
+ * Implementa resiliência via retry (ST-11.23).
  * 
  * @param conversationId - O ID da conversa.
  * @param data - Campos parciais a atualizar.
  */
 export async function updateConversation(conversationId: string, data: Partial<Conversation>) {
   const convRef = doc(db, 'conversations', conversationId);
-  await updateDoc(convRef, {
-    ...data,
-    updatedAt: Timestamp.now(),
+  await withResilience(async () => {
+    await updateDoc(convRef, {
+      ...data,
+      updatedAt: Timestamp.now(),
+    });
   });
 }
 
@@ -474,7 +554,7 @@ export async function saveToLibrary(data: Omit<LibraryTemplate, 'id' | 'createdA
  * @param userId - O ID do usuário.
  * @returns Objeto com contagens de funis ativos, avaliações pendentes e decisões do mês.
  */
-export async function getUserStats(userId: string) {
+export async function getUserStats(userId: string): Promise<DashboardStats> {
   const [funnels, conversations] = await Promise.all([
     getUserFunnels(userId),
     getUserConversations(userId),
@@ -498,12 +578,170 @@ export async function getUserStats(userId: string) {
     );
   }).length;
   
+  // US-1.5.3: Benchmarks devem ser carregados via API ou Server Action para evitar vazamento de 'fs' para o cliente.
+  const performance_benchmarks = [
+    { metric: 'CPC Médio', value: '--', benchmark_2026: 'R$ 0,50', status: 'neutral' as const },
+    { metric: 'CTR Global', value: '--', benchmark_2026: '2.5%', status: 'neutral' as const },
+    { metric: 'ROAS Alvo', value: '--', benchmark_2026: '4.0x', status: 'neutral' as const }
+  ];
+
   return {
     activeFunnels,
     pendingEvaluations,
     decisionsThisMonth,
     totalConversations: conversations.length,
+    performance_benchmarks,
   };
+}
+
+
+// ============================================
+// BRANDS
+// ============================================
+
+/**
+ * Busca uma marca específica pelo ID.
+ */
+export async function getBrand(brandId: string): Promise<Brand | null> {
+  const brandRef = doc(db, 'brands', brandId);
+  const brandSnap = await getDoc(brandRef);
+  
+  if (!brandSnap.exists()) return null;
+  
+  return { id: brandSnap.id, ...brandSnap.data() } as Brand;
+}
+
+/**
+ * Atualiza os dados de uma marca.
+ */
+export async function updateBrand(brandId: string, data: Partial<Brand>) {
+  const brandRef = doc(db, 'brands', brandId);
+  await updateDoc(brandRef, {
+    ...data,
+    updatedAt: Timestamp.now(),
+  });
+}
+
+// ============================================
+// INTEGRATIONS
+// ============================================
+
+/**
+ * Salva ou atualiza uma integração para um tenant.
+ * 
+ * @param tenantId - O ID do tenant.
+ * @param provider - O provedor da integração (ex: 'meta').
+ * @param data - Configurações da integração.
+ */
+export async function saveIntegration(
+  tenantId: string,
+  provider: Integration['provider'],
+  data: any
+) {
+  const integrationId = provider; // Usamos o provider como ID fixo por enquanto (um por tipo)
+  const integrationRef = doc(db, 'tenants', tenantId, 'integrations', integrationId);
+  const now = Timestamp.now();
+
+  const integrationData = {
+    id: integrationId,
+    tenantId,
+    provider,
+    status: 'active' as const,
+    config: data,
+    updatedAt: now,
+  };
+
+  // Tenta buscar se já existe para manter o createdAt
+  const snap = await getDoc(integrationRef);
+  if (snap.exists()) {
+    await updateDoc(integrationRef, integrationData);
+  } else {
+    await setDoc(integrationRef, {
+      ...integrationData,
+      createdAt: now,
+    });
+  }
+
+  return integrationId;
+}
+
+/**
+ * Busca todas as integrações de um tenant.
+ * 
+ * @param tenantId - O ID do tenant.
+ */
+export async function getIntegrations(tenantId: string): Promise<Integration[]> {
+  const q = query(collection(db, 'tenants', tenantId, 'integrations'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Integration));
+}
+
+// ============================================
+// CAMPAIGNS (Manifesto / Golden Thread)
+// ============================================
+
+/**
+ * Cria uma nova campanha (Manifesto da Linha de Ouro) a partir de um funil aprovado.
+ * Segue o contrato da ST-11.21: CampaignId != FunnelId.
+ */
+export async function createCampaign(data: {
+  funnelId: string;
+  userId: string;
+  brandId: string;
+  name: string;
+  funnelData: CampaignContext['funnel'];
+}): Promise<string> {
+  const timestamp = Date.now();
+  const shortId = Math.random().toString(36).substring(2, 7);
+  const campaignId = `${data.funnelId}_${timestamp}_${shortId}`;
+  
+  const now = Timestamp.now();
+  const campaignRef = doc(db, 'campaigns', campaignId);
+  
+  const campaignData: CampaignContext = {
+    id: campaignId,
+    funnelId: data.funnelId,
+    userId: data.userId,
+    brandId: data.brandId,
+    name: data.name,
+    status: 'planning',
+    funnel: data.funnelData,
+    createdAt: now,
+    updatedAt: now,
+  };
+  
+  await setDoc(campaignRef, campaignData);
+  return campaignId;
+}
+
+/**
+ * Busca uma campanha pelo ID.
+ */
+export async function getCampaign(campaignId: string): Promise<CampaignContext | null> {
+  const campaignRef = doc(db, 'campaigns', campaignId);
+  const campaignSnap = await getDoc(campaignRef);
+  
+  if (!campaignSnap.exists()) return null;
+  
+  return { id: campaignSnap.id, ...campaignSnap.data() } as CampaignContext;
+}
+
+/**
+ * Atualiza o manifesto de uma campanha de forma atômica (Upsert).
+ * Implementa resiliência via retry e backoff (ST-11.23).
+ */
+export async function updateCampaignManifesto(
+  campaignId: string, 
+  data: Partial<CampaignContext>
+) {
+  const campaignRef = doc(db, 'campaigns', campaignId);
+  
+  return await withResilience(async () => {
+    await setDoc(campaignRef, {
+      ...data,
+      updatedAt: Timestamp.now(),
+    }, { merge: true });
+  });
 }
 
 

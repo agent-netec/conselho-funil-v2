@@ -12,7 +12,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from './config';
-import type { Brand } from '@/types/database';
+import type { Brand, BrandKit } from '@/types/database';
 
 // ============================================
 // BRANDS - Sistema Multi-Marcas
@@ -59,14 +59,21 @@ export async function getBrand(brandId: string): Promise<Brand | null> {
  * @returns Array de marcas ordenadas pela última atualização (mais recente primeiro).
  */
 export async function getUserBrands(userId: string): Promise<Brand[]> {
+  // ST-11.6: Simplified query to avoid composite index (INC-004)
   const q = query(
     collection(db, 'brands'),
-    where('userId', '==', userId),
-    orderBy('updatedAt', 'desc')
+    where('userId', '==', userId)
   );
   
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Brand));
+  const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Brand));
+  
+  // Sort in memory
+  return data.sort((a, b) => {
+    const dateA = a.updatedAt?.seconds || 0;
+    const dateB = b.updatedAt?.seconds || 0;
+    return dateB - dateA;
+  });
 }
 
 /**
@@ -84,6 +91,21 @@ export async function updateBrand(brandId: string, data: Partial<Omit<Brand, 'id
 }
 
 /**
+ * Atualiza especificamente o BrandKit de uma marca.
+ * US-18.1 & US-18.2
+ * 
+ * @param brandId - O ID da marca.
+ * @param kit - O objeto BrandKit completo.
+ */
+export async function updateBrandKit(brandId: string, kit: BrandKit) {
+  const brandRef = doc(db, 'brands', brandId);
+  await updateDoc(brandRef, {
+    brandKit: kit,
+    updatedAt: Timestamp.now(),
+  });
+}
+
+/**
  * Exclui uma marca permanentemente.
  * 
  * ⚠️ ATENÇÃO: Esta operação não remove automaticamente os vínculos em funis, 
@@ -96,4 +118,7 @@ export async function deleteBrand(brandId: string) {
   const brandRef = doc(db, 'brands', brandId);
   await deleteDoc(brandRef);
 }
+
+
+
 

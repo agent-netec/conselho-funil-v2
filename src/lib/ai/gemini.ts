@@ -5,7 +5,9 @@
  * Requer apenas GOOGLE_AI_API_KEY no .env.local
  */
 
-import { buildChatPrompt } from './prompts/chat-system';
+import { buildChatPrompt, buildStructuredChatPrompt } from './prompts';
+import { buildPartyPrompt, PartyModeOptions } from './prompts/party-mode';
+import { CouncilOutput } from '@/types';
 
 const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
 
@@ -13,15 +15,89 @@ const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
  * Get Gemini API Key - lê a variável de ambiente em tempo de execução
  */
 function getGeminiApiKey(): string | undefined {
-  return process.env.GOOGLE_AI_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_AI_API_KEY;
+  // Acesso direto para garantir injeção no bundle cliente do Next.js
+  const public_key = process.env.NEXT_PUBLIC_GOOGLE_AI_API_KEY;
+  const private_key = process.env.GOOGLE_AI_API_KEY;
+  
+  const key = public_key || private_key;
+  
+  if (!key && typeof window !== 'undefined') {
+    console.error('❌ [Gemini] NEXT_PUBLIC_GOOGLE_AI_API_KEY não encontrada no bundle do navegador.');
+  }
+  
+  return key;
 }
 
 interface GeminiResponse {
   candidates: Array<{
     content: {
-      parts: Array<{ text: string }>;
+      parts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }>;
     };
   }>;
+}
+
+/**
+ * Analisa uma imagem ou PDF usando o modelo multimodal do Gemini.
+ * Perfeito para OCR estratégico e extração de insights visuais.
+ * 
+ * @param prompt - Instrução para a IA (ex: "Extraia o texto desta imagem").
+ * @param fileBase64 - Dados do arquivo em base64.
+ * @param mimeType - Tipo do arquivo (image/png, application/pdf, etc).
+ */
+export async function analyzeMultimodalWithGemini(
+  prompt: string,
+  fileBase64: string,
+  mimeType: string,
+  options: {
+    model?: string;
+    temperature?: number;
+  } = {}
+): Promise<string> {
+  const {
+    model = 'gemini-2.0-flash-exp',
+    temperature = 0.4, // Menor temperatura para OCR (mais preciso)
+  } = options;
+
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
+    throw new Error('GOOGLE_AI_API_KEY not configured');
+  }
+
+  const url = `${GEMINI_BASE_URL}/models/${model}:generateContent?key=${apiKey}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      contents: [
+        {
+          parts: [
+            { text: prompt },
+            {
+              inlineData: {
+                mimeType,
+                data: fileBase64,
+              },
+            },
+          ],
+        },
+      ],
+      generationConfig: {
+        temperature,
+        maxOutputTokens: 8192,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Gemini Multimodal error: ${response.status} - ${error}`);
+  }
+
+  const data: GeminiResponse = await response.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
 /**
@@ -43,12 +119,14 @@ export async function generateWithGemini(
     model?: string;
     temperature?: number;
     maxOutputTokens?: number;
+    responseMimeType?: 'text/plain' | 'application/json';
   } = {}
 ): Promise<string> {
   const {
     model = 'gemini-2.0-flash-exp',
     temperature = 0.7,
     maxOutputTokens = 4096,
+    responseMimeType = 'text/plain',
   } = options;
 
   const apiKey = getGeminiApiKey();
@@ -74,6 +152,7 @@ export async function generateWithGemini(
         maxOutputTokens,
         topP: 0.95,
         topK: 40,
+        responseMimeType,
       },
     }),
   });
@@ -184,15 +263,87 @@ export async function* generateWithGeminiStream(
  * @param query - A pergunta do usuário.
  * @param context - O contexto recuperado via RAG.
  * @param systemPrompt - Instruções específicas do sistema ou do conselheiro.
+ * @param model - Modelo opcional a ser usado (ex: gemini-1.5-pro).
  * @returns Uma promessa com a resposta gerada.
  */
 export async function generateCouncilResponseWithGemini(
   query: string,
   context: string,
-  systemPrompt?: string
+  systemPrompt?: string,
+  model?: string
 ): Promise<string> {
   const fullPrompt = buildChatPrompt(query, context, systemPrompt);
-  return generateWithGemini(fullPrompt);
+  const response = await generateWithGemini(fullPrompt, { model });
+  
+  // US-1.5.3: Post-processing para garantir a tag [COUNCIL_OUTPUT]
+  if (response.includes('{') && response.includes('}') && !response.includes('[COUNCIL_OUTPUT]:')) {
+    // Se a IA gerou o JSON puro (comum em modelos menores ou instruções estritas), adicionamos o prefixo
+    if (response.trim().startsWith('{') && response.trim().endsWith('}')) {
+      return `[COUNCIL_OUTPUT]: ${response.trim()}`;
+    }
+  }
+  
+  return response;
+}
+
+/**
+ * Gera uma resposta ESTRUTURADA (JSON) para o Conselho de Estrategistas.
+ * Segue o contrato CouncilOutput v1.1.
+ * 
+ * @param query - A pergunta do usuário.
+ * @param context - O contexto recuperado via RAG.
+ * @param systemPrompt - Instruções específicas do sistema.
+ * @returns Uma promessa com o objeto CouncilOutput.
+ */
+export async function generateStructuredCouncilResponseWithGemini(
+  query: string,
+  context: string,
+  systemPrompt?: string
+): Promise<CouncilOutput> {
+  const fullPrompt = buildStructuredChatPrompt(query, context, systemPrompt);
+  
+  const responseText = await generateWithGemini(fullPrompt, {
+    responseMimeType: 'application/json',
+    temperature: 0.2, // Baixa temperatura para maior adesão ao esquema
+  });
+
+  try {
+    // US-1.5.3: Limpeza do prefixo [COUNCIL_OUTPUT] se presente
+    let jsonStr = responseText.trim();
+    if (jsonStr.includes('[COUNCIL_OUTPUT]:')) {
+      jsonStr = jsonStr.split('[COUNCIL_OUTPUT]:')[1].trim();
+    }
+    
+    // Fallback para markdown se a IA ainda assim incluir
+    if (jsonStr.startsWith('```json')) {
+      jsonStr = jsonStr.slice(7);
+    }
+    if (jsonStr.endsWith('```')) {
+      jsonStr = jsonStr.slice(0, -3);
+    }
+
+    return JSON.parse(jsonStr.trim()) as CouncilOutput;
+  } catch (error) {
+    console.error('❌ [Gemini] Erro ao parsear resposta estruturada:', error);
+    console.error('Resposta bruta:', responseText);
+    throw new Error('Falha ao gerar resposta estruturada do conselho.');
+  }
+}
+
+/**
+ * Gera uma resposta para o modo Party (Múltiplos Agentes).
+ */
+export async function generatePartyResponseWithGemini(
+  query: string,
+  context: string,
+  selectedAgentIds: string[],
+  options?: PartyModeOptions
+): Promise<string> {
+  const fullPrompt = buildPartyPrompt(query, context, selectedAgentIds, options);
+  return generateWithGemini(fullPrompt, {
+    maxOutputTokens: 8192, // Mais tokens para debate longo
+    temperature: 0.8, // Mais criatividade/debate
+  });
 }
 
 /**

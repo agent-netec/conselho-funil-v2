@@ -28,11 +28,11 @@ import {
 import { cn } from '@/lib/utils';
 import type { LibraryTemplate, ProposalScorecard } from '@/types/database';
 
-const OBJECTIVE_CONFIG: Record<string, { label: string; icon: string; color: string }> = {
-  leads: { label: 'Leads', icon: '📧', color: 'text-blue-400' },
-  sales: { label: 'Vendas', icon: '💰', color: 'text-emerald-400' },
-  calls: { label: 'Calls', icon: '📞', color: 'text-amber-400' },
-  retention: { label: 'Retenção', icon: '🔄', color: 'text-purple-400' },
+const OBJECTIVE_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string }> = {
+  leads: { label: 'Leads', icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+  sales: { label: 'Vendas', icon: TrendingUp, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+  calls: { label: 'Calls', icon: Zap, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+  retention: { label: 'Retenção', icon: Target, color: 'text-purple-400', bg: 'bg-purple-500/10' },
 };
 
 const FILTER_OPTIONS = [
@@ -45,32 +45,35 @@ const FILTER_OPTIONS = [
 
 function TemplateCard({ template, onUse }: { template: LibraryTemplate; onUse: () => void }) {
   const objective = template.metadata?.objective as string;
-  const config = OBJECTIVE_CONFIG[objective] || { label: 'Funil', icon: '🎯', color: 'text-zinc-400' };
+  const config = OBJECTIVE_CONFIG[objective] || { label: 'Funil', icon: Target, color: 'text-zinc-400', bg: 'bg-zinc-800/50' };
   const metadata = template.metadata as Record<string, unknown> | undefined;
   const scorecard = metadata?.scorecard as ProposalScorecard | undefined;
   const stages = (metadata?.stages as number) || 0;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="card-premium p-5 hover:border-emerald-500/30 transition-all group"
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+      className="card-premium p-6 hover:border-emerald-500/30 transition-all group flex flex-col h-full"
     >
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-800/50 text-2xl">
-            {config.icon}
+      <div className="flex items-start justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl border border-white/[0.05] text-xl", config.bg)}>
+            <config.icon className={cn("h-6 w-6", config.color)} />
           </div>
-          <div>
-            <h3 className="font-semibold text-white group-hover:text-emerald-400 transition-colors">
+          <div className="min-w-0">
+            <h3 className="font-bold text-white group-hover:text-emerald-400 transition-colors truncate">
               {template.name}
             </h3>
-            <div className="flex items-center gap-2 text-xs text-zinc-500">
+            <div className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-zinc-500">
               <span className={config.color}>{config.label}</span>
               {template.metadata?.vertical && (
                 <>
-                  <span>•</span>
-                  <span>{template.metadata.vertical}</span>
+                  <span className="opacity-30">•</span>
+                  <span className="truncate">{template.metadata.vertical}</span>
                 </>
               )}
             </div>
@@ -79,50 +82,38 @@ function TemplateCard({ template, onUse }: { template: LibraryTemplate; onUse: (
         
         {scorecard && (
           <div className={cn(
-            'flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-medium',
+            'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border border-white/[0.02]',
             scorecard.overall >= 7.5 ? 'bg-emerald-500/10 text-emerald-400' :
             scorecard.overall >= 6 ? 'bg-amber-500/10 text-amber-400' : 
             'bg-zinc-500/10 text-zinc-400'
           )}>
-            <Star className="h-3.5 w-3.5" />
+            <Star className="h-3 w-3 fill-current" />
             {scorecard.overall.toFixed(1)}
           </div>
         )}
       </div>
 
-      <p className="text-sm text-zinc-400 mb-4 line-clamp-2">
+      <p className="text-sm text-zinc-400 mb-6 line-clamp-2 leading-relaxed flex-1">
         {template.description}
       </p>
 
-      <div className="flex items-center gap-4 text-xs text-zinc-500 mb-4">
-        <div className="flex items-center gap-1">
-          <Layers className="h-3.5 w-3.5" />
-          {stages} etapas
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04]">
+          <Layers className="h-3.5 w-3.5 text-zinc-500" />
+          <span className="text-xs text-zinc-300 font-medium">{stages} etapas</span>
         </div>
-        {metadata?.channel ? (
-          <div className="flex items-center gap-1">
-            <Target className="h-3.5 w-3.5" />
-            {String(metadata.channel)}
-          </div>
-        ) : null}
-        {metadata?.ticket ? (
-          <div className="flex items-center gap-1">
-            <Package className="h-3.5 w-3.5" />
-            {String(metadata.ticket)}
-          </div>
-        ) : null}
-        <div className="flex items-center gap-1">
-          <Copy className="h-3.5 w-3.5" />
-          {template.usageCount}x usado
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04]">
+          <Copy className="h-3.5 w-3.5 text-zinc-500" />
+          <span className="text-xs text-zinc-300 font-medium">{template.usageCount}x usado</span>
         </div>
       </div>
 
       {template.metadata?.tags && template.metadata.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          {template.metadata.tags.slice(0, 4).map((tag, index) => (
+        <div className="flex flex-wrap gap-1.5 mb-6">
+          {template.metadata.tags.slice(0, 3).map((tag, index) => (
             <span 
               key={index}
-              className="px-2 py-0.5 bg-zinc-800/50 rounded text-xs text-zinc-400"
+              className="px-2 py-0.5 bg-zinc-800/50 rounded text-[9px] uppercase font-bold tracking-tighter text-zinc-500"
             >
               {tag}
             </span>
@@ -132,9 +123,9 @@ function TemplateCard({ template, onUse }: { template: LibraryTemplate; onUse: (
 
       <Button
         onClick={onUse}
-        className="w-full btn-accent h-10"
+        className="w-full btn-accent h-10 group/btn shadow-lg shadow-emerald-500/10"
       >
-        <Sparkles className="mr-2 h-4 w-4" />
+        <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover/btn:scale-110" />
         Usar Template
       </Button>
     </motion.div>
@@ -243,19 +234,19 @@ export default function LibraryPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8"
+            className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10"
           >
             {[
-              { label: 'Total', value: stats.total, icon: Library, color: 'text-zinc-400' },
-              { label: 'Leads', value: stats.leads, icon: Users, color: 'text-blue-400' },
-              { label: 'Vendas', value: stats.sales, icon: TrendingUp, color: 'text-emerald-400' },
-              { label: 'Calls', value: stats.calls, icon: Zap, color: 'text-amber-400' },
-              { label: 'Retenção', value: stats.retention, icon: Target, color: 'text-purple-400' },
+              { label: 'Total', value: stats.total, icon: Library, color: 'text-zinc-400', bg: 'bg-zinc-500/5' },
+              { label: 'Leads', value: stats.leads, icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/5' },
+              { label: 'Vendas', value: stats.sales, icon: TrendingUp, color: 'text-emerald-400', bg: 'bg-emerald-500/5' },
+              { label: 'Calls', value: stats.calls, icon: Zap, color: 'text-amber-400', bg: 'bg-amber-500/5' },
+              { label: 'Retenção', value: stats.retention, icon: Target, color: 'text-purple-400', bg: 'bg-purple-500/5' },
             ].map((stat, index) => (
-              <div key={stat.label} className="card-premium p-4 text-center">
-                <stat.icon className={cn('h-5 w-5 mx-auto mb-2', stat.color)} />
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <div className="text-xs text-zinc-500">{stat.label}</div>
+              <div key={stat.label} className={cn("card-premium p-4 text-center border-white/[0.03]", stat.bg)}>
+                <stat.icon className={cn('h-4 w-4 mx-auto mb-3', stat.color)} />
+                <div className="text-2xl font-bold text-white tracking-tight">{stat.value}</div>
+                <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-500 mt-1">{stat.label}</div>
               </div>
             ))}
           </motion.div>

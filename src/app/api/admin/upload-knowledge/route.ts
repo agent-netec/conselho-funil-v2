@@ -19,6 +19,7 @@ import {
   limit,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -111,6 +112,9 @@ function createDocId(chunk: ProcessedChunk): string {
 
 export async function POST(request: NextRequest) {
   try {
+    // Hardening: Verificar role de admin
+    await verifyAdminRole(request);
+
     const body = await request.json();
     const { chunks, clear = false }: { chunks: ProcessedChunk[]; clear?: boolean } = body;
 
@@ -169,6 +173,7 @@ export async function POST(request: NextRequest) {
             metadata: {
               ...chunk.metadata,
               status: 'approved',
+              isApprovedForAI: true, // US-1.2.2: Garantir que o chunk seja visível para o RAG
             },
             source: chunk.source,
             createdAt: new Date(),
@@ -203,17 +208,16 @@ export async function POST(request: NextRequest) {
       total: chunks.length,
     });
   } catch (error) {
-    console.error('Upload API error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
-      { status: 500 }
-    );
+    return handleSecurityError(error);
   }
 }
 
 // GET - Check knowledge base status
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Hardening: Verificar role de admin
+    await verifyAdminRole(request);
+
     const q = query(collection(db, 'knowledge'), limit(1));
     const snapshot = await getDocs(q);
     
@@ -233,11 +237,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('Knowledge check error:', error);
-    return NextResponse.json(
-      { error: 'Failed to check knowledge base', details: String(error) },
-      { status: 500 }
-    );
+    return handleSecurityError(error);
   }
 }
 

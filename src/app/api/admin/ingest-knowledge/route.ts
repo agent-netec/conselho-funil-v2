@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase/config';
 import { collection, doc, setDoc, Timestamp } from 'firebase/firestore';
+import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
 
 export async function POST(request: NextRequest) {
   try {
+    // Hardening: Verificar role de admin
+    await verifyAdminRole(request);
+
     const { chunks } = await request.json();
 
     if (!chunks || !Array.isArray(chunks)) {
@@ -32,12 +36,7 @@ export async function POST(request: NextRequest) {
       count,
     });
   } catch (error) {
-    console.error('Error ingesting knowledge:', error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    return NextResponse.json(
-      { error: 'Failed to ingest knowledge', details: errorMessage },
-      { status: 500 }
-    );
+    return handleSecurityError(error);
   }
 }
 

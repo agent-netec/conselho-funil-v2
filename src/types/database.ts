@@ -11,6 +11,8 @@ export interface User {
   avatar?: string;
   tenantId?: string;
   role: 'admin' | 'member' | 'viewer';
+  credits: number;     // US-16.1
+  usage: number;       // US-16.1
   createdAt: Timestamp;
   lastLogin: Timestamp;
 }
@@ -63,6 +65,41 @@ export interface TenantSettings {
 // BRAND - Sistema Multi-Marcas
 // ============================================
 
+export interface BrandKit {
+  colors: {
+    primary: string;    // HEX
+    secondary: string;  // HEX
+    accent: string;     // HEX
+    background: string; // HEX
+    variants?: {        // Para gradientes ou tons alternativos
+      primaryLight?: string;
+      primaryDark?: string;
+    }
+  };
+  typography: {
+    primaryFont: string;   // Headline font (ex: 'Inter')
+    secondaryFont: string; // Body font (ex: 'Roboto')
+    systemFallback: 'serif' | 'sans-serif' | 'mono';
+  };
+  visualStyle: 'minimalist' | 'aggressive' | 'luxury' | 'corporate' | 'modern';
+  logoLock: {
+    variants: {
+      primary: LogoAsset;   // Logo principal (Vertical/Standard)
+      horizontal?: LogoAsset; // Logo horizontal
+      icon?: LogoAsset;      // Símbolo/Favicon
+    };
+    locked: boolean; // Trava global de governança
+  };
+  updatedAt: Timestamp;
+}
+
+export interface LogoAsset {
+  url: string;        // Firebase Storage URL
+  storagePath: string; // Path no Storage para deleção
+  format: 'svg' | 'png' | 'webp';
+  svgRaw?: string;    // Conteúdo da SVG para manipulação em tempo real pela IA (opcional)
+}
+
 export interface Brand {
   id: string;
   userId: string;
@@ -86,6 +123,7 @@ export interface Brand {
     differentiator: string;
   };
 
+  brandKit?: BrandKit; // US-18.1 & US-18.2
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -100,18 +138,43 @@ export interface BrandAsset {
   userId: string;            // FK para auth user
   name: string;              // Nome editável pelo usuário
   originalName: string;      // Nome original do arquivo
-  type: 'guideline' | 'brand_book' | 'strategy' | 'reference' | 'other';
+  type: 'guideline' | 'brand_book' | 'strategy' | 'reference' | 'other' | 'url' | 'image';
   mimeType: string;          // MIME type do arquivo (ex: 'application/pdf', 'image/png')
   size: number;              // Tamanho em bytes
-  url: string;               // Firebase Storage download URL
+  url: string;               // Firebase Storage download URL (ou URL original para type: 'url')
+  sourceUrl?: string;        // URL original (apenas para type: 'url')
   status: 'uploaded' | 'processing' | 'ready' | 'error';
   processingError?: string;  // Mensagem de erro se status = 'error'
-  extractedText?: string;    // Texto extraído de PDFs (US-13.2)
+  extractedText?: string;    // Texto extraído de PDFs/URLs/OCR
   chunkCount?: number;       // Número de chunks gerados (US-13.3)
   description?: string;      // Descrição opcional do arquivo
   tags?: string[];           // Tags para organização e busca
+  isApprovedForAI: boolean;  // Flag de governança (US-18.3)
   createdAt: Timestamp;
   processedAt?: Timestamp;   // Timestamp quando ficou 'ready'
+  metadata?: {
+    sourceType: 'url' | 'pdf' | 'image' | 'text';
+    sourceUrl?: string;
+    originalName: string;
+    isApprovedForAI: boolean;
+    extractedAt: string;
+    processingMethod: 'jina' | 'gemini-vision' | 'readability' | 'cheerio' | 'worker-v2' | 'text-direct';
+  };
+}
+
+// ============================================
+// PROJECT - Gestão de Projetos por Marca
+// ============================================
+
+export interface Project {
+  id: string;
+  brandId: string;           // FK para brands collection
+  userId: string;            // FK para auth user
+  name: string;
+  description?: string;
+  status: 'active' | 'archived' | 'completed';
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 }
 
 /**
@@ -126,6 +189,14 @@ export interface AssetChunk {
   embedding?: number[];      // Vetor numérico (768 dimensões para text-embedding-004)
   order: number;             // Índice do chunk no documento original
   createdAt: Timestamp;
+  metadata?: {
+    sourceType: 'url' | 'pdf' | 'image' | 'text';
+    sourceUrl?: string;
+    originalName: string;
+    isApprovedForAI: boolean;
+    extractedAt: string;
+    processingMethod: 'jina' | 'gemini-vision' | 'readability' | 'cheerio' | 'worker-v2' | 'text-direct';
+  };
 }
 
 // ============================================
@@ -137,6 +208,7 @@ export interface Funnel {
   tenantId: string;
   userId: string;
   name: string;
+  description?: string;
   status: FunnelStatus;
   context: FunnelContext;
   brandId?: string; // Sistema multi-marcas (opcional para retrocompatibilidade)
@@ -347,7 +419,7 @@ export interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
   metadata?: {
-    sources?: string[];
+    sources?: any[]; // US-1.2.3: Suporte a objetos de source (snippet, score, etc)
     counselors?: string[];
     scorecard?: Scorecard;
   };
@@ -381,7 +453,9 @@ export interface ChunkMetadata {
   stage?: string;
   tenantId?: string;
   status: 'draft' | 'approved';
+  isApprovedForAI: boolean; // US-1.2.2
   version: string;
+  category?: string;        // US-1.2.2
 }
 
 // ============================================
@@ -537,6 +611,42 @@ export interface CopyDecision {
   feedback?: string;
   adjustments?: string[];
   createdAt: Timestamp;
+}
+
+// ============================================
+// INTEGRATION (subcollection de Tenant)
+// ============================================
+
+export interface Integration {
+  id: string;
+  tenantId: string;
+  provider: 'meta' | 'google' | 'tiktok';
+  status: 'active' | 'expired' | 'revoked';
+  config: MetaIntegrationConfig | any;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface MetaIntegrationConfig {
+  adAccountId: string;
+  accessToken: string;
+}
+
+// ============================================
+// DASHBOARD
+// ============================================
+
+export interface DashboardStats {
+  activeFunnels: number;
+  pendingEvaluations: number;
+  decisionsThisMonth: number;
+  totalConversations: number;
+  performance_benchmarks: {
+    metric: string;
+    value: string;
+    benchmark_2026: string;
+    status: 'success' | 'warning' | 'danger' | 'neutral';
+  }[];
 }
 
 

@@ -1,9 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Edit2, Trash2, Sparkles, Users, Target } from 'lucide-react';
+import { Edit2, Trash2, Sparkles, Users, Target, Building2, ChevronRight, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Brand } from '@/types/database';
+import { cn } from '@/lib/utils';
 
 interface BrandCardProps {
   brand: Brand;
@@ -12,93 +13,111 @@ interface BrandCardProps {
   delay?: number;
 }
 
-/**
- * Card de Marca - Componente de listagem
- * 
- * Exibe as informações resumidas de uma marca com ações de editar/deletar.
- */
 export function BrandCard({ brand, onEdit, onDelete, delay = 0 }: BrandCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      className="group relative overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 hover:border-white/[0.12] transition-all"
+      className="group card-premium p-0 overflow-hidden h-full flex flex-col relative"
     >
-      {/* Gradient Overlay (visible on hover) */}
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-
-      {/* Content */}
-      <div className="relative">
+      {/* Visual Identity Strip */}
+      <div className="h-1.5 w-full bg-gradient-to-r from-emerald-500 to-blue-600 opacity-60 group-hover:opacity-100 transition-opacity" />
+      
+      <div className="p-6 flex-1 flex flex-col">
         {/* Header */}
-        <div className="mb-4">
-          <div className="flex items-start justify-between mb-2">
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-blue-600">
-              <Sparkles className="h-5 w-5 text-white" />
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/10 to-blue-600/10 border border-white/[0.05] group-hover:border-emerald-500/30 transition-all">
+              <Building2 className="h-6 w-6 text-emerald-400 group-hover:text-emerald-300" />
             </div>
-            
-            {/* Actions */}
-            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                onClick={onEdit}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.02] text-zinc-400 hover:text-white hover:border-white/[0.12] transition-colors"
-                aria-label="Editar marca"
-              >
-                <Edit2 className="h-4 w-4" />
-              </button>
-              
-              <button
-                onClick={onDelete}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-500/20 bg-red-500/5 text-red-400 hover:text-red-300 hover:border-red-500/40 transition-colors"
-                aria-label="Excluir marca"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+            <div className="min-w-0">
+              <h3 className="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors truncate">
+                {brand.name}
+              </h3>
+              <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-500">
+                {brand.vertical}
+              </p>
             </div>
           </div>
 
-          <h3 className="text-xl font-bold text-white mb-1">
-            {brand.name}
-          </h3>
-          
-          <p className="text-sm text-zinc-500">
-            {brand.vertical}
-          </p>
-        </div>
-
-        {/* Positioning */}
-        <div className="mb-4">
-          <p className="text-sm text-zinc-400 line-clamp-2">
-            {brand.positioning}
-          </p>
-        </div>
-
-        {/* Key Info */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm">
-            <Users className="h-4 w-4 text-zinc-500" />
-            <span className="text-zinc-400 line-clamp-1">
-              {brand.audience.who}
-            </span>
-          </div>
-          
-          <div className="flex items-center gap-2 text-sm">
-            <Target className="h-4 w-4 text-zinc-500" />
-            <span className="text-zinc-400 line-clamp-1">
-              {brand.offer.what}
-            </span>
+          <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+            <button
+              onClick={(e) => { e.stopPropagation(); onEdit(); }}
+              className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.05] text-zinc-500 hover:text-white hover:bg-white/[0.08] transition-all"
+            >
+              <Edit2 className="h-4 w-4" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              className="p-2 rounded-lg bg-red-500/5 border border-red-500/10 text-red-500/50 hover:text-red-400 hover:bg-red-500/10 transition-all"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="mt-4 pt-4 border-t border-white/[0.06]">
-          <div className="flex items-center justify-between text-xs text-zinc-600">
-            <span>Tom: {brand.voiceTone}</span>
-            <span>R$ {brand.offer.ticket.toLocaleString('pt-BR')}</span>
+        {/* Brand Core Context */}
+        <div className="space-y-4 mb-8 flex-1">
+          <div className="relative p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <p className="text-xs text-zinc-400 leading-relaxed line-clamp-3 italic">
+              "{brand.positioning}"
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-zinc-900/50 border border-white/[0.03]">
+              <div className="flex items-center gap-2">
+                <Users className="h-3 w-3 text-emerald-500/70" />
+                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">Audiência</span>
+              </div>
+              <span className="text-xs text-zinc-300 font-medium truncate">{brand.audience.who}</span>
+            </div>
+            <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-zinc-900/50 border border-white/[0.03]">
+              <div className="flex items-center gap-2">
+                <Target className="h-3 w-3 text-blue-500/70" />
+                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">Oferta</span>
+              </div>
+              <span className="text-xs text-zinc-300 font-medium truncate">{brand.offer.what}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Intelligence Stats */}
+        <div className="pt-4 border-t border-white/[0.05] space-y-3">
+          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+            <div className="flex items-center gap-2">
+              <Activity className="h-3 w-3" />
+              <span>Contexto RAG</span>
+            </div>
+            <span className="text-emerald-500">85%</span>
+          </div>
+          <div className="h-1 w-full bg-zinc-900 rounded-full overflow-hidden">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: '85%' }}
+              className="h-full bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full"
+            />
+          </div>
+          
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-white">R$ {Number(brand.offer.ticket).toLocaleString('pt-BR')}</span>
+              <span className="text-[10px] text-zinc-600 uppercase font-bold">Ticket</span>
+            </div>
+            <div className="flex items-center gap-1 text-emerald-400 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
+              <span className="text-[10px] font-bold uppercase tracking-tighter">Brand Hub</span>
+              <ChevronRight className="h-3 w-3" />
+            </div>
           </div>
         </div>
       </div>
     </motion.div>
   );
 }
+
+
+
+
+
 

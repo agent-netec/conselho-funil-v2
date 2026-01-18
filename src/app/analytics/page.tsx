@@ -34,16 +34,24 @@ export default function AnalyticsPage() {
         setFunnels(funnelsData);
 
         // Load decisions
+        // ST-11.6: Simplified query to avoid composite index (INC-004)
         const decisionsQuery = query(
           collection(db, 'decisions'),
-          where('userId', '==', user.uid),
-          orderBy('createdAt', 'desc')
+          where('userId', '==', user.uid)
         );
         const decisionsSnapshot = await getDocs(decisionsQuery);
         const decisionsData = decisionsSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
         })) as Decision[];
+        
+        // Sort in memory to avoid needing a composite index
+        decisionsData.sort((a, b) => {
+          const dateA = a.createdAt?.seconds || 0;
+          const dateB = b.createdAt?.seconds || 0;
+          return dateB - dateA;
+        });
+        
         setDecisions(decisionsData);
 
       } catch (error) {

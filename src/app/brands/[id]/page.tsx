@@ -15,10 +15,14 @@ import {
   TrendingUp,
   AlertTriangle,
   Sparkles,
+  Palette,
 } from 'lucide-react';
 import { useBrands } from '@/lib/hooks/use-brands';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import type { Brand } from '@/types/database';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BrandKitForm } from '@/components/brands/brand-kit-form';
+import { ProjectList } from '@/components/brands/project-list';
 
 const VOICE_TONE_LABELS: Record<string, string> = {
   professional: 'Profissional 👔',
@@ -168,8 +172,20 @@ export default function BrandDetailPage() {
             </motion.div>
           )}
 
-          {/* Identidade */}
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6">
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="bg-white/5 border border-white/10 p-1">
+              <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+              <TabsTrigger value="projects">Projetos</TabsTrigger>
+              <TabsTrigger value="brandhub" className="flex items-center gap-2">
+                <Palette className="w-4 h-4" />
+                Brand Hub
+              </TabsTrigger>
+              <TabsTrigger value="assets">Contexto (RAG)</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-6">
+              {/* Identidade */}
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-blue-600">
                 <Building2 className="h-6 w-6 text-white" />
@@ -293,9 +309,31 @@ export default function BrandDetailPage() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </TabsContent>
+
+          <TabsContent value="brandhub">
+            <BrandKitForm brand={brand} />
+          </TabsContent>
+
+          <TabsContent value="projects">
+            <ProjectList brandId={brandId} />
+          </TabsContent>
+
+          <TabsContent value="assets">
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 text-center">
+            <p className="text-zinc-500 mb-4">Gerencie os arquivos de contexto e ativos desta marca.</p>
+            <Button onClick={() => router.push(`/brands/${brandId}/assets`)}>
+              Gerenciar Assets
+            </Button>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
+  </div>
+</div>
   );
 }
+
+
+
 

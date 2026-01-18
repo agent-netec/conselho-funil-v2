@@ -16,24 +16,30 @@ import {
   getDocs,
   query,
   where,
+  orderBy,
+  limit,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { updateUserUsage } from '@/lib/firebase/firestore';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM } from '@/lib/ai/rag';
 import type { 
   Funnel, 
   Proposal, 
   CopyType, 
   AwarenessStage,
   CopyScorecard,
+  Brand,
 } from '@/types/database';
 import { 
   AWARENESS_STAGES, 
   COPY_TYPES 
 } from '@/lib/constants';
 import { buildCopyPrompt } from '@/lib/ai/prompts';
+import { parseAIJSON } from '@/lib/ai/formatters';
 
 export const runtime = 'nodejs';
-export const maxDuration = 60;
+export const maxDuration = 90; // Aumentado para lidar com RAG
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
@@ -48,27 +54,10 @@ function mapAwareness(funnelAwareness: string): AwarenessStage {
   return mapping[funnelAwareness] || 'problem_aware';
 }
 
-// Parse JSON from Gemini response
-function parseGeminiResponse(text: string): any {
-  // Remove markdown code blocks if present
-  let cleaned = text.trim();
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.slice(7);
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.slice(3);
-  }
-  if (cleaned.endsWith('```')) {
-    cleaned = cleaned.slice(0, -3);
-  }
-  cleaned = cleaned.trim();
-  
-  return JSON.parse(cleaned);
-}
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { funnelId, proposalId, copyType, awarenessStage, userId } = body;
+    const { funnelId, proposalId, copyType, awarenessStage, userId, conversationId } = body;
 
     // Validate required fields
     if (!funnelId || !proposalId || !copyType) {
@@ -78,15 +67,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate copy type
-    if (!COPY_TYPES[copyType as CopyType]) {
-      return NextResponse.json(
-        { error: `Invalid copyType. Valid types: ${Object.keys(COPY_TYPES).join(', ')}` },
-        { status: 400 }
-      );
-    }
-
-    // Get funnel
+    // Get funnel and brand
     const funnelRef = doc(db, 'funnels', funnelId);
     const funnelSnap = await getDoc(funnelRef);
     
@@ -106,15 +87,61 @@ export async function POST(request: NextRequest) {
     
     const proposal = { id: proposalSnap.id, ...proposalSnap.data() } as Proposal;
 
+    // --- ENRIQUECIMENTO DE CONTEXTO (RAG) ---
+    console.log('🔍 Buscando contexto estratégico para copy...');
+    
+    // 1. Contexto de Conhecimento Geral (Copywriting)
+    const { context: ragContext } = await ragQuery(
+      `Copywriting para ${copyType} no mercado de ${funnel.context.market}. Foco em ${funnel.context.objective}.`,
+      { topK: 8, minSimilarity: 0.2, filters: { category: 'copywriting' } }
+    );
+
+    // 2. Contexto de Marca (Assets)
+    let brandContext = '';
+    if (funnel.brandId) {
+      const brandChunks = await retrieveBrandChunks(
+        funnel.brandId,
+        `Copywriting ${copyType} para ${funnel.context.offer.what}. Voz e tom da marca.`,
+        { topK: 5, minSimilarity: 0.5 }
+      );
+      brandContext = formatBrandContextForLLM(brandChunks);
+    }
+
+    // 3. Contexto de Anexos do Chat (Busca no histórico da conversa)
+    let attachmentsContext = '';
+    if (conversationId) {
+      const messagesRef = collection(db, 'conversations', conversationId, 'messages');
+      const messagesSnap = await getDocs(query(messagesRef, orderBy('createdAt', 'desc'), limit(20)));
+      
+      const attachmentMessages = messagesSnap.docs
+        .map(doc => doc.data().content as string)
+        .filter(content => content.includes('[CONTEXTO DE ANEXOS]'));
+      
+      if (attachmentMessages.length > 0) {
+        attachmentsContext = attachmentMessages.join('\n\n---\n\n');
+        console.log(`📎 Encontrados ${attachmentMessages.length} contextos de anexos.`);
+      }
+    }
+
     // Determine awareness stage
     const finalAwarenessStage: AwarenessStage = awarenessStage || 
       mapAwareness(funnel.context.audience.awareness);
 
-    // Build prompt
+    // Build prompt with all context
     const awarenessInfo = AWARENESS_STAGES[finalAwarenessStage];
-    const prompt = buildCopyPrompt(funnel, proposal, copyType as CopyType, awarenessInfo);
+    const prompt = buildCopyPrompt(
+      funnel, 
+      proposal, 
+      copyType as CopyType, 
+      awarenessInfo,
+      {
+        ragContext,
+        brandContext,
+        attachmentsContext
+      }
+    );
 
-    console.log(`\n✍️  Gerando ${copyType} para funil "${funnel.name}"...`);
+    console.log(`\n✍️  Gerando ${copyType} enriquecido para funil "${funnel.name}"...`);
 
     // Generate with Gemini (using model from env or default to gemini-2.0-flash-exp)
     const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp';
@@ -125,7 +152,7 @@ export async function POST(request: NextRequest) {
     // Parse response
     let parsedResponse;
     try {
-      parsedResponse = parseGeminiResponse(responseText);
+      parsedResponse = parseAIJSON(responseText);
     } catch (parseError) {
       console.error('Failed to parse Gemini response:', responseText);
       return NextResponse.json(
@@ -184,6 +211,16 @@ export async function POST(request: NextRequest) {
     const newCopyDoc = await addDoc(copyProposalsRef, copyProposalData);
 
     console.log(`✅ Copy gerado com sucesso: ${newCopyDoc.id}`);
+
+    // ST-11.19: Decrementar 1 crédito por geração de copy
+    if (userId) {
+      try {
+        await updateUserUsage(userId, -1);
+        console.log(`[Copy] 1 crédito decrementado para usuário: ${userId}`);
+      } catch (creditError) {
+        console.error('[Copy] Erro ao atualizar créditos:', creditError);
+      }
+    }
 
     return NextResponse.json({
       success: true,

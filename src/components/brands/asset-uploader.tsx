@@ -1,251 +1,248 @@
 'use client';
 
-import { useState, useRef, DragEvent } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, CheckCircle, AlertCircle, File, X } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { Upload, Globe, Loader2, Plus } from 'lucide-react';
 import { Timestamp } from 'firebase/firestore';
-import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { uploadBrandAsset, validateBrandAssetFile } from '@/lib/firebase/storage';
-import { createAsset, processAsset } from '@/lib/firebase/assets';
+import { createAsset } from '@/lib/firebase/assets';
+import { useAuthStore } from '@/lib/stores/auth-store';
 import type { BrandAsset } from '@/types/database';
 
 interface AssetUploaderProps {
   brandId: string;
   onUploadComplete?: (asset: BrandAsset) => void;
-  onUploadError?: (error: Error) => void;
+  onUploadFile?: (file: File) => Promise<void>;
+  onAddUrl?: (url: string) => Promise<void>;
 }
 
-/**
- * Componente de upload de arquivos para brand assets.
- * Suporta drag & drop e seleção por click.
- */
-export function AssetUploader({ brandId, onUploadComplete, onUploadError }: AssetUploaderProps) {
+export function AssetUploader({ brandId, onUploadComplete, onUploadFile, onAddUrl }: AssetUploaderProps) {
   const { user } = useAuthStore();
-  const [isDragging, setIsDragging] = useState(false);
+  const [url, setUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadingFileName, setUploadingFileName] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isAddingUrl, setIsAddingUrl] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
-  // Handlers de Drag & Drop
-  const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
+  const buildAssetPayload = (file: File, storageUrl: string): Omit<BrandAsset, 'id'> => {
+    const isImage = file.type.startsWith('image/') || file.name.match(/\.(png|jpg|jpeg|webp|svg)$/i);
+    const isPdf = file.type.includes('pdf') || file.name.toLowerCase().endsWith('.pdf');
+    const sourceType = isImage ? 'image' : isPdf ? 'pdf' : 'text';
 
-  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
-
-  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFileUpload(files[0]);
-    }
-  };
-
-  // Handler de Click
-  const handleClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleFileUpload(files[0]);
-    }
-  };
-
-  // Upload do arquivo
-  const handleFileUpload = async (file: File) => {
-    if (!user) {
-      toast.error('Usuário não autenticado');
-      return;
-    }
-
-    // Validação do arquivo
-    const validation = validateBrandAssetFile(file);
-    if (!validation.valid) {
-      toast.error(validation.error || 'Arquivo inválido');
-      onUploadError?.(new Error(validation.error));
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      setUploadingFileName(file.name);
-      setUploadProgress(0);
-
-      // Upload para o Storage
-      const { url } = await uploadBrandAsset(
-        file,
-        brandId,
-        user.uid,
-        (progress) => {
-          setUploadProgress(progress);
-        }
-      );
-
-      // Criar registro no Firestore
-      const assetData: Omit<BrandAsset, 'id'> = {
-        brandId,
-        userId: user.uid,
-        name: file.name.replace(/\.[^/.]+$/, ''), // Remove extensão
+    return {
+      brandId,
+      userId: user?.uid ?? '',
+      name: file.name,
+      originalName: file.name,
+      type: isImage ? 'image' : 'reference',
+      mimeType: file.type || (isPdf ? 'application/pdf' : 'application/octet-stream'),
+      size: file.size,
+      url: storageUrl,
+      status: 'uploaded',
+      isApprovedForAI: false,
+      createdAt: Timestamp.now(),
+      metadata: {
+        sourceType,
         originalName: file.name,
-        type: 'other', // Default, usuário pode editar depois
-        mimeType: file.type,
-        size: file.size,
-        url,
-        status: 'uploaded',
-        createdAt: Timestamp.now(),
-      };
+        isApprovedForAI: false,
+        extractedAt: new Date().toISOString(),
+        processingMethod: isImage ? 'gemini-vision' : 'readability',
+      },
+    };
+  };
 
-      const assetId = await createAsset(assetData);
+  const handleFilesUpload = useCallback(async (acceptedFiles: File[]) => {
+    if (!acceptedFiles.length || isUploading) return;
+    if (!user) {
+      toast.error('Você precisa estar autenticado para enviar arquivos.');
+      return;
+    }
+    if (!brandId) {
+      toast.error('Marca não identificada para o upload.');
+      return;
+    }
 
-      // Callback de sucesso
-      const createdAsset: BrandAsset = { id: assetId, ...assetData };
-      onUploadComplete?.(createdAsset);
-
-      toast.success('Arquivo enviado com sucesso!');
-      
-      // Disparar processamento automático para PDFs (não bloqueia a UI)
-      if (file.type === 'application/pdf') {
-        toast.info('Processando PDF...', { duration: 2000 });
-        processAsset(assetId).catch((error) => {
-          console.error('Erro ao processar PDF:', error);
-          // Não exibe toast de erro aqui pois o status 'error' já estará no Firestore
-        });
+    setIsUploading(true);
+    try {
+      if (onUploadFile) {
+        for (const file of acceptedFiles) {
+          await onUploadFile(file);
+        }
+        return;
       }
-      
-      // Reset do estado
-      setUploadProgress(0);
-      setUploadingFileName('');
-      
-      // Limpa o input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+
+      for (const file of acceptedFiles) {
+        const validation = validateBrandAssetFile(file);
+        if (!validation.valid) {
+          toast.error(validation.error ?? 'Arquivo inválido para upload.');
+          continue;
+        }
+
+        const { url: storageUrl } = await uploadBrandAsset(
+          file,
+          brandId,
+          user.uid,
+          (progress) => setUploadProgress(progress)
+        );
+
+        const assetPayload = buildAssetPayload(file, storageUrl);
+        const assetId = await createAsset(assetPayload);
+
+        onUploadComplete?.({ ...assetPayload, id: assetId });
+        toast.success(`${file.name} enviado com sucesso`);
       }
     } catch (error) {
-      console.error('Erro no upload:', error);
-      toast.error('Erro ao enviar arquivo. Tente novamente.');
-      onUploadError?.(error as Error);
+      console.error('Upload error:', error);
+      toast.error('Falha ao fazer upload do arquivo. Tente novamente.');
     } finally {
       setIsUploading(false);
+      setUploadProgress(null);
+    }
+  }, [brandId, isUploading, onUploadComplete, user]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: handleFilesUpload,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'application/x-pdf': ['.pdf'],
+      'application/vnd.pdf': ['.pdf'],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'text/plain': ['.txt'],
+      'text/markdown': ['.md'],
+      'image/png': ['.png'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/webp': ['.webp'],
+      'image/svg+xml': ['.svg'],
+    },
+    maxSize: 10 * 1024 * 1024, // 10MB
+  });
+
+  const handleUrlSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!url || isAddingUrl) return;
+    if (!user) {
+      toast.error('Você precisa estar autenticado para adicionar uma URL.');
+      return;
+    }
+    if (!brandId) {
+      toast.error('Marca não identificada para associar a URL.');
+      return;
+    }
+
+    setIsAddingUrl(true);
+    try {
+      if (onAddUrl) {
+        await onAddUrl(url);
+        setUrl('');
+        return;
+      }
+
+      const assetPayload: Omit<BrandAsset, 'id'> = {
+        brandId,
+        userId: user.uid,
+        name: url,
+        originalName: url,
+        type: 'url',
+        mimeType: 'text/html',
+        size: 0,
+        url,
+        sourceUrl: url,
+        status: 'uploaded',
+        isApprovedForAI: false,
+        createdAt: Timestamp.now(),
+        metadata: {
+          sourceType: 'url',
+          sourceUrl: url,
+          originalName: url,
+          isApprovedForAI: false,
+          extractedAt: new Date().toISOString(),
+          processingMethod: 'readability',
+        },
+      };
+
+      const assetId = await createAsset(assetPayload);
+      onUploadComplete?.({ ...assetPayload, id: assetId });
+      setUrl('');
+      toast.success('URL adicionada com sucesso');
+    } catch (error) {
+      console.error('URL error:', error);
+      toast.error('Não foi possível adicionar a URL.');
+    } finally {
+      setIsAddingUrl(false);
     }
   };
 
   return (
-    <div className="space-y-4">
-      {/* Upload Area */}
+    <div className="space-y-6">
+      {/* Upload de Arquivos */}
       <div
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-        onClick={handleClick}
-        className={`
-          relative overflow-hidden rounded-xl border-2 border-dashed p-8 text-center cursor-pointer
-          transition-all duration-200
-          ${isDragging 
-            ? 'border-emerald-500 bg-emerald-500/5' 
-            : 'border-white/[0.12] bg-white/[0.02] hover:border-white/[0.24] hover:bg-white/[0.04]'
-          }
-          ${isUploading ? 'pointer-events-none opacity-60' : ''}
-        `}
+        {...getRootProps()}
+        className={cn(
+          "relative group aspect-[21/9] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden",
+          isDragActive 
+            ? "border-emerald-500 bg-emerald-500/5 shadow-[0_0_20px_-5px_rgba(16,185,129,0.2)]" 
+            : "border-white/[0.08] hover:border-white/[0.15] hover:bg-white/[0.02]"
+        )}
       >
-        <input
-          ref={fileInputRef}
-          type="file"
-          onChange={handleFileSelect}
-          accept=".pdf,.doc,.docx,.txt,.md,.png,.jpg,.jpeg,.webp"
-          className="hidden"
-          disabled={isUploading}
-        />
-
-        <div className="flex flex-col items-center gap-3">
-          {isUploading ? (
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10"
-            >
-              <Upload className="h-6 w-6 text-emerald-500 animate-pulse" />
-            </motion.div>
-          ) : (
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.04]">
-              <Upload className="h-6 w-6 text-zinc-400" />
-            </div>
-          )}
-
-          <div>
-            <p className="text-sm font-medium text-white">
-              {isUploading ? 'Enviando arquivo...' : 'Arraste ou clique para selecionar'}
-            </p>
-            <p className="text-xs text-zinc-500 mt-1">
-              PDF, DOC, DOCX, TXT, MD, PNG, JPG, WEBP
-            </p>
-            <p className="text-xs text-zinc-600 mt-0.5">
-              Máximo: 10MB (docs) / 5MB (imagens)
-            </p>
+        <input {...getInputProps()} />
+        <div className="flex flex-col items-center text-center p-6">
+          <div className={cn(
+            "h-14 w-14 rounded-2xl bg-white/[0.03] flex items-center justify-center mb-4 transition-transform group-hover:scale-110",
+            isDragActive && "bg-emerald-500/10"
+          )}>
+            {isUploading ? (
+              <Loader2 className="h-7 w-7 text-emerald-500 animate-spin" />
+            ) : (
+              <Upload className={cn("h-7 w-7 text-zinc-500", isDragActive && "text-emerald-500")} />
+            )}
           </div>
-        </div>
-
-        {/* Drag Overlay */}
-        <AnimatePresence>
-          {isDragging && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-emerald-500/10 flex items-center justify-center"
-            >
-              <p className="text-emerald-400 font-medium">Solte o arquivo aqui</p>
-            </motion.div>
+          <h3 className="text-white font-medium">Upload de Documentos Estratégicos</h3>
+          <p className="text-zinc-500 text-sm mt-1 max-w-[300px]">
+            Arraste PDFs, Manuais ou Assets para alimentar o cérebro da sua marca.
+          </p>
+          <div className="mt-4 flex gap-2">
+            <span className="text-[10px] bg-white/[0.05] text-zinc-400 px-2 py-1 rounded border border-white/[0.05]">PDF, DOCX</span>
+            <span className="text-[10px] bg-white/[0.05] text-zinc-400 px-2 py-1 rounded border border-white/[0.05]">TXT, MD</span>
+            <span className="text-[10px] bg-white/[0.05] text-zinc-400 px-2 py-1 rounded border border-white/[0.05]">Máx 10MB</span>
+          </div>
+          {uploadProgress !== null && (
+            <p className="mt-3 text-xs text-emerald-400">Progresso: {uploadProgress}%</p>
           )}
-        </AnimatePresence>
+        </div>
       </div>
 
-      {/* Upload Progress */}
-      <AnimatePresence>
-        {isUploading && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4"
+      {/* Adicionar URL */}
+      <form onSubmit={handleUrlSubmit} className="relative">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2">
+          <Globe className="h-5 w-5 text-zinc-500" />
+        </div>
+        <Input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://sua-landing-page.com/sobre-nos"
+          className="pl-12 pr-32 h-14 bg-white/[0.03] border-white/[0.08] text-white rounded-xl focus:ring-emerald-500/20"
+        />
+        <div className="absolute right-2 top-1/2 -translate-y-1/2">
+          <Button 
+            type="submit"
+            disabled={!url || isAddingUrl}
+            className="bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg h-10"
           >
-            <div className="flex items-center gap-3 mb-3">
-              <File className="h-5 w-5 text-emerald-500" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">
-                  {uploadingFileName}
-                </p>
-                <p className="text-xs text-zinc-500">
-                  {uploadProgress}% concluído
-                </p>
-              </div>
-            </div>
-            
-            <Progress value={uploadProgress} className="h-2" />
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {isAddingUrl ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar URL
+              </>
+            )}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
-

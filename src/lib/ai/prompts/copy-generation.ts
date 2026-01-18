@@ -9,8 +9,8 @@ export const COPY_RULES = `
 3. Seja específico para o contexto deste funil
 4. Aplique os princípios dos copywriters mencionados
 5. Scores do scorecard devem ser realistas (6-9 range típico)
-6. O campo "primary" deve conter a copy principal ou resumo
-7. Inclua insights de pelo menos 2 copywriters relevantes`;
+    6. O campo "primary" deve conter a copy principal ou resumo (use markdown para formatação)
+    7. Inclua insights detalhados de pelo menos 2 copywriters relevantes. O campo "insight" deve ser um parágrafo de texto, NUNCA um número ou booleano.`;
 
 export const COPY_TYPE_INSTRUCTIONS: Record<CopyType, string> = {
   headline: `
@@ -40,12 +40,22 @@ Para cada headline:
     "headline": "Headline principal",
     "subheadline": "Subheadline de apoio"
   },
-  "reasoning": "Explicação estratégica",
-  "copywriterInsights": [
-    {"copywriterId": "gary_halbert", "copywriterName": "Gary Halbert", "expertise": "Headlines & Psicologia", "insight": "Insight específico"},
-    {"copywriterId": "eugene_schwartz", "copywriterName": "Eugene Schwartz", "expertise": "Consciência de Mercado", "insight": "Insight específico"}
-  ],
-  "scorecard": {
+    "reasoning": "Explicação estratégica",
+    "copywriterInsights": [
+      {
+        "copywriterId": "gary_halbert", 
+        "copywriterName": "Gary Halbert", 
+        "expertise": "Headlines & Psicologia", 
+        "insight": "Dê um conselho estratégico real, com pelo menos 2 frases, sobre como esta copy aplica seus princípios."
+      },
+      {
+        "copywriterId": "eugene_schwartz", 
+        "copywriterName": "Eugene Schwartz", 
+        "expertise": "Consciência de Mercado", 
+        "insight": "Explique como o nível de consciência foi abordado nesta peça específica."
+      }
+    ],
+    "scorecard": {
     "headlines": 8, "structure": 7, "benefits": 8, "offer": 7, "proof": 6, "overall": 7.2
   }
 }`,
@@ -171,7 +181,12 @@ export function buildCopyPrompt(
   funnel: Funnel,
   proposal: Proposal,
   copyType: CopyType,
-  awarenessInfo: { label: string; description: string; copyLength: string }
+  awarenessInfo: { label: string; description: string; copyLength: string },
+  context?: {
+    ragContext?: string;
+    brandContext?: string;
+    attachmentsContext?: string;
+  }
 ): string {
   const copywriters = Object.values(COPY_COUNSELORS);
   
@@ -206,9 +221,20 @@ ${funnel.context.audience.objection ? `- Objeção: ${funnel.context.audience.ob
 **Etapas do Funil:**
 ${proposal.architecture?.stages?.map((s, i) => `${i + 1}. ${s.name} — ${s.objective || ''}`).join('\n') || 'Não especificado'}
 
+${context?.ragContext ? `## CONHECIMENTO ESTRATÉGICO (PLAYBOOKS)\n${context.ragContext}\n` : ''}
+
+${context?.brandContext ? `## CONHECIMENTO DA MARCA\n${context.brandContext}\n` : ''}
+
+${context?.attachmentsContext ? `## REFERÊNCIAS E ANEXOS (CHAT)\n${context.attachmentsContext}\n` : ''}
+
 ## TAREFA
 
 Gere ${copyType} para este funil.
+
+**Instruções de Qualidade:**
+1. **Extensão**: Utilize todo o conhecimento fornecido (RAG, Marca, Anexos) para gerar uma copy densa e persuasiva. Não economize palavras onde for necessário aprofundar a dor ou a solução.
+2. **Personalização**: Se houver referências de anexos ou assets da marca, cite-os ou utilize os termos específicos encontrados neles.
+3. **Copywriters**: Você deve assumir a personalidade e as heurísticas de cada mestre do conselho. O insight deve refletir a contribuição real dele para a peça.
 
 **Estágio de Consciência do Mercado:** ${awarenessInfo.label}
 - ${awarenessInfo.description}

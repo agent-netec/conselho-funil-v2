@@ -14,14 +14,16 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { updateCampaignManifesto } from '@/lib/firebase/firestore';
 import type { CopyDecision } from '@/types/database';
+import type { CampaignContext } from '@/types/campaign';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { funnelId, copyProposalId, type, userId, feedback, adjustments } = body;
+    const { funnelId, campaignId, copyProposalId, type, userId, feedback, adjustments } = body;
 
     // Validate required fields
     if (!funnelId || !copyProposalId || !type || !userId) {
@@ -54,16 +56,29 @@ export async function POST(request: NextRequest) {
       updatedAt: Timestamp.now(),
     });
 
-    // Create decision record
-    const decisionData: Omit<CopyDecision, 'id'> = {
+    // If adjusting, require non-empty adjustments array
+    if (type === 'adjust') {
+      if (!Array.isArray(adjustments) || adjustments.length === 0) {
+        return NextResponse.json(
+          { error: 'adjustments must be a non-empty array when type is adjust' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Create decision record (Firestore does NOT accept undefined values)
+    const decisionData: Omit<CopyDecision, 'id'> & Record<string, unknown> = {
       funnelId,
       copyProposalId,
       type,
       userId,
       feedback: feedback || null,
-      adjustments: type === 'adjust' && adjustments ? adjustments : undefined,
       createdAt: Timestamp.now(),
     };
+
+    if (type === 'adjust' && Array.isArray(adjustments) && adjustments.length > 0) {
+      decisionData.adjustments = adjustments;
+    }
 
     // Save decision
     const decisionsRef = collection(db, 'copyDecisions');
@@ -87,6 +102,56 @@ export async function POST(request: NextRequest) {
           adjustments,
         }),
       }).catch(console.error);
+    }
+
+    // If approved, update the Golden Thread (CampaignContext)
+    if (type === 'approve') {
+      try {
+        const copyProposal = copyProposalSnap.data();
+        const docId = campaignId || funnelId;
+        const campaignRef = doc(db, 'campaigns', docId);
+        
+        // ST-11.12: Full Handoff - Get funnel data to populate campaign if it's new
+        const funnelRef = doc(db, 'funnels', funnelId);
+        const funnelSnap = await getDoc(funnelRef);
+        const funnelData = funnelSnap.exists() ? funnelSnap.data() : {};
+
+        const campaignData: Partial<CampaignContext> = {
+          funnelId, // ST-11.21: Vínculo obrigatório com funil de origem
+          brandId: funnelData.brandId || '',
+          userId: funnelData.userId || userId,
+          name: funnelData.name || 'Nova Campanha',
+          status: 'active',
+          funnel: {
+            type: funnelData.type || '',
+            architecture: funnelData.architecture || '',
+            targetAudience: funnelData.targetAudience || funnelData.context?.audience?.who || '',
+            mainGoal: funnelData.mainGoal || funnelData.context?.objective || '',
+            stages: funnelData.stages || [],
+            summary: funnelData.summary || '',
+          },
+          copywriting: {
+            bigIdea: copyProposal.content.primary?.slice(0, 500) || 'Big Idea aprovada',
+            headlines: copyProposal.content.headlines || [],
+            mainScript: copyProposal.content.primary || '',
+            tone: copyProposal.awarenessStage || 'problem_aware',
+            keyBenefits: [], 
+            counselor_reference: copyProposal.copywriterInsights?.[0]?.copywriterName || 'Conselho de Copy',
+          },
+          updatedAt: Timestamp.now(),
+        };
+
+        // Ensure createdAt exists
+        const campaignSnap = await getDoc(campaignRef);
+        if (!campaignSnap.exists()) {
+          (campaignData as any).createdAt = Timestamp.now();
+        }
+
+        await updateCampaignManifesto(docId, campaignData);
+        console.log(`[Golden Thread] Handoff completo: Campanha ${docId} sincronizada.`);
+      } catch (err) {
+        console.error('[Golden Thread] Falha no handoff de copy para campanha:', err);
+      }
     }
 
     return NextResponse.json({

@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Anatomia da Linha de Ouro - Conselho de Funil</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body { background-color: #09090b; color: #fafafa; font-family: sans-serif; padding: 40px; }
+        .container { max-width: 1000px; margin: 0 auto; background: #0c0c0f; padding: 20px; border-radius: 12px; border: 1px solid #1f1f23; }
+        h1 { color: #10b981; font-size: 24px; margin-bottom: 10px; }
+        p { color: #a1a1aa; font-size: 14px; margin-bottom: 30px; }
+        .legend { display: flex; gap: 20px; margin-top: 20px; font-size: 12px; }
+        .legend-item { display: flex; items-center: center; gap: 5px; }
+        .box { width: 12px; height: 12px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manifesto da Linha de Ouro (The Golden Thread)</h1>
+        <p>Entendendo a hierarquia de dependências e os pontos de falha na persistência.</p>
+        
+        <div class="mermaid">
+        graph TD
+            subgraph "Coleções de Origem (Input)"
+                F[Funil: Estratégia Macro]
+                CP[Propostas de Copy]
+                SH[Hooks Sociais]
+            end
+
+            subgraph "O Manifesto (Estado Atual: Instável)"
+                M{CampaignContext}
+                M -- "Passo 1" --> C["O Cérebro (Funnel Data)"]
+                M -- "Passo 2" --> V["A Voz (Copy Data)"]
+                M -- "Passo 3" --> A["A Atenção (Social Data)"]
+                M -- "Passo 4" --> Vi["O Visual (Design Data)"]
+            end
+
+            F -- "Handoff na Aprovação" --> C
+            CP -- "Handoff na Aprovação (FALHANDO)" --> V
+            SH -- "Handoff na Aprovação (NOVO)" --> A
+
+            C -- "Contexto para" --> CP
+            V -- "Contexto para" --> SH
+            A -- "Contexto para" --> Vi
+
+            style M fill:#10b981,stroke:#34d399,stroke-width:2px,color:#fff
+            style V fill:#450a0a,stroke:#ef4444,color:#fff
+            style Vi fill:#18181b,stroke:#3f3f46
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="box" style="background:#10b981"></div> Concluído</div>
+            <div class="legend-item"><div class="box" style="background:#450a0a"></div> Ponto de Quebra (Data Leak)</div>
+            <div class="legend-item"><div class="box" style="background:#18181b"></div> Bloqueado/Pendente</div>
+        </div>
+
+        <div style="margin-top: 40px; border-top: 1px solid #1f1f23; pt-20px;">
+            <h3>🔍 Análise do Conselho:</h3>
+            <ul style="font-size: 14px; color: #d4d4d8; line-height: 1.6;">
+                <li><strong>Athos (Arch):</strong> O "Manifesto" (CampaignContext) é um documento único que deveria agregar tudo. Atualmente, cada página salva em sua própria coleção, mas esquece de "carimbar" o Manifesto central.</li>
+                <li><strong>Darllyson (Dev):</strong> O Dashboard (Golden Thread) lê apenas o Manifesto. Se a página de Copy não avisa o Manifesto que houve uma aprovação, o Dashboard fica cego e mostra "Pendente".</li>
+                <li><strong>Monara (Integrator):</strong> Precisamos de um gatilho atômico. Aprovação em qualquer etapa deve obrigatoriamente atualizar o documento pai da Campanha.</li>
+            </ul>
+        </div>
+    </div>
+    <script>mermaid.initialize({startOnLoad:true, theme:'dark'});</script>
+</body>
+</html>

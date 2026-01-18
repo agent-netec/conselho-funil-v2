@@ -2,6 +2,7 @@ import {
   getStorage,
   ref,
   uploadBytesResumable,
+  uploadString,
   getDownloadURL,
   deleteObject,
   type UploadMetadata,
@@ -9,6 +10,80 @@ import {
 import app from './config';
 
 const storage = getStorage(app);
+
+/**
+ * Faz upload de uma imagem em Base64 (Data URL) para o Firebase Storage.
+ */
+export async function uploadBase64Image(
+  dataUrl: string,
+  brandId: string,
+  userId: string,
+  fileName: string
+): Promise<string> {
+  const storagePath = `brand-assets/${userId}/${brandId}/${Date.now()}_${fileName}`;
+  const storageRef = ref(storage, storagePath);
+  
+  // QA Hardening: Limpeza e conversão Data URL para Blob
+  try {
+    // Remove qualquer query parameter acidental que possa ter sido anexado à string Base64
+    const cleanDataUrl = dataUrl.split('&')[0].split('?')[0];
+    const res = await fetch(cleanDataUrl);
+    const blob = await res.blob();
+    
+    await uploadBytesResumable(storageRef, blob, {
+      contentType: blob.type,
+      customMetadata: {
+        userId,
+        brandId,
+        originalName: fileName,
+        uploadedAt: new Date().toISOString(),
+      },
+    });
+    
+    return await getDownloadURL(storageRef);
+  } catch (error) {
+    console.error('Erro ao processar binário da imagem para upload:', error);
+    throw new Error('Falha na conversão binária da imagem gerada.');
+  }
+}
+
+/**
+ * Faz upload de uma logo de marca para o Firebase Storage.
+ * US-18.2
+ */
+export async function uploadLogo(
+  file: File,
+  brandId: string,
+  userId: string
+): Promise<string> {
+  const timestamp = Date.now();
+  const fileExtension = file.name.split('.').pop();
+  const fileName = `logo_${timestamp}.${fileExtension}`;
+  
+  // Storage path pattern: brands/{userId}/{brandId}/logos/{fileName}
+  const storagePath = `brands/${userId}/${brandId}/logos/${fileName}`;
+  const storageRef = ref(storage, storagePath);
+  
+  const uploadTask = uploadBytesResumable(storageRef, file, {
+    contentType: file.type,
+  });
+  
+  return new Promise((resolve, reject) => {
+    uploadTask.on(
+      'state_changed',
+      null,
+      (error) => reject(error),
+      async () => {
+        try {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve(downloadURL);
+        } catch (error) {
+          reject(error);
+        }
+      }
+    );
+  });
+}
 
 /**
  * Faz upload de um arquivo de brand asset para o Firebase Storage.
@@ -117,6 +192,8 @@ export function validateBrandAssetFile(file: File): { valid: boolean; error?: st
   // Tipos permitidos
   const allowedTypes = [
     'application/pdf',
+    'application/x-pdf',
+    'application/vnd.pdf',
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'text/plain',
@@ -124,9 +201,10 @@ export function validateBrandAssetFile(file: File): { valid: boolean; error?: st
     'image/png',
     'image/jpeg',
     'image/webp',
+    'image/svg+xml',
   ];
   
-  const allowedExtensions = ['.pdf', '.doc', '.docx', '.txt', '.md', '.png', '.jpg', '.jpeg', '.webp'];
+  const allowedExtensions = ['.pdf', '.doc', '.docx', '.txt', '.md', '.png', '.jpg', '.jpeg', '.webp', '.svg'];
   
   // Valida tipo MIME
   if (!allowedTypes.includes(file.type)) {
@@ -139,15 +217,23 @@ export function validateBrandAssetFile(file: File): { valid: boolean; error?: st
     }
   }
   
-  // Valida tamanho (10MB para documentos, 5MB para imagens)
+  // Valida tamanho (10MB para documentos, 10MB para imagens) - US-13.8
   const isImage = file.type.startsWith('image/');
-  const maxSize = isImage ? 5 * 1024 * 1024 : 10 * 1024 * 1024; // 5MB ou 10MB
+  const maxSize = isImage ? 10 * 1024 * 1024 : 10 * 1024 * 1024; // 10MB
   
   if (file.size > maxSize) {
-    const maxSizeMB = isImage ? 5 : 10;
+    const maxSizeMB = 10;
     return {
       valid: false,
       error: `Arquivo muito grande. Máximo: ${maxSizeMB}MB`,
+    };
+  }
+
+  // Valida integridade básica (arquivos com 0 bytes ou sem nome)
+  if (file.size === 0) {
+    return {
+      valid: false,
+      error: 'O arquivo parece estar vazio ou corrompido.',
     };
   }
   

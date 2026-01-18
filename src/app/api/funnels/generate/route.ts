@@ -18,6 +18,7 @@ import {
   FUNNEL_ADJUSTMENT_PROMPT, 
   buildFunnelContextPrompt 
 } from '@/lib/ai/prompts';
+import { formatBrandContextForFunnel, parseAIJSON } from '@/lib/ai/formatters';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
       if (funnel?.brandId) {
         const brand = await getBrand(funnel.brandId);
         if (brand) {
-          brandContext = buildBrandContextForFunnel(brand);
+          brandContext = formatBrandContextForFunnel(brand);
           console.log(`🏷️ Usando contexto da marca: ${brand.name}`);
         }
       }
@@ -117,19 +118,7 @@ export async function POST(request: NextRequest) {
     // 5. Parse JSON response
     let proposalsData;
     try {
-      // Extract JSON from response (handle potential markdown wrapping)
-      let jsonStr = response.trim();
-      if (jsonStr.startsWith('```json')) {
-        jsonStr = jsonStr.slice(7);
-      }
-      if (jsonStr.startsWith('```')) {
-        jsonStr = jsonStr.slice(3);
-      }
-      if (jsonStr.endsWith('```')) {
-        jsonStr = jsonStr.slice(0, -3);
-      }
-      
-      proposalsData = JSON.parse(jsonStr.trim());
+      proposalsData = parseAIJSON(response);
     } catch (parseError) {
       console.error('Error parsing Gemini response:', parseError);
       console.log('Raw response:', response.substring(0, 500));
@@ -184,45 +173,10 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Funnel generation error:', error);
+    console.error('❌ Erro ao gerar propostas:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
+      { error: error instanceof Error ? error.message : 'Erro interno ao gerar propostas' },
       { status: 500 }
     );
   }
 }
-
-// Build brand context string for funnel generation
-function buildBrandContextForFunnel(brand: Brand): string {
-  return `## CONTEXTO DA MARCA (PRIORIDADE MÁXIMA)
-
-**Marca:** ${brand.name}
-**Vertical:** ${brand.vertical}
-**Posicionamento:** ${brand.positioning}
-**Tom de Voz:** ${brand.voiceTone}
-
-### Público-Alvo da Marca
-- **Perfil:** ${brand.audience.who}
-- **Dor Principal:** ${brand.audience.pain}
-- **Consciência:** ${brand.audience.awareness}
-${brand.audience.objections.length > 0 ? `- **Objeções Conhecidas:** ${brand.audience.objections.join(', ')}` : ''}
-
-### Oferta Principal
-- **Produto/Serviço:** ${brand.offer.what}
-- **Ticket:** R$ ${brand.offer.ticket.toLocaleString('pt-BR')}
-- **Tipo:** ${brand.offer.type}
-- **Diferencial Competitivo:** ${brand.offer.differentiator}
-
----
-
-**INSTRUÇÕES IMPORTANTES:**
-1. Todas as propostas DEVEM alinhar-se com o tom de voz "${brand.voiceTone}"
-2. As headlines e copy DEVEM refletir o posicionamento da marca
-3. O funil DEVE endereçar as objeções conhecidas do público
-4. Use o diferencial competitivo como eixo central da estratégia
-5. Considere o ticket de R$ ${brand.offer.ticket.toLocaleString('pt-BR')} ao sugerir estratégias de conversão
-
----
-`;
-}
-

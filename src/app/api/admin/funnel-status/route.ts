@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -25,6 +26,9 @@ const VALID_STATUSES = [
 
 export async function PATCH(request: NextRequest) {
   try {
+    // Hardening: Verificar role de admin
+    await verifyAdminRole(request);
+
     const body = await request.json();
     const { funnelId, status } = body;
 
@@ -56,17 +60,16 @@ export async function PATCH(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Admin API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to update status', details: String(error) },
-      { status: 500 }
-    );
+    return handleSecurityError(error);
   }
 }
 
 // GET - List all funnels with their status (for debugging)
 export async function GET(request: NextRequest) {
   try {
+    // Hardening: Verificar role de admin
+    await verifyAdminRole(request);
+
     const { searchParams } = new URL(request.url);
     const funnelId = searchParams.get('funnelId');
 

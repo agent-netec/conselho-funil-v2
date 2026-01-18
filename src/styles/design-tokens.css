@@ -7,8 +7,9 @@
 @layer base {
   :root {
     /* ===== CORES PRIMÁRIAS ===== */
-    /* Verde esmeralda como cor principal (diferente de violet) */
-    --accent: 160 84% 39%;
+    /* Verde neon/menta para o visual "High-Tech" da inspiração */
+    --accent: 160 84% 45%;
+    --accent-glow: 160 84% 45% / 0.15;
     --accent-foreground: 0 0% 100%;
     
     /* Âmbar para alertas/destaque */
@@ -16,10 +17,11 @@
     --highlight-foreground: 0 0% 0%;
 
     /* ===== SUPERFÍCIES ===== */
-    --surface-0: 240 6% 6%;      /* Mais escuro - fundo */
-    --surface-1: 240 5% 8%;      /* Cards primários */
-    --surface-2: 240 4% 11%;     /* Cards hover */
-    --surface-3: 240 4% 14%;     /* Elementos elevados */
+    /* Tons mais profundos e "inky" como na imagem */
+    --surface-0: 240 10% 3.5%;    /* Fundo principal ultra dark */
+    --surface-1: 240 6% 6%;       /* Cards e Sidebar */
+    --surface-2: 240 5% 9%;       /* Hover states */
+    --surface-3: 240 5% 12%;      /* Elementos destacados */
     
     /* ===== BORDAS ===== */
     --border-subtle: 240 4% 14%;

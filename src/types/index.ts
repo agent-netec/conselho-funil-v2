@@ -33,7 +33,21 @@ export type CounselorId =
   | 'lia_haberman'
   | 'rachel_karten'
   | 'nikita_beer'
-  | 'justin_welsh';
+  | 'justin_welsh'
+  | 'eugene_schwartz'
+  | 'claude_hopkins'
+  | 'gary_halbert'
+  | 'joseph_sugarman'
+  | 'dan_kennedy_copy'
+  | 'david_ogilvy'
+  | 'john_carlton'
+  | 'drayton_bird'
+  | 'frank_kern_copy'
+  | 'justin_brooke'
+  | 'nicholas_kusmich'
+  | 'jon_loomer'
+  | 'savannah_sanchez'
+  | 'design_director';
 
 export interface Counselor {
   id: CounselorId;
@@ -41,6 +55,7 @@ export interface Counselor {
   expertise: string;
   color: string;
   icon: string;
+  specialty?: string; // Opcional, vindo do Conselho de Copy
 }
 
 // Funnel
@@ -110,6 +125,33 @@ export interface Funnel {
   updatedAt: Date;
 }
 
+// ============================================
+// CONTRATOS DE SAÍDA ESTRUTURADA (ST-1.5.1)
+// ============================================
+
+export interface CouncilOutput {
+  strategy: {
+    summary: string;
+    steps: string[];
+    rationale: string;
+  };
+  market_data: {
+    metric: string; // Chave técnica (ex: "CPC", "ROAS")
+    label: string;  // Nome amigável para exibição no card
+    value: string;  // Valor atual ou sugerido
+    benchmark_2026: string; // O benchmark alvo de 2026 para comparação
+    unit: "%" | "currency" | "number" | "ratio"; // Define formatação na UI
+    status: "success" | "warning" | "danger" | "neutral"; // Define a cor do card/indicador
+    source_context: string;
+  }[];
+  assets: {
+    type: "DM_SCRIPT" | "STORY_SEQUENCE" | "AD_COPY" | "HOOK" | "VSL_OUTLINE";
+    title: string;
+    content: string;
+    counselor_reference: string;
+  }[];
+}
+
 // Decision
 export type DecisionType = 'EXECUTAR' | 'AJUSTAR' | 'MATAR';
 
@@ -120,6 +162,19 @@ export interface Decision {
   rationale: string;
   adjustments?: string[];
   createdAt: Date;
+}
+
+export interface DashboardStats {
+  activeFunnels: number;
+  pendingEvaluations: number;
+  decisionsThisMonth: number;
+  totalConversations: number;
+  performance_benchmarks: {
+    metric: string;
+    value: string;
+    benchmark_2026: string;
+    status: 'success' | 'warning' | 'danger' | 'neutral';
+  }[];
 }
 
 

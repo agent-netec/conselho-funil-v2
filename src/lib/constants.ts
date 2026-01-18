@@ -1,7 +1,11 @@
-import type { Counselor, CounselorId as CounselorIdType } from '@/types';
+import type { Counselor, CounselorId } from '@/types';
 
-// Counselors data
-export const COUNSELORS: Record<CounselorIdType, Counselor> = {
+// ============================================
+// COUNSELORS REGISTRY - Fonte Única de Verdade
+// ============================================
+
+export const COUNSELORS_REGISTRY: Record<CounselorId, Counselor> = {
+  // Funnel Counselors
   russell_brunson: {
     id: 'russell_brunson',
     name: 'Russell Brunson',
@@ -44,9 +48,8 @@ export const COUNSELORS: Record<CounselorIdType, Counselor> = {
     color: '#84cc16', // lime
     icon: '💰',
   },
-  // ============================================
-  // SOCIAL COUNSELORS - Conselho Social (E12)
-  // ============================================
+
+  // Social Counselors
   lia_haberman: {
     id: 'lia_haberman',
     name: 'Lia Haberman',
@@ -75,77 +78,8 @@ export const COUNSELORS: Record<CounselorIdType, Counselor> = {
     color: '#10b981', // emerald
     icon: '⛓️',
   },
-};
 
-// Update CounselorId type
-export type CounselorId = 
-  | 'russell_brunson'
-  | 'dan_kennedy'
-  | 'frank_kern'
-  | 'sam_ovens'
-  | 'ryan_deiss'
-  | 'perry_belcher'
-  | 'lia_haberman'
-  | 'rachel_karten'
-  | 'nikita_beer'
-  | 'justin_welsh';
-
-// Navigation items
-export const NAV_ITEMS = [
-  { id: 'home', label: 'Home', href: '/', icon: 'Home' },
-  { id: 'chat', label: 'Chat', href: '/chat', icon: 'MessageSquare' },
-  { id: 'funnels', label: 'Funis', href: '/funnels', icon: 'Target' },
-  { id: 'social', label: 'Social', href: '/social', icon: 'Share2' },
-  { id: 'brands', label: 'Marcas', href: '/brands', icon: 'Building2' },
-  { id: 'analytics', label: 'Analytics', href: '/analytics', icon: 'BarChart3' },
-  { id: 'library', label: 'Biblioteca', href: '/library', icon: 'Library' },
-  { id: 'settings', label: 'Configurações', href: '/settings', icon: 'Settings' },
-] as const;
-
-// Status badges
-export const STATUS_COLORS: Record<string, string> = {
-  draft: 'bg-gray-500',
-  generating: 'bg-blue-500',
-  review: 'bg-yellow-500',
-  approved: 'bg-green-500',
-  adjusting: 'bg-orange-500',
-  executing: 'bg-purple-500',
-  completed: 'bg-emerald-500',
-  killed: 'bg-red-500',
-};
-
-// Decision colors
-export const DECISION_COLORS = {
-  EXECUTAR: 'bg-green-500 text-white',
-  AJUSTAR: 'bg-amber-500 text-white',
-  MATAR: 'bg-red-500 text-white',
-} as const;
-
-// ============================================
-// COPY COUNSELORS - Conselho de Copywriting
-// ============================================
-
-export type CopywriterId = 
-  | 'eugene_schwartz'
-  | 'claude_hopkins'
-  | 'gary_halbert'
-  | 'joseph_sugarman'
-  | 'dan_kennedy_copy'
-  | 'david_ogilvy'
-  | 'john_carlton'
-  | 'drayton_bird'
-  | 'frank_kern_copy';
-
-export interface Copywriter {
-  id: CopywriterId;
-  name: string;
-  expertise: string;
-  specialty: string;
-  color: string;
-  icon: string;
-}
-
-export const COPY_COUNSELORS: Record<CopywriterId, Copywriter> = {
+  // Copy Counselors
   eugene_schwartz: {
     id: 'eugene_schwartz',
     name: 'Eugene Schwartz',
@@ -218,7 +152,88 @@ export const COPY_COUNSELORS: Record<CopywriterId, Copywriter> = {
     color: '#f97316', // orange
     icon: '🔄',
   },
+
+  // Ads Counselors
+  justin_brooke: {
+    id: 'justin_brooke',
+    name: 'Justin Brooke',
+    expertise: 'Estratégia & Escala',
+    color: '#3b82f6', // blue
+    icon: '📊',
+  },
+  nicholas_kusmich: {
+    id: 'nicholas_kusmich',
+    name: 'Nicholas Kusmich',
+    expertise: 'Meta Ads & Contexto',
+    color: '#2563eb', // blue-600
+    icon: '🎯',
+  },
+  jon_loomer: {
+    id: 'jon_loomer',
+    name: 'Jon Loomer',
+    expertise: 'Analytics & Técnico',
+    color: '#1d4ed8', // blue-700
+    icon: '⚙️',
+  },
+  savannah_sanchez: {
+    id: 'savannah_sanchez',
+    name: 'Savannah Sanchez',
+    expertise: 'TikTok & UGC',
+    color: '#0ea5e9', // sky
+    icon: '📱',
+  },
+  design_director: {
+    id: 'design_director',
+    name: 'Diretor de Design',
+    expertise: 'Direção de Arte & Briefing',
+    color: '#a855f7', // purple-500
+    icon: '🎨',
+  },
 };
+
+// Retrocompatibilidade (Deprecated)
+/** @deprecated Use COUNSELORS_REGISTRY */
+export const COUNSELORS = COUNSELORS_REGISTRY;
+/** @deprecated Use COUNSELORS_REGISTRY */
+export const COPY_COUNSELORS = COUNSELORS_REGISTRY;
+
+// Navigation items
+export const NAV_ITEMS = [
+  { id: 'home', label: 'Home', href: '/', icon: 'Home' },
+  { id: 'campaigns', label: 'Campanhas', href: '/campaigns', icon: 'Zap' },
+  { id: 'chat', label: 'Chat', href: '/chat', icon: 'MessageSquare' },
+  { id: 'funnels', label: 'Funis', href: '/funnels', icon: 'Target' },
+  { id: 'copy', label: 'Copy', href: '/chat?mode=copy', icon: 'Pencil' },
+  { id: 'ads', label: 'Ads', href: '/chat?mode=ads', icon: 'BarChart3' },
+  { id: 'design', label: 'Design', href: '/chat?mode=design', icon: 'PenTool' },
+  { id: 'social', label: 'Social', href: '/social', icon: 'Share2' },
+  { id: 'brands', label: 'Marcas', href: '/brands', icon: 'Building2' },
+  { id: 'brand-hub', label: 'Brand Hub', href: '/brand-hub', icon: 'Palette' },
+  { id: 'analytics', label: 'Analytics', href: '/analytics', icon: 'BarChart3' },
+  { id: 'assets', label: 'Ativos', href: '/assets', icon: 'Activity' },
+  { id: 'library', label: 'Biblioteca', href: '/library', icon: 'Library' },
+  { id: 'settings', label: 'Configurações', href: '/settings', icon: 'Settings' },
+  { id: 'integrations', label: 'Integrações', href: '/integrations', icon: 'LayoutGrid' },
+] as const;
+
+// Status badges
+export const STATUS_COLORS: Record<string, string> = {
+  draft: 'bg-gray-500',
+  generating: 'bg-blue-500',
+  review: 'bg-yellow-500',
+  approved: 'bg-green-500',
+  adjusting: 'bg-orange-500',
+  executing: 'bg-purple-500',
+  completed: 'bg-emerald-500',
+  killed: 'bg-red-500',
+};
+
+// Decision colors
+export const DECISION_COLORS = {
+  EXECUTAR: 'bg-green-500 text-white',
+  AJUSTAR: 'bg-amber-500 text-white',
+  MATAR: 'bg-red-500 text-white',
+} as const;
 
 // Copy Types with labels
 export const COPY_TYPES = {
@@ -245,11 +260,17 @@ export const CHAT_MODES = {
     id: 'general',
     label: 'Conselho',
     title: 'Conselho',
-    subtitle: '15 especialistas',
+    subtitle: '23 especialistas',
     placeholder: 'Pergunte ao Conselho...',
     footer: 'Pressione Enter para enviar, Shift+Enter para nova linha',
     accentColor: 'emerald',
-    counselors: ['Russell Brunson', 'Dan Kennedy', 'Frank Kern', 'Sam Ovens', 'Ryan Deiss', 'Perry Belcher', 'Schwartz', 'Hopkins', 'Halbert', 'Sugarman', 'Ogilvy', 'Carlton', 'Bird'],
+    counselors: [
+      'russell_brunson', 'dan_kennedy', 'frank_kern', 'sam_ovens', 'ryan_deiss', 'perry_belcher',
+      'eugene_schwartz', 'claude_hopkins', 'gary_halbert', 'joseph_sugarman', 'david_ogilvy', 
+      'john_carlton', 'drayton_bird', 'frank_kern_copy', 'lia_haberman', 'rachel_karten', 
+      'nikita_beer', 'justin_welsh', 'justin_brooke', 'nicholas_kusmich', 'jon_loomer', 
+      'savannah_sanchez'
+    ] as CounselorId[],
   },
   funnel: {
     id: 'funnel',
@@ -259,7 +280,9 @@ export const CHAT_MODES = {
     placeholder: 'Pergunte sobre arquitetura de funis...',
     footer: '🎯 Consultando: Russell Brunson, Dan Kennedy, Frank Kern, Sam Ovens, Ryan Deiss, Perry Belcher',
     accentColor: 'indigo',
-    counselors: ['Russell Brunson', 'Dan Kennedy', 'Frank Kern', 'Sam Ovens', 'Ryan Deiss', 'Perry Belcher'],
+    counselors: [
+      'russell_brunson', 'dan_kennedy', 'frank_kern', 'sam_ovens', 'ryan_deiss', 'perry_belcher'
+    ] as CounselorId[],
   },
   copy: {
     id: 'copy',
@@ -269,7 +292,10 @@ export const CHAT_MODES = {
     placeholder: 'Pergunte sobre copy e persuasão...',
     footer: '✍️ Consultando: Schwartz, Hopkins, Halbert, Sugarman, Ogilvy, Carlton, Bird, Kern',
     accentColor: 'amber',
-    counselors: ['Schwartz', 'Hopkins', 'Halbert', 'Sugarman', 'Ogilvy', 'Carlton', 'Bird', 'Kern'],
+    counselors: [
+      'eugene_schwartz', 'claude_hopkins', 'gary_halbert', 'joseph_sugarman', 'david_ogilvy', 
+      'john_carlton', 'drayton_bird', 'frank_kern_copy', 'dan_kennedy_copy'
+    ] as CounselorId[],
   },
   social: {
     id: 'social',
@@ -279,8 +305,42 @@ export const CHAT_MODES = {
     placeholder: 'Pergunte sobre redes sociais e viralização...',
     footer: '🚀 Consultando: Lia Haberman, Rachel Karten, Nikita Beer, Justin Welsh',
     accentColor: 'rose',
-    counselors: ['Lia Haberman', 'Rachel Karten', 'Nikita Beer', 'Justin Welsh'],
+    counselors: [
+      'lia_haberman', 'rachel_karten', 'nikita_beer', 'justin_welsh'
+    ] as CounselorId[],
+  },
+  ads: {
+    id: 'ads',
+    label: 'Ads',
+    title: 'Conselho de Ads',
+    subtitle: '4 especialistas',
+    placeholder: 'Pergunte sobre tráfego e escala...',
+    footer: '📊 Consultando: Justin Brooke, Nicholas Kusmich, Jon Loomer, Savannah Sanchez',
+    accentColor: 'blue',
+    counselors: [
+      'justin_brooke', 'nicholas_kusmich', 'jon_loomer', 'savannah_sanchez'
+    ] as CounselorId[],
+  },
+  design: {
+    id: 'design',
+    label: 'Design',
+    title: 'Conselho de Design',
+    subtitle: 'Diretor de Design',
+    placeholder: 'Peça um briefing de design ou prompt para o NanoBanana...',
+    footer: '🎨 Consultando: Diretor de Design especializado em Thumbnails, Carrosséis e Estáticos',
+    accentColor: 'purple',
+    counselors: [
+      'design_director'
+    ] as CounselorId[],
+  },
+  party: {
+    id: 'party',
+    label: 'Party Mode',
+    title: 'Alto Conselho',
+    subtitle: 'Múltiplos Especialistas',
+    placeholder: 'Inicie uma deliberação entre especialistas...',
+    footer: '🎉 Party Mode: Selecione os especialistas para o debate',
+    accentColor: 'purple',
+    counselors: [] as CounselorId[], // Será preenchido dinamicamente
   },
 } as const;
-
-

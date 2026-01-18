@@ -5788,14 +5788,14 @@
       "stage": "general",
       "tenantId": null,
       "status": "approved",
-      "version": "2025-12-24",
+      "version": "2026-01-14",
       "council": "copy"
     },
     "source": {
       "file": "..\\templates\\copy\\copywriter_brain\\heuristics\\copy_scorecard.md",
       "section": "Introduction",
       "lineStart": 0,
-      "lineEnd": 106
+      "lineEnd": 107
     }
   },
   {
@@ -5808,14 +5808,14 @@
       "stage": "general",
       "tenantId": null,
       "status": "approved",
-      "version": "2025-12-24",
+      "version": "2026-01-14",
       "council": "copy"
     },
     "source": {
       "file": "..\\templates\\copy\\copywriter_brain\\identity\\eugene_schwartz.md",
       "section": "Introduction",
       "lineStart": 0,
-      "lineEnd": 56
+      "lineEnd": 57
     }
   },
   {
@@ -5828,14 +5828,14 @@
       "stage": "general",
       "tenantId": null,
       "status": "approved",
-      "version": "2025-12-24",
+      "version": "2026-01-14",
       "council": "copy"
     },
     "source": {
       "file": "..\\templates\\copy\\copywriter_brain\\identity\\gary_halbert.md",
       "section": "Introduction",
       "lineStart": 0,
-      "lineEnd": 61
+      "lineEnd": 62
     }
   },
   {

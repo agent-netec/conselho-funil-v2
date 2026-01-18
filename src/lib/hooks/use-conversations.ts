@@ -97,8 +97,10 @@ export function useConversation(conversationId: string | null) {
 
   const sendMessage = async (
     content: string, 
-    mode: 'general' | 'funnel_creation' | 'funnel_evaluation' | 'copy' | 'social' | 'funnel_review' = 'general',
-    funnelId?: string
+    mode: 'general' | 'funnel_creation' | 'funnel_evaluation' | 'copy' | 'social' | 'funnel_review' | 'ads' | 'design' | 'party' = 'general',
+    funnelId?: string,
+    partyOptions?: { selectedAgents?: string[], intensity?: 'debate' | 'consensus' },
+    campaignId?: string
   ) => {
     if (!conversationId) return;
 
@@ -123,11 +125,29 @@ export function useConversation(conversationId: string | null) {
           conversationId,
           mode,
           ...(funnelId ? { funnelId } : {}),
+          ...(campaignId ? { campaignId } : {}), // ST-11.15: Contexto da Linha de Ouro
+          ...(partyOptions ? { 
+            selectedAgents: partyOptions.selectedAgents,
+            intensity: partyOptions.intensity 
+          } : {}),
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
+        
+        // US-16.1: Tratar erro de créditos insuficientes
+        if (response.status === 403 && errorData.error === 'insufficient_credits') {
+          const insufficientCreditsMsg = '❌ **Saldo de créditos insuficiente.**\n\nSeu saldo de créditos acabou. Faça upgrade para continuar consultando o conselho.';
+          
+          await addMessage(conversationId, {
+            role: 'assistant',
+            content: insufficientCreditsMsg,
+          });
+          
+          throw new Error('Saldo de créditos insuficiente');
+        }
+
         throw new Error(errorData.error || 'Failed to get response');
       }
 

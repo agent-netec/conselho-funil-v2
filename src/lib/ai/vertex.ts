@@ -6,7 +6,7 @@
  */
 
 import { generateWithGemini, generateWithGeminiStream } from './gemini';
-import { buildChatPrompt } from './prompts/chat-system';
+import { buildChatPrompt } from './prompts';
 
 /**
  * Generate embeddings using fallback approach

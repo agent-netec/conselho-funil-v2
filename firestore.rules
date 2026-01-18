@@ -52,6 +52,11 @@ service cloud.firestore {
       allow write: if true; // TODO: Add auth in production
     }
 
+    // Brands collection - users can access their own brands
+    match /brands/{brandId} {
+      allow read, write: if true; // TODO: Add auth in production (should check userId)
+    }
+
     // Decisions (decision history)
     match /decisions/{decisionId} {
       allow read: if true; // Allow listing decisions

@@ -12,6 +12,7 @@ import {
   where, 
   onSnapshot,
   orderBy,
+  getDocs,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Header } from '@/components/layout/header';
@@ -37,12 +38,15 @@ import {
   Edit3,
   Copy,
   Check,
+  AlertCircle,
+  Share2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { notify } from '@/lib/stores/notification-store';
 import { COPY_TYPES, COPY_COUNSELORS, AWARENESS_STAGES } from '@/lib/constants';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { MarkdownRenderer } from '@/components/chat/markdown-renderer';
 import type { 
   Funnel, 
   Proposal, 
@@ -238,8 +242,8 @@ function CopyProposalCard({
                       {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     </Button>
                   </div>
-                  <div className="text-sm text-white whitespace-pre-wrap max-h-60 overflow-y-auto">
-                    {copyProposal.content.primary}
+                  <div className="text-sm text-white max-h-80 overflow-y-auto custom-scrollbar pr-2">
+                    <MarkdownRenderer content={copyProposal.content.primary} />
                   </div>
                   
                   {/* Emails Sequence */}
@@ -429,18 +433,25 @@ export default function CopyCouncilPage() {
   const { user } = useAuthStore();
   
   const funnelId = params.id as string;
-  const proposalId = searchParams.get('proposalId');
+  const campaignId = searchParams.get('campaignId');
+  const urlProposalId = searchParams.get('proposalId');
 
   const [funnel, setFunnel] = useState<Funnel | null>(null);
   const [proposal, setProposal] = useState<Proposal | null>(null);
+  const [allProposals, setAllProposals] = useState<Proposal[]>([]); // Adicionado para auto-seleção
   const [copyProposals, setCopyProposals] = useState<CopyProposal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState<CopyType | null>(null);
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
-  // Load funnel and proposal
+  // Efetivamente usamos urlProposalId ou a proposta auto-selecionada
+  const activeProposalId = urlProposalId || proposal?.id;
+
+  // Load funnel and proposals
   useEffect(() => {
     async function loadData() {
+      if (!funnelId) return;
+      
       try {
         // Load funnel
         const funnelDoc = await getDoc(doc(db, 'funnels', funnelId));
@@ -450,12 +461,20 @@ export default function CopyCouncilPage() {
         }
         setFunnel({ id: funnelDoc.id, ...funnelDoc.data() } as Funnel);
 
-        // Load proposal if specified
-        if (proposalId) {
-          const proposalDoc = await getDoc(doc(db, 'funnels', funnelId, 'proposals', proposalId));
-          if (proposalDoc.exists()) {
-            setProposal({ id: proposalDoc.id, ...proposalDoc.data() } as Proposal);
-          }
+        // Load all proposals to find the best match (ST-11.6: Auto-selection resilience)
+        const proposalsRef = collection(db, 'funnels', funnelId, 'proposals');
+        const proposalsSnap = await getDocs(query(proposalsRef, orderBy('version', 'desc')));
+        const proposalsData = proposalsSnap.docs.map(d => ({ id: d.id, ...d.data() } as Proposal));
+        setAllProposals(proposalsData);
+
+        // Auto-select logic
+        if (urlProposalId) {
+          const found = proposalsData.find(p => p.id === urlProposalId);
+          if (found) setProposal(found);
+        } else if (proposalsData.length > 0) {
+          // Se não tem ID na URL, pega a aprovada ou a mais recente
+          const approved = proposalsData.find(p => p.status === 'selected' || (p as any).selected);
+          setProposal(approved || proposalsData[0]);
         }
       } catch (error) {
         console.error('Error loading data:', error);
@@ -465,15 +484,15 @@ export default function CopyCouncilPage() {
     }
 
     loadData();
-  }, [funnelId, proposalId, router]);
+  }, [funnelId, urlProposalId, router]);
 
   // Subscribe to copy proposals
   useEffect(() => {
     if (!funnelId) return;
 
     const copyProposalsRef = collection(db, 'funnels', funnelId, 'copyProposals');
-    const q = proposalId 
-      ? query(copyProposalsRef, where('proposalId', '==', proposalId))
+    const q = activeProposalId 
+      ? query(copyProposalsRef, where('proposalId', '==', activeProposalId))
       : copyProposalsRef;
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -481,26 +500,32 @@ export default function CopyCouncilPage() {
         id: doc.id,
         ...doc.data(),
       })) as CopyProposal[];
-      setCopyProposals(data.sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds));
+      setCopyProposals(data.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
     });
 
     return () => unsubscribe();
-  }, [funnelId, proposalId]);
+  }, [funnelId, activeProposalId]);
 
   // Generate copy
   const handleGenerateCopy = async (copyType: CopyType) => {
-    if (!funnel || !proposalId) return;
+    if (!funnel || !activeProposalId) {
+      notify.error('Erro', 'Selecione uma proposta estratégica antes de gerar copy');
+      return;
+    }
 
     setIsGenerating(copyType);
     try {
+      const conversationId = searchParams.get('id');
+      
       const response = await fetch('/api/copy/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           funnelId,
-          proposalId,
+          proposalId: activeProposalId,
           copyType,
           userId: user?.uid,
+          conversationId: conversationId || undefined,
         }),
       });
 
@@ -524,12 +549,14 @@ export default function CopyCouncilPage() {
 
   // Handle decision
   const handleDecision = async (copyProposalId: string, type: 'approve' | 'adjust' | 'kill', adjustments?: string[]) => {
+    setIsLoading(true); // Bloqueia a tela para garantir o save
     try {
       const response = await fetch('/api/copy/decisions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           funnelId,
+          campaignId, // ST-11.15: Passa o campaignId único para a persistência atômica
           copyProposalId,
           type,
           userId: user?.uid,
@@ -541,11 +568,19 @@ export default function CopyCouncilPage() {
 
       if (data.success) {
         notify.success(data.message);
+        // ST-11.15: Se aprovou, navega de volta para o Golden Thread garantindo o save
+        if (type === 'approve') {
+          const docId = campaignId || funnelId;
+          router.push(`/campaigns/${docId}`);
+        }
       } else {
         notify.error('Erro', data.error);
       }
     } catch (error) {
+      console.error('Decision Error:', error);
       notify.error('Erro', 'Falha ao processar decisão');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -590,9 +625,9 @@ export default function CopyCouncilPage() {
 
       <div className="flex-1 p-8">
         {/* Back link */}
-        <Link href={`/funnels/${funnelId}`} className="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-6 transition-colors">
+        <Link href={`/campaigns/${campaignId || funnelId}`} className="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-6 transition-colors">
           <ArrowLeft className="h-4 w-4" />
-          Voltar ao Funil
+          Voltar ao Comando
         </Link>
 
         {/* Header */}
@@ -639,13 +674,13 @@ export default function CopyCouncilPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => handleGenerateCopy(type)}
-                  disabled={isGenerating !== null || !proposalId}
+                  disabled={isGenerating !== null || !activeProposalId}
                   className={cn(
                     'p-4 rounded-xl border text-left transition-all relative overflow-hidden',
                     hasApproved 
                       ? 'bg-emerald-500/10 border-emerald-500/30' 
                       : 'bg-zinc-900/50 border-zinc-800 hover:border-zinc-700',
-                    (isGenerating !== null || !proposalId) && 'opacity-50 cursor-not-allowed'
+                    (isGenerating !== null || !activeProposalId) && 'opacity-50 cursor-not-allowed'
                   )}
                 >
                   {isGenerating === type && (
@@ -668,12 +703,56 @@ export default function CopyCouncilPage() {
               );
             })}
           </div>
-          {!proposalId && (
+          {!activeProposalId && (
             <p className="text-sm text-amber-400 mt-3">
               ⚠️ Selecione uma proposta aprovada para gerar copy
             </p>
           )}
+          {activeProposalId && (
+            <div className="mt-4 flex items-center gap-2 text-xs text-zinc-500 bg-white/[0.02] border border-white/[0.04] w-fit px-3 py-1.5 rounded-full">
+              <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+              Baseado na Estratégia: <span className="text-zinc-300 font-bold">{proposal?.name}</span>
+              {allProposals.length > 1 && (
+                <button 
+                  onClick={() => setProposal(null)} // Força re-seleção se houver outras
+                  className="ml-2 text-emerald-400 hover:underline"
+                >
+                  Trocar base
+                </button>
+              )}
+            </div>
+          )}
         </motion.div>
+
+        {/* Strategic Proposal Selector (if not selected) */}
+        {!activeProposalId && allProposals.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mb-8 p-6 rounded-2xl bg-amber-500/5 border border-amber-500/20"
+          >
+            <h3 className="text-amber-400 font-bold mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
+              <AlertCircle className="h-4 w-4" />
+              Selecione a base estratégica para esta copy
+            </h3>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {allProposals.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => setProposal(p)}
+                  className="text-left p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 transition-all group"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-zinc-500">v{p.version}</span>
+                    {p.status === 'selected' && <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded uppercase font-bold">Aprovada</span>}
+                  </div>
+                  <h4 className="font-bold text-white group-hover:text-amber-400 transition-colors truncate">{p.name}</h4>
+                  <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{p.summary}</p>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Copy Proposals List */}
         {copyProposals.length > 0 && (
@@ -682,10 +761,12 @@ export default function CopyCouncilPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <FileText className="h-5 w-5 text-emerald-400" />
-              Propostas de Copy ({copyProposals.length})
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                <FileText className="h-5 w-5 text-emerald-400" />
+                Propostas de Copy ({copyProposals.length})
+              </h2>
+            </div>
             <div className="space-y-4">
               {copyProposals.map((cp) => (
                 <CopyProposalCard
@@ -701,7 +782,7 @@ export default function CopyCouncilPage() {
         )}
 
         {/* Empty state */}
-        {copyProposals.length === 0 && proposalId && (
+        {copyProposals.length === 0 && activeProposalId && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

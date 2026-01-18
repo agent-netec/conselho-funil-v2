@@ -9,20 +9,23 @@ interface ChatMessageListProps {
   messages: MessageData[];
   isSending: boolean;
   accentColor: string;
+  campaignId?: string | null;
 }
 
 export function ChatMessageList({
   messages,
   isSending,
   accentColor,
+  campaignId,
 }: ChatMessageListProps) {
   return (
-    <div className="pb-4">
+    <div className="flex flex-col w-full pb-32">
       {messages.map((message, index) => (
         <ChatMessageBubble
           key={message.id}
           message={message}
           index={index}
+          campaignId={campaignId}
         />
       ))}
       
@@ -42,18 +45,23 @@ export function ChatMessageList({
           )}>
             <Bot className="h-4 w-4 text-white" />
           </div>
-          <div className="flex items-center gap-1.5">
-            {[0, 0.2, 0.4].map((delay) => (
-              <motion.div
-                key={delay}
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 0.6, repeat: Infinity, delay }}
-                className={cn(
-                  'h-2 w-2 rounded-full',
-                  accentColor === 'indigo' ? 'bg-indigo-500' : accentColor === 'amber' ? 'bg-amber-500' : 'bg-emerald-500'
-                )}
-              />
-            ))}
+          <div className="flex flex-col gap-1 justify-center">
+            <span className="text-[10px] uppercase tracking-wider font-bold text-zinc-500 animate-pulse">
+              Consultando Contexto...
+            </span>
+            <div className="flex items-center gap-1.5">
+              {[0, 0.2, 0.4].map((delay) => (
+                <motion.div
+                  key={delay}
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 0.6, repeat: Infinity, delay }}
+                  className={cn(
+                    'h-1.5 w-1.5 rounded-full',
+                    accentColor === 'indigo' ? 'bg-indigo-500/50' : accentColor === 'amber' ? 'bg-amber-500/50' : 'bg-emerald-500/50'
+                  )}
+                />
+              ))}
+            </div>
           </div>
         </motion.div>
       )}

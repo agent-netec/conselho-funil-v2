@@ -1,12 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { collection, getDocs, query, limit, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Hardening: Verificar role de admin
+    await verifyAdminRole(request);
+
     // Get all chunks (limited)
     const allQuery = query(collection(db, 'knowledge'), limit(100));
     const allSnapshot = await getDocs(allQuery);
@@ -77,15 +81,7 @@ export async function GET() {
       analysis,
     });
   } catch (error) {
-    console.error('Error checking knowledge:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: String(error),
-        message: 'Failed to check knowledge base'
-      },
-      { status: 500 }
-    );
+    return handleSecurityError(error);
   }
 }
 

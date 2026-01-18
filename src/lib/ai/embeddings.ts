@@ -11,7 +11,17 @@ import { db } from '../firebase/config';
  * Get Gemini API Key - reads from environment variable at runtime
  */
 function getGeminiApiKey(): string | undefined {
-  return process.env.GOOGLE_AI_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_AI_API_KEY;
+  // Acesso direto para garantir que o Next.js/Turbopack faça a injeção no cliente
+  const public_key = (process.env.NEXT_PUBLIC_GOOGLE_AI_API_KEY ?? '').trim();
+  const private_key = (process.env.GOOGLE_AI_API_KEY ?? '').trim();
+  
+  const key = public_key || private_key;
+  
+  if (!key && typeof window !== 'undefined') {
+    console.error('❌ [Embeddings] NEXT_PUBLIC_GOOGLE_AI_API_KEY não encontrada no bundle do navegador. Verifique se o servidor foi reiniciado após editar o .env.local.');
+  }
+  
+  return key;
 }
 
 /**
@@ -33,6 +43,12 @@ async function getCacheKey(text: string): Promise<string> {
  * @throws Error if the API key is missing or the request fails.
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
+  // Se preferir evitar o SDK (que vem falhando com API_KEY_INVALID), usamos o endpoint direto.
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
+    throw new Error('GOOGLE_AI_API_KEY not configured for embeddings');
+  }
+
   const startTime = Date.now();
   const cacheKey = await getCacheKey(text);
   
@@ -56,17 +72,37 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   }
 
   // 2. Cache MISS - Call API
-  const apiKey = getGeminiApiKey();
-  if (!apiKey) {
-    throw new Error('GOOGLE_AI_API_KEY not configured for embeddings');
-  }
-
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
-
   try {
-    const result = await model.embedContent(text);
-    const embedding = result.embedding.values;
+    // RESOLUÇÃO DEFINITIVA (Dandara/Kai): 
+    // 1. text-embedding-004 e embedding-001 via SDK (@google/generative-ai) estão retornando API_KEY_INVALID 
+    //    mesmo com chaves válidas, possivelmente por depreciação ou conflito de headers do SDK.
+    // 2. A chamada direta via fetch para 'gemini-embedding-001' ignorando o SDK funciona 100%.
+    // 3. Mantemos o fetch direto como padrão para garantir estabilidade do RAG.
+    
+    console.log(`[Embeddings] Calling text-embedding-004 with dimensionality: 768`);
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey,
+      },
+      body: JSON.stringify({
+        model: 'models/text-embedding-004',
+        content: { parts: [{ text }] },
+        outputDimensionality: 768,
+      }),
+    });
+
+    if (!response.ok) {
+      const errTxt = await response.text();
+      throw new Error(`Embedding API failed: ${response.status} ${errTxt}`);
+    }
+
+    const result = await response.json();
+    const embedding = result?.embedding?.values;
+    if (!Array.isArray(embedding)) {
+      throw new Error('Embedding API returned no values');
+    }
     
     // 3. Save to Cache (Async)
     const cacheRef = doc(db, 'query_cache', cacheKey);
@@ -142,11 +178,45 @@ export async function generateEmbeddingsBatch(texts: string[]): Promise<number[]
 
   try {
     console.log(`[Embeddings] Batch Cache MISS - Calling API for ${missTexts.length}/${texts.length} items`);
-    const batchResult = await model.batchEmbedContents({
-      requests: missTexts.map((text) => ({ content: { role: 'user', parts: [{ text }] } })),
-    });
     
-    const newEmbeddings = batchResult.embeddings.map((e) => e.values);
+    // Process in chunks of 90 (Google AI API limit is 100, we use 90 to be safe and avoid overhead issues)
+    // ST-11.23 Hotfix: Avoid "at most 100 requests" error
+    const BATCH_SIZE = 90;
+    const newEmbeddings: number[][] = [];
+    
+    for (let i = 0; i < missTexts.length; i += BATCH_SIZE) {
+      const batchTexts = missTexts.slice(i, i + BATCH_SIZE);
+      console.log(`[Embeddings] Processing API sub-batch ${i / BATCH_SIZE + 1} (${batchTexts.length} items)`);
+      
+      // Switching to fetch to avoid SDK inconsistencies (Ref: generateEmbedding)
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
+        },
+        body: JSON.stringify({
+          requests: batchTexts.map((text) => ({
+            model: 'models/text-embedding-004',
+            content: { parts: [{ text }] },
+            outputDimensionality: 768
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        const errTxt = await response.text();
+        throw new Error(`Batch Embedding API failed: ${response.status} ${errTxt}`);
+      }
+
+      const batchResult = await response.json();
+      
+      if (!batchResult.embeddings || !Array.isArray(batchResult.embeddings)) {
+        throw new Error('Batch Embedding API returned invalid format');
+      }
+
+      newEmbeddings.push(...batchResult.embeddings.map((e: any) => e.values));
+    }
     
     // 3. Save new embeddings to Cache and update results
     for (let i = 0; i < missIndices.length; i++) {
@@ -170,38 +240,5 @@ export async function generateEmbeddingsBatch(texts: string[]): Promise<number[]
     console.error('[Embeddings] Error generating batch embeddings:', error);
     throw error;
   }
-}
-
-/**
- * Calculates the cosine similarity between two vectors.
- * Returns a value between -1 and 1, where 1 is identical.
- * 
- * @param vecA - First vector.
- * @param vecB - Second vector.
- * @returns Cosine similarity score.
- */
-export function cosineSimilarity(vecA: number[], vecB: number[]): number {
-  if (!vecA || !vecB || vecA.length !== vecB.length || vecA.length === 0) {
-    return 0;
-  }
-
-  let dotProduct = 0;
-  let magA = 0;
-  let magB = 0;
-
-  for (let i = 0; i < vecA.length; i++) {
-    dotProduct += vecA[i] * vecB[i];
-    magA += vecA[i] * vecA[i];
-    magB += vecB[i] * vecB[i];
-  }
-
-  magA = Math.sqrt(magA);
-  magB = Math.sqrt(magB);
-
-  if (magA === 0 || magB === 0) {
-    return 0;
-  }
-
-  return dotProduct / (magA * magB);
 }
 

@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
         };
       });
       console.log(`[Metrics] visualRes matches: ${visualAssets.length}`);
-    } catch (err) {
+    } catch (err: any) {
       console.warn('[Metrics] Namespace visual indisponível ou erro:', err.message);
     }
 
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
 
       knowledgeAssets = Array.from(uniqueAssetsMap.values());
       console.log(`[Metrics] total unique assets found: ${knowledgeAssets.length}`);
-    } catch (err) {
+    } catch (err: any) {
       console.error('[Metrics] Error querying knowledge namespaces:', err);
     }
 

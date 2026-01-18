@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Header } from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
@@ -15,15 +15,20 @@ import {
   Save,
   Loader2,
   Check,
+  LayoutGrid,
+  ExternalLink,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useUser } from '@/lib/hooks/use-user';
 import { logout } from '@/lib/firebase/auth';
+import { saveIntegration, getIntegrations } from '@/lib/firebase/firestore';
+import { Integration } from '@/types/database';
 
 const TABS = [
   { id: 'profile', label: 'Perfil', icon: User },
   { id: 'business', label: 'Negócio', icon: Building2 },
+  { id: 'integrations', label: 'Integrações', icon: LayoutGrid },
   { id: 'notifications', label: 'Notificações', icon: Bell },
   { id: 'appearance', label: 'Aparência', icon: Palette },
   { id: 'security', label: 'Segurança', icon: Shield },
@@ -36,13 +41,45 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // Integrations State
+  const [integrations, setIntegrations] = useState<Integration[]>([]);
+  const [metaConfig, setMetaConfig] = useState({ adAccountId: '', accessToken: '' });
+
+  useEffect(() => {
+    async function loadIntegrations() {
+      if (user?.tenantId) {
+        const data = await getIntegrations(user.tenantId);
+        setIntegrations(data);
+        
+        const meta = data.find(i => i.provider === 'meta');
+        if (meta) {
+          setMetaConfig(meta.config);
+        }
+      }
+    }
+    loadIntegrations();
+  }, [user?.tenantId]);
+
   const handleSave = async () => {
     setIsSaving(true);
-    // Simulate save
-    await new Promise((r) => setTimeout(r, 1000));
-    setIsSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    
+    try {
+      if (activeTab === 'integrations' && user?.tenantId) {
+        await saveIntegration(user.tenantId, 'meta', metaConfig);
+        const data = await getIntegrations(user.tenantId);
+        setIntegrations(data);
+      } else {
+        // Simulate other saves
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+      
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      console.error('Error saving settings:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -214,6 +251,99 @@ export default function SettingsPage() {
                           <Save className="mr-2 h-4 w-4" />
                         )}
                         {saved ? 'Salvo!' : 'Salvar'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'integrations' && (
+                  <div className="space-y-6">
+                    <div className="card-premium p-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-white">
+                          Conectar Meta Ads
+                        </h3>
+                        {integrations.find(i => i.provider === 'meta') && (
+                          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
+                            <div className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" />
+                            Ativo
+                          </span>
+                        )}
+                      </div>
+                      
+                      <p className="text-zinc-500 mb-8 text-sm leading-relaxed">
+                        Conecte sua conta de anúncios da Meta para permitir que o Conselho 
+                        analise suas métricas de performance e sugira otimizações baseadas em dados reais.
+                      </p>
+
+                      <div className="space-y-5">
+                        <div>
+                          <label className="block text-sm font-medium text-zinc-300 mb-2">
+                            ID da Conta de Anúncios (Ad Account ID)
+                          </label>
+                          <Input
+                            placeholder="act_123456789..."
+                            value={metaConfig.adAccountId}
+                            onChange={(e) => setMetaConfig({ ...metaConfig, adAccountId: e.target.value })}
+                            className="input-premium"
+                          />
+                          <p className="mt-2 text-[11px] text-zinc-500 flex items-center gap-1.5">
+                            Localizado nas Configurações do Gerenciador de Negócios.
+                            <a href="https://adsmanager.facebook.com/adsmanager/manage/campaigns" target="_blank" rel="noreferrer" className="text-emerald-500 hover:underline inline-flex items-center gap-1">
+                              Abrir Gerenciador <ExternalLink className="h-2 w-2" />
+                            </a>
+                          </p>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-zinc-300 mb-2">
+                            Token de Acesso (System User Token)
+                          </label>
+                          <Input
+                            type="password"
+                            placeholder="EAA..."
+                            value={metaConfig.accessToken}
+                            onChange={(e) => setMetaConfig({ ...metaConfig, accessToken: e.target.value })}
+                            className="input-premium"
+                          />
+                          <p className="mt-2 text-[11px] text-zinc-500 flex items-center gap-1.5">
+                            Gere um token permanente em Usuários do Sistema.
+                            <a href="https://business.facebook.com/settings/system-users" target="_blank" rel="noreferrer" className="text-emerald-500 hover:underline inline-flex items-center gap-1">
+                              Configurações do Negócio <ExternalLink className="h-2 w-2" />
+                            </a>
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-8 p-4 rounded-xl bg-zinc-900/50 border border-white/[0.04]">
+                        <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
+                          Permissões Necessárias
+                        </h4>
+                        <ul className="space-y-2">
+                          {[
+                            'ads_read',
+                            'read_insights',
+                            'ads_management (opcional para automação)'
+                          ].map((perm) => (
+                            <li key={perm} className="flex items-center gap-2 text-xs text-zinc-500">
+                              <div className="h-1 w-1 rounded-full bg-emerald-500/50" />
+                              {perm}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end">
+                      <Button onClick={handleSave} className="btn-accent" disabled={isSaving}>
+                        {isSaving ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : saved ? (
+                          <Check className="mr-2 h-4 w-4" />
+                        ) : (
+                          <Save className="mr-2 h-4 w-4" />
+                        )}
+                        {saved ? 'Salvo!' : 'Salvar Integração'}
                       </Button>
                     </div>
                   </div>

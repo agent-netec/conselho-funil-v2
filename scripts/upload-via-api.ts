@@ -44,7 +44,8 @@ async function uploadChunks() {
   console.log(`📡 API URL: ${API_URL}`);
 
   // Check for processed chunks
-  const chunksPath = path.resolve(__dirname, 'processed-chunks.json');
+  const chunksFile = process.argv.find(arg => arg.endsWith('.json')) || 'processed-chunks.json';
+  const chunksPath = path.resolve(__dirname, chunksFile);
   
   if (!fs.existsSync(chunksPath)) {
     console.error('❌ Arquivo processed-chunks.json não encontrado!');

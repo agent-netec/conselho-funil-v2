@@ -3,79 +3,16 @@
  * 
  * Este módulo implementa o pipeline completo de:
  * 1. Embedding da query
- * 2. Busca vetorial no Firestore
+ * 2. Busca vetorial no Pinecone
  * 3. Ranking e filtragem
  * 4. Montagem de contexto
  */
 
-import { 
-  collection, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
-  getDocs,
-  DocumentData,
-  collectionGroup,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
-import { getBrandAssets } from '@/lib/firebase/assets';
-import { generateEmbedding, cosineSimilarity } from './embeddings';
-import type { AssetChunk } from '@/types/database';
+import { generateEmbedding } from './embeddings';
+import { COUNSELORS_REGISTRY } from '@/lib/constants';
+import { CounselorId } from '@/types';
 
-/**
- * Simple string hash function
- */
-function hashString(str: string): number {
-  let hash = 5381;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) + hash) ^ str.charCodeAt(i);
-  }
-  return hash;
-}
-
-/**
- * Generate fallback embedding locally (no API needed)
- */
-function generateLocalEmbedding(text: string): number[] {
-  const vector = new Array(768).fill(0);
-  const normalized = text.toLowerCase().replace(/[^\w\s]/g, '');
-  const words = normalized.split(/\s+/).filter(w => w.length > 2);
-  
-  const wordCounts: Record<string, number> = {};
-  words.forEach(word => {
-    wordCounts[word] = (wordCounts[word] || 0) + 1;
-  });
-  
-  Object.entries(wordCounts).forEach(([word, count]) => {
-    const hash1 = hashString(word);
-    const hash2 = hashString(word + '_secondary');
-    const hash3 = hashString(word + '_tertiary');
-    
-    const indices = [
-      Math.abs(hash1) % 768,
-      Math.abs(hash2) % 768,
-      Math.abs(hash3) % 768,
-    ];
-    
-    const weight = Math.log(1 + count) / Math.log(1 + words.length);
-    indices.forEach(idx => {
-      vector[idx] += weight;
-    });
-  });
-  
-  words.slice(0, 10).forEach((word, i) => {
-    const idx = Math.abs(hashString(word + '_pos')) % 768;
-    vector[idx] += (10 - i) * 0.05;
-  });
-  
-  const magnitude = Math.sqrt(vector.reduce((sum, v) => sum + v * v, 0));
-  if (magnitude > 0) {
-    return vector.map(v => v / magnitude);
-  }
-  
-  return vector;
-}
+import { rerankDocuments } from './rerank';
 
 // Types
 export interface KnowledgeChunk {
@@ -91,6 +28,7 @@ export interface KnowledgeChunk {
     tenantId?: string | null;
     status: string;
     version: string;
+    isApprovedForAI: boolean; // US-1.2.2
   };
   source: {
     file: string;
@@ -107,11 +45,16 @@ export interface RetrievalConfig {
     counselor?: string;
     docType?: string;
     tenantId?: string | null;
+    category?: string;       // US-1.2.2
+    funnelStage?: string;    // US-1.2.2
+    channel?: string;        // US-1.2.2
+    scope?: string;          // Added for traffic scope
   };
 }
 
 export interface RetrievedChunk extends KnowledgeChunk {
   similarity: number;
+  rerankScore?: number;
   rank: number;
 }
 
@@ -121,51 +64,12 @@ export interface RetrievedBrandChunk {
   assetName: string;
   content: string;
   similarity: number;
+  rerankScore?: number;
   rank: number;
 }
 
 /**
- * Calculate keyword match score (percentage of query keywords found in content)
- */
-function keywordMatchScore(queryText: string, content: string): number {
-  const queryWords = queryText.toLowerCase()
-    .replace(/[^\w\sáéíóúãõâêîôûàèìòùç]/g, '')
-    .split(/\s+/)
-    .filter(w => w.length > 2);
-  
-  if (queryWords.length === 0) return 0;
-  
-  const contentLower = content.toLowerCase();
-  let matches = 0;
-  
-  // Key terms for copywriting/funnel domains
-  const domainTerms: Record<string, string[]> = {
-    copy: ['copy', 'headline', 'texto', 'persuasão', 'persuasao', 'escrever', 'copys', 'escrita'],
-    funil: ['funil', 'funnel', 'etapa', 'passo', 'etapas', 'passos', 'landing', 'página', 'pagina'],
-    oferta: ['oferta', 'offer', 'preço', 'preco', 'valor', 'bônus', 'bonus', 'garantia'],
-    headline: ['headline', 'título', 'titulo', 'manchete', 'chamar', 'atenção', 'atencao'],
-    consciencia: ['consciência', 'consciencia', 'awareness', 'consciente', 'dor', 'problema', 'solução', 'solucao'],
-  };
-  
-  // Check for domain term matches (higher weight)
-  for (const word of queryWords) {
-    if (contentLower.includes(word)) {
-      matches++;
-    }
-    // Check domain terms
-    for (const [domain, terms] of Object.entries(domainTerms)) {
-      if (terms.includes(word) && terms.some(t => contentLower.includes(t))) {
-        matches += 0.5;
-        break;
-      }
-    }
-  }
-  
-  return matches / queryWords.length;
-}
-
-/**
- * Recupera chunks relevantes da base de conhecimento com base em similaridade semântica e palavras-chave.
+ * Recupera chunks relevantes da base de conhecimento com base em similaridade semântica.
  * 
  * @param queryText - O texto da consulta do usuário.
  * @param config - Configurações de recuperação (topK, minSimilarity, filtros).
@@ -178,85 +82,101 @@ function keywordMatchScore(queryText: string, content: string): number {
  */
 export async function retrieveChunks(
   queryText: string,
-  config: RetrievalConfig = { topK: 10, minSimilarity: 0.3 }
+  config: RetrievalConfig = { topK: 10, minSimilarity: 0.6 }
 ): Promise<RetrievedChunk[]> {
   try {
-    // 1. Generate embedding for the query (local, no API needed)
-    const queryEmbedding = generateLocalEmbedding(queryText);
-    
-    // 2. Fetch chunks from Firestore (fetch more for better filtering)
-    let chunksQuery = query(
-      collection(db, 'knowledge'),
-      where('metadata.status', '==', 'approved'),
-      limit(200) // Fetch more for better filtering
-    );
+    const startedAt = Date.now();
+    const finalConfig: RetrievalConfig = {
+      topK: config.topK ?? 10,
+      minSimilarity: config.minSimilarity ?? 0.6,
+      filters: config.filters,
+    };
+    const minRequired = Math.min(finalConfig.topK, 8);
 
-    // Apply filters if provided
-    if (config.filters?.docType) {
-      chunksQuery = query(
-        collection(db, 'knowledge'),
-        where('metadata.status', '==', 'approved'),
-        where('metadata.docType', '==', config.filters.docType),
-        limit(200)
-      );
+    // 1. Generate embedding for the query (Gemini)
+    let queryEmbedding: number[] | null = null;
+    try {
+      queryEmbedding = await generateEmbedding(queryText);
+    } catch (embedError) {
+      console.warn('[RAG v2] Falha ao gerar embedding com Gemini, caindo para busca local.', embedError);
     }
-
-    const snapshot = await getDocs(chunksQuery);
     
-    if (snapshot.empty) {
-      console.log('No chunks found in knowledge base');
-      return [];
-    }
+    // 2. Fetch from Pinecone (Universal Knowledge) - only server-side
+    if (queryEmbedding && typeof window === 'undefined') {
+      const pineconeFilters: any = { 
+        isApprovedForAI: { '$eq': true },
+        status: { '$eq': 'approved' }
+      };
 
-    console.log(`Scanning ${snapshot.size} chunks for relevance...`);
-
-    // 3. Calculate combined similarity for each chunk
-    const chunksWithSimilarity: RetrievedChunk[] = [];
-    
-    // Lower the threshold since we're using local embeddings
-    const effectiveMinSimilarity = Math.min(config.minSimilarity, 0.15);
-    
-    snapshot.docs.forEach(doc => {
-      const data = doc.data() as Omit<KnowledgeChunk, 'id'>;
-      
-      // Apply additional filters
-      if (config.filters?.counselor && data.metadata.counselor !== config.filters.counselor) {
-        return;
+      if (config.filters) {
+        if (config.filters.docType) pineconeFilters.docType = { '$eq': config.filters.docType };
+        if (config.filters.counselor) pineconeFilters.counselor = { '$eq': config.filters.counselor };
+        if (config.filters.category) pineconeFilters.category = { '$eq': config.filters.category };
+        if (config.filters.funnelStage) pineconeFilters.funnelStage = { '$eq': config.filters.funnelStage };
+        if (config.filters.channel) pineconeFilters.channel = { '$eq': config.filters.channel };
+        if (config.filters.scope) pineconeFilters.scope = { '$eq': config.filters.scope };
+        if (config.filters.tenantId !== undefined) pineconeFilters.tenantId = { '$eq': config.filters.tenantId };
       }
-      
-      // Calculate embedding similarity (if embedding exists)
-      let embeddingSimilarity = 0;
-      if (data.embedding && Array.isArray(data.embedding) && data.embedding.length > 0) {
-        embeddingSimilarity = cosineSimilarity(queryEmbedding, data.embedding);
-      }
-      
-      // Calculate keyword match score
-      const keywordScore = keywordMatchScore(queryText, data.content);
-      
-      // Combined score: weighted average (keywords are more reliable with local embeddings)
-      const similarity = (embeddingSimilarity * 0.4) + (keywordScore * 0.6);
-      
-      // Only include if above threshold OR has good keyword match
-      if (similarity >= effectiveMinSimilarity || keywordScore >= 0.3) {
-        chunksWithSimilarity.push({
-          id: doc.id,
-          ...data,
-          similarity: Math.max(similarity, keywordScore), // Use best score
-          rank: 0, // Will be set after sorting
+
+      console.log(`[RAG v2] Consultando Pinecone (namespace: knowledge) com ${Object.keys(pineconeFilters).length} filtros.`);
+
+      try {
+        const { queryPinecone } = await import('./pinecone');
+        const pineconeResponse = await queryPinecone({
+          vector: queryEmbedding,
+          topK: 50,
+          namespace: 'knowledge',
+          filter: pineconeFilters
         });
+
+        if (pineconeResponse.matches?.length) {
+          const semanticCandidates: RetrievedChunk[] = pineconeResponse.matches.map(match => {
+            const meta = match.metadata as any;
+            return {
+              id: match.id,
+              content: meta.content || '',
+              embedding: [], 
+              similarity: match.score || 0,
+              rank: 0,
+              metadata: {
+                counselor: meta.counselor,
+                docType: meta.docType,
+                scope: meta.scope,
+                channel: meta.channel,
+                stage: meta.stage,
+                tenantId: meta.tenantId,
+                status: meta.status,
+                version: meta.version,
+                isApprovedForAI: meta.isApprovedForAI,
+              },
+              source: {
+                file: meta.sourceFile || meta.file || 'unknown',
+                section: meta.sourceSection || meta.section || 'unknown',
+                lineStart: meta.lineStart || 0,
+                lineEnd: meta.lineEnd || 0,
+              }
+            };
+          });
+
+          // 5. Reranking (US-1.2.1)
+          console.log(`[RAG] Iniciando reranking de ${semanticCandidates.length} candidatos do Pinecone.`);
+          let reranked = await rerankDocuments(queryText, semanticCandidates, finalConfig.topK);
+          
+          // 6. Filtro final por similaridade mínima
+          let finalResults = reranked
+            .filter(chunk => (chunk.rerankScore ?? chunk.similarity) >= finalConfig.minSimilarity)
+            .slice(0, finalConfig.topK)
+            .map((chunk, index) => ({ ...chunk, rank: index + 1 }));
+
+          console.log(`[RAG v2] Pinecone search successful in ${Date.now() - startedAt}ms (results: ${finalResults.length})`);
+          return finalResults;
+        }
+      } catch (pineconeError) {
+        console.error('[RAG v2] Erro crítico ao consultar Pinecone.', pineconeError);
       }
-    });
+    }
 
-    console.log(`Found ${chunksWithSimilarity.length} chunks above threshold`);
-
-    // 4. Sort by similarity and assign ranks
-    chunksWithSimilarity.sort((a, b) => b.similarity - a.similarity);
-    chunksWithSimilarity.forEach((chunk, index) => {
-      chunk.rank = index + 1;
-    });
-
-    // 5. Return top K
-    return chunksWithSimilarity.slice(0, config.topK);
+    return [];
   } catch (error) {
     console.error('Error retrieving chunks:', error);
     return [];
@@ -333,6 +253,24 @@ export async function retrieveForFunnelCreation(
 }
 
 /**
+ * Recupera especificamente benchmarks e dados de mercado para o contrato CouncilOutput.
+ * 
+ * @param queryText - O termo de busca (ex: "CPC médio infoprodutos 2026").
+ * @param topK - Número de resultados.
+ * @returns Promessa com os chunks de benchmark.
+ */
+export async function retrieveBenchmarks(
+  queryText: string,
+  topK = 5
+): Promise<RetrievedChunk[]> {
+  return retrieveChunks(queryText, {
+    topK,
+    minSimilarity: 0.2,
+    filters: { docType: 'market_data' } // Assume que existe este docType ou similar
+  });
+}
+
+/**
  * Formata os chunks recuperados em uma string de contexto adequada para prompts de LLM.
  * 
  * @param chunks - Array de chunks recuperados.
@@ -344,23 +282,37 @@ export function formatContextForLLM(chunks: RetrievedChunk[]): string {
   }
 
   const formattedChunks = chunks.map(chunk => {
-    const counselorInfo = chunk.metadata.counselor 
-      ? `[${chunk.metadata.counselor.replace('_', ' ').toUpperCase()}]` 
+    const counselorName = chunk.metadata.counselor 
+      ? (COUNSELORS_REGISTRY[chunk.metadata.counselor as CounselorId]?.name || chunk.metadata.counselor.replace('_', ' ').toUpperCase())
       : '';
+    
+    const counselorInfo = counselorName ? `[${counselorName}]` : '';
     const typeInfo = chunk.metadata.docType 
       ? `(${chunk.metadata.docType})` 
       : '';
     
+    const scoreInfo = chunk.rerankScore 
+      ? `Relevância (Rerank): ${(chunk.rerankScore * 100).toFixed(1)}%`
+      : `Relevância: ${(chunk.similarity * 100).toFixed(1)}%`;
+    
     return `---
 ${counselorInfo} ${typeInfo}
 Fonte: ${chunk.source.file} > ${chunk.source.section}
-Relevância: ${(chunk.similarity * 100).toFixed(1)}%
+${scoreInfo}
 
 ${chunk.content}
 ---`;
   });
 
-  return formattedChunks.join('\n\n');
+  const baseContext = formattedChunks.join('\n\n');
+  
+  // US-1.5.3: Hint para o LLM usar saída estruturada se houver dados de mercado
+  const hasMarketData = chunks.some(c => c.metadata.docType === 'market_data' || c.content.toLowerCase().includes('benchmark'));
+  if (hasMarketData) {
+    return `${baseContext}\n\n⚠️ DICA DO CONSELHO: Foram encontrados dados de benchmark ou mercado no contexto. Considere emitir uma seção [COUNCIL_OUTPUT] com market_data comparando os valores encontrados com os benchmarks de 2026.`;
+  }
+
+  return baseContext;
 }
 
 /**
@@ -368,13 +320,38 @@ ${chunk.content}
  * 
  * @param queryText - A pergunta ou termo de busca.
  * @param config - Opcional: configurações de recuperação.
+ * @param intent - Opcional: intenção detectada (US-1.2.2).
  * @returns Uma promessa com os chunks originais e a string de contexto formatada.
  */
 export async function ragQuery(
   queryText: string,
-  config?: RetrievalConfig
+  config?: RetrievalConfig,
+  intent?: string
 ): Promise<{ chunks: RetrievedChunk[]; context: string }> {
-  const chunks = await retrieveChunks(queryText, config);
+  const finalConfig: RetrievalConfig = config || { topK: 10, minSimilarity: 0.3 };
+  
+  // US-1.2.2: Mapeamento Automático de Intenção para Categoria
+  if (intent && !finalConfig.filters?.category) {
+    const intentMap: Record<string, string> = {
+      'copy': 'copywriting',
+      'anúncios': 'ads',
+      'ads': 'ads',
+      'estratégia': 'strategy',
+      'funil': 'funnel',
+      'social': 'social',
+      'redes sociais': 'social'
+    };
+    
+    if (intentMap[intent.toLowerCase()]) {
+      finalConfig.filters = {
+        ...finalConfig.filters,
+        category: intentMap[intent.toLowerCase()]
+      };
+      console.log(`[RAG] Intenção "${intent}" mapeada para categoria "${finalConfig.filters.category}"`);
+    }
+  }
+
+  const chunks = await retrieveChunks(queryText, finalConfig);
   const context = formatContextForLLM(chunks);
   
   return { chunks, context };
@@ -406,51 +383,56 @@ export async function semanticSearch(
  * @param brandId - O ID da marca.
  * @param queryEmbedding - O vetor da pergunta do usuário.
  * @param limitCount - Número máximo de resultados (padrão 5).
+ * @param filters - Filtros adicionais de metadados (US-1.2.2).
  * @returns Lista de chunks ordenados por similaridade.
  */
 export async function searchSimilarChunks(
   brandId: string,
   queryEmbedding: number[],
-  limitCount: number = 5
+  limitCount: number = 5,
+  filters?: RetrievalConfig['filters']
 ): Promise<RetrievedBrandChunk[]> {
-  const assets = await getBrandAssets(brandId);
-  const readyAssets = assets.filter(a => a.status === 'ready');
-  
-  if (readyAssets.length === 0) return [];
-
-  const allRelevantChunks: RetrievedBrandChunk[] = [];
-
-  // 1. Coletar todos os chunks de todos os assets da marca
-  // Nota: Em produção com muitos arquivos, isso seria otimizado com um banco de vetores dedicado
-  // ou filtragem prévia por metadados. Para o v3.0 Early, fazemos a comparação em memória.
-  for (const asset of readyAssets) {
-    const chunksCollectionRef = collection(db, 'brand_assets', asset.id, 'chunks');
-    const chunksSnap = await getDocs(chunksCollectionRef);
+  try {
+    // 1. Tenta Pinecone (Estratégia Principal)
+    const pineconeFilters: any = { 
+      brandId: { '$eq': brandId }
+    };
     
-    chunksSnap.docs.forEach(doc => {
-      const data = doc.data() as AssetChunk;
-      
-      // Se o chunk não tiver embedding, pula (retrocompatibilidade)
-      if (!data.embedding || !Array.isArray(data.embedding)) return;
+    if (filters?.funnelStage) pineconeFilters.funnelStage = { '$eq': filters.funnelStage };
+    if (filters?.channel) pineconeFilters.channel = { '$eq': filters.channel };
 
-      const similarity = cosineSimilarity(queryEmbedding, data.embedding);
-      
-      allRelevantChunks.push({
-        id: doc.id,
-        assetId: asset.id,
-        assetName: asset.name,
-        content: data.content,
-        similarity,
-        rank: 0
-      });
+    // Usamos namespace brand-{id} ou o ID direto se for o caso. 
+    // O worker usa o que for passado no POST. Padronizamos para brand-{id} na UI.
+    const namespace = `brand-${brandId}`;
+
+    console.log(`[RAG v2] Consultando Pinecone para Marca: ${namespace}`);
+
+    const { queryPinecone } = await import('./pinecone');
+    const pineconeResponse = await queryPinecone({
+      vector: queryEmbedding,
+      topK: limitCount * 2,
+      namespace,
+      filter: pineconeFilters
     });
-  }
 
-  // 2. Ordenar e retornar Top-N
-  return allRelevantChunks
-    .sort((a, b) => b.similarity - a.similarity)
-    .slice(0, limitCount)
-    .map((chunk, index) => ({ ...chunk, rank: index + 1 }));
+    if (pineconeResponse.matches?.length) {
+      return pineconeResponse.matches.map(match => {
+        const meta = match.metadata as any;
+        return {
+          id: match.id,
+          assetId: meta.assetId || '',
+          assetName: meta.originalName || meta.assetName || 'Arquivo da Marca',
+          content: meta.content || '',
+          similarity: match.score || 0,
+          rank: 0
+        };
+      });
+    }
+    return [];
+  } catch (err) {
+    console.error('[RAG v2] Erro crítico na busca Pinecone para marca.', err);
+    return [];
+  }
 }
 
 /**
@@ -458,62 +440,32 @@ export async function searchSimilarChunks(
  * 
  * @param brandId - O ID da marca.
  * @param queryText - O texto da consulta do usuário.
- * @param topK - Número máximo de chunks a retornar.
+ * @param config - Configurações de recuperação (ou topK para retrocompatibilidade).
  */
 export async function retrieveBrandChunks(
   brandId: string,
   queryText: string,
-  topK: number = 5
+  config: number | RetrievalConfig = 5
 ): Promise<RetrievedBrandChunk[]> {
+  const finalConfig: RetrievalConfig = typeof config === 'number' 
+    ? { topK: config, minSimilarity: 0.65 } 
+    : config;
+
   try {
     // 1. Gerar embedding para a query
     const queryEmbedding = await generateEmbedding(queryText);
     
-    // 2. Buscar por similaridade de cosseno
-    const results = await searchSimilarChunks(brandId, queryEmbedding, topK);
+    // 2. Buscar por similaridade de cosseno (pedimos 50 para o rerank)
+    const candidates = await searchSimilarChunks(brandId, queryEmbedding, 50, finalConfig.filters);
     
-    // 3. Fallback para busca por palavra-chave se não houver resultados semânticos bons
-    // Usamos um threshold mais rigoroso (0.65) conforme US-15.3 AC-3
-    const SIMILARITY_THRESHOLD = 0.65;
+    // 3. Reranking (US-1.2.1)
+    let results = await rerankDocuments(queryText, candidates, finalConfig.topK);
     
-    if (results.length === 0 || results[0].similarity < SIMILARITY_THRESHOLD) {
-      console.log(`[RAG] Similaridade baixa (${results[0]?.similarity || 0}). Fallback para keyword search...`);
-      const assets = await getBrandAssets(brandId);
-      const readyAssets = assets.filter(a => a.status === 'ready');
-      
-      const keywordResults: RetrievedBrandChunk[] = [];
-      for (const asset of readyAssets) {
-        const chunksSnap = await getDocs(collection(db, 'brand_assets', asset.id, 'chunks'));
-        chunksSnap.docs.forEach(doc => {
-          const data = doc.data();
-          const score = keywordMatchScore(queryText, data.content);
-          if (score > 0.1) {
-            keywordResults.push({
-              id: doc.id,
-              assetId: asset.id,
-              assetName: asset.name,
-              content: data.content,
-              similarity: score,
-              rank: 0
-            });
-          }
-        });
-      }
-      
-      // Se o keyword match for melhor que o vetor (ou se o vetor falhou), usa ele
-      if (keywordResults.length > 0) {
-        keywordResults.sort((a, b) => b.similarity - a.similarity);
-        keywordResults.forEach((c, i) => c.rank = i + 1);
-        return keywordResults.slice(0, topK);
-      }
-    }
-
+    results.forEach((c, i) => c.rank = i + 1);
     return results;
   } catch (error) {
     console.error('Error retrieving brand chunks:', error);
-    // Fallback absoluto: busca local sem API se o embedding falhar
-    const queryEmbeddingLocal = generateLocalEmbedding(queryText);
-    return searchSimilarChunks(brandId, queryEmbeddingLocal, topK);
+    return [];
   }
 }
 
@@ -525,12 +477,19 @@ export function formatBrandContextForLLM(chunks: RetrievedBrandChunk[]): string 
   if (chunks.length === 0) return '';
 
   const formatted = chunks.map(c => {
+    const scoreInfo = c.rerankScore 
+      ? `Relevância (Rerank): ${(c.rerankScore * 100).toFixed(1)}%`
+      : `Relevância: ${(c.similarity * 100).toFixed(1)}%`;
+
     return `### CONTEXTO DA MARCA (ARQUIVOS)
 - Fonte: [${c.assetName}]
-- Relevância: ${(c.similarity * 100).toFixed(1)}%
+- ${scoreInfo}
 - Conteúdo: ${c.content}`;
   }).join('\n\n');
 
-  return `## CONHECIMENTO EXTRAÍDO DOS ARQUIVOS DA MARCA\n\n${formatted}\n\n⚠️ INSTRUÇÃO CRÍTICA: Se você usar as informações acima, deve citar o nome do arquivo fonte explicitamente (ex: "De acordo com o arquivo [Nome]...").`;
+  const header = `## CONHECIMENTO EXTRAÍDO DOS ARQUIVOS DA MARCA\n\n${formatted}\n\n⚠️ INSTRUÇÃO CRÍTICA: Se você usar as informações acima, deve citar o nome do arquivo fonte explicitamente (ex: "De acordo com o arquivo [Nome]...").`;
+  
+  // US-1.5.3: Adiciona hint para ativos da marca
+  return `${header}\n\n💡 Se os arquivos da marca contiverem scripts ou ativos prontos, utilize o formato [COUNCIL_OUTPUT] para formatá-los adequadamente.`;
 }
 

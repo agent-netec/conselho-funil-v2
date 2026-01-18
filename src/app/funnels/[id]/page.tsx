@@ -28,7 +28,7 @@ import {
   FileText,
   Share2,
 } from 'lucide-react';
-import { doc, onSnapshot, collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { doc, onSnapshot, collection, getDocs, orderBy, query, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Funnel, Proposal, ProposalScorecard } from '@/types/database';
 import { useFunnels } from '@/lib/hooks/use-funnels';
@@ -179,54 +179,62 @@ function simpleMarkdownToHtml(md: string): string {
     });
 }
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; description: string }> = {
+const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; description: string; glow: string }> = {
   draft: { 
     label: 'Rascunho', 
     color: 'text-zinc-400', 
     bg: 'bg-zinc-500/10',
     description: 'Aguardando geração pelo Conselho',
+    glow: 'from-zinc-500/5 to-transparent'
   },
   generating: { 
     label: 'Gerando Propostas', 
     color: 'text-blue-400', 
     bg: 'bg-blue-500/10',
     description: 'O Conselho está analisando e criando propostas...',
+    glow: 'from-blue-500/5 to-transparent'
   },
   review: { 
     label: 'Propostas Prontas', 
     color: 'text-amber-400', 
     bg: 'bg-amber-500/10',
     description: 'Avalie as propostas e decida: EXECUTAR, AJUSTAR ou MATAR',
+    glow: 'from-amber-500/5 to-transparent'
   },
   approved: { 
     label: 'Aprovado', 
     color: 'text-emerald-400', 
     bg: 'bg-emerald-500/10',
-    description: 'Pronto para execução',
+    description: 'Pronto para execução estratégica',
+    glow: 'from-emerald-500/5 to-transparent'
   },
   adjusting: { 
     label: 'Ajustando', 
     color: 'text-violet-400', 
     bg: 'bg-violet-500/10',
-    description: 'Aplicando ajustes solicitados',
+    description: 'Aplicando ajustes solicitados pelo Conselho',
+    glow: 'from-violet-500/5 to-transparent'
   },
   executing: { 
     label: 'Executando', 
     color: 'text-blue-400', 
     bg: 'bg-blue-500/10',
-    description: 'Funil em operação',
+    description: 'Funil em operação e monitoramento ativado',
+    glow: 'from-blue-500/5 to-transparent'
   },
   completed: { 
     label: 'Concluído', 
     color: 'text-emerald-400', 
     bg: 'bg-emerald-500/10',
-    description: 'Ciclo finalizado com sucesso',
+    description: 'Ciclo estratégico finalizado com sucesso',
+    glow: 'from-emerald-500/5 to-transparent'
   },
   killed: { 
     label: 'Cancelado', 
     color: 'text-red-400', 
     bg: 'bg-red-500/10',
-    description: 'Funil descontinuado',
+    description: 'Funil descontinuado após análise de viabilidade',
+    glow: 'from-red-500/5 to-transparent'
   },
 };
 
@@ -553,6 +561,52 @@ export default function FunnelDetailPage() {
     router.push(`/funnels/${funnel?.id}/proposals/${proposalId}`);
   };
 
+  const handleActivateGoldenThread = async () => {
+    if (!funnel) return;
+    
+    setIsLoading(true);
+    try {
+      // US-21: Garantir CampaignId único (funnelId + timestamp + random)
+      const timestamp = Date.now();
+      const shortId = Math.random().toString(36).substring(2, 7);
+      const campaignId = `${funnel.id}_${timestamp}_${shortId}`;
+      
+      const campaignRef = doc(db, 'campaigns', campaignId);
+      
+      // Busca a proposta selecionada para injetar o contexto inicial
+      const selectedProposal = proposals.find(p => p.status === 'selected') || proposals[0];
+
+      const campaignData: any = {
+        id: campaignId,
+        funnelId: funnel.id,
+        brandId: funnel.brandId || '',
+        userId: funnel.userId || '',
+        name: funnel.name,
+        status: 'active',
+        funnel: {
+          type: funnel.context.objective || 'Funnel',
+          architecture: selectedProposal?.strategy?.rationale || '',
+          targetAudience: funnel.context.audience?.who || '',
+          mainGoal: funnel.context.objective || '',
+          stages: selectedProposal?.architecture?.stages?.map(s => s.name) || [],
+          summary: selectedProposal?.summary || '',
+        },
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      };
+
+      await setDoc(campaignRef, campaignData);
+      
+      notify.success('Linha de Ouro Ativada!', 'Seu manifesto estratégico foi criado.');
+      router.push(`/campaigns/${campaignId}`);
+    } catch (error) {
+      console.error('Error activating Golden Thread:', error);
+      notify.error('Erro', 'Falha ao ativar a Linha de Ouro.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSaveToLibrary = async () => {
     if (!funnel || proposals.length === 0) return;
     
@@ -633,6 +687,15 @@ export default function FunnelDetailPage() {
         showBack
         actions={
           <div className="flex items-center gap-2">
+            {funnel.status === 'approved' && (
+              <Button 
+                onClick={handleActivateGoldenThread}
+                className="bg-amber-500 hover:bg-amber-600 text-black font-bold"
+              >
+                <Zap className="mr-2 h-4 w-4" />
+                Ativar Linha de Ouro
+              </Button>
+            )}
             {funnel.status === 'approved' && proposals.length > 0 && (
               <Button
                 variant="outline"
@@ -683,35 +746,46 @@ export default function FunnelDetailPage() {
         }
       />
 
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 sm:p-8">
         <div className="max-w-5xl mx-auto">
           {/* Status Banner */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className={cn(
-              'card-premium p-5 mb-8 border-l-4',
+              'card-premium p-5 sm:p-6 mb-6 sm:mb-8 border-l-4 relative overflow-hidden',
               status.color.replace('text', 'border')
             )}
           >
-            <div className="flex items-center justify-between">
-              <div>
+            {/* Background Glow */}
+            <div className={cn("absolute inset-0 bg-gradient-to-r opacity-20 pointer-events-none", status.glow)} />
+            
+            <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-start gap-3 sm:gap-4">
                 <div className={cn(
-                  'inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium mb-2',
-                  status.color, status.bg
+                  'flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl shrink-0',
+                  status.bg
                 )}>
-                  {funnel.status === 'approved' && <CheckCircle2 className="h-4 w-4" />}
-                  {funnel.status === 'review' && <AlertCircle className="h-4 w-4" />}
-                  {funnel.status === 'killed' && <XCircle className="h-4 w-4" />}
-                  {funnel.status === 'generating' && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {['draft', 'adjusting', 'executing'].includes(funnel.status) && <Clock className="h-4 w-4" />}
-                  {status.label}
+                  {funnel.status === 'approved' && <CheckCircle2 className={cn("h-5 w-5 sm:h-6 sm:w-6", status.color)} />}
+                  {funnel.status === 'review' && <AlertCircle className={cn("h-5 w-5 sm:h-6 sm:w-6", status.color)} />}
+                  {funnel.status === 'killed' && <XCircle className={cn("h-5 w-5 sm:h-6 sm:w-6", status.color)} />}
+                  {funnel.status === 'generating' && <Loader2 className={cn("h-5 w-5 sm:h-6 sm:w-6 animate-spin", status.color)} />}
+                  {['draft', 'adjusting', 'executing', 'completed'].includes(funnel.status) && <Clock className={cn("h-5 w-5 sm:h-6 sm:w-6", status.color)} />}
                 </div>
-                <p className="text-zinc-400">{status.description}</p>
+                <div>
+                  <div className={cn(
+                    'inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2',
+                    status.color, status.bg, "border border-white/[0.05]"
+                  )}>
+                    {status.label}
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-1">Status Estratégico</h3>
+                  <p className="text-zinc-400 text-xs sm:text-sm max-w-xl leading-relaxed">{status.description}</p>
+                </div>
               </div>
               
               {funnel.status === 'draft' && !isGenerating && (
-                <Button className="btn-accent" onClick={handleGenerate}>
+                <Button className="btn-accent w-full md:w-auto shadow-lg shadow-emerald-500/20" onClick={handleGenerate}>
                   <Sparkles className="mr-2 h-4 w-4" />
                   Gerar Propostas
                 </Button>
@@ -750,7 +824,7 @@ export default function FunnelDetailPage() {
 
           {/* Context Info Grid */}
           {!isStatusGenerating && (
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2">
               {/* Objetivo */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}

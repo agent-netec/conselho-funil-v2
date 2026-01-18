@@ -115,3 +115,8 @@ export function StepIdentity({ name, vertical, positioning, voiceTone, onUpdate 
   );
 }
 
+
+
+
+
+
