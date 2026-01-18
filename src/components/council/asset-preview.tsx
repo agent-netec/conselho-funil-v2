@@ -71,7 +71,7 @@ export function AssetPreview({ data }: AssetPreviewProps) {
     };
 
     // US-11.24 Ultra-Resiliência: Se temos passos mas o summary falhou, forçamos um summary padrão
-    if (!normalized.strategy.summary && normalized.strategy.steps && normalized.strategy.steps.length > 0) {
+    if (normalized.strategy && !normalized.strategy.summary && normalized.strategy.steps && normalized.strategy.steps.length > 0) {
       normalized.strategy.summary = 'Estratégia Detalhada';
     }
 
