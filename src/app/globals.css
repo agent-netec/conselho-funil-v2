@@ -51,6 +51,11 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  
+  /* Modern Animated Login Colors */
+  --color-skeleton: var(--skeleton);
+  --color-btn-border: var(--btn-border);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -58,6 +63,24 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Animations */
+  --animate-ripple: ripple 2s ease calc(var(--i, 0) * 0.2s) infinite;
+  --animate-orbit: orbit calc(var(--duration) * 1s) linear infinite;
+
+  @keyframes ripple {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(0.9); }
+  }
+
+  @keyframes orbit {
+    0% {
+      transform: rotate(0deg) translateY(calc(var(--radius) * 1px)) rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg) translateY(calc(var(--radius) * 1px)) rotate(-360deg);
+    }
+  }
 }
 
 :root {
@@ -93,6 +116,10 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Modern Login Tokens */
+  --skeleton: hsl(0, 0%, 90%);
+  --btn-border: hsl(214deg, 31.8%, 91.4%);
 }
 
 /* ===== DARK THEME - PREMIUM AESTHETIC ===== */
@@ -128,6 +155,10 @@
   --sidebar-accent-foreground: #fafafa;
   --sidebar-border: rgba(255, 255, 255, 0.04);
   --sidebar-ring: hsl(160, 84%, 45%);
+
+  /* Modern Login Tokens Dark */
+  --skeleton: hsl(218, 36%, 16%);
+  --btn-border: hsl(217deg, 32.6%, 17.5%);
 }
 
 @layer base {
@@ -159,6 +190,20 @@
 
 /* ===== CUSTOM COMPONENTS ===== */
 @layer components {
+  /* g-button for modern login */
+  .g-button {
+    @apply rounded-[var(--radius)] border;
+    border-color: var(--btn-border);
+  }
+
+  /* shadow-input for modern login */
+  .shadow-input {
+    box-shadow: 
+      0px 2px 3px -1px rgba(0, 0, 0, 0.1),
+      0px 1px 0px 0px rgba(25, 28, 33, 0.02),
+      0px 0px 0px 1px rgba(25, 28, 33, 0.08);
+  }
+
   /* Premium Card */
   .card-premium {
     @apply relative rounded-2xl border border-white/[0.03] bg-[#0c0c0e]/60;

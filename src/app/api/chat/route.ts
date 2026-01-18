@@ -77,18 +77,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ST-11.24 Optimization: Parallelize metadata and context gathering
-    const [conversation, userCredits] = await Promise.all([
-      getConversation(conversationId),
-      getUserCredits(null as any) // We'll get userId from conversation first
-    ]);
+    // ST-11.24 Optimization: Fetch conversation first to get userId
+    const conversation = await getConversation(conversationId);
 
     if (!conversation) {
       return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
     }
 
     const userId = conversation.userId;
-    const credits = await getUserCredits(userId); // Re-fetch with correct userId
+    const credits = await getUserCredits(userId);
 
     // Só bloqueia se o limite estiver ativado
     if (CONFIG.ENABLE_CREDIT_LIMIT && credits <= 0) {
