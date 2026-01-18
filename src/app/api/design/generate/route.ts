@@ -185,10 +185,9 @@ Retorne apenas o JSON array de strings.`;
       }),
     );
 
-    console.log('🚀 Enviando variações sequencialmente para Gemini 3 Pro Image (NanoBanana Pro)...');
+    console.log('🚀 Enviando variações em PARALELO para Gemini 3 Pro Image (NanoBanana Pro)...');
 
-    const generationResponses = [];
-    for (const promptVariant of promptVariants) {
+    const generationPromises = promptVariants.map(async (promptVariant, index) => {
       try {
         const contents = [
           {
@@ -226,10 +225,8 @@ Retorne apenas o JSON array de strings.`;
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error(`❌ [Gemini 3 Image] Erro ${response.status}:`, errorText);
-          // Se falhar uma, tentamos a próxima em vez de quebrar tudo, 
-          // a menos que seja a primeira ou todas falhem.
-          continue;
+          console.error(`❌ [Gemini 3 Image] Erro na variante ${index + 1}:`, errorText);
+          return null;
         }
 
         const data = await response.json();
@@ -238,8 +235,8 @@ Retorne apenas o JSON array de strings.`;
           data?.content?.parts?.find((p: any) => p.inlineData)?.inlineData;
 
         if (!inlineData?.data) {
-          console.warn('⚠️ Gemini Image API did not return inline image data for a variant');
-          continue;
+          console.warn(`⚠️ Gemini Image API did not return inline image data for variant ${index + 1}`);
+          return null;
         }
 
         const mimeType = inlineData.mimeType || 'image/png';
@@ -247,24 +244,23 @@ Retorne apenas o JSON array de strings.`;
         const generatedId: string =
           data?.candidates?.[0]?.content?.role === 'model' && data?.candidates?.[0]?.content?.parts?.[0]?.id
             ? data.candidates[0].content.parts[0].id
-            : `gmi_${Date.now()}_${generationResponses.length}`;
+            : `gmi_${Date.now()}_${index}`;
 
-        generationResponses.push({
+        return {
           url: dataUrl,
           processId: generatedId,
           promptUsed: promptVariant,
           checklist: { legibility200x112: 'pending', contrast: 'pending', ctaClear: 'pending' },
           model: 'gemini-3-pro-image-preview',
-        });
-
-        // Pequeno delay entre chamadas para respeitar rate limit se necessário
-        if (generationResponses.length < promptVariants.length) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
+        };
       } catch (variantError) {
-        console.error('❌ Erro em variante de geração:', variantError);
+        console.error(`❌ Erro em variante ${index + 1}:`, variantError);
+        return null;
       }
-    }
+    });
+
+    const results = await Promise.all(generationPromises);
+    const generationResponses = results.filter((r): r is NonNullable<typeof r> => r !== null);
 
     if (generationResponses.length === 0) {
       throw new Error('Todas as variações de geração de imagem falharam.');
