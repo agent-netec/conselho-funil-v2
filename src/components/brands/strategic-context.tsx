@@ -47,7 +47,7 @@ export function StrategicContext({ brandId }: StrategicContextProps) {
 
   const handleProcessAsset = async (assetId: string) => {
     try {
-      const response = await fetch('/api/ingest/process', {
+      const response = await fetch('/api/ingest/process-worker', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ assetId, namespace: `brand-${brandId}` }),
