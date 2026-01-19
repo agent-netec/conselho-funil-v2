@@ -6,6 +6,9 @@ import { createAsset, updateAssetStatus } from '@/lib/firebase/assets';
 import { processAssetText } from '@/lib/firebase/assets-server';
 import type { BrandAsset } from '@/types/database';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 type IngestResponse = {
   success: boolean;
   data?: { title?: string; content: string; method?: string };

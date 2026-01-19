@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { processAsset } from '@/lib/ai/worker';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 /**
  * Endpoint de processamento de assets (Ingestão v2).
@@ -9,7 +10,7 @@ export const runtime = 'nodejs';
  * 
  * @param request - Body: { assetId: string, namespace?: string }
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => null);
     const assetId = body?.assetId as string | undefined;
