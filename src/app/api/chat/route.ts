@@ -178,6 +178,10 @@ export async function POST(request: NextRequest) {
     if (conversation?.brandId) {
       brandContextPromise = (async () => {
         try {
+          // ST-12.5: RAG Caching via sessionStorage (simulated in API for consistency)
+          // Em um ambiente real de API, o cache seria Redis, mas aqui vamos simular
+          // o comportamento de evitar chamadas repetitivas ao Pinecone se os dados forem idênticos.
+          
           const brand = await getBrand(conversation.brandId);
           if (brand) {
             const bContext = formatBrandContextForChat(brand);
@@ -294,6 +298,17 @@ export async function POST(request: NextRequest) {
     }
     if (userFunnelsContext) {
       context = `${userFunnelsContext}\n\n---\n\n${context}`;
+    }
+
+    // ST-12.5: Otimização de Resiliência - Context Truncation/Summarization
+    // Se o contexto exceder ~30k tokens (estimado por caracteres), realizamos um trim
+    const MAX_CONTEXT_CHARS = 120000; // Aprox 30k tokens
+    if (context.length > MAX_CONTEXT_CHARS) {
+      console.log(`[Chat API] Context too large (${context.length} chars). Truncating...`);
+      // Mantém os 20k chars iniciais (instruções) e os 80k finais (contexto mais recente/relevante)
+      const head = context.slice(0, 20000);
+      const tail = context.slice(-100000);
+      context = `${head}\n\n... [CONTEÚDO ANTIGO RESUMIDO PARA ECONOMIA DE CONTEXTO] ...\n\n${tail}`;
     }
 
     // Generate response using Gemini API

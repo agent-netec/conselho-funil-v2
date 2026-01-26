@@ -25,6 +25,8 @@ import { logout } from '@/lib/firebase/auth';
 import { saveIntegration, getIntegrations } from '@/lib/firebase/firestore';
 import { Integration } from '@/types/database';
 
+import { BrandingSettings } from '@/components/agency/BrandingSettings';
+
 const TABS = [
   { id: 'profile', label: 'Perfil', icon: User },
   { id: 'business', label: 'Negócio', icon: Building2 },
@@ -377,14 +379,19 @@ export default function SettingsPage() {
                 )}
 
                 {activeTab === 'appearance' && (
-                  <div className="card-premium p-6">
-                    <h3 className="text-lg font-semibold text-white mb-6">
-                      Aparência
-                    </h3>
-                    <div className="space-y-4">
-                      <div>
+                  <div className="space-y-6">
+                    <div className="card-premium p-6">
+                      <h3 className="text-lg font-semibold text-white mb-6">
+                        Aparência & Branding
+                      </h3>
+                      
+                      <BrandingSettings />
+
+                      <div className="divider my-8" />
+
+                      <div className="space-y-4">
                         <label className="block text-sm font-medium text-zinc-300 mb-3">
-                          Tema
+                          Tema da Interface
                         </label>
                         <div className="grid grid-cols-3 gap-3">
                           {['Dark', 'Light', 'Sistema'].map((theme) => (
@@ -402,6 +409,19 @@ export default function SettingsPage() {
                           ))}
                         </div>
                       </div>
+                    </div>
+
+                    <div className="flex justify-end">
+                      <Button onClick={handleSave} className="btn-accent" disabled={isSaving}>
+                        {isSaving ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : saved ? (
+                          <Check className="mr-2 h-4 w-4" />
+                        ) : (
+                          <Save className="mr-2 h-4 w-4" />
+                        )}
+                        {saved ? 'Salvo!' : 'Salvar Preferências'}
+                      </Button>
                     </div>
                   </div>
                 )}

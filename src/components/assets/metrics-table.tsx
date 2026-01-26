@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { AssetMetric } from '@/lib/hooks/use-asset-metrics';
 import { cn } from '@/lib/utils';
+import { AssetDetailModal } from './asset-detail-modal';
+import { useState } from 'react';
 
 interface AssetMetricsTableProps {
   assets: AssetMetric[];
@@ -20,6 +22,14 @@ interface AssetMetricsTableProps {
 }
 
 export function AssetMetricsTable({ assets, isLoading, viewMode = 'list' }: AssetMetricsTableProps) {
+  const [selectedAsset, setSelectedAsset] = useState<AssetMetric | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleViewDetails = (asset: AssetMetric) => {
+    setSelectedAsset(asset);
+    setIsModalOpen(true);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -103,7 +113,10 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list' }: Asse
             </div>
 
             <div className="flex items-center gap-2 pt-3 border-t border-white/[0.05]">
-              <button className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg bg-zinc-800 text-xs font-medium text-zinc-300">
+              <button 
+                onClick={() => handleViewDetails(asset)}
+                className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg bg-zinc-800 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-700"
+              >
                 <Eye className="h-3.5 w-3.5" />
                 Visualizar
               </button>
@@ -184,7 +197,10 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list' }: Asse
 
               {/* Action Overlay */}
               <div className="p-2 bg-zinc-950/50 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="flex-1 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[10px] font-bold text-zinc-300 flex items-center justify-center gap-1.5 transition-all">
+                <button 
+                  onClick={() => handleViewDetails(asset)}
+                  className="flex-1 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[10px] font-bold text-zinc-300 flex items-center justify-center gap-1.5 transition-all"
+                >
                   <Eye className="h-3.5 w-3.5" /> Detalhes
                 </button>
                 {asset.imageUri && (
@@ -280,7 +296,10 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list' }: Asse
                 </td>
                 <td className="px-4 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-500 hover:text-white transition-colors">
+                    <button 
+                      onClick={() => handleViewDetails(asset)}
+                      className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-500 hover:text-white transition-colors"
+                    >
                       <Eye className="h-4 w-4" />
                     </button>
                     {asset.imageUri && (
@@ -301,6 +320,12 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list' }: Asse
         </table>
       </div>
       )}
+
+      <AssetDetailModal 
+        asset={selectedAsset}
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+      />
     </div>
   );
 }

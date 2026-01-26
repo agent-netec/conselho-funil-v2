@@ -118,6 +118,7 @@ export async function generateWithGemini(
   options: {
     model?: string;
     temperature?: number;
+    topP?: number;
     maxOutputTokens?: number;
     responseMimeType?: 'text/plain' | 'application/json';
   } = {}
@@ -148,9 +149,9 @@ export async function generateWithGemini(
         },
       ],
       generationConfig: {
-        temperature,
+        temperature: options.temperature ?? 0.7,
         maxOutputTokens,
-        topP: 0.95,
+        topP: options.topP ?? 0.95,
         topK: 40,
         responseMimeType,
       },
@@ -178,6 +179,7 @@ export async function* generateWithGeminiStream(
   options: {
     model?: string;
     temperature?: number;
+    topP?: number;
     maxOutputTokens?: number;
   } = {}
 ): AsyncGenerator<string> {
@@ -206,9 +208,9 @@ export async function* generateWithGeminiStream(
         },
       ],
       generationConfig: {
-        temperature,
+        temperature: options.temperature ?? 0.7,
         maxOutputTokens,
-        topP: 0.95,
+        topP: options.topP ?? 0.95,
         topK: 40,
       },
     }),

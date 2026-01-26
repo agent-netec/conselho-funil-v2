@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createHmac, timingSafeEqual } from 'crypto';
 import { getUser } from '@/lib/firebase/firestore';
 
 /**
@@ -8,6 +9,51 @@ export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
     this.name = 'ApiError';
+  }
+}
+
+/**
+ * Valida a assinatura de um webhook usando Graceful Rotation (Chave Primária e Secundária).
+ * Implementa timingSafeEqual para prevenir ataques de temporização.
+ * 
+ * @param rawBody - O corpo bruto da requisição.
+ * @param signature - A assinatura recebida no header (ex: x-hub-signature-256).
+ * @param primarySecret - A chave secreta atual.
+ * @param secondarySecret - A chave secreta anterior (opcional).
+ * @returns True se a assinatura for válida para qualquer uma das chaves.
+ */
+export function validateWebhookSignature(
+  rawBody: string,
+  signature: string,
+  primarySecret: string,
+  secondarySecret?: string
+): boolean {
+  const validate = (secret: string) => {
+    const hmac = createHmac('sha256', secret);
+    const digest = 'sha256=' + hmac.update(rawBody).digest('hex');
+    
+    // Prevenção de Timing Attacks
+    try {
+      return timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
+    } catch {
+      return false;
+    }
+  };
+
+  try {
+    // Tenta a chave primária
+    if (validate(primarySecret)) return true;
+
+    // Tenta a chave secundária se existir (Graceful Rotation)
+    if (secondarySecret && validate(secondarySecret)) {
+      console.log('[Security] Webhook validado via chave secundária (Graceful Rotation)');
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.error('[Security] Erro na validação de assinatura:', error);
+    return false;
   }
 }
 

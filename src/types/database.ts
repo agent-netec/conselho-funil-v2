@@ -10,7 +10,8 @@ export interface User {
   name: string;
   avatar?: string;
   tenantId?: string;
-  role: 'admin' | 'member' | 'viewer';
+  agencyId?: string; // ST-23.1: Referência à agência (opcional para usuários solo)
+  role: 'admin' | 'member' | 'viewer' | 'agency_admin' | 'agency_manager' | 'agency_viewer';
   credits: number;     // US-16.1
   usage: number;       // US-16.1
   createdAt: Timestamp;
@@ -124,6 +125,16 @@ export interface Brand {
   };
 
   brandKit?: BrandKit; // US-18.1 & US-18.2
+  
+  // ST-12.2: Configuração de IA por Marca
+  aiConfiguration?: {
+    temperature: number;      // 0.1 a 1.0
+    topP: number;             // 0.1 a 1.0
+    presencePenalty?: number;
+    frequencyPenalty?: number;
+    profile: 'agressivo' | 'sobrio' | 'equilibrado';
+  };
+
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -206,6 +217,8 @@ export interface AssetChunk {
 export interface Funnel {
   id: string;
   tenantId: string;
+  agencyId?: string; // ST-23.1: Isolamento por Agência
+  clientId?: string; // ST-23.1: Isolamento por Cliente da Agência
   userId: string;
   name: string;
   description?: string;

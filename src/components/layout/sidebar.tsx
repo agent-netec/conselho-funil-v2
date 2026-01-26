@@ -23,6 +23,7 @@ import {
   Activity,
   Zap,
   PenTool,
+  Sparkles,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -57,9 +58,13 @@ const ICONS: Record<string, LucideIcon> = {
   Activity,
   Zap,
   PenTool,
+  Sparkles,
 };
 
+import { useBranding } from '@/components/providers/branding-provider';
+
 export function Sidebar() {
+  const { branding } = useBranding();
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuthStore();
@@ -159,17 +164,21 @@ export function Sidebar() {
               
               {/* Logo container */}
               <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/20">
-                <svg 
-                  viewBox="0 0 24 24" 
-                  className="h-6 w-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                </svg>
+                {branding.logoUrl ? (
+                  <img src={branding.logoUrl} alt="Agency Logo" className="h-7 w-7 object-contain" />
+                ) : (
+                  <svg 
+                    viewBox="0 0 24 24" 
+                    className="h-6 w-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                  </svg>
+                )}
               </div>
             </div>
           </Link>

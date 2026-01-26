@@ -18,6 +18,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 import { withResilience } from './resilience';
+import { encryptSensitiveFields } from '../utils/encryption';
 import type {
   User,
   Tenant,
@@ -642,12 +643,15 @@ export async function saveIntegration(
   const integrationRef = doc(db, 'tenants', tenantId, 'integrations', integrationId);
   const now = Timestamp.now();
 
+  // ST-18.6: Criptografia de tokens sensíveis antes de salvar no Firestore
+  const secureConfig = encryptSensitiveFields(data);
+
   const integrationData = {
     id: integrationId,
     tenantId,
     provider,
     status: 'active' as const,
-    config: data,
+    config: secureConfig,
     updatedAt: now,
   };
 

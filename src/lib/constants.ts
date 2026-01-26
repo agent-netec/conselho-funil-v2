@@ -212,8 +212,12 @@ export const NAV_ITEMS = [
   { id: 'analytics', label: 'Analytics', href: '/analytics', icon: 'BarChart3' },
   { id: 'assets', label: 'Ativos', href: '/assets', icon: 'Activity' },
   { id: 'library', label: 'Biblioteca', href: '/library', icon: 'Library' },
+  { id: 'vault', label: 'Vault', href: '/vault', icon: 'Database' },
   { id: 'settings', label: 'Configurações', href: '/settings', icon: 'Settings' },
   { id: 'integrations', label: 'Integrações', href: '/integrations', icon: 'LayoutGrid' },
+  { id: 'automation', label: 'Automação', href: '/automation', icon: 'Zap' },
+  { id: 'predictive', label: 'Preditivo', href: '/intelligence/predictive', icon: 'Sparkles' },
+  { id: 'agency-dashboard', label: 'Agência', href: '/dashboard', icon: 'Building2' },
 ] as const;
 
 // Status badges

@@ -342,14 +342,21 @@ export function ChatMessageBubble({
 
                   if (section.type === 'verdict') {
                     return (
-                      <div key={idx} className="mt-6 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 shadow-sm shadow-emerald-500/5">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400">
-                            <Gavel className="h-4 w-4" />
+                      <div key={idx} className="mt-6 relative overflow-hidden p-0.5 rounded-xl bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 animate-gradient-x shadow-lg shadow-emerald-500/10">
+                        <div className="bg-zinc-900/95 backdrop-blur-sm p-4 rounded-[10px] h-full w-full">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400">
+                              <Gavel className="h-4 w-4" />
+                            </div>
+                            <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-400 uppercase tracking-wider text-sm">
+                              Veredito do Conselho
+                            </span>
                           </div>
-                          <span className="font-bold text-emerald-400">Veredito do Moderador</span>
+                          <MarkdownRenderer 
+                            content={section.content.replace('[VEREDITO_DO_CONSELHO]', '').trim()} 
+                            className="prose-p:text-zinc-100 prose-p:font-medium" 
+                          />
                         </div>
-                        <MarkdownRenderer content={section.content} className="prose-p:text-zinc-200" />
                       </div>
                     );
                   }

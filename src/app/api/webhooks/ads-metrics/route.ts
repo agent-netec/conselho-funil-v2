@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createHmac } from 'crypto';
 import { doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { withResilience } from '@/lib/firebase/resilience';
+import { validateWebhookSignature } from '@/lib/utils/api-security';
 
 /**
  * Webhook para Recebimento de Métricas de Ads (ST-11.19)
@@ -17,9 +17,11 @@ export async function POST(request: NextRequest) {
   try {
     const rawBody = await request.text();
     const signature = request.headers.get('x-hub-signature-256');
-    const secret = process.env.CAMPAIGN_WEBHOOK_SECRET;
+    
+    const primarySecret = process.env.CAMPAIGN_WEBHOOK_SECRET;
+    const secondarySecret = process.env.CAMPAIGN_WEBHOOK_SECRET_SECONDARY;
 
-    if (!secret) {
+    if (!primarySecret) {
       console.error('[Webhook] CAMPAIGN_WEBHOOK_SECRET não configurada no ambiente');
       return NextResponse.json(
         { error: 'Configuração de segurança incompleta no servidor' }, 
@@ -27,16 +29,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 1. Validar Assinatura (Hmac-SHA256)
-    // Padrão de segurança exigido pela Monara (Integrator)
+    // 1. Validar Assinatura (Hmac-SHA256) com Graceful Rotation
     if (!signature) {
       return NextResponse.json({ error: 'Assinatura x-hub-signature-256 ausente' }, { status: 401 });
     }
 
-    const hmac = createHmac('sha256', secret);
-    const digest = 'sha256=' + hmac.update(rawBody).digest('hex');
+    const isValid = validateWebhookSignature(
+      rawBody,
+      signature,
+      primarySecret,
+      secondarySecret
+    );
 
-    if (signature !== digest) {
+    if (!isValid) {
       console.warn('[Webhook] Tentativa de acesso com assinatura inválida');
       return NextResponse.json({ error: 'Assinatura inválida' }, { status: 401 });
     }

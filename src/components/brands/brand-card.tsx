@@ -1,8 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Edit2, Trash2, Sparkles, Users, Target, Building2, ChevronRight, Activity } from 'lucide-react';
+import { Edit2, Trash2, Sparkles, Users, Target, Building2, ChevronRight, Activity, HeartPulse } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import type { Brand } from '@/types/database';
 import { cn } from '@/lib/utils';
 
@@ -14,6 +15,11 @@ interface BrandCardProps {
 }
 
 export function BrandCard({ brand, onEdit, onDelete, delay = 0 }: BrandCardProps) {
+  // Simulação de AHI (Asset Health Index) para o badge (ST-12.3)
+  // Em uma implementação real, isso viria de uma média dos assets da marca
+  const ahiScore = 92; 
+  const ahiStatus = ahiScore > 85 ? 'winner' : ahiScore < 60 ? 'critical' : 'stable';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -32,9 +38,19 @@ export function BrandCard({ brand, onEdit, onDelete, delay = 0 }: BrandCardProps
               <Building2 className="h-6 w-6 text-emerald-400 group-hover:text-emerald-300" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors truncate">
-                {brand.name}
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors truncate">
+                  {brand.name}
+                </h3>
+                <Badge className={cn(
+                  "text-[9px] px-1.5 h-4 font-bold border-none",
+                  ahiStatus === 'winner' ? "bg-emerald-500/20 text-emerald-400" : 
+                  ahiStatus === 'critical' ? "bg-red-500/20 text-red-400" : 
+                  "bg-amber-500/20 text-amber-400"
+                )}>
+                  AHI {ahiScore}%
+                </Badge>
+              </div>
               <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-500">
                 {brand.vertical}
               </p>

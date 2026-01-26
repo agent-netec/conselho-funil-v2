@@ -71,7 +71,11 @@ export function parsePartyResponse(content: string): PartySection[] {
     }
 
     // Check for Verdict Header
-    if (line.includes('### ⚖️ Veredito do Moderador') || line.includes('### ⚖️ Veredito')) {
+    if (line.includes('### ⚖️ Veredito do Moderador') || 
+        line.includes('### ⚖️ Veredito') || 
+        line.includes('### ⚖️ Veredito do Conselho') || 
+        line.includes('[VEREDITO_DO_CONSELHO]') ||
+        line.includes('### ⚖️ Veredito do Conselho')) {
       if (currentSection) sections.push(currentSection);
       currentSection = {
         type: 'verdict',

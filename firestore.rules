@@ -3,70 +3,116 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Users collection - users can only read/write their own data
+    // ============================================
+    // FUNCTIONS
+    // ============================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Verifica se o usuário é membro da agência
+    function getAgencyMember(agencyId) {
+      return get(/databases/$(database)/documents/agencies/$(agencyId)/members/$(request.auth.uid)).data;
+    }
+
+    function isAgencyMember(agencyId) {
+      return isAuthenticated() && exists(/databases/$(database)/documents/agencies/$(agencyId)/members/$(request.auth.uid));
+    }
+
+    function isAgencyAdmin(agencyId) {
+      return isAgencyMember(agencyId) && getAgencyMember(agencyId).role == 'admin';
+    }
+
+    function isAgencyManager(agencyId) {
+      return isAgencyMember(agencyId) && getAgencyMember(agencyId).role == 'manager';
+    }
+
+    function isAgencyViewer(agencyId) {
+      return isAgencyMember(agencyId) && getAgencyMember(agencyId).role == 'viewer';
+    }
+
+    // Regra de Ouro: Isolamento de Cliente para Managers
+    function canAccessClient(agencyId, clientId) {
+      let member = getAgencyMember(agencyId);
+      return isAgencyAdmin(agencyId) || 
+             (isAgencyManager(agencyId) && (member.assignedClients == null || clientId in member.assignedClients)) ||
+             (isAgencyViewer(agencyId) && (member.assignedClients == null || clientId in member.assignedClients));
+    }
+
+    // ============================================
+    // COLLECTIONS
+    // ============================================
+
+    // Users collection
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isUser(userId);
     }
     
-    // Tenants collection
+    // Agencies Root
+    match /agencies/{agencyId} {
+      allow read: if isAgencyMember(agencyId);
+      allow write: if isAgencyAdmin(agencyId);
+
+      // Members subcollection
+      match /members/{memberId} {
+        allow read: if isAgencyMember(agencyId);
+        allow write: if isAgencyAdmin(agencyId);
+      }
+
+      // Clients subcollection (Isolamento de Cliente)
+      match /clients/{clientId} {
+        allow read: if isAgencyMember(agencyId) && canAccessClient(agencyId, clientId);
+        allow write: if isAgencyAdmin(agencyId) || (isAgencyManager(agencyId) && canAccessClient(agencyId, clientId));
+        
+        // Dados do Cliente (Funis, Eventos, etc. dentro do path do cliente)
+        match /{allChildren=**} {
+          allow read: if isAgencyMember(agencyId) && canAccessClient(agencyId, clientId);
+          allow write: if isAgencyAdmin(agencyId) || (isAgencyManager(agencyId) && canAccessClient(agencyId, clientId));
+        }
+      }
+    }
+
+    // Legacy/Global Collections (Migrar para agency/client path no futuro)
+    // Por enquanto, bloqueamos acesso global se não for admin do sistema ou se não houver vínculo explícito
+    
     match /tenants/{tenantId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+      allow read, write: if isAuthenticated() && (resource == null || resource.data.ownerId == request.auth.uid);
     }
     
-    // Funnels - authenticated users can access their own funnels
     match /funnels/{funnelId} {
-      allow read, write: if true; // TODO: Add auth in production
-      
-      // Proposals subcollection
-      match /proposals/{proposalId} {
-        allow read, write: if true; // TODO: Add auth in production
-      }
-      
-      // Decisions subcollection
-      match /decisions/{decisionId} {
-        allow read, write: if true; // TODO: Add auth in production
-      }
-    }
-    
-    // Conversations (chat history)
-    match /conversations/{conversationId} {
-      allow read, write: if true; // TODO: Add auth in production
-      
-      // Messages subcollection
-      match /messages/{messageId} {
-        allow read, write: if true; // TODO: Add auth in production
-      }
-    }
-    
-    // Knowledge base - read/write for all (public RAG data)
-    // TODO: Restrict write access in production
-    match /knowledge/{chunkId} {
-      allow read: if true; // Public read for RAG
-      allow write: if true; // Temporary: allow unauthenticated writes for setup
-    }
-    
-    // Library templates
-    match /library/{templateId} {
-      allow read: if true; // Public read
-      allow write: if true; // TODO: Add auth in production
+      // Se o funil tiver agencyId/clientId, validamos. Se não, apenas o dono (userId)
+      allow read, write: if isAuthenticated() && (
+        (resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId)) ||
+        (resource.data.userId == request.auth.uid)
+      );
     }
 
-    // Brands collection - users can access their own brands
     match /brands/{brandId} {
-      allow read, write: if true; // TODO: Add auth in production (should check userId)
+      allow read, write: if isAuthenticated() && (
+        (resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId)) ||
+        (resource.data.userId == request.auth.uid)
+      );
     }
 
-    // Decisions (decision history)
-    match /decisions/{decisionId} {
-      allow read: if true; // Allow listing decisions
-      allow write: if true; // TODO: Add auth in production
+    // Knowledge base & Library (Public Read, Admin Write)
+    match /knowledge/{chunkId} {
+      allow read: if true;
+      allow write: if isAuthenticated() && isAgencyAdmin(request.auth.token.agencyId); // Exemplo usando custom claims se existirem
     }
     
-    // Development fallback - allow all during development
-    // TODO: REMOVER EM PRODUÇÃO - Permitir acesso total para desenvolvimento
+    match /library/{templateId} {
+      allow read: if true;
+      allow write: if isAuthenticated(); 
+    }
+
+    // Bloqueio Global de Segurança (NUNCA deixar allow true aqui)
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }

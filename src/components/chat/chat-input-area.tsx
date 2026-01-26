@@ -7,7 +7,7 @@ import { cn, fileToBase64 } from '@/lib/utils';
 import { ChatModeSelector, ChatMode } from './chat-mode-selector';
 import { CHAT_MODES, COUNSELORS_REGISTRY } from '@/lib/constants';
 import { CounselorId } from '@/types';
-import { CounselorMultiSelector } from './counselor-multi-selector';
+import { CounselorSelector } from './party-mode/counselor-selector';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import { useUser } from '@/lib/hooks/use-user';
 import { uploadBrandAsset, validateBrandAssetFile } from '@/lib/firebase/storage';
@@ -319,7 +319,7 @@ export function ChatInputArea({
         {/* Party Mode Selector */}
         <AnimatePresence>
           {mode === 'party' && (
-            <CounselorMultiSelector 
+            <CounselorSelector 
               selectedIds={selectedAgents} 
               onChange={setSelectedAgents}
               intensity={intensity}

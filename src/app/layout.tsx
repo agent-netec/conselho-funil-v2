@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { PostHogProvider } from "@/components/providers/posthog-provider";
 import { AppShell } from "@/components/layout/app-shell";
+import { BrandingProvider } from "@/components/providers/branding-provider";
 import { Toaster } from "sonner";
 
 const inter = Inter({
@@ -33,7 +34,9 @@ export default function RootLayout({
       >
         <PostHogProvider>
           <AuthProvider>
-            <AppShell>{children}</AppShell>
+            <BrandingProvider>
+              <AppShell>{children}</AppShell>
+            </BrandingProvider>
           </AuthProvider>
         </PostHogProvider>
         <Toaster position="bottom-right" theme="dark" />

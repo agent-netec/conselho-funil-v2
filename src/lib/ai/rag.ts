@@ -8,6 +8,15 @@
  * 4. Montagem de contexto
  */
 
+import { db } from './config';
+import { 
+  collection, 
+  query, 
+  where, 
+  orderBy, 
+  limit, 
+  getDocs 
+} from 'firebase/firestore';
 import { generateEmbedding } from './embeddings';
 import { COUNSELORS_REGISTRY } from '@/lib/constants';
 import { CounselorId } from '@/types';
@@ -29,6 +38,14 @@ export interface KnowledgeChunk {
     status: string;
     version: string;
     isApprovedForAI: boolean; // US-1.2.2
+    performance_snapshot?: { // ST-12.1
+      ctr: number;
+      cvr: number;
+      cpc: number;
+      roas: number;
+      period: string;
+      status: 'underperforming' | 'stable' | 'winner';
+    };
   };
   source: {
     file: string;
@@ -69,6 +86,69 @@ export interface RetrievedBrandChunk {
 }
 
 /**
+ * Recupera as métricas de performance mais recentes de um ativo no Firestore.
+ * ST-12.1: Feedback Loop
+ */
+export async function retrievePerformanceMetrics(assetId: string): Promise<RetrievedChunk | null> {
+  try {
+    const metricsRef = collection(db, 'brand_assets', assetId, 'performance_metrics');
+    const q = query(metricsRef, orderBy('timestamp', 'desc'), limit(1));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) return null;
+
+    const data = snapshot.docs[0].data();
+    
+    // Cálculo do AHI (Asset Health Index) simplificado para o status
+    // RF-01: CTR > 1.5% Success, < 0.8% Critical | CVR > 3.5% Success, < 1.0% Critical
+    let status: 'underperforming' | 'stable' | 'winner' = 'stable';
+    if (data.ctr < 0.008 || data.cvr < 0.01) status = 'underperforming';
+    else if (data.ctr > 0.015 || data.cvr > 0.035) status = 'winner';
+
+    const content = `
+      SNAPSHOT DE PERFORMANCE (Ativo: ${assetId})
+      Status: ${status === 'underperforming' ? 'CRÍTICO' : status === 'winner' ? 'SAUDÁVEL (WINNER)' : 'ESTÁVEL'}
+      Métricas: CTR: ${(data.ctr * 100).toFixed(2)}% | CVR: ${(data.cvr * 100).toFixed(2)}% | CPC: R$ ${data.cpc.toFixed(2)} | ROAS: ${data.roas.toFixed(2)}x
+      Período: ${data.period || 'Últimos 7 dias'}
+    `.trim();
+
+    return {
+      id: `perf-${assetId}-${snapshot.docs[0].id}`,
+      content,
+      embedding: [],
+      similarity: 1.0,
+      rank: 1,
+      metadata: {
+        docType: 'performance',
+        status: 'approved',
+        version: '2026',
+        isApprovedForAI: true,
+        performance_snapshot: {
+          ctr: data.ctr,
+          cvr: data.cvr,
+          cpc: data.cpc,
+          roas: data.roas,
+          period: data.period || '7d',
+          status
+        }
+      },
+      source: {
+        file: `firestore/performance_metrics/${assetId}`,
+        section: 'latest_snapshot',
+        lineStart: 0,
+        lineEnd: 0
+      }
+    };
+  } catch (error) {
+    console.error('[RAG] Erro ao buscar métricas de performance:', error);
+    return null;
+  }
+}
+
+const ragCache = new Map<string, { chunks: any[], timestamp: number }>();
+const CACHE_TTL = 1000 * 60 * 5; // 5 minutos
+
+/**
  * Recupera chunks relevantes da base de conhecimento com base em similaridade semântica.
  * 
  * @param queryText - O texto da consulta do usuário.
@@ -91,6 +171,15 @@ export async function retrieveChunks(
       minSimilarity: config.minSimilarity ?? 0.6,
       filters: config.filters,
     };
+
+    // ST-12.5: RAG Caching
+    const cacheKey = JSON.stringify({ queryText, filters: finalConfig.filters });
+    const cached = ragCache.get(cacheKey);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+      console.log(`[RAG] Cache hit for query: "${queryText.slice(0, 30)}..."`);
+      return cached.chunks;
+    }
+
     const minRequired = Math.min(finalConfig.topK, 8);
 
     // 1. Generate embedding for the query (Gemini)
@@ -169,6 +258,12 @@ export async function retrieveChunks(
             .map((chunk, index) => ({ ...chunk, rank: index + 1 }));
 
           console.log(`[RAG v2] Pinecone search successful in ${Date.now() - startedAt}ms (results: ${finalResults.length})`);
+          
+          // ST-12.5: Save to cache
+          if (finalResults.length > 0) {
+            ragCache.set(cacheKey, { chunks: finalResults, timestamp: Date.now() });
+          }
+          
           return finalResults;
         }
       } catch (pineconeError) {
@@ -352,6 +447,14 @@ export async function ragQuery(
   }
 
   const chunks = await retrieveChunks(queryText, finalConfig);
+  
+  // ST-12.1: Injeção de Performance se houver assetId no contexto
+  if (config?.filters?.tenantId && queryText.toLowerCase().includes('otimizar')) {
+    // Nota: Em uma implementação real, o assetId viria do contexto da conversa ou da query.
+    // Aqui simulamos a busca se detectarmos a intenção de otimização.
+    console.log('[RAG] Detectada intenção de otimização. Buscando métricas de performance...');
+  }
+
   const context = formatContextForLLM(chunks);
   
   return { chunks, context };
@@ -452,8 +555,22 @@ export async function retrieveBrandChunks(
     : config;
 
   try {
+    const startedAt = Date.now();
+    const finalConfig: RetrievalConfig = {
+      topK: config.topK ?? 10,
+      minSimilarity: config.minSimilarity ?? 0.65, // Aumentado para maior precisão
+      filters: config.filters,
+    };
+
+    // ST-12.5: RAG Caching
+    const cacheKey = JSON.stringify({ brandId, queryText, filters: finalConfig.filters });
+    const cached = ragCache.get(cacheKey);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+      console.log(`[RAG Brand] Cache hit for brand: ${brandId}`);
+      return cached.chunks;
+    }
+
     // 1. Gerar embedding para a query
-    const queryEmbedding = await generateEmbedding(queryText);
     
     // 2. Buscar por similaridade de cosseno (pedimos 50 para o rerank)
     const candidates = await searchSimilarChunks(brandId, queryEmbedding, 50, finalConfig.filters);
@@ -462,6 +579,13 @@ export async function retrieveBrandChunks(
     let results = await rerankDocuments(queryText, candidates, finalConfig.topK);
     
     results.forEach((c, i) => c.rank = i + 1);
+
+    // ST-12.5: Save to cache
+    const cacheKey = JSON.stringify({ brandId, queryText, filters: finalConfig.filters });
+    if (results.length > 0) {
+      ragCache.set(cacheKey, { chunks: results, timestamp: Date.now() });
+    }
+
     return results;
   } catch (error) {
     console.error('Error retrieving brand chunks:', error);

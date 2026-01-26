@@ -8,8 +8,60 @@ import {
   type UploadMetadata,
 } from 'firebase/storage';
 import app from './config';
+import { createVaultAsset } from './vault';
 
 const storage = getStorage(app);
+
+/**
+ * Faz upload de um asset para o Vault (Creative Vault).
+ * Sincroniza metadados no Firestore após o upload.
+ */
+export async function uploadVaultAsset(
+  file: File,
+  brandId: string,
+  userId: string,
+  tags: string[] = []
+): Promise<string> {
+  const timestamp = Date.now();
+  const fileName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+  const storagePath = `brands/${brandId}/vault/assets/${fileName}`;
+  const storageRef = ref(storage, storagePath);
+
+  const metadata: UploadMetadata = {
+    contentType: file.type,
+    customMetadata: {
+      userId,
+      brandId,
+      originalName: file.name,
+      uploadedAt: new Date().toISOString(),
+    },
+  };
+
+  const uploadTask = await uploadBytesResumable(storageRef, file, metadata);
+  const downloadURL = await getDownloadURL(uploadTask.ref);
+
+  // Determinar o tipo do asset
+  let type: 'image' | 'video' | 'logo' | 'document' = 'document';
+  if (file.type.startsWith('image/')) type = 'image';
+  else if (file.type.startsWith('video/')) type = 'video';
+
+  // Salvar metadados no Firestore (sub-coleção vault/assets)
+  await createVaultAsset(brandId, {
+    name: file.name,
+    type,
+    url: downloadURL,
+    storagePath,
+    status: 'approved', // Assets manuais são aprovados por padrão
+    tags,
+    metadata: {
+      size: file.size,
+      contentType: file.type,
+      uploadedBy: userId,
+    },
+  });
+
+  return downloadURL;
+}
 
 /**
  * Faz upload de uma imagem em Base64 (Data URL) para o Firebase Storage.
