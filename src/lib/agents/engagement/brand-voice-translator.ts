@@ -3,7 +3,7 @@ import {
   BrandVoiceSuggestion 
 } from '@/types/social-inbox';
 import { Brand } from '@/types/database';
-import { generateText } from '../../ai/gemini';
+import { generateWithGemini } from '../../ai/gemini';
 import { SOCIAL_RESPONSE_PROMPT } from '../../ai/prompts/social-generation';
 
 /**
@@ -27,9 +27,10 @@ export class BrandVoiceTranslator {
     const prompt = this.buildPrompt(interaction, brand);
     
     try {
-      const response = await generateText(prompt, {
+      const response = await generateWithGemini(prompt, {
         temperature: brand.aiConfiguration?.temperature || 0.7,
         topP: brand.aiConfiguration?.topP || 0.9,
+        responseMimeType: 'application/json',
       });
 
       // O prompt SOCIAL_RESPONSE_PROMPT deve ser configurado para retornar JSON estruturado

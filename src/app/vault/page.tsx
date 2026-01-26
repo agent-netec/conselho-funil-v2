@@ -17,7 +17,8 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ApprovalWorkspace } from '@/components/vault/approval-workspace';
 import { VaultExplorer } from '@/components/vault/vault-explorer';
-import { useToast } from '@/components/ui/toast-notifications';
+import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { 
   queryVaultLibrary, 
   getBrandDNA, 
@@ -58,7 +59,6 @@ const MOCK_REVIEW_CONTENT: VaultContent = {
 const MOCK_INSIGHT = "Usuários estão demonstrando alto interesse em como a IA pode automatizar o social listening sem perder o tom de voz da marca. O volume de buscas por 'Social Listening Autopilot' cresceu 45% na última semana.";
 
 export default function VaultPage() {
-  const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState('review');
   const [reviewItems, setReviewItems] = useState<VaultContent[]>([MOCK_REVIEW_CONTENT]);
   const [libraryItems, setLibraryItems] = useState<VaultContent[]>([]);
@@ -106,29 +106,23 @@ export default function VaultPage() {
         }
       });
 
-      addToast({
-        title: "Conteúdo Aprovado!",
+      toast.success("Conteúdo Aprovado!", {
         description: `O post para ${platform} foi movido para a biblioteca.`,
-        type: "success"
       });
 
       // Atualiza UI local
       setReviewItems([]);
       loadVaultData();
     } catch (error) {
-      addToast({
-        title: "Erro ao aprovar",
+      toast.error("Erro ao aprovar", {
         description: "Não foi possível salvar a aprovação no Firestore.",
-        type: "error"
       });
     }
   };
 
   const handleEdit = (platform: string, copy: string) => {
-    addToast({
-      title: "Modo de Edição",
+    toast.info("Modo de Edição", {
       description: `Abrindo editor para ${platform}...`,
-      type: "info"
     });
   };
 
@@ -237,10 +231,8 @@ export default function VaultPage() {
                     libraryItems={libraryItems}
                     assets={assets}
                     onUseItem={(item) => {
-                      addToast({
-                        title: "Item Selecionado",
+                      toast.info("Item Selecionado", {
                         description: "Preparando conteúdo para uso...",
-                        type: "info"
                       });
                     }}
                   />

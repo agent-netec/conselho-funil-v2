@@ -22,6 +22,20 @@ export async function getPersonalizationRules(brandId: string): Promise<DynamicC
 }
 
 /**
+ * Salva um novo scan de audiência
+ */
+export async function saveAudienceScan(brandId: string, scan: Omit<AudienceScan, "id">) {
+  const scansRef = collection(db, `brands/${brandId}/audience_scans`);
+  return await addDoc(scansRef, {
+    ...scan,
+    metadata: {
+      ...scan.metadata,
+      createdAt: Timestamp.now()
+    }
+  });
+}
+
+/**
  * Salva uma nova regra de personalização
  */
 export async function savePersonalizationRule(brandId: string, rule: Omit<DynamicContentRule, "id" | "updatedAt">) {

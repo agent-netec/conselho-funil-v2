@@ -11,9 +11,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { CreativePerformance, CopyVariant } from '@/types/creative';
-import { Sparkles, BrainCircuit, Target, ShieldCheck, Loader2, Copy as CopyIcon, Check } from 'lucide-react';
+import { Sparkles, BrainCircuit, Target, ShieldCheck, Loader2, Copy as CopyIcon, Check, AlertTriangle, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useToast } from '@/components/ui/toast-notifications';
+import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 
 interface CopyLabModalProps {
   creative: CreativePerformance | null;
@@ -25,7 +26,6 @@ interface CopyLabModalProps {
 type Angle = 'fear' | 'greed' | 'authority' | 'curiosity';
 
 export function CopyLabModal({ creative, isOpen, onClose, brandId }: CopyLabModalProps) {
-  const { addToast } = useToast();
   const [activeAngle, setActiveAngle] = useState<Angle>('greed');
   const [isGenerating, setIsGenerating] = useState(false);
   const [variants, setVariants] = useState<CopyVariant[]>([]);
@@ -52,16 +52,12 @@ export function CopyLabModal({ creative, isOpen, onClose, brandId }: CopyLabModa
       const data = await response.json();
       setVariants(data.variants);
       
-      addToast({
-        title: "Variantes Geradas!",
+      toast.success("Variantes Geradas!", {
         description: `3 novas opções baseadas em ${activeAngle} estão prontas.`,
-        type: "success"
       });
     } catch (error) {
-      addToast({
-        title: "Erro na Geração",
+      toast.error("Erro na Geração", {
         description: "Não foi possível conectar ao motor de IA.",
-        type: "error"
       });
     } finally {
       setIsGenerating(false);
@@ -72,10 +68,8 @@ export function CopyLabModal({ creative, isOpen, onClose, brandId }: CopyLabModa
     navigator.clipboard.writeText(text);
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 2000);
-    addToast({
-      title: "Copiado!",
+    toast.info("Copiado!", {
       description: "Conteúdo pronto para colar no Gerenciador de Anúncios.",
-      type: "info"
     });
   };
 
