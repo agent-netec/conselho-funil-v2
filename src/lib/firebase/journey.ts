@@ -11,9 +11,9 @@ import {
   orderBy,
   limit
 } from 'firebase/firestore';
-import { db } from '../config.js';
-import { withResilience } from '../resilience.js';
-import { encryptSensitiveFields } from '../../utils/encryption.js';
+import { db } from './config';
+import { withResilience } from './resilience';
+import { encryptSensitiveFields } from '../utils/encryption';
 import type { 
   JourneyLead, 
   JourneyEvent, 

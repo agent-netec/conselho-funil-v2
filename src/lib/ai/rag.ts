@@ -556,12 +556,7 @@ export async function retrieveBrandChunks(
 
   try {
     const startedAt = Date.now();
-    const finalConfig: RetrievalConfig = {
-      topK: config.topK ?? 10,
-      minSimilarity: config.minSimilarity ?? 0.65, // Aumentado para maior precisão
-      filters: config.filters,
-    };
-
+    
     // ST-12.5: RAG Caching
     const cacheKey = JSON.stringify({ brandId, queryText, filters: finalConfig.filters });
     const cached = ragCache.get(cacheKey);
@@ -571,6 +566,7 @@ export async function retrieveBrandChunks(
     }
 
     // 1. Gerar embedding para a query
+    const queryEmbedding = await generateEmbedding(queryText);
     
     // 2. Buscar por similaridade de cosseno (pedimos 50 para o rerank)
     const candidates = await searchSimilarChunks(brandId, queryEmbedding, 50, finalConfig.filters);

@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { useActiveBrand } from './use-active-brand';
 import { db } from '../firebase/config';
