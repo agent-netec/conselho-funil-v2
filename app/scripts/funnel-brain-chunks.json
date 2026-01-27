@@ -1,0 +1,291 @@
+[
+  {
+    "content": "---\r\ncounselor: \"russell_brunson\"\r\ndoc_type: \"anti_pattern\"\r\nscope: \"funnel\"\r\nchannel: \"all\"\r\nfunnel_type: \"quiz_funnel\"\r\nstatus: \"approved\"\r\nversion: \"2024-12-24\"\r\ntags: [\"anti-pattern\", \"quiz\", \"upsell\", \"monetization\", \"ltv\"]\r\nseverity: \"critical\"\r\n---\r\n\r\n# Anti-Pattern: Quiz sem Cadeia de Upsell\r\n\r\n## ⚠️ Severidade: CRÍTICA\r\n\r\n---\r\n\r\n## 🚫 O Problema\r\n\r\n### Sintoma\r\n> \"Meu quiz converte bem, mas não consigo ser rentável.\"\r\n\r\n### Diagnóstico\r\nQuiz que só vende a oferta principal = LTV baixo = CPA insustentável.\r\n\r\n---\r\n\r\n## 📊 A Matemática Mortal\r\n\r\n### Cenário Típico (Sem Upsell)\r\n\r\n```\r\nCPA: $20\r\nProduto: $49 (one-time)\r\nMargem: 70%\r\nLucro por cliente: $49 × 0.7 - $20 = $14.30\r\n\r\nMáximo escalável: Limitado\r\n```\r\n\r\n### Cenário Saudável (Com Cadeia de Upsell)\r\n\r\n```\r\nCPA: $20\r\nOferta inicial: $49\r\nOrder Bump: $19 (40% aceitam)\r\nUpsell 1: $97 (25% aceitam)\r\nUpsell 2: $197 (10% aceitam)\r\nSubscription: $29/mês × 6 meses avg\r\n\r\nLTV = $49 + ($19 × 0.4) + ($97 × 0.25) + ($197 × 0.1) + ($29 × 6)\r\nLTV = $49 + $7.60 + $24.25 + $19.70 + $174\r\nLTV = $274.55\r\n\r\nLucro por cliente: $274.55 × 0.7 - $20 = $172.18\r\n```\r\n\r\n**Diferença:** $172 vs $14 = **12x mais lucro**\r\n\r\n---\r\n\r\n## 🔴 Sinais de Alerta\r\n\r\nVocê está neste anti-pattern se:\r\n\r\n- [ ] Quiz → Oferta única → Fim\r\n- [ ] Não existe order bump no checkout\r\n- [ ] Zero upsells pós-compra\r\n- [ ] Não há subscription/continuidade\r\n- [ ] LTV = Ticket médio inicial\r\n- [ ] Break-even difícil ou impossível\r\n- [ ] Não consegue competir no leilão de ads\r\n\r\n---\r\n\r\n## 📉 Impacto Quantificado\r\n\r\n| Cenário | LTV | Max CPA | Competitividade |\r\n|---------|-----|---------|-----------------|\r\n| Sem upsell | $49 | $15 | Baixa |\r\n| Com order bump | $57 | $20 | Média |\r\n| Com cadeia completa | $275 | $80 | Alta |\r\n| Com subscription | $450+ | $150 | Dominante |\r\n\r\n**Realidade:** Quem tem cadeia de upsell pode pagar **5x mais** pelo mesmo lead e ainda lucrar.\r\n\r\n---\r\n\r\n## ✅ Solução: Cadeia de Monetização Completa\r\n\r\n### Estrutura Ideal de Quiz Funnel\r\n\r\n```\r\nQUIZ (Gratuito)\r\n    ↓\r\nRESULTADO + OFERTA PRINCIPAL ($29-99)\r\n    ↓\r\nORDER BUMP no checkout ($9-29)\r\n    ↓\r\nTHANK YOU PAGE → UPSELL 1 ($97-197)\r\n    ↓\r\nUPSELL 2 / DOWNSELL ($47-297)\r\n    ↓\r\nEMAIL SEQUENCE → Subscription / High-Ticket\r\n    ↓\r\nBACK-END → Coaching / Mastermind / Done-for-you\r\n```\r\n\r\n---\r\n\r\n## 🛠️ Implementação por Etapa\r\n\r\n### 1. Order Bump (Quick Win)\r\n- Adiciona 15-40% ao ticket médio\r\n- Zero fricção (checkbox no checkout)\r\n- Exemplos: templates, checklists, acesso extra\r\n\r\n### 2. Upsell Imediato\r\n- Após compra, antes de thank you\r\n- Oferta complementar premium\r\n- Usa momentum da compra\r\n\r\n### 3. Downsell (para quem recusa)\r\n- Versão mais barata do upsell\r\n- Plano de pagamento\r\n- Produto relacionado menor\r\n\r\n### 4. Subscription\r\n- Transforma one-time em recorrente\r\n- Conteúdo novo mensal\r\n- Comunidade / Suporte\r\n\r\n### 5. Back-end High-Ticket\r\n- Para os melhores clientes\r\n- Coaching, consultoria, done-for-you\r\n- Via email ou sales call\r\n\r\n---\r\n\r\n## 📋 Exemplo Prático: Fitness Quiz\r\n\r\n### Sem Cadeia (Ruim)\r\n```\r\nQuiz → Plano de Treino PDF $47\r\nLTV: $47\r\nCPA máximo: $15\r\n```\r\n\r\n### Com Cadeia (Bom)\r\n```\r\nQuiz → Plano de Treino PDF $47\r\n       ↓\r\nOrder Bump: Receitas Fitness $17 (40%)\r\n       ↓\r\nUpsell 1: App Premium 3 meses $97 (25%)\r\n       ↓\r\nUpsell 2: Coaching Mensal $197 (10%)\r\n       ↓\r\nEmail → Subscription App $29/mês (30%)\r\n\r\nLTV: $47 + $6.80 + $24.25 + $19.70 + $52.20 = $149.95\r\nCPA máximo: $50\r\n```\r\n\r\n---\r\n\r\n## 💡 Regras de Ouro\r\n\r\n### Regra do 3x\r\n> \"Sua cadeia deve multiplicar o LTV por pelo menos 3x.\"\r\n\r\n### Regra da Ascensão\r\n> \"Cada oferta deve resolver um problema maior ou dar resultado mais rápido.\"",
+    "metadata": {
+      "docType": "anti_patterns",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/anti_patterns/quiz_without_upsell_chain.md",
+      "section": "Introduction",
+      "lineStart": 0,
+      "lineEnd": 174
+    }
+  },
+  {
+    "content": "### Regra do Value Stack\r\n> \"O cliente deve sentir que está recebendo mais valor a cada compra.\"\r\n\r\n---\r\n\r\n## ⚠️ Erros Comuns\r\n\r\n### ❌ Erro 1: Upsell desconectado\r\n- Upsell deve ser continuação lógica\r\n- Não venda algo aleatório\r\n\r\n### ❌ Erro 2: Muitos upsells\r\n- Máximo 2-3 imediatos\r\n- Resto via email depois\r\n\r\n### ❌ Erro 3: Preços sem lógica\r\n- Order bump < Oferta principal\r\n- Upsell 1 = 2-3x oferta principal\r\n- Upsell 2 = 2-3x upsell 1\r\n\r\n### ❌ Erro 4: Sem downsell\r\n- 75% rejeitam upsell\r\n- Downsell recupera 20-30%\r\n- Dinheiro deixado na mesa\r\n\r\n---\r\n\r\n## 📊 Métricas de Referência\r\n\r\n| Oferta | Take Rate Esperado |\r\n|--------|-------------------|\r\n| Order Bump | 30-50% |\r\n| Upsell 1 | 20-30% |\r\n| Upsell 2 | 10-20% |\r\n| Downsell | 20-30% dos que recusam |\r\n| Subscription (via email) | 15-30% da lista |\r\n\r\n---\r\n\r\n## 📚 Referência\r\n\r\nAnti-case: Quiz funnels one-shot\r\nSolução: MadMuscles (subscription + upsell chain)\r\nFramework: Russell Brunson Value Ladder",
+    "metadata": {
+      "docType": "anti_patterns",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/anti_patterns/quiz_without_upsell_chain.md",
+      "section": "Introduction",
+      "lineStart": 175,
+      "lineEnd": 221
+    }
+  },
+  {
+    "content": "---\r\ncounselor: \"russell_brunson\"\r\ndoc_type: \"anti_pattern\"\r\nscope: \"funnel\"\r\nchannel: \"paid_traffic\"\r\nfunnel_type: \"quiz_funnel\"\r\nstatus: \"approved\"\r\nversion: \"2024-12-24\"\r\ntags: [\"anti-pattern\", \"landing_page\", \"scale\", \"segmentation\"]\r\nseverity: \"high\"\r\n---\r\n\r\n# Anti-Pattern: Uma Única Landing Page para Todo o Tráfego\r\n\r\n## ⚠️ Severidade: ALTA\r\n\r\n---\r\n\r\n## 🚫 O Problema\r\n\r\n### Sintoma\r\n> \"Estou gastando $50K/mês em ads mas o CPA só aumenta.\"\r\n\r\n### Diagnóstico\r\nUma única LP tentando converter todos os avatares = mensagem genérica = conversão medíocre.\r\n\r\n---\r\n\r\n## 📊 Anatomia do Problema\r\n\r\n### Cenário Típico\r\n\r\n```\r\nBudget: $50K/mês\r\nLP: 1 (genérica)\r\nHeadline: \"Get Fit Fast\"\r\nAudiências: 5 diferentes\r\nResultado: CPA $45 (e subindo)\r\n```\r\n\r\n### Por que Acontece\r\n\r\n| Audiência | O que Querem | LP Genérica Fala |\r\n|-----------|--------------|------------------|\r\n| Homens 40+ | \"Ter energia para os filhos\" | \"Get fit\" |\r\n| Mulheres pós-parto | \"Corpo de antes\" | \"Get fit\" |\r\n| Atletas | \"Performance máxima\" | \"Get fit\" |\r\n| Iniciantes | \"Começar sem medo\" | \"Get fit\" |\r\n\r\n**Resultado:** Ninguém se sente falado diretamente → Baixa conversão\r\n\r\n---\r\n\r\n## 🔴 Sinais de Alerta\r\n\r\nVocê está neste anti-pattern se:\r\n\r\n- [ ] CTR dos ads > 2% mas CVR da LP < 3%\r\n- [ ] CPA aumenta conforme escala o budget\r\n- [ ] Feedback genérico: \"Parece igual a todos os outros\"\r\n- [ ] Bounce rate > 70%\r\n- [ ] Time on page < 30 segundos\r\n- [ ] Diferentes audiências têm performance similar (todas ruins)\r\n\r\n---\r\n\r\n## 📉 Impacto Quantificado\r\n\r\n| Métrica | LP Única | LPs Segmentadas |\r\n|---------|----------|-----------------|\r\n| CVR Médio | 2-3% | 8-12% |\r\n| CPA | $40-60 | $15-25 |\r\n| Quality Score | 5-6 | 8-10 |\r\n| Escalabilidade | Limitada | Alta |\r\n\r\n**Custo do erro:** Para cada $10K gastos, você perde ~$6K em CPA inflado.\r\n\r\n---\r\n\r\n## ✅ Solução: Segmentação Progressiva\r\n\r\n### Fase 1: 3-5 LPs (Quick Win)\r\n\r\nCrie LPs para os **3 maiores avatares**:\r\n\r\n```\r\n/avatar-1 → Headline específica + Imagem específica\r\n/avatar-2 → Headline específica + Imagem específica\r\n/avatar-3 → Headline específica + Imagem específica\r\n```\r\n\r\n### Fase 2: 10-20 LPs (Escala)\r\n\r\nAdicione variações por:\r\n- Objetivo (perder peso, ganhar massa, etc.)\r\n- Canal de origem (YouTube, Meta, TikTok)\r\n- Nível de consciência (iniciante, intermediário)\r\n\r\n### Fase 3: 50+ LPs (Dominância)\r\n\r\nMicro-segmentação total:\r\n- Idade × Gênero × Objetivo × Obstáculo\r\n- Cada combinação = 1 LP dedicada\r\n\r\n---\r\n\r\n## 🛠️ Implementação Prática\r\n\r\n### Estrutura de LP Segmentada\r\n\r\n```\r\nURL: /women-over-40-lose-weight\r\n\r\nHeadline: \"Mulheres 40+: Perca os últimos 10kg \r\n          sem dietas malucas\"\r\n\r\nSubheadline: \"O quiz de 2 minutos que já ajudou \r\n             50.000 mulheres como você\"\r\n\r\nHero Image: Mulher 45 anos, sorrindo, roupas de yoga\r\n\r\nProva Social: \"Maria, 47: Perdi 12kg em 3 meses\"\r\n\r\nCTA: \"Descobrir Meu Plano Personalizado\"\r\n```\r\n\r\n### Checklist por LP\r\n\r\n- [ ] Headline menciona o avatar\r\n- [ ] Imagem representa o avatar\r\n- [ ] Depoimentos são do mesmo perfil\r\n- [ ] Benefícios são específicos\r\n- [ ] CTA é contextual\r\n\r\n---\r\n\r\n## 💡 Regra de Ouro\r\n\r\n> \"Se você não consegue completar a frase 'Esta LP é para [QUEM ESPECÍFICO]', ela é genérica demais.\"\r\n\r\n---\r\n\r\n## 📊 Caso de Correção\r\n\r\n### Antes (LP Única)\r\n```\r\nBudget: $30K/mês\r\nLPs: 1\r\nCPA: $55\r\nLeads/mês: 545\r\nROI: 1.2x\r\n```\r\n\r\n### Depois (5 LPs Segmentadas)\r\n```\r\nBudget: $30K/mês\r\nLPs: 5\r\nCPA: $22\r\nLeads/mês: 1.364\r\nROI: 3.1x\r\n```\r\n\r\n**Resultado:** +150% leads com mesmo budget.\r\n\r\n---\r\n\r\n## 📚 Referência\r\n\r\nAnti-case: Empresas que tentam escalar com 1 LP\r\nSolução: MadMuscles (493 LPs, 10M visitas/mês)",
+    "metadata": {
+      "docType": "anti_patterns",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/anti_patterns/single_landing_page.md",
+      "section": "Introduction",
+      "lineStart": 0,
+      "lineEnd": 172
+    }
+  },
+  {
+    "content": "---\r\ncounselor: \"ryan_deiss\"\r\ndoc_type: \"case_library\"\r\nscope: \"funnel\"\r\nchannel: \"paid_traffic\"\r\nfunnel_type: \"quiz_funnel\"\r\nstatus: \"approved\"\r\nversion: \"2024-12-24\"\r\ntags: [\"quiz\", \"scale\", \"fitness\", \"youtube\", \"landing_pages\", \"ai_creative\"]\r\n---\r\n\r\n# Case Study: MadMuscles — O Maior Quiz Funnel de 2025\r\n\r\n## 📊 Números do Case\r\n\r\n| Métrica | Valor |\r\n|---------|-------|\r\n| **Landing Pages** | 493 variações ativas |\r\n| **Tráfego Mensal** | 10+ milhões de visitas |\r\n| **Gasto YouTube Ads** | $10M/mês |\r\n| **Criativos AI** | 200+ variações testadas |\r\n| **Ticket** | $29-79/mês (subscription) |\r\n| **Nicho** | Fitness / Perda de Peso |\r\n\r\n---\r\n\r\n## 🎯 Contexto do Negócio\r\n\r\n### O que é MadMuscles?\r\nApp de fitness com plano personalizado baseado em quiz. O usuário responde perguntas sobre:\r\n- Objetivos (perder peso, ganhar massa, etc.)\r\n- Histórico (nível de atividade, restrições)\r\n- Preferências (tipo de treino, equipamentos)\r\n- Dados biométricos (altura, peso, idade)\r\n\r\n### Modelo de Monetização\r\n1. **Quiz gratuito** → Lead capture\r\n2. **Resultado personalizado** → Plano de 28 dias\r\n3. **Paywall** → Assinatura mensal/anual\r\n4. **Upsells** → Suplementos, equipamentos, coaching\r\n\r\n---\r\n\r\n## 🧠 Estratégia de Escala\r\n\r\n### 1. Micro-Segmentação por Landing Page\r\n\r\n**Princípio:** Cada segmento de audiência tem uma LP diferente.\r\n\r\n| Segmento | LP | Headline |\r\n|----------|----|---------| \r\n| Homens 40+ | `/men-over-40` | \"Finally, a workout plan for busy dads\" |\r\n| Mulheres pós-parto | `/postpartum` | \"Get your pre-baby body back\" |\r\n| Iniciantes | `/beginners` | \"No gym? No problem. Start at home\" |\r\n| Atletas | `/athletes` | \"Take your performance to the next level\" |\r\n\r\n**Resultado:** 493 LPs, cada uma otimizada para um avatar específico.\r\n\r\n### 2. YouTube como Canal Dominante\r\n\r\n**Por que YouTube?**\r\n- CPM mais baixo que Meta para fitness\r\n- Atenção prolongada (vs. scroll do IG)\r\n- Formato longo permite storytelling\r\n- Retargeting poderoso\r\n\r\n**Mix de Investimento:**\r\n| Canal | % Budget | CPA Médio |\r\n|-------|----------|-----------|\r\n| YouTube | 70% | $12-18 |\r\n| Meta | 20% | $25-35 |\r\n| TikTok | 10% | $20-30 |\r\n\r\n### 3. Criativos AI-Driven\r\n\r\n**Processo:**\r\n1. **Base:** 10 scripts de alta performance\r\n2. **Variações AI:** 200+ hooks diferentes\r\n3. **Teste:** 50 criativos/semana\r\n4. **Scale:** Top 5% recebem 80% do budget\r\n\r\n**Tipos de Criativos:**\r\n- UGC transformations\r\n- Before/After compilations\r\n- Expert testimonials\r\n- \"Day in the life\" vlogs\r\n- Animated explainers\r\n\r\n### 4. Quiz como Filtro de Qualidade\r\n\r\n**Estrutura do Quiz (12-15 perguntas):**\r\n\r\n1. **Objetivo Principal** → Segmentação\r\n2. **Nível de Experiência** → Personalização\r\n3. **Obstáculos** → Objeções a tratar\r\n4. **Tempo Disponível** → Oferta adequada\r\n5. **Email** → Lead capture\r\n6. **Dados Físicos** → \"Personalização\"\r\n\r\n**Insight:** O quiz NÃO é só para coletar dados. É para:\r\n- Aumentar commitment (sunk cost)\r\n- Identificar objeções\r\n- Segmentar na hora do pitch\r\n- Criar sensação de exclusividade\r\n\r\n---\r\n\r\n## 🔥 Lições para Aplicar\r\n\r\n### ✅ O que Copiar\r\n\r\n1. **Múltiplas LPs > Uma LP**\r\n   - Não tente servir todos com uma página\r\n   - Cada avatar merece mensagem específica\r\n   - Escala vem de variação, não de budget\r\n\r\n2. **YouTube para High-Ticket/Subscription**\r\n   - Atenção prolongada = confiança\r\n   - Menos saturado que Meta\r\n   - Melhor para explicar valor\r\n\r\n3. **Quiz como Qualificador**\r\n   - Leads quentes > Leads frios\r\n   - Dados = personalização = conversão\r\n   - Commitment crescente\r\n\r\n4. **AI para Criativos**\r\n   - Volume de testes importa\r\n   - Humanos criam frameworks, AI escala\r\n   - Winners emergem dos dados\r\n\r\n### ❌ O que NÃO Copiar (sem recursos)\r\n\r\n1. **Budget de $10M/mês** → Comece com $500-5K\r\n2. **493 LPs de uma vez** → Comece com 5-10 avatares\r\n3. **Time de 50 pessoas** → 1-3 pessoas no início\r\n4. **Tech stack enterprise** → Use no-code/low-code\r\n\r\n---\r\n\r\n## 🎯 Framework de Aplicação",
+    "metadata": {
+      "docType": "case_library",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/cases/madmuscles-quiz-funnel-2025.md",
+      "section": "Introduction",
+      "lineStart": 0,
+      "lineEnd": 141
+    }
+  },
+  {
+    "content": "### Para Quiz Funnels em Escala Menor\r\n\r\n**Fase 1: Validação (0-$10K/mês)**\r\n- 1 LP principal\r\n- 3-5 variações de criativo\r\n- Quiz de 8-10 perguntas\r\n- Meta/Google Ads\r\n\r\n**Fase 2: Escala (10K-100K/mês)**\r\n- 5-10 LPs por avatar\r\n- 20+ criativos em rotação\r\n- Quiz otimizado por dados\r\n- Adicionar YouTube\r\n\r\n**Fase 3: Dominância (100K+/mês)**\r\n- 50+ LPs\r\n- AI creative testing\r\n- Quiz dinâmico\r\n- Multi-canal\r\n\r\n---\r\n\r\n## 📈 Métricas de Referência\r\n\r\n| Métrica | Benchmark Ruim | Benchmark Bom | MadMuscles |\r\n|---------|----------------|---------------|------------|\r\n| Quiz Completion | < 40% | > 60% | ~75% |\r\n| Quiz → Lead | < 20% | > 40% | ~55% |\r\n| Lead → Trial | < 5% | > 15% | ~25% |\r\n| Trial → Paid | < 30% | > 50% | ~65% |\r\n| CAC | > $50 | < $25 | ~$15 |\r\n| LTV/CAC | < 2x | > 4x | ~6x |\r\n\r\n---\r\n\r\n## 🧩 Citação para Propostas\r\n\r\n> \"O case MadMuscles prova que escala em quiz funnels vem de micro-segmentação, não de budget bruto. Com 493 landing pages servindo avatares específicos e $10M/mês em YouTube, eles dominam o nicho fitness. A lição: cada avatar merece sua própria jornada.\"\r\n\r\n---\r\n\r\n## 📚 Fontes\r\n- Funnel of the Week (Dez 2024)\r\n- SimilarWeb Analytics\r\n- YouTube Ad Library\r\n- Entrevistas com ex-funcionários",
+    "metadata": {
+      "docType": "case_library",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/cases/madmuscles-quiz-funnel-2025.md",
+      "section": "Introduction",
+      "lineStart": 142,
+      "lineEnd": 190
+    }
+  },
+  {
+    "content": "---\r\ncounselor: \"frank_kern\"\r\ndoc_type: \"heuristics\"\r\nscope: \"funnel\"\r\nchannel: \"paid_traffic\"\r\nfunnel_type: \"quiz_funnel\"\r\nstatus: \"approved\"\r\nversion: \"2024-12-24\"\r\ntags: [\"creative\", \"ai\", \"testing\", \"ads\", \"scale\"]\r\n---\r\n\r\n# Heurística: Criativos AI-Driven para Tráfego\r\n\r\n## 🎯 Princípio Central\r\n\r\n> **Humanos criam os frameworks vencedores.**\r\n> **AI escala as variações.**\r\n> **Dados elegem os winners.**\r\n\r\n---\r\n\r\n## 📊 O Problema do Creative Fatigue\r\n\r\n### Cenário Tradicional\r\n```\r\nSemana 1: CTR 3.5% → CPA $15\r\nSemana 2: CTR 2.8% → CPA $18\r\nSemana 3: CTR 2.1% → CPA $25\r\nSemana 4: CTR 1.5% → CPA $40 ← MORTE DO CRIATIVO\r\n```\r\n\r\n### Solução: Volume de Testes\r\n```\r\n50 criativos/semana\r\n→ 5 winners (top 10%)\r\n→ 80% budget nos winners\r\n→ 45 novos testes na semana seguinte\r\n```\r\n\r\n---\r\n\r\n## 🧠 Framework de Criação com AI\r\n\r\n### Fase 1: Identificar Winners Humanos\r\n\r\n1. Analise top 5 criativos históricos\r\n2. Extraia os **elementos vencedores**:\r\n   - Hook (primeiros 3 segundos)\r\n   - Estrutura narrativa\r\n   - CTA\r\n   - Visual style\r\n\r\n### Fase 2: Criar Variações com AI\r\n\r\n**Para cada winner, gere:**\r\n\r\n| Elemento | Variações AI |\r\n|----------|--------------|\r\n| Hook | 20 diferentes |\r\n| Headlines | 10 diferentes |\r\n| CTAs | 5 diferentes |\r\n| Thumbnails | 10 diferentes |\r\n\r\n**Total por winner:** 200+ combinações possíveis\r\n\r\n### Fase 3: Teste e Seleção\r\n\r\n```\r\n200 variações\r\n→ 50 para teste (25%)\r\n→ 5 winners (2.5%)\r\n→ Scale winners\r\n→ Repetir\r\n```\r\n\r\n---\r\n\r\n## 🛠️ Ferramentas Recomendadas\r\n\r\n### Para Geração de Texto\r\n- **GPT-4/Claude** — Scripts e headlines\r\n- **Copy.ai** — Variações rápidas\r\n- **Jasper** — Templates de ads\r\n\r\n### Para Geração de Imagem\r\n- **Midjourney** — Thumbnails\r\n- **DALL-E 3** — Variações visuais\r\n- **Canva AI** — Edição rápida\r\n\r\n### Para Vídeo\r\n- **Runway** — Edição AI\r\n- **Synthesia** — Avatares\r\n- **HeyGen** — UGC sintético\r\n\r\n---\r\n\r\n## 📋 Processo Semanal\r\n\r\n### Segunda: Análise\r\n- [ ] Review performance semana anterior\r\n- [ ] Identificar top 5 criativos\r\n- [ ] Extrair elementos vencedores\r\n\r\n### Terça-Quarta: Criação\r\n- [ ] Gerar 50+ variações com AI\r\n- [ ] Humano revisa e filtra para 30\r\n- [ ] Produzir assets finais\r\n\r\n### Quinta: Lançamento\r\n- [ ] Subir 30 novos criativos\r\n- [ ] Distribuir budget inicial ($5-10 cada)\r\n- [ ] Configurar regras de scaling\r\n\r\n### Sexta-Domingo: Otimização\r\n- [ ] AI monitora performance\r\n- [ ] Scale winners automaticamente\r\n- [ ] Pause losers automaticamente\r\n\r\n---\r\n\r\n## 🔢 Métricas de Teste\r\n\r\n### Critérios para \"Winner\"\r\n| Métrica | Threshold |\r\n|---------|-----------|\r\n| CTR | > 2% (video), > 1% (static) |\r\n| Hook Rate | > 40% (3s view) |\r\n| CPA | < 80% da média |\r\n| ROAS | > 150% target |\r\n\r\n### Regras de Automação\r\n\r\n```javascript\r\n// Pseudo-código de regras\r\nif (CPA > targetCPA * 1.5 && spend > $50) {\r\n  pause(); // Loser\r\n}\r\n\r\nif (CPA < targetCPA * 0.8 && CTR > 2%) {\r\n  scaleBudget(2x); // Winner\r\n}\r\n```\r\n\r\n---\r\n\r\n## ⚠️ Armadilhas Comuns\r\n\r\n### ❌ Erro 1: AI sem supervisão humana\r\n- AI gera, humano valida\r\n- Nunca publique sem revisão\r\n\r\n### ❌ Erro 2: Testar muito pouco\r\n- Mínimo 20 variações/semana\r\n- Volume > Perfeição\r\n\r\n### ❌ Erro 3: Matar cedo demais\r\n- Espere $50-100 de gasto\r\n- Dados insuficientes = decisão ruim\r\n\r\n### ❌ Erro 4: Escalar cedo demais\r\n- Winner precisa de 3+ dias estáveis\r\n- Escale gradualmente (2x, não 10x)\r\n\r\n---\r\n\r\n## 🎯 Regra de Ouro\r\n\r\n> \"O melhor criativo não é o mais bonito, é o que converte. Deixe os dados decidirem.\"\r\n\r\n---\r\n\r\n## 📊 Exemplo Real: MadMuscles\r\n\r\n| Métrica | Antes (manual) | Depois (AI) |\r\n|---------|----------------|-------------|\r\n| Criativos/semana | 5 | 50+ |",
+    "metadata": {
+      "docType": "heuristics",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/heuristics/creative_ai_testing.md",
+      "section": "Introduction",
+      "lineStart": 0,
+      "lineEnd": 176
+    }
+  },
+  {
+    "content": "| Winners/semana | 0-1 | 3-5 |\r\n| CPA médio | $35 | $15 |\r\n| Tempo de produção | 20h | 5h |\r\n\r\n---\r\n\r\n## 📚 Referência\r\n\r\nCase: MadMuscles (200+ variações AI testadas mensalmente)",
+    "metadata": {
+      "docType": "heuristics",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/heuristics/creative_ai_testing.md",
+      "section": "Introduction",
+      "lineStart": 177,
+      "lineEnd": 187
+    }
+  },
+  {
+    "content": "---\r\ncounselor: \"ryan_deiss\"\r\ndoc_type: \"heuristics\"\r\nscope: \"funnel\"\r\nchannel: \"paid_traffic\"\r\nfunnel_type: \"quiz_funnel\"\r\nstatus: \"approved\"\r\nversion: \"2024-12-24\"\r\ntags: [\"quiz\", \"scale\", \"landing_pages\", \"segmentation\"]\r\n---\r\n\r\n# Heurística: Escala por Variação de Landing Pages\r\n\r\n## 🎯 Princípio Central\r\n\r\n> **Escala em quiz funnels NÃO vem de aumentar budget na mesma LP.**\r\n> **Escala vem de criar variações para cada micro-segmento.**\r\n\r\n---\r\n\r\n## 📊 A Matemática da Escala\r\n\r\n### Abordagem Tradicional (Errada)\r\n```\r\n1 LP × $100K budget = $50 CPA (saturação)\r\n```\r\n\r\n### Abordagem de Variação (Correta)\r\n```\r\n10 LPs × $10K cada = $25 CPA (segmentação)\r\n50 LPs × $2K cada = $15 CPA (micro-segmentação)\r\n```\r\n\r\n**Por quê funciona?**\r\n- Cada LP fala diretamente com um avatar\r\n- Menor fadiga de criativo\r\n- Melhor Quality Score nos ads\r\n- Mais dados para otimização\r\n\r\n---\r\n\r\n## 🧠 Framework de Segmentação\r\n\r\n### Nível 1: Demográfico\r\n| Variável | Exemplos de LPs |\r\n|----------|-----------------|\r\n| Gênero | `/men`, `/women` |\r\n| Idade | `/over-40`, `/20s`, `/seniors` |\r\n| Localização | `/us`, `/uk`, `/latam` |\r\n\r\n### Nível 2: Psicográfico\r\n| Variável | Exemplos de LPs |\r\n|----------|-----------------|\r\n| Objetivo | `/lose-weight`, `/gain-muscle`, `/get-fit` |\r\n| Obstáculo | `/no-time`, `/no-gym`, `/injuries` |\r\n| Motivação | `/wedding`, `/health`, `/confidence` |\r\n\r\n### Nível 3: Comportamental\r\n| Variável | Exemplos de LPs |\r\n|----------|-----------------|\r\n| Experiência | `/beginners`, `/intermediate`, `/advanced` |\r\n| Device | `/mobile-first`, `/desktop` |\r\n| Source | `/from-youtube`, `/from-tiktok` |\r\n\r\n---\r\n\r\n## 📋 Checklist de Implementação\r\n\r\n### Para Cada Nova LP:\r\n\r\n- [ ] **Headline única** — Menciona o avatar diretamente\r\n- [ ] **Hero image** — Representa o avatar visualmente\r\n- [ ] **Benefícios específicos** — Para aquele segmento\r\n- [ ] **Prova social relevante** — Depoimentos do mesmo perfil\r\n- [ ] **CTA contextual** — \"Start your [avatar] journey\"\r\n\r\n### Exemplo Prático:\r\n\r\n**LP Genérica (ruim):**\r\n> \"Get Fit in 28 Days\"\r\n\r\n**LP Segmentada (bom):**\r\n> \"Busy Moms: Get Your Pre-Baby Body Back in 28 Days (No Gym Required)\"\r\n\r\n---\r\n\r\n## 🔢 Métricas de Sucesso\r\n\r\n| Métrica | Benchmark |\r\n|---------|-----------|\r\n| CVR LP Genérica | 2-3% |\r\n| CVR LP Segmentada | 5-8% |\r\n| CVR LP Micro-Segmentada | 10-15% |\r\n\r\n---\r\n\r\n## ⚠️ Quando NÃO Aplicar\r\n\r\n1. **Budget < $5K/mês** → Foque em 1-3 LPs primeiro\r\n2. **Produto genérico** → Sem avatares claros\r\n3. **Sem dados** → Precisa validar antes de escalar\r\n4. **Time pequeno** → Manutenção fica cara\r\n\r\n---\r\n\r\n## 🎯 Regra de Ouro\r\n\r\n> \"Se você não consegue descrever o avatar da LP em uma frase, ela é genérica demais.\"\r\n\r\n**Teste:** Complete a frase:\r\n> \"Esta LP é para [QUEM] que quer [O QUÊ] porque [POR QUÊ]\"\r\n\r\n✅ \"Esta LP é para **mães acima de 35** que querem **perder 10kg** porque **querem mais energia para os filhos**\"\r\n\r\n❌ \"Esta LP é para **pessoas** que querem **ficar em forma** porque **é saudável**\"\r\n\r\n---\r\n\r\n## 📚 Referência\r\n\r\nCase: MadMuscles (493 LPs, 10M visitas/mês)",
+    "metadata": {
+      "docType": "heuristics",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/heuristics/quiz_funnel_scale.md",
+      "section": "Introduction",
+      "lineStart": 0,
+      "lineEnd": 123
+    }
+  },
+  {
+    "content": "---\r\ncounselor: \"dan_kennedy\"\r\ndoc_type: \"heuristics\"\r\nscope: \"funnel\"\r\nchannel: \"youtube\"\r\nfunnel_type: \"quiz_funnel\"\r\nstatus: \"approved\"\r\nversion: \"2024-12-24\"\r\ntags: [\"youtube\", \"traffic\", \"video\", \"paid_ads\", \"scale\"]\r\n---\r\n\r\n# Heurística: Dominância de Tráfego via YouTube\r\n\r\n## 🎯 Princípio Central\r\n\r\n> **Para produtos que exigem educação ou confiança, YouTube > Meta.**\r\n> **Atenção prolongada = Conversão mais qualificada.**\r\n\r\n---\r\n\r\n## 📊 YouTube vs Meta: Comparativo\r\n\r\n| Fator | YouTube | Meta (FB/IG) |\r\n|-------|---------|--------------|\r\n| **Tempo de Atenção** | 30s-3min | 1-5s |\r\n| **Intent** | Busca ativa | Scroll passivo |\r\n| **CPM Fitness** | $5-15 | $15-30 |\r\n| **Trust Building** | Alto | Médio |\r\n| **Retargeting** | Excelente | Bom |\r\n| **Criativo** | Longo (explica) | Curto (impacta) |\r\n\r\n---\r\n\r\n## 🧠 Quando YouTube é Superior\r\n\r\n### ✅ Use YouTube quando:\r\n\r\n1. **Produto complexo** — Precisa explicar o valor\r\n2. **Ticket > $50** — Precisa de confiança\r\n3. **Subscription** — Lifetime value alto\r\n4. **Nicho educacional** — Fitness, finanças, saúde\r\n5. **Público 25-55** — Demographics do YT\r\n\r\n### ❌ Evite YouTube quando:\r\n\r\n1. **Impulso puro** — Moda, gadgets baratos\r\n2. **Ticket < $20** — CPA não fecha\r\n3. **Público Gen Z** — TikTok domina\r\n4. **Sem budget para vídeo** — Mínimo $500/vídeo\r\n\r\n---\r\n\r\n## 📋 Estrutura de Campanha YouTube\r\n\r\n### Funil de 3 Estágios\r\n\r\n```\r\nTOPO (Awareness)\r\n├── Skippable In-Stream\r\n├── Discovery Ads\r\n└── Budget: 40%\r\n\r\nMEIO (Consideration)\r\n├── Remarketing viewers\r\n├── Similar audiences\r\n└── Budget: 35%\r\n\r\nFUNDO (Conversion)\r\n├── Remarketing quiz starters\r\n├── Custom audiences\r\n└── Budget: 25%\r\n```\r\n\r\n---\r\n\r\n## 🎬 Estrutura de Criativo Vencedor\r\n\r\n### Formato: 60-90 segundos\r\n\r\n```\r\n0-3s   → HOOK (pattern interrupt)\r\n3-15s  → PROBLEMA (agitar dor)\r\n15-30s → SOLUÇÃO (apresentar quiz)\r\n30-60s → PROVA (resultados/depoimentos)\r\n60-75s → CTA (convite para quiz)\r\n75-90s → URGÊNCIA (motivo para agir agora)\r\n```\r\n\r\n### Hooks que Funcionam\r\n\r\n| Tipo | Exemplo |\r\n|------|---------|\r\n| **Pergunta** | \"Você sabia que 90% das dietas falham?\" |\r\n| **Declaração chocante** | \"Eu perdi 20kg sem pisar na academia\" |\r\n| **Resultado** | \"Este quiz de 2 minutos mudou minha vida\" |\r\n| **Curiosidade** | \"O segredo que personal trainers não contam\" |\r\n\r\n---\r\n\r\n## 🔢 Métricas de Referência\r\n\r\n### Benchmarks YouTube Ads (Quiz Funnel)\r\n\r\n| Métrica | Ruim | Médio | Bom | Excelente |\r\n|---------|------|-------|-----|-----------|\r\n| View Rate | < 20% | 25% | 35% | > 45% |\r\n| CTR | < 0.5% | 1% | 2% | > 3% |\r\n| CPC | > $2 | $1.50 | $0.80 | < $0.50 |\r\n| CPA Quiz | > $30 | $20 | $12 | < $8 |\r\n| Conv. Rate | < 5% | 10% | 15% | > 20% |\r\n\r\n---\r\n\r\n## 💰 Budget Allocation\r\n\r\n### Mix Recomendado para Quiz Funnels\r\n\r\n| Canal | % Budget | Papel |\r\n|-------|----------|-------|\r\n| **YouTube** | 60-70% | Volume + Qualidade |\r\n| **Meta** | 20-30% | Retargeting + Escala |\r\n| **TikTok** | 5-10% | Teste + Gen Z |\r\n| **Google Search** | 5% | Intent alto |\r\n\r\n### Escala Progressiva\r\n\r\n```\r\nMês 1: $5K → 100% YouTube (validar)\r\nMês 2: $15K → 70% YT, 30% Meta\r\nMês 3: $50K → 60% YT, 30% Meta, 10% TikTok\r\nMês 4+: $100K+ → Manter mix vencedor\r\n```\r\n\r\n---\r\n\r\n## ⚠️ Erros Comuns no YouTube\r\n\r\n### ❌ Erro 1: Criativos de Meta no YouTube\r\n- Meta = Impacto visual rápido\r\n- YouTube = Storytelling + educação\r\n- **Solução:** Criar especificamente para YT\r\n\r\n### ❌ Erro 2: Não usar sequências\r\n- YouTube permite remarketing por tempo assistido\r\n- Quem viu 50%+ está mais quente\r\n- **Solução:** Criar sequência de vídeos\r\n\r\n### ❌ Erro 3: Ignorar orgânico",
+    "metadata": {
+      "docType": "heuristics",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/heuristics/youtube_traffic_dominance.md",
+      "section": "Introduction",
+      "lineStart": 0,
+      "lineEnd": 148
+    }
+  },
+  {
+    "content": "- Ads + Orgânico = Flywheel\r\n- Vídeos de ads podem virar orgânicos\r\n- **Solução:** Publicar versões longas no canal\r\n\r\n### ❌ Erro 4: Targeting muito amplo\r\n- YouTube tem dados ricos\r\n- Use: Topics, Placements, Custom Intent\r\n- **Solução:** Testar audiences específicas\r\n\r\n---\r\n\r\n## 🎯 Regra de Ouro\r\n\r\n> \"No YouTube, você compra atenção de qualidade. Use esse tempo para educar, não para vender. A venda acontece depois, no quiz.\"\r\n\r\n---\r\n\r\n## 📊 Exemplo Real: MadMuscles\r\n\r\n| Métrica | YouTube | Meta |\r\n|---------|---------|------|\r\n| Budget/mês | $7M | $2M |\r\n| CPA | $12-15 | $25-30 |\r\n| LTV | $180 | $120 |\r\n| ROAS | 4.5x | 2.2x |\r\n\r\n**Conclusão:** 70% do budget em YouTube porque CPA é 2x menor e LTV é 50% maior.\r\n\r\n---\r\n\r\n## 📚 Referência\r\n\r\nCase: MadMuscles ($10M/mês em YouTube Ads)",
+    "metadata": {
+      "docType": "heuristics",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/heuristics/youtube_traffic_dominance.md",
+      "section": "Introduction",
+      "lineStart": 149,
+      "lineEnd": 183
+    }
+  },
+  {
+    "content": "---\r\ncounselor: \"ryan_deiss\"\r\ndoc_type: \"mental_model\"\r\nscope: \"funnel\"\r\nchannel: \"paid_traffic\"\r\nfunnel_type: \"quiz_funnel\"\r\nstatus: \"approved\"\r\nversion: \"2024-12-24\"\r\ntags: [\"mental_model\", \"segmentation\", \"avatars\", \"personalization\", \"scale\"]\r\n---\r\n\r\n# Mental Model: Framework de Micro-Segmentação\r\n\r\n## 🧠 Conceito Central\r\n\r\n> **Micro-segmentação é criar experiências únicas para cada combinação de variáveis do avatar.**\r\n\r\nEm vez de uma mensagem para todos, você cria mensagens específicas para cada \"persona composta\".\r\n\r\n---\r\n\r\n## 📊 O Framework 4D\r\n\r\n### Dimensão 1: QUEM (Demografia)\r\n```\r\nGênero × Idade × Localização × Renda\r\n```\r\n\r\n### Dimensão 2: ONDE (Estágio de Consciência)\r\n```\r\nUnaware → Problem-Aware → Solution-Aware → Product-Aware → Most-Aware\r\n```\r\n\r\n### Dimensão 3: POR QUÊ (Motivação)\r\n```\r\nDor Externa × Dor Interna × Aspiração\r\n```\r\n\r\n### Dimensão 4: COMO (Canal/Contexto)\r\n```\r\nYouTube × Meta × TikTok × Orgânico × Email\r\n```\r\n\r\n---\r\n\r\n## 🎯 Matriz de Segmentação\r\n\r\n### Exemplo: Fitness App\r\n\r\n| Dimensão | Opções |\r\n|----------|--------|\r\n| Gênero | Homem, Mulher |\r\n| Idade | 20s, 30s, 40s, 50+ |\r\n| Objetivo | Perder peso, Ganhar massa, Saúde |\r\n| Canal | YouTube, Meta, TikTok |\r\n\r\n**Combinações possíveis:** 2 × 4 × 3 × 3 = **72 segmentos**\r\n\r\n### Priorização (Pareto)\r\n\r\nNão crie 72 LPs. Identifique os **top 20%** que geram **80% da receita**:\r\n\r\n```\r\nSegmento A: Mulheres 30-40, Perder peso, YouTube → 35% receita\r\nSegmento B: Homens 30-40, Ganhar massa, YouTube → 25% receita\r\nSegmento C: Mulheres 40-50, Perder peso, Meta   → 15% receita\r\nSegmento D: Homens 20-30, Ganhar massa, TikTok  → 10% receita\r\n--- (80% da receita coberta com 4 segmentos) ---\r\n```\r\n\r\n---\r\n\r\n## 🛠️ Implementação Prática\r\n\r\n### Fase 1: Mapeamento (1-2 semanas)\r\n\r\n1. Liste todas as dimensões relevantes\r\n2. Identifique opções em cada dimensão\r\n3. Calcule total de combinações\r\n4. Analise dados existentes (se houver)\r\n5. Priorize top 5-10 segmentos\r\n\r\n### Fase 2: Criação (2-4 semanas)\r\n\r\nPara cada segmento prioritário:\r\n\r\n| Elemento | Personalização |\r\n|----------|----------------|\r\n| URL | `/mulheres-40-perder-peso` |\r\n| Headline | Menciona avatar |\r\n| Hero Image | Representa avatar |\r\n| Benefícios | Específicos para dor/desejo |\r\n| Prova Social | Mesmo perfil |\r\n| CTA | Contextual |\r\n\r\n### Fase 3: Teste (4-8 semanas)\r\n\r\n1. Lance 5-10 LPs segmentadas\r\n2. Aloque budget igual inicial\r\n3. Meça CPA por segmento\r\n4. Scale winners, pause losers\r\n5. Adicione novos segmentos\r\n\r\n### Fase 4: Escala (Ongoing)\r\n\r\n```\r\nWinners → Mais budget\r\nWinners → Criar sub-segmentos\r\nNovos segmentos → Testar\r\nLosers → Pausar ou pivotar\r\n```\r\n\r\n---\r\n\r\n## 📋 Checklist de Segmento\r\n\r\nPara cada novo segmento, valide:\r\n\r\n- [ ] **Volume:** Existe audiência suficiente?\r\n- [ ] **Ticket:** Podem pagar pelo produto?\r\n- [ ] **Dor clara:** Problema identificável?\r\n- [ ] **Acessível:** Conseguimos alcançá-los?\r\n- [ ] **Diferenciável:** Mensagem única possível?\r\n\r\n---\r\n\r\n## 🔢 Matemática da Micro-Segmentação\r\n\r\n### ROI do Esforço\r\n\r\n| Abordagem | LPs | Esforço | CVR | CPA |\r\n|-----------|-----|---------|-----|-----|\r\n| Genérica | 1 | Baixo | 2% | $50 |\r\n| Segmentada (5) | 5 | Médio | 6% | $25 |\r\n| Micro (20+) | 20+ | Alto | 10% | $15 |\r\n\r\n**Break-even:** O esforço extra compensa quando:\r\n- Gasto mensal > $10K\r\n- CPA atual > $30\r\n- Product-market fit validado\r\n\r\n---\r\n\r\n## 💡 Princípios Fundamentais\r\n\r\n### 1. Especificidade Vence Generalidade\r\n> \"Uma mensagem para todos não fala com ninguém.\"\r\n\r\n### 2. Dados > Intuição\r\n> \"Deixe os números dizerem quais segmentos priorizar.\"\r\n\r\n### 3. Iteração > Perfeição\r\n> \"Comece com 5 LPs, não 50. Escale o que funciona.\"\r\n\r\n### 4. Personalização ≠ Customização\r\n> \"Personalização é criar versões específicas. Customização é deixar o usuário escolher. Use as duas.\"\r\n\r\n---\r\n\r\n## 🎯 Aplicação no Quiz Funnel\r\n\r\n### Quiz como Ferramenta de Segmentação",
+    "metadata": {
+      "docType": "mental_models",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/mental_models/micro_segmentation_framework.md",
+      "section": "Introduction",
+      "lineStart": 0,
+      "lineEnd": 162
+    }
+  },
+  {
+    "content": "O quiz não só coleta dados — ele **revela o segmento em tempo real**:\r\n\r\n```\r\nPergunta 1: Gênero → Segmento A ou B\r\nPergunta 2: Objetivo → Sub-segmento\r\nPergunta 3: Obstáculo → Mensagem de venda\r\nPergunta 4: Urgência → Oferta específica\r\n```\r\n\r\n### Resultado Dinâmico\r\n\r\nCom base nas respostas, mostrar:\r\n\r\n| Respostas | Resultado Mostrado |\r\n|-----------|-------------------|\r\n| Mulher, 40+, perder peso, tempo | \"Plano para mães ocupadas\" |\r\n| Homem, 30s, ganhar massa, motivação | \"Plano de força para profissionais\" |\r\n| Mulher, 20s, tonificar, academia | \"Guia de musculação feminina\" |\r\n\r\n---\r\n\r\n## 📊 Modelo Mental Visual\r\n\r\n```\r\n                    AUDIÊNCIA TOTAL\r\n                          │\r\n         ┌────────────────┼────────────────┐\r\n         │                │                │\r\n      HOMENS          MULHERES          OUTROS\r\n         │                │\r\n    ┌────┴────┐      ┌────┴────┐\r\n    │         │      │         │\r\n  20-35    35-50   20-35    35-50\r\n    │         │      │         │\r\n ┌──┴──┐   ┌──┴──┐ ┌──┴──┐  ┌──┴──┐\r\n │     │   │     │ │     │  │     │\r\nPeso Massa Peso Massa Peso Massa Peso Massa\r\n │     │   │     │ │     │  │     │\r\nLP1  LP2  LP3  LP4 LP5  LP6 LP7  LP8\r\n```\r\n\r\n---\r\n\r\n## 📚 Referência\r\n\r\nFramework inspirado em: MadMuscles (493 LPs)\r\nConceito base: Customer Avatar Canvas (Ryan Deiss)\r\nValidação: Quiz funnels de 7-8 figuras",
+    "metadata": {
+      "docType": "mental_models",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/mental_models/micro_segmentation_framework.md",
+      "section": "Introduction",
+      "lineStart": 163,
+      "lineEnd": 213
+    }
+  },
+  {
+    "content": "---\r\ncounselor: \"russell_brunson\"\r\ndoc_type: \"playbook\"\r\nscope: \"funnel\"\r\nchannel: \"paid_traffic\"\r\nfunnel_type: \"quiz_funnel\"\r\nstatus: \"approved\"\r\nversion: \"2024-12-24\"\r\ntags: [\"playbook\", \"quiz\", \"scale\", \"step_by_step\", \"implementation\"]\r\n---\r\n\r\n# Playbook: Quiz Funnel em Escala\r\n\r\n## 🎯 Objetivo\r\n\r\nGuia passo-a-passo para construir e escalar um quiz funnel de $0 a $100K+/mês em gastos de ads com rentabilidade.\r\n\r\n---\r\n\r\n## 📋 Pré-requisitos\r\n\r\nAntes de começar, você precisa:\r\n\r\n- [ ] Produto validado (vendas orgânicas existentes)\r\n- [ ] Avatar claro (pelo menos 1 definido)\r\n- [ ] Oferta com margem > 60%\r\n- [ ] Budget mínimo de $3K/mês para testes\r\n- [ ] Capacidade de criar conteúdo em vídeo\r\n- [ ] Paciência para 3-6 meses de otimização\r\n\r\n---\r\n\r\n## 🗓️ Timeline de Implementação\r\n\r\n```\r\nSemana 1-2:   Fundação (Quiz + LP + Oferta)\r\nSemana 3-4:   Lançamento ($50-100/dia)\r\nSemana 5-8:   Otimização (encontrar winners)\r\nSemana 9-12:  Escala inicial ($500-1K/dia)\r\nMês 4-6:      Escala agressiva ($3K+/dia)\r\nMês 6+:       Dominância e diversificação\r\n```\r\n\r\n---\r\n\r\n## 📖 FASE 1: Fundação (Semanas 1-2)\r\n\r\n### Etapa 1.1: Definir o Avatar Principal\r\n\r\n**Template de Avatar:**\r\n```\r\nNome: [Nome fictício]\r\nIdade: [Faixa]\r\nGênero: [M/F/Outro]\r\nProfissão: [Tipo de trabalho]\r\nRenda: [Faixa]\r\nDor principal: [O que tira o sono]\r\nDesejo principal: [O que sonha]\r\nObjeção principal: [Por que não comprou ainda]\r\nOnde está: [Canais que frequenta]\r\n```\r\n\r\n### Etapa 1.2: Estruturar o Quiz (10-15 perguntas)\r\n\r\n**Estrutura Recomendada:**\r\n\r\n| # | Tipo | Propósito | Exemplo |\r\n|---|------|-----------|---------|\r\n| 1 | Qualificação | Filtrar | \"Qual seu objetivo principal?\" |\r\n| 2 | Qualificação | Segmentar | \"Qual seu nível atual?\" |\r\n| 3 | Engajamento | Investir | \"O que já tentou antes?\" |\r\n| 4 | Engajamento | Conexão | \"Qual seu maior obstáculo?\" |\r\n| 5 | Engajamento | Curiosidade | \"Se pudesse resolver uma coisa...\" |\r\n| 6-9 | Dados | Personalizar | Altura, peso, idade, etc. |\r\n| 10 | Captura | Email | \"Para onde enviamos seu plano?\" |\r\n| 11-15 | Opcionais | Segmentar mais | Perguntas adicionais |\r\n\r\n### Etapa 1.3: Criar Landing Page Principal\r\n\r\n**Estrutura de LP:**\r\n```\r\n1. HEADLINE (específica para avatar)\r\n2. SUBHEADLINE (promessa + tempo)\r\n3. HERO IMAGE (representa avatar)\r\n4. BULLET POINTS (3-5 benefícios)\r\n5. CTA BUTTON (\"Começar Quiz Gratuito\")\r\n6. PROVA SOCIAL (depoimentos curtos)\r\n7. CTA SECUNDÁRIO (repetir)\r\n```\r\n\r\n### Etapa 1.4: Configurar Resultado + Oferta\r\n\r\n**Página de Resultado:**\r\n```\r\n1. PARABÉNS (validação)\r\n2. SEU PERFIL (baseado nas respostas)\r\n3. SEU PLANO (personalizado)\r\n4. A OFERTA (produto principal)\r\n5. ORDER BUMP (adicional pequeno)\r\n6. GARANTIA (remover risco)\r\n7. CTA (comprar agora)\r\n```\r\n\r\n### Etapa 1.5: Configurar Cadeia de Upsell\r\n\r\n```\r\nCheckout → Order Bump ($9-29)\r\nThank You → Upsell 1 ($97-197)\r\nRecusa → Downsell ($47-97)\r\nEmail D+1 → Upsell 2 ou Subscription\r\nEmail D+3 → Conteúdo + Soft pitch\r\nEmail D+7 → Deadline/Urgência\r\n```\r\n\r\n---\r\n\r\n## 📖 FASE 2: Lançamento (Semanas 3-4)\r\n\r\n### Etapa 2.1: Setup de Campanhas\r\n\r\n**Estrutura Inicial (YouTube):**\r\n```\r\nCampanha: Quiz Funnel - Cold Traffic\r\n├── Ad Group 1: Avatar Principal\r\n│   ├── Criativo 1 (UGC)\r\n│   ├── Criativo 2 (Talking head)\r\n│   └── Criativo 3 (Animation)\r\n├── Ad Group 2: Topic Targeting\r\n└── Ad Group 3: Custom Intent\r\n```\r\n\r\n**Estrutura Inicial (Meta):**\r\n```\r\nCampanha: Quiz Funnel - Conversão\r\n├── Ad Set 1: Interest Stack 1\r\n├── Ad Set 2: Interest Stack 2\r\n└── Ad Set 3: Lookalike (se disponível)\r\n```\r\n\r\n### Etapa 2.2: Criativos Iniciais (Mínimo 5)\r\n\r\n| Tipo | Formato | Duração |\r\n|------|---------|---------|\r\n| UGC Testimonial | Vertical | 30-60s |\r\n| Talking Head | Square | 60-90s |\r\n| Before/After | Vertical | 15-30s |\r\n| Text Overlay | Square | 15s |\r\n| Animation | Horizontal | 30-45s |",
+    "metadata": {
+      "docType": "playbooks",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/playbooks/quiz_funnel_at_scale.md",
+      "section": "Introduction",
+      "lineStart": 0,
+      "lineEnd": 148
+    }
+  },
+  {
+    "content": "### Etapa 2.3: Budget e Regras\r\n\r\n**Budget Inicial:**\r\n- $50-100/dia total\r\n- Dividido entre 3-5 ad sets\r\n- Otimização para Quiz Completion\r\n\r\n**Regras de Automação:**\r\n```\r\nSE CPA > 2x target E gasto > $50 → Pausar\r\nSE CPA < target E CTR > 1% → Aumentar 20%\r\n```\r\n\r\n---\r\n\r\n## 📖 FASE 3: Otimização (Semanas 5-8)\r\n\r\n### Etapa 3.1: Análise Diária\r\n\r\n**Métricas a Acompanhar:**\r\n\r\n| Métrica | Target | Ação se abaixo |\r\n|---------|--------|----------------|\r\n| CTR Ads | > 1% | Trocar criativos |\r\n| Quiz Start | > 40% LP visitors | Melhorar LP |\r\n| Quiz Complete | > 60% starters | Simplificar quiz |\r\n| Lead Rate | > 70% completers | Melhorar captura |\r\n| Purchase Rate | > 5% leads | Melhorar oferta |\r\n\r\n### Etapa 3.2: Testes A/B\r\n\r\n**Semana 5-6:** Testar Headlines\r\n```\r\nVariante A: Foco na dor\r\nVariante B: Foco no desejo\r\nVariante C: Foco na curiosidade\r\n```\r\n\r\n**Semana 7-8:** Testar Criativos\r\n```\r\n5-10 novos criativos/semana\r\nMatar losers em 48-72h\r\nEscalar winners\r\n```\r\n\r\n### Etapa 3.3: Otimizar Quiz\r\n\r\n**Identificar Drop-offs:**\r\n```\r\nPergunta 1 → 2: 95% (ok)\r\nPergunta 2 → 3: 92% (ok)\r\nPergunta 3 → 4: 75% (problema!)\r\nPergunta 4 → 5: 90% (ok)\r\n```\r\n\r\n**Ações:**\r\n- Simplificar perguntas com drop-off alto\r\n- Adicionar progress bar\r\n- Melhorar copy das perguntas\r\n\r\n---\r\n\r\n## 📖 FASE 4: Escala Inicial (Semanas 9-12)\r\n\r\n### Etapa 4.1: Identificar Winners\r\n\r\n**Critérios para Winner:**\r\n- CPA < target por 5+ dias\r\n- Volume > 20 conversões\r\n- CTR estável\r\n- Frequency < 3\r\n\r\n### Etapa 4.2: Escalar Winners\r\n\r\n**Regra de Escala:**\r\n```\r\nDias 1-3: Winner identificado → Manter budget\r\nDias 4-7: Mantém performance → +50% budget\r\nDias 8-14: Continua ok → Duplicar ad set\r\nDias 15+: Estável → +30% a cada 3 dias\r\n```\r\n\r\n### Etapa 4.3: Criar Variações de LP\r\n\r\n**Segmentação Inicial:**\r\n```\r\nLP Original: /quiz\r\nLP Variante 1: /quiz-mulheres\r\nLP Variante 2: /quiz-homens\r\nLP Variante 3: /quiz-iniciantes\r\nLP Variante 4: /quiz-[objetivo específico]\r\n```\r\n\r\n### Etapa 4.4: Adicionar Canal Secundário\r\n\r\n```\r\nSe YouTube funcionou → Adicionar Meta\r\nSe Meta funcionou → Adicionar YouTube\r\nBudget secundário: 20-30% do principal\r\n```\r\n\r\n---\r\n\r\n## 📖 FASE 5: Escala Agressiva (Mês 4-6)\r\n\r\n### Etapa 5.1: Multiplicar LPs\r\n\r\n**Meta:** 20+ LPs ativas\r\n\r\n| Avatar | Objetivo | Canal | LP |\r\n|--------|----------|-------|-----|\r\n| Mulher 30-40 | Perder peso | YT | /m30-peso-yt |\r\n| Mulher 30-40 | Perder peso | Meta | /m30-peso-meta |\r\n| Homem 30-40 | Ganhar massa | YT | /h30-massa-yt |\r\n| ... | ... | ... | ... |\r\n\r\n### Etapa 5.2: Volume de Criativos\r\n\r\n**Meta:** 50+ criativos/mês\r\n\r\n```\r\nSemana 1: 15 criativos novos\r\nSemana 2: Analisar + 10 variações de winners\r\nSemana 3: 15 criativos novos\r\nSemana 4: Consolidar + planejar próximo mês\r\n```\r\n\r\n### Etapa 5.3: Expandir Funil\r\n\r\n**Adicionar:**\r\n- Mais upsells\r\n- Subscription/Membership\r\n- Back-end high-ticket\r\n- Affiliate/Referral program\r\n\r\n### Etapa 5.4: Diversificar Tráfego\r\n\r\n| Canal | % Budget | CPA Target |\r\n|-------|----------|------------|\r\n| YouTube | 50% | $15 |\r\n| Meta | 30% | $22 |\r\n| TikTok | 10% | $20 |\r\n| Google Search | 5% | $30 |\r\n| Native | 5% | $25 |\r\n\r\n---\r\n\r\n## 📖 FASE 6: Dominância (Mês 6+)\r\n\r\n### Etapa 6.1: Internacionalização\r\n\r\n```\r\nMercado 1: US (original) → $X/mês\r\nMercado 2: UK → Traduzir → Testar\r\nMercado 3: LATAM → Traduzir → Testar\r\nMercado 4: EU → Traduzir → Testar\r\n```\r\n\r\n### Etapa 6.2: Novos Produtos\r\n\r\n```\r\nProduto 1 (original) → Quiz Funnel A\r\nProduto 2 (complementar) → Quiz Funnel B\r\nBundle → Cross-sell entre funnels\r\n```\r\n\r\n### Etapa 6.3: Automação Total",
+    "metadata": {
+      "docType": "playbooks",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/playbooks/quiz_funnel_at_scale.md",
+      "section": "Introduction",
+      "lineStart": 149,
+      "lineEnd": 316
+    }
+  },
+  {
+    "content": "- AI para criativos\r\n- Regras automatizadas de bidding\r\n- Geração dinâmica de LPs\r\n- Personalização em tempo real\r\n\r\n---\r\n\r\n## 📊 Métricas de Referência por Fase\r\n\r\n| Fase | Budget/dia | CPA | ROAS | Leads/dia |\r\n|------|------------|-----|------|-----------|\r\n| Lançamento | $50-100 | $40-60 | 1-1.5x | 2-5 |\r\n| Otimização | $100-300 | $25-40 | 1.5-2x | 5-15 |\r\n| Escala Inicial | $300-1000 | $18-25 | 2-3x | 15-50 |\r\n| Escala Agressiva | $1K-5K | $12-20 | 3-4x | 50-300 |\r\n| Dominância | $5K+ | $10-15 | 4-6x | 300+ |\r\n\r\n---\r\n\r\n## 📚 Referência\r\n\r\nPlaybook baseado em: MadMuscles, Noom, Caliber\r\nValidado em: Funnels de 7-8 figuras\r\nAtualizado: Dezembro 2024",
+    "metadata": {
+      "docType": "playbooks",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/playbooks/quiz_funnel_at_scale.md",
+      "section": "Introduction",
+      "lineStart": 317,
+      "lineEnd": 343
+    }
+  },
+  {
+    "content": "---\r\ncounselor: \"ryan_deiss\"\r\ndoc_type: \"scorecard\"\r\nscope: \"funnel\"\r\nchannel: \"paid_traffic\"\r\nfunnel_type: \"quiz_funnel\"\r\nstatus: \"approved\"\r\nversion: \"2024-12-24\"\r\ntags: [\"scorecard\", \"quiz\", \"evaluation\", \"metrics\", \"optimization\"]\r\n---\r\n\r\n# Scorecard: Critérios de Avaliação para Quiz Funnels\r\n\r\n## 🎯 Propósito\r\n\r\nEste scorecard permite avaliar a qualidade e potencial de escala de qualquer quiz funnel em **5 dimensões críticas**.\r\n\r\n---\r\n\r\n## 📊 Visão Geral das Dimensões\r\n\r\n| # | Dimensão | Peso | O que Avalia |\r\n|---|----------|------|--------------|\r\n| 1 | Segmentação | 20% | Personalização de LPs e mensagens |\r\n| 2 | Quiz Design | 20% | Estrutura, flow e conversão |\r\n| 3 | Oferta & Monetização | 25% | Cadeia de valor e LTV |\r\n| 4 | Criativos & Tráfego | 20% | Volume de testes e eficiência |\r\n| 5 | Métricas & Escala | 15% | Dados e potencial de crescimento |\r\n\r\n---\r\n\r\n## 📋 DIMENSÃO 1: Segmentação (20%)\r\n\r\n### Critérios de Avaliação\r\n\r\n| Critério | 0-2 (Ruim) | 3-5 (Médio) | 6-8 (Bom) | 9-10 (Excelente) |\r\n|----------|-----------|-------------|-----------|------------------|\r\n| **Número de LPs** | 1 LP | 2-5 LPs | 6-20 LPs | 20+ LPs |\r\n| **Especificidade** | Genérica | Demográfica | Psicográfica | Micro-segmentada |\r\n| **Headlines** | Uma para todos | Por gênero | Por avatar | Por dor/desejo específico |\r\n| **Imagens** | Stock genérico | Representa avatar | Avatar + contexto | UGC do próprio segmento |\r\n| **Prova Social** | Genérica | Mesmo nicho | Mesmo perfil | Mesmo segmento exato |\r\n\r\n### Perguntas-Chave\r\n\r\n- [ ] Cada LP fala diretamente com um avatar específico?\r\n- [ ] O visitante se reconhece na página imediatamente?\r\n- [ ] Existem LPs para diferentes canais de tráfego?\r\n- [ ] A personalização vai além do gênero/idade?\r\n\r\n### Score: ___/10\r\n\r\n---\r\n\r\n## 📋 DIMENSÃO 2: Quiz Design (20%)\r\n\r\n### Critérios de Avaliação\r\n\r\n| Critério | 0-2 (Ruim) | 3-5 (Médio) | 6-8 (Bom) | 9-10 (Excelente) |\r\n|----------|-----------|-------------|-----------|------------------|\r\n| **Número de Perguntas** | 20+ ou 3- | 15-19 ou 4-6 | 10-14 | 8-12 (sweet spot) |\r\n| **Progress Bar** | Ausente | Presente mas confusa | Clara | Gamificada |\r\n| **Engajamento** | Chato, formulário | Algumas interessantes | Maioria engaja | Viciante, divertido |\r\n| **Personalização** | Zero | Superficial | Moderada | Profunda, data-driven |\r\n| **Mobile UX** | Quebrado | Funciona | Otimizado | Nativo mobile-first |\r\n\r\n### Perguntas-Chave\r\n\r\n- [ ] Quiz completion rate > 60%?\r\n- [ ] Perguntas coletam dados úteis para venda?\r\n- [ ] Existe sensação de progressão?\r\n- [ ] O resultado parece genuinamente personalizado?\r\n\r\n### Score: ___/10\r\n\r\n---\r\n\r\n## 📋 DIMENSÃO 3: Oferta & Monetização (25%)\r\n\r\n### Critérios de Avaliação\r\n\r\n| Critério | 0-2 (Ruim) | 3-5 (Médio) | 6-8 (Bom) | 9-10 (Excelente) |\r\n|----------|-----------|-------------|-----------|------------------|\r\n| **Oferta Principal** | Fraca/confusa | Clara | Compelling | Irresistível |\r\n| **Order Bump** | Ausente | Desconectado | Complementar | Óbvio \"no-brainer\" |\r\n| **Upsell 1** | Ausente | Forçado | Lógico | Ascensão natural |\r\n| **Upsell 2/Downsell** | Ausente | Um deles | Ambos | + Subscription |\r\n| **LTV Total** | = Ticket inicial | 1.5x ticket | 2-3x ticket | 4x+ ticket |\r\n\r\n### Perguntas-Chave\r\n\r\n- [ ] Existe cadeia completa de monetização?\r\n- [ ] LTV justifica o CAC target?\r\n- [ ] Cada upsell agrega valor real?\r\n- [ ] Há componente recorrente (subscription)?\r\n\r\n### Score: ___/10\r\n\r\n---\r\n\r\n## 📋 DIMENSÃO 4: Criativos & Tráfego (20%)\r\n\r\n### Critérios de Avaliação\r\n\r\n| Critério | 0-2 (Ruim) | 3-5 (Médio) | 6-8 (Bom) | 9-10 (Excelente) |\r\n|----------|-----------|-------------|-----------|------------------|\r\n| **Volume de Criativos** | 1-3 | 4-10 | 11-30 | 30+/semana |",
+    "metadata": {
+      "docType": "scorecards",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/scorecards/quiz_funnel_scorecard.md",
+      "section": "Introduction",
+      "lineStart": 0,
+      "lineEnd": 107
+    }
+  },
+  {
+    "content": "| **Diversidade** | Um formato | 2-3 formatos | Multi-formato | Multi-formato + AI |\r\n| **Teste Cadence** | Mensal | Quinzenal | Semanal | Contínuo |\r\n| **Canais** | Um canal | 2 canais | 3+ canais | Omnichannel |\r\n| **YouTube Presence** | Zero | Testando | Significativo | Dominante |\r\n\r\n### Perguntas-Chave\r\n\r\n- [ ] Novos criativos são testados semanalmente?\r\n- [ ] Existe processo de identificar e escalar winners?\r\n- [ ] YouTube é parte da estratégia?\r\n- [ ] AI está sendo usado para variações?\r\n\r\n### Score: ___/10\r\n\r\n---\r\n\r\n## 📋 DIMENSÃO 5: Métricas & Escala (15%)\r\n\r\n### Critérios de Avaliação\r\n\r\n| Critério | 0-2 (Ruim) | 3-5 (Médio) | 6-8 (Bom) | 9-10 (Excelente) |\r\n|----------|-----------|-------------|-----------|------------------|\r\n| **Tracking** | Básico | Intermediário | Avançado | Full attribution |\r\n| **Dashboard** | Inexistente | Manual/planilhas | Semi-automatizado | Real-time |\r\n| **ROAS** | < 1.5x | 1.5-2x | 2-3x | > 3x |\r\n| **CPA Trend** | Subindo | Estável | Caindo levemente | Caindo consistente |\r\n| **Escalabilidade** | Limitada | Moderada | Boa | Ilimitada |\r\n\r\n### Perguntas-Chave\r\n\r\n- [ ] Todas as métricas-chave são trackeadas?\r\n- [ ] ROAS é positivo e sustentável?\r\n- [ ] O CPA melhora conforme escala?\r\n- [ ] Existe espaço para 10x o budget?\r\n\r\n### Score: ___/10\r\n\r\n---\r\n\r\n## 🧮 Cálculo do Score Final\r\n\r\n```\r\nScore Final = (Seg × 0.20) + (Quiz × 0.20) + (Oferta × 0.25) + (Criativos × 0.20) + (Métricas × 0.15)\r\n```\r\n\r\n### Exemplo:\r\n```\r\nSegmentação:    7/10 × 0.20 = 1.40\r\nQuiz Design:    8/10 × 0.20 = 1.60\r\nOferta:         6/10 × 0.25 = 1.50\r\nCriativos:      5/10 × 0.20 = 1.00\r\nMétricas:       7/10 × 0.15 = 1.05\r\n─────────────────────────────────\r\nSCORE FINAL:    6.55/10\r\n```\r\n\r\n---\r\n\r\n## 📊 Interpretação do Score\r\n\r\n| Score | Classificação | Recomendação |\r\n|-------|---------------|--------------|\r\n| 0-3 | Crítico | Reconstruir fundação antes de ads |\r\n| 4-5 | Fraco | Corrigir gaps críticos |\r\n| 6-7 | Médio | Otimizar pontos fracos |\r\n| 8-9 | Bom | Escalar com confiança |\r\n| 9-10 | Excelente | Documentar e replicar |\r\n\r\n---\r\n\r\n## 🎯 Matriz de Priorização\r\n\r\nCom base nos scores individuais, priorize:\r\n\r\n| Score Dimensão | Prioridade | Ação |\r\n|----------------|------------|------|\r\n| < 5 | URGENTE | Parar ads, corrigir |\r\n| 5-6 | ALTA | Corrigir em 2 semanas |\r\n| 7-8 | MÉDIA | Otimizar gradualmente |\r\n| 9-10 | BAIXA | Manter e monitorar |\r\n\r\n---\r\n\r\n## 📋 Template de Avaliação Rápida\r\n\r\n```\r\nQUIZ FUNNEL SCORECARD\r\n━━━━━━━━━━━━━━━━━━━━━\r\nNome: ________________\r\nData: ________________\r\n\r\n1. Segmentação:    ___/10\r\n2. Quiz Design:    ___/10\r\n3. Oferta:         ___/10\r\n4. Criativos:      ___/10\r\n5. Métricas:       ___/10\r\n━━━━━━━━━━━━━━━━━━━━━\r\nSCORE FINAL:       ___/10\r\n\r\nTop 3 Gaps:\r\n1. ____________________\r\n2. ____________________\r\n3. ____________________\r\n\r\nPróxima Ação:\r\n____________________\r\n```\r\n\r\n---\r\n\r\n## 📚 Referência\r\n\r\nScorecard desenvolvido para: Conselho de Funil\r\nBaseado em: MadMuscles, Noom, Caliber, 100+ quiz funnels analisados\r\nVersão: 1.0 (Dezembro 2024)",
+    "metadata": {
+      "docType": "scorecards",
+      "scope": "funnel",
+      "tags": [],
+      "tenantId": null,
+      "status": "approved",
+      "version": "2025-12-24"
+    },
+    "source": {
+      "file": "../templates/funnel_brain/scorecards/quiz_funnel_scorecard.md",
+      "section": "Introduction",
+      "lineStart": 108,
+      "lineEnd": 224
+    }
+  }
+]

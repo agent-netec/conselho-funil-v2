@@ -1,0 +1,2161 @@
+[
+  {
+    "content": "# Framework: Carousel Design Mastery",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Framework: Carousel Design Mastery",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## Objetivo\nCriar carroseis que maximizam engajamento, saves e shares.\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Objetivo",
+      "lineStart": 4,
+      "lineEnd": 8
+    }
+  },
+  {
+    "content": "## Parte 1: Psicologia de Carroseis",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Parte 1: Psicologia de Carroseis",
+      "lineStart": 9,
+      "lineEnd": 10
+    }
+  },
+  {
+    "content": "### Princípio 1: Curiosidade Progressiva\n**O que funciona**: Cada slide revela mais informação\n- Slide 1: Hook (problema/pergunta)\n- Slide 2-3: Contexto\n- Slide 4-5: Solução\n- Slide 6+: Resultado/CTA\n\n**Por que funciona**: Usuário quer saber o final\n**Benchmark**: +40-60% saves vs. single post",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Princípio 1: Curiosidade Progressiva",
+      "lineStart": 11,
+      "lineEnd": 20
+    }
+  },
+  {
+    "content": "### Princípio 2: Variedade Visual\n**O que funciona**: Cada slide tem estilo diferente\n- Slide 1: Texto grande\n- Slide 2: Imagem\n- Slide 3: Gráfico\n- Slide 4: Citação\n- Slide 5: CTA\n\n**Por que funciona**: Mantém atenção, evita monotonia\n**Benchmark**: +30-50% engajamento vs. estilo uniforme",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Princípio 2: Variedade Visual",
+      "lineStart": 21,
+      "lineEnd": 31
+    }
+  },
+  {
+    "content": "### Princípio 3: Valor Progressivo\n**O que funciona**: Cada slide adiciona valor\n- Não é apenas storytelling\n- Cada slide é útil por si só\n- Usuário quer salvar para referência\n\n**Por que funciona**: Utilidade = saves\n**Benchmark**: +50-100% saves vs. apenas storytelling",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Princípio 3: Valor Progressivo",
+      "lineStart": 32,
+      "lineEnd": 40
+    }
+  },
+  {
+    "content": "### Princípio 4: Chamada para Ação\n**O que funciona**: Último slide tem CTA claro\n- \"Salve esse carousel\"\n- \"Compartilhe com alguém\"\n- \"Clique no link\"\n- \"Comente sua resposta\"\n\n**Por que funciona**: Direciona ação do usuário\n**Benchmark**: +20-40% comentários com CTA\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Princípio 4: Chamada para Ação",
+      "lineStart": 41,
+      "lineEnd": 52
+    }
+  },
+  {
+    "content": "## Parte 2: Estrutura de Carroseis",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Parte 2: Estrutura de Carroseis",
+      "lineStart": 53,
+      "lineEnd": 54
+    }
+  },
+  {
+    "content": "### Estrutura 1: Educacional (5-7 slides)\n**Slide 1**: Hook + Pergunta\n- \"Você está fazendo isso errado?\"\n- Visual: Problema\n\n**Slide 2-4**: Lições (1 por slide)\n- Lição 1 com explicação\n- Lição 2 com explicação\n- Lição 3 com explicação\n\n**Slide 5-6**: Resultado + Aplicação\n- Como aplicar\n- Resultado esperado\n\n**Slide 7**: CTA\n- \"Salve esse carousel\"\n- Link na bio",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Estrutura 1: Educacional (5-7 slides)",
+      "lineStart": 55,
+      "lineEnd": 72
+    }
+  },
+  {
+    "content": "### Estrutura 2: Narrativa (3-5 slides)\n**Slide 1**: Problema\n- Situação inicial\n- Emoção do problema\n\n**Slide 2**: Conflito\n- O que tentou\n- Por que não funcionou\n\n**Slide 3**: Solução\n- Como resolveu\n- Por que funciona\n\n**Slide 4**: Resultado\n- Antes vs. Depois\n- Números/Impacto\n\n**Slide 5**: CTA\n- Ação desejada",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Estrutura 2: Narrativa (3-5 slides)",
+      "lineStart": 73,
+      "lineEnd": 92
+    }
+  },
+  {
+    "content": "### Estrutura 3: Comparação (5-7 slides)\n**Slide 1**: Hook\n- \"Qual é melhor?\"\n- Duas opções\n\n**Slide 2-3**: Opção A (pros e contras)\n**Slide 4-5**: Opção B (pros e contras)\n**Slide 6**: Vencedor\n- Qual é melhor e por quê\n\n**Slide 7**: CTA\n- \"Qual você escolhe?\"",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Estrutura 3: Comparação (5-7 slides)",
+      "lineStart": 93,
+      "lineEnd": 105
+    }
+  },
+  {
+    "content": "### Estrutura 4: Dica Rápida (3-5 slides)\n**Slide 1**: Título + Hook\n- \"3 dicas para X\"\n\n**Slide 2**: Dica 1\n- Imagem + texto\n\n**Slide 3**: Dica 2\n- Imagem + texto\n\n**Slide 4**: Dica 3\n- Imagem + texto\n\n**Slide 5**: Resumo + CTA\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Estrutura 4: Dica Rápida (3-5 slides)",
+      "lineStart": 106,
+      "lineEnd": 122
+    }
+  },
+  {
+    "content": "## Parte 3: Design Visual",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Parte 3: Design Visual",
+      "lineStart": 123,
+      "lineEnd": 124
+    }
+  },
+  {
+    "content": "### Elemento 1: Proporções\n**Ideal**: 1080x1350px (4:5)\n- Instagram Carousel: 1080x1350px\n- LinkedIn Carousel: 1080x1350px\n- Mínimo: 1080x1080px (1:1)",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Elemento 1: Proporções",
+      "lineStart": 125,
+      "lineEnd": 130
+    }
+  },
+  {
+    "content": "### Elemento 2: Tipografia\n**Slide 1 (Hook)**: Texto grande (80-120px)\n- Bold, sans-serif\n- Alto contraste\n\n**Slides 2-4 (Conteúdo)**: Texto médio (40-60px)\n- Bold ou semi-bold\n- Legível em mobile\n\n**Slide Final (CTA)**: Texto grande (60-100px)\n- Bold, chamativo\n- Cor de destaque",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Elemento 2: Tipografia",
+      "lineStart": 131,
+      "lineEnd": 143
+    }
+  },
+  {
+    "content": "### Elemento 3: Paleta de Cores\n**Recomendado**: 3-4 cores máximo\n- Cor primária (40%)\n- Cor secundária (30%)\n- Cor de destaque (20%)\n- Cor de fundo (10%)\n\n**Consistência**: Mesma paleta em todos os slides",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Elemento 3: Paleta de Cores",
+      "lineStart": 144,
+      "lineEnd": 152
+    }
+  },
+  {
+    "content": "### Elemento 4: Espaçamento\n**Margem**: 40px em todas as bordas\n- Garante legibilidade\n- Evita corte de elementos",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Elemento 4: Espaçamento",
+      "lineStart": 153,
+      "lineEnd": 157
+    }
+  },
+  {
+    "content": "### Elemento 5: Hierarquia Visual\n**Prioridade**:\n1. Título/Hook (50% do espaço)\n2. Conteúdo principal (35% do espaço)\n3. Elementos secundários (10% do espaço)\n4. Background (5% do espaço)\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Elemento 5: Hierarquia Visual",
+      "lineStart": 158,
+      "lineEnd": 166
+    }
+  },
+  {
+    "content": "## Parte 4: Padrões que Funcionam",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Parte 4: Padrões que Funcionam",
+      "lineStart": 167,
+      "lineEnd": 168
+    }
+  },
+  {
+    "content": "### Padrão 1: \"Você está fazendo errado\"\n**Slide 1**: \"Você está fazendo X errado\"\n**Slide 2**: Por que está errado\n**Slide 3**: Como fazer certo\n**Slide 4**: Resultado\n**Slide 5**: CTA\n\n**Benchmark**: +50-70% saves",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Padrão 1: \"Você está fazendo errado\"",
+      "lineStart": 169,
+      "lineEnd": 177
+    }
+  },
+  {
+    "content": "### Padrão 2: \"Antes vs. Depois\"\n**Slide 1**: Antes (problema)\n**Slide 2**: O que mudou\n**Slide 3**: Depois (resultado)\n**Slide 4**: Como replicar\n**Slide 5**: CTA\n\n**Benchmark**: +40-60% saves",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Padrão 2: \"Antes vs. Depois\"",
+      "lineStart": 178,
+      "lineEnd": 186
+    }
+  },
+  {
+    "content": "### Padrão 3: \"Top 5 Dicas\"\n**Slide 1**: \"Top 5 dicas para X\"\n**Slide 2-6**: Uma dica por slide\n**Slide 7**: Resumo + CTA\n\n**Benchmark**: +30-50% saves",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Padrão 3: \"Top 5 Dicas\"",
+      "lineStart": 187,
+      "lineEnd": 193
+    }
+  },
+  {
+    "content": "### Padrão 4: \"Mito vs. Realidade\"\n**Slide 1**: \"Mito: X\"\n**Slide 2**: Por que é mito\n**Slide 3**: \"Realidade: Y\"\n**Slide 4**: Por que é realidade\n**Slide 5**: Aplicação\n**Slide 6**: CTA\n\n**Benchmark**: +40-60% saves",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Padrão 4: \"Mito vs. Realidade\"",
+      "lineStart": 194,
+      "lineEnd": 203
+    }
+  },
+  {
+    "content": "### Padrão 5: \"Pergunta + Resposta\"\n**Slide 1**: Pergunta provocadora\n**Slide 2-4**: Respostas (3 opções)\n**Slide 5**: Resposta correta + explicação\n**Slide 6**: CTA (\"Qual você escolheu?\")\n\n**Benchmark**: +50-70% comentários\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Padrão 5: \"Pergunta + Resposta\"",
+      "lineStart": 204,
+      "lineEnd": 213
+    }
+  },
+  {
+    "content": "## Parte 5: Integração com Copywriting",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Parte 5: Integração com Copywriting",
+      "lineStart": 214,
+      "lineEnd": 215
+    }
+  },
+  {
+    "content": "### Quando Consultar Copywriting Brain\n1. **Slide 1 (Hook)**: Qual headline funciona melhor?\n2. **Slides 2-4 (Conteúdo)**: Como estruturar a mensagem?\n3. **Slide Final (CTA)**: Qual CTA converte melhor?",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Quando Consultar Copywriting Brain",
+      "lineStart": 216,
+      "lineEnd": 220
+    }
+  },
+  {
+    "content": "### Exemplo de Integração\n```\nDesigner: \"Estou criando carousel sobre escala\"\nCopywriting Brain: \"Use headline 'De $100k a $1M em 12 meses'\"\nDesigner: \"Perfeito, vou usar isso no slide 1\"\nCopywriting Brain: \"Para slides 2-4, use estrutura: Problema → Solução → Resultado\"\nDesigner: \"Entendi, vou montar assim\"\n```\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Exemplo de Integração",
+      "lineStart": 221,
+      "lineEnd": 231
+    }
+  },
+  {
+    "content": "## Parte 6: Anti-Patterns",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Parte 6: Anti-Patterns",
+      "lineStart": 232,
+      "lineEnd": 233
+    }
+  },
+  {
+    "content": "### Anti-Pattern 1: Muitos Slides Sem Valor\n**Problema**: Carousel com 10+ slides, mas apenas 3 têm valor\n**Solução**: 5-7 slides máximo, cada um com valor",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Anti-Pattern 1: Muitos Slides Sem Valor",
+      "lineStart": 234,
+      "lineEnd": 237
+    }
+  },
+  {
+    "content": "### Anti-Pattern 2: Texto Muito Pequeno\n**Problema**: Não legível em mobile\n**Solução**: Mínimo 40px para conteúdo",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Anti-Pattern 2: Texto Muito Pequeno",
+      "lineStart": 238,
+      "lineEnd": 241
+    }
+  },
+  {
+    "content": "### Anti-Pattern 3: Sem Hierarquia Visual\n**Problema**: Todos os elementos têm mesma importância\n**Solução**: Destaque o mais importante",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Anti-Pattern 3: Sem Hierarquia Visual",
+      "lineStart": 242,
+      "lineEnd": 245
+    }
+  },
+  {
+    "content": "### Anti-Pattern 4: Cores Inconsistentes\n**Problema**: Cada slide tem paleta diferente\n**Solução**: Mesma paleta em todos os slides",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Anti-Pattern 4: Cores Inconsistentes",
+      "lineStart": 246,
+      "lineEnd": 249
+    }
+  },
+  {
+    "content": "### Anti-Pattern 5: CTA Fraco\n**Problema**: Último slide não tem ação clara\n**Solução**: CTA claro e provocador\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Anti-Pattern 5: CTA Fraco",
+      "lineStart": 250,
+      "lineEnd": 255
+    }
+  },
+  {
+    "content": "## Parte 7: Processo de Criação",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Parte 7: Processo de Criação",
+      "lineStart": 256,
+      "lineEnd": 257
+    }
+  },
+  {
+    "content": "### Passo 1: Definir Objetivo\n- Educação? Narrativa? Comparação?\n- Qual é o resultado esperado?\n- Qual é a ação desejada?",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Passo 1: Definir Objetivo",
+      "lineStart": 258,
+      "lineEnd": 262
+    }
+  },
+  {
+    "content": "### Passo 2: Escolher Estrutura\n- Educacional? Narrativa? Comparação?\n- Quantos slides? (3-7 recomendado)",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Passo 2: Escolher Estrutura",
+      "lineStart": 263,
+      "lineEnd": 266
+    }
+  },
+  {
+    "content": "### Passo 3: Consultar Copywriting Brain\n- Qual é o melhor headline?\n- Como estruturar a mensagem?\n- Qual é o melhor CTA?",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Passo 3: Consultar Copywriting Brain",
+      "lineStart": 267,
+      "lineEnd": 271
+    }
+  },
+  {
+    "content": "### Passo 4: Montar Slides\n- Slide 1: Hook\n- Slides 2-N: Conteúdo\n- Slide Final: CTA",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Passo 4: Montar Slides",
+      "lineStart": 272,
+      "lineEnd": 276
+    }
+  },
+  {
+    "content": "### Passo 5: Validar\n- Cada slide tem valor?\n- Texto é legível?\n- Cores são consistentes?\n- CTA é claro?\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Passo 5: Validar",
+      "lineStart": 277,
+      "lineEnd": 284
+    }
+  },
+  {
+    "content": "### Métrica 1: Engagement Rate\n**Benchmark**:\n- Ruim: <1%\n- Ok: 1-3%\n- Bom: 3-5%\n- Excelente: >5%",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Métrica 1: Engagement Rate",
+      "lineStart": 287,
+      "lineEnd": 293
+    }
+  },
+  {
+    "content": "### Métrica 2: Save Rate\n**Benchmark**:\n- Ruim: <10% dos likes\n- Ok: 10-20% dos likes\n- Bom: 20-40% dos likes\n- Excelente: >40% dos likes",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Métrica 2: Save Rate",
+      "lineStart": 294,
+      "lineEnd": 300
+    }
+  },
+  {
+    "content": "### Métrica 3: Share Rate\n**Benchmark**:\n- Ruim: <5% dos likes\n- Ok: 5-10% dos likes\n- Bom: 10-20% dos likes\n- Excelente: >20% dos likes\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Métrica 3: Share Rate",
+      "lineStart": 301,
+      "lineEnd": 309
+    }
+  },
+  {
+    "content": "## Parte 9: Checklist\n\n- [ ] Estrutura é clara (problema → solução → resultado)?\n- [ ] Cada slide tem valor?\n- [ ] Texto é legível em mobile?\n- [ ] Cores são consistentes?\n- [ ] Slide 1 tem hook forte?\n- [ ] Slide final tem CTA claro?\n- [ ] Máximo 7 slides?\n- [ ] Hierarquia visual é clara?\n\n---\n\n**Última atualização**: 6 de janeiro de 2026",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/carousel_framework.md",
+      "section": "Parte 9: Checklist",
+      "lineStart": 310,
+      "lineEnd": 324
+    }
+  },
+  {
+    "content": "# Framework: Static Creative Design Mastery",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Framework: Static Creative Design Mastery",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## Objetivo\nCriar criativos estáticos que maximizam CTR, conversão e ROAS.\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Objetivo",
+      "lineStart": 4,
+      "lineEnd": 8
+    }
+  },
+  {
+    "content": "## Parte 1: Psicologia de Criativos Estáticos",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Parte 1: Psicologia de Criativos Estáticos",
+      "lineStart": 9,
+      "lineEnd": 10
+    }
+  },
+  {
+    "content": "### Princípio 1: Hierarquia Visual Clara\n**O que funciona**: Usuário sabe exatamente onde olhar\n1. Elemento principal (40% do espaço)\n2. Mensagem (30% do espaço)\n3. Elementos secundários (20% do espaço)\n4. Background (10% do espaço)\n\n**Por que funciona**: Reduz fricção, facilita compreensão\n**Benchmark**: +15-25% CTR vs. sem hierarquia",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Princípio 1: Hierarquia Visual Clara",
+      "lineStart": 11,
+      "lineEnd": 20
+    }
+  },
+  {
+    "content": "### Princípio 2: Contraste Emocional\n**O que funciona**: Antes vs. Depois, Problema vs. Solução\n- Lado esquerdo: Problema (cores frias, expressão triste)\n- Lado direito: Solução (cores quentes, expressão feliz)\n- Seta no meio indicando transformação\n\n**Por que funciona**: Mostra transformação, cria esperança\n**Benchmark**: +20-35% conversão",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Princípio 2: Contraste Emocional",
+      "lineStart": 21,
+      "lineEnd": 29
+    }
+  },
+  {
+    "content": "### Princípio 3: Prova Social Visual\n**O que funciona**: Números, testimoniais, logos\n- \"1M+ clientes\"\n- \"4.9★ de 5\"\n- Logos de empresas conhecidas\n- Fotos de clientes reais\n\n**Por que funciona**: Reduz fricção, aumenta confiança\n**Benchmark**: +10-20% conversão",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Princípio 3: Prova Social Visual",
+      "lineStart": 30,
+      "lineEnd": 39
+    }
+  },
+  {
+    "content": "### Princípio 4: CTA Visual Claro\n**O que funciona**: Botão destacado, seta, ou elemento que chama ação\n- Botão com cor de destaque\n- Seta apontando para CTA\n- Texto claro: \"Clique Aqui\", \"Saiba Mais\", \"Comece Agora\"\n\n**Por que funciona**: Remove ambiguidade, facilita ação\n**Benchmark**: +15-30% CTR",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Princípio 4: CTA Visual Claro",
+      "lineStart": 40,
+      "lineEnd": 48
+    }
+  },
+  {
+    "content": "### Princípio 5: Autenticidade\n**O que funciona**: Fotos reais, não stock photos\n- Pessoas reais\n- Ambientes reais\n- Produtos reais\n- Resultados reais\n\n**Por que funciona**: Confiança, reduz fricção\n**Benchmark**: +20-40% conversão vs. stock photos\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Princípio 5: Autenticidade",
+      "lineStart": 49,
+      "lineEnd": 60
+    }
+  },
+  {
+    "content": "## Parte 2: Estrutura de Criativos",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Parte 2: Estrutura de Criativos",
+      "lineStart": 61,
+      "lineEnd": 62
+    }
+  },
+  {
+    "content": "### Estrutura 1: Antes/Depois\n**Layout**:\n- Lado esquerdo (40%): Antes (problema)\n- Centro (20%): Seta ou transformação\n- Lado direito (40%): Depois (solução)\n\n**Elementos**:\n- Imagem: Antes vs. Depois\n- Texto: \"De X para Y\"\n- Números: Quantificação da mudança\n\n**Benchmark**: +25-40% conversão",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Estrutura 1: Antes/Depois",
+      "lineStart": 63,
+      "lineEnd": 75
+    }
+  },
+  {
+    "content": "### Estrutura 2: Problema/Solução\n**Layout**:\n- Topo (50%): Problema em destaque\n- Meio (30%): Solução\n- Fundo (20%): CTA\n\n**Elementos**:\n- Imagem: Problema visual\n- Texto: Solução clara\n- Botão: CTA destacado\n\n**Benchmark**: +20-35% conversão",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Estrutura 2: Problema/Solução",
+      "lineStart": 76,
+      "lineEnd": 88
+    }
+  },
+  {
+    "content": "### Estrutura 3: Resultado + Prova\n**Layout**:\n- Topo (40%): Resultado em destaque\n- Meio (40%): Prova social\n- Fundo (20%): CTA\n\n**Elementos**:\n- Número grande: Resultado\n- Testimonial: Prova social\n- Logo/Foto: Credibilidade\n\n**Benchmark**: +15-30% conversão",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Estrutura 3: Resultado + Prova",
+      "lineStart": 89,
+      "lineEnd": 101
+    }
+  },
+  {
+    "content": "### Estrutura 4: Comparação\n**Layout**:\n- Lado esquerdo (45%): Opção A\n- Centro (10%): Símbolo de comparação\n- Lado direito (45%): Opção B\n\n**Elementos**:\n- Imagem: Opção A\n- Imagem: Opção B\n- Símbolo: Vitória/Derrota\n\n**Benchmark**: +20-35% conversão",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Estrutura 4: Comparação",
+      "lineStart": 102,
+      "lineEnd": 114
+    }
+  },
+  {
+    "content": "### Estrutura 5: Destaque + Contexto\n**Layout**:\n- Topo (60%): Elemento principal\n- Fundo (40%): Contexto/Background\n\n**Elementos**:\n- Imagem: Produto/Resultado\n- Texto: Contexto\n- CTA: Ação\n\n**Benchmark**: +15-25% conversão\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Estrutura 5: Destaque + Contexto",
+      "lineStart": 115,
+      "lineEnd": 128
+    }
+  },
+  {
+    "content": "## Parte 3: Design Visual",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Parte 3: Design Visual",
+      "lineStart": 129,
+      "lineEnd": 130
+    }
+  },
+  {
+    "content": "### Elemento 1: Proporções\n**Recomendadas**:\n- Facebook/Instagram Ads: 1200x628px (1.91:1)\n- Google Ads: 1200x628px (1.91:1)\n- Email: 600x400px (1.5:1)\n- Landing Page: 1200x600px (2:1)",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Elemento 1: Proporções",
+      "lineStart": 131,
+      "lineEnd": 137
+    }
+  },
+  {
+    "content": "### Elemento 2: Tipografia\n**Headline**: \n- Tamanho: 60-100px\n- Font: Bold, sans-serif\n- Cor: Contraste alto\n\n**Body Text**:\n- Tamanho: 30-40px\n- Font: Regular, sans-serif\n- Cor: Contraste suficiente\n\n**CTA**:\n- Tamanho: 40-60px\n- Font: Bold, sans-serif\n- Cor: Destaque",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Elemento 2: Tipografia",
+      "lineStart": 138,
+      "lineEnd": 153
+    }
+  },
+  {
+    "content": "### Elemento 3: Paleta de Cores\n**Recomendado**: 3-4 cores máximo\n- Cor primária (40%)\n- Cor secundária (30%)\n- Cor de destaque (20%)\n- Cor de fundo (10%)\n\n**Estratégia**:\n- Vermelho: Urgência, atenção\n- Verde: Crescimento, sucesso\n- Azul: Confiança, calma\n- Amarelo: Felicidade, destaque",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Elemento 3: Paleta de Cores",
+      "lineStart": 154,
+      "lineEnd": 166
+    }
+  },
+  {
+    "content": "### Elemento 4: Espaçamento\n**Margem**: 40px em todas as bordas\n**Padding interno**: 20px entre elementos",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Elemento 4: Espaçamento",
+      "lineStart": 167,
+      "lineEnd": 170
+    }
+  },
+  {
+    "content": "### Elemento 5: Imagem\n**Qualidade**: Alta resolução (mínimo 1200px)\n**Estilo**: Autêntico, não stock photo\n**Posicionamento**: Elemento principal em destaque\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Elemento 5: Imagem",
+      "lineStart": 171,
+      "lineEnd": 177
+    }
+  },
+  {
+    "content": "## Parte 4: Padrões que Funcionam",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Parte 4: Padrões que Funcionam",
+      "lineStart": 178,
+      "lineEnd": 179
+    }
+  },
+  {
+    "content": "### Padrão 1: \"De X para Y\"\n**Layout**: Antes/Depois\n**Texto**: \"De $0 para $100k\"\n**Imagem**: Transformação visual\n**CTA**: \"Descubra como\"\n\n**Benchmark**: +30-45% conversão",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Padrão 1: \"De X para Y\"",
+      "lineStart": 180,
+      "lineEnd": 187
+    }
+  },
+  {
+    "content": "### Padrão 2: \"Você está fazendo errado\"\n**Layout**: Problema em destaque\n**Texto**: \"Você está fazendo X errado\"\n**Imagem**: Problema visual\n**CTA**: \"Descubra a solução\"\n\n**Benchmark**: +25-40% conversão",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Padrão 2: \"Você está fazendo errado\"",
+      "lineStart": 188,
+      "lineEnd": 195
+    }
+  },
+  {
+    "content": "### Padrão 3: \"Prova Social + Resultado\"\n**Layout**: Resultado + Prova\n**Texto**: \"1M+ clientes, 4.9★\"\n**Imagem**: Logos/Testimoniais\n**CTA**: \"Junte-se a eles\"\n\n**Benchmark**: +20-35% conversão",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Padrão 3: \"Prova Social + Resultado\"",
+      "lineStart": 196,
+      "lineEnd": 203
+    }
+  },
+  {
+    "content": "### Padrão 4: \"Comparação\"\n**Layout**: Lado a lado\n**Texto**: \"Qual é melhor?\"\n**Imagem**: Opção A vs. Opção B\n**CTA**: \"Escolha agora\"\n\n**Benchmark**: +20-35% conversão",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Padrão 4: \"Comparação\"",
+      "lineStart": 204,
+      "lineEnd": 211
+    }
+  },
+  {
+    "content": "### Padrão 5: \"Urgência + Escassez\"\n**Layout**: Destaque + Contexto\n**Texto**: \"Apenas 5 vagas restantes\"\n**Imagem**: Elemento de urgência\n**CTA**: \"Garanta sua vaga\"\n\n**Benchmark**: +25-40% conversão\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Padrão 5: \"Urgência + Escassez\"",
+      "lineStart": 212,
+      "lineEnd": 221
+    }
+  },
+  {
+    "content": "## Parte 5: Integração com Outros Conselhos",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Parte 5: Integração com Outros Conselhos",
+      "lineStart": 222,
+      "lineEnd": 223
+    }
+  },
+  {
+    "content": "### Quando Consultar Copywriting Brain\n1. **Headline**: Qual é o melhor?\n2. **Body Text**: Como estruturar?\n3. **CTA**: Qual funciona melhor?",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Quando Consultar Copywriting Brain",
+      "lineStart": 224,
+      "lineEnd": 228
+    }
+  },
+  {
+    "content": "### Quando Consultar Ads Brain\n1. **Formato**: Qual é o ideal para essa plataforma?\n2. **Tamanho**: Qual é a proporção recomendada?\n3. **Performance**: Qual é o benchmark de CTR/conversão?",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Quando Consultar Ads Brain",
+      "lineStart": 229,
+      "lineEnd": 233
+    }
+  },
+  {
+    "content": "### Quando Consultar Social Media Brain\n1. **Trend**: Qual é o trend agora?\n2. **Estilo**: Qual é o estilo que funciona?\n3. **Timing**: Quando publicar?",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Quando Consultar Social Media Brain",
+      "lineStart": 234,
+      "lineEnd": 238
+    }
+  },
+  {
+    "content": "### Exemplo de Integração\n```\nDesigner: \"Estou criando criativo para anúncio de consultoria\"\nAds Brain: \"Use formato 1200x628px, CTR benchmark é 1.5%\"\nCopywriting Brain: \"Use headline 'De $100k a $1M em 12 meses'\"\nSocial Media Brain: \"Trend agora é antes/depois, use cores verde e amarelo\"\nDesigner: \"Perfeito, vou criar assim\"\n```\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Exemplo de Integração",
+      "lineStart": 239,
+      "lineEnd": 249
+    }
+  },
+  {
+    "content": "## Parte 6: Anti-Patterns",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Parte 6: Anti-Patterns",
+      "lineStart": 250,
+      "lineEnd": 251
+    }
+  },
+  {
+    "content": "### Anti-Pattern 1: Stock Photo Óbvio\n**Problema**: Parece anúncio, não confiável\n**Solução**: Use fotos reais, pessoas reais",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Anti-Pattern 1: Stock Photo Óbvio",
+      "lineStart": 252,
+      "lineEnd": 255
+    }
+  },
+  {
+    "content": "### Anti-Pattern 2: Texto Muito Pequeno\n**Problema**: Não legível em mobile\n**Solução**: Mínimo 30px para body text",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Anti-Pattern 2: Texto Muito Pequeno",
+      "lineStart": 256,
+      "lineEnd": 259
+    }
+  },
+  {
+    "content": "### Anti-Pattern 3: Muitos Elementos\n**Problema**: Confuso, não sabe onde olhar\n**Solução**: Máximo 3-4 elementos principais",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Anti-Pattern 3: Muitos Elementos",
+      "lineStart": 260,
+      "lineEnd": 263
+    }
+  },
+  {
+    "content": "### Anti-Pattern 4: Cores Sem Estratégia\n**Problema**: Sem impacto emocional\n**Solução**: Use cores com significado psicológico",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Anti-Pattern 4: Cores Sem Estratégia",
+      "lineStart": 264,
+      "lineEnd": 267
+    }
+  },
+  {
+    "content": "### Anti-Pattern 5: CTA Fraco\n**Problema**: Não claro qual é a ação\n**Solução**: CTA claro, destacado, provocador\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Anti-Pattern 5: CTA Fraco",
+      "lineStart": 268,
+      "lineEnd": 273
+    }
+  },
+  {
+    "content": "## Parte 7: Processo de Criação",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Parte 7: Processo de Criação",
+      "lineStart": 274,
+      "lineEnd": 275
+    }
+  },
+  {
+    "content": "### Passo 1: Definir Objetivo\n- Qual é o resultado esperado?\n- Qual é a ação desejada?\n- Qual é a emoção que quer gerar?",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Passo 1: Definir Objetivo",
+      "lineStart": 276,
+      "lineEnd": 280
+    }
+  },
+  {
+    "content": "### Passo 2: Consultar Copywriting Brain\n- Qual é o melhor headline?\n- Como estruturar a mensagem?\n- Qual é o melhor CTA?",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Passo 2: Consultar Copywriting Brain",
+      "lineStart": 281,
+      "lineEnd": 285
+    }
+  },
+  {
+    "content": "### Passo 3: Consultar Ads Brain\n- Qual é o formato ideal?\n- Qual é o benchmark de performance?\n- Qual é a proporção recomendada?",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Passo 3: Consultar Ads Brain",
+      "lineStart": 286,
+      "lineEnd": 290
+    }
+  },
+  {
+    "content": "### Passo 4: Consultar Social Media Brain\n- Qual é o trend agora?\n- Qual é o estilo que funciona?\n- Qual é a paleta de cores recomendada?",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Passo 4: Consultar Social Media Brain",
+      "lineStart": 291,
+      "lineEnd": 295
+    }
+  },
+  {
+    "content": "### Passo 5: Montar Criativo\n- Aplicar hierarquia visual\n- Garantir legibilidade\n- Testar em tamanho pequeno",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Passo 5: Montar Criativo",
+      "lineStart": 296,
+      "lineEnd": 300
+    }
+  },
+  {
+    "content": "### Passo 6: Validar\n- Legível em mobile?\n- Contraste suficiente?\n- Hierarquia visual clara?\n- CTA é claro?\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Passo 6: Validar",
+      "lineStart": 301,
+      "lineEnd": 308
+    }
+  },
+  {
+    "content": "### Métrica 1: CTR (Click-Through Rate)\n**Benchmark**:\n- Ruim: <1%\n- Ok: 1-2%\n- Bom: 2-3%\n- Excelente: >3%",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Métrica 1: CTR (Click-Through Rate)",
+      "lineStart": 311,
+      "lineEnd": 317
+    }
+  },
+  {
+    "content": "### Métrica 2: Conversão\n**Benchmark**:\n- Ruim: <1%\n- Ok: 1-3%\n- Bom: 3-5%\n- Excelente: >5%",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Métrica 2: Conversão",
+      "lineStart": 318,
+      "lineEnd": 324
+    }
+  },
+  {
+    "content": "### Métrica 3: CPA (Cost Per Acquisition)\n**Benchmark**: Depende do negócio\n- Se LTV = $100, CPA target = $30\n- Se LTV = $500, CPA target = $150\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Métrica 3: CPA (Cost Per Acquisition)",
+      "lineStart": 325,
+      "lineEnd": 331
+    }
+  },
+  {
+    "content": "## Parte 9: Checklist\n\n- [ ] Hierarquia visual é clara?\n- [ ] Texto é legível em mobile?\n- [ ] Contraste é suficiente?\n- [ ] Imagem é autêntica (não stock photo)?\n- [ ] CTA é claro e destacado?\n- [ ] Cores são estratégicas?\n- [ ] Máximo 3-4 elementos principais?\n- [ ] Emoção é evidente?\n\n---\n\n**Última atualização**: 6 de janeiro de 2026",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/static_creative_framework.md",
+      "section": "Parte 9: Checklist",
+      "lineStart": 332,
+      "lineEnd": 346
+    }
+  },
+  {
+    "content": "# Framework: Thumbnail Design Mastery",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Framework: Thumbnail Design Mastery",
+      "lineStart": 2,
+      "lineEnd": 3
+    }
+  },
+  {
+    "content": "## Objetivo\nCriar thumbnails que maximizam CTR (click-through rate) e conversão.\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Objetivo",
+      "lineStart": 4,
+      "lineEnd": 8
+    }
+  },
+  {
+    "content": "## Parte 1: Psicologia de Cliques",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Parte 1: Psicologia de Cliques",
+      "lineStart": 9,
+      "lineEnd": 10
+    }
+  },
+  {
+    "content": "### Princípio 1: Contraste Visual\n**O que funciona**: Alto contraste entre elementos principais\n- Fundo escuro + texto claro\n- Cores complementares\n- Elementos que \"saltam\" da tela\n\n**Por que funciona**: Olho humano é atraído por contraste\n**Benchmark**: +15-25% CTR vs. baixo contraste",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Princípio 1: Contraste Visual",
+      "lineStart": 11,
+      "lineEnd": 19
+    }
+  },
+  {
+    "content": "### Princípio 2: Expressão Facial\n**O que funciona**: Rosto humano com emoção forte\n- Surpresa (boca aberta)\n- Alegria (sorriso genuíno)\n- Choque (olhos arregalados)\n- Medo (expressão assustada)\n\n**Por que funciona**: Espelho neural (imitamos expressões)\n**Benchmark**: +20-40% CTR vs. sem rosto",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Princípio 2: Expressão Facial",
+      "lineStart": 20,
+      "lineEnd": 29
+    }
+  },
+  {
+    "content": "### Princípio 3: Texto Legível\n**O que funciona**: Texto grande, bold, contrastante\n- Fonte sans-serif (Arial, Montserrat)\n- Tamanho mínimo 40px\n- Cor que contrasta com fundo\n- Máximo 5 palavras\n\n**Por que funciona**: Legibilidade em pequeno tamanho\n**Benchmark**: +10-20% CTR vs. texto pequeno",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Princípio 3: Texto Legível",
+      "lineStart": 30,
+      "lineEnd": 39
+    }
+  },
+  {
+    "content": "### Princípio 4: Cor Estratégica\n**O que funciona**: Cores que chamam atenção\n- Vermelho (urgência, atenção)\n- Amarelo (felicidade, destaque)\n- Verde (crescimento, sucesso)\n- Azul (confiança, calma)\n\n**Por que funciona**: Cores têm significado psicológico\n**Benchmark**: +5-15% CTR com cor estratégica",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Princípio 4: Cor Estratégica",
+      "lineStart": 40,
+      "lineEnd": 49
+    }
+  },
+  {
+    "content": "### Princípio 5: Seta/Indicador\n**O que funciona**: Seta apontando para elemento importante\n- Seta amarela ou vermelha\n- Apontando para rosto ou texto\n- Cria movimento visual\n\n**Por que funciona**: Direciona atenção do espectador\n**Benchmark**: +5-10% CTR com seta\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Princípio 5: Seta/Indicador",
+      "lineStart": 50,
+      "lineEnd": 60
+    }
+  },
+  {
+    "content": "## Parte 2: Elementos Estruturais",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Parte 2: Elementos Estruturais",
+      "lineStart": 61,
+      "lineEnd": 62
+    }
+  },
+  {
+    "content": "### Elemento 1: Proporções\n**Ideal**: 1280x720px (16:9)\n- YouTube: 1280x720px\n- TikTok: 1080x1920px (vertical)\n- Shorts: 1080x1920px (vertical)",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Elemento 1: Proporções",
+      "lineStart": 63,
+      "lineEnd": 68
+    }
+  },
+  {
+    "content": "### Elemento 2: Espaço Seguro\n**Margem**: 20px em todas as bordas\n- Evita corte de elementos\n- Garante visibilidade em todos os dispositivos",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Elemento 2: Espaço Seguro",
+      "lineStart": 69,
+      "lineEnd": 73
+    }
+  },
+  {
+    "content": "### Elemento 3: Hierarquia Visual\n**Ordem de importância**:\n1. Rosto/Emoção (40% do espaço)\n2. Texto principal (30% do espaço)\n3. Elementos secundários (20% do espaço)\n4. Background (10% do espaço)",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Elemento 3: Hierarquia Visual",
+      "lineStart": 74,
+      "lineEnd": 80
+    }
+  },
+  {
+    "content": "### Elemento 4: Tipografia\n**Fonte Principal**: Bold, sans-serif\n- Montserrat Bold\n- Arial Black\n- Impact\n\n**Tamanho**: \n- Título: 80-120px\n- Subtítulo: 40-60px\n- Mínimo: 30px",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Elemento 4: Tipografia",
+      "lineStart": 81,
+      "lineEnd": 91
+    }
+  },
+  {
+    "content": "### Elemento 5: Paleta de Cores\n**Recomendado**: 3-4 cores máximo\n- Cor principal (40%)\n- Cor secundária (30%)\n- Cor de destaque (20%)\n- Cor de fundo (10%)\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Elemento 5: Paleta de Cores",
+      "lineStart": 92,
+      "lineEnd": 100
+    }
+  },
+  {
+    "content": "## Parte 3: Padrões que Funcionam",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Parte 3: Padrões que Funcionam",
+      "lineStart": 101,
+      "lineEnd": 102
+    }
+  },
+  {
+    "content": "### Padrão 1: Antes/Depois\n**Estrutura**:\n- Lado esquerdo: Antes (problema)\n- Lado direito: Depois (solução)\n- Seta no meio\n- Texto: \"Como fazer X\"\n\n**Benchmark**: +25-35% CTR\n**Exemplo**: \"Antes: $0 | Depois: $100k\"",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Padrão 1: Antes/Depois",
+      "lineStart": 103,
+      "lineEnd": 112
+    }
+  },
+  {
+    "content": "### Padrão 2: Número + Resultado\n**Estrutura**:\n- Número grande (ex: \"3X\")\n- Resultado (ex: \"Mais Vendas\")\n- Rosto com expressão positiva\n- Cor verde ou amarela\n\n**Benchmark**: +20-30% CTR\n**Exemplo**: \"3X MAIS VENDAS\"",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Padrão 2: Número + Resultado",
+      "lineStart": 113,
+      "lineEnd": 122
+    }
+  },
+  {
+    "content": "### Padrão 3: Contraste Emocional\n**Estrutura**:\n- Rosto com emoção forte (surpresa, choque)\n- Texto provocador\n- Cor de destaque\n- Seta apontando para rosto\n\n**Benchmark**: +15-25% CTR\n**Exemplo**: Rosto chocado + \"NÃO ACREDITO\"",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Padrão 3: Contraste Emocional",
+      "lineStart": 123,
+      "lineEnd": 132
+    }
+  },
+  {
+    "content": "### Padrão 4: Pergunta Provocadora\n**Estrutura**:\n- Pergunta no topo\n- Rosto pensativo ou confuso\n- Resposta em baixo (teaser)\n- Cor de destaque\n\n**Benchmark**: +10-20% CTR\n**Exemplo**: \"Você está fazendo errado?\" + Rosto confuso",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Padrão 4: Pergunta Provocadora",
+      "lineStart": 133,
+      "lineEnd": 142
+    }
+  },
+  {
+    "content": "### Padrão 5: Comparação\n**Estrutura**:\n- Lado esquerdo: Opção A\n- Lado direito: Opção B\n- Símbolo de vitória no vencedor\n- Texto: \"Qual é melhor?\"\n\n**Benchmark**: +15-25% CTR\n**Exemplo**: \"Pixel vs. CAPI\" com símbolos\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Padrão 5: Comparação",
+      "lineStart": 143,
+      "lineEnd": 154
+    }
+  },
+  {
+    "content": "## Parte 4: Anti-Patterns (O que NÃO fazer)",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Parte 4: Anti-Patterns (O que NÃO fazer)",
+      "lineStart": 155,
+      "lineEnd": 156
+    }
+  },
+  {
+    "content": "### Anti-Pattern 1: Texto Muito Pequeno\n**Problema**: Não consegue ler em tamanho pequeno\n**Solução**: Mínimo 40px para texto principal",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Anti-Pattern 1: Texto Muito Pequeno",
+      "lineStart": 157,
+      "lineEnd": 160
+    }
+  },
+  {
+    "content": "### Anti-Pattern 2: Cores Muito Similares\n**Problema**: Sem contraste, não chama atenção\n**Solução**: Use cores complementares",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Anti-Pattern 2: Cores Muito Similares",
+      "lineStart": 161,
+      "lineEnd": 164
+    }
+  },
+  {
+    "content": "### Anti-Pattern 3: Muitos Elementos\n**Problema**: Confuso, não sabe onde olhar\n**Solução**: Máximo 3-4 elementos principais",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Anti-Pattern 3: Muitos Elementos",
+      "lineStart": 165,
+      "lineEnd": 168
+    }
+  },
+  {
+    "content": "### Anti-Pattern 4: Sem Expressão Facial\n**Problema**: Menos engajante\n**Solução**: Sempre inclua rosto com emoção",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Anti-Pattern 4: Sem Expressão Facial",
+      "lineStart": 169,
+      "lineEnd": 172
+    }
+  },
+  {
+    "content": "### Anti-Pattern 5: Fonte Muito Fina\n**Problema**: Não legível em pequeno tamanho\n**Solução**: Use bold, sans-serif\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Anti-Pattern 5: Fonte Muito Fina",
+      "lineStart": 173,
+      "lineEnd": 178
+    }
+  },
+  {
+    "content": "## Parte 5: Processo de Criação",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Parte 5: Processo de Criação",
+      "lineStart": 179,
+      "lineEnd": 180
+    }
+  },
+  {
+    "content": "### Passo 1: Definir Objetivo\n- O que quer que o espectador clique?\n- Qual é a emoção que quer gerar?\n- Qual é a ação desejada?",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Passo 1: Definir Objetivo",
+      "lineStart": 181,
+      "lineEnd": 185
+    }
+  },
+  {
+    "content": "### Passo 2: Escolher Padrão\n- Qual padrão combina com objetivo?\n- Antes/Depois? Número? Comparação?",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Passo 2: Escolher Padrão",
+      "lineStart": 186,
+      "lineEnd": 189
+    }
+  },
+  {
+    "content": "### Passo 3: Selecionar Elementos\n- Qual rosto/expressão?\n- Qual texto?\n- Qual cor?",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Passo 3: Selecionar Elementos",
+      "lineStart": 190,
+      "lineEnd": 194
+    }
+  },
+  {
+    "content": "### Passo 4: Montar Thumbnail\n- Aplicar hierarquia visual\n- Garantir legibilidade\n- Testar em tamanho pequeno",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Passo 4: Montar Thumbnail",
+      "lineStart": 195,
+      "lineEnd": 199
+    }
+  },
+  {
+    "content": "### Passo 5: Validar\n- Legível em 200x112px?\n- Contraste suficiente?\n- Emoção clara?\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Passo 5: Validar",
+      "lineStart": 200,
+      "lineEnd": 206
+    }
+  },
+  {
+    "content": "### Métrica 1: CTR (Click-Through Rate)\n**Benchmark**:\n- Ruim: <2%\n- Ok: 2-4%\n- Bom: 4-6%\n- Excelente: >6%",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Métrica 1: CTR (Click-Through Rate)",
+      "lineStart": 209,
+      "lineEnd": 215
+    }
+  },
+  {
+    "content": "### Métrica 2: Impressões\n**Benchmark**:\n- Ruim: <1,000\n- Ok: 1,000-10,000\n- Bom: 10,000-100,000\n- Excelente: >100,000",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Métrica 2: Impressões",
+      "lineStart": 216,
+      "lineEnd": 222
+    }
+  },
+  {
+    "content": "### Métrica 3: Cliques\n**Benchmark**:\n- Ruim: <20\n- Ok: 20-100\n- Bom: 100-500\n- Excelente: >500\n\n---",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Métrica 3: Cliques",
+      "lineStart": 223,
+      "lineEnd": 231
+    }
+  },
+  {
+    "content": "## Parte 7: Checklist\n\n- [ ] Texto é legível em 200x112px?\n- [ ] Contraste é suficiente?\n- [ ] Rosto tem expressão clara?\n- [ ] Cores são estratégicas?\n- [ ] Máximo 5 palavras?\n- [ ] Fonte é bold, sans-serif?\n- [ ] Padrão é claro?\n- [ ] Emoção é evidente?\n\n---\n\n**Última atualização**: 6 de janeiro de 2026",
+    "metadata": {
+      "counselor": "design_director",
+      "docType": "heuristics",
+      "scope": "visual_intelligence",
+      "tenantId": null,
+      "status": "approved",
+      "version": "1.0"
+    },
+    "source": {
+      "file": "frameworks/thumbnail_framework.md",
+      "section": "Parte 7: Checklist",
+      "lineStart": 232,
+      "lineEnd": 246
+    }
+  }
+]
