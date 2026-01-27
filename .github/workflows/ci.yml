@@ -1,0 +1,91 @@
+name: CI - NETECMT Quality Gate
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    name: Run Regression Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: ./app
+        run: npm ci
+
+      - name: Run Jest Tests
+        working-directory: ./app
+        run: npm test
+
+  route-check:
+    name: Verify Critical Routes Exist
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check Sprint 10-29 Critical Routes
+        run: |
+          echo "=== Verificando rotas criticas das Sprints 10-29 ==="
+          
+          # Sprint 10 - Ingestao/Assets
+          test -f app/src/app/assets/page.tsx || { echo "FAIL: /assets route missing"; exit 1; }
+          
+          # Sprint 11 - Campaign Command Center
+          test -f app/src/app/campaign/\[id\]/page.tsx || { echo "FAIL: /campaign/[id] route missing"; exit 1; }
+          
+          # Sprint 13 - Intelligence Foundation
+          test -f app/src/app/intelligence/page.tsx || { echo "FAIL: /intelligence route missing"; exit 1; }
+          
+          # Sprint 17 - Social Command Center
+          test -f app/src/app/social/page.tsx || { echo "FAIL: /social route missing"; exit 1; }
+          
+          # Sprint 20 - Automation
+          test -f app/src/app/automation/page.tsx || { echo "FAIL: /automation route missing"; exit 1; }
+          
+          # Sprint 21 - LTV Intelligence
+          test -f app/src/app/intelligence/ltv/page.tsx || { echo "FAIL: /intelligence/ltv route missing"; exit 1; }
+          
+          # Sprint 22 - Predictive Performance
+          test -f app/src/app/intelligence/predictive/page.tsx || { echo "FAIL: /intelligence/predictive route missing"; exit 1; }
+          
+          # Sprint 25 - Attribution
+          test -f app/src/app/intelligence/attribution/page.tsx || { echo "FAIL: /intelligence/attribution route missing"; exit 1; }
+          
+          # Sprint 26 - Creative Intelligence
+          test -f app/src/app/intelligence/creative/page.tsx || { echo "FAIL: /intelligence/creative route missing"; exit 1; }
+          
+          # Sprint 28 - Cross-Channel
+          test -f app/src/app/performance/cross-channel/page.tsx || { echo "FAIL: /performance/cross-channel route missing"; exit 1; }
+          
+          # Sprint 29 - Personalization
+          test -f app/src/app/intelligence/personalization/page.tsx || { echo "FAIL: /intelligence/personalization route missing"; exit 1; }
+          
+          echo "=== Todas as rotas criticas existem! ==="
+
+      - name: Verify Vercel Config
+        run: |
+          echo "=== Verificando configuracao Vercel ==="
+          
+          # Verifica se vercel.json existe em app/ (Root Directory configurado na Vercel)
+          test -f app/vercel.json || { echo "FAIL: vercel.json missing in app/"; exit 1; }
+          
+          # Verifica configuracoes essenciais
+          grep -q '"regions"' app/vercel.json || echo "WARN: regions not configured"
+          grep -q '"functions"' app/vercel.json || echo "WARN: functions not configured"
+          
+          echo "=== Configuracao Vercel OK ==="
