@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 import { MentionCardSkeleton } from "@/components/intelligence/mention-card"
 import { TrendListSkeleton } from "@/components/intelligence/trend-list"
