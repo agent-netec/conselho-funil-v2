@@ -3,7 +3,7 @@ import { Timestamp } from 'firebase/firestore';
 import type { AssetChunk, BrandAsset } from '../../types/database';
 import { createChunks } from './chunking';
 import { generateEmbeddingsBatch } from './embeddings';
-import { upsertToPinecone } from './pinecone';
+import { upsertToPinecone } from '@/lib/ai/pinecone';
 import { fetchBrandAsset, updateBrandAsset } from '../firebase/assets';
 import { saveAssetChunks } from '../firebase/assets-server';
 import { extractContentFromUrl } from './url-scraper';

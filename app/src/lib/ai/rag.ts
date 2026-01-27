@@ -8,7 +8,7 @@
  * 4. Montagem de contexto
  */
 
-import { db } from './config';
+import { db } from '@/lib/firebase/config';
 import { 
   collection, 
   query, 
@@ -581,7 +581,6 @@ export async function retrieveBrandChunks(
     results.forEach((c, i) => c.rank = i + 1);
 
     // ST-12.5: Save to cache
-    const cacheKey = JSON.stringify({ brandId, queryText, filters: finalConfig.filters });
     if (results.length > 0) {
       ragCache.set(cacheKey, { chunks: results, timestamp: Date.now() });
     }

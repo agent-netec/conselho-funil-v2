@@ -8,8 +8,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Filter, RefreshCw, LayoutDashboard } from 'lucide-react';
-import { toast } from '@/components/ui/toast-notifications';
+import { Search, Filter, RefreshCw, LayoutDashboard, MessageSquare } from 'lucide-react';
+import { notify } from '@/lib/stores/notification-store';
+import { cn } from '@/lib/utils';
 
 export default function SocialInboxPage() {
   const [interactions, setInteractions] = useState<SocialInteraction[]>([]);
@@ -17,28 +18,22 @@ export default function SocialInboxPage() {
   const [suggestions, setSuggestions] = useState<BrandVoiceSuggestion | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('marketing digital'); // Mock default
+  const [searchQuery, setSearchQuery] = useState('marketing digital'); 
 
   const fetchInteractions = async () => {
     setIsLoading(true);
     try {
-      // Usando a API Route que criamos anteriormente
-      const brandId = 'mock-brand-123'; // Em produção viria do context/store
+      const brandId = 'mock-brand-123';
       const response = await fetch(`/api/social-inbox?brandId=${brandId}&keyword=${searchQuery}`);
       const data = await response.json();
       
       if (data.sampleInteraction) {
-        // Mocking a list based on the sample
         setInteractions([data.sampleInteraction]);
       } else {
         setInteractions([]);
       }
     } catch (error) {
-      toast({
-        title: "Erro ao carregar inbox",
-        description: "Não foi possível conectar ao agregador social.",
-        variant: "destructive"
-      });
+      notify.error("Erro ao carregar inbox", "Não foi possível conectar ao agregador social.");
     } finally {
       setIsLoading(false);
     }
@@ -70,41 +65,27 @@ export default function SocialInboxPage() {
     fetchSuggestions(interaction);
   };
 
+  const handleSendResponse = async (text: string) => {
+    if (!selectedInteraction) return;
+    
     try {
-      // 1. Validar Safety Gate se for negativo
-      if (interaction.metadata.sentimentLabel === 'negative') {
-        toast({
-          title: "Bloqueio de Segurança",
-          description: "Interações negativas exigem revisão manual e não podem ser automatizadas.",
-          variant: "destructive"
-        });
+      if (selectedInteraction.metadata.sentimentLabel === 'negative') {
+        notify.warning("Bloqueio de Segurança", "Interações negativas exigem revisão manual.");
         return;
       }
 
-      toast({
-        title: "Resposta enviada!",
-        description: "A mensagem foi publicada com sucesso na rede social.",
-      });
-      // Aqui integraria com o endpoint /respond do contrato
+      notify.success("Resposta enviada!", "A mensagem foi publicada com sucesso.");
     } catch (error) {
-      toast({
-        title: "Erro ao enviar",
-        description: "Falha na comunicação com a rede social.",
-        variant: "destructive"
-      });
+      notify.error("Erro ao enviar", "Falha na comunicação com a rede social.");
     }
   };
 
   const handleQuickAction = (action: 'like' | 'follow') => {
-    toast({
-      title: "Ação realizada",
-      description: `Você deu ${action === 'like' ? 'Like' : 'Follow'} nesta interação.`,
-    });
+    notify.info("Ação realizada", `Você deu ${action === 'like' ? 'Like' : 'Follow'} nesta interação.`);
   };
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-background">
-      {/* Header */}
       <header className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-2">
           <LayoutDashboard className="h-5 w-5 text-primary" />
@@ -129,7 +110,6 @@ export default function SocialInboxPage() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar: Master List */}
         <aside className="w-80 border-r bg-muted/10 flex flex-col">
           <Tabs defaultValue="all" className="w-full">
             <div className="px-4 pt-4">
@@ -161,7 +141,6 @@ export default function SocialInboxPage() {
           </Tabs>
         </aside>
 
-        {/* Main Content: Detail & Editor */}
         <main className="flex-1 bg-background p-6 overflow-y-auto">
           {selectedInteraction ? (
             <div className="max-w-4xl mx-auto h-full">
@@ -184,7 +163,3 @@ export default function SocialInboxPage() {
     </div>
   );
 }
-
-// Helper para lucide
-import { MessageSquare } from 'lucide-react';
-import { cn } from '@/lib/utils';

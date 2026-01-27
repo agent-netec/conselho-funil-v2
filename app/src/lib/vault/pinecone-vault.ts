@@ -1,4 +1,4 @@
-import { upsertToPinecone, queryPinecone } from './pinecone';
+import { upsertToPinecone, queryPinecone } from '@/lib/ai/pinecone';
 import { type PineconeRecord } from '@pinecone-database/pinecone';
 
 /**

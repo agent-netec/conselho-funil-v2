@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLead, createTransaction } from '../../../../../lib/firebase/journey';
-import { CAPISyncEngine, CAPIPayload } from '../../../../../lib/integrations/ads/capi-sync';
+import { getLead, createTransaction } from '../../../../lib/firebase/journey';
+import { CAPISyncEngine } from '../../../../lib/integrations/ads/capi-sync';
 
 /**
  * @fileoverview Endpoint para ingestão de conversões offline (ST-25.4)

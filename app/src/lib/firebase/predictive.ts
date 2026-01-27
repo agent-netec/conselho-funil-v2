@@ -11,8 +11,8 @@ import {
   orderBy,
   limit
 } from 'firebase/firestore';
-import { db } from '../config.js';
-import { withResilience } from '../resilience.js';
+import { db } from '@/lib/firebase/config';
+import { withResilience } from './resilience';
 import type { Prediction, SimulationScenario } from '@/types/predictive';
 
 /**

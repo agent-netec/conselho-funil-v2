@@ -8,7 +8,7 @@ import {
   orderBy,
   limit
 } from 'firebase/firestore';
-import { db } from '../config.js';
+import { db } from '@/lib/firebase/config';
 import type { AnomalyAlert } from '@/types/reporting';
 
 /**
