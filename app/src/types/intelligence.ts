@@ -6,7 +6,111 @@
 
 import { Timestamp } from 'firebase/firestore';
 
+import { ScopedData, DataScope } from './scoped-data';
+import { Timestamp } from 'firebase/firestore';
+
+/**
+ * Insight do ICP capturado pela Ala de Inteligência
+ * Collection: brands/{brandId}/icp_insights/{insightId}
+ */
+export interface ICPInsight extends ScopedData {
+  id: string;
+  
+  // === SCOPE (herdado de ScopedData) ===
+  scope: DataScope & {
+    level: 'brand' | 'funnel';  // ICP pode ser geral (marca) ou específico (funil)
+  };
+  inheritToChildren: boolean;   // Se true, funis herdam este insight
+  
+  // === CLASSIFICAÇÃO ===
+  category: ICPInsightCategory;
+  
+  // === CONTEÚDO ===
+  content: string;              // O insight em si
+  frequency: number;            // Quantas vezes foi mencionado
+  sentiment: number;            // -1.0 a 1.0
+  
+  // === RASTREABILIDADE ===
+  sources: ICPSource[];
+  
+  // === GOVERNANÇA ===
+  isApprovedForAI: boolean;     // Gate para uso no RAG
+  relevanceScore: number;       // 0.0 a 1.0
+  approvedBy?: string;          // userId ou 'auto' se auto-approved
+  approvedAt?: Timestamp;
+  
+  // === TIMESTAMPS ===
+  createdAt: Timestamp;
+  updatedAt?: Timestamp;
+  expiresAt?: Timestamp;        // TTL opcional
+  
+  // === PINECONE ===
+  pineconeId?: string;          // Referência ao vetor
+}
+
+export type ICPInsightCategory = 
+  | 'pain'        // Dor do cliente
+  | 'desire'      // Desejo do cliente
+  | 'objection'   // Objeção comum
+  | 'vocabulary'  // Palavra/frase que o público usa
+  | 'trend'       // Tendência identificada
+  | 'social_proof'; // NOVO: Prova social extraída de menções
+
+/**
+ * Menção social capturada (Instagram, Reddit, TikTok, etc.)
+ * Collection: brands/{brandId}/social_mentions/{mentionId}
+ */
+export interface SocialMention extends ScopedData {
+  id: string;
+  platform: 'instagram' | 'reddit' | 'tiktok' | 'twitter' | 'youtube';
+  content: string;
+  author: {
+    id: string;
+    handle: string;
+    bio?: string;
+    isVerified?: boolean;
+  };
+  sentiment: number; // -1.0 a 1.0
+  engagement: {
+    likes: number;
+    comments: number;
+    shares: number;
+    views?: number;
+  };
+  url: string;
+  collectedAt: Timestamp;
+  isApprovedForAI: boolean;
+  pineconeId?: string;
+}
+
+/**
+ * Tendência de mercado capturada (Glimpse/Google Trends)
+ * Collection: brands/{brandId}/market_trends/{trendId}
+ */
+export interface MarketTrend extends ScopedData {
+  id: string;
+  topic: string;
+  growthPercentage: number; // Ex: 500 (para 500%)
+  searchVolume: 'high' | 'medium' | 'low';
+  absoluteVolume?: number; // Se disponível via Glimpse
+  relatedKeywords: string[];
+  platformSource: 'glimpse' | 'google_trends' | 'exa';
+  region: string; // Ex: 'BR', 'US'
+  timeRange: string; // Ex: '7d', '30d', '12m'
+  capturedAt: Timestamp;
+  expiresAt: Timestamp; // TTL curto para trends
+  pineconeId?: string;
+}
+
+export interface ICPSource {
+  platform: string;             // 'reddit', 'twitter', 'google_trends', etc.
+  url: string;
+  collectedAt: Timestamp;
+  snippet?: string;             // Trecho original
+}
+
 export type IntelligenceType = 'mention' | 'trend' | 'competitor' | 'news' | 'keyword';
+
 
 export type IntelligenceStatus = 
   | 'raw'        // Coletado, aguardando processamento

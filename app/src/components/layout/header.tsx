@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, Search, Command } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BrandSelector } from '@/components/brands/brand-selector';
+import { ContextIndicator } from '@/components/context/context-indicator';
 import { useMobile } from '@/lib/hooks/use-mobile';
 
 interface HeaderProps {
@@ -61,6 +62,9 @@ export function Header({ title, subtitle, showBack, actions, showBrandSelector =
       </div>
 
       <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0 ml-auto">
+        {/* Context Indicator - Visible on desktop */}
+        {!isMobile && <ContextIndicator />}
+
         {/* Brand Selector - Visible on all devices */}
         {showBrandSelector && <BrandSelector />}
         

@@ -1,13 +1,24 @@
 import { generateWithGemini } from '@/lib/ai/gemini';
 import { 
   IntelligenceAnalysis, 
-  IntelligenceDocument 
+  IntelligenceDocument,
+  ICPInsightCategory
 } from '@/types/intelligence';
 import { 
   AnalystProcessResult, 
   AnalystProcessConfig 
 } from '@/types/intelligence-agents';
 import { Timestamp } from 'firebase/firestore';
+
+/**
+ * Interface para os insights extraídos pelo Analyst
+ */
+export interface ExtractedICPInsight {
+  category: ICPInsightCategory;
+  content: string;
+  relevance: number;
+  reasoning: string;
+}
 
 /**
  * Agente Analyst responsável por processar documentos de inteligência.
@@ -29,47 +40,79 @@ export class AnalystAgent {
   }
 
   /**
-   * Analisa um documento individual usando Gemini Flash.
+   * Analisa um documento individual usando Gemini Flash para extrair metadados e ICP Insights.
    */
-  async analyzeDocument(doc: IntelligenceDocument): Promise<IntelligenceAnalysis> {
+  async analyzeDocument(doc: IntelligenceDocument): Promise<{
+    analysis: IntelligenceAnalysis;
+    extractedInsights: ExtractedICPInsight[];
+  }> {
     const prompt = `
-      Analise o seguinte conteúdo de inteligência de mercado e retorne um JSON estritamente no formato abaixo.
-      Identifique sentimentos, emoções predominantes e intenção.
+      Você é um Especialista em Inteligência de Mercado e Psicologia de Consumo.
+      Analise o seguinte conteúdo capturado da web e extraia insights estratégicos sobre o ICP (Ideal Customer Profile).
       
-      Conteúdo:
+      CONTEÚDO:
       Título: ${doc.content.title || 'N/A'}
       Texto: ${doc.content.text}
       Plataforma: ${doc.source.platform}
       
-      Formato de Saída (JSON):
+      TAREFAS:
+      1. Analise o sentimento e emoções.
+      2. Extraia palavras-chave (keywords) do nicho.
+      3. Identifique ICP Insights nas categorias:
+         - 'pain' (Dores/Problemas): O que tira o sono do cliente?
+         - 'desire' (Desejos/Sonhos): O que ele realmente quer alcançar?
+         - 'objection' (Objeções): Por que ele hesita em comprar?
+         - 'vocabulary' (Vocabulário): Expressões, gírias ou termos específicos que ele usa.
+         - 'trend' (Tendências): Mudanças de comportamento ou novos interesses.
+
+      REGRAS DE EXTRAÇÃO:
+      - Extraia apenas o que for explicitamente mencionado ou fortemente inferido.
+      - Para 'vocabulary', foque em termos que demonstram autoridade ou pertencimento ao nicho.
+      - Atribua um score de relevância (0.0 a 1.0) para cada insight.
+
+      FORMATO DE SAÍDA (JSON ESTRITAMENTE):
       {
-        "sentiment": "positive" | "negative" | "neutral",
-        "sentimentScore": número entre -1.0 e 1.0,
-        "sentimentConfidence": número entre 0.0 e 1.0,
-        "emotion": "alegria" | "raiva" | "confusão" | "tristeza" | "medo" | "surpresa" | "neutro",
-        "emotionIntensity": número entre 0.0 e 1.0,
-        "keywords": ["array de até 10 keywords relevantes"],
-        "summary": "resumo de até 200 caracteres",
-        "relevanceScore": número entre 0.0 e 1.0,
-        "trendSpotting": ["possíveis tendências ou tópicos quentes citados"]
+        "analysis": {
+          "sentiment": "positive" | "negative" | "neutral",
+          "sentimentScore": número (-1.0 a 1.0),
+          "sentimentConfidence": número (0.0 a 1.0),
+          "emotion": "alegria" | "raiva" | "confusão" | "tristeza" | "medo" | "surpresa" | "neutro",
+          "emotionIntensity": número (0.0 a 1.0),
+          "keywords": ["até 10 keywords"],
+          "summary": "resumo de até 200 caracteres",
+          "relevanceScore": número (0.0 a 1.0)
+        },
+        "extractedInsights": [
+          {
+            "category": "pain" | "desire" | "objection" | "vocabulary" | "trend",
+            "content": "descrição curta do insight",
+            "relevance": número (0.0 a 1.0),
+            "reasoning": "por que este insight é importante?"
+          }
+        ]
       }
     `;
 
     try {
       const response = await generateWithGemini(prompt, {
         model: 'gemini-2.0-flash-exp',
-        temperature: 0.2,
+        temperature: 0.1, // Baixa temperatura para extração mais factual
         responseMimeType: 'application/json',
       });
 
-      const analysis = JSON.parse(response);
+      const result = JSON.parse(response);
 
-      return {
-        ...analysis,
-        matchedBrandKeywords: [], // Será preenchido pelo orquestrador comparando com as keywords da marca
+      const analysis: IntelligenceAnalysis = {
+        ...result.analysis,
+        matchedBrandKeywords: [],
         analyzedBy: 'gemini-flash',
         analyzedAt: Timestamp.now(),
-      } as any; // Cast temporário para acomodar novos campos de emoção no schema se necessário
+      };
+
+      return {
+        analysis,
+        extractedInsights: result.extractedInsights || []
+      };
     } catch (error) {
       console.error(`[Analyst] Erro ao analisar documento ${doc.id}:`, error);
       throw error;
@@ -77,7 +120,7 @@ export class AnalystAgent {
   }
 
   /**
-   * Processa um lote de documentos.
+   * Processa um lote de documentos. (Mantido para compatibilidade, mas recomenda-se usar o orquestrador)
    */
   async processBatch(
     brandId: string, 
@@ -91,18 +134,13 @@ export class AnalystAgent {
 
     for (const doc of documents) {
       try {
-        const analysis = await this.analyzeDocument(doc);
+        const { analysis } = await this.analyzeDocument(doc);
         
-        // Atualizar estatísticas
         docsProcessed++;
         sentimentDistribution[analysis.sentiment]++;
         analysis.keywords.forEach(kw => {
           keywordCounts[kw] = (keywordCounts[kw] || 0) + 1;
         });
-
-        // Aqui o orquestrador deve atualizar o Firestore
-        // (Isso será feito no orquestrador principal para manter separação de responsabilidades)
-        
       } catch (err) {
         docsFailed++;
       }
@@ -124,3 +162,4 @@ export class AnalystAgent {
     };
   }
 }
+
