@@ -24,10 +24,25 @@ export const useAuthStore = create<AuthState>((set) => ({
   
   initialize: () => {
     set({ isLoading: true });
-    const unsubscribe = onAuthChange((user) => {
-      set({ user, isLoading: false, isInitialized: true });
-    });
-    return unsubscribe;
+    
+    // US-28.01: Se o Firebase Auth não estiver disponível (ex: falha de config), 
+    // marcamos como inicializado para evitar loading infinito.
+    if (!onAuthChange) {
+      console.error('[AuthStore] onAuthChange not available');
+      set({ isLoading: false, isInitialized: true });
+      return () => {};
+    }
+
+    try {
+      const unsubscribe = onAuthChange((user) => {
+        set({ user, isLoading: false, isInitialized: true });
+      });
+      return unsubscribe;
+    } catch (error) {
+      console.error('[AuthStore] Error during initialization:', error);
+      set({ isLoading: false, isInitialized: true });
+      return () => {};
+    }
   },
   
   signOut: async () => {
