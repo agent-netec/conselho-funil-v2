@@ -53,11 +53,22 @@ Este documento detalha a recuperação da infraestrutura de deploy do projeto **
 
 ## 4. 🛡️ DIRETRIZES PARA AGENTES FUTUROS (SALVAGUARDAS)
 
-1.  **Contexto de Deploy:** Antes de qualquer deploy, verifique se o Proxy local está desativado (`$env:HTTP_PROXY = $null`).
+1.  **Contexto de Deploy:** Antes de qualquer deploy, verifique se o Proxy local está desativado (`$env:HTTP_PROXY = $null`). Use o script `_netecmt/scripts/clear-proxy.ps1`.
 2.  **Arquitetura de Pastas:** O código oficial reside APENAS em `app/src`. Qualquer pasta `src` na raiz deve ser ignorada ou removida.
 3.  **Desenvolvimento de UI:** Dashboards que utilizam Recharts ou Framer Motion **DEVEM** ter `"use client"` no topo.
 4.  **Gestão de Imports:** Nunca use caminhos relativos profundos. Use sempre o alias `@/`.
 5.  **Redeploy Limpo:** Em caso de erro persistente na Vercel, force o **Redeploy sem Build Cache**.
+6.  **Hierarquia de Providers:** No `layout.tsx`, Provedores de Estado (Auth, DB) devem SEMPRE preceder Provedores de Analytics/UI.
+7.  **Safe Hook Consumption:** Nunca desestruturar diretamente de hooks globais (como `useAuthStore`) sem verificação de nulidade ou encadeamento opcional.
+
+---
+
+## 5. 📚 DOCUMENTAÇÃO DE PROTOCOLOS (FASE 4)
+
+Foram criados os seguintes guias oficiais em `_netecmt/docs/tools/`:
+- `proxy.md`: Guia de limpeza e troubleshooting de rede.
+- `git.md`: Workflow oficial de versionamento e remotes.
+- `vercel.md`: Configuracoes obrigatorias de deploy e variaveis de ambiente.
 
 ---
 *Gerado automaticamente pelo Agente de Estabilização NETECMT.*
