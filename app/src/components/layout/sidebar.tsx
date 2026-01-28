@@ -24,6 +24,7 @@ import {
   Zap,
   PenTool,
   Sparkles,
+  Database,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -59,6 +60,7 @@ const ICONS: Record<string, LucideIcon> = {
   Zap,
   PenTool,
   Sparkles,
+  Database,
 };
 
 import { useBranding } from '@/components/providers/branding-provider';

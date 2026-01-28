@@ -37,6 +37,14 @@ export const useAuthStore = create<AuthState>((set) => ({
       const unsubscribe = onAuthChange((user) => {
         set({ user, isLoading: false, isInitialized: true });
       });
+
+      // Se o unsubscribe for uma função vazia (string representation check ou similar)
+      // ou se o Firebase Auth for null, forçamos a inicialização.
+      if (unsubscribe.toString() === '() => {}' || unsubscribe.toString().includes('noop')) {
+        console.warn('[AuthStore] Firebase Auth not available, forcing initialization.');
+        set({ user: null, isLoading: false, isInitialized: true });
+      }
+
       return unsubscribe;
     } catch (error) {
       console.error('[AuthStore] Error during initialization:', error);
