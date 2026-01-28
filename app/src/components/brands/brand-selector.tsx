@@ -16,8 +16,14 @@ import { useState } from 'react';
  */
 export function BrandSelector() {
   const router = useRouter();
-  const { brands, isLoading } = useBrands();
-  const { selectedBrand, setSelectedBrand } = useBrandStore();
+  const brandsData = useBrands();
+  const brands = brandsData?.brands || [];
+  const isLoading = brandsData?.isLoading;
+  
+  const brandStore = useBrandStore();
+  const selectedBrand = brandStore?.selectedBrand;
+  const setSelectedBrand = brandStore?.setSelectedBrand;
+  
   const [isOpen, setIsOpen] = useState(false);
 
   // Auto-seleciona primeira marca se nenhuma estiver selecionada

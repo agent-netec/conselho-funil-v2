@@ -12,7 +12,9 @@ import { cn } from '@/lib/utils';
 import { CONFIG } from '@/lib/config';
 
 export function UserUsageWidget() {
-  const { user, isLoading } = useUser();
+  const userData = useUser();
+  const user = userData?.user;
+  const isLoading = userData?.isLoading;
 
   if (isLoading || !user) return null;
 

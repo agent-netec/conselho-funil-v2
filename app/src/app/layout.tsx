@@ -32,13 +32,13 @@ export default function RootLayout({
       <body
         className={`min-h-screen bg-background font-sans text-foreground antialiased`}
       >
-        <PostHogProvider>
-          <AuthProvider>
+        <AuthProvider>
+          <PostHogProvider>
             <BrandingProvider>
               <AppShell>{children}</AppShell>
             </BrandingProvider>
-          </AuthProvider>
-        </PostHogProvider>
+          </PostHogProvider>
+        </AuthProvider>
         <Toaster position="bottom-right" theme="dark" />
       </body>
     </html>

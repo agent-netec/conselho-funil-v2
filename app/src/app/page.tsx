@@ -17,8 +17,13 @@ function getGreeting() {
 }
 
 export default function HomePage() {
-  const { stats, isLoading: statsLoading } = useStats();
-  const { funnels, isLoading: funnelsLoading } = useFunnels();
+  const statsData = useStats();
+  const stats = statsData?.stats;
+  const statsLoading = statsData?.isLoading;
+  
+  const funnelsData = useFunnels();
+  const funnels = funnelsData?.funnels;
+  const funnelsLoading = funnelsData?.isLoading;
 
   return (
     <div className="flex min-h-screen flex-col">

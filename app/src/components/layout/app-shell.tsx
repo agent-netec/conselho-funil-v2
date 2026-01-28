@@ -82,10 +82,15 @@ function LoadingScreen() {
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isLoading, isInitialized } = useAuthStore();
+  const auth = useAuthStore();
+  
+  // Destructuring com segurança
+  const user = auth?.user;
+  const isLoading = auth?.isLoading;
+  const isInitialized = auth?.isInitialized;
 
   const isPublicPage = PUBLIC_PATHS.includes(pathname);
-  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/signup');
+  const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/signup');
 
   useEffect(() => {
     if (!isInitialized) return;

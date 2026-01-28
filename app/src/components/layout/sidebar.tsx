@@ -64,7 +64,9 @@ const ICONS: Record<string, LucideIcon> = {
 import { useBranding } from '@/components/providers/branding-provider';
 
 export function Sidebar() {
-  const { branding } = useBranding();
+  const brandingContext = useBranding();
+  const branding = brandingContext?.branding || { colors: { primary: '#10b981', secondary: '#8b5cf6' } };
+  
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuthStore();
