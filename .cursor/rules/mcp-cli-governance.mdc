@@ -1,0 +1,38 @@
+---
+description: NETECMT Governance - MCP & CLI Usage Rules
+globs: **/*
+alwaysApply: true
+---
+
+# 🛠️ Governança de MCPs e CLIs - NETECMT
+
+Esta regra define como os agentes devem interagir com ferramentas externas (MCP Servers e CLIs do Sistema) para garantir segurança, precisão e rastreabilidade.
+
+## 📜 1. A Regra de Ouro: "Read Before Run"
+**NUNCA** execute um comando CLI ou utilize uma ferramenta de um MCP Server sem antes ler sua documentação de liberação oficial do projeto.
+
+- **Localização da Documentação**: Os guias de cada ferramenta DEVEM estar em `@_netecmt/docs/tools/[nome-da-ferramenta].md`.
+- **Conteúdo Obrigatório**: A documentação deve incluir a lista de comandos permitidos, exemplos de uso, chaves de autenticação necessárias e o agente responsável.
+
+## 🔍 2. Protocolo de Execução
+Antes de usar qualquer ferramenta (ex: `docker`, `snyk`, `git`, ou MCPs como `memory`):
+
+1. **Procure o Guia**: Tente ler o arquivo correspondente em `_netecmt/docs/tools/`.
+2. **Valide Dependências**: Verifique se as variáveis de ambiente ou chaves citadas no guia estão configuradas (usando o agente Monara se necessário).
+3. **Siga os Comandos**: Use apenas os comandos e parâmetros descritos no guia de liberação.
+
+## 🛑 3. Bloqueios de Segurança
+Se você for solicitado a usar uma ferramenta que **NÃO possui documentação** em `_netecmt/docs/tools/`:
+- **Interrompa**: Informe ao usuário que a ferramenta ainda não foi mapeada no workflow.
+- **Ação**: Sugira que o agente **Wilder** ou **Monara** realize o mapeamento e crie o documento de liberação primeiro.
+
+## 👤 4. Atribuição de Agentes
+Cada ferramenta deve ser usada preferencialmente pelo agente designado:
+- **Monara**: Integrações, MCPs de sistema, chaves API.
+- **Darllyson**: Frameworks de desenvolvimento, CLIs de build, Docker.
+- **Athos**: Ferramentas de modelagem e design de sistema.
+- **Dandara**: CLIs de teste e qualidade (ex: Playwright, Snyk).
+- **Wilder**: Ferramentas de documentação e análise de legado.
+
+---
+*NETECMT v2.0 | Integridade e Segurança em Primeiro Lugar*

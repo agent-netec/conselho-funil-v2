@@ -1,0 +1,87 @@
+# NETECMT: CLI Reference (Conselho de Funil)
+# Fonte da verdade para comandos CLI (inclui variantes PowerShell).
+#
+# Origem: `_netecmt/melhorias/cli-reference_template.yaml` + curadoria do projeto.
+
+version: 1.0
+
+clis:
+  - name: "Firebase CLI"
+    reference_url: "https://firebase.google.com/docs/cli"
+    commands:
+      - name: "login"
+        description: "Autentica o usuário na Firebase."
+        variants:
+          - shell: "powershell"
+            command: "firebase login"
+
+      - name: "deploy:rules"
+        description: "Deploy de rules (Firestore/Storage)."
+        variants:
+          - shell: "powershell"
+            command: "firebase deploy --only firestore:rules,storage"
+
+      - name: "deploy:indexes"
+        description: "Deploy de índices do Firestore."
+        variants:
+          - shell: "powershell"
+            command: "firebase deploy --only firestore:indexes"
+
+  - name: "Vercel CLI"
+    reference_url: "https://vercel.com/docs/cli"
+    commands:
+      - name: "login"
+        description: "Autentica o usuário na Vercel."
+        variants:
+          - shell: "powershell"
+            command: "vercel login"
+
+      - name: "deploy:production"
+        description: "Deploy para produção."
+        variants:
+          - shell: "powershell"
+            command: "vercel --prod"
+
+  - name: "Docker CLI"
+    reference_url: "https://docs.docker.com/reference/cli/docker/"
+    commands:
+      - name: "version"
+        description: "Verifica a versão do Docker."
+        variants:
+          - shell: "powershell"
+            command: "docker --version"
+
+  - name: "npm"
+    reference_url: "https://docs.npmjs.com/"
+    commands:
+      - name: "install"
+        description: "Instala dependências do app."
+        variants:
+          - shell: "powershell"
+            command: "cd app; npm install"
+
+      - name: "dev"
+        description: "Inicia o Next dev na porta 3001."
+        variants:
+          - shell: "powershell"
+            command: "cd app; npm run dev"
+
+  - name: "Google Cloud CLI (gcloud) [planejado]"
+    reference_url: "https://cloud.google.com/sdk/gcloud"
+    commands:
+      - name: "auth:login"
+        description: "Login no Google Cloud (para Cloud Run)."
+        variants:
+          - shell: "powershell"
+            command: "gcloud auth login"
+
+  - name: "Pinecone CLI [opcional]"
+    reference_url: "https://docs.pinecone.io/"
+    commands:
+      - name: "status"
+        description: "Placeholder: a CLI pode variar; validar antes de adoção."
+        variants:
+          - shell: "powershell"
+            command: "echo \"Pinecone CLI ainda não padronizada; usar API/SDK por enquanto.\""
+
+

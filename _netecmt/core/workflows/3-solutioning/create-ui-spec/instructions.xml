@@ -1,0 +1,7 @@
+<instructions>
+  <step n="1">Review current project context and any existing UX designs in `_netecmt/solutioning/design/`.</step>
+  <step n="2">Ask the user about the desired visual style (vibrant, premium, dark mode, etc.).</step>
+  <step n="3">Generate UI specifications, including color palettes, typography tokens, and spacing rules.</step>
+  <step n="4">Create visual assets using the `generate_image` tool if requested.</step>
+  <step n="5">Save the finalized UI Specification to `_netecmt/solutioning/ui-specs/ui-spec.md`.</step>
+</instructions>

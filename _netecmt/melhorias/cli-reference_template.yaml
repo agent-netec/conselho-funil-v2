@@ -1,0 +1,70 @@
+# NETECMT: CLI Reference
+# Fonte da verdade para comandos de CLI, garantindo compatibilidade e evitando erros.
+
+version: 1.0
+
+clis:
+  - name: "Firebase CLI"
+    reference_url: "https://firebase.google.com/docs/cli"
+    commands:
+      - name: "login"
+        description: "Autentica o usuário na Firebase."
+        variants:
+          - shell: "bash"
+            command: "firebase login"
+          - shell: "powershell"
+            command: "firebase login"
+
+      - name: "deploy:functions"
+        description: "Faz o deploy de Cloud Functions."
+        variants:
+          - shell: "bash"
+            command: "firebase deploy --only functions"
+          - shell: "powershell"
+            command: "firebase deploy --only functions"
+
+      - name: "functions:call"
+        description: "Invoca uma Cloud Function diretamente."
+        variants:
+          - shell: "bash"
+            command: "firebase functions:call [functionName] --data '{"key":"value"}'"
+          - shell: "powershell"
+            command: "firebase functions:call [functionName] --data '{\"key\":\"value\"}'" # Requer escape de aspas duplas
+
+  - name: "Vercel CLI"
+    reference_url: "https://vercel.com/docs/cli"
+    commands:
+      - name: "login"
+        description: "Autentica o usuário na Vercel."
+        variants:
+          - shell: "bash"
+            command: "vercel login"
+          - shell: "powershell"
+            command: "vercel login"
+
+      - name: "deploy:production"
+        description: "Faz o deploy para o ambiente de produção."
+        variants:
+          - shell: "bash"
+            command: "vercel --prod"
+          - shell: "powershell"
+            command: "vercel --prod"
+
+  - name: "npm"
+    reference_url: "https://docs.npmjs.com/"
+    commands:
+      - name: "install"
+        description: "Instala dependências do projeto."
+        variants:
+          - shell: "bash"
+            command: "npm install"
+          - shell: "powershell"
+            command: "npm install"
+
+      - name: "run:script"
+        description: "Executa um script definido no package.json."
+        variants:
+          - shell: "bash"
+            command: "npm run [script-name]"
+          - shell: "powershell"
+            command: "npm run [script-name]"

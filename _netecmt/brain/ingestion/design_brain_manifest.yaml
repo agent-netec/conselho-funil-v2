@@ -1,0 +1,61 @@
+version: 1.0
+domain: design
+description: >
+  Manifesto de ingestão do Design Brain (frameworks, anti-patterns, scorecards,
+  agente diretor e comparação de modelos Gemini/Nano Banana).
+
+files:
+  - path: "sugestoes/design_brain/council/scorecards/scorecard_design_quality.md"
+    tags: ["design-brain", "scorecard", "quality", "checklist"]
+    priority: high
+    scope: design
+
+  - path: "sugestoes/design_brain/council/anti-patterns/design_antipatterns.md"
+    tags: ["design-brain", "anti-patterns", "quality"]
+    priority: high
+    scope: design
+
+  - path: "sugestoes/design_brain/council/frameworks/thumbnail_framework.md"
+    tags: ["design-brain", "framework", "thumbnail"]
+    priority: high
+    scope: design
+
+  - path: "sugestoes/design_brain/council/frameworks/static_creative_framework.md"
+    tags: ["design-brain", "framework", "static"]
+    priority: high
+    scope: design
+
+  - path: "sugestoes/design_brain/council/frameworks/carousel_framework.md"
+    tags: ["design-brain", "framework", "carousel"]
+    priority: medium
+    scope: design
+
+  - path: "sugestoes/design_brain/agents/design_director_prompt.md"
+    tags: ["design-brain", "agent", "orchestration", "prompting"]
+    priority: high
+    scope: design
+
+  - path: "sugestoes/design_brain/examples/nanobanana_prompt_example.md"
+    tags: ["design-brain", "example", "prompt", "nanobanana"]
+    priority: medium
+    scope: design
+
+  - path: "sugestoes/design_brain/council/integration-guides/consult_ads.md"
+    tags: ["design-brain", "integration", "ads"]
+    priority: medium
+    scope: design
+
+  - path: "sugestoes/design_brain/council/integration-guides/consult_copywriting.md"
+    tags: ["design-brain", "integration", "copywriting"]
+    priority: medium
+    scope: design
+
+  - path: "sugestoes/design_brain/council/integration-guides/consult_social_media.md"
+    tags: ["design-brain", "integration", "social"]
+    priority: medium
+    scope: design
+
+  - path: "sugestoes/Comparação Completa_ Gemini 3 Pro vs Flash vs Nano Banana Pro.md"
+    tags: ["design-brain", "models", "gemini", "nanobanana", "pricing"]
+    priority: medium
+    scope: design

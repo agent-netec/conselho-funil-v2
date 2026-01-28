@@ -1,0 +1,32 @@
+# Template .cursorrules — NETECMT (Greenfield)
+#
+# Uso:
+# 1) Copie este arquivo para a raiz do projeto
+# 2) Renomeie para: .cursorrules
+# 3) Ajuste paths conforme sua estrutura
+#
+# Observação:
+# O Cursor evoluiu para `.cursor/rules/*.mdc`, mas este template é mantido para padronização.
+
+rules:
+  # Regras de agentes (exemplos)
+  - id: netecmt-dev
+    path: .cursor/rules/netecmt/bmm/agents/dev.mdc
+    type: project
+    alwaysApply: false
+
+  - id: netecmt-arch
+    path: .cursor/rules/netecmt/bmm/agents/architect.mdc
+    type: project
+    alwaysApply: false
+
+  # Governança / workflow-master
+  - id: netecmt-workflow-master
+    path: .cursor/rules/netecmt/bmm/agents/workflow-master.mdc
+    type: project
+    alwaysApply: false
+
+notes:
+  - "Greenfield: sempre criar contratos (lane contracts) antes de implementar."
+  - "Evitar carregar contexto global sem necessidade no modo Execution."
+

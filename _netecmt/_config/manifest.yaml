@@ -1,0 +1,11 @@
+installation:
+  version: 1.11.0
+  installDate: 2025-12-30T13:31:22.966Z
+  lastUpdated: 2025-12-30T13:31:22.966Z
+modules:
+  - core
+  - bmb
+  - bmm
+ides:
+  - cursor
+  - antigravity

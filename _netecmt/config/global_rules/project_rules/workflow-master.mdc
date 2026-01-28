@@ -1,0 +1,44 @@
+---
+description: NETECMT Master Workflow - Project Type & Methodology Enforcement
+globs: **/*
+alwaysApply: true
+---
+
+# 🔄 NETECMT Master Workflow - OS v2.0
+
+**Triggers de Invocação**: Use `/iuran` (PM), `/athos` (Arch), `/leticia` (SM), `/darllyson` (Dev), ou `/ps` (Party Mode).
+
+Esta regra garante que todos os agentes sigam o ciclo de vida correto do projeto (BMM-OS) e respeitem as travas de segurança baseadas no tipo de projeto.
+
+## 🚀 1. Identificação de Cenário (Obrigatório)
+Sempre que uma nova tarefa for iniciada, você deve primeiro ler `@_netecmt/core/config.yaml` para identificar o `project_type`.
+
+### 🟢 A. GREENFIELD (Projeto Novo)
+- **Fluxo Geral**: Discovery (Opcional) → PRD (Iuran) → Architecture (Athos) → SM (Leticia) → Dev (Darllyson).
+- **Liberdade**: Inicie diretamente no Iuran (`prd create`) se a ideia estiver clara.
+
+### 🟠 B. BROWNFIELD (Projeto Legado/Existente)
+- **BLOQUEIO CRÍTICO**: NUNCA inicie o planejamento (PRD) sem antes documentar o legado.
+- **Passo Anti-Erro (1)**: Verifique se existe `@_netecmt/project-context.md`. Ação: `netecmt project document`.
+- **Passo Anti-Erro (2)**: Realize o mapeamento de MCPs/CLIs em `@_netecmt/docs/tools/`.
+
+## 🏗️ 2. O Ciclo de Vida (BMM-OS)
+Não importa o projeto, as etapas são sequenciais:
+
+1.  **Exploração**: Wilder (Brainstorming/Brief).
+2.  **Mapeamento Tecnológico**: Monara (Inventário de MCPs/CLIs e Docs de Liberação).
+3.  **Definição**: Iuran (PRD Formal).
+4.  **Desenho**: Athos (Arquitetura) + Victor/Beto (UX/UI).
+5.  **Preparação**: Leticia (Sprint Planning & Story Packing).
+6.  **Execução**: Darllyson (Implementação Guiada por Contratos e Leitura de Docs de Ferramentas).
+
+## 🛑 3. Leis Inquebráveis (The Council's Gates)
+- **Read Before Run**: É proibido usar qualquer MCP ou CLI sem ler o guia em `_netecmt/docs/tools/`.
+- **CONTEXT7 Protocol**: Sempre utilize o MCP `CONTEXT7` ao ser solicitado contexto total do projeto ou durante sessões de **Party Mode**.
+- **Zero Code Without Story**: NUNCA peça ou execute código sem uma story em estado `ready` no pack.
+- **Contract First**: Mudanças na arquitetura exigem atualização prévia no `contract-map.yaml`.
+- **No Global Context**: Desenvolvedores não devem ler o projeto inteiro, apenas o pacote da Story.
+
+## 📋 4. Diagnóstico de Próximo Passo
+Se o usuário estiver perdido, use o comando:
+- **`WS` ou `workflow-status`**: Para ler o estado atual e sugerir o próximo agente e comando CLI.

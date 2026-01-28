@@ -1,0 +1,7 @@
+<instructions>
+  <step n="1">Identify the active story in `_netecmt/implementation/stories/`.</step>
+  <step n="2">Plan test cases for each Acceptance Criteria (AC) mentioned in the story.</step>
+  <step n="3">Execute tests using available tools (browser subagent, visual review, etc.).</step>
+  <step n="4">Report any bugs or deviations in `_netecmt/implementation/qa/reports/bug-report-{date}.md`.</step>
+  <step n="5">If all ACs pass, mark the story as verified in the sprint status.</step>
+</instructions>

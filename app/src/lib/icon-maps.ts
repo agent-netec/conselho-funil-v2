@@ -1,0 +1,38 @@
+import type { LucideIcon } from 'lucide-react';
+import {
+  Home,
+  MessageSquare,
+  Target,
+  Library,
+  Settings,
+  BarChart3,
+  Building2,
+  Share2,
+  Pencil,
+  Palette,
+  LayoutGrid,
+  Activity,
+  Zap,
+  PenTool,
+  Sparkles,
+  Database,
+} from 'lucide-react';
+
+export const SIDEBAR_ICONS: Record<string, LucideIcon> = {
+  Home,
+  MessageSquare,
+  Target,
+  Building2,
+  Library,
+  Settings,
+  BarChart3,
+  Share2,
+  Pencil,
+  Palette,
+  LayoutGrid,
+  Activity,
+  Zap,
+  PenTool,
+  Sparkles,
+  Database,
+};

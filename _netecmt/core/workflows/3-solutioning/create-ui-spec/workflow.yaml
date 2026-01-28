@@ -1,0 +1,12 @@
+name: create-ui-spec
+description: "Generate UI specifications and design tokens"
+author: "NETECMT"
+
+# Config
+config_source: "{project-root}/_netecmt/core/config.yaml"
+output_folder: "{project-root}/_netecmt/solutioning/ui-specs"
+
+# Workflow components
+instructions: "./instructions.xml"
+
+standalone: true

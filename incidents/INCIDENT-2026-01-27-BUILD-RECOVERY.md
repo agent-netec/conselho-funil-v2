@@ -63,7 +63,46 @@ Este documento detalha a recuperação da infraestrutura de deploy do projeto **
 
 ---
 
-## 5. 📚 DOCUMENTAÇÃO DE PROTOCOLOS (FASE 4)
+## 5. 🧩 CAUSA RAIZ DO ERRO #130 (REACT) E PREVENÇÃO
+
+### 5.1. O que é o erro #130
+O erro **Minified React Error #130** ocorre quando o React tenta renderizar um **componente inválido** (por exemplo `undefined`), geralmente causado por:
+1.  Mapeamentos de componentes sem fallback (ícones, tipos, enums).
+2.  Import incorreto (default vs named).
+3.  Dados vindos do backend com chaves inesperadas (ex.: `icon` inválido).
+
+### 5.2. Onde ele apareceu no projeto
+**Causa principal confirmada:** `Sidebar` tentou renderizar um ícone não mapeado (`Database`), gerando componente `undefined`.
+
+**Outros pontos com risco similar (precisam de fallback):**
+- `app/src/components/layout/sidebar.tsx` → `ICONS[item.icon]`
+- `app/src/app/funnels/[id]/copy/page.tsx` → `COPY_TYPE_ICONS[copyProposal.type]`
+- `app/src/components/decisions/decision-timeline.tsx` → `DECISION_CONFIG[decision.type].icon`
+- `app/src/components/ui/toast-notifications.tsx` → `ICONS[notification.type]`
+
+### 5.3. Guardrails para Devs
+1. **Fallback obrigatório em mapas:**
+   - Sempre usar `const Icon = ICONS[key] || DefaultIcon`.
+2. **Tipagem forte:**
+   - `Record<string, LucideIcon>` deve virar `Record<IconKey, LucideIcon>`.
+3. **Validação de dados externos:**
+   - Nunca confiar em `key` vindo do backend sem validar.
+4. **Checklist de PR:**
+   - Novo ícone? Deve existir no mapa.
+   - Novo tipo? Deve ter fallback.
+   - Renderização dinâmica? Garantir default.
+
+### 5.4. Guardrails para Designers
+1. **Não criar ícones novos sem alinhar com Dev:**
+   - Todo ícone em menu precisa de equivalente técnico.
+2. **Nome de ícone precisa ser "literal":**
+   - Ex.: `"Database"` precisa estar no catálogo oficial do Lucide.
+3. **Mudanças em menus devem ter validação visual + técnica:**
+   - Atualizar mapeamento de ícones antes de aprovação do layout.
+
+---
+
+## 6. 📚 DOCUMENTAÇÃO DE PROTOCOLOS (FASE 4)
 
 Foram criados os seguintes guias oficiais em `_netecmt/docs/tools/`:
 - `proxy.md`: Guia de limpeza e troubleshooting de rede.

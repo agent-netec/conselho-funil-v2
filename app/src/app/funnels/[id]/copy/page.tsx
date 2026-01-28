@@ -42,6 +42,7 @@ import {
   Share2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { resolveIcon } from '@/lib/guards/resolve-icon';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { notify } from '@/lib/stores/notification-store';
 import { COPY_TYPES, COPY_COUNSELORS, AWARENESS_STAGES } from '@/lib/constants';
@@ -133,7 +134,7 @@ function CopyProposalCard({
   const [showAdjustDialog, setShowAdjustDialog] = useState(false);
   const [adjustmentText, setAdjustmentText] = useState('');
   
-  const TypeIcon = COPY_TYPE_ICONS[copyProposal.type];
+  const TypeIcon = resolveIcon(COPY_TYPE_ICONS, copyProposal.type, FileText, 'CopyProposal type');
   const typeInfo = COPY_TYPES[copyProposal.type];
 
   const handleCopy = async () => {
@@ -664,7 +665,7 @@ export default function CopyCouncilPage() {
           </h2>
           <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-6">
             {(Object.entries(COPY_TYPES) as [CopyType, typeof COPY_TYPES[CopyType]][]).map(([type, info]) => {
-              const Icon = COPY_TYPE_ICONS[type];
+              const Icon = resolveIcon(COPY_TYPE_ICONS, type, FileText, 'CopyType grid');
               const existing = copyProposals.filter(cp => cp.type === type);
               const hasApproved = existing.some(cp => cp.status === 'approved');
               

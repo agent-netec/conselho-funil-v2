@@ -1,0 +1,332 @@
+- mcp:
+    name: filesystem
+    category: Development
+    description: "Oferece operações seguras de arquivos com controles de acesso configuráveis, permitindo que agentes de IA leiam, escrevam e gerenciem arquivos no sistema local."
+    official_docs: "https://modelcontextprotocol.io/docs/develop/connect-local-servers"
+    installation:
+      - shell: bash
+        command: "npx -y @modelcontextprotocol/server-filesystem"
+      - shell: powershell
+        command: "npx -y @modelcontextprotocol/server-filesystem"
+    configuration:
+      claude_desktop_config: |
+        {
+          "mcpServers": {
+            "filesystem": {
+              "command": "npx",
+              "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "/home/ubuntu/workspace",
+                "/home/ubuntu/Downloads"
+              ]
+            }
+          }
+        }
+    best_practices:
+      - "Sempre especifique os diretórios exatos que o agente pode acessar para limitar o escopo e aumentar a segurança."
+      - "Use caminhos absolutos na configuração para evitar ambiguidades."
+      - "Revise cuidadosamente cada solicitação de acesso a arquivos antes de aprovar para evitar operações indesejadas."
+
+- mcp:
+    name: git
+    category: Development
+    description: "Fornece ferramentas para ler, pesquisar e manipular repositórios Git, permitindo que agentes de IA interajam com o controle de versão."
+    official_docs: "https://github.com/modelcontextprotocol/servers/tree/main/src/git"
+    installation:
+      - shell: bash
+        command: "npx -y @modelcontextprotocol/server-git"
+      - shell: powershell
+        command: "npx -y @modelcontextprotocol/server-git"
+    configuration:
+      claude_desktop_config: |
+        {
+          "mcpServers": {
+            "git": {
+              "command": "npx",
+              "args": [
+                "-y",
+                "@modelcontextprotocol/server-git"
+              ]
+            }
+          }
+        }
+    best_practices:
+      - "Use em conjunto com o MCP 'filesystem' para clonar repositórios em um diretório local e depois manipular os arquivos."
+      - "Certifique-se de que as credenciais Git (SSH ou HTTPS com token) estejam configuradas no ambiente para acesso a repositórios privados."
+
+- mcp:
+    name: github
+    category: Development
+    description: "Permite o gerenciamento completo de repositórios, arquivos, issues e pull requests diretamente através da API do GitHub."
+    official_docs: "https://github.com/modelcontextprotocol/servers-archived/tree/main/src/github"
+    installation:
+      - shell: bash
+        command: "npx -y @modelcontextprotocol/server-github"
+      - shell: powershell
+        command: "npx -y @modelcontextprotocol/server-github"
+    configuration:
+      claude_desktop_config: |
+        {
+          "mcpServers": {
+            "github": {
+              "command": "npx",
+              "args": [
+                "-y",
+                "@modelcontextprotocol/server-github"
+              ],
+              "env": {
+                "GITHUB_TOKEN": "seu_token_de_acesso_pessoal_aqui"
+              }
+            }
+          }
+        }
+    best_practices:
+      - "É crucial gerar um Personal Access Token (PAT) com os escopos necessários (repo, workflow, etc.) e configurá-lo na variável de ambiente GITHUB_TOKEN."
+      - "Para operações complexas, combine com o MCP 'git' para ter acesso tanto à API do GitHub quanto às operações Git locais."
+
+- mcp:
+    name: docker
+    category: Cloud & DevOps
+    description: "Permite gerenciar containers Docker, incluindo construção de imagens, execução de containers e visualização de logs."
+    official_docs: "https://github.com/st-sloth/docker-mcp-server"
+    installation:
+      - shell: bash
+        command: "pip install docker-mcp-server"
+      - shell: powershell
+        command: "pip install docker-mcp-server"
+    configuration:
+      claude_desktop_config: |
+        {
+          "mcpServers": {
+            "docker": {
+              "command": "python",
+              "args": [
+                "-m",
+                "docker_mcp_server"
+              ]
+            }
+          }
+        }
+    best_practices:
+      - "Certifique-se de que o Docker Desktop ou o Docker Engine esteja em execução antes de iniciar o MCP."
+      - "Use para automatizar ambientes de desenvolvimento e teste em containers."
+
+- mcp:
+    name: vercel
+    category: Cloud & DevOps
+    description: "Gerencia projetos e deployments na Vercel, permitindo listar projetos, obter detalhes de deployments e visualizar logs."
+    official_docs: "https://vercel.com/docs/integrations/mcp"
+    installation:
+      - shell: bash
+        command: "npm install -g vercel"
+      - shell: powershell
+        command: "npm install -g vercel"
+    configuration:
+      claude_desktop_config: |
+        {
+          "mcpServers": {
+            "vercel": {
+              "command": "npx",
+              "args": [
+                "-y",
+                "@vercel/mcp-server"
+              ],
+              "env": {
+                "VERCEL_TOKEN": "seu_token_aqui",
+                "VERCEL_TEAM_ID": "seu_team_id_aqui"
+              }
+            }
+          }
+        }
+    best_practices:
+      - "É necessário um token de acesso da Vercel e, opcionalmente, um ID de time para autenticação."
+      - "Ideal para automatizar o ciclo de vida de deployments e monitorar o status de projetos na Vercel."
+
+
+- mcp:
+    name: postgresql
+    category: Databases
+    description: "Permite acesso de leitura a bancos de dados PostgreSQL, com capacidade de inspecionar schemas e executar queries."
+    official_docs: "https://github.com/modelcontextprotocol/servers-archived/tree/main/src/postgres"
+    installation:
+      - shell: bash
+        command: "npx -y @modelcontextprotocol/server-postgres"
+      - shell: powershell
+        command: "npx -y @modelcontextprotocol/server-postgres"
+    configuration:
+      claude_desktop_config: |
+        {
+          "mcpServers": {
+            "postgres": {
+              "command": "npx",
+              "args": [
+                "-y",
+                "@modelcontextprotocol/server-postgres"
+              ],
+              "env": {
+                "DATABASE_URL": "postgresql://usuario:senha@host:porta/banco"
+              }
+            }
+          }
+        }
+    best_practices:
+      - "A string de conexão do banco de dados deve ser fornecida na variável de ambiente DATABASE_URL."
+      - "Por padrão, o servidor opera em modo somente leitura por segurança. Modificações no código são necessárias para habilitar operações de escrita."
+
+- mcp:
+    name: firecrawl
+    category: Search & Web
+    description: "Servidor MCP para web scraping e busca, permitindo que agentes de IA extraiam conteúdo de URLs, façam buscas e convertam páginas em markdown ou dados estruturados."
+    official_docs: "https://docs.firecrawl.dev/mcp-server"
+    installation:
+      - shell: bash
+        command: "npm install -g firecrawl-mcp-server"
+      - shell: powershell
+        command: "npm install -g firecrawl-mcp-server"
+    configuration:
+      claude_desktop_config: |
+        {
+          "mcpServers": {
+            "firecrawl": {
+              "command": "firecrawl-mcp-server",
+              "args": [],
+              "env": {
+                "FIRECRAWL_API_KEY": "sua_chave_de_api_aqui"
+              }
+            }
+          }
+        }
+    best_practices:
+      - "É necessária uma chave de API da Firecrawl para utilizar o serviço, que deve ser configurada na variável de ambiente FIRECRAWL_API_KEY."
+      - "Utilize a ferramenta de busca para encontrar URLs relevantes antes de fazer o scraping, otimizando o processo."
+      - "Para extrair dados estruturados, defina um schema claro para garantir que a saída seja consistente e utilizável."
+
+
+- mcp:
+    name: elevenlabs
+    category: AI & Machine Learning
+    description: "Servidor oficial da ElevenLabs que permite interação com APIs de Text-to-Speech (TTS) e processamento de áudio para criar vozes realistas e clonar vozes."
+    official_docs: "https://elevenlabs.io/docs/agents-platform/customization/tools/mcp"
+    installation:
+      - shell: bash
+        command: "pip install elevenlabs-mcp"
+      - shell: powershell
+        command: "pip install elevenlabs-mcp"
+    configuration:
+      claude_desktop_config: |
+        {
+          "mcpServers": {
+            "elevenlabs": {
+              "command": "python",
+              "args": [
+                "-m",
+                "elevenlabs_mcp"
+              ],
+              "env": {
+                "ELEVENLABS_API_KEY": "sua_chave_de_api_aqui"
+              }
+            }
+          }
+        }
+    best_practices:
+      - "Uma chave de API da ElevenLabs é obrigatória e deve ser configurada na variável de ambiente ELEVENLABS_API_KEY."
+      - "Use para dar capacidades de voz a agentes de IA, gerar narrações para vídeos ou criar assistentes de voz personalizados."
+      - "Explore as diferentes vozes e modelos disponíveis para encontrar a que melhor se adapta ao seu caso de uso."
+
+- mcp:
+    name: slack
+    category: Productivity & Collaboration
+    description: "Permite a interação com workspaces do Slack, incluindo busca de canais, envio de mensagens, respostas a threads e gerenciamento de reações."
+    official_docs: "https://docs.slack.dev/ai/mcp-server"
+    installation:
+      - shell: bash
+        command: "pip install slack-mcp-server"
+      - shell: powershell
+        command: "pip install slack-mcp-server"
+    configuration:
+      claude_desktop_config: |
+        {
+          "mcpServers": {
+            "slack": {
+              "command": "python",
+              "args": [
+                "-m",
+                "slack_mcp_server"
+              ],
+              "env": {
+                "SLACK_BOT_TOKEN": "xoxb-seu-token-de-bot-aqui",
+                "SLACK_APP_TOKEN": "xapp-seu-token-de-app-aqui"
+              }
+            }
+          }
+        }
+    best_practices:
+      - "Requer um Bot User OAuth Token (xoxb-) e um App-Level Token (xapp-) para funcionar corretamente."
+      - "Configure os escopos de permissão corretos para o seu bot no painel de administração do Slack para garantir que ele possa executar as ações desejadas."
+      - "Use para criar automações, bots de notificação ou integrar agentes de IA diretamente em seus canais de comunicação."
+
+- mcp:
+    name: notion
+    category: Productivity & Collaboration
+    description: "Permite acesso total a workspaces do Notion, incluindo criação, busca e gerenciamento de páginas, bancos de dados e conteúdo."
+    official_docs: "https://developers.notion.com/docs/mcp"
+    installation:
+      - shell: bash
+        command: "npm install -g @notionhq/mcp-server"
+      - shell: powershell
+        command: "npm install -g @notionhq/mcp-server"
+    configuration:
+      claude_desktop_config: |
+        {
+          "mcpServers": {
+            "notion": {
+              "command": "npx",
+              "args": [
+                "-y",
+                "@notionhq/mcp-server"
+              ],
+              "env": {
+                "NOTION_API_KEY": "secret_sua_chave_de_api_aqui"
+              }
+            }
+          }
+        }
+    best_practices:
+      - "Crie uma integração interna no Notion para obter uma chave de API (API Key)."
+      - "Compartilhe páginas e bancos de dados específicos com a sua integração para conceder acesso ao agente de IA."
+      - "Use para automatizar a criação de documentos, gerenciar bases de conhecimento ou conectar o Notion a outras ferramentas via IA."
+
+
+- mcp:
+    name: jira
+    category: Productivity & Collaboration
+    description: "Permite a integração com o Jira para gerenciar issues, sprints e workflows, permitindo que agentes de IA atuem como gerentes de projeto."
+    official_docs: "https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/"
+    installation:
+      - shell: bash
+        command: "npx -y @atlassian/mcp-server"
+      - shell: powershell
+        command: "npx -y @atlassian/mcp-server"
+    configuration:
+      claude_desktop_config: |
+        {
+          "mcpServers": {
+            "atlassian": {
+              "command": "npx",
+              "args": [
+                "-y",
+                "@atlassian/mcp-server"
+              ],
+              "env": {
+                "ATLASSIAN_USERNAME": "seu_email_atlassian",
+                "ATLASSIAN_API_TOKEN": "seu_token_de_api_aqui",
+                "ATLASSIAN_SITE_URL": "https://seusite.atlassian.net"
+              }
+            }
+          }
+        }
+    best_practices:
+      - "Requer um token de API da Atlassian, que pode ser criado nas configurações da sua conta."
+      - "O e-mail do usuário e a URL do site Atlassian também são necessários para a configuração."
+      - "Use para automatizar a criação de tickets, atualizar o status de tarefas e gerar relatórios de progresso de projetos."

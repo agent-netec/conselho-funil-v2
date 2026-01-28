@@ -1,0 +1,90 @@
+<workflow>
+  <critical>The workflow execution engine is governed by: {project-root}/_netecmt/core/tasks/workflow.xml</critical>
+  <critical>You MUST have already loaded and processed: {installed_path}/workflow.yaml</critical>
+
+  <step n="1" goal="Determine Audit Range">
+    <check if="{{commit_range}} is empty">
+      <action>Try to find last git tag: `git describe --tags --abbrev=0`</action>
+      <check if="tag found">
+        <action>Set {{commit_range}} = "{{last_tag}}..HEAD"</action>
+      </check>
+      <check if="no tag found">
+        <action>Set {{commit_range}} = "HEAD~1..HEAD" (fallback to last commit)</action>
+      </check>
+    </check>
+    <output>📊 Auditing range: {{commit_range}}</output>
+  </step>
+
+  <step n="2" goal="Gather Git Changes">
+    <action>Get list of changed files: `git diff --name-only {{commit_range}}`</action>
+    <action>Store file list in {{changed_files}}</action>
+    <output>🔍 Detected {{changed_files_count}} changed files.</output>
+  </step>
+
+  <step n="3" goal="Detect Contract Drift">
+    <action>Load {{contract_map}} and parse lanes</action>
+    <action>Initialize {{drift_findings}} = []</action>
+    <action>Initialize {{boundary_violations}} = []</action>
+
+    <action>For each lane in {{contract_map}}:</action>
+      <!-- Check for code changes in lane paths -->
+      <action>Find files in {{changed_files}} matching lane paths</action>
+      <check if="lane code changed">
+        <action>Check if lane contract file ({{lane.contract}}) is also in {{changed_files}}</action>
+        <check if="lane contract NOT changed">
+          <action>Add to {{drift_findings}}: "Lane '{{lane_name}}' has code changes but contract '{{lane.contract}}' was NOT updated."</action>
+        </check>
+      </check>
+
+    <output>⚖️ Drift analysis complete.</output>
+  </step>
+
+  <step n="4" goal="Boundary Validation">
+    <!-- Detect changes that don't belong to any labeled lane or cross-lane slop -->
+    <action>Identify files in {{changed_files}} that do NOT match any lane in {{contract_map}}</action>
+    <check if="unmapped files found">
+      <action>Add to {{boundary_violations}}: "Detected changes in unmapped paths (potential drift or missing lane definition)."</action>
+    </check>
+  </step>
+
+    <action>Initialize {{report_path}} = "{reports_dir}/sprint-audit-{{date}}.md"</action>
+    <action>Initialize {{json_report_path}} = "{reports_dir}/sprint-audit-{{date}}.json"</action>
+    
+    <action>Run runner with JSON flag: `node {installed_path}/run.js --changed-files "{{changed_files_flat}}" --json {{json_report_path}}`</action>
+
+    <template-output file="{{report_path}}">
+      # Sprint Audit Report: {{date}}
+      Range: {{commit_range}}
+      Operator: {{user_name}}
+
+      ## 📊 Executive Summary
+      Findings: {{findings_count}} ({{drift_count}} Drift, {{violation_count}} Boundary)
+      Status: {{#if findings_count > 0}}FAIL{{else}}PASS{{/if}}
+      JSON Data: {{json_report_path}}
+
+      ## ⚠️ CONTRACT_DRIFT Detected
+      {{#foreach drift_findings}}
+      - {{this.message}}
+      {{/foreach}}
+
+      ## 🛡️ Boundary Violations
+      {{#foreach boundary_violations}}
+      - {{this}}
+      {{/foreach}}
+
+      ## 📝 Action Items for Kai (System Integrator)
+      1. Review findings in {{json_report_path}} for automated correction.
+      2. Ensure contracts reflect reality.
+      3. Re-run audit after contract syncing.
+    </template-output>
+    <output>✅ Audit Reports generated:
+      - MD: {{report_path}}
+      - JSON: {{json_report_path}}
+    </output>
+  </step>
+
+  <step n="6" goal="Finalize">
+    <invoke-task>Validate against checklist at {installed_path}/checklist.md</invoke-task>
+    <action>HALT if drift detected to signal CI/Integrator intervention</action>
+  </step>
+</workflow>

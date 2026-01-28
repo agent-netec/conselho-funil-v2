@@ -1,0 +1,65 @@
+commands:
+  - id: "project:document"
+    person: wilder
+    workflow: bmad-bmm-workflows-document-project
+    description: "Map and document legacy project context (Essential for Brownfield)"
+
+  - id: "prd:create"
+    person: iuran
+    workflow: bmad-bmm-workflows-create-prd
+    description: "Create a Product Requirements Document (PRD)"
+
+  - id: "arch:create"
+    person: athos
+    workflow: bmad-bmm-workflows-create-architecture
+    description: "Create technical architecture and resolve legacy conflicts"
+
+  - id: "sprint:plan"
+    person: leticia
+    workflow: bmad-bmm-workflows-sprint-planning
+    description: "Generate sprint-status.yaml from architecture"
+
+  - id: "story:create"
+    person: leticia
+    workflow: create-story
+    description: "Prepare and initialize a precision story pack"
+
+  - id: "dev:start"
+    person: darllyson
+    workflow: dev-story
+    description: "Start implementing a story using the precision pack"
+
+  - id: "dev:quick"
+    person: terceirinho
+    workflow: quick-dev
+    description: "Run a quick dev-loop for smaller tasks"
+
+  - id: "design:create"
+    person: beto
+    workflow: create-ux-design
+    description: "Initiate UX/UI design collaborative session"
+
+  - id: "test:design"
+    person: segundinho
+    workflow: test-design
+    description: "Design automated test cases and scenarios"
+
+  - id: "release:plan"
+    person: luke
+    workflow: "todo"
+    description: "Plan and orchestrate the next release cycle"
+
+  - id: "audit:sprint"
+    person: monara
+    workflow: sprint-audit
+    description: "Audit the sprint for contract drift and health"
+
+  - id: "qa:test"
+    person: dandara
+    workflow: test-execution
+    description: "Execute functional testing and report validation"
+
+  - id: "ui:style"
+    person: victor
+    workflow: create-ui-spec
+    description: "Generate UI specifications and design tokens"

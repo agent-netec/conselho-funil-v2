@@ -1,0 +1,11 @@
+# Story Pack Scope: {{story_key}}
+ID: {{story_id}}
+Lane: {{lane}}
+Status: ready-for-dev
+
+## Files Included
+- story.md
+- allowed-context.md
+
+## Lane Contract Reference
+Reference: ../../../contracts/{{lane}}.md

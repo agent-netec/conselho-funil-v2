@@ -12,6 +12,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useNotificationStore, type Notification, type NotificationType } from '@/lib/stores/notification-store';
 import { Button } from './button';
+import { resolveIcon } from '@/lib/guards/resolve-icon';
 
 const ICONS: Record<NotificationType, typeof CheckCircle2> = {
   success: CheckCircle2,
@@ -45,8 +46,8 @@ const COLORS: Record<NotificationType, { bg: string; border: string; icon: strin
 
 function ToastItem({ notification }: { notification: Notification }) {
   const { removeNotification } = useNotificationStore();
-  const Icon = ICONS[notification.type];
-  const colors = COLORS[notification.type];
+  const Icon = resolveIcon(ICONS, notification.type, Info, 'ToastNotifications');
+  const colors = COLORS[notification.type] ?? COLORS.info;
 
   return (
     <motion.div

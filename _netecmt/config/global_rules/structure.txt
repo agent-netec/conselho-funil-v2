@@ -1,0 +1,14 @@
+.
+├── GUIA_DE_IMPLEMENTACAO.md
+├── project_rules
+│   └── netecmt
+│       └── bmm
+├── project_templates
+├── structure.txt
+└── user_rules
+    ├── 01-port-management.md
+    ├── 02-communication-standards.md
+    ├── 03-security-baseline.md
+    └── 04-netecmt-global-principles.md
+
+5 directories, 6 files

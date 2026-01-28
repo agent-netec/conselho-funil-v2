@@ -1,0 +1,4 @@
+name,displayName,description,module,path,standalone
+"shard-doc","Shard Document","Splits large markdown documents into smaller, organized files based on level 2 (default) sections","core","{methodology-root}/core/tools/shard-doc.xml","true"
+"meta-ads-api","Meta Ads API","Integration with Meta Marketing API for syncing campaigns and metrics","integrations","_netecmt/docs/tools/meta-ads-api.md","true"
+"firestore","Firestore DB","NoSQL database for system persistence and user data","core","_netecmt/docs/tools/firestore.md","true"

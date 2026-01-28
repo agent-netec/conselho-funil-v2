@@ -1,0 +1,32 @@
+# Sprint Audit Workflow - Contract Drift Detection
+name: sprint-audit
+description: "Detects CONTRACT_DRIFT and boundary violations by analyzing code changes against the contract map."
+author: "NETECMT APC Engine"
+
+# Critical variables from config
+config_source: "{project-root}/_netecmt/core/config.yaml"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+document_output_language: "{config_source}:document_output_language"
+date: system-generated
+reports_dir: "{project-root}/_netecmt/reports"
+
+# Workflow components
+installed_path: "{project-root}/_netecmt/core/workflows/sprint-audit"
+instructions: "{installed_path}/instructions.xml"
+validation: "{installed_path}/checklist.md"
+
+# Inputs
+variables:
+  commit_range: "" # Default: auto-detected (last tag..HEAD)
+  contract_map: "{project-root}/_netecmt/core/contract-map.yaml"
+  sprint_status: "{project-root}/_netecmt/core/data/sprint-status.yaml"
+
+# Smart input file references
+input_file_patterns:
+  contract_map_file:
+    description: "Definitions of lanes and paths"
+    whole: "{contract_map}"
+    load_strategy: "FULL_LOAD"
+
+standalone: true

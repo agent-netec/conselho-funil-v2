@@ -57,7 +57,10 @@ interface DecisionWithMetadata extends Decision {
 
 function DecisionCard({ decision, isLast }: { decision: DecisionWithMetadata; isLast: boolean }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const config = DECISION_CONFIG[decision.type];
+  const config = DECISION_CONFIG[decision.type] ?? DECISION_CONFIG.EXECUTAR;
+  if (!DECISION_CONFIG[decision.type] && process.env.NODE_ENV !== 'production') {
+    console.warn(`[DecisionTimeline] Tipo desconhecido: "${decision.type}". Usando fallback EXECUTAR.`);
+  }
   const Icon = config.icon;
 
   const createdAt = decision.createdAt?.toDate?.() || new Date();

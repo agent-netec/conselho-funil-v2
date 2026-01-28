@@ -1,0 +1,97 @@
+# NETECMT APC Contract Mapping
+# Defines which paths belong to which lane for automated auditing (sprint-audit)
+
+lanes:
+  core:
+    paths:
+      - "_netecmt/core/**"
+    contract: "_netecmt/contracts/core.md"
+
+  bmm:
+    paths:
+      - "_netecmt/core/**"
+    contract: "_netecmt/contracts/bmm.md"
+
+  bmb:
+    paths:
+      - "_netecmt/core/**"
+    contract: "_netecmt/contracts/bmb.md"
+
+  config:
+    paths:
+      - "_netecmt/_config/**"
+      - "_netecmt/core/config.yaml"
+    contract: "_netecmt/contracts/config.md"
+
+  infrastructure:
+    paths:
+      - ".github/workflows/**"
+      - ".agent/**"
+      - ".claude/**"
+      - ".cursor/**"
+    contract: "_netecmt/contracts/infrastructure.md"
+
+  orchestration:
+    paths:
+      - "app/src/lib/ai/prompts/party-mode.ts"
+    contract: "_netecmt/contracts/party-mode-contracts.md"
+
+  brand_hub:
+    paths:
+      - "app/src/app/brand-hub/**"
+      - "app/src/lib/ai/brand-governance.ts"
+    contract: "_netecmt/contracts/brand-hub-spec.md"
+
+  dashboard:
+    paths:
+      - "app/src/app/page.tsx"
+      - "app/src/components/dashboard/**"
+      - "app/src/lib/hooks/use-stats.ts"
+      - "app/src/lib/firebase/firestore.ts"
+    contract: "_netecmt/contracts/dashboard-spec.md"
+
+  ai_retrieval:
+    paths:
+      - "app/src/lib/ai/**"
+    contract: "_netecmt/contracts/retrieval-contracts.md"
+
+  intelligence_wing:
+    paths:
+      # Storage & Data Access
+      - "app/src/lib/intelligence/**"
+      - "app/src/lib/firebase/intelligence.ts"
+      # Competitors & Spy Agent
+      - "app/src/lib/intelligence/competitors/**"
+      - "app/src/app/api/intelligence/spy/**"
+      # Types
+      - "app/src/types/intelligence.ts"
+      - "app/src/types/intelligence-agents.ts"
+      - "app/src/types/competitors.ts"
+      # Agents
+      - "app/src/lib/agents/scout/**"
+      - "app/src/lib/agents/analyst/**"
+      - "app/src/lib/agents/spy/**"
+      # UI Components
+      - "app/src/components/intelligence/**"
+      - "app/src/app/intelligence/**"
+      # API Routes
+      - "app/src/app/api/intelligence/**"
+      # Hooks
+      - "app/src/lib/hooks/use-intelligence*.ts"
+    contract: "_netecmt/contracts/intelligence-storage.md"
+
+  competitor_intelligence:
+    paths:
+      - "app/src/lib/intelligence/competitors/**"
+      - "app/src/types/competitors.ts"
+      - "app/src/app/api/intelligence/spy/**"
+    contract: "_netecmt/contracts/competitor-intelligence-spec.md"
+
+# Audit Rules
+audit_rules:
+  - name: "boundary-check"
+    description: "Fail if files outside lane paths are modified without multi-lane approval"
+  - name: "contract-presence"
+    description: "Fail if story belongs to lane but lane contract is missing or empty"
+  - name: "pack-consistency"
+    description: "Verify that Story Pack allowed-context.md refers specifically to the lane contract defined here"

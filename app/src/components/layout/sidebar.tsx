@@ -5,27 +5,12 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { NAV_ITEMS } from '@/lib/constants';
+import { resolveIcon } from '@/lib/guards/resolve-icon';
+import { SIDEBAR_ICONS } from '@/lib/icon-maps';
 import {
-  Home,
-  MessageSquare,
-  Target,
-  Library,
-  Settings,
   LogOut,
-  BarChart3,
-  Building2,
-  Share2,
   Menu,
   X,
-  Pencil,
-  Palette,
-  LayoutGrid,
-  Activity,
-  Zap,
-  PenTool,
-  Sparkles,
-  Database,
-  type LucideIcon,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -43,27 +28,15 @@ import { setCredits } from '@/lib/firebase/firestore';
 import { RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-// Icon mapping
-const ICONS: Record<string, LucideIcon> = {
-  Home,
-  MessageSquare,
-  Target,
-  Building2,
-  Library,
-  Settings,
-  BarChart3,
-  Share2,
-  Pencil,
-  Palette,
-  LayoutGrid,
-  Activity,
-  Zap,
-  PenTool,
-  Sparkles,
-  Database,
-};
-
 import { useBranding } from '@/components/providers/branding-provider';
+
+if (process.env.NODE_ENV !== 'production') {
+  NAV_ITEMS.forEach((item) => {
+    if (!SIDEBAR_ICONS[item.icon]) {
+      console.warn(`[Sidebar] Icone nao mapeado: "${item.icon}" (id: ${item.id})`);
+    }
+  });
+}
 
 export function Sidebar() {
   const brandingContext = useBranding();
@@ -210,7 +183,7 @@ export function Sidebar() {
           isMobile ? "px-4" : "items-center px-3"
         )}>
           {NAV_ITEMS.map((item, index) => {
-            const Icon = ICONS[item.icon];
+            const Icon = resolveIcon(SIDEBAR_ICONS, item.icon, SIDEBAR_ICONS.Home, 'Sidebar NAV_ITEMS');
             const isActive = pathname === item.href || 
               (item.href !== '/' && pathname.startsWith(item.href));
 

@@ -1,0 +1,41 @@
+# NETECMT: Project Dependencies
+# Gerado por: @iuran (PM) durante a fase de Discovery
+# Este arquivo é a fonte da verdade para todas as dependências do projeto.
+
+version: 1.0
+
+runtimes:
+  - name: "Node.js"
+    version: "v24.12.0"
+    check_command: "node --version"
+    installation_url: "https://nodejs.org/"
+
+package_managers:
+  - name: "npm"
+    version: "11.7.0"
+    check_command: "npm --version"
+    installation_url: "https://nodejs.org/"
+
+clis:
+  - name: "Firebase CLI"
+    version: "15.2.1"
+    check_command: "firebase --version"
+    installation_command: "npm install -g firebase-tools"
+    login_command: "firebase login"
+
+  - name: "Vercel CLI"
+    version: "50.1.6"
+    check_command: "vercel --version"
+    installation_command: "npm install -g vercel"
+    login_command: "vercel login"
+
+dev_tools:
+  - name: "Docker"
+    version: "29.1.3"
+    check_command: "docker --version"
+    installation_url: "https://docs.docker.com/get-docker/"
+
+  - name: "Git"
+    version: ">=2.30"
+    check_command: "git --version"
+    installation_url: "https://git-scm.com/downloads"

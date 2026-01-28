@@ -1,0 +1,54 @@
+# NETECMT: MCP Reference (Conselho de Funil)
+# Configuração e documentação dos Model Context Protocol Servers ativos.
+
+version: 1.0
+
+servers:
+  - name: "Stripe MCP"
+    category: "Finance & Payments"
+    description: "Gerenciamento de clientes, produtos, preços e assinaturas no Stripe."
+    tools:
+      - name: "create_customer"
+        description: "Cria um novo cliente no Stripe."
+      - name: "create_product"
+        description: "Cria um novo produto."
+      - name: "list_invoices"
+        description: "Lista faturas de um cliente."
+    status: "✅ Active (Docker)"
+
+  - name: "Browser MCP"
+    category: "Automation"
+    description: "Automação de navegador (Playwright) para navegação, snapshots e screenshots."
+    tools:
+      - name: "browser_navigate"
+        description: "Navega para uma URL."
+      - name: "browser_snapshot"
+        description: "Captura o estado de acessibilidade/DOM da página."
+    status: "✅ Active (Docker)"
+
+  - name: "Exa Search MCP"
+    category: "Search"
+    description: "Motor de busca inteligente para agentes de IA."
+    tools:
+      - name: "web_search_exa"
+        description: "Realiza busca na web usando Exa AI."
+    status: "✅ Active (Docker)"
+
+  - name: "Cloud Run MCP"
+    category: "Cloud & DevOps"
+    description: "Deploy e gerenciamento de aplicações no Google Cloud Run."
+    status: "⚠️ Inactive (Missing Credentials Configuration)"
+    config_required:
+      - key: "credentials_path"
+        description: "Caminho para o arquivo de credenciais do Google Cloud (JSON)."
+
+  - name: "Context7 Library"
+    category: "Documentation"
+    description: "Busca de documentação atualizada de bibliotecas e frameworks."
+    tools:
+      - name: "resolve-library-id"
+        description: "Resolve nome da biblioteca para ID compatível."
+      - name: "get-library-docs"
+        description: "Busca documentação da biblioteca."
+    status: "✅ Active (Docker)"
+

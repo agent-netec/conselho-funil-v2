@@ -1,0 +1,25 @@
+<handoff>
+  <protocol id="handoff-protocol-v1">
+    <description>Standardized mechanism for transferring project context and artifacts between NETECMT agents.</description>
+    
+    <actions>
+      <action id="create-story-pack">
+        <step n="1">CRITICAL: Identify target agent (e.g., Darllyson/Dev or Victor/UI).</step>
+        <step n="2">Locate mandatory inputs based on phase:
+          - PRD: {project-root}/{methodology-root}/prd.md
+          - Architecture: {project-root}/{methodology-root}/architecture.md
+          - Story Detail: {project-root}/{methodology-root}/epics/story-X.md
+        </step>
+        <step n="3">Generate `story-pack.json` in {output_folder}/handoffs/ containining pointers to these files.</step>
+        <step n="4">Create `handoff-notes.md` summarising "What I did", "What you need to do", and "Known Risks".</step>
+        <step n="5">Notify user and target agent with precise instructions on how to load the pack.</step>
+      </action>
+
+      <action id="close-sprint">
+        <step n="1">Verify all stories are in 'complete' or 'verified' status in `sprint-status.yaml`.</step>
+        <step n="2">Generate `sprint-report.md` with metrics and achievements.</step>
+        <step n="3">Update `workflow-state.yaml` to next phase (if applicable).</step>
+      </action>
+    </actions>
+  </protocol>
+</handoff>

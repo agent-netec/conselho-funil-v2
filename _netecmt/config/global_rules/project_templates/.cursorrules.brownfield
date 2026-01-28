@@ -1,0 +1,26 @@
+# Template .cursorrules — NETECMT (Brownfield)
+#
+# Uso:
+# 1) Copie este arquivo para a raiz do projeto
+# 2) Renomeie para: .cursorrules
+# 3) Ajuste paths conforme sua estrutura
+#
+# Brownfield (legado):
+# - Mantenha um contrato explícito do que pode ser tocado.
+# - Evite mudanças “amplas” sem contrato e sem testes.
+
+rules:
+  - id: netecmt-dev-with-ports
+    path: .cursor/rules/netecmt/bmm/agents/dev_with_port_management.mdc
+    type: project
+    alwaysApply: false
+
+  - id: netecmt-workflow-master
+    path: .cursor/rules/netecmt/bmm/agents/workflow-master.mdc
+    type: project
+    alwaysApply: false
+
+notes:
+  - "Brownfield: crie e mantenha um `legacy_lane_contract.md` antes de evoluir código legado."
+  - "Qualquer mudança sem contrato explícito deve ser escalada para arquitetura."
+

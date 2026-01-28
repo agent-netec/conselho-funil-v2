@@ -1,0 +1,12 @@
+name: test-execution
+description: "Execute functional testing and report validation"
+author: "NETECMT"
+
+# Config
+config_source: "{project-root}/_netecmt/core/config.yaml"
+output_folder: "{project-root}/_netecmt/implementation/qa/reports"
+
+# Workflow components
+instructions: "./instructions.xml"
+
+standalone: true

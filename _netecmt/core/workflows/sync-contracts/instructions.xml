@@ -1,0 +1,51 @@
+<workflow>
+  <critical>The workflow execution engine is governed by: {project-root}/_netecmt/core/tasks/workflow.xml</critical>
+  <critical>You MUST have already loaded and processed: {installed_path}/workflow.yaml</critical>
+  <critical>🎯 GOAL: Synchronize contracts with the actual implementation to resolve drift findings.</critical>
+
+  <step n="1" goal="Analyze Audit Report">
+    <check if="{{audit_report_path}} is not provided">
+      <ask>Please provide the path to the sprint-audit JSON report:</ask>
+    </check>
+    <action>Load and parse {{audit_report_path}}</action>
+    <action>Filter findings where type == 'CONTRACT_DRIFT'</action>
+    <output>🔧 Found {{drift_findings_count}} drift issues to resolve.</output>
+  </step>
+
+  <step n="2" goal="Plan Contract Updates">
+    <action>For each drift finding:</action>
+    <action>1. Identify the affected files (code implementation)</action>
+    <action>2. Identify the target contract file</action>
+    <action>3. Extract behavioral changes from implementation files</action>
+    <action>4. Compare changes against the current contract content</action>
+    <output>📝 Planning updates for {{drift_findings_count}} contracts.</output>
+  </step>
+
+  <step n="3" goal="Execute Synchronization">
+    <action>For each finding in queue:</action>
+    <action>Load implementation files for deep analysis</action>
+    <action>Update the target contract in {contracts_dir} to reflect the NEW implementation reality</action>
+    <action>Maintain consistent formatting and structure in the contract file</action>
+    <output>✅ Updated: {{target_contract}} based on changes in {{affected_files}}</output>
+  </step>
+
+  <step n="4" goal="Verify Resolution">
+    <action>Trigger a new audit: `node {project-root}/_netecmt/core/workflows/sprint-audit/run.js --changed-files "{{all_affected_and_contracts}}" --json {reports_dir}/post-sync-audit.json`</action>
+    <check if="drift still exists in post-sync audit">
+      <action>Log residual drift: Kai failed to fully synchronize</action>
+      <output>⚠️ Warning: Some drift persists after sync. Manual check required.</output>
+    </check>
+  </step>
+
+  <step n="5" goal="Finalize and Commit Hints">
+    <action>Update sprint report with sync status</action>
+    <output>✨ Synchronization Complete! 
+      Contracts are now aligned with the implementation.
+      You can now retry the CI/CD pipeline or push changes.
+    </output>
+  </step>
+
+  <step n="6" goal="Finalize">
+    <invoke-task>Validate against checklist at {installed_path}/checklist.md</invoke-task>
+  </step>
+</workflow>

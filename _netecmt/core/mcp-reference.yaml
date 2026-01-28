@@ -1,0 +1,50 @@
+# NETECMT: MCP Reference (Conselho de Funil)
+# Fonte da verdade para MCPs aprovados/planejados no projeto.
+#
+# Origem: `_netecmt/melhorias/mcp-reference.yaml` + curadoria do projeto.
+
+version: 1.0
+
+mcps:
+  - name: "browser (playwright)"
+    category: "Automation"
+    purpose_in_project: "Scraping/QA E2E (anti-CORS, páginas com JS)."
+    credentials_required: []
+    notes:
+      - "Usado principalmente pelo Dev/Integrator para validar ingestão e UI."
+
+  - name: "exa"
+    category: "Search"
+    purpose_in_project: "Pesquisa estratégica/benchmark para decisões de produto."
+    credentials_required:
+      - "EXA_API_KEY"
+    notes:
+      - "Usado pelo Iuran (PM) e pelo Kai quando precisar validar referências."
+
+  - name: "stripe"
+    category: "Finance"
+    purpose_in_project: "Billing/assinaturas/webhooks para comercialização."
+    credentials_required:
+      - "STRIPE_SECRET_KEY"
+      - "STRIPE_WEBHOOK_SECRET"
+    notes:
+      - "Usado pelo Iuran (PM) e pelo Kai (Integrator)."
+
+  - name: "firecrawl (opcional)"
+    category: "Search & Web"
+    purpose_in_project: "URL -> Markdown limpo para ingestão no RAG."
+    credentials_required:
+      - "FIRECRAWL_API_KEY"
+    notes:
+      - "Planejado: adotaremos para padronizar ingestão de URLs (menos ruído, menos retrabalho)."
+
+  - name: "cloud-run-mcp"
+    category: "Cloud & DevOps"
+    purpose_in_project: "Deploy/gestão de heavy-workers (OCR/ingestão pesada)."
+    credentials_required:
+      - "GCP_APPLICATION_DEFAULT_CREDENTIALS (path)"
+    notes:
+      - "Este MCP exige `credentials_path` na configuração do servidor."
+      - "No Windows, use um arquivo JSON de Service Account salvo fora do repo (idealmente fora do OneDrive) e aponte `credentials_path` para o caminho absoluto."
+
+

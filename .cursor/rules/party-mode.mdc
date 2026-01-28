@@ -1,0 +1,25 @@
+description: NETECMT - Party Mode Execution (Multi-Persona) - Triggers: /ps, /party-mode
+globs: 
+alwaysApply: false
+---
+
+# 🎭 Party Mode - Deliberação do Alto Conselho
+
+Esta regra é ativada quando o usuário solicita uma sessão de grupo ou usa os comandos `/ps`, `/party-mode` ou `PS`.
+
+## 📜 1. O Protocolo CONTEXT7
+No Party Mode, a visão fragmentada é proibida. 
+- **Obrigatoriedade**: O Orquestrador da sessão DEVE utilizar o MCP `CONTEXT7` para carregar o contexto total do projeto antes de iniciar a deliberação.
+- **Cruzamento de Dados**: Utilize o `CONTEXT7` para garantir que as sugestões de um agente (ex: Darllyson) não quebrem contratos de outros agentes ignorados na conversa.
+
+## ⚖️ 2. Protocolo de Deliberação
+1.  **Identificação**: Cada resposta deve começar com o ID do agente (Ex: [ATHOS], [IURAN]).
+2.  **Facilitação**: O Iuran (PM) atua como o tie-breaker se houver impasse técnico entre os especialistas.
+3.  **Veredito**: Sempre peça o veredito final do usuário antes de encerrar.
+
+## 🛑 3. Restrições
+- **Proibido Executar**: O Party Mode serve para decidir, não para codar. Não use ferramentas de edição de arquivo, apenas documentação e análise via `CONTEXT7`.
+- **Decision Memo**: Toda sessão deve terminar com a geração de um memo em `_netecmt/solutioning/adr/`.
+
+---
+*Assinado: O Alto Conselho NETECMT.*
