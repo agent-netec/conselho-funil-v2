@@ -1,0 +1,130 @@
+# Contrato de Navegação - Sprint 21
+# Versão: 1.0.0
+# Agente: Athos (Arch)
+# Objetivo: Definir a estrutura hierárquica e semântica da navegação do Conselho de Funil.
+
+navigation:
+  groups:
+    - id: intelligence
+      label: "Inteligência"
+      description: "Dados e insights que alimentam a estratégia"
+      icon: "Brain"
+      items:
+        - id: intelligence-dashboard
+          label: "Dashboard"
+          href: "/intelligence"
+          icon: "LayoutDashboard"
+        - id: discovery
+          label: "Discovery"
+          href: "/intelligence/discovery"
+          icon: "Search"
+          sub_items: ["Keywords", "Spy Agent"]
+        - id: attribution
+          label: "Atribuição"
+          href: "/intelligence/attribution"
+          icon: "GitBranch"
+        - id: ltv
+          label: "LTV & Retenção"
+          href: "/intelligence/ltv"
+          icon: "TrendingUp"
+        - id: journey
+          label: "Jornada do Lead"
+          href: "/intelligence/journey"
+          icon: "Map"
+
+    - id: strategy
+      label: "Estratégia"
+      description: "Planejamento e arquitetura de conversão"
+      icon: "Compass"
+      items:
+        - id: funnels
+          label: "Funis"
+          href: "/funnels"
+          icon: "Target"
+        - id: offer-lab
+          label: "Offer Lab"
+          href: "/intelligence/offer-lab"
+          icon: "Beaker"
+        - id: funnel-autopsy
+          label: "Funnel Autopsy"
+          href: "/strategy/autopsy"
+          icon: "Stethoscope"
+        - id: copy-chat
+          label: "Copywriting"
+          href: "/chat?mode=copy"
+          icon: "PencilLine"
+
+    - id: execution
+      label: "Execução"
+      description: "Operação e implementação de ativos"
+      icon: "Zap"
+      items:
+        - id: campaigns
+          label: "Campanhas"
+          href: "/campaigns"
+          icon: "Rocket"
+          aliases: ["/campaign"] # Unificação de rotas
+        - id: ads-chat
+          label: "Ads & Tráfego"
+          href: "/chat?mode=ads"
+          icon: "Megaphone"
+        - id: social
+          label: "Social"
+          href: "/social"
+          icon: "Share2"
+        - id: social-inbox
+          label: "Social Inbox"
+          href: "/social-inbox"
+          icon: "Inbox"
+        - id: automation
+          label: "Automação"
+          href: "/automation"
+          icon: "Cpu"
+
+    - id: management
+      label: "Gestão"
+      description: "Governança de marca e ativos"
+      icon: "ShieldCheck"
+      items:
+        - id: brands
+          label: "Marcas"
+          href: "/brands"
+          icon: "Building"
+        - id: brand-hub
+          label: "Brand Hub"
+          href: "/brand-hub"
+          icon: "Palette"
+        - id: assets
+          label: "Biblioteca de Ativos"
+          href: "/assets"
+          icon: "FolderKanban"
+        - id: vault
+          label: "Vault"
+          href: "/vault"
+          icon: "Database"
+
+    - id: system
+      label: "Sistema"
+      items:
+        - id: settings
+          label: "Configurações"
+          href: "/settings"
+          icon: "Settings"
+        - id: integrations
+          label: "Integrações"
+          href: "/integrations"
+          icon: "PlugZap"
+
+# Mapeamento de Ícones Lucide (Garantir unicidade)
+icon_mapping:
+  Analytics: "PieChart"
+  Ads: "Megaphone"
+  Campanhas: "Rocket"
+  Automação: "Cpu"
+  Marcas: "Building"
+  Agência: "Briefcase"
+  Ativos: "FolderKanban"
+  Inteligência: "Brain"
+  Estratégia: "Compass"
+  Execução: "Zap"
+  Gestão: "ShieldCheck"

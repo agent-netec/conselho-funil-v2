@@ -197,28 +197,88 @@ export const COUNSELORS = COUNSELORS_REGISTRY;
 /** @deprecated Use COUNSELORS_REGISTRY */
 export const COPY_COUNSELORS = COUNSELORS_REGISTRY;
 
-// Navigation items
-export const NAV_ITEMS = [
-  { id: 'home', label: 'Home', href: '/', icon: 'Home' },
-  { id: 'campaigns', label: 'Campanhas', href: '/campaigns', icon: 'Zap' },
-  { id: 'chat', label: 'Chat', href: '/chat', icon: 'MessageSquare' },
-  { id: 'funnels', label: 'Funis', href: '/funnels', icon: 'Target' },
-  { id: 'copy', label: 'Copy', href: '/chat?mode=copy', icon: 'Pencil' },
-  { id: 'ads', label: 'Ads', href: '/chat?mode=ads', icon: 'BarChart3' },
-  { id: 'design', label: 'Design', href: '/chat?mode=design', icon: 'PenTool' },
-  { id: 'social', label: 'Social', href: '/social', icon: 'Share2' },
-  { id: 'brands', label: 'Marcas', href: '/brands', icon: 'Building2' },
-  { id: 'brand-hub', label: 'Brand Hub', href: '/brand-hub', icon: 'Palette' },
-  { id: 'analytics', label: 'Analytics', href: '/analytics', icon: 'BarChart3' },
-  { id: 'assets', label: 'Ativos', href: '/assets', icon: 'Activity' },
-  { id: 'library', label: 'Biblioteca', href: '/library', icon: 'Library' },
-  { id: 'vault', label: 'Vault', href: '/vault', icon: 'Database' },
-  { id: 'settings', label: 'Configurações', href: '/settings', icon: 'Settings' },
-  { id: 'integrations', label: 'Integrações', href: '/integrations', icon: 'LayoutGrid' },
-  { id: 'automation', label: 'Automação', href: '/automation', icon: 'Zap' },
-  { id: 'predictive', label: 'Preditivo', href: '/intelligence/predictive', icon: 'Sparkles' },
-  { id: 'agency-dashboard', label: 'Agência', href: '/dashboard', icon: 'Building2' },
-] as const;
+// Navigation groups and items
+export interface NavItem {
+  id: string;
+  label: string;
+  href: string;
+  icon: string;
+  aliases?: string[];
+  sub_items?: string[];
+}
+
+export interface NavGroup {
+  id: string;
+  label: string;
+  description?: string;
+  icon: string;
+  items: NavItem[];
+}
+
+export const NAV_GROUPS: NavGroup[] = [
+  {
+    id: 'intelligence',
+    label: 'Inteligência',
+    description: 'Dados e insights que alimentam a estratégia',
+    icon: 'Brain',
+    items: [
+      { id: 'intelligence-dashboard', label: 'Dashboard', href: '/intelligence', icon: 'LayoutDashboard' },
+      { id: 'discovery', label: 'Discovery', href: '/intelligence/discovery', icon: 'Search', sub_items: ['Keywords', 'Spy Agent'] },
+      { id: 'attribution', label: 'Atribuição', href: '/intelligence/attribution', icon: 'GitBranch' },
+      { id: 'ltv', label: 'LTV & Retenção', href: '/intelligence/ltv', icon: 'TrendingUp' },
+      { id: 'journey', label: 'Jornada do Lead', href: '/intelligence/journey', icon: 'Map' },
+    ],
+  },
+  {
+    id: 'strategy',
+    label: 'Estratégia',
+    description: 'Planejamento e arquitetura de conversão',
+    icon: 'Compass',
+    items: [
+      { id: 'funnels', label: 'Funis', href: '/funnels', icon: 'Target' },
+      { id: 'offer-lab', label: 'Offer Lab', href: '/intelligence/offer-lab', icon: 'Beaker' },
+      { id: 'funnel-autopsy', label: 'Funnel Autopsy', href: '/strategy/autopsy', icon: 'Stethoscope' },
+      { id: 'copy-chat', label: 'Copywriting', href: '/chat?mode=copy', icon: 'PencilLine' },
+    ],
+  },
+  {
+    id: 'execution',
+    label: 'Execução',
+    description: 'Operação e implementação de ativos',
+    icon: 'Zap',
+    items: [
+      { id: 'campaigns', label: 'Campanhas', href: '/campaigns', icon: 'Rocket', aliases: ['/campaign'] },
+      { id: 'ads-chat', label: 'Ads & Tráfego', href: '/chat?mode=ads', icon: 'Megaphone' },
+      { id: 'social', label: 'Social', href: '/social', icon: 'Share2' },
+      { id: 'social-inbox', label: 'Social Inbox', href: '/social-inbox', icon: 'Inbox' },
+      { id: 'automation', label: 'Automação', href: '/automation', icon: 'Cpu' },
+    ],
+  },
+  {
+    id: 'management',
+    label: 'Gestão',
+    description: 'Governança de marca e ativos',
+    icon: 'ShieldCheck',
+    items: [
+      { id: 'brands', label: 'Marcas', href: '/brands', icon: 'Building' },
+      { id: 'brand-hub', label: 'Brand Hub', href: '/brand-hub', icon: 'Palette' },
+      { id: 'assets', label: 'Biblioteca de Ativos', href: '/assets', icon: 'FolderKanban' },
+      { id: 'vault', label: 'Vault', href: '/vault', icon: 'Database' },
+    ],
+  },
+  {
+    id: 'system',
+    label: 'Sistema',
+    icon: 'Settings',
+    items: [
+      { id: 'settings', label: 'Configurações', href: '/settings', icon: 'Settings' },
+      { id: 'integrations', label: 'Integrações', href: '/integrations', icon: 'PlugZap' },
+    ],
+  },
+];
+
+// Retrocompatibilidade para NAV_ITEMS (Flattened list)
+export const NAV_ITEMS = NAV_GROUPS.flatMap(group => group.items);
 
 // Status badges
 export const STATUS_COLORS: Record<string, string> = {

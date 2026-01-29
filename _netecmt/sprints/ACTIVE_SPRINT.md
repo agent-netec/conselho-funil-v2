@@ -1,5 +1,5 @@
-# 🚀 Sprint 21: Scale & Optimization
-> **Objetivo:** Otimizar a infraestrutura para escala massiva, reduzindo custos de IA e melhorando a latência da "Agência Autônoma".
+# 🚀 Sprint 21: UX/UI War Room & Navigation Restructuring
+> **Objetivo:** Reestruturar o Front-end para refletir todas as funcionalidades do sistema com foco em UX fluida e lógica (Inteligência -> Estratégia -> Execução).
 
 ---
 
@@ -7,19 +7,21 @@
 
 | ID | Task | Responsável | Status | Notas |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-21.1** | Core: AI Cost Guard & Token Optimizer | Darllyson | ⏳ Pending | Implementar monitoramento e limites de custo por marca. |
-| **ST-21.2** | Infra: Performance Scaling (Maestro) | Darllyson | ⏳ Pending | Otimização de latência e concorrência no Personalization Engine. |
-| **ST-21.3** | Core: Advanced RAG Caching | Darllyson | ⏳ Pending | Cache multi-nível para reduzir chamadas ao Pinecone/Gemini. |
-| **ST-21.4** | QA: Stress Test & Cost Validation | Dandara | ⏳ Pending | Validar comportamento do sistema sob carga e precisão dos limites de custo. |
+| **ST-21.1** | UI: Sidebar 2.0 (Agrupamento Lógico) | Darllyson | ✅ Done | Sidebar hierárquica implementada. |
+| **ST-21.2** | UI: Discovery Hub (Keywords & Spy) | Darllyson | 🏗️ In Progress | UI Placeholder pronta. Lógica pendente. |
+| **ST-21.3** | UI: Funnel Autopsy Integration | Darllyson | ✅ Done | Motor de diagnóstico real integrado em `/strategy/autopsy`. |
+| **ST-21.4** | UI: Sync Ícones & Tipagem | Darllyson | ✅ Done | Ícones Lucide sincronizados e tipados. |
+| **ST-21.5** | QA: UX Audit & Navigation Check | Dandara | ⏳ Pending | Validar fluidez do novo mapa. |
+| **ST-21.6** | Core: AI Cost Guard & Token Optimizer | Darllyson | ⏳ Pending | Monitoramento de custos. |
 
 ---
 
 ## 📋 Próximos Passos
 
-1. **Iuran** → Refinar PRD da Sprint 21.
-2. **Athos** → Revisar arquitetura de Caching.
-3. **Leticia** → Realizar Story Packing.
+1. **Dandara** → Realizar UX Audit (ST-21.5) para validar a nova navegação.
+2. **Darllyson** → Iniciar implementação do AI Cost Guard (ST-21.6).
+3. **Victor/Beto** → Revisar design dos novos placeholders.
 
 ---
-**Última Atualização:** 29/01/2026 - 22:00  
-**Responsável:** Luke (Release Agent)
+**Última Atualização:** 29/01/2026 - 23:15  
+**Responsável:** Darllyson (Dev Agent)

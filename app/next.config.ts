@@ -2,6 +2,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  async redirects() {
+    return [
+      {
+        source: '/campaign',
+        destination: '/campaigns',
+        permanent: true,
+      },
+    ];
+  },
   distDir: '.next',
   // Desativa otimização de fontes para evitar erro de rede/proxy no build
   optimizeFonts: false,

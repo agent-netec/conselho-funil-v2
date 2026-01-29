@@ -4,13 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { NAV_ITEMS } from '@/lib/constants';
+import { NAV_GROUPS } from '@/lib/constants';
 import { resolveIcon } from '@/lib/guards/resolve-icon';
 import { SIDEBAR_ICONS } from '@/lib/icon-maps';
 import {
   LogOut,
   Menu,
   X,
+  ChevronDown,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -31,10 +32,15 @@ import { useRouter } from 'next/navigation';
 import { useBranding } from '@/components/providers/branding-provider';
 
 if (process.env.NODE_ENV !== 'production') {
-  NAV_ITEMS.forEach((item) => {
-    if (!SIDEBAR_ICONS[item.icon]) {
-      console.warn(`[Sidebar] Icone nao mapeado: "${item.icon}" (id: ${item.id})`);
+  NAV_GROUPS.forEach((group) => {
+    if (group.icon && !SIDEBAR_ICONS[group.icon]) {
+      console.warn(`[Sidebar] Icone de grupo nao mapeado: "${group.icon}" (id: ${group.id})`);
     }
+    group.items.forEach((item) => {
+      if (!SIDEBAR_ICONS[item.icon]) {
+        console.warn(`[Sidebar] Icone nao mapeado: "${item.icon}" (id: ${item.id})`);
+      }
+    });
   });
 }
 
@@ -48,6 +54,15 @@ export function Sidebar() {
   const isMobile = useMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [isReloading, setIsReloading] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(['intelligence', 'strategy', 'execution', 'management']);
+
+  const toggleGroup = (groupId: string) => {
+    setExpandedGroups(prev => 
+      prev.includes(groupId) 
+        ? prev.filter(id => id !== groupId) 
+        : [...prev, groupId]
+    );
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -179,73 +194,126 @@ export function Sidebar() {
 
         {/* Navigation */}
         <nav className={cn(
-          "flex flex-1 flex-col gap-1.5 py-4",
+          "flex flex-1 flex-col gap-4 py-4 overflow-y-auto scrollbar-none",
           isMobile ? "px-4" : "items-center px-3"
         )}>
-          {NAV_ITEMS.map((item, index) => {
-            const Icon = resolveIcon(SIDEBAR_ICONS, item.icon, SIDEBAR_ICONS.Home, 'Sidebar NAV_ITEMS');
-            const isActive = pathname === item.href || 
-              (item.href !== '/' && pathname.startsWith(item.href));
-
-            const NavContent = (
-              <motion.div
-                initial={false}
-                animate={{
-                  backgroundColor: isActive ? 'rgba(16, 185, 129, 0.08)' : 'rgba(255, 255, 255, 0)',
-                  scale: isActive ? 1 : 0.98,
-                }}
-                whileTap={{ scale: 0.95 }}
-                className={cn(
-                  'relative flex items-center rounded-xl transition-all duration-300',
-                  isMobile ? 'h-12 px-4 gap-4' : 'h-11 justify-center',
-                  isActive && 'sidebar-icon-active'
-                )}
-              >
-                <Icon 
-                  className={cn(
-                    'transition-all duration-300',
-                    isMobile ? 'h-5 w-5' : 'h-[22px] w-[22px]',
-                    isActive ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-500'
-                  )} 
-                  strokeWidth={isActive ? 2 : 1.5}
-                />
-                {isMobile && (
-                  <span className={cn(
-                    "text-sm font-medium transition-colors",
-                    isActive ? "text-emerald-400" : "text-zinc-400"
-                  )}>
-                    {item.label}
-                  </span>
-                )}
-                {isActive && !isMobile && (
-                  <div className="absolute left-0 w-1 h-6 bg-emerald-500 rounded-r-full" />
-                )}
-              </motion.div>
+          {NAV_GROUPS.map((group) => {
+            const GroupIcon = resolveIcon(SIDEBAR_ICONS, group.icon, SIDEBAR_ICONS.LayoutGrid, 'Sidebar Group');
+            const isExpanded = expandedGroups.includes(group.id);
+            const hasActiveItem = group.items.some(item => 
+              pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
             );
 
-            if (isMobile) {
-              return (
-                <Link key={item.id} href={item.href} className="w-full">
-                  {NavContent}
-                </Link>
-              );
-            }
-
             return (
-              <Tooltip key={item.id}>
-                <TooltipTrigger asChild>
-                  <Link href={item.href} className="w-full">
-                    {NavContent}
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent 
-                  side="right" 
-                  sideOffset={12}
-                  className="bg-zinc-900 border-zinc-800/80 text-zinc-100 text-sm font-medium px-3 py-1.5"
-                >
-                  {item.label}
-                </TooltipContent>
-              </Tooltip>
+              <div key={group.id} className="w-full flex flex-col gap-1">
+                {/* Group Header - Only visible on Mobile or if we want tooltips on Desktop */}
+                {isMobile ? (
+                  <button
+                    onClick={() => toggleGroup(group.id)}
+                    className="flex items-center justify-between w-full px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-zinc-300 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <GroupIcon className="h-3 w-3" />
+                      {group.label}
+                    </div>
+                    <ChevronDown className={cn("h-3 w-3 transition-transform", isExpanded ? "" : "-rotate-90")} />
+                  </button>
+                ) : (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className={cn(
+                        "flex items-center justify-center w-full py-1 mb-1",
+                        hasActiveItem ? "text-emerald-500/50" : "text-zinc-600"
+                      )}>
+                        <GroupIcon className="h-4 w-4" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="bg-zinc-900 border-zinc-800 text-zinc-100">
+                      {group.label}
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+
+                {/* Group Items */}
+                <AnimatePresence initial={false}>
+                  {(isExpanded || !isMobile) && (
+                    <motion.div
+                      initial={isMobile ? { height: 0, opacity: 0 } : false}
+                      animate={isMobile ? { height: 'auto', opacity: 1 } : false}
+                      exit={isMobile ? { height: 0, opacity: 0 } : false}
+                      className="flex flex-col gap-1.5 overflow-hidden"
+                    >
+                      {group.items.map((item) => {
+                        const Icon = resolveIcon(SIDEBAR_ICONS, item.icon, SIDEBAR_ICONS.Home, 'Sidebar NAV_ITEMS');
+                        const isActive = pathname === item.href || 
+                          (item.href !== '/' && pathname.startsWith(item.href));
+
+                        const NavContent = (
+                          <motion.div
+                            initial={false}
+                            animate={{
+                              backgroundColor: isActive ? 'rgba(16, 185, 129, 0.08)' : 'rgba(255, 255, 255, 0)',
+                              scale: isActive ? 1 : 0.98,
+                            }}
+                            whileTap={{ scale: 0.95 }}
+                            className={cn(
+                              'relative flex items-center rounded-xl transition-all duration-300',
+                              isMobile ? 'h-11 px-4 gap-4' : 'h-10 justify-center',
+                              isActive && 'sidebar-icon-active'
+                            )}
+                          >
+                            <Icon 
+                              className={cn(
+                                'transition-all duration-300',
+                                isMobile ? 'h-4.5 w-4.5' : 'h-[20px] w-[20px]',
+                                isActive ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-500'
+                              )} 
+                              strokeWidth={isActive ? 2 : 1.5}
+                            />
+                            {isMobile && (
+                              <span className={cn(
+                                "text-sm font-medium transition-colors",
+                                isActive ? "text-emerald-400" : "text-zinc-400"
+                              )}>
+                                {item.label}
+                              </span>
+                            )}
+                            {isActive && !isMobile && (
+                              <div className="absolute left-0 w-1 h-5 bg-emerald-500 rounded-r-full" />
+                            )}
+                          </motion.div>
+                        );
+
+                        if (isMobile) {
+                          return (
+                            <Link key={item.id} href={item.href} className="w-full">
+                              {NavContent}
+                            </Link>
+                          );
+                        }
+
+                        return (
+                          <Tooltip key={item.id}>
+                            <TooltipTrigger asChild>
+                              <Link href={item.href} className="w-full">
+                                {NavContent}
+                              </Link>
+                            </TooltipTrigger>
+                            <TooltipContent 
+                              side="right" 
+                              sideOffset={12}
+                              className="bg-zinc-900 border-zinc-800/80 text-zinc-100 text-sm font-medium px-3 py-1.5"
+                            >
+                              {item.label}
+                            </TooltipContent>
+                          </Tooltip>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                {isMobile && <div className="h-px w-full bg-white/[0.02] my-2" />}
+              </div>
             );
           })}
         </nav>
