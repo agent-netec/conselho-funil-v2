@@ -14,18 +14,19 @@ Este documento detalha a recuperação da infraestrutura de deploy do projeto **
     *   **Descrição:** Uma estrutura aninhada incorreta fazia com que a Vercel buscasse o código em um diretório vazio.
     *   **Causa:** Erro de movimentação de arquivos via CLI.
     *   **Correção:** Consolidação de todo o código em `app/src` e configuração do `Root Directory: app` no dashboard da Vercel.
-*   **Conflito de Workspace (Root Pollution):**
-    *   **Descrição:** Arquivos de configuração na raiz do usuário Windows (`C:\Users\phsed`) interferiam na resolução de módulos do Node.js.
-    *   **Correção:** Isolamento do projeto e limpeza de `package-lock.json` redundantes.
+*   **Recorrência do Erro de Estrutura (Sprint 20):**
+    *   **Descrição:** Durante o fechamento da Sprint 20, o código foi movido para a raiz, mas o Dashboard da Vercel permaneceu configurado para `app/`.
+    *   **Impacto:** Erro 404 persistente e falha no build (`Couldn't find any pages or app directory`).
+    *   **Correção:** Restauração rigorosa da pasta `app/` como diretório raiz da aplicação Next.js.
 
 ### 2.2. Falhas de Procedimento e Infraestrutura
 *   **O Zumbi do Proxy (Bloqueio de Rede):**
     *   **Descrição:** O sistema forçava conexões para `127.0.0.1:9`, impedindo `git push` e downloads de fontes/bibliotecas durante o build.
     *   **Impacto:** Deploys falhavam silenciosamente ou com erros de "Timeout".
     *   **Correção:** Desativação de `optimizeFonts` no `next.config.ts` e scripts de limpeza de variáveis de ambiente local.
-*   **Quebra de Quality Gate (CI/CD):**
-    *   **Descrição:** O GitHub Actions bloqueava deploys devido a erros de lint/type que não eram visíveis no editor local devido ao cache.
-    *   **Correção:** Ajuste no `ci.yml` para focar na pasta `app` e correção manual de tipos.
+*   **Desconexão Local vs. Remoto (Git Push):**
+    *   **Descrição:** Commits realizados localmente não foram enviados para o GitHub, fazendo com que a Vercel buildasse versões obsoletas.
+    *   **Correção:** Protocolo obrigatório de `git push origin master` antes de validar qualquer deploy.
 
 ### 2.3. Erros de Código e Runtime
 *   **Hydration & SSR Mismatch:**
@@ -35,6 +36,10 @@ Este documento detalha a recuperação da infraestrutura de deploy do projeto **
 *   **Vazamento de SDK de Servidor (Pinecone Leak):**
     *   **Descrição:** O frontend tentava carregar o módulo `fs` (File System) do Node.js através do SDK do Pinecone.
     *   **Correção:** Implementação de **Lazy Loading** dinâmico no arquivo `pinecone.ts`.
+*   **Sobrescrita Destrutiva de Arquivos (Vault.ts):**
+    *   **Descrição:** Ao implementar o `MonaraTokenVault`, o arquivo `vault.ts` original foi sobrescrito, deletando funções de exportação essenciais.
+    *   **Impacto:** 11 erros de Turbopack build por referências não encontradas.
+    *   **Correção:** Merge manual de funções legadas com novas funcionalidades de segurança.
 
 ---
 
@@ -48,6 +53,7 @@ Este documento detalha a recuperação da infraestrutura de deploy do projeto **
 | **Atribuição** | `app/src/app/intelligence/attribution/page.tsx` | Convertido para Client Component. |
 | **IA/RAG** | `app/src/lib/ai/rag.ts` | Corrigido imports circulares e variáveis duplicadas. |
 | **Firebase** | `app/src/lib/firebase/journey.ts` | Padronizado imports de `@/lib/firebase/config` e removido extensões `.js`. |
+| **Segurança** | `app/src/lib/firebase/vault.ts` | Restaurado funções de ativos e integrado MonaraTokenVault (AES-256). |
 
 ---
 
@@ -60,6 +66,8 @@ Este documento detalha a recuperação da infraestrutura de deploy do projeto **
 5.  **Redeploy Limpo:** Em caso de erro persistente na Vercel, force o **Redeploy sem Build Cache**.
 6.  **Hierarquia de Providers:** No `layout.tsx`, Provedores de Estado (Auth, DB) devem SEMPRE preceder Provedores de Analytics/UI.
 7.  **Safe Hook Consumption:** Nunca desestruturar diretamente de hooks globais (como `useAuthStore`) sem verificação de nulidade ou encadeamento opcional.
+8.  **Integridade de Arquivos (Merge First):** Antes de criar novas versões de arquivos core (como `vault.ts`), verifique todas as exportações existentes para evitar deleções acidentais de funcionalidades legadas.
+9.  **Protocolo de Sincronização:** Nunca considere um deploy concluído sem realizar o `git push origin master`. A Vercel depende do estado remoto, não do local.
 
 ---
 
