@@ -56,7 +56,9 @@ if (!isServer && !appInstance && firebaseConfig.apiKey) {
   } catch (e) {}
 }
 
-export const auth = authInstance || mockService;
-export const db = dbInstance || mockService;
-export const storage = storageInstance || mockService;
+// Se chegarmos aqui e não tivermos instâncias reais, usamos mocks apenas se for servidor
+// No cliente, se não houver instâncias reais, deixamos como null para que o erro seja visível e não silencioso
+export const auth = authInstance || (isServer ? mockService : null);
+export const db = dbInstance || (isServer ? mockService : null);
+export const storage = storageInstance || (isServer ? mockService : null);
 export default appInstance;
