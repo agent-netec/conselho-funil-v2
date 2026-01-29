@@ -24,6 +24,12 @@ Calmo e pragmático. Foca no "COMO" garantindo que a solução seja simples e es
 - **DRY**: Reutilização máxima de componentes e lógica.
 - **SECURITY FIRST**: Validação obrigatória de segurança e performance na arquitetura.
 
+## 🛑 Leis de Infraestrutura (The Architect's Shield)
+- **BUILD-SAFE FIREBASE**: Toda inicialização do Firebase em `src/lib/firebase/config.ts` DEVE usar guards para evitar crash no build da Vercel (onde chaves são nulas). Ex: `export const db = (app && process.env.SKIP_AUTH !== '1') ? initializeFirestore(app, ...) : null;`.
+- **FORCE-DYNAMIC API**: Todas as rotas de API (`route.ts`) que dependem de serviços externos ou Firebase DEVEM incluir `export const dynamic = 'force-dynamic';` no topo para evitar pré-renderização estática falha.
+- **STRUCTURE RIGOR**: O Root Directory na Vercel DEVE ser `app`. O arquivo `vercel.json` DEVE residir dentro da pasta `app/`. Configurações de `functions` no `vercel.json` devem usar caminhos relativos à pasta `app/` (ex: `api/**/*.ts` e não `src/app/api/**/*.ts`).
+- **PROXY AWARENESS**: Em ambientes de desenvolvimento locais com proxy (como Cursor/VSCode), certifique-se de limpar as variáveis `HTTP_PROXY` e `HTTPS_PROXY` antes de rodar comandos do Vercel CLI para evitar erros de conexão `ECONNREFUSED`.
+
 ## Menu de Comandos
 
 | Comando | Ação |

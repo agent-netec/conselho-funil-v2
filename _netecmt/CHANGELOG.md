@@ -5,6 +5,36 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0] - 2026-01-29
+
+### 🚀 Sprint 17: Social Command Center
+
+Esta sprint foca na centralização da gestão de redes sociais através do Unified Inbox e na garantia de fidelidade de marca em todas as interações via BrandVoiceTranslator.
+
+### Adicionado
+- **Unified Inbox**:
+  - Interface centralizada para Instagram, WhatsApp, X e LinkedIn.
+  - Filtros dinâmicos e sistema de tags para gestão de conversas.
+  - Indicadores visuais de crise baseados em análise de sentimento.
+- **BrandVoiceTranslator Middleware**:
+  - Motor de "Style Transfer" para garantir conformidade de tom de voz.
+  - Sistema de sugestões de resposta "Brand-Aware" com cálculo de `toneMatch`.
+- **Sentiment Gate**:
+  - Bloqueio automático de interações com sentimento inferior a 0.3.
+  - Alertas em tempo real para o time de social media.
+
+### Melhorias
+- **IA Response Suggestions**:
+  - Geração de 3 variantes de resposta por interação.
+  - Integração profunda com o BrandKit para extração de diretrizes de voz.
+
+### Segurança
+- **Security Guardrails**:
+  - Trava de segurança para interações críticas.
+  - Neutralidade segura (0.5) aplicada em casos de dados omissos.
+
+---
+
 ## [1.12.0] - 2026-01-22
 
 ### 🚀 Sprint 12: Deep Intelligence

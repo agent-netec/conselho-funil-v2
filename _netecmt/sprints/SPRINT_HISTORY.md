@@ -4,6 +4,85 @@
 
 ---
 
+## 🚀 Sprint 20: Automation & Personalization (CONCLUÍDA)
+**Data de Conclusão:** 29/01/2026  
+**Versão:** v1.20.0
+
+### Entregas Principais:
+- **Personalization Engine (Maestro)**: Motor de adaptação dinâmica de conteúdo baseado nos 5 níveis de consciência de Eugene Schwartz.
+- **Meta/Instagram Adapters**: Integração bidirecional para criação de anúncios e monitoramento de interações sociais.
+- **Webhook Infrastructure**: Sistema seguro de recepção de eventos externos com validação de assinatura e normalização de dados.
+- **MonaraTokenVault**: Gerenciamento centralizado e seguro de credenciais de clientes com criptografia AES-256.
+- **Lead State Transition**: Lógica de transição automática de estados de lead baseada em comportamento e interações.
+
+### Tarefas Concluídas:
+- ST-20.1: Core: Personalization Engine (Maestro) (Darllyson).
+- ST-20.2: Core: Adaptadores Meta Ads & Instagram (Darllyson).
+- ST-20.3: Infra: Webhook Dispatcher & Security (Darllyson).
+- ST-20.4: QA: Testes de Fluxo de Automação (Dandara).
+- ST-20.5: Handoff & Release (Luke).
+
+---
+
+## 🚀 Sprint 19: Funnel Autopsy & Offer Lab (CONCLUÍDA)
+**Data de Conclusão:** 29/01/2026  
+**Versão:** v1.19.0
+
+### Entregas Principais:
+- **Motor Autopsy**: Engine de diagnóstico forense via URL com 5 heurísticas estratégicas ativas para identificação de gargalos em funis.
+- **Offer Lab**: Wizard de engenharia de ofertas baseado na fórmula de Hormozi, incluindo cálculo automático de Score de Irresistibilidade.
+- **UI Forense**: Dashboard de resultados integrado em `/funnels/[id]` com animações de alta fidelidade e visualização de insights acionáveis.
+- **Fórmulas Estratégicas**: Implementação de lógica de valor (Dream Outcome, Perceived Likelihood, Time Delay, Effort & Sacrifice).
+
+### Tarefas Concluídas:
+- ST-19.1: Core: Implementação do Motor Autopsy (Engine) (Darllyson).
+- ST-19.2: Core: Implementação do Offer Lab Wizard (Logic) (Darllyson).
+- ST-19.3: UI: Dashboard de Diagnóstico Autopsy (Darllyson).
+- ST-19.4: QA: Validação de Heurísticas de Diagnóstico (Dandara).
+- ST-19.5: Handoff & Release (Luke).
+
+---
+
+## 🚀 Sprint 18: Performance War Room (CONCLUÍDA)
+**Data de Conclusão:** 29/01/2026  
+**Versão:** v1.18.0
+
+### Entregas Principais:
+- **Command Center**: Dashboard unificado para monitoramento de performance multicanal (Meta, Google, etc.).
+- **The Sentry Engine**: Motor de detecção de anomalias e alertas em tempo real para ativos de marketing.
+- **BYO Keys (Secure)**: Sistema de gerenciamento de chaves de API próprias com criptografia AES-256-GCM.
+- **Unified Performance API**: Endpoint agregador de métricas com suporte a isolamento multi-tenant.
+- **Security Guardrails**: Implementação de travas de segurança para chaves de API e isolamento de dados.
+
+### Tarefas Concluídas:
+- ST-18.1: Performance Data Schema & Types (Darllyson).
+- ST-18.2: Core: Integration Manager (BYO Keys) (Darllyson).
+- ST-18.3: API: Performance Metrics Aggregator (Darllyson).
+- ST-18.4: Core: Anomaly Detection Engine (Sentry) (Darllyson).
+- ST-18.5: UI: War Room Dashboard (Victor/Beto).
+- ST-18.6: QA: Performance E2E Validation (Dandara).
+- ST-18.7: Handoff & Release (Luke).
+
+---
+
+## 🚀 Sprint 17: Social Command Center (CONCLUÍDA)
+**Data de Conclusão:** 29/01/2026  
+**Versão:** v1.17.0
+
+### Entregas Principais:
+- **Unified Inbox**: Interface centralizada para Instagram, WhatsApp, X e LinkedIn com filtros dinâmicos.
+- **BrandVoiceTranslator Middleware**: Motor de "Style Transfer" que garante 100% de conformidade com a voz da marca.
+- **Sentiment Gate & Visuals**: Bloqueio automático de interações negativas (< 0.3) e indicadores visuais de crise.
+- **IA Response Suggestions**: Geração de 3 opções de resposta "Brand-Aware" com cálculo de `toneMatch`.
+- **Security Guardrails**: Trava de segurança para interações críticas e neutralidade segura (0.5) em dados omissos.
+
+### Tarefas Concluídas:
+- ST-17.1: Core: SocialInteraction Interface & Ingestion (Darllyson).
+- ST-17.2: Core: BrandVoiceTranslator Middleware (Darllyson).
+- ST-17.3: UI: Unified Inbox & IA Suggestions (Victor/Beto).
+
+---
+
 ## 🚀 Sprint 14: Competitor Intelligence Expansion (CONCLUÍDA)
 **Data de Conclusão:** 24/01/2026  
 **Versão:** v1.14.0

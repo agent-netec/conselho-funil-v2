@@ -11,6 +11,15 @@ Para que o projeto funcione corretamente na Vercel, as seguintes configuracoes d
 3. **Build Command**: `npm run build`
 4. **Output Directory**: `.next`
 
+## 🌐 Resolucao de Problemas de Conexao (Proxy) - TRAVA OBRIGATORIA
+**ATENCAO:** Devido ao incidente da Sprint 16, o uso da trava de proxy e **OBRIGATORIO** para qualquer comando `vercel`. O CLI falha silenciosamente ou com `ECONNREFUSED` se o proxy local (Porta 9) estiver ativo.
+
+Execute sempre:
+```powershell
+# PowerShell (Obrigatorio)
+$env:HTTP_PROXY=""; $env:HTTPS_PROXY=""; $env:ALL_PROXY=""; vercel --prod
+```
+
 ## 🔑 Variaveis de Ambiente
 As variaveis listadas em `app/.env.example` devem ser cadastradas no painel da Vercel (Settings -> Environment Variables).
 

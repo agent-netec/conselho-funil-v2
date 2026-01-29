@@ -191,6 +191,21 @@ pinecone:
 | 11 | Brain Expansion, Visual Intelligence, Golden Thread | ✅ |
 | 12 | Deep Intelligence, Feedback Loops, Brand Voice Personalização | ✅ |
 | 13 | Intelligence Wing Foundation, Social Listening MVP | ✅ |
+| 16 | Social Brain, Trends Agent, Production MCP Infrastructure | ✅ |
+
+## ⚠️ Post-Mortem: Sprint 16 Deploy Incident
+**Data:** 29/01/2026  
+**Causa Raiz:** Conflito de estrutura monorepo vs Vercel Root Directory e bloqueio de proxy local (Porta 9).  
+**Impacto:** Falha total no build remoto e impossibilidade de login via Vercel CLI.
+**Soluções Aplicadas:**
+1. **Firebase Build-Safe:** Refatorado `config.ts` para não inicializar serviços se o `app` for nulo (ambiente de build).
+2. **Vercel Config:** Movido `vercel.json` para dentro de `app/` e ajustado caminhos de `functions`.
+3. **Proxy Clear:** Identificado que variáveis de ambiente `HTTP_PROXY` locais (apontando para 127.0.0.1:9) travavam o Vercel CLI.
+4. **Dependency Sync:** Sincronizado `package.json` da raiz com `app/` para evitar "Module not found" no build remoto.
+
+### 🛡️ Novas Regras de Segurança (Anti-Incident)
+- **Trava de Proxy:** Nenhum comando `vercel` deve ser executado sem o prefixo de limpeza de proxy: `$env:HTTP_PROXY=""; $env:HTTPS_PROXY=""; $env:ALL_PROXY="";`.
+- **Build Isolation:** Todo código que utiliza `firebase-admin` ou `google-cloud` deve estar estritamente isolado da árvore de build do Next.js.
 
 ### Próximos Passos (Roadmap Agency Engine)
 1. **Sprint 14**: Estruturação da Ala de Biblioteca (Creative Vault + Funnel Blueprints)

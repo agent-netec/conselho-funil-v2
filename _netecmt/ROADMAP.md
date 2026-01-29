@@ -1,4 +1,4 @@
-# 🗺️ Roadmap: Agency Engine (Sprints 13-19)
+# 🗺️ Roadmap: Agency Engine (Sprints 13-21)
 
 > **Objetivo Final:** Transformar o Conselho de Funil em uma Agência de Marketing Autônoma que erradica a necessidade de agências externas.
 
@@ -13,8 +13,10 @@
 | **15** | Social Listening & Keywords | Escuta Social avançada + Mineração de Demanda | 📅 Planejada |
 | **16** | Content Autopilot | Motor de Mídia Pessoal: Curadoria + Adaptação + Publicação | 📅 Planejada |
 | **17** | Social Command Center | Gerenciamento de comentários + "Voz da Marca" | 📅 Planejada |
-| **18** | Performance War Room | Dashboard unificado + Alertas de Anomalia | 📅 Planejada |
-| **19** | Funnel Autopsy & Offer Lab | Diagnóstico de funis + Engenharia de ofertas | 📅 Planejada |
+| **18** | Performance War Room | Dashboard unificado + Alertas de Anomalia | ✅ Concluída |
+| **19** | Funnel Autopsy & Offer Lab | Diagnóstico de funis + Engenharia de ofertas | ✅ Concluída |
+| **20** | Automation & Personalization | Maestro + Meta/Insta Adapters | ✅ Concluída |
+| **21** | Scale & Optimization | Performance Scaling + AI Cost Optimization | 📅 Planejada |
 
 ---
 
@@ -40,111 +42,62 @@
 | Copy DNA | Headlines e hooks categorizados | 16 |
 
 ### ⚙️ ALA DE OPERAÇÕES (Social Management & Execution)
-*Sprint 16, 17, 18*
+*Sprint 16, 17, 18, 20*
 
 | Funcionalidade | Descrição | Sprint |
 | :--- | :--- | :--- |
 | Content Autopilot | Curadoria + Adaptação + Publicação automática | 16 |
 | Social Command Center | Gerenciar comentários/DMs + traduzir voz | 17 |
 | Performance War Room | Dashboard unificado + alertas de anomalia | 18 |
+| Automation & Personalization | Maestro + Meta/Insta Adapters | 20 |
 
 ---
 
-## 🚀 Sprint 13: Intelligence Wing Foundation (CONCLUÍDA)
+## 🚀 Sprint 20: Automation & Personalization (CONCLUÍDA)
 
-**Objetivo:** Estabelecer a fundação da Ala de Inteligência.
+**Objetivo:** Implementar o Personalization Engine (Maestro) e os adaptadores de operação (Meta/Instagram).
 
-### Tarefas:
-| ID | Task | Responsável | Status |
-| :--- | :--- | :--- | :--- |
-| ST-13.1 | Arch: Intelligence Storage Design | Athos | ✅ Done |
-| ST-13.2 | Core: Scout Agent - Data Collection | Darllyson | ✅ Done |
-| ST-13.3 | Core: Analyst Agent - Sentiment Processing | Darllyson | ✅ Done |
-| ST-13.4 | UI: Intelligence Dashboard Skeleton | Victor/Beto | ✅ Done |
-| ST-13.5 | Config: Keyword Management | Darllyson | ✅ Done |
-| ST-13.6 | QA: Multi-Tenant Isolation Tests | Dandara | ✅ Done |
-
-**PRD:** `_netecmt/prd-sprint-13-intelligence-wing.md`
-**Release:** `_netecmt/docs/release-notes/v1.13.0.md`
+### Funcionalidades Entregues:
+- **Personalization Engine:** Maestro operacional com lógica de Schwartz.
+- **Meta/Instagram Adapters:** Conexão direta para anúncios dinâmicos.
+- **Webhook Infrastructure:** Sistema seguro de eventos externos.
+- **MonaraTokenVault:** Centralização segura de credenciais (AES-256).
 
 ---
 
-## 🚧 Sprint 14: Competitor Intelligence (EM ANDAMENTO)
+## 📅 Sprint 21: Scale & Optimization (PLANEJADA)
 
-**Objetivo:** Criar o sistema de espionagem e análise de concorrentes.
+**Objetivo:** Otimizar a performance do sistema e reduzir custos operacionais de IA para escala massiva.
 
 ### Funcionalidades Esperadas:
-- Identificação automática de concorrentes.
-- Rastreamento de Landing Pages, Funis, Criativos.
-- Mapeamento de ferramentas usadas (BuiltWith, Wappalyzer).
-- Geração de "Dossiê de Concorrente".
-- **Agente:** `Agente de Inteligência Competitiva`
+- **AI Cost Guard:** Sistema de monitoramento e otimização de tokens.
+- **Performance Scaling:** Melhorias de latência no Maestro.
+- **Batch Processing:** Processamento em lote para grandes volumes de dados.
+- **Advanced Caching:** Estratégia de cache multi-nível para RAG.
 
 ---
 
-## 📅 Sprint 15: Social Listening & Keywords (PLANEJADA)
-
-**Objetivo:** Implementar escuta social avançada e mineração de demanda.
-
-### Funcionalidades Esperadas:
-- Monitoramento de menções em Twitter/X, Instagram, TikTok.
-- Relatório de "Voz do Cliente" com sentimento e dores.
-- Extração de keywords do Google, YouTube, TikTok.
-- Clusterização por intenção (Awareness, Consideration, Decision).
-- **Agentes:** `Agente de Escuta Social`, `Agente de Demanda`
-
----
-
-## 📅 Sprint 16: Content Autopilot (PLANEJADA)
-
-**Objetivo:** Criar o motor de mídia pessoal que transforma o usuário em veículo de mídia.
-
-### Funcionalidades Esperadas:
-- Configuração de fontes de monitoramento (RSS, perfis, newsletters).
-- Curadoria diária com filtragem por relevância.
-- Adaptação automática para a voz da marca (BrandKit).
-- Formatação multi-plataforma (Twitter, LinkedIn, Instagram).
-- Fila de aprovação com preview.
-- Publicação automática via APIs.
-- **Agentes:** `Curador de Biblioteca`, `Adaptador de Voz`, `Publisher Agent`
-
----
-
-## 📅 Sprint 17: Social Command Center (PLANEJADA)
-
-**Objetivo:** Centralizar o gerenciamento de presença online.
-
-### Funcionalidades Esperadas:
-- Inbox unificado de comentários/DMs de todas as redes.
-- Tradução automática da linguagem do cliente para voz da marca.
-- Sugestões de resposta baseadas no BrandKit.
-- Calendário de conteúdo de 30 dias.
-- **Agente:** `Agente de Engajamento Social`
-
----
-
-## 📅 Sprint 18: Performance War Room (PLANEJADA)
-
-**Objetivo:** Monitoramento e otimização em tempo real.
-
-### Funcionalidades Esperadas:
-- Dashboard unificado de todas as campanhas (Meta, Google, TikTok).
-- Alertas de anomalias (CTR caiu, CPC subiu).
-- Sugestões de ajuste automático.
-- Painel de Integrações (APIs do Cliente).
-- **Agente:** `Agente de Performance`
-
----
-
-## 📅 Sprint 19: Funnel Autopsy & Offer Lab (PLANEJADA)
+## 🚀 Sprint 19: Funnel Autopsy & Offer Lab (CONCLUÍDA)
 
 **Objetivo:** Diagnóstico avançado e engenharia de ofertas.
 
-### Funcionalidades Esperadas:
-- **Funnel Autopsy:** Diagnóstico forense de funis que falharam.
-- **Offer Engineering Lab:** Wizard para criar ofertas irresistíveis.
-- Benchmark com funis de sucesso da biblioteca.
-- Score de "Irresistibilidade" da oferta.
+### Funcionalidades Entregues:
+- **Funnel Autopsy:** Diagnóstico forense de funis via URL.
+- **Offer Engineering Lab:** Wizard Hormozi para ofertas irresistíveis.
+- **UI Forense:** Dashboard integrado em `/funnels/[id]`.
+- **Score de Irresistibilidade:** Cálculo automático de valor de oferta.
+
+---
+
+## 🚀 Sprint 18: Performance War Room (CONCLUÍDA)
+
+**Objetivo:** Monitoramento e otimização em tempo real.
+
+### Funcionalidades Entregues:
+- **Command Center:** Dashboard unificado para monitoramento de performance.
+- **The Sentry Engine:** Motor de detecção de anomalias e alertas.
+- **BYO Keys (Secure):** Sistema de gerenciamento de chaves de API com AES-256.
+- **Unified Performance API:** Endpoint agregador de métricas.
 
 ---
 
@@ -174,5 +127,5 @@
 
 ---
 
-**Última Atualização:** 24/01/2026  
-**Responsável:** Luke (Release) / Alto Conselho
+**Última Atualização:** 29/01/2026  
+**Responsável:** Luke (Release Agent)

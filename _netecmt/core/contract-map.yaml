@@ -55,6 +55,37 @@ lanes:
       - "app/src/lib/ai/**"
     contract: "_netecmt/contracts/retrieval-contracts.md"
 
+  social_intelligence:
+    paths:
+      - "app/src/lib/intelligence/social/**"
+      - "app/src/app/api/social/**"
+      - "app/src/types/social.ts"
+    contract: "_netecmt/contracts/social-api-spec.md"
+
+  personalization_engine:
+    paths:
+      - "app/src/lib/operations/personalization/**"
+      - "app/src/app/api/operations/personalization/**"
+    contract: "_netecmt/contracts/personalization-engine-spec.md"
+
+  operations_meta:
+    paths:
+      - "app/src/lib/operations/meta/**"
+      - "app/src/app/api/operations/meta/**"
+    contract: "_netecmt/contracts/operations-api-contracts.md"
+
+  operations_infrastructure:
+    paths:
+      - "app/src/app/api/webhooks/**"
+      - "app/src/lib/security/monara/**"
+    contract: "_netecmt/contracts/webhook-security-spec.md"
+
+  brand_voice:
+    paths:
+      - "app/src/lib/ai/brand-voice/**"
+      - "app/src/lib/ai/brand-governance.ts"
+    contract: "_netecmt/contracts/brand-voice-spec.md"
+
   intelligence_wing:
     paths:
       # Storage & Data Access
@@ -87,6 +118,22 @@ lanes:
       - "app/src/app/api/intelligence/spy/**"
     contract: "_netecmt/contracts/competitor-intelligence-spec.md"
 
+  funnel_autopsy:
+    paths:
+      - "app/src/app/api/intelligence/autopsy/**"
+      - "app/src/lib/intelligence/autopsy/**"
+      - "app/src/components/funnel-autopsy/**"
+      - "app/src/types/autopsy.ts"
+    contract: "_netecmt/contracts/funnel-autopsy-spec.md"
+
+  performance_war_room:
+    paths:
+      - "app/src/lib/performance/**"
+      - "app/src/app/api/performance/**"
+      - "app/src/components/performance/**"
+      - "app/src/types/performance.ts"
+    contract: "_netecmt/contracts/performance-spec.md"
+
 # Audit Rules
 audit_rules:
   - name: "boundary-check"
@@ -95,3 +142,7 @@ audit_rules:
     description: "Fail if story belongs to lane but lane contract is missing or empty"
   - name: "pack-consistency"
     description: "Verify that Story Pack allowed-context.md refers specifically to the lane contract defined here"
+  - name: "pre-flight-proxy-check"
+    description: "Mandatory cleanup of HTTP_PROXY/HTTPS_PROXY variables in CI/CD environments before execution"
+    enforcement: "pre-flight"
+    scope: ["infrastructure", "core"]
