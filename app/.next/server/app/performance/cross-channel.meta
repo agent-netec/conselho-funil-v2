@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/performance/layout,_N_T_/performance/cross-channel/layout,_N_T_/performance/cross-channel/page,_N_T_/performance/cross-channel"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/performance/cross-channel/__PAGE__",
+    "/performance/cross-channel",
+    "/performance",
+    "/_index",
+    "/_head"
+  ]
+}

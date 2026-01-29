@@ -1,5 +1,4 @@
 import {
-  getStorage,
   ref,
   uploadBytesResumable,
   uploadString,
@@ -7,10 +6,8 @@ import {
   deleteObject,
   type UploadMetadata,
 } from 'firebase/storage';
-import app from './config';
+import { storage } from './config';
 import { createVaultAsset } from './vault';
-
-const storage = getStorage(app);
 
 /**
  * Faz upload de um asset para o Vault (Creative Vault).

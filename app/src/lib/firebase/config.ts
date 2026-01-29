@@ -1,36 +1,3 @@
-import { initializeApp, getApps } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { initializeFirestore, CACHE_SIZE_UNLIMITED } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
-
-// Firebase configuration
-const apiKey = (process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? '').trim();
-const authDomain = (process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? '').trim();
-const projectId = (process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? '').trim();
-const storageBucket = (process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? '').trim();
-const messagingSenderId = (process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? '').trim();
-const appId = (process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? '').trim();
-
-const firebaseConfig = {
-  apiKey,
-  authDomain,
-  projectId,
-  storageBucket,
-  messagingSenderId,
-  appId,
-};
-
-// US-28.01: Se estivermos em build, forçamos o uso de mocks para evitar crashes internos do SDK
-const isBuild = process.env.NODE_ENV === 'production' && typeof window === 'undefined';
-
-// Initialize Firebase only once
-const app = (getApps().length === 0 && apiKey && typeof window !== 'undefined' && !isBuild)
-  ? initializeApp(firebaseConfig) 
-  : (getApps()[0] || null);
-
-// Export services
-const skipAuth = process.env.SKIP_AUTH === '1' || !app;
-
 // US-28.01: Mocks robustos para evitar crashes durante o build estático da Next.js
 const mockInternal = {
   container: {
@@ -42,8 +9,8 @@ const mockService = {
   currentUser: null,
   onAuthStateChanged: () => () => {},
   signOut: async () => {},
-  getApp: () => app || { container: mockInternal.container },
-  app: app || { container: mockInternal.container },
+  getApp: () => ({ container: mockInternal.container }),
+  app: { container: mockInternal.container },
   INTERNAL: mockInternal,
   container: mockInternal.container,
   collection: () => ({ doc: () => ({ get: async () => ({ exists: () => false }) }) }),
@@ -59,67 +26,53 @@ if (typeof global !== 'undefined') {
   (global as any).firebaseInternalContainer = mockInternal.container;
 }
 
-// Final safety check for the exported services
-const getSafeService = (service: any) => {
-  if (!service || typeof service !== 'object' || isBuild) return mockService;
-  return service;
-};
+// US-28.01: Detect build phase more reliably
+const isBuild = typeof window === 'undefined' && 
+  (process.env.NEXT_PHASE === 'phase-production-build' || process.env.NODE_ENV === 'production');
 
-// US-28.01: Final attempt to bypass Firebase SDK internal access by mocking the module exports
-export const auth = (app && !skipAuth && !isBuild) ? getSafeService(getAuth(app)) : mockService as any;
-export const db = (app && process.env.SKIP_AUTH !== '1' && !isBuild) ? getSafeService(initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-  cacheSizeBytes: CACHE_SIZE_UNLIMITED,
-})) : mockService as any;
-export const storage = (app && process.env.SKIP_AUTH !== '1' && !isBuild) ? getSafeService(getStorage(app)) : mockService as any;
+let appInstance: any = null;
+let authInstance: any = null;
+let dbInstance: any = null;
+let storageInstance: any = null;
 
-// Force container property on exports
-[auth, db, storage].forEach(s => {
-  if (s) {
-    try {
-      if (!s.container) {
-        Object.defineProperty(s, 'container', {
-          get: () => mockInternal.container,
-          configurable: true,
-          enumerable: true
-        });
-      }
-      if (!s.INTERNAL) s.INTERNAL = mockInternal;
-    } catch (e) {}
-  }
-});
+function initialize() {
+  if (isBuild) return;
+  if (appInstance) return;
 
-// US-28.01: Global process mock for Firebase SDK - forcing mocks on global object
-if (isBuild && typeof global !== 'undefined') {
-  const handler = {
-    get: (target: any, prop: string) => {
-      if (prop === 'container' || prop === 'INTERNAL') return mockInternal;
-      return target[prop] || mockService;
-    }
-  };
-  (global as any)._firebaseAuth = new Proxy(auth, handler);
-  (global as any)._firebaseFirestore = new Proxy(db, handler);
-  (global as any)._firebaseStorage = new Proxy(storage, handler);
-  (global as any)._firebaseApp = new Proxy(app || mockService, handler);
-  
-  // US-28.01: Mocking the internal container directly on the global object for the SDK to find
-  (global as any).firebaseAppInstance = new Proxy(mockService, handler);
-  (global as any).firebaseApp = new Proxy(mockService, handler);
-}
-
-// US-28.01: Final attempt to bypass Firebase SDK internal access by mocking the module exports
-if (isBuild && typeof module !== 'undefined') {
   try {
-    const originalExports = (module as any).exports;
-    if (originalExports) {
-      (module as any).exports = {
-        ...originalExports,
-        auth: auth,
-        db: db,
-        storage: storage,
-      };
+    const { initializeApp, getApps } = require('firebase/app');
+    const { getAuth } = require('firebase/auth');
+    const { initializeFirestore, CACHE_SIZE_UNLIMITED } = require('firebase/firestore');
+    const { getStorage } = require('firebase/storage');
+
+    const apiKey = (process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? '').trim();
+    const firebaseConfig = {
+      apiKey,
+      authDomain: (process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? '').trim(),
+      projectId: (process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? '').trim(),
+      storageBucket: (process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? '').trim(),
+      messagingSenderId: (process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? '').trim(),
+      appId: (process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? '').trim(),
+    };
+
+    if (apiKey) {
+      appInstance = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+      if (appInstance && process.env.SKIP_AUTH !== '1') {
+        authInstance = getAuth(appInstance);
+        dbInstance = initializeFirestore(appInstance, {
+          experimentalForceLongPolling: true,
+          cacheSizeBytes: CACHE_SIZE_UNLIMITED,
+        });
+        storageInstance = getStorage(appInstance);
+      }
     }
-  } catch (e) {}
+  } catch (e) {
+    // Silently fail during build
+  }
 }
 
-export default app;
+// Export as getters to ensure they are not evaluated too early and can be mocked
+export const auth = isBuild ? mockService : (initialize(), authInstance || mockService);
+export const db = isBuild ? mockService : (initialize(), dbInstance || mockService);
+export const storage = isBuild ? mockService : (initialize(), storageInstance || mockService);
+export default isBuild ? null : (initialize(), appInstance);

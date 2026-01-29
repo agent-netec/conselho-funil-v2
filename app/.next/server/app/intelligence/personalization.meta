@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/intelligence/layout,_N_T_/intelligence/personalization/layout,_N_T_/intelligence/personalization/page,_N_T_/intelligence/personalization"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/intelligence/personalization/__PAGE__",
+    "/intelligence/personalization",
+    "/intelligence",
+    "/_index",
+    "/_head"
+  ]
+}
