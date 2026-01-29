@@ -75,4 +75,5 @@ function initialize() {
 export const auth = isBuild ? mockService : (initialize(), authInstance || mockService);
 export const db = isBuild ? mockService : (initialize(), dbInstance || mockService);
 export const storage = isBuild ? mockService : (initialize(), storageInstance || mockService);
-export default isBuild ? null : (initialize(), appInstance);
+// Default export should also be a mock during build to avoid "Cannot read properties of null (reading 'container')"
+export default isBuild ? mockService : (initialize(), appInstance || mockService);
