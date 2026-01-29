@@ -12,7 +12,7 @@ const firebaseConfig = {
   appId: (process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? '').trim(),
 };
 
-// US-28.01: Mocks robustos para o build (evita erros de 'container' no servidor)
+// US-28.01: Mocks para o build
 const mockService = {
   INTERNAL: { container: { get: () => ({}) } },
   container: { get: () => ({}) },
@@ -27,24 +27,33 @@ let authInstance: any = null;
 let dbInstance: any = null;
 let storageInstance: any = null;
 
-if (!isBuild) {
+if (!isBuild && firebaseConfig.apiKey) {
   try {
-    if (firebaseConfig.apiKey) {
-      appInstance = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-      authInstance = getAuth(appInstance);
-      dbInstance = isServer 
-        ? getFirestore(appInstance)
-        : initializeFirestore(appInstance, {
-            experimentalForceLongPolling: true,
-            cacheSizeBytes: CACHE_SIZE_UNLIMITED,
-          });
-      storageInstance = getStorage(appInstance);
-    } else if (!isServer) {
-      console.error('[Firebase] ERRO: NEXT_PUBLIC_FIREBASE_API_KEY não encontrada.');
-    }
+    appInstance = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+    authInstance = getAuth(appInstance);
+    dbInstance = isServer 
+      ? getFirestore(appInstance)
+      : initializeFirestore(appInstance, {
+          experimentalForceLongPolling: true,
+          cacheSizeBytes: CACHE_SIZE_UNLIMITED,
+        });
+    storageInstance = getStorage(appInstance);
   } catch (e) {
-    if (!isServer) console.error('[Firebase] Init Error:', e);
+    console.error('[Firebase] Error:', e);
   }
+}
+
+// No cliente, se não inicializou, tentamos forçar a inicialização sem travas
+if (!isServer && !appInstance && firebaseConfig.apiKey) {
+  try {
+    appInstance = initializeApp(firebaseConfig);
+    authInstance = getAuth(appInstance);
+    dbInstance = initializeFirestore(appInstance, {
+      experimentalForceLongPolling: true,
+      cacheSizeBytes: CACHE_SIZE_UNLIMITED,
+    });
+    storageInstance = getStorage(appInstance);
+  } catch (e) {}
 }
 
 export const auth = authInstance || mockService;
