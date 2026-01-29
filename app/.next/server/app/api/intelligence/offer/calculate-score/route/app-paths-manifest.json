@@ -1,0 +1,3 @@
+{
+  "/api/intelligence/offer/calculate-score/route": "app/api/intelligence/offer/calculate-score/route.js"
+}

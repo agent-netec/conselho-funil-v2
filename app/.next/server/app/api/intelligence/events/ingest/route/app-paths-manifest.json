@@ -1,0 +1,3 @@
+{
+  "/api/intelligence/events/ingest/route": "app/api/intelligence/events/ingest/route.js"
+}

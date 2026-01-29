@@ -1,0 +1,3 @@
+{
+  "/api/pinecone/health/route": "app/api/pinecone/health/route.js"
+}

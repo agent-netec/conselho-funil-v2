@@ -1,0 +1,3 @@
+{
+  "/api/webhooks/dispatcher/route": "app/api/webhooks/dispatcher/route.js"
+}

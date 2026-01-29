@@ -1,0 +1,3 @@
+{
+  "/api/reporting/anomaly-check/route": "app/api/reporting/anomaly-check/route.js"
+}

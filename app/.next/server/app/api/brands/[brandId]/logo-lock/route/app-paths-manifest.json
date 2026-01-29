@@ -1,0 +1,3 @@
+{
+  "/api/brands/[brandId]/logo-lock/route": "app/api/brands/[brandId]/logo-lock/route.js"
+}

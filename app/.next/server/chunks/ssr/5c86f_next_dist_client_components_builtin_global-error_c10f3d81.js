@@ -1,0 +1,3 @@
+module.exports=[919762,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(477071);a.n(d("[project]/OneDrive/Desktop/CURSOR/CONSELHO DE FUNIL/node_modules/next/dist/client/components/builtin/global-error.js <module evaluation>"))},815182,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(477071);a.n(d("[project]/OneDrive/Desktop/CURSOR/CONSELHO DE FUNIL/node_modules/next/dist/client/components/builtin/global-error.js"))},163945,a=>{"use strict";a.i(919762);var b=a.i(815182);a.n(b)}];
+
+//# sourceMappingURL=5c86f_next_dist_client_components_builtin_global-error_c10f3d81.js.map

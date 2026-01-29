@@ -75,5 +75,5 @@ export const SIDEBAR_ICONS: Record<string, LucideIcon> = {
   PlugZap,
   LayoutDashboard,
   Briefcase,
-  LayoutGrid as LayoutDashboardIcon, // Alias se necessário
+  'LayoutDashboardIcon': LayoutGrid, // Alias se necessário
 };
