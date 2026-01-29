@@ -89,6 +89,9 @@ export function AppShell({ children }: AppShellProps) {
   const isLoading = auth?.isLoading;
   const isInitialized = auth?.isInitialized;
 
+  // US-28.01: Check if Firebase is properly configured
+  const isFirebaseAvailable = !((auth as any)?._isMock);
+
   const isPublicPage = PUBLIC_PATHS.includes(pathname);
   const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/signup');
 
@@ -109,6 +112,26 @@ export function AppShell({ children }: AppShellProps) {
   // Show loading while checking auth
   if (!isInitialized || isLoading) {
     return <LoadingScreen />;
+  }
+
+  // US-28.01: Show error if Firebase is not available
+  if (!isFirebaseAvailable && !isPublicPage) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white p-6 text-center">
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-8 max-w-md">
+          <h1 className="text-xl font-bold text-red-500 mb-4">Erro de Configuração</h1>
+          <p className="text-zinc-400 mb-6">
+            O Firebase não foi inicializado corretamente. Verifique se as variáveis de ambiente (API Keys) estão configuradas no painel da Vercel.
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
+          >
+            Tentar Novamente
+          </button>
+        </div>
+      </div>
+    );
   }
 
   // Auth pages - no sidebar

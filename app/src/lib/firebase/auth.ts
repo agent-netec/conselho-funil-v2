@@ -78,7 +78,7 @@ export const signupWithEmail = async (email: string, password: string, displayNa
 
 // Subscribe to auth state changes
 export function onAuthChange(callback: (user: User | null) => void) {
-  if (!auth) return () => {};
+  if (!auth || (auth as any)._isMock) return () => {};
   return onAuthStateChanged(auth, callback);
 }
 
