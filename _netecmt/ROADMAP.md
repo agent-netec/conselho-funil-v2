@@ -16,7 +16,8 @@
 | **18** | Performance War Room | Dashboard unificado + Alertas de Anomalia | ✅ Concluída |
 | **19** | Funnel Autopsy & Offer Lab | Diagnóstico de funis + Engenharia de ofertas | ✅ Concluída |
 | **20** | Automation & Personalization | Maestro + Meta/Insta Adapters | ✅ Concluída |
-| **21** | Scale & Optimization | Performance Scaling + AI Cost Optimization | 📅 Planejada |
+| **21** | Scale & Optimization | Performance Scaling + AI Cost Optimization | ✅ Concluída |
+| **22** | Intelligence Expansion | Img2Img Reference Pipeline + Deep Research | 🚧 Em Andamento |
 
 ---
 
@@ -65,19 +66,30 @@
 
 ---
 
-## 📅 Sprint 21: Scale & Optimization (PLANEJADA)
+## 🚀 Sprint 21: Scale & Optimization (CONCLUÍDA)
 
 **Objetivo:** Otimizar a performance do sistema e reduzir custos operacionais de IA para escala massiva.
 
-### Funcionalidades Esperadas:
-- **AI Cost Guard:** Sistema de monitoramento e otimização de tokens.
-- **Performance Scaling:** Melhorias de latência no Maestro.
-- **Batch Processing:** Processamento em lote para grandes volumes de dados.
-- **Advanced Caching:** Estratégia de cache multi-nível para RAG.
+### Funcionalidades Entregues:
+- **AI Cost Guard:** Sistema de monitoramento e otimização de tokens integrado ao dashboard.
+- **Performance Scaling:** Melhorias de latência no Maestro e reestruturação de navegação "War Room".
+- **Discovery Hub:** Interface de mineração competitiva e tendências ativa.
+- **Funnel Autopsy Integration:** Motor forense integrado diretamente no fluxo de estratégia.
 
 ---
 
-## 🚀 Sprint 19: Funnel Autopsy & Offer Lab (CONCLUÍDA)
+## 📅 Sprint 22: Intelligence Expansion (PLANEJADA)
+
+**Objetivo:** Expandir as capacidades de geração visual e pesquisa profunda de mercado.
+
+### Funcionalidades Esperadas:
+- **Img2Img Reference Pipeline:** Criação de criativos baseados em referências visuais de alta performance.
+- **Deep Research Engine:** Integração com motores de busca para dossiês de mercado automáticos.
+- **Multi-Channel Adapters:** Expansão para TikTok e LinkedIn Ads.
+
+---
+
+## 🚀 Sprint 20: Automation & Personalization (CONCLUÍDA)
 
 **Objetivo:** Diagnóstico avançado e engenharia de ofertas.
 
@@ -127,5 +139,5 @@
 
 ---
 
-**Última Atualização:** 29/01/2026  
+**Última Atualização:** 30/01/2026  
 **Responsável:** Luke (Release Agent)
