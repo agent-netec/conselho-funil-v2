@@ -28,12 +28,19 @@ function getGeminiApiKey(): string | undefined {
   return key;
 }
 
+import { AICostGuard } from './cost-guard';
+
 interface GeminiResponse {
   candidates: Array<{
     content: {
       parts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }>;
     };
   }>;
+  usageMetadata?: {
+    promptTokenCount: number;
+    candidatesTokenCount: number;
+    totalTokenCount: number;
+  };
 }
 
 /**
@@ -51,12 +58,22 @@ export async function analyzeMultimodalWithGemini(
   options: {
     model?: string;
     temperature?: number;
+    userId?: string;
+    brandId?: string;
+    feature?: string;
   } = {}
 ): Promise<string> {
   const {
     model = 'gemini-2.0-flash-exp',
     temperature = 0.4, // Menor temperatura para OCR (mais preciso)
+    userId = 'system',
+    brandId,
+    feature = 'multimodal_analysis'
   } = options;
+
+  // Budget Check
+  const hasBudget = await AICostGuard.checkBudget({ userId, brandId, model, feature });
+  if (!hasBudget) throw new Error('Budget limit exceeded or no credits available.');
 
   const apiKey = getGeminiApiKey();
   if (!apiKey) {
@@ -97,6 +114,18 @@ export async function analyzeMultimodalWithGemini(
   }
 
   const data: GeminiResponse = await response.json();
+  
+  // Log usage
+  if (data.usageMetadata) {
+    await AICostGuard.logUsage(
+      { userId, brandId, model, feature },
+      { 
+        inputTokens: data.usageMetadata.promptTokenCount, 
+        outputTokens: data.usageMetadata.candidatesTokenCount 
+      }
+    );
+  }
+
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
@@ -121,6 +150,9 @@ export async function generateWithGemini(
     topP?: number;
     maxOutputTokens?: number;
     responseMimeType?: 'text/plain' | 'application/json';
+    userId?: string;
+    brandId?: string;
+    feature?: string;
   } = {}
 ): Promise<string> {
   const {
@@ -128,7 +160,14 @@ export async function generateWithGemini(
     temperature = 0.7,
     maxOutputTokens = 4096,
     responseMimeType = 'text/plain',
+    userId = 'system',
+    brandId,
+    feature = 'text_generation'
   } = options;
+
+  // Budget Check
+  const hasBudget = await AICostGuard.checkBudget({ userId, brandId, model, feature });
+  if (!hasBudget) throw new Error('Budget limit exceeded or no credits available.');
 
   const apiKey = getGeminiApiKey();
   if (!apiKey) {
@@ -164,8 +203,21 @@ export async function generateWithGemini(
   }
 
   const data: GeminiResponse = await response.json();
+
+  // Log usage
+  if (data.usageMetadata) {
+    await AICostGuard.logUsage(
+      { userId, brandId, model, feature },
+      { 
+        inputTokens: data.usageMetadata.promptTokenCount, 
+        outputTokens: data.usageMetadata.candidatesTokenCount 
+      }
+    );
+  }
+
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
+
 
 /**
  * Gera uma resposta em streaming usando a API do Google Gemini.

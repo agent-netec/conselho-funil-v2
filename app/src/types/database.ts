@@ -135,6 +135,13 @@ export interface Brand {
     profile: 'agressivo' | 'sobrio' | 'equilibrado';
   };
 
+  // ST-21.6: Governança de Custos
+  usageLimit?: {
+    dailyLimit: number;
+    currentDailyUsage: number;
+    lastUsage: Timestamp;
+  };
+
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

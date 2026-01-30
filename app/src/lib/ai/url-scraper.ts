@@ -9,6 +9,8 @@ import * as cheerio from 'cheerio';
 import { Readability } from '@mozilla/readability';
 import { JSDOM } from 'jsdom';
 
+import { AICostGuard } from './cost-guard';
+
 export interface ScrapedContent {
   title: string;
   content: string;
@@ -33,7 +35,12 @@ const MIN_CONTENT_LENGTH = 10;
  * Extrai conteúdo principal de uma URL usando Jina Reader (Proxy de Nuvem com Playwright)
  * como primeira opção e Readability/Cheerio como fallback local.
  */
-export async function extractContentFromUrl(url: string): Promise<ScrapedContent> {
+export async function extractContentFromUrl(
+  url: string, 
+  options: { userId?: string; brandId?: string } = {}
+): Promise<ScrapedContent> {
+  const { userId = 'system', brandId } = options;
+
   try {
     // 0. Sanitização extrema (Prevenção contra double-paste do usuário)
     let sanitizedUrl = url.trim();
@@ -48,6 +55,10 @@ export async function extractContentFromUrl(url: string): Promise<ScrapedContent
     if (!isValidUrl(sanitizedUrl)) {
       return { title: '', content: '', error: `URL inválida: ${sanitizedUrl}` };
     }
+
+    // Budget Check
+    const hasBudget = await AICostGuard.checkBudget({ userId, brandId, model: 'jina-reader', feature: 'url_scraping' });
+    if (!hasBudget) return { title: '', content: '', error: 'Budget limit exceeded for URL scraping.' };
 
     // 2. PRIMEIRA OPÇÃO: Jina Reader API
     console.log(`[URL Scraper] Tentando extração via Jina: ${sanitizedUrl}`);
@@ -70,9 +81,18 @@ export async function extractContentFromUrl(url: string): Promise<ScrapedContent
 
         if (content && content.length > 50) {
           console.log(`[URL Scraper] Sucesso via Jina Reader (${content.length} chars)`);
+          
+          // Log Usage
+          await AICostGuard.logUsage(
+            { userId, brandId, model: 'jina-reader', feature: 'url_scraping' },
+            { inputTokens: AICostGuard.estimateTokens(url), outputTokens: AICostGuard.estimateTokens(content) },
+            'jina'
+          );
+
           return { title, content: cleanText(content), method: 'jina' };
         }
       }
+
       console.log('[URL Scraper] Jina Reader falhou ou retornou pouco conteúdo. Tentando fallback local...');
     } catch (jinaErr) {
       console.warn('[URL Scraper] Erro ao conectar ao Jina Reader:', jinaErr);
