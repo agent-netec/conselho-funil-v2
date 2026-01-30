@@ -9,6 +9,21 @@ const nextConfig: NextConfig = {
         destination: '/campaigns',
         permanent: true,
       },
+      {
+        source: '/campaign/:id',
+        destination: '/campaigns/:id',
+        permanent: true,
+      },
+      {
+        source: '/analytics',
+        destination: '/performance',
+        permanent: true,
+      },
+      {
+        source: '/strategy/autopsy',
+        destination: '/funnels',
+        permanent: false, // Temporário enquanto consolidamos a nova rota
+      },
     ];
   },
   distDir: '.next',

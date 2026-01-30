@@ -15,7 +15,7 @@ navigation:
           href: "/intelligence"
           icon: "LayoutDashboard"
         - id: discovery
-          label: "Discovery"
+          label: "Discovery Hub"
           href: "/intelligence/discovery"
           icon: "Search"
           sub_items: ["Keywords", "Spy Agent"]
@@ -31,6 +31,10 @@ navigation:
           label: "Jornada do Lead"
           href: "/intelligence/journey"
           icon: "Map"
+        - id: performance
+          label: "Performance (War Room)"
+          href: "/performance"
+          icon: "Activity"
 
     - id: strategy
       label: "Estratégia"
@@ -63,7 +67,7 @@ navigation:
           label: "Campanhas"
           href: "/campaigns"
           icon: "Rocket"
-          aliases: ["/campaign"] # Unificação de rotas
+          aliases: ["/campaign"]
         - id: ads-chat
           label: "Ads & Tráfego"
           href: "/chat?mode=ads"

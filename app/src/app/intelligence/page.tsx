@@ -162,12 +162,23 @@ export default function IntelligencePage() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full max-w-[720px] grid-cols-6">
+        <TabsList className="grid w-full max-w-[840px] grid-cols-7">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-          <TabsTrigger value="keywords">Keywords</TabsTrigger>
-          <TabsTrigger value="competitors">Concorrentes</TabsTrigger>
-          <TabsTrigger value="assets">Ativos</TabsTrigger>
-          <TabsTrigger value="dossier">Dossiê</TabsTrigger>
+          <TabsTrigger value="discovery" asChild>
+            <Link href="/intelligence/discovery">Discovery Hub</Link>
+          </TabsTrigger>
+          <TabsTrigger value="attribution" asChild>
+            <Link href="/intelligence/attribution">Atribuição</Link>
+          </TabsTrigger>
+          <TabsTrigger value="ltv" asChild>
+            <Link href="/intelligence/ltv">LTV & Retenção</Link>
+          </TabsTrigger>
+          <TabsTrigger value="journey" asChild>
+            <Link href="/intelligence/journey">Jornada</Link>
+          </TabsTrigger>
+          <TabsTrigger value="autopsy" asChild>
+            <Link href="/strategy/autopsy">Funnel Autopsy</Link>
+          </TabsTrigger>
           <TabsTrigger value="offer-lab" asChild>
             <Link href="/intelligence/offer-lab">Offer Lab</Link>
           </TabsTrigger>

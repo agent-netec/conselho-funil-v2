@@ -1,53 +1,45 @@
-# 🧹 Relatório de Sanitização: Projeto CONSELHO DE FUNIL
+# Relatório de Saneamento de Rotas - NETECMT v2.0
+Data: 2026-01-30
+Agentes: Wilder (Analyst), Athos (Arch), Dandara (QA)
 
-Este relatório identifica os pontos de atrito, redundâncias e falhas estruturais que estão causando a "bagunça" e quebras na aplicação.
+## 1. Mapeamento de Rotas Físicas (Wilder)
 
----
+### 💀 Legado Morto (Para Deleção)
+- `app/src/app/analytics/`: Absorvido pelo `Performance War Room` (/performance) e `Intelligence Dashboard` (/intelligence).
+- `app/src/app/campaign/`: Duplicidade do padrão plural `campaigns`. A rota `/campaign/[id]` deve ser movida ou redirecionada para `/campaigns/[id]`.
+- `app/src/app/debug-test/`: Pasta de desenvolvimento/teste que não deve estar em produção.
 
-## 🛑 1. Conflitos Críticos e Redundâncias de Pastas
-
-### 📂 Pastas de Metodologia Duplicadas
-- **`.bmad/` (Raiz)**: Legado da versão anterior. Deve ser removida após garantir que nada essencial ficou para trás.
-- **`app/.bmad/`**: Duplicidade interna. Causa confusão para a IA ao ler o contexto.
-- **`app/sprints/`**: Provavelmente redundante ao novo fluxo `_netecmt/`.
-
-### 📂 Pastas de "Lixo" / Temporárias
-- **`Nova pasta/`**: Pasta sem nome definido na raiz.
-- **`teste-regras/`**: Pasta de testes manuais que polui o workspace.
-- **`APC_MIGRATION_PACK/` (Raiz e app)**: Pacotes de migração que já deveriam ter sido consolidados.
+### 🕵️ Ativas mas Ocultas (Fora da Sidebar)
+- `/intelligence/personalization`: Rota de personalização dinâmica, acessível via botão no Dashboard, mas não listada na sidebar.
+- `/intelligence/predictive`: Rota de análise preditiva existente mas não mapeada no contrato.
 
 ---
 
-## 🛣️ 2. Auditoria de Rotas (Next.js)
+## 2. Validação Arquitetural (Athos)
 
-### 🧩 Estrutura de Rotas Ativa
-- A aplicação está configurada para usar `app/src/app`.
-- **Conflito Detectado**: Existe uma pasta `app/[brandId]` na raiz da pasta `app`, mas a estrutura de marcas oficial parece estar em `app/src/app/brands/[id]`. 
-- **Risco**: Ter arquivos de rotas fora da pasta `src` (quando `src` está habilitado) pode levar a comportamentos inesperados no build do Next.js.
+### Atualizações no `navigation-schema.yaml` (v1.1.0)
+- **Inclusão de `/performance`**: Mapeado como "Performance (War Room)" no grupo de Inteligência.
+- **Inclusão de `/vault` e `/brand-hub`**: Confirmados como rotas essenciais de Gestão.
+- **Unificação de Campanhas**: Mantido o padrão `/campaigns` com alias para `/campaign`.
 
-### 🔗 Rotas API Suspeitas
-As seguintes rotas na `app/src/app/api/` precisam de verificação:
-- **`api/.bmad/`**: Rota fantasma de metodologia dentro da API. (CONFIRMADO: Crítico)
-- **`api/ingest/`** e **`api/copy/`**: Parecem ser rotas de processos temporários que podem estar orfãs.
-- **`api/brands/`**: Possível conflito com a lógica de `[brandId]` mapeada anteriormente.
+### Decisões de Hierarquia
+- O `Dossiê` permanecerá como estado local dentro de `/intelligence` por enquanto, para manter a fluidez da análise sem recargas de página.
+- Rotas `/analytics` e `/performance` (API) foram consolidadas sob a lógica do War Room.
 
 ---
 
-## 📄 3. Fragmentação de Documentação
+## 3. Relatório de Consistência UI/UX (Dandara)
 
-### 📝 Documentos Fora de Padrão
-- **`docs/` (Raiz)**: Contém `prd.md`, `epics.md`, `user-stories.md`. 
-- **`_netecmt/docs/`**: Documentação da metodologia.
-- **Problema**: A IA se perde entre a documentação de "negócio" na raiz e a "técnica" na pasta `_netecmt`.
-- **Solução**: Mover documentos de negócio para `_netecmt/solutioning/`.
-
----
-
-## 🛠️ Plano de Ação Imediato (Proposto)
-1. **Limpeza de Pastas**: Deletar `.bmad`, `Nova pasta`, `teste-regras`.
-2. **Consolidação de Doc**: Unificar `docs/` dentro da nova estrutura `_netecmt`.
-3. **Sincronização de Rotas**: Mover qualquer lógica útil de `app/[brandId]` para dentro de `app/src/app/brands/` e limpar a raiz da pasta `app`.
-4. **Padronização de Env**: Manter apenas um `.env.example` e o `.env.local` ativo.
+### Inconsistências Detectadas
+- **404 Warning**: A pasta `/campaign` (singular) causa confusão. Se deletada sem redirecionamento, quebrará links antigos.
+- **Visual "War Room"**: A página `/performance` já segue o padrão Dark/High-Contrast, mas `/analytics` ainda usa o layout antigo (Zinc/White).
+- **Dossiê**: A falta de uma URL própria para o Dossiê impede o compartilhamento direto de uma análise específica.
 
 ---
-*Assinado: Wilder (Especialista em Sanitização NETECMT).*
+
+## 🚀 Plano de Cleanup (Próximos Passos)
+
+1. [ ] **Deletar**: `app/src/app/analytics/`
+2. [ ] **Deletar**: `app/src/app/debug-test/`
+3. [ ] **Migrar/Redirecionar**: Conteúdo de `app/src/app/campaign/[id]` para `app/src/app/campaigns/[id]` e deletar pasta singular.
+4. [ ] **Assinar**: `navigation-schema.yaml` v1.1.0 (CONCLUÍDO).
