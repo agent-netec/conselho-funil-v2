@@ -7,17 +7,21 @@ import { KeywordsMiner } from "@/components/intelligence/discovery/keywords-mine
 import { SpyAgent } from "@/components/intelligence/discovery/spy-agent";
 import { getUserBrands } from "@/lib/firebase/brands";
 import { toast } from "sonner";
+import { useAuthStore } from "@/lib/stores/auth-store";
 
 export default function DiscoveryPage() {
+  const { user } = useAuthStore();
   const [brandId, setBrandId] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadBrand() {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       try {
-        // No MVP, pegamos a primeira marca do usuário
-        // Em produção, isso viria de um seletor global ou contexto
-        const brands = await getUserBrands("user_123"); // Mock user ID
+        const brands = await getUserBrands(user.uid);
         if (brands.length > 0) {
           setBrandId(brands[0].id);
         }
@@ -29,7 +33,7 @@ export default function DiscoveryPage() {
       }
     }
     loadBrand();
-  }, []);
+  }, [user]);
 
   if (loading) {
     return (
