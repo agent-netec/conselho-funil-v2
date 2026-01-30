@@ -581,6 +581,12 @@
       "namedRegex": "^/intelligence/discovery(?:/)?$"
     },
     {
+      "page": "/intelligence/journey",
+      "regex": "^/intelligence/journey(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/intelligence/journey(?:/)?$"
+    },
+    {
       "page": "/intelligence/ltv",
       "regex": "^/intelligence/ltv(?:/)?$",
       "routeKeys": {},

@@ -83,6 +83,7 @@
   "/intelligence/creative/page": "app/intelligence/creative/page.js",
   "/intelligence/discovery/page": "app/intelligence/discovery/page.js",
   "/intelligence/journey/[leadId]/page": "app/intelligence/journey/[leadId]/page.js",
+  "/intelligence/journey/page": "app/intelligence/journey/page.js",
   "/intelligence/ltv/page": "app/intelligence/ltv/page.js",
   "/intelligence/offer-lab/page": "app/intelligence/offer-lab/page.js",
   "/intelligence/page": "app/intelligence/page.js",

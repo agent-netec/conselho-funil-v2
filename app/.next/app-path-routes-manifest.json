@@ -83,6 +83,7 @@
   "/intelligence/creative/page": "/intelligence/creative",
   "/intelligence/discovery/page": "/intelligence/discovery",
   "/intelligence/journey/[leadId]/page": "/intelligence/journey/[leadId]",
+  "/intelligence/journey/page": "/intelligence/journey",
   "/intelligence/ltv/page": "/intelligence/ltv",
   "/intelligence/offer-lab/page": "/intelligence/offer-lab",
   "/intelligence/page": "/intelligence",
