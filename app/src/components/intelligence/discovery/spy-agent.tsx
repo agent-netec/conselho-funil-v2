@@ -68,7 +68,10 @@ export function SpyAgent({ brandId }: SpyAgentProps) {
       });
 
       setProgress(80);
-      const data = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      const data = contentType.includes('application/json')
+        ? await response.json()
+        : { error: await response.text() };
 
       if (response.ok) {
         setResult({
@@ -80,7 +83,7 @@ export function SpyAgent({ brandId }: SpyAgentProps) {
             payments: data.report?.techStack?.filter((t: string) => ['Stripe', 'Hotmart', 'Pagar.me'].includes(t)) || [],
             infrastructure: data.report?.techStack?.filter((t: string) => ['Cloudflare', 'AWS'].includes(t)) || [],
           },
-          durationMs: data.timestamp - Date.now(), // Simulado
+          durationMs: Date.now() - (data.timestamp || Date.now()),
         });
         setProgress(100);
         toast.success('Análise de tecnologia concluída!');
