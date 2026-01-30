@@ -100,7 +100,7 @@ export async function createIntelligenceDocument(data: CreateIntelligenceInput):
   const expiresAt = calculateExpiresAt(data.type, now);
   
   // Gerar hash para deduplicação (será preenchido pelo Scout, mas garantimos aqui se necessário)
-  const textHash = (data.content as any).textHash || await generateHash(data.content.text);
+  const textHash = (data.content as any).textHash || await generateHash(data.content.text || '');
 
   const docData: Omit<IntelligenceDocument, 'id'> = {
     brandId: data.brandId,
