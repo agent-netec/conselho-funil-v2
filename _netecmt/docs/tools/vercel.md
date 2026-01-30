@@ -7,8 +7,9 @@ Para que o projeto funcione corretamente na Vercel, as seguintes configuracoes d
 
 1. **Root Directory**: `app`
    - Isso garante que a Vercel ignore a raiz do monorepo e foque apenas na aplicacao Next.js.
+   - **IMPORTANTE**: O projeto oficial vinculado e o `app` (`app-rho-flax-25.vercel.app`).
 2. **Framework Preset**: `Next.js`
-3. **Build Command**: `npm run build`
+3. **Build Command**: `npm run build` (que executa `next build`)
 4. **Output Directory**: `.next`
 
 ## 🌐 Resolucao de Problemas de Conexao (Proxy) - TRAVA OBRIGATORIA

@@ -68,6 +68,9 @@ Este documento detalha a recuperação da infraestrutura de deploy do projeto **
 7.  **Safe Hook Consumption:** Nunca desestruturar diretamente de hooks globais (como `useAuthStore`) sem verificação de nulidade ou encadeamento opcional.
 8.  **Integridade de Arquivos (Merge First):** Antes de criar novas versões de arquivos core (como `vault.ts`), verifique todas as exportações existentes para evitar deleções acidentais de funcionalidades legadas.
 9.  **Protocolo de Sincronização:** Nunca considere um deploy concluído sem realizar o `git push origin master`. A Vercel depende do estado remoto, não do local.
+10. **Fixação de Projeto Vercel:** O projeto oficial é o `app` (`app-rho-flax-25.vercel.app`). Nunca use `vercel link` para criar novos projetos. Se o CLI perguntar, aponte sempre para o projeto `app` existente.
+11. **Root Directory Imutável:** O `Root Directory` no Vercel deve ser SEMPRE `app`. Não altere esta configuração no dashboard sem deliberação do conselho.
+12. **Build de Produção Estável:** Use sempre `npm run build` (que mapeia para `next build`). Evite flags experimentais como `--turbo` em produção até segunda ordem.
 
 ---
 
