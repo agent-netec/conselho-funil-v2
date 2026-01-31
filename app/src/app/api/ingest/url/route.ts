@@ -5,6 +5,7 @@ import { extractContentFromUrl, ScrapedContent } from '@/lib/ai/url-scraper';
 import { createAsset, updateAssetStatus } from '@/lib/firebase/assets';
 import { processAssetText } from '@/lib/firebase/assets-server';
 import type { BrandAsset } from '@/types/database';
+import { parseJsonBody } from '@/app/api/_utils/parse-json';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -98,8 +99,15 @@ Extraia TODO o texto visível da screenshot/imagem desta página (${pageUrl}).
 
 export async function POST(request: NextRequest): Promise<NextResponse<IngestResponse>> {
   try {
-    const body = await request.json();
-    const { url, brandId, userId } = body ?? {};
+    const parsed = await parseJsonBody<{ url?: string; brandId?: string; userId?: string }>(request);
+    if (!parsed.ok) {
+      return NextResponse.json(
+        { success: false, error: parsed.error },
+        { status: 400 }
+      );
+    }
+
+    const { url, brandId, userId } = parsed.data ?? {};
 
     if (!url || typeof url !== 'string' || !isValidUrl(url)) {
       return NextResponse.json(
@@ -124,6 +132,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<IngestRes
 
     console.log(`[Ingest URL] Extraindo conteúdo para ${url}`);
     const scraped: ScrapedContent = await extractContentFromUrl(url);
+    if (scraped.error) {
+      return NextResponse.json(
+        { success: false, error: scraped.error },
+        { status: 422 }
+      );
+    }
 
     // Tentativa de fallback com visão se o conteúdo for muito curto (página visual)
     let finalContent = scraped.content?.trim() || '';

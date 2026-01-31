@@ -23,6 +23,51 @@ export interface DossierResult {
   executiveSummary: string;
 }
 
+function normalizeDossierResult(
+  result: Partial<DossierResult>,
+  fallbackText: string
+): DossierResult {
+  return {
+    headline: result.headline ?? 'Dossie gerado',
+    offerType: result.offerType ?? 'unknown',
+    visualStyle: Array.isArray(result.visualStyle) ? result.visualStyle : [],
+    swot: {
+      strengths: Array.isArray(result.swot?.strengths) ? result.swot?.strengths : [],
+      weaknesses: Array.isArray(result.swot?.weaknesses) ? result.swot?.weaknesses : [],
+      opportunities: Array.isArray(result.swot?.opportunities) ? result.swot?.opportunities : [],
+      threats: Array.isArray(result.swot?.threats) ? result.swot?.threats : [],
+    },
+    executiveSummary: result.executiveSummary ?? fallbackText,
+  };
+}
+
+function parseDossierResponse(raw: string): DossierResult {
+  const trimmed = (raw || '').trim();
+  const tryParse = (value: string) => {
+    try {
+      return JSON.parse(value) as Partial<DossierResult>;
+    } catch {
+      return null;
+    }
+  };
+
+  const direct = tryParse(trimmed);
+  if (direct) {
+    return normalizeDossierResult(direct, trimmed);
+  }
+
+  const start = trimmed.indexOf('{');
+  const end = trimmed.lastIndexOf('}');
+  if (start !== -1 && end > start) {
+    const extracted = tryParse(trimmed.slice(start, end + 1));
+    if (extracted) {
+      return normalizeDossierResult(extracted, trimmed);
+    }
+  }
+
+  return normalizeDossierResult({}, trimmed || 'Resposta sem formato JSON.');
+}
+
 export class DossierGenerator {
   /**
    * Gera um dossiê completo usando Gemini e salva os resultados
@@ -46,7 +91,7 @@ export class DossierGenerator {
       temperature: 0.3,
     });
 
-    const analysis: DossierResult = JSON.parse(response);
+    const analysis = parseDossierResponse(response);
 
     // 2. Persistência no Firestore (IntelligenceAsset do tipo 'funnel_map' ou similar para o dossiê)
     const dossierAsset: Omit<IntelligenceAsset, 'id'> = {

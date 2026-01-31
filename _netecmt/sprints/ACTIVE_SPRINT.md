@@ -24,5 +24,27 @@
 3. **Athos** → Iniciar planejamento da Sprint 22 (Foco em Inteligência Preditiva).
 
 ---
-**Última Atualização:** 29/01/2026 - 23:45  
+
+# 🛡️ Sprint 22: Estabilização do Produto (Online)
+> **Objetivo:** estabilizar endpoints críticos, reduzir erros 500/400/404 e garantir resiliência nas rotas de Inteligência.
+
+---
+
+## 📦 Story Pack
+- `ST-22-00` → `_netecmt/packs/stories/sprint-22-stabilization`
+
+## 📊 Quadro de Tarefas
+
+| ID | Task | Responsável | Status | Notas |
+| :--- | :--- | :--- | :--- | :--- |
+| **ST-22.1** | Diagnóstico: Mapa de falhas por endpoint | Wilder | 🟡 Em andamento | Mapear 500/400/404/conexão. |
+| **ST-22.2** | Saneamento: Variáveis de ambiente | Monara | 🟡 Em andamento | Validar envs local + Vercel. |
+| **ST-22.3** | PRD: Estabilização | Iuran | ✅ Done | Escopo e métricas de sucesso. |
+| **ST-22.4** | Contratos: Revisão e versão | Athos | ✅ Done | Contrato sync + ADR-002 + boundary do pack. |
+| **ST-22.5** | Execução: Correções em lote | Darllyson | ✅ Done | Fixes P0 aplicados por endpoint crítico. |
+| **ST-22.6** | QA: Validação pós-deploy | Dandara | ⏳ Pendente | Checklist de regressão. |
+| **ST-22.7** | SM: Sequencia P0/P1 + Criterios de pronto | Leticia | ✅ Done | Sequencia e DoD no pack. |
+
+---
+**Última Atualização:** 31/01/2026 - 18:10  
 **Responsável:** Leticia (SM Agent)

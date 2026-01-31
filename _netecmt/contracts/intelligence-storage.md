@@ -1,10 +1,10 @@
 # 🔭 Contract: Intelligence Storage Foundation
 
-**Versão:** 1.0  
+**Versão:** 1.1.0  
 **Status:** Active  
 **Responsável:** Athos (Architect)  
 **Sprint:** 13 - Intelligence Wing Foundation  
-**Data:** 22/01/2026
+**Data:** 31/01/2026
 
 ---
 
@@ -170,7 +170,7 @@ export interface IntelligenceDocument {
 
 // === TIPOS AUXILIARES ===
 
-export type IntelligenceType = 'mention' | 'trend' | 'competitor' | 'news';
+export type IntelligenceType = 'mention' | 'trend' | 'competitor' | 'news' | 'keyword';
 
 export type IntelligenceStatus = 
   | 'raw'        // Coletado, aguardando processamento
@@ -194,7 +194,26 @@ export type IntelligencePlatform =
   | 'instagram' 
   | 'linkedin'
   | 'reddit'
+  | 'google_autocomplete'
   | 'custom';
+
+export type SearchIntent = 'informational' | 'navigational' | 'commercial' | 'transactional';
+
+export interface KeywordMetrics {
+  volume: number;
+  difficulty: number; // 0 a 100
+  cpc?: number;
+  opportunityScore: number; // KOS (0 a 100)
+  trend?: number; // % de crescimento
+}
+
+export interface KeywordIntelligence {
+  term: string;
+  intent: SearchIntent;
+  metrics: KeywordMetrics;
+  relatedTerms: string[];
+  suggestedBy: 'scout' | 'analyst' | 'manual';
+}
 
 export interface IntelligenceContent {
   title?: string;
@@ -204,6 +223,7 @@ export interface IntelligenceContent {
   originalUrl?: string;
   imageUrl?: string;
   publishedAt?: Timestamp;
+  keywordData?: KeywordIntelligence;    // Para documentos do tipo 'keyword'
 }
 
 export interface IntelligenceAnalysis {
@@ -358,6 +378,7 @@ export interface IntelligenceQueryFilter {
     end: Timestamp;
   };
   keywords?: string[];
+  textHash?: string; // Para deduplicação
   minRelevance?: number;
   limit?: number;
   orderBy?: 'collectedAt' | 'relevanceScore' | 'sentimentScore';

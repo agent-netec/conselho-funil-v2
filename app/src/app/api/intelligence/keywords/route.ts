@@ -3,10 +3,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { KeywordMiner } from '@/lib/intelligence/keywords/miner';
 import { createIntelligenceDocument } from '@/lib/firebase/intelligence';
 import { db } from '@/lib/firebase/config';
+import { parseJsonBody } from '@/app/api/_utils/parse-json';
 
 export async function POST(req: NextRequest) {
   try {
-    const { brandId, seedTerm } = await req.json();
+    const parsed = await parseJsonBody<{ brandId?: string; seedTerm?: string }>(req);
+    if (!parsed.ok) {
+      return NextResponse.json({ error: parsed.error }, { status: 400 });
+    }
+
+    const { brandId, seedTerm } = parsed.data;
 
     if (!brandId || !seedTerm) {
       return NextResponse.json({ error: 'brandId and seedTerm are required' }, { status: 400 });

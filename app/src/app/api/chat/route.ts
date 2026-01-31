@@ -39,6 +39,7 @@ import {
   formatBrandContextForChat, 
   formatFunnelContextForChat 
 } from '@/lib/ai/formatters';
+import { parseJsonBody } from '@/app/api/_utils/parse-json';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -57,7 +58,15 @@ interface ChatRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    const body: ChatRequest = await request.json();
+    const parsed = await parseJsonBody<ChatRequest>(request);
+    if (!parsed.ok) {
+      return NextResponse.json(
+        { error: parsed.error },
+        { status: 400 }
+      );
+    }
+
+    const body = parsed.data;
     const { 
       message, 
       conversationId, 

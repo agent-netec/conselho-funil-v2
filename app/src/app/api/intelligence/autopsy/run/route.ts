@@ -4,6 +4,7 @@ import { AutopsyEngine } from '@/lib/intelligence/autopsy/engine';
 import { extractContentFromUrl } from '@/lib/ai/url-scraper';
 import { AutopsyRunRequest, AutopsyRunResponse } from '@/types/autopsy';
 import { v4 as uuidv4 } from 'uuid';
+import { parseJsonBody } from '@/app/api/_utils/parse-json';
 
 /**
  * Handler para execução do diagnóstico forense de funil.
@@ -14,7 +15,15 @@ import { v4 as uuidv4 } from 'uuid';
  */
 export async function POST(req: Request) {
   try {
-    const body: AutopsyRunRequest = await req.json();
+    const parsed = await parseJsonBody<AutopsyRunRequest>(req);
+    if (!parsed.ok) {
+      return NextResponse.json(
+        { error: parsed.error },
+        { status: 400 }
+      );
+    }
+
+    const body = parsed.data;
     const { brandId, url, depth = 'quick', context } = body;
 
     if (!brandId || !url) {
@@ -35,6 +44,12 @@ export async function POST(req: Request) {
     if (scraped.error) {
       return NextResponse.json(
         { error: `Falha no scraping: ${scraped.error}` },
+        { status: 422 }
+      );
+    }
+    if (!scraped.content?.trim()) {
+      return NextResponse.json(
+        { error: 'Conteúdo insuficiente para análise.' },
         { status: 422 }
       );
     }
