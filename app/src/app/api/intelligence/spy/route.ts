@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { SpyAgent } from '@/lib/agents/spy/spy-agent';
 import { DossierGenerator } from '@/lib/agents/spy/dossier-generator';
+import { db } from '@/lib/firebase/config';
 import { getCompetitorProfile, updateCompetitorProfile, getCompetitorAssets } from '@/lib/firebase/intelligence';
 import { Timestamp } from 'firebase/firestore';
 import { parseJsonBody } from '@/app/api/_utils/parse-json';
@@ -25,8 +26,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!db) {
+      return NextResponse.json(
+        { error: 'Firestore não inicializado no ambiente' },
+        { status: 503 }
+      );
+    }
+
     // 1. Buscar perfil do concorrente
-    const competitor = await getCompetitorProfile(brandId, competitorId);
+    let competitor;
+    try {
+      competitor = await getCompetitorProfile(brandId, competitorId);
+    } catch (error: any) {
+      console.error('[API Spy] Falha ao buscar concorrente:', error);
+      return NextResponse.json(
+        { error: error?.message || 'Falha ao acessar Firestore' },
+        { status: 503 }
+      );
+    }
 
     if (!competitor) {
       return NextResponse.json(
@@ -77,7 +94,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Default: Tech Stack Scan
-    const result = await SpyAgent.scan(competitor);
+    let result;
+    try {
+      result = await SpyAgent.scan(competitor);
+    } catch (error: any) {
+      console.error('[API Spy Scan] Error:', error);
+      return NextResponse.json(
+        { success: false, error: error?.message || 'Falha ao executar scan.' },
+        { status: 502 }
+      );
+    }
 
     if (!result.success) {
       return NextResponse.json(

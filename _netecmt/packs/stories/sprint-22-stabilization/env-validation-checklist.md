@@ -7,25 +7,25 @@ Estas sao usadas por todos os clientes e precisam existir no ambiente.
 
 | Grupo | Variavel | Local (app/.env.local) | Vercel (prod/stg) | Impacto se faltar |
 |---|---|---|---|---|
-| Firebase | NEXT_PUBLIC_FIREBASE_* | OK | nao verificado | Quebra rotas com Firestore (ver matriz) |
-| Google AI | GOOGLE_AI_API_KEY | OK | nao verificado | 500 nas rotas Gemini/AI |
-| Google AI | GEMINI_MODEL | OK | nao verificado | 500 nas rotas Gemini/AI |
-| Google AI (client) | NEXT_PUBLIC_GOOGLE_AI_API_KEY | VAZIO | nao verificado | Somente se usado no client |
-| Pinecone | PINECONE_API_KEY | OK | nao verificado | 500 em RAG/metrics |
-| Pinecone | PINECONE_HOST | OK | nao verificado | 500 em RAG/metrics |
-| Pinecone | PINECONE_INDEX_NAME | OK | nao verificado | 500 em RAG/metrics |
-| Webhooks | CAMPAIGN_WEBHOOK_SECRET | VAZIO | nao verificado | 401/500 em /api/webhooks/ads-metrics |
-| Webhooks | CAMPAIGN_WEBHOOK_SECRET_SECONDARY | VAZIO | nao verificado | 401/500 em /api/webhooks/ads-metrics |
-| App | NEXT_PUBLIC_APP_URL | OK | nao verificado | Links/callbacks quebrados |
-| App | NEXT_PUBLIC_ENCRYPTION_KEY | OK | nao verificado | Erros em criptografia |
-| MCP/Workers | FIRECRAWL_API_KEY | OK | nao verificado | Falhas em ingest/scrape |
-| MCP/Workers | EXA_API_KEY | OK | nao verificado | Falhas em ingest/search |
-| MCP/Workers | BRIGHT_DATA_API_KEY | OK | nao verificado | Falhas em scraping |
-| MCP/Workers | BROWSER_WORKER_URL | OK | nao verificado | Falhas em execucao remota |
-| MCP/Workers | FIRECRAWL_WORKER_URL | OK | nao verificado | Falhas em execucao remota |
-| MCP/Workers | EXA_WORKER_URL | OK | nao verificado | Falhas em execucao remota |
-| MCP/Workers | BRIGHT_DATA_WORKER_URL | OK | nao verificado | Falhas em execucao remota |
-| Logging | MCP_LOG_LEVEL | OK | nao verificado | Sem impacto funcional |
+| Firebase | NEXT_PUBLIC_FIREBASE_* | OK | OK (prod) | Quebra rotas com Firestore (ver matriz) |
+| Google AI | GOOGLE_AI_API_KEY | OK | OK (prod) | 500 nas rotas Gemini/AI |
+| Google AI | GEMINI_MODEL | OK | OK (prod) | 500 nas rotas Gemini/AI |
+| Google AI (client) | NEXT_PUBLIC_GOOGLE_AI_API_KEY | VAZIO | VAZIO (prod) | Somente se usado no client |
+| Pinecone | PINECONE_API_KEY | OK | OK (prod) | 500 em RAG/metrics |
+| Pinecone | PINECONE_HOST | OK | OK (prod) | 500 em RAG/metrics |
+| Pinecone | PINECONE_INDEX_NAME | OK | OK (prod) | 500 em RAG/metrics |
+| Webhooks | CAMPAIGN_WEBHOOK_SECRET | VAZIO | VAZIO (prod) | 401/500 em /api/webhooks/ads-metrics |
+| Webhooks | CAMPAIGN_WEBHOOK_SECRET_SECONDARY | VAZIO | VAZIO (prod) | 401/500 em /api/webhooks/ads-metrics |
+| App | NEXT_PUBLIC_APP_URL | OK | OK (prod) | Links/callbacks quebrados |
+| App | NEXT_PUBLIC_ENCRYPTION_KEY | OK | OK (prod) | Erros em criptografia |
+| MCP/Workers | FIRECRAWL_API_KEY | OK | OK (prod) | Falhas em ingest/scrape |
+| MCP/Workers | EXA_API_KEY | OK | OK (prod) | Falhas em ingest/search |
+| MCP/Workers | BRIGHT_DATA_API_KEY | OK | OK (prod) | Falhas em scraping (ver `_netecmt/docs/tools/bright-data.md`) |
+| MCP/Workers | BROWSER_WORKER_URL | OK | OK (prod) | Falhas em execucao remota |
+| MCP/Workers | FIRECRAWL_WORKER_URL | OK | OK (prod) | Falhas em execucao remota |
+| MCP/Workers | EXA_WORKER_URL | OK | OK (prod) | Falhas em execucao remota |
+| MCP/Workers | BRIGHT_DATA_WORKER_URL | OK | OK (prod) | Falhas em execucao remota |
+| Logging | MCP_LOG_LEVEL | OK | OK (prod) | Sem impacto funcional |
 
 ## 2) Envs por cliente (gerenciados pela aplicacao)
 Estas variaveis **nao devem** ser globais no .env quando mudam por cliente.
@@ -41,6 +41,15 @@ Armazenar por tenant no banco e resolver via aplicacao.
 | Social | LINKEDIN_CLIENT_ID | VAZIO | Deve vir do tenant |
 | Social | LINKEDIN_CLIENT_SECRET | VAZIO | Deve vir do tenant |
 | Social | SOCIAL_INBOX_WEBHOOK_SECRET | VAZIO | Preferir por tenant |
+
+## 4) Validacao na Vercel (passo a passo)
+1) Abrir o projeto no Dashboard da Vercel (ambiente alvo: prod/stg).
+2) Ir em **Settings -> Environment Variables** e conferir cada chave.
+3) Marcar "Vercel (prod/stg)" como OK quando a chave existir.
+4) Se faltar, registrar no QA report com:
+   - env faltante
+   - endpoint afetado (ver `env-endpoint-matrix.md`)
+   - impacto esperado
 
 ## 3) Riscos por endpoint (se globais faltarem)
 Conforme `env-endpoint-matrix.md`:
