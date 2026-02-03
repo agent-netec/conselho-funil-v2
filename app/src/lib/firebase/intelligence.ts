@@ -31,7 +31,7 @@ import type { CompetitorProfile, IntelligenceAsset } from '@/types/competitors';
  * Busca um perfil de concorrente pelo ID.
  */
 export async function getCompetitorProfile(brandId: string, competitorId: string): Promise<CompetitorProfile | null> {
-  const docRef = doc(db, 'brands', brandId, 'intelligence', 'competitors', competitorId);
+  const docRef = doc(db, 'brands', brandId, 'competitors', competitorId);
   const snap = await getDoc(docRef);
   
   if (!snap.exists()) return null;
@@ -47,7 +47,7 @@ export async function updateCompetitorProfile(
   competitorId: string, 
   data: Partial<CompetitorProfile>
 ) {
-  const docRef = doc(db, 'brands', brandId, 'intelligence', 'competitors', competitorId);
+  const docRef = doc(db, 'brands', brandId, 'competitors', competitorId);
   await withResilience(async () => {
     await updateDoc(docRef, {
       ...data,
@@ -69,7 +69,7 @@ export async function createIntelligenceAsset(
   competitorId: string,
   asset: Omit<IntelligenceAsset, 'id'>
 ): Promise<string> {
-  const assetsRef = collection(db, 'brands', brandId, 'intelligence', 'competitors', competitorId, 'assets');
+  const assetsRef = collection(db, 'brands', brandId, 'competitors', competitorId, 'assets');
   const docRef = await addDoc(assetsRef, {
     ...asset,
     version: 1,
@@ -81,7 +81,7 @@ export async function createIntelligenceAsset(
  * Busca todos os ativos de um concorrente.
  */
 export async function getCompetitorAssets(brandId: string, competitorId: string): Promise<IntelligenceAsset[]> {
-  const assetsRef = collection(db, 'brands', brandId, 'intelligence', 'competitors', competitorId, 'assets');
+  const assetsRef = collection(db, 'brands', brandId, 'competitors', competitorId, 'assets');
   const q = query(assetsRef, orderBy('capturedAt', 'desc'));
   const snap = await getDocs(q);
   

@@ -39,7 +39,7 @@ export type PageType = 'landing_page' | 'checkout' | 'upsell' | 'thank_you' | 'v
 
 /**
  * Ativos capturados pelo Spy Agent (Funnel & LP Tracker)
- * Collection: brands/{brandId}/intelligence/competitors/{competitorId}/assets
+ * Collection: brands/{brandId}/competitors/{competitorId}/assets
  */
 export interface IntelligenceAsset {
   id: string;
