@@ -24,6 +24,14 @@ Este documento detalha a recuperação da infraestrutura de deploy do projeto **
     *   **Descrição:** O sistema forçava conexões para `127.0.0.1:9`, impedindo `git push` e downloads de fontes/bibliotecas durante o build.
     *   **Impacto:** Deploys falhavam silenciosamente ou com erros de "Timeout".
     *   **Correção:** Desativação de `optimizeFonts` no `next.config.ts` e scripts de limpeza de variáveis de ambiente local.
+*   **Firecrawl Connection Refused (Produção):**
+    *   **Descrição:** Em produção (Vercel), chamadas ao Firecrawl retornavam "Connection Refused" apesar de funcionar localmente.
+    *   **Causa provável:** Restrição de rede/allowlist no provedor ou egress dinâmico da Vercel.
+    *   **Correção:** Validar `FIRECRAWL_API_KEY` e `FIRECRAWL_WORKER_URL` na Vercel; caso exista allowlist no provedor, habilitar **Static IPs** na Vercel e cadastrar os IPs.
+*   **Deploy Protection bloqueando testes (Produção):**
+    *   **Descrição:** QA recebeu erro de autenticação ao chamar `/api/ingest/url` em produção.
+    *   **Causa:** `Vercel Authentication` ativo, exigindo bypass para automações.
+    *   **Correção:** Usar `x-vercel-protection-bypass` com `VERCEL_AUTOMATION_BYPASS_SECRET` em testes automatizados ou desabilitar proteção para endpoints públicos.
 *   **Desconexão Local vs. Remoto (Git Push):**
     *   **Descrição:** Commits realizados localmente não foram enviados para o GitHub, fazendo com que a Vercel buildasse versões obsoletas.
     *   **Correção:** Protocolo obrigatório de `git push origin master` antes de validar qualquer deploy.
@@ -71,6 +79,8 @@ Este documento detalha a recuperação da infraestrutura de deploy do projeto **
 10. **Fixação de Projeto Vercel:** O projeto oficial é o `app` (`app-rho-flax-25.vercel.app`). Nunca use `vercel link` para criar novos projetos. Se o CLI perguntar, aponte sempre para o projeto `app` existente.
 11. **Root Directory Imutável:** O `Root Directory` no Vercel deve ser SEMPRE `app`. Não altere esta configuração no dashboard sem deliberação do conselho.
 12. **Build de Produção Estável:** Use sempre `npm run build` (que mapeia para `next build`). Evite flags experimentais como `--turbo` em produção até segunda ordem.
+13. **Firecrawl em Produção:** Antes de validar scraping, confirme `FIRECRAWL_API_KEY` e `FIRECRAWL_WORKER_URL` na Vercel. Se houver allowlist no provedor, use Static IPs da Vercel e cadastre os IPs no Firecrawl.
+14. **QA em Endpoints Protegidos:** Para testes de QA/automação, use `x-vercel-protection-bypass` com `VERCEL_AUTOMATION_BYPASS_SECRET` ou remova a proteção se os endpoints forem públicos.
 
 ---
 
