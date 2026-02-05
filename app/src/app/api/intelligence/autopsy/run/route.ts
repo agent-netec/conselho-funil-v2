@@ -13,10 +13,6 @@ import { parseJsonBody } from '@/app/api/_utils/parse-json';
  * Este endpoint utiliza o Browser MCP (via Monara) para scraping
  * e o Gemini 1.5 Pro para análise heurística.
  */
-export async function GET() {
-  return NextResponse.json({ message: 'Autopsy API is alive' });
-}
-
 export async function POST(req: NextRequest) {
   try {
     const parsed = await parseJsonBody<AutopsyRunRequest>(req);
