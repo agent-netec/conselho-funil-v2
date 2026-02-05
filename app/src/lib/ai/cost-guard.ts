@@ -8,7 +8,7 @@ import { db } from '@/lib/firebase/config';
 import { collection, addDoc, Timestamp, doc, getDoc, updateDoc, increment } from 'firebase/firestore';
 import { CONFIG } from '@/lib/config';
 
-// Preços aproximados por 1M tokens (USD) - Gemini 2.0 Flash (Exp)
+// Preços aproximados por 1M tokens (USD) - Gemini 2.0 Flash
 // Nota: Ajustar conforme tabela oficial do Google AI Studio
 const GEMINI_COSTS = {
   input: 0.10 / 1_000_000,

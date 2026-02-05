@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     // Nota: Em produção, aqui invocaríamos o MCP via Monara. 
     // Por enquanto, usamos o extractContentFromUrl que já integra Jina/Readability.
     console.log(`[AUTOPSY] Iniciando scraping para: ${url}`);
-    const scraped = await extractContentFromUrl(url);
+    const scraped = await extractContentFromUrl(url, { brandId });
 
     if (scraped.error) {
       return NextResponse.json(
@@ -65,8 +65,8 @@ export async function POST(req: Request) {
       if (scraped.rawHtml.includes('hotmart')) techStack.push('Hotmart');
     }
 
-    // 3. Executar o motor de diagnóstico (Gemini 1.5 Pro)
-    console.log(`[AUTOPSY] Executando análise heurística via Gemini 1.5 Pro`);
+    // 3. Executar o motor de diagnóstico (Gemini 2.0 Flash)
+    console.log(`[AUTOPSY] Executando análise heurística via Gemini 2.0 Flash`);
     const report = await AutopsyEngine.analyzeContent(
       url,
       scraped.content,

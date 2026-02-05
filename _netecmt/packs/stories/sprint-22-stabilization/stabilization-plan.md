@@ -26,6 +26,31 @@
 5) **P1 por blocos**: Copy/Social/Design -> Reporting/Performance -> Webhooks/Admin.
 6) **QA + evidencia**: registrar resultados de smoke test e diffs de envs.
 
+## Checklist de dependencias (gate serial, sem paralelismo)
+- [ ] **Mapa de falhas publicado** (ST-22.1): top 4xx/5xx por endpoint + evidencias.
+- [ ] **Envs globais validadas na Vercel** (ST-22.2): checklist completo + impactos.
+- [ ] **Insumos de QA liberados** (ST-22.6): URL, credenciais, brandId/userId, janela de logs.
+- [ ] **Workers externos habilitados**: Firecrawl/Exa/Bright Data/Browser com chaves ativas.
+- [ ] **Matriz env x endpoint atualizada**: confirmar riscos P0 antes de correcoes.
+- [ ] **Smoke test P0 com payload minimo**: evidencias antes de qualquer fix P0.
+
+## Sequencia de stories (ordem obrigatoria, sem paralelismo)
+1) **ST-22.7 (SM)**: gate e DoD confirmados no pack (governanca).
+2) **ST-22.1 (Wilder)**: mapa de falhas por endpoint finalizado e publicado.
+3) **ST-22.2 (Monara)**: validacao de envs local + Vercel concluida.
+4) **ST-22.6 (Dandara)**: pre-condicoes de QA liberadas (acesso + credenciais + logs).
+5) **ST-22.5 (Darllyson)**: correcoes P0 somente apos gates 1-4 concluirem.
+6) **Reteste P0 (QA)**: evidencias registradas e sem 500 antes de iniciar P1.
+
+## Decisao de priorizacao (dependencias primeiro)
+Regra de ouro: nenhuma feature nova ou P1 entra no fluxo antes do gate de dependencias concluir.
+Ordem aplicada:
+1) Envs globais validadas na Vercel.
+2) Acesso a logs/Sentry e janela de erros 4xx/5xx.
+3) Credenciais/dados de teste para smoke tests P0.
+4) Workers externos habilitados (Firecrawl/Exa/Bright Data/Browser).
+5) Correcoes P0 de Inteligencia (com `POST /api/intelligence/keywords` no topo).
+
 ## Criterios de pronto (Definition of Done)
 - Envs globais criticas validadas em local e Vercel (checklist preenchido).
 - Smoke tests P0 executados e sem 500 nas rotas criticas.
@@ -67,7 +92,7 @@
 ### Google AI / Gemini
 - `GOOGLE_AI_API_KEY`
 - `NEXT_PUBLIC_GOOGLE_AI_API_KEY`
-- `GEMINI_MODEL` (default: `gemini-2.0-flash-exp`)
+- `GEMINI_MODEL` (default: `gemini-2.0-flash`)
 > Crítico para `chat`, `copy`, `social`, `design`, `autopsy`, `ingest/url` (Vision).
 
 ### Pinecone

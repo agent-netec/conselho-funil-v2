@@ -105,9 +105,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!result.success) {
+    if (!result || !result.success) {
       return NextResponse.json(
-        { success: false, error: result.error || 'Scan failed' },
+        { success: false, error: result?.error || 'Scan failed' },
         { status: 502 }
       );
     }
@@ -135,11 +135,12 @@ export async function POST(req: NextRequest) {
       persisted: !persistError,
       persistError,
     });
-  } catch (error) {
-    console.error('[API Spy Scan] Error:', error);
+  } catch (error: unknown) {
+    console.error('[API Spy] Unexpected error:', error);
+    const message = error instanceof Error ? error.message : 'Falha inesperada no spy.';
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: message },
+      { status: 502 }
     );
   }
 }

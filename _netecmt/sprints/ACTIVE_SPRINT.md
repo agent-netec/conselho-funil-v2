@@ -25,7 +25,7 @@
 
 ---
 
-# 🛡️ Sprint 22: Estabilização do Produto (Online)
+# 🛡️ Sprint 22: Estabilização do Produto ✅ CONCLUÍDA
 > **Objetivo:** estabilizar endpoints críticos, reduzir erros 500/400/404 e garantir resiliência nas rotas de Inteligência.
 
 ---
@@ -37,14 +37,21 @@
 
 | ID | Task | Responsável | Status | Notas |
 | :--- | :--- | :--- | :--- | :--- |
-| **ST-22.1** | Diagnóstico: Mapa de falhas por endpoint | Wilder | 🟡 Em andamento | Mapear 500/400/404/conexão. |
-| **ST-22.2** | Saneamento: Variáveis de ambiente | Monara | 🟡 Em andamento | Validar envs local + Vercel. |
+| **ST-22.1** | Diagnóstico: Mapa de falhas por endpoint | Wilder | ✅ Done | Mapa concluído em `failure-map.md`. |
+| **ST-22.2** | Saneamento: Variáveis de ambiente | Monara | ✅ Done | GEMINI_MODEL corrigido para `gemini-2.0-flash`; redeploy feito. |
 | **ST-22.3** | PRD: Estabilização | Iuran | ✅ Done | Escopo e métricas de sucesso. |
 | **ST-22.4** | Contratos: Revisão e versão | Athos | ✅ Done | Contrato sync + ADR-002 + boundary do pack. |
-| **ST-22.5** | Execução: Correções em lote | Darllyson | ✅ Done | Fixes P0 aplicados por endpoint crítico. |
-| **ST-22.6** | QA: Validação pós-deploy | Dandara | ⏳ Pendente | Checklist de regressão. |
+| **ST-22.5** | Execução: Correções em lote | Darllyson | ✅ Done | Fixes P0: spy 500→502, modelo Gemini padronizado. |
+| **ST-22.6** | QA: Validação pós-deploy | Dandara | ✅ Done | Smoke P0 6/6 passou com dados reais (seed). |
 | **ST-22.7** | SM: Sequencia P0/P1 + Criterios de pronto | Leticia | ✅ Done | Sequencia e DoD no pack. |
 
+## 🎯 Resultados
+
+- **Smoke Test P0:** 6/6 endpoints passando (zero 500)
+- **Seed Data:** Brand + Competitor + Conversation criados para testes futuros
+- **Script Automatizado:** `npm run smoke` disponível para validação rápida
+- **Modelo Gemini:** Padronizado em `gemini-2.0-flash` (estável na v1beta)
+
 ---
-**Última Atualização:** 31/01/2026 - 18:10  
-**Responsável:** Leticia (SM Agent)
+**Última Atualização:** 04/02/2026 - 15:00  
+**Responsável:** Leticia (SM Agent) | Alto Conselho (Party Mode)

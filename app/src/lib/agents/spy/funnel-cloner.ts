@@ -153,7 +153,7 @@ export class FunnelCloner {
     `;
 
     const response = await generateWithGemini(prompt, {
-      model: 'gemini-2.0-flash-exp',
+      model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
       temperature: 0.2,
       responseMimeType: 'application/json'
     });

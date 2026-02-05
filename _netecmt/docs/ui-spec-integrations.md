@@ -57,7 +57,7 @@ A partir da v2.1, o componente `ChatInputArea` suporta anexos diretos para enriq
 
 ### 🛡️ Governança
 - **Auto-Aprovação**: Arquivos anexados no chat são considerados "uso imediato" e pulam a etapa de aprovação manual em Marcas > Assets.
-- **Multimodalidade**: Utiliza o modelo `gemini-2.0-flash-exp` para garantir latência mínima e alta precisão em OCR.
+- **Multimodalidade**: Utiliza o modelo `gemini-2.0-flash` para garantir latência mínima e alta precisão em OCR.
 
 ---
 *Documentação gerada por Victor/Beto (UI/UX) - NETECMT v2.0*

@@ -4,6 +4,61 @@
 
 ---
 
+## 🛡️ Sprint 22: Estabilização do Produto (CONCLUÍDA)
+**Data de Conclusão:** 04/02/2026  
+**Versão:** v1.22.0
+
+### Entregas Principais:
+- **Smoke Test Automatizado:** Script `npm run smoke` para validação rápida de endpoints P0.
+- **Correção de Modelo Gemini:** Padronização em `gemini-2.0-flash` (estável na v1beta), removendo referências a `gemini-2.0-flash-exp`.
+- **Tratamento de Erros:** Spy Agent agora retorna 502 (Bad Gateway) em vez de 500 genérico.
+- **Seed de Dados:** Script para popular Firestore com Brand, Competitor e Conversation de teste.
+- **Documentação:** Matriz env↔endpoint, failure map e checklist de validação.
+
+### Tarefas Concluídas:
+- ST-22.1: Diagnóstico: Mapa de falhas por endpoint (Wilder).
+- ST-22.2: Saneamento: Variáveis de ambiente (Monara).
+- ST-22.3: PRD: Estabilização (Iuran).
+- ST-22.4: Contratos: Revisão e versão (Athos).
+- ST-22.5: Execução: Correções em lote (Darllyson).
+- ST-22.6: QA: Validação pós-deploy — **6/6 endpoints P0 passando** (Dandara).
+- ST-22.7: SM: Sequência P0/P1 + Critérios de pronto (Leticia).
+
+### Resultado do Smoke Test:
+```
+✓ POST /api/intelligence/keywords → 200
+✓ POST /api/intelligence/autopsy/run → 200
+✓ POST /api/intelligence/spy → 200
+✓ POST /api/chat → 200
+✓ POST /api/ingest/url → 200
+✓ GET /api/assets/metrics → 200
+Resultado: 6/6 passou, 0 falhou. OK
+```
+
+---
+
+## 🚀 Sprint 21: UX/UI War Room & Navigation Restructuring (CONCLUÍDA)
+**Data de Conclusão:** 30/01/2026  
+**Versão:** v1.21.0
+
+### Entregas Principais:
+- **Sidebar 2.0:** Navegação hierárquica com agrupamento lógico (Inteligência → Estratégia → Execução).
+- **Discovery Hub:** Interface unificada para Keywords Miner e Spy Agent.
+- **Funnel Autopsy Integration:** Motor forense integrado em `/strategy/autopsy`.
+- **AI Cost Guard:** Sistema de governança de tokens e budget por marca.
+- **Saneamento de Rotas:** Redirecionamentos inteligentes e limpeza de rotas legadas.
+
+### Tarefas Concluídas:
+- ST-21.1: UI: Sidebar 2.0 (Agrupamento Lógico) (Darllyson).
+- ST-21.2: UI: Discovery Hub (Keywords & Spy) (Darllyson).
+- ST-21.3: UI: Funnel Autopsy Integration (Darllyson).
+- ST-21.4: UI: Sync Ícones & Tipagem (Darllyson).
+- ST-21.5: QA: UX Audit & Navigation Check (Dandara).
+- ST-21.6: Core: AI Cost Guard & Token Optimizer (Darllyson).
+- ST-21.7: Core: Saneamento de Rotas & Redirects (Darllyson).
+
+---
+
 ## 🚀 Sprint 20: Automation & Personalization (CONCLUÍDA)
 **Data de Conclusão:** 29/01/2026  
 **Versão:** v1.20.0

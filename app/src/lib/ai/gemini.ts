@@ -11,6 +11,9 @@ import { CouncilOutput } from '@/types';
 
 const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
 
+/** Modelo padrão: 2.0 estável na v1beta. Override via GEMINI_MODEL. */
+export const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+
 /**
  * Get Gemini API Key - lê a variável de ambiente em tempo de execução
  */
@@ -64,7 +67,7 @@ export async function analyzeMultimodalWithGemini(
   } = {}
 ): Promise<string> {
   const {
-    model = 'gemini-2.0-flash-exp',
+    model = DEFAULT_GEMINI_MODEL,
     temperature = 0.4, // Menor temperatura para OCR (mais preciso)
     userId = 'system',
     brandId,
@@ -156,7 +159,7 @@ export async function generateWithGemini(
   } = {}
 ): Promise<string> {
   const {
-    model = 'gemini-2.0-flash-exp',
+    model = DEFAULT_GEMINI_MODEL,
     temperature = 0.7,
     maxOutputTokens = 4096,
     responseMimeType = 'text/plain',
@@ -176,26 +179,32 @@ export async function generateWithGemini(
 
   const url = `${GEMINI_BASE_URL}/models/${model}:generateContent?key=${apiKey}`;
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [{ text: prompt }],
-        },
-      ],
-      generationConfig: {
-        temperature: options.temperature ?? 0.7,
-        maxOutputTokens,
-        topP: options.topP ?? 0.95,
-        topK: 40,
-        responseMimeType,
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    }),
-  });
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [{ text: prompt }],
+          },
+        ],
+        generationConfig: {
+          temperature: options.temperature ?? 0.7,
+          maxOutputTokens,
+          topP: options.topP ?? 0.95,
+          topK: 40,
+          responseMimeType,
+        },
+        safetySettings: [
+          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+        ],
+      }),
+    });
 
   if (!response.ok) {
     const error = await response.text();
@@ -236,7 +245,7 @@ export async function* generateWithGeminiStream(
   } = {}
 ): AsyncGenerator<string> {
   const {
-    model = 'gemini-2.0-flash-exp',
+    model = DEFAULT_GEMINI_MODEL,
     temperature = 0.7,
     maxOutputTokens = 4096,
   } = options;
@@ -317,7 +326,7 @@ export async function* generateWithGeminiStream(
  * @param query - A pergunta do usuário.
  * @param context - O contexto recuperado via RAG.
  * @param systemPrompt - Instruções específicas do sistema ou do conselheiro.
- * @param model - Modelo opcional a ser usado (ex: gemini-1.5-pro).
+ * @param model - Modelo opcional a ser usado (ex: gemini-2.0-flash). Padrão: GEMINI_MODEL ou gemini-2.0-flash.
  * @returns Uma promessa com a resposta gerada.
  */
 export async function generateCouncilResponseWithGemini(

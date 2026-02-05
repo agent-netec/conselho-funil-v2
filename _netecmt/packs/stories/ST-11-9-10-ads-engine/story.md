@@ -70,7 +70,7 @@ Ao receber um comando de Ads, a IA deve se comportar seguindo estas fases:
 
 ### Technical Requirements
 - Integração com o namespace `knowledge` no Pinecone para recuperar insights de Justin Brooke/Nicholas Kusmich durante a montagem do prompt.
-- Uso do modelo `gemini-2.0-flash-exp` para garantir baixa latência na montagem modular.
+- Uso do modelo `gemini-2.0-flash` para garantir baixa latência na montagem modular.
 
 ---
 

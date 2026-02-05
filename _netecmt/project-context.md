@@ -75,6 +75,101 @@ O sistema é organizado como um **Templo** com três **Alas** distintas, cada um
 
 ---
 
+## 🗺️ Mapa do Legado (Sprint 22 - Estabilização)
+
+### ✅ Rotas críticas (API)
+**Base:** `app/src/app/api/*`
+
+**Intelligence**
+- `/api/intelligence/keywords`
+- `/api/intelligence/audience/scan`
+- `/api/intelligence/creative/copy`
+- `/api/intelligence/creative/ranking`
+- `/api/intelligence/events/ingest`
+- `/api/intelligence/journey/[leadId]`
+- `/api/intelligence/ltv/cohorts`
+- `/api/intelligence/offer/calculate-score`
+- `/api/intelligence/offer/save`
+- `/api/intelligence/spy`
+- `/api/intelligence/autopsy/run`
+
+**Funis / Design / Copy**
+- `/api/funnels/generate`
+- `/api/funnels/export`
+- `/api/funnels/share`
+- `/api/campaigns/[id]/generate-ads`
+- `/api/design/generate`
+- `/api/design/plan`
+- `/api/design/upscale`
+- `/api/copy/generate`
+- `/api/copy/decisions`
+- `/api/decisions`
+
+**Social / Chat / Library**
+- `/api/chat`
+- `/api/library`
+- `/api/social/generate`
+- `/api/social/scorecard`
+- `/api/social/structure`
+- `/api/social/hooks`
+- `/api/social-inbox`
+
+**Performance / Integrações / Webhooks**
+- `/api/performance/metrics`
+- `/api/performance/anomalies`
+- `/api/performance/integrations/validate`
+- `/api/integrations/offline-conversion`
+- `/api/webhooks/ads-metrics`
+- `/api/webhooks/dispatcher`
+
+**Admin / Pinecone**
+- `/api/admin/check-knowledge`
+- `/api/admin/ingest-knowledge`
+- `/api/admin/upload-knowledge`
+- `/api/admin/list-funnels`
+- `/api/admin/funnel-status`
+- `/api/admin/process-asset`
+- `/api/pinecone/health`
+- `/api/pinecone/migrate`
+
+### ✅ Rotas críticas (UI)
+**Base:** `app/src/app/*`
+- `/intelligence/discovery` (Discovery Hub)
+- `/brands/*`, `/campaigns/*`, `/funnels/*`, `/intelligence/*`, `/performance/*`, `/social/*`, `/social-inbox`, `/vault`, `/library`, `/integrations`
+
+### 🔌 Integrações externas
+- **Firebase**: Auth, Firestore, Storage
+- **Google Gemini**: `generativelanguage.googleapis.com` (IA generativa)
+- **Google Autocomplete**: `suggestqueries.google.com` (keywords)
+- **Pinecone**: Vector DB para RAG
+- **Meta Ads / Graph API**: anúncios e audiências (tokens em vault)
+- **MCPs de pesquisa/scrape**: Exa, Firecrawl, Bright Data, Glimpse, Browser
+
+### 🧩 Dependências centrais (runtime)
+- Next.js, React, Tailwind, Radix UI, Framer Motion
+- Firebase SDK
+- Pinecone SDK
+- Gemini + Cohere (IA/RAG)
+- Puppeteer, Cheerio, Tesseract, PDF.js (scrape/OCR)
+- PostHog (analytics)
+
+### 🔎 Evidência de incidente (Discovery Hub)
+- **Erro recorrente**: 400 em `POST /api/intelligence/keywords`
+- **Causa provável**: `brandId` vazio ou `seedTerm` ausente
+- **Risco de 500**: falha de integração externa (Firebase/Gemini/Pinecone)
+
+### 🔗 Dependências diretas por endpoint (P0)
+| Endpoint | Dependências internas | Dependências externas/infra |
+|---|---|---|
+| `/api/intelligence/keywords` | `KeywordMiner`, `createIntelligenceDocument`, `parseJsonBody`, Firebase `db` | Google Autocomplete (`suggestqueries.google.com`), Firestore (credenciais Firebase) |
+| `/api/intelligence/autopsy/run` | `AutopsyEngine`, `extractContentFromUrl`, `parseJsonBody` | Jina Reader (`r.jina.ai`), scraping do site alvo, Gemini API |
+| `/api/intelligence/spy` | `SpyAgent`, `DossierGenerator`, `get/updateCompetitorProfile`, `getCompetitorAssets` | Site do concorrente, Firestore, Gemini API, Pinecone, Puppeteer/Chromium (track) |
+| `/api/chat` | RAG (`retrieveChunks`, `retrieveBrandChunks`), `generate*Gemini`, Firestore (`addMessage`, `getConversation`, etc) | Pinecone, Gemini API, Firestore |
+| `/api/ingest/url` | `extractContentFromUrl`, `createAsset`, `processAssetText`, `updateAssetStatus` | Jina Reader, Gemini Vision (fallback), site alvo, Firestore/Storage, Pinecone (embeddings) |
+| `/api/assets/metrics` | `queryPinecone`, `getPineconeIndex` | Pinecone (namespaces `visual`, `brand-<id>`, `knowledge`) |
+
+---
+
 ## 👥 Governança de Agentes: Conselheiros vs. Executores
 
 ### 🎓 Conselheiros (Counselors) — Mentores Estratégicos
@@ -158,7 +253,7 @@ pinecone:
 - **Framework**: Next.js 16 (Turbopack)
 - **Frontend**: React 19, Tailwind CSS 4, Radix UI, Framer Motion
 - **Backend/Database**: Firebase (Firestore, Storage, Auth) - **Client SDK Only**
-- **AI**: Google Gemini (gemini-2.0-flash-exp, gemini-1.5-pro)
+- **AI**: Google Gemini (gemini-2.0-flash, gemini-1.5-pro)
 - **Embedding**: Text-Embedding-004 / Local Fallback (768d)
 - **Vector Store**: Pinecone (Namespaced Multi-Tenant)
 - **Reranking**: Cohere Rerank
