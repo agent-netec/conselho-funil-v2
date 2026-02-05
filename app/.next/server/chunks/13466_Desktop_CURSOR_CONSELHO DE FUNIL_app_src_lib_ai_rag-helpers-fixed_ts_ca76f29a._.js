@@ -1,3 +1,0 @@
-module.exports=[756565,e=>{"use strict";async function a(t,r,n=5,s){try{let a={brandId:{$eq:t}};s?.funnelStage&&(a.funnelStage={$eq:s.funnelStage}),s?.channel&&(a.channel={$eq:s.channel});let c=`brand-${t}`,{queryPinecone:l}=await e.A(84617),i=await l({vector:r,topK:2*n,namespace:c,filter:a});if(i.matches?.length)return i.matches.map(e=>{let a=e.metadata;return{id:e.id,assetId:a.assetId||"",assetName:a.originalName||a.assetName||"Arquivo da Marca",content:a.content||"",similarity:e.score||0,rank:0}});return[]}catch(e){return console.error("[RAG Helpers] Erro:",e),[]}}e.s(["searchSimilarChunks",()=>a])}];
-
-//# sourceMappingURL=13466_Desktop_CURSOR_CONSELHO%20DE%20FUNIL_app_src_lib_ai_rag-helpers-fixed_ts_ca76f29a._.js.map

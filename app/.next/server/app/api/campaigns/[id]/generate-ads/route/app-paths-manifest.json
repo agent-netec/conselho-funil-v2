@@ -1,3 +1,0 @@
-{
-  "/api/campaigns/[id]/generate-ads/route": "app/api/campaigns/[id]/generate-ads/route.js"
-}
