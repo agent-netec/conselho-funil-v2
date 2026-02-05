@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { AutopsyEngine } from '@/lib/intelligence/autopsy/engine';
 import { extractContentFromUrl } from '@/lib/ai/url-scraper';
 import { AutopsyRunRequest, AutopsyRunResponse } from '@/types/autopsy';
@@ -17,7 +17,7 @@ export async function GET() {
   return NextResponse.json({ message: 'Autopsy API is alive' });
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const parsed = await parseJsonBody<AutopsyRunRequest>(req);
     if (!parsed.ok) {
