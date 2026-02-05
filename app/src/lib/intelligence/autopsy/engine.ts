@@ -1,9 +1,9 @@
-import { generateWithGemini } from '@/lib/ai/gemini';
+import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { AutopsyReport, AutopsyRunRequest, HeuristicResult, Recommendation } from '@/types/autopsy';
 
 /**
  * Motor de Diagnóstico Forense (Funnel Autopsy Engine)
- * Versão 2.0 - Integrado com Gemini 1.5 Pro e Heurísticas Wilder.
+ * Versão 2.0 - Integrado com Gemini 2.0 Flash e Heurísticas Wilder.
  */
 export class AutopsyEngine {
   /**
@@ -17,8 +17,14 @@ export class AutopsyEngine {
   ): Promise<AutopsyReport> {
     const prompt = this.buildAnalysisPrompt(scrapedContent, request.context);
 
-    const responseText = await generateWithGemini(prompt, {
-      model: 'gemini-1.5-pro',
+    // US-22.01: Limitar conteúdo para evitar estouro de contexto e timeout
+    const maxChars = 30000; 
+    const limitedContent = scrapedContent.length > maxChars 
+      ? scrapedContent.substring(0, maxChars) + '... [Conteúdo truncado para análise]'
+      : scrapedContent;
+
+    const responseText = await generateWithGemini(this.buildAnalysisPrompt(limitedContent, request.context), {
+      model: DEFAULT_GEMINI_MODEL,
       temperature: 0.2,
       responseMimeType: 'application/json',
     });
@@ -43,7 +49,7 @@ export class AutopsyEngine {
   }
 
   /**
-   * Constrói o prompt para o Gemini 1.5 Pro baseado nos playbooks do Wilder.
+   * Constrói o prompt para o Gemini 2.0 Flash baseado nos playbooks do Wilder.
    */
   private static buildAnalysisPrompt(content: string, context?: AutopsyRunRequest['context']): string {
     return `

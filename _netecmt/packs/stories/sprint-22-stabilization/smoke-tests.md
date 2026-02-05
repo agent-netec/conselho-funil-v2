@@ -2,6 +2,32 @@
 
 > Objetivo: validar rapidamente 200/400/401/404/422 e detectar 500.
 > Formato: chamada mínima + esperado.
+>
+> **Base URL oficial (prod):** `https://app-rho-flax-25.vercel.app`
+> - Use **sempre** este dominio para smoke tests P0.
+> - Evite URLs alternativas para nao invalidar evidencias.
+>
+> **Nota sobre `brandId` (obrigatório):**
+> - Use um `brandId` real da base para validar 200/404.
+> - Como obter: acesse `/brands/[id]` e copie o `id` da URL, ou pegue `selectedBrand.id` no LocalStorage (`brand-storage`).
+
+## Comando único (recomendado)
+
+Na pasta `app/`:
+
+```bash
+npm run smoke
+```
+
+Ou com base URL e dados de teste explícitos:
+
+```bash
+SMOKE_BASE_URL=https://app-rho-flax-25.vercel.app TEST_BRAND_ID=seu_brand_id TEST_USER_ID=user_1 TEST_CONVERSATION_ID=conv_1 node scripts/smoke-p0.js
+```
+
+- **Pass:** status em 200/400/404/422/502 conforme esperado por endpoint; **nenhum 500**.
+- **Ingest e Autopsy:** 200 ou 422 (scraping pode falhar) contam como pass.
+- Script: `app/scripts/smoke-p0.js`.
 
 ## Inteligência (P0)
 

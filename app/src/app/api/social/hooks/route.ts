@@ -60,7 +60,7 @@ Diferencial: ${brand.offer.differentiator}
 
     // 4. Gerar com Gemini
     const response = await generateWithGemini(fullPrompt, {
-      model: 'gemini-2.0-flash-exp',
+      model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
       temperature: 0.85,
     });
 

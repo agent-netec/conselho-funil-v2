@@ -1,6 +1,6 @@
 ---
 title: Firecrawl MCP - Guia de Liberação
-status: planned
+status: approved
 owner: Kai (Integrator)
 permitted_agents:
   - Athos (Arch)
@@ -13,7 +13,7 @@ last_review: 2026-01-11
 - URL → Markdown limpo para ingestão/RAG.
 
 # Status
-- Planejado (chave `FIRECRAWL_API_KEY` necessária). Só usar quando configurado.
+- Aprovado (chave `FIRECRAWL_API_KEY` necessaria). Usar apenas quando configurado.
 
 # Comandos (quando ativo)
 - `firecrawl_crawl`: converter página em markdown estruturado.

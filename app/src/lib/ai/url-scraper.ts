@@ -6,8 +6,6 @@
  */
 
 import * as cheerio from 'cheerio';
-import { Readability } from '@mozilla/readability';
-import { JSDOM } from 'jsdom';
 
 import { AICostGuard } from './cost-guard';
 
@@ -30,6 +28,8 @@ export interface ScrapedContent {
 const FETCH_TIMEOUT = 10000; // 10 segundos
 // Limite mínimo para aceitar conteúdo extraído. Reduzido significativamente para suportar páginas muito curtas ou puramente visuais.
 const MIN_CONTENT_LENGTH = 10;
+type JSDOMType = typeof import('jsdom').JSDOM;
+type ReadabilityType = typeof import('@mozilla/readability').Readability;
 
 /**
  * Extrai conteúdo principal de uma URL usando Jina Reader (Proxy de Nuvem com Playwright)
@@ -65,14 +65,18 @@ export async function extractContentFromUrl(
     
     try {
       const jinaUrl = `https://r.jina.ai/${sanitizedUrl}`;
-      const jinaResponse = await fetch(jinaUrl, {
-        headers: {
-          'Accept': 'application/json',
-          'X-Return-Format': 'markdown', // Perfeito para RAG
-          'X-No-Cache': 'true',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        },
-      });
+      const jinaApiKey = (process.env.JINA_API_KEY ?? '').trim();
+      const headers: Record<string, string> = {
+        'Accept': 'application/json',
+        'X-Return-Format': 'markdown', // Perfeito para RAG
+        'X-No-Cache': 'true',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      };
+      if (jinaApiKey) {
+        headers.Authorization = `Bearer ${jinaApiKey}`;
+      }
+
+      const jinaResponse = await fetch(jinaUrl, { headers });
 
       if (jinaResponse.ok) {
         const jinaData = await jinaResponse.json();
@@ -99,6 +103,21 @@ export async function extractContentFromUrl(
     }
 
     // 3. SEGUNDA OPÇÃO (FALLBACK): Readability local (Mozilla)
+    let JSDOM: JSDOMType | undefined;
+    let Readability: ReadabilityType | undefined;
+    try {
+      ({ JSDOM } = await import('jsdom'));
+      ({ Readability } = await import('@mozilla/readability'));
+    } catch (importError) {
+      console.error('[URL Scraper] Falha ao carregar jsdom/readability:', importError);
+      return {
+        title: '',
+        content: '',
+        error:
+          'Falha ao iniciar parser HTML local. Tente novamente ou habilite o Jina Reader.',
+      };
+    }
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
 

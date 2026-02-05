@@ -144,8 +144,8 @@ export async function POST(request: NextRequest) {
 
     console.log(`\n✍️  Gerando ${copyType} enriquecido para funil "${funnel.name}"...`);
 
-    // Generate with Gemini (using model from env or default to gemini-2.0-flash-exp)
-    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp';
+    // Generate with Gemini (using model from env or default to gemini-2.0-flash)
+    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
     const model = genAI.getGenerativeModel({ model: modelName });
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();

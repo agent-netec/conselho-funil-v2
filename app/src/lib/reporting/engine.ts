@@ -24,7 +24,7 @@ export interface AIAnalysisResult {
  * Responsible for translating raw performance data into strategic narratives
  */
 export class ReportingEngine {
-  private model = 'gemini-2.0-flash-exp';
+  private model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
   /**
    * Generates a strategic report narrative using Gemini

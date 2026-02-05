@@ -19,7 +19,7 @@ export interface AdaptationResult {
  */
 export class AdaptationPipeline {
   /**
-   * Executa o processo de adaptação de um insight usando Gemini-1.5-Flash.
+   * Executa o processo de adaptação de um insight usando Gemini 2.0 Flash.
    */
   async adaptInsight(
     brandId: string,
@@ -40,14 +40,14 @@ export class AdaptationPipeline {
       const dnaContext = copyDNA.map(d => `[${d.type}] ${d.name}: ${d.content}`).join('\n---\n');
       const insightContext = `Título: ${insight.content.title}\nConteúdo: ${insight.content.text}\nAnálise: ${insight.analysis?.summary || ''}`;
 
-      // 3. Chamar Gemini-1.5-Flash
+      // 3. Chamar Gemini (modelo via GEMINI_MODEL ou gemini-2.0-flash)
       const prompt = PUBLISHER_ADAPTATION_PROMPT
         .replace('{{insight}}', insightContext)
         .replace('{{copyDNA}}', dnaContext)
         .replace('{{brandContext}}', brandContext);
 
       const responseText = await generateWithGemini(prompt, {
-        model: 'gemini-1.5-flash', // Usando Flash conforme solicitado
+        model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
         temperature: 0.7,
         responseMimeType: 'application/json'
       });

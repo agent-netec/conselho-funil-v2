@@ -30,7 +30,7 @@ export class PerformanceAdvisor {
 
     try {
       const response = await generateWithGemini(prompt, {
-        model: 'gemini-1.5-flash', // Conforme solicitado (ou gemini-2.0-flash-exp se preferir o mais novo)
+        model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
         responseMimeType: 'application/json',
         temperature: 0.3
       });

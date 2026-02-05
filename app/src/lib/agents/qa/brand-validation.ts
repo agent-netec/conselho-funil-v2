@@ -47,7 +47,7 @@ export class BrandValidationService {
 
       try {
         const response = await generateWithGemini(toneCheckPrompt, {
-          model: 'gemini-1.5-flash',
+          model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
           temperature: 0.1,
           responseMimeType: 'application/json'
         });

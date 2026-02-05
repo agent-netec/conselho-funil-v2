@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
     console.log('🤖 Gerando propostas com Gemini...');
     
     const response = await generateWithGemini(fullPrompt, {
-      model: 'gemini-2.0-flash-exp',
+      model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
       temperature: 0.8,
       maxOutputTokens: 8192,
     });

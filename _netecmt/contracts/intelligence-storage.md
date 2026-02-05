@@ -322,9 +322,52 @@ service cloud.firestore {
 
 ---
 
-## 4. Interfaces TypeScript Consolidadas
+## 4. API Contract: Keywords Mining
 
-### 4.1 Arquivo: `app/src/types/intelligence.ts`
+### 4.1 Endpoint: `POST /api/intelligence/keywords`
+
+Gera sugestões de keywords a partir de um termo semente e retorna os termos extraídos. A persistência no Firestore é best-effort e **não bloqueia** a resposta do endpoint.
+
+#### Request Body
+```typescript
+interface KeywordsMineRequest {
+  brandId: string;   // ID da marca no tenant
+  seedTerm: string;  // Termo base para mineração
+}
+```
+
+#### Response (Success - 200 OK)
+```typescript
+interface KeywordsMineResponse {
+  success: true;
+  count: number;         // Total de termos retornados
+  keywords: string[];    // Lista dos termos minerados
+  persisted: number;     // Quantos foram persistidos no Firestore
+  saveError: string | null; // Erro de persistência (não impede sucesso)
+}
+```
+
+#### Padrão de Erros (Intelligence APIs)
+**Envelope mínimo (compatível com implementação atual):**
+```typescript
+interface ApiErrorResponse {
+  error: string;
+  code?: 'INVALID_JSON' | 'VALIDATION_ERROR' | 'BRAND_NOT_FOUND' | 'INTERNAL_ERROR';
+  details?: Record<string, unknown>;
+  requestId?: string;
+}
+```
+
+**Status + payload:**
+- `400 Bad Request`: JSON inválido ou ausência de `brandId`/`seedTerm`.
+- `404 Not Found`: `brandId` inexistente (quando validação de tenant estiver ativa).
+- `500 Internal Server Error`: falhas inesperadas na mineração ou persistência.
+
+---
+
+## 5. Interfaces TypeScript Consolidadas
+
+### 5.1 Arquivo: `app/src/types/intelligence.ts`
 
 ```typescript
 /**
@@ -414,7 +457,7 @@ export interface IntelligenceStats {
 }
 ```
 
-### 4.2 Arquivo: `app/src/types/intelligence-agents.ts`
+### 5.2 Arquivo: `app/src/types/intelligence-agents.ts`
 
 ```typescript
 /**
@@ -508,9 +551,9 @@ export interface AnalystError {
 
 ---
 
-## 5. Regras de TTL e Data Retention
+## 6. Regras de TTL e Data Retention
 
-### 5.1 Política de Retenção
+### 6.1 Política de Retenção
 
 | Tipo de Dado | Firestore TTL | Pinecone TTL | Ação após Expiração |
 |:-------------|:--------------|:-------------|:--------------------|
@@ -520,7 +563,7 @@ export interface AnalystError {
 | Alertas | 7 dias | N/A | Deletar após visualização |
 | Configurações | Permanente | N/A | N/A |
 
-### 5.2 Implementação de Cleanup
+### 6.2 Implementação de Cleanup
 
 ```typescript
 // app/src/lib/intelligence/cleanup.ts
@@ -598,9 +641,9 @@ interface CleanupResult {
 
 ---
 
-## 6. Paths Autorizados (Lane Contract)
+## 7. Paths Autorizados (Lane Contract)
 
-### 6.1 Arquivos Permitidos para Intelligence Wing
+### 7.1 Arquivos Permitidos para Intelligence Wing
 
 ```yaml
 intelligence_wing:
@@ -628,7 +671,7 @@ intelligence_wing:
     - "app/src/lib/hooks/use-intelligence*.ts"
 ```
 
-### 6.2 Dependências Externas Permitidas
+### 7.2 Dependências Externas Permitidas
 
 | Pacote | Versão | Uso |
 |:-------|:-------|:----|
@@ -639,9 +682,9 @@ intelligence_wing:
 
 ---
 
-## 7. Validação de Implementação
+## 8. Validação de Implementação
 
-### 7.1 Checklist de Code Review
+### 8.1 Checklist de Code Review
 
 - [ ] Todo documento inclui `brandId` não-nulo
 - [ ] Namespace Pinecone segue padrão `intelligence_{brandId}`
@@ -651,7 +694,7 @@ intelligence_wing:
 - [ ] Tratamento de erros com graceful degradation
 - [ ] Logs não expõem dados sensíveis
 
-### 7.2 Testes Obrigatórios
+### 8.2 Testes Obrigatórios
 
 ```typescript
 // Exemplos de assertions para QA
@@ -672,7 +715,7 @@ describe('Intelligence Multi-Tenant Isolation', () => {
 
 ---
 
-## 8. Referências
+## 9. Referências
 
 - **PRD:** `_netecmt/prd-sprint-13-intelligence-wing.md`
 - **ADR:** `_netecmt/solutioning/adr/adr-001-polling-strategy.md`

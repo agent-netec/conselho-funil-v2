@@ -6,6 +6,7 @@ Lane: intelligence_wing
 - [Story Distilled](story-distilled.md)
 - [Lane Contract](../../../contracts/intelligence-storage.md)
 - [Plano de Estabilizacao](stabilization-plan.md)
+- [Decisao de Priorizacao](priority-decision.md)
 - [Checklist de Envs](env-validation-checklist.md)
 - [Matriz Env x Endpoint](env-endpoint-matrix.md)
 - [Mapa de Falhas](failure-map.md)

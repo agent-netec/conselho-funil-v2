@@ -11,6 +11,7 @@ Estas sao usadas por todos os clientes e precisam existir no ambiente.
 | Google AI | GOOGLE_AI_API_KEY | OK | OK (prod) | 500 nas rotas Gemini/AI |
 | Google AI | GEMINI_MODEL | OK | OK (prod) | 500 nas rotas Gemini/AI |
 | Google AI (client) | NEXT_PUBLIC_GOOGLE_AI_API_KEY | VAZIO | VAZIO (prod) | Somente se usado no client |
+| Jina Reader | JINA_API_KEY | OK | OK (prod) | 422 em ingest/autopsy se scraping local falhar |
 | Pinecone | PINECONE_API_KEY | OK | OK (prod) | 500 em RAG/metrics |
 | Pinecone | PINECONE_HOST | OK | OK (prod) | 500 em RAG/metrics |
 | Pinecone | PINECONE_INDEX_NAME | OK | OK (prod) | 500 em RAG/metrics |
@@ -26,6 +27,8 @@ Estas sao usadas por todos os clientes e precisam existir no ambiente.
 | MCP/Workers | EXA_WORKER_URL | OK | OK (prod) | Falhas em execucao remota |
 | MCP/Workers | BRIGHT_DATA_WORKER_URL | OK | OK (prod) | Falhas em execucao remota |
 | Logging | MCP_LOG_LEVEL | OK | OK (prod) | Sem impacto funcional |
+
+**Confirmacao Vercel:** `JINA_API_KEY` e `GOOGLE_AI_API_KEY` presentes em Development/Preview/Production (vercel env ls).
 
 ## 2) Envs por cliente (gerenciados pela aplicacao)
 Estas variaveis **nao devem** ser globais no .env quando mudam por cliente.

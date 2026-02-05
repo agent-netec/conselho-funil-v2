@@ -33,6 +33,11 @@ Rotas que chamam Gemini/Google AI.
 - `/api/ai/analyze-visual`
 - `/api/design/upscale`
 
+## Jina Reader (JINA_API_KEY)
+Scraping de URL via `r.jina.ai`.
+- `/api/intelligence/autopsy/run`
+- `/api/ingest/url`
+
 ## Pinecone (PINECONE_API_KEY / PINECONE_HOST / INDEX)
 RAG e métricas de ativos.
 - `/api/assets/metrics`
@@ -56,4 +61,9 @@ Links e callbacks internos.
 
 ## MCP Relay (BRIGHT_DATA/EXA/FIRECRAWL/BROWSER/GLIMPSE)
 - `/api/mcp/execute`
+Env criticas:
+- `BRIGHT_DATA_API_KEY`, `BRIGHT_DATA_WORKER_URL`
+- `FIRECRAWL_API_KEY`, `FIRECRAWL_WORKER_URL`
+- `EXA_API_KEY`, `EXA_WORKER_URL`
+- `BROWSER_WORKER_URL`
 

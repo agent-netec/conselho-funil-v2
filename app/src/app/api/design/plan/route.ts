@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Contexto de copy é obrigatório.' }, { status: 400 });
     }
 
-    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp';
+    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
     const model = genAI.getGenerativeModel({ 
       model: modelName,
       generationConfig: { responseMimeType: "application/json" }

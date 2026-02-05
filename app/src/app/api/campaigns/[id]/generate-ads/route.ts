@@ -64,7 +64,7 @@ export async function POST(
     const prompt = buildAdsGenerationPrompt(campaign, { ragContext, brandContext });
     
     // 4. Call AI
-    const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-pro';
+    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
     const model = genAI.getGenerativeModel({ model: modelName });
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();

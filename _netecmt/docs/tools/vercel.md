@@ -12,6 +12,36 @@ Para que o projeto funcione corretamente na Vercel, as seguintes configuracoes d
 3. **Build Command**: `npm run build` (que executa `next build`)
 4. **Output Directory**: `.next`
 
+## ✅ Projeto oficial e dominio (obrigatorio)
+- **Projeto oficial:** `app`
+- **Dominio de producao:** `app-rho-flax-25.vercel.app`
+- **Nunca** publicar no projeto `conselho-funil-v2-final-flat-2`.
+
+## ✅ Comandos permitidos (Vercel CLI)
+Todos os comandos abaixo devem usar a **trava de proxy** obrigatoria.
+- `vercel link`
+- `vercel env ls`
+- `vercel env pull`
+- `vercel --prod`
+
+### Re-link seguro do CLI para o projeto `app`
+Use este procedimento quando o CLI estiver apontando para o projeto errado.
+1. Rode o comando abaixo e selecione o projeto `app` quando solicitado.
+```powershell
+# PowerShell (Obrigatorio)
+$env:HTTP_PROXY=""; $env:HTTPS_PROXY=""; $env:ALL_PROXY=""; vercel link
+```
+2. Confirme que o CLI esta vinculado ao projeto `app`:
+```powershell
+# PowerShell (Obrigatorio)
+$env:HTTP_PROXY=""; $env:HTTPS_PROXY=""; $env:ALL_PROXY=""; vercel env ls
+```
+3. Se o dominio exibido nao for `app-rho-flax-25.vercel.app`, repita o passo 1.
+
+### Verificacao rapida do vinculo do CLI
+- Confira se o CLI esta ligado ao projeto `app` (dominio `app-rho-flax-25.vercel.app`).
+- Se estiver ligado a outro projeto, re-vincule antes do deploy.
+
 ## 🌐 Resolucao de Problemas de Conexao (Proxy) - TRAVA OBRIGATORIA
 **ATENCAO:** Devido ao incidente da Sprint 16, o uso da trava de proxy e **OBRIGATORIO** para qualquer comando `vercel`. O CLI falha silenciosamente ou com `ECONNREFUSED` se o proxy local (Porta 9) estiver ativo.
 
