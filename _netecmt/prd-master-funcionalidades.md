@@ -191,6 +191,9 @@ Lista de endpoints `route.ts` (Next.js App Router) agrupados por domínio.
 | **Privacidade (PII)** | Prompts e logs devem evitar PII e dados sensíveis |
 | **Observabilidade** | Erros de API devem ser logados com tag do domínio e retornar JSON consistente |
 | **Qualidade** | CI valida rotas críticas; build e testes devem passar antes de deploy |
+| **IA (Gemini)** | Padronização no modelo `gemini-2.0-flash`. NUNCA usar modelos `-exp` em produção. |
+| **Next.js API** | Sempre usar `NextRequest` e `NextResponse` explicitamente para evitar erros 405. |
+| **Git/Deploy** | Proibido trackear `node_modules` ou arquivos > 100MB (limite do GitHub/Vercel). |
 
 ---
 

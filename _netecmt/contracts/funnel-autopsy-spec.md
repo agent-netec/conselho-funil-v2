@@ -1,150 +1,64 @@
-# 🔭 Contract: Funnel Autopsy Engine
+# Contract: Funnel Autopsy & Scraping Engine (Sprint 23)
 
-**Versão:** 1.0  
-**Status:** Active  
-**Responsável:** Athos (Architect)  
-**Sprint:** 19 - Funnel Autopsy & Offer Lab  
-**Data:** 29/01/2026
+## 1. Definição do Motor de Extração (Scraping Engine)
 
----
+O sistema de extração de conteúdo web utiliza uma arquitetura de **Resiliência em Camadas (Layered Resilience)** para garantir a captura de dados mesmo sob proteções anti-bot severas.
 
-## 1. Visão Geral
+### 1.1. Hierarquia de Fallback
+| Ordem | Provedor | Caso de Uso | Gatilho de Falha |
+| :--- | :--- | :--- | :--- |
+| 1 | **Firecrawl** | Deep-crawl, Cloudflare Bypass, SPA | Timeout (>30s), Erro de API, Limite de Rate |
+| 2 | **Jina Reader** | Páginas Únicas, Markdown Rápido | Erro 422, Conteúdo Vazio, Bloqueio de IP |
+| 3 | **Readability Local** | Sites sem proteção, Fallback Crítico | Falha no Fetch, DOM ilegível |
+| 4 | **Cheerio (Raw)** | Último recurso (Texto Bruto) | N/A (Sempre retorna algo ou erro final) |
 
-Este contrato define as especificações técnicas para o motor de **Funnel Autopsy**, responsável por realizar diagnósticos forenses em páginas de funis externos via URL. O motor utiliza o **Browser MCP** para scraping e o **Analyst Agent** para aplicar heurísticas do Brain Council.
+## 2. Contrato de Dados (TypeScript)
 
-### 🛡️ Guardrails Arquiteturais
-
-| Guardrail | Regra | Validação |
-|:----------|:------|:----------|
-| **Multi-Tenant** | Todo diagnóstico é vinculado a um `brandId` | Middleware de API |
-| **Scraping Ethics** | Respeitar robots.txt e limites de taxa | Browser MCP Config |
-| **Heuristic-Driven** | Análise baseada estritamente nos playbooks do Wilder | Prompt Engineering |
-| **Async First** | Processamentos longos (>10s) devem ser via worker/status | API Response Pattern |
-
----
-
-## 2. API Specification: `POST /api/intelligence/autopsy/run`
-
-### 2.1 Request Body
+### 2.1. Interface de Saída (`ScrapedContent`)
 ```typescript
-interface AutopsyRunRequest {
-  brandId: string;          // ID da marca no tenant
-  url: string;              // URL do funil a ser analisado
-  depth: 'quick' | 'deep';  // Profundidade da análise (default: quick)
-  context?: {
-    targetAudience?: string; // Público-alvo esperado (opcional)
-    mainOffer?: string;      // Oferta principal declarada (opcional)
-  };
-}
-```
-
-### 2.2 Response (Success - 200 OK)
-```typescript
-interface AutopsyRunResponse {
-  id: string;               // ID do diagnóstico gerado
-  status: 'completed' | 'processing' | 'failed';
-  url: string;
-  timestamp: number;
-  report: AutopsyReport;
-}
-
-interface AutopsyReport {
-  score: number;            // 0 a 10 (Funnel Health Score)
-  summary: string;          // Resumo executivo do diagnóstico
-  heuristics: {
-    hook: HeuristicResult;
-    story: HeuristicResult;
-    offer: HeuristicResult;
-    friction: HeuristicResult;
-    trust: HeuristicResult;
-  };
-  recommendations: Recommendation[];
+export interface ScrapedContent {
+  title: string;
+  content: string; // Markdown formatado
+  method: 'firecrawl' | 'jina' | 'readability' | 'cheerio';
   metadata: {
-    screenshotUrl?: string; // Screenshot da página analisada
-    loadTimeMs: number;
-    techStack: string[];    // Tecnologias detectadas (ex: ClickFunnels, Elementor)
+    url: string;
+    depth?: number;
+    subPages?: string[]; // Apenas para Firecrawl (Deep-crawl)
+    headlines?: string[]; // H1, H2 extraídos
+    ctas?: string[]; // Botões e links de conversão
+    screenshotUrl?: string;
   };
-}
-
-interface HeuristicResult {
-  score: number;            // 0 a 10
-  status: 'pass' | 'fail' | 'warning';
-  findings: string[];       // Observações específicas
-}
-
-interface Recommendation {
-  priority: 'high' | 'medium' | 'low';
-  type: 'copy' | 'design' | 'offer' | 'technical';
-  action: string;           // O que deve ser feito
-  impact: string;           // Por que deve ser feito
+  error?: string;
 }
 ```
 
----
+### 2.2. Estrutura do Markdown Retornado
+O Markdown deve seguir a estrutura semântica para otimização do RAG:
+- `# [Título da Página]`
+- `## [Seção]`
+- `> [Headline de Destaque]`
+- `[Botão CTA] -> (url)`
 
-## 3. Data Schema: Firestore `brands/{brandId}/autopsies`
+## 3. Integração Firecrawl (Especificação Técnica)
 
-### 3.1 AutopsyDocument
-```typescript
-interface AutopsyDocument {
-  id: string;
-  brandId: string;
-  url: string;
-  status: 'pending' | 'processing' | 'completed' | 'error';
-  request: AutopsyRunRequest;
-  result?: AutopsyReport;
-  error?: {
-    code: string;
-    message: string;
-  };
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-  expiresAt: Timestamp;     // TTL: 30 dias
-}
-```
+### 3.1. Configuração de Ingestão
+- **Endpoint**: `https://api.firecrawl.dev/v0/scrape` (ou `/crawl` para deep)
+- **Modo**: `scrape` para Autopsy rápido, `crawl` para Spy Agent.
+- **Format**: `markdown` (nativo).
 
----
+### 3.2. Extração de Ativos (Selectors)
+O Firecrawl deve ser configurado para extrair via LLM ou seletores CSS:
+- **Headlines**: `h1`, `h2`, `[class*="hero"] h3`
+- **CTAs**: `a.btn`, `button`, `[role="button"]`
 
-## 4. Integração com Browser MCP (Monara)
+## 4. Fluxo de Execução (AutopsyEngine)
 
-O Agente Monara deve ser invocado para realizar o scraping inicial.
-
-**Comandos Permitidos:**
-- `browser_navigate(url)`
-- `browser_snapshot()`
-- `browser_screenshot()`
-
-**Output esperado para o Analyst:**
-- HTML sanitizado (apenas tags estruturais e texto).
-- Lista de CTAs e links.
-- Metadados de SEO (Title, Description, OG Tags).
+1. `AutopsyEngine` recebe URL.
+2. Chama `extractContentFromUrl` (lib/ai/url-scraper.ts).
+3. `url-scraper` tenta Firecrawl.
+4. Se falhar, tenta Jina.
+5. Se falhar, tenta Local.
+6. Retorna `ScrapedContent` para o Engine processar as heurísticas.
 
 ---
-
-## 5. Heurísticas de Análise (Wilder Mapping)
-
-O motor deve validar os seguintes pontos baseados no `autopsy_engine_knowledge.md`:
-
-1.  **Hook (Gancho):** A headline captura a atenção em < 5s?
-2.  **Story (Conexão):** O copy quebra as objeções principais do avatar?
-3.  **Offer (Oferta):** Existe um empilhamento de valor (stack) claro?
-4.  **Friction (Fricção):** O checkout/formulário é excessivamente longo?
-5.  **Trust (Confiança):** Existem depoimentos ou selos de garantia?
-
----
-
-## 6. Paths Autorizados (Lane Contract)
-
-```yaml
-funnel_autopsy:
-  paths:
-    - "app/src/app/api/intelligence/autopsy/**"
-    - "app/src/lib/intelligence/autopsy/**"
-    - "app/src/components/funnel-autopsy/**"
-    - "app/src/types/autopsy.ts"
-```
-
----
-
-*Contract definido por Athos (Architect) - NETECMT v2.0*  
-*Sprint 19 | Funnel Autopsy & Offer Lab | Versão 1.0*
+*Assinado: Athos (Arch) - 05/02/2026*

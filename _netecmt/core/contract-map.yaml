@@ -124,7 +124,13 @@ lanes:
       - "app/src/lib/intelligence/autopsy/**"
       - "app/src/components/funnel-autopsy/**"
       - "app/src/types/autopsy.ts"
+      - "app/src/lib/ai/url-scraper.ts"
     contract: "_netecmt/contracts/funnel-autopsy-spec.md"
+
+  scraping_engine:
+    paths:
+      - "app/src/lib/ai/url-scraper.ts"
+    contract: "_netecmt/contracts/integrations.md"
 
   performance_war_room:
     paths:

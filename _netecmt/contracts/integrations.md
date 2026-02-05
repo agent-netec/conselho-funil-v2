@@ -9,6 +9,8 @@ Este documento mapeia todos os serviços de terceiros, APIs e dependências exte
 | :--- | :--- | :--- | :--- |
 | **Firebase** | Auth, Firestore, Storage | ✅ Ativo | Sim (`.env.local`) |
 | **Google Gemini** | IA Core (Conselho) | ✅ Ativo | Sim (`.env.local`) |
+| **Firecrawl** | Scraping Primário (Deep-crawl/Bypass) | 🏗️ Sprint 23 | `FIRECRAWL_API_KEY` |
+| **Jina Reader** | Scraping Secundário (Markdown) | ✅ Ativo | `JINA_API_KEY` |
 | **PostHog** | Analytics e Tracking | ⚠️ Parcial | Não encontrada no Core Rules |
 | **Tesseract.js** | OCR Local (Client) | ✅ Ativo | N/A (Local) |
 | **PDF.js** | Processamento de Docs | ✅ Ativo | N/A (Local) |
@@ -24,6 +26,11 @@ Este documento mapeia todos os serviços de terceiros, APIs e dependências exte
 | **netecmt-cli** | Orquestração da Metodologia | ✅ Instalada (v0.1.1) |
 
 ## 4. Roadblocks & Serviços Faltantes (GAP Analysis)
+
+### 🟢 Resolvidos (Sprint 23)
+1. **Scraping Proxy (Firecrawl)**:
+   - **Status**: Implementado como motor primário.
+   - **Lógica de Fallback**: Firecrawl -> Jina Reader -> Readability Local.
 
 ### 🔴 Críticos (Bloqueiam funcionalidades core)
 1.  **Pinecone / Vector DB**: 

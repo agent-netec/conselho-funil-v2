@@ -17,6 +17,8 @@ const GEMINI_COSTS = {
 
 // Jina Reader API - Custo fixo por requisição (exemplo) ou tokens
 const JINA_COST_PER_REQ = 0.0001; 
+// Firecrawl API - custo fixo por requisição (placeholder)
+const FIRECRAWL_COST_PER_REQ = 0.0001;
 
 export interface AIUsageParams {
   userId: string;
@@ -75,12 +77,14 @@ export class AICostGuard {
   static async logUsage(
     params: AIUsageParams,
     usage: TokenUsage,
-    provider: 'google' | 'jina' = 'google'
+    provider: 'google' | 'jina' | 'firecrawl' = 'google'
   ) {
     try {
       const costEstimate = provider === 'google' 
         ? (usage.inputTokens * GEMINI_COSTS.input) + (usage.outputTokens * GEMINI_COSTS.output)
-        : JINA_COST_PER_REQ;
+        : provider === 'firecrawl'
+          ? FIRECRAWL_COST_PER_REQ
+          : JINA_COST_PER_REQ;
 
       // 1. Persistir no usage_logs
       await addDoc(collection(db, 'usage_logs'), {

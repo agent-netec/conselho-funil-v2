@@ -58,7 +58,7 @@ function buildAssetPayload(params: {
       originalName: scraped.title || url,
       isApprovedForAI: false,
       extractedAt: new Date().toISOString(),
-      processingMethod: (scraped.method as 'jina' | 'gemini-vision' | 'readability' | 'cheerio') || 'readability',
+      processingMethod: (scraped.method as 'firecrawl' | 'jina' | 'gemini-vision' | 'readability' | 'cheerio') || 'readability',
     },
   };
 }

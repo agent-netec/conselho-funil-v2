@@ -12,7 +12,15 @@ import { AICostGuard } from './cost-guard';
 export interface ScrapedContent {
   title: string;
   content: string;
-  method?: 'jina' | 'readability' | 'cheerio' | 'gemini-vision';
+  method?: 'firecrawl' | 'jina' | 'readability' | 'cheerio' | 'gemini-vision';
+  metadata?: {
+    url: string;
+    depth?: number;
+    subPages?: string[];
+    headlines?: string[];
+    ctas?: string[];
+    screenshotUrl?: string;
+  };
   error?: string;
   /**
    * HTML bruto capturado durante o scraping.
@@ -26,6 +34,7 @@ export interface ScrapedContent {
 }
 
 const FETCH_TIMEOUT = 10000; // 10 segundos
+const FIRECRAWL_TIMEOUT = 30000; // 30 segundos
 // Limite mínimo para aceitar conteúdo extraído. Reduzido significativamente para suportar páginas muito curtas ou puramente visuais.
 const MIN_CONTENT_LENGTH = 10;
 type JSDOMType = typeof import('jsdom').JSDOM;
@@ -57,10 +66,20 @@ export async function extractContentFromUrl(
     }
 
     // Budget Check
-    const hasBudget = await AICostGuard.checkBudget({ userId, brandId, model: 'jina-reader', feature: 'url_scraping' });
+    const hasBudget = await AICostGuard.checkBudget({ userId, brandId, model: 'firecrawl', feature: 'url_scraping' });
     if (!hasBudget) return { title: '', content: '', error: 'Budget limit exceeded for URL scraping.' };
 
-    // 2. PRIMEIRA OPÇÃO: Jina Reader API
+    // 1. PRIMEIRA OPÇÃO: Firecrawl
+    console.log(`[URL Scraper] Tentando extração via Firecrawl: ${sanitizedUrl}`);
+    const firecrawlResult = await fetchFromFirecrawl(sanitizedUrl, { userId, brandId });
+    if (firecrawlResult?.content && firecrawlResult.content.length >= MIN_CONTENT_LENGTH) {
+      console.log(`[URL Scraper] Sucesso via Firecrawl (${firecrawlResult.content.length} chars)`);
+      return firecrawlResult;
+    }
+
+    console.log('[URL Scraper] Firecrawl falhou ou retornou pouco conteúdo. Tentando Jina...');
+
+    // 2. SEGUNDA OPÇÃO (FALLBACK): Jina Reader API
     console.log(`[URL Scraper] Tentando extração via Jina: ${sanitizedUrl}`);
     
     try {
@@ -81,7 +100,7 @@ export async function extractContentFromUrl(
       if (jinaResponse.ok) {
         const jinaData = await jinaResponse.json();
         const content = jinaData.data?.content || jinaData.content || '';
-        const title = jinaData.data?.title || jinaData.title || extractTitleFromUrl(url);
+        const title = jinaData.data?.title || jinaData.title || extractTitleFromUrl(sanitizedUrl);
 
         if (content && content.length > 50) {
           console.log(`[URL Scraper] Sucesso via Jina Reader (${content.length} chars)`);
@@ -93,7 +112,12 @@ export async function extractContentFromUrl(
             'jina'
           );
 
-          return { title, content: cleanText(content), method: 'jina' };
+          return { 
+            title, 
+            content: cleanText(content), 
+            method: 'jina',
+            metadata: { url: sanitizedUrl }
+          };
         }
       }
 
@@ -102,7 +126,7 @@ export async function extractContentFromUrl(
       console.warn('[URL Scraper] Erro ao conectar ao Jina Reader:', jinaErr);
     }
 
-    // 3. SEGUNDA OPÇÃO (FALLBACK): Readability local (Mozilla)
+    // 3. TERCEIRA OPÇÃO (FALLBACK): Readability local (Mozilla)
     let JSDOM: JSDOMType | undefined;
     let Readability: ReadabilityType | undefined;
     try {
@@ -123,7 +147,7 @@ export async function extractContentFromUrl(
 
     let html: string;
     try {
-      const response = await fetch(url, {
+      const response = await fetch(sanitizedUrl, {
         signal: controller.signal,
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -136,28 +160,124 @@ export async function extractContentFromUrl(
       return { title: '', content: '', error: 'Falha ao acessar a URL. O site pode estar bloqueando acessos automatizados.' };
     }
 
-    const dom = new JSDOM(html, { url });
+    const dom = new JSDOM(html, { url: sanitizedUrl });
     const reader = new Readability(dom.window.document, { charThreshold: MIN_CONTENT_LENGTH });
     const article = reader.parse();
-    const primaryImageUrl = findPrimaryImage(html, url);
+    const primaryImageUrl = findPrimaryImage(html, sanitizedUrl);
 
     if (article?.textContent && article.textContent.length >= MIN_CONTENT_LENGTH) {
       return { 
-        title: article.title || extractTitleFromUrl(url), 
+        title: article.title || extractTitleFromUrl(sanitizedUrl), 
         content: cleanText(article.textContent),
         method: 'readability',
+        metadata: { url: sanitizedUrl },
         rawHtml: html,
         primaryImageUrl
       };
     }
 
-    // 4. TERCEIRA OPÇÃO (ULTIMO RECURSO): Cheerio bruto
-    const cheerioResult = extractWithCheerio(html, url);
-    return { ...cheerioResult, method: 'cheerio', rawHtml: html, primaryImageUrl };
+    // 4. QUARTA OPÇÃO (ULTIMO RECURSO): Cheerio bruto
+    const cheerioResult = extractWithCheerio(html, sanitizedUrl);
+    return { 
+      ...cheerioResult, 
+      method: 'cheerio', 
+      metadata: { url: sanitizedUrl },
+      rawHtml: html, 
+      primaryImageUrl 
+    };
 
   } catch (error: any) {
     console.error('[URL Scraper] Erro crítico:', error);
     return { title: '', content: '', error: `Erro ao processar conteúdo: ${error.message}` };
+  }
+}
+
+/**
+ * Firecrawl: extrai markdown via API cloud (deep-crawl bypass).
+ */
+async function fetchFromFirecrawl(
+  url: string, 
+  options: { userId?: string; brandId?: string } = {}
+): Promise<ScrapedContent | null> {
+  const apiKey = (process.env.FIRECRAWL_API_KEY ?? '').trim();
+  if (!apiKey) {
+    console.warn('[URL Scraper] FIRECRAWL_API_KEY não configurada. Pulando Firecrawl.');
+    return null;
+  }
+
+  const endpoint = (process.env.FIRECRAWL_WORKER_URL ?? 'https://api.firecrawl.dev/v0/scrape').trim();
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), FIRECRAWL_TIMEOUT + 1000);
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        url,
+        pageOptions: {
+          includeHtml: false,
+          includeRawHtml: false,
+          onlyMainContent: true,
+          removeTags: ['script', 'style', 'noscript'],
+          screenshot: false,
+          fullPageScreenshot: false,
+        },
+        timeout: FIRECRAWL_TIMEOUT,
+      }),
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      console.warn(`[URL Scraper] Firecrawl falhou (HTTP ${response.status}).`);
+      return null;
+    }
+
+    const payload = await response.json();
+    if (!payload?.success) {
+      console.warn('[URL Scraper] Firecrawl retornou sucesso=false.');
+      return null;
+    }
+
+    const data = payload.data ?? {};
+    const markdown = (data.markdown || data.content || '').trim();
+    if (!markdown) {
+      console.warn('[URL Scraper] Firecrawl retornou conteúdo vazio.');
+      return null;
+    }
+
+    const title = data.metadata?.title || extractTitleFromUrl(url);
+    const headlines = extractHeadlinesFromMarkdown(markdown);
+    const ctas = extractCtasFromMarkdown(markdown);
+
+    if (options.userId) {
+      await AICostGuard.logUsage(
+        { userId: options.userId, brandId: options.brandId, model: 'firecrawl', feature: 'url_scraping' },
+        { inputTokens: AICostGuard.estimateTokens(url), outputTokens: AICostGuard.estimateTokens(markdown) },
+        'firecrawl'
+      );
+    }
+
+    return {
+      title,
+      content: markdown,
+      method: 'firecrawl',
+      metadata: {
+        url,
+        headlines: headlines.length ? headlines : undefined,
+        ctas: ctas.length ? ctas : undefined,
+      },
+    };
+  } catch (error) {
+    console.warn('[URL Scraper] Erro ao conectar ao Firecrawl:', error);
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
@@ -223,6 +343,7 @@ function extractWithCheerio(html: string, url: string): ScrapedContent {
       title: cleanText(title),
       content: cleanContent,
       primaryImageUrl: findPrimaryImage(html, url),
+      metadata: { url },
     };
   } catch (error: any) {
     return {
@@ -296,6 +417,29 @@ function cleanText(text: string): string {
     .replace(/\s+/g, ' ')           // Múltiplos espaços → 1 espaço
     .replace(/\n{3,}/g, '\n\n')     // Múltiplas quebras → 2 quebras
     .trim();
+}
+
+function extractHeadlinesFromMarkdown(markdown: string): string[] {
+  const headlines = new Set<string>();
+  for (const line of markdown.split('\n')) {
+    const match = line.match(/^(#{1,2})\s+(.+)/);
+    if (match?.[2]) {
+      const cleaned = cleanText(match[2]);
+      if (cleaned) headlines.add(cleaned);
+    }
+  }
+  return Array.from(headlines);
+}
+
+function extractCtasFromMarkdown(markdown: string): string[] {
+  const ctas = new Set<string>();
+  const regex = /\[([^\]]{2,80})\]\((https?:\/\/[^)]+)\)/g;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(markdown)) !== null) {
+    const text = cleanText(match[1]);
+    if (text) ctas.add(text);
+  }
+  return Array.from(ctas);
 }
 
 
