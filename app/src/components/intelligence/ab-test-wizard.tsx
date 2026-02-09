@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { TargetSegment } from '@/types/ab-testing';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 interface ABTestWizardProps {
   brandId: string;
@@ -67,9 +68,10 @@ export function ABTestWizard({ brandId, onCreated }: ABTestWizardProps) {
 
     setSubmitting(true);
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/intelligence/ab-tests', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           brandId,
           name,

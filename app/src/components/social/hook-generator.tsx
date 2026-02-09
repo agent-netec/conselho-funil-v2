@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -73,9 +74,10 @@ export function HookGenerator() {
     setScorecard(null);
 
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/social/hooks', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           brandId: activeBrand?.id,
           platform,
@@ -107,9 +109,10 @@ export function HookGenerator() {
     setIsGeneratingStructure(true);
     setScorecard(null); // Clear previous scorecard
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/social/structure', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           brandId: activeBrand?.id,
           platform,
@@ -138,9 +141,10 @@ export function HookGenerator() {
   const handleGenerateScorecard = async (content: any) => {
     setIsGeneratingScorecard(true);
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/social/scorecard', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           brandId: activeBrand?.id,
           platform,

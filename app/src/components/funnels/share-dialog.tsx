@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { notify } from '@/lib/stores/notification-store';
 import { useBrandStore } from '@/lib/stores/brand-store';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 interface ShareDialogProps {
   isOpen: boolean;
@@ -41,9 +42,10 @@ export function ShareDialog({
   const createShareLink = async () => {
     setIsLoading(true);
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/funnels/share', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ funnelId, expiresIn, brandId: selectedBrand?.id }),
       });
 
@@ -65,8 +67,10 @@ export function ShareDialog({
   const removeShareLink = async () => {
     setIsLoading(true);
     try {
+      const deleteHeaders = await getAuthHeaders();
       const response = await fetch(`/api/funnels/share?funnelId=${funnelId}`, {
         method: 'DELETE',
+        headers: deleteHeaders,
       });
 
       const data = await response.json();

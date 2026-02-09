@@ -15,6 +15,7 @@ import { Sparkles, BrainCircuit, Target, ShieldCheck, Loader2, Copy as CopyIcon,
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 interface CopyLabModalProps {
   creative: CreativePerformance | null;
@@ -38,9 +39,10 @@ export function CopyLabModal({ creative, isOpen, onClose, brandId }: CopyLabModa
       setIsGenerating(true);
       setVariants([]);
       
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/intelligence/creative/copy', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           brandId,
           baseCopy: "Adicione aqui a copy base do anúncio original ou extraída via OCR", // No futuro virá do creative.metadata

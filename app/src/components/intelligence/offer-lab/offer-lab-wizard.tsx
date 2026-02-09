@@ -28,6 +28,7 @@ import {
 } from '@/types/offer';
 import { OfferLabEngine } from '@/lib/intelligence/offer/calculator';
 import { toast } from 'sonner';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 // --- Components ---
 
@@ -109,9 +110,10 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/intelligence/offer/save', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ brandId, state: offer })
       });
       

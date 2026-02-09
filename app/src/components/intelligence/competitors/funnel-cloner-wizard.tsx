@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Globe, CheckCircle2, AlertCircle, ArrowRight, Copy } from 'lucide-react';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 interface FunnelClonerWizardProps {
   brandId: string;
@@ -49,9 +50,10 @@ export const FunnelClonerWizard: React.FC<FunnelClonerWizardProps> = ({
 
       // Chamada real para a API/Action que orquestra o FunnelCloner
       // Aqui usamos fetch para um endpoint que criaremos ou chamamos o agente via server action
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/intelligence/funnel/clone', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ brandId, funnelId, url, name })
       });
 

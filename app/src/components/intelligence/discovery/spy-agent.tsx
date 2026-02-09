@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 interface SpyAgentProps {
   brandId: string;
@@ -61,9 +62,10 @@ export function SpyAgent({ brandId }: SpyAgentProps) {
       // vamos ajustar a API ou simular o comportamento do SpyAgent.scan
       // Para o Discovery Hub, idealmente teríamos um endpoint de "Quick Scan"
       
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/intelligence/autopsy/run', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ brandId, url, depth: 'quick' }),
       });
 

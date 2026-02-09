@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import type { PredictScoreResponse } from '@/types/prediction';
 import type { GenerateAdsResponse, AdFormat } from '@/types/creative-ads';
 import type { AnalyzeTextResponse, TextInputType, TextInputFormat } from '@/types/text-analysis';
@@ -21,28 +21,6 @@ const initialState = <T>(): AsyncState<T> => ({
   loading: false,
   error: null,
 });
-
-/**
- * Obtém os headers autenticados com Bearer token do Firebase Auth.
- * Retorna headers com Content-Type e Authorization.
- */
-async function getAuthHeaders(): Promise<Record<string, string>> {
-  const user = useAuthStore.getState().user;
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  if (user) {
-    try {
-      const token = await user.getIdToken();
-      headers['Authorization'] = `Bearer ${token}`;
-    } catch (error) {
-      console.warn('[useIntelligencePredict] Falha ao obter token de auth:', error);
-    }
-  }
-
-  return headers;
-}
 
 // ═══════════════════════════════════════════════════════
 // HOOK: PREDICT SCORE (CPS)

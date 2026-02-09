@@ -34,6 +34,7 @@ import { uploadBase64Image } from '@/lib/firebase/storage';
 import { updateCampaignManifesto } from '@/lib/firebase/firestore';
 import { Timestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { AdsDesignContract } from '@/types/ads-design';
 import { CampaignContext } from '@/types/campaign';
 import Link from 'next/link';
@@ -100,9 +101,10 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
       const visualPrompt = promptData.visualPrompt || promptData.prompt;
       const type = promptData.platform || promptData.format || 'design';
 
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/design/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           prompt: visualPrompt,
           type: type,
