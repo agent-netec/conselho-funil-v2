@@ -50,7 +50,8 @@ async function bulkIngest() {
   loadEnv();
   process.env.SKIP_AUTH = process.env.SKIP_AUTH || '1';
   const { db } = await import('../lib/firebase/config');
-  const index = getPineconeIndex();
+  const index = await getPineconeIndex();
+  if (!index) throw new Error('Pinecone index unavailable');
   const targetIndex = NAMESPACE ? index.namespace(NAMESPACE) : index;
   const hasVector = async (originalName: string) => {
     try {

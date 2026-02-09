@@ -186,4 +186,5 @@ export async function getAssetsByType(
 }
 
 // O processamento de chunks foi movido para assets-server.ts para evitar erros de build no cliente.
+// S29-CL-03: Stub processAssetText() removido — implementação real em assets-server.ts (L20+)
 

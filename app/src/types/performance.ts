@@ -15,7 +15,10 @@ export interface UnifiedAdsMetrics {
   cac: number;
   ctr: number;
   cpc: number;
+  cpa: number;          // S30-PRE-02 (DT-08): já calculado no normalize, agora no tipo
   conversions: number;
+  clicks: number;       // S30-PRE-02 (DT-08): campo essencial para dashboards
+  impressions: number;  // S30-PRE-02 (DT-08): campo essencial para dashboards
 }
 
 /**
@@ -76,5 +79,58 @@ export interface PerformanceConfig {
     sensitivity: 'low' | 'medium' | 'high'; // Thresholds: 50%, 30%, 15%
     notificationChannels: ('dashboard' | 'email' | 'slack')[];
   };
+  /** @intentional-stub S35 — sem consumer ativo; aguardando integração futura com AnomalyEngine. */
+  thresholds?: {
+    yellow: number;
+    red: number;
+  };
+  /** @intentional-stub S35 — sem consumer ativo; mantido para compatibilidade de configuração legada. */
+  minDataPoints?: {
+    impressions: number;
+    spend: number;
+  };
   updatedAt: Timestamp;
+}
+
+// === Interfaces de compatibilidade para módulos legados ===
+// @see _netecmt/solutioning/architecture/arch-sprint-26-tech-debt-cleanup.md (DT-04)
+
+/**
+ * @intentional-stub S35 — interface de compatibilidade legada sem consumer ativo.
+ * @todo Unificar com PerformanceMetric quando os módulos legados forem reativados.
+ */
+export interface PerformanceMetricDoc {
+  id: string;
+  brandId: string;
+  platform: AdPlatform;
+  name: string;
+  level: AdEntityLevel;
+  externalId: string;
+  metrics: UnifiedAdsMetrics;
+  timestamp: Timestamp;
+  [key: string]: unknown;
+}
+
+/**
+ * @intentional-stub S35 — interface de compatibilidade legada sem consumer ativo.
+ * @todo Unificar com PerformanceAnomaly quando os módulos legados forem reativados.
+ */
+export interface PerformanceAlertDoc {
+  id: string;
+  brandId: string;
+  severity: 'high' | 'medium' | 'low';
+  metricType: string;
+  message: string;
+  context: {
+    currentValue: number;
+    expectedValue: number;
+    deviation: number;
+    entityId: string;
+    entityName: string;
+    platform: string;
+    [key: string]: unknown;
+  };
+  status: 'active' | 'resolved' | 'acknowledged';
+  createdAt: Timestamp | unknown;
+  [key: string]: unknown;
 }

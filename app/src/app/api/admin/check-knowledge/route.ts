@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { collection, getDocs, query, limit, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
+import { createApiSuccess } from '@/lib/utils/api-response';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -75,8 +76,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({
-      success: true,
+    return createApiSuccess({
       message: `Found ${allSnapshot.size} chunks (${approvedSnapshot.size} approved)`,
       analysis,
     });

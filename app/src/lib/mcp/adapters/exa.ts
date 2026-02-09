@@ -87,9 +87,8 @@ export class ExaAdapter implements IMCPAdapter {
 
   private async callExaMcp(query: string, numResults: number) {
     // 1. Detectar se estamos no ambiente do Cursor (Dev)
-    // @ts-ignore
-    if (typeof window !== 'undefined' && (window as any).mcp) {
-      return await (window as any).mcp.callTool('user-MCP_DOCKER', 'web_search_exa', {
+    if (typeof window !== 'undefined' && window.mcp) {
+      return await window.mcp.callTool('user-MCP_DOCKER', 'web_search_exa', {
         query,
         numResults
       });

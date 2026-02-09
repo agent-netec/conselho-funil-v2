@@ -1,8 +1,21 @@
+/**
+ * @jest-environment node
+ */
 import { generateCouncilAssetDelivery } from '@/lib/ai/asset-delivery';
 import { isGeminiConfigured } from '@/lib/ai/gemini';
 
-// Mock do Gemini e RAG se necessário, mas aqui queremos testar a integração se a chave estiver presente
-// Ou apenas validar a estrutura do código.
+jest.mock('@/lib/firebase/config', () => ({
+  db: {},
+}));
+
+jest.mock('@/lib/ai/rag', () => ({
+  ragQuery: jest.fn().mockResolvedValue([]),
+  formatContextForLLM: jest.fn().mockReturnValue(''),
+}));
+
+jest.mock('@/lib/ai/gemini', () => ({
+  isGeminiConfigured: jest.fn().mockReturnValue(false),
+}));
 
 describe('Asset Delivery Engine (ST-1.5.3)', () => {
   it('deve ter a função de geração definida', () => {

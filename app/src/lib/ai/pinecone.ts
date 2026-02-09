@@ -1,4 +1,4 @@
-import { type PineconeRecord, type Index } from '@pinecone-database/pinecone';
+import { type PineconeRecord, type Index, type RecordMetadata } from '@pinecone-database/pinecone';
 
 const EXPECTED_DIMENSION = 768; // text-embedding-004
 
@@ -91,5 +91,25 @@ export async function checkPineconeHealth() {
     status: 'connected',
     index: indexName,
     totalVectors: stats.totalRecordCount ?? 0,
+  };
+}
+
+/**
+ * Prepara vetor para upsert no Pinecone seguindo o contrato de ingestão.
+ * Absorvido de pinecone-client.ts (SIG-ARC-01 / DT-11).
+ */
+export function buildPineconeRecord(
+  id: string,
+  values: number[],
+  metadata: RecordMetadata = {}
+): PineconeRecord {
+  if (!Array.isArray(values) || values.length === 0) {
+    throw new Error('Embedding vazio ou inválido fornecido ao Pinecone.');
+  }
+
+  return {
+    id,
+    values,
+    metadata,
   };
 }

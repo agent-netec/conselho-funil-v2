@@ -55,17 +55,32 @@ lanes:
       - "app/src/lib/ai/**"
     contract: "_netecmt/contracts/retrieval-contracts.md"
 
+  rate_limiting:
+    paths:
+      - "app/src/lib/middleware/rate-limiter.ts"    # S32-RL-01 (Rate Limiter Core)
+    contract: null  # Inline na sprint
+
   social_intelligence:
     paths:
       - "app/src/lib/intelligence/social/**"
       - "app/src/app/api/social/**"
       - "app/src/types/social.ts"
+      # === S32 — Novos paths ===
+      - "app/src/lib/integrations/social/**"                    # S32-IG-01, S32-LI-01 (Adapters)
+      - "app/src/lib/agents/engagement/response-engine.ts"      # S32-RE-01 (Response Engine)
+      - "app/src/lib/agents/engagement/inbox-aggregator.ts"     # S32-IG-02, S32-LI-01 (Aggregator)
+      - "app/src/lib/ai/prompts/social-generation.ts"           # S32-RE-01 (Prompt redesenhado)
+      - "app/src/app/api/social-inbox/**"                       # S32-RE-02 (API wiring)
     contract: "_netecmt/contracts/social-api-spec.md"
 
   personalization_engine:
     paths:
-      - "app/src/lib/operations/personalization/**"
-      - "app/src/app/api/operations/personalization/**"
+      - "app/src/lib/intelligence/personalization/**"
+      # API route /api/intelligence/audience/** permanece sob intelligence_wing
+      # (single-ownership: a rota é intelligence, o engine é personalization)
+      # === S31 — Rules Runtime ===
+      - "app/src/app/api/personalization/**"          # S31-RT-01 (Nova API resolve)
+      - "app/src/lib/hooks/use-personalized-content.ts"  # S31-RT-03 (Hook)
     contract: "_netecmt/contracts/personalization-engine-spec.md"
 
   operations_meta:
@@ -90,6 +105,8 @@ lanes:
     paths:
       # Storage & Data Access
       - "app/src/lib/intelligence/**"
+      # Inclui /api/intelligence/audience/** (API do Personalization Engine)
+      # Engine code vive em personalization_engine lane
       - "app/src/lib/firebase/intelligence.ts"
       # Competitors & Spy Agent
       - "app/src/lib/intelligence/competitors/**"
@@ -98,6 +115,10 @@ lanes:
       - "app/src/types/intelligence.ts"
       - "app/src/types/intelligence-agents.ts"
       - "app/src/types/competitors.ts"
+      # Types — Sprint 25: Predictive & Creative Engine
+      - "app/src/types/prediction.ts"
+      - "app/src/types/creative-ads.ts"
+      - "app/src/types/text-analysis.ts"
       # Agents
       - "app/src/lib/agents/scout/**"
       - "app/src/lib/agents/analyst/**"
@@ -109,6 +130,9 @@ lanes:
       - "app/src/app/api/intelligence/**"
       # Hooks
       - "app/src/lib/hooks/use-intelligence*.ts"
+      # Attribution (S27 — registrado em S28-CL-04)
+      - "app/src/types/attribution.ts"
+      - "app/src/lib/hooks/use-attribution-data.ts"
     contract: "_netecmt/contracts/intelligence-storage.md"
 
   competitor_intelligence:
@@ -139,6 +163,66 @@ lanes:
       - "app/src/components/performance/**"
       - "app/src/types/performance.ts"
     contract: "_netecmt/contracts/performance-spec.md"
+
+  automation:
+    paths:
+      - "app/src/lib/automation/engine.ts"
+      - "app/src/lib/automation/budget-optimizer.ts"  # S29-CL-01 (N1 S28)
+      - "app/src/lib/automation/adapters/"
+      - "app/src/lib/automation/normalizer.ts"
+      # === S31 — Novos paths ===
+      - "app/src/lib/firebase/automation.ts"        # S31-AUTO-01/02 (CRUD)
+      - "app/src/app/automation/**"                  # S31-AUTO-03 (Page)
+      - "app/src/app/api/automation/**"              # Kill-Switch (existente + S31-KS-01)
+      - "app/src/lib/notifications/slack.ts"         # S31-KS-02 (Slack helper)
+      - "app/src/types/automation.ts"                # DeadLetterItem, InAppNotification
+
+  content_autopilot:
+    paths:
+      - "app/src/lib/content/**"                          # S33-GEN-01, S33-APR-01
+      - "app/src/lib/firebase/content-calendar.ts"        # S33-CAL-01
+      - "app/src/lib/ai/prompts/content-generation.ts"    # S33-GEN-02 (cross-ref ai_retrieval)
+      - "app/src/app/api/content/**"                      # S33-CAL-02, S33-GEN-03, S33-APR-02
+      - "app/src/app/content/**"                          # S33-CAL-03, S33-APR-03
+      - "app/src/components/content/**"                   # S33-CAL-03, S33-APR-03
+      - "app/src/types/content.ts"                        # S33-CAL-01
+    contract: "_netecmt/contracts/content-autopilot-spec.md"
+
+  ab_testing_optimization:
+    paths:
+      - "app/src/lib/intelligence/ab-testing/**"               # S34-AB-03, S34-AO-01
+      - "app/src/lib/firebase/ab-tests.ts"                     # S34-AB-02
+      - "app/src/app/api/intelligence/ab-tests/**"             # S34-AB-04/05/06, S34-AO-03
+      - "app/src/app/intelligence/ab-testing/**"               # S34-AB-07
+      - "app/src/components/intelligence/ab-test-*.tsx"         # S34-AB-07
+      - "app/src/components/performance/segment-*.tsx"          # S34-SEG-02
+      - "app/src/lib/hooks/use-segment-performance.ts"         # S34-SEG-03
+      - "app/src/lib/content/engagement-scorer.ts"             # S34-GOV-02
+      - "app/src/types/ab-testing.ts"                          # S34-AB-01
+    contract: "_netecmt/contracts/ab-testing-optimization-spec.md"
+
+  predictive_intelligence:
+    paths:
+      - "app/src/lib/intelligence/predictive/**"
+      - "app/src/app/api/intelligence/predictive/**"
+      - "app/src/components/intelligence/predictive/**"
+      - "app/src/app/intelligence/predictive/**"
+      - "app/src/lib/hooks/use-predictive-data.ts"
+      - "app/src/lib/ai/prompts/predictive-forecast.ts"
+      - "app/src/lib/ai/prompts/predictive-scoring.ts"
+      - "app/src/types/predictive.ts"
+    contract: "_netecmt/contracts/predictive-intelligence-spec.md"
+
+  deep_research:
+    paths:
+      - "app/src/lib/intelligence/research/**"
+      - "app/src/lib/firebase/research.ts"
+      - "app/src/app/api/intelligence/research/**"
+      - "app/src/app/intelligence/research/**"
+      - "app/src/components/intelligence/research/**"
+      - "app/src/lib/ai/prompts/research-synthesis.ts"
+      - "app/src/types/research.ts"
+    contract: "_netecmt/contracts/deep-research-spec.md"
 
 # Audit Rules
 audit_rules:

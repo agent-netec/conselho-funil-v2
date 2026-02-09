@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react';
 
-type IconComponent = ComponentType<{ className?: string }>;
+type IconComponent = ComponentType<{ className?: string; strokeWidth?: number }>;
 
 export function resolveIcon<Map extends Record<string, IconComponent>>(
   map: Map,

@@ -1,15 +1,18 @@
 export const dynamic = 'force-dynamic';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { withResilience } from '@/lib/firebase/resilience';
 import { validateWebhookSignature } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
  * Webhook para Recebimento de Métricas de Ads (ST-11.19)
  * 
  * Recebe sinais externos de performance (Meta, Google, etc) e atualiza
  * o CampaignContext no Firestore para análise do Conselho.
+ *
+ * S29-CL-04: Migrado para createApiError/createApiSuccess (padrão Sigma)
  */
 
 export const runtime = 'nodejs';
@@ -24,15 +27,12 @@ export async function POST(request: NextRequest) {
 
     if (!primarySecret) {
       console.error('[Webhook] CAMPAIGN_WEBHOOK_SECRET não configurada no ambiente');
-      return NextResponse.json(
-        { error: 'Configuração de segurança incompleta no servidor' }, 
-        { status: 500 }
-      );
+      return createApiError(500, 'Configuração de segurança incompleta no servidor');
     }
 
     // 1. Validar Assinatura (Hmac-SHA256) com Graceful Rotation
     if (!signature) {
-      return NextResponse.json({ error: 'Assinatura x-hub-signature-256 ausente' }, { status: 401 });
+      return createApiError(401, 'Assinatura x-hub-signature-256 ausente');
     }
 
     const isValid = validateWebhookSignature(
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     if (!isValid) {
       console.warn('[Webhook] Tentativa de acesso com assinatura inválida');
-      return NextResponse.json({ error: 'Assinatura inválida' }, { status: 401 });
+      return createApiError(401, 'Assinatura inválida');
     }
 
     // 2. Parsear Payload
@@ -52,13 +52,13 @@ export async function POST(request: NextRequest) {
     try {
       payload = JSON.parse(rawBody);
     } catch (e) {
-      return NextResponse.json({ error: 'Payload JSON inválido' }, { status: 400 });
+      return createApiError(400, 'Payload JSON inválido');
     }
 
     const { campaign_id, clicks, impressions, spend, conversions } = payload;
 
     if (!campaign_id) {
-      return NextResponse.json({ error: 'campaign_id é obrigatório no payload' }, { status: 400 });
+      return createApiError(400, 'campaign_id é obrigatório no payload');
     }
 
     // 3. Atualizar Campaign no Firestore
@@ -81,17 +81,14 @@ export async function POST(request: NextRequest) {
 
     console.log(`[Webhook] ✅ Métricas sincronizadas para campanha: ${campaign_id}`);
 
-    return NextResponse.json({ 
-      success: true, 
+    return createApiSuccess({
       message: 'Métricas atualizadas com sucesso',
       timestamp: new Date().toISOString()
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('[Webhook] Erro crítico ao processar webhook:', error);
-    return NextResponse.json(
-      { error: 'Erro interno ao processar métricas de ads', details: error.message },
-      { status: 500 }
-    );
+    return createApiError(500, 'Erro interno ao processar métricas de ads', { details: errorMessage });
   }
 }

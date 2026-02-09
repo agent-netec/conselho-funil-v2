@@ -23,10 +23,10 @@ export default function PredictiveIntelligencePage() {
             <span className="text-xs text-zinc-500 font-medium uppercase tracking-widest">Intelligence Wing</span>
           </div>
           <h1 className="text-4xl font-bold text-white tracking-tight">
-            Simulador de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-emerald-400">Futuro Financeiro</span>
+            Inteligência <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-emerald-400">Preditiva</span>
           </h1>
           <p className="text-zinc-400 max-w-2xl text-sm leading-relaxed">
-            Utilize o motor preditivo do Conselho para simular cenários de escala. Nossa IA analisa a degradação histórica do CAC e projeta seu lucro líquido com 85% de precisão estatística.
+            Dashboard preditivo com visão de churn, LTV, forecast de audiência e simulador de escala.
           </p>
         </div>
 

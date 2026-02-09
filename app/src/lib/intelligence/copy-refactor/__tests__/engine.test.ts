@@ -24,7 +24,7 @@ describe('CopyRefactorEngine', () => {
       name: 'Tom Autoritário',
       type: 'style_guide',
       content: 'Use frases curtas, diretas e com autoridade médica.',
-      platform_optimization: ['Instagram'],
+      platform_optimization: ['instagram'],
       tags: ['saude'],
       updatedAt: {} as any
     }

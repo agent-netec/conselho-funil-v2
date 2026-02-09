@@ -6,6 +6,7 @@ import { formatBrandContextForChat, parseAIJSON } from '@/lib/ai/formatters';
 import { generateEmbedding } from '@/lib/ai/embeddings';
 import { upsertToPinecone } from '@/lib/ai/pinecone';
 import { v4 as uuidv4 } from 'uuid';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -27,10 +28,7 @@ export async function POST(request: NextRequest) {
     const { imageUri, brandId, userId, context: additionalContext } = body;
 
     if (!imageUri || !brandId || !userId) {
-      return NextResponse.json(
-        { error: 'imageUri, brandId and userId are required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'imageUri, brandId and userId are required');
     }
 
     // 1. Carregar Contexto da Marca
@@ -53,10 +51,7 @@ export async function POST(request: NextRequest) {
       if (contentType) mimeType = contentType;
     } catch (fetchError) {
       console.error('[Vision] Erro ao carregar imagem:', fetchError);
-      return NextResponse.json(
-        { error: 'Falha ao carregar a imagem para análise.' },
-        { status: 422 }
-      );
+      return createApiError(422, 'Falha ao carregar a imagem para análise.');
     }
 
     // 3. Executar Análise Multimodal (Gemini Vision)
@@ -76,10 +71,7 @@ export async function POST(request: NextRequest) {
       insights = parseAIJSON(rawResponse);
     } catch (parseError) {
       console.error('[Vision] Erro ao parsear JSON da IA:', rawResponse);
-      return NextResponse.json(
-        { error: 'A IA retornou um formato inválido. Tente novamente.' },
-        { status: 500 }
-      );
+      return createApiError(500, 'A IA retornou um formato inválido. Tente novamente.');
     }
 
     // 5. Salvar no Pinecone (Vetorização para RAG Visual)
@@ -120,13 +112,10 @@ export async function POST(request: NextRequest) {
       console.error('[Vision] Erro ao atualizar créditos:', creditError);
     }
 
-    return NextResponse.json(insights);
+    return createApiSuccess(insights);
 
   } catch (error: any) {
     console.error('Error in analyze-visual API:', error);
-    return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
-      { status: 500 }
-    );
+    return createApiError(500, 'Internal server error', { details: error.message });
   }
 }

@@ -36,6 +36,10 @@ import {
   PlugZap,
   LayoutDashboard,
   Briefcase,
+  Calendar,
+  ClipboardCheck,
+  FlaskConical,
+  Telescope,
 } from 'lucide-react';
 
 export const SIDEBAR_ICONS: Record<string, LucideIcon> = {
@@ -75,5 +79,9 @@ export const SIDEBAR_ICONS: Record<string, LucideIcon> = {
   PlugZap,
   LayoutDashboard,
   Briefcase,
+  Calendar,
+  ClipboardCheck,
+  FlaskConical,
+  Telescope,
   'LayoutDashboardIcon': LayoutGrid, // Alias se necessário
 };

@@ -18,6 +18,7 @@ import { db } from '@/lib/firebase/config';
 import { updateCampaignManifesto } from '@/lib/firebase/firestore';
 import type { CopyDecision } from '@/types/database';
 import type { CampaignContext } from '@/types/campaign';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 export const runtime = 'nodejs';
 
@@ -28,18 +29,12 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!funnelId || !copyProposalId || !type || !userId) {
-      return NextResponse.json(
-        { error: 'funnelId, copyProposalId, type, and userId are required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'funnelId, copyProposalId, type, and userId are required');
     }
 
     // Validate type
     if (!['approve', 'adjust', 'kill'].includes(type)) {
-      return NextResponse.json(
-        { error: 'type must be approve, adjust, or kill' },
-        { status: 400 }
-      );
+      return createApiError(400, 'type must be approve, adjust, or kill');
     }
 
     // Verify copy proposal exists
@@ -47,7 +42,7 @@ export async function POST(request: NextRequest) {
     const copyProposalSnap = await getDoc(copyProposalRef);
     
     if (!copyProposalSnap.exists()) {
-      return NextResponse.json({ error: 'Copy proposal not found' }, { status: 404 });
+      return createApiError(404, 'Copy proposal not found');
     }
 
     // Update copy proposal status
@@ -60,10 +55,7 @@ export async function POST(request: NextRequest) {
     // If adjusting, require non-empty adjustments array
     if (type === 'adjust') {
       if (!Array.isArray(adjustments) || adjustments.length === 0) {
-        return NextResponse.json(
-          { error: 'adjustments must be a non-empty array when type is adjust' },
-          { status: 400 }
-        );
+        return createApiError(400, 'adjustments must be a non-empty array when type is adjust');
       }
     }
 
@@ -155,8 +147,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
-      success: true,
+    return createApiSuccess({
       decision: {
         id: newDecision.id,
         ...decisionData,
@@ -170,10 +161,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Copy decision error:', error);
-    return NextResponse.json(
-      { error: 'Failed to process decision', details: String(error) },
-      { status: 500 }
-    );
+    return createApiError(500, 'Failed to process decision', { details: String(error) });
   }
 }
 

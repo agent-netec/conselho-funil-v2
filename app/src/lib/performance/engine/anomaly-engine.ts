@@ -1,4 +1,5 @@
-import { PerformanceMetricDoc, PerformanceAlertDoc, PerformanceConfig } from '../../types/performance';
+import { PerformanceMetricDoc, PerformanceAlertDoc, PerformanceConfig } from '../../../types/performance';
+import { Timestamp } from 'firebase/firestore';
 
 export class AnomalyEngine {
   constructor(private config: PerformanceConfig) {}
@@ -23,7 +24,8 @@ export class AnomalyEngine {
    */
   detect(currentMetric: PerformanceMetricDoc, history: PerformanceMetricDoc[]): PerformanceAlertDoc[] {
     const alerts: PerformanceAlertDoc[] = [];
-    const { thresholds, minDataPoints } = this.config;
+    const thresholds = this.config.thresholds!;
+    const minDataPoints = this.config.minDataPoints!;
 
     // Guardrail: Volume mínimo
     if (currentMetric.metrics.impressions < minDataPoints.impressions || 
@@ -60,7 +62,7 @@ export class AnomalyEngine {
             platform: currentMetric.platform
           },
           status: 'active',
-          createdAt: new Date() as any // Firestore Timestamp seria usado aqui
+          createdAt: Timestamp.now()
         });
       }
     }

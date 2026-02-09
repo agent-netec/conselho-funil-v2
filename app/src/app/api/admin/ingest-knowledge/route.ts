@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase/config';
 import { collection, doc, setDoc, Timestamp } from 'firebase/firestore';
 import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,10 +14,7 @@ export async function POST(request: NextRequest) {
     const { chunks } = await request.json();
 
     if (!chunks || !Array.isArray(chunks)) {
-      return NextResponse.json(
-        { error: 'chunks array is required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'chunks array is required');
     }
 
     const knowledgeCollection = collection(db, 'knowledge_chunks');
@@ -32,11 +30,7 @@ export async function POST(request: NextRequest) {
       count++;
     }
 
-    return NextResponse.json({
-      success: true,
-      message: `${count} chunks ingested successfully`,
-      count,
-    });
+    return createApiSuccess({ message: `${count} chunks ingested successfully`, count });
   } catch (error) {
     return handleSecurityError(error);
   }

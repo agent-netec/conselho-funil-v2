@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { processAssetText } from '@/lib/firebase/assets-server';
 import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,16 +17,13 @@ export async function POST(request: NextRequest) {
     const { assetId, text } = await request.json();
 
     if (!assetId || text === undefined) {
-      return NextResponse.json(
-        { error: 'assetId and text are required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'assetId and text are required');
     }
 
     console.log(`[API Process] Processando asset ${assetId} no servidor...`);
     await processAssetText(assetId, text);
 
-    return NextResponse.json({ success: true });
+    return createApiSuccess({});
   } catch (error: any) {
     return handleSecurityError(error);
   }

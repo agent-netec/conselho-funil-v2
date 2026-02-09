@@ -235,3 +235,73 @@ export async function retrieveByCouncelor(queryText: string, counselor: string, 
 export async function retrieveBenchmarks(queryText: string, topK = 5) {
   return retrieveChunks(queryText, { topK, minSimilarity: 0.2, filters: { docType: 'market_data' } });
 }
+
+/**
+ * Keyword match scoring via Jaccard Similarity.
+ * Sprint 28 — S28-CL-06 (DT-10)
+ *
+ * Calcula a proporção de keywords encontradas no texto.
+ * Zero dependências externas, determinístico, O(n) com Set.
+ * Adequado para filtragem de relevância no pipeline RAG.
+ *
+ * @param text - Texto a ser analisado
+ * @param keywords - Lista de palavras-chave para buscar
+ * @returns Score entre 0 e 1 (proporção de keywords encontradas)
+ */
+export function keywordMatchScore(text: string, keywords: string[]): number {
+  if (!text || keywords.length === 0) return 0;
+  const textTokens = new Set(text.toLowerCase().split(/\s+/));
+  const keywordTokens = new Set(keywords.map(k => k.toLowerCase()));
+  const intersection = [...keywordTokens].filter(k => textTokens.has(k));
+  return keywordTokens.size > 0 ? intersection.length / keywordTokens.size : 0;
+}
+
+/**
+ * Hash-based pseudo-embedding (768 dimensões, determinístico, sem API).
+ * Sprint 28 — S28-CL-06 (DT-06)
+ *
+ * Fallback offline quando a API de embeddings (text-embedding-004) não está disponível.
+ * Usa crypto.subtle.digest('SHA-256') para gerar 32 bytes, expandidos para 768d via seed cycling.
+ *
+ * **ATENÇÃO: ZERO CAPACIDADE SEMÂNTICA.**
+ * Textos semanticamente similares NÃO produzem vetores similares.
+ * Adequado APENAS para deduplicação e cache key, NÃO para busca semântica.
+ * Para busca semântica, use generateEmbedding() em embeddings.ts (via API).
+ *
+ * @param text - Texto para gerar pseudo-embedding
+ * @returns Promise de vetor 768d com valores normalizados em [-1, 1]
+ */
+export async function generateLocalEmbedding(text: string): Promise<number[]> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text.toLowerCase().trim());
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = new Uint8Array(hashBuffer);
+
+  // Expandir 32 bytes para 768 dimensões via seed cycling
+  const embedding = new Array(768);
+  for (let i = 0; i < 768; i++) {
+    embedding[i] = (hashArray[i % 32] / 255) * 2 - 1; // Normalizar para [-1, 1]
+  }
+  return embedding;
+}
+
+/**
+ * Hash de string via algoritmo djb2 com padding.
+ * Sprint 28 — S28-CL-06 (DT-05)
+ *
+ * Upgrade do bit-shift hash anterior para djb2 (melhor distribuição).
+ * Output consistente com padding de 8 chars hexadecimais.
+ * Mantém contrato síncrono para compatibilidade com chamadores existentes.
+ *
+ * @param text - Texto a ser hasheado
+ * @returns String hexadecimal de 8 caracteres
+ */
+export function hashString(text: string): string {
+  let hash = 5381; // djb2 seed
+  for (let i = 0; i < text.length; i++) {
+    hash = ((hash << 5) + hash) + text.charCodeAt(i);
+    hash = hash & 0xFFFFFFFF; // Force 32-bit
+  }
+  // Converter para unsigned e pad para 8 chars
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}

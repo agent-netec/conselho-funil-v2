@@ -144,9 +144,8 @@ export class BrowserAdapter implements IMCPAdapter {
 
   private async callBrowserMcp(tool: string, args: any) {
     // 1. Detectar se estamos no ambiente do Cursor (Dev)
-    // @ts-ignore
-    if (typeof window !== 'undefined' && (window as any).mcp) {
-      return await (window as any).mcp.callTool('cursor-ide-browser', tool, args);
+    if (typeof window !== 'undefined' && window.mcp) {
+      return await window.mcp.callTool('cursor-ide-browser', tool, args);
     }
 
     // 2. Produção (App) - Relay para serviço de Playwright/Puppeteer

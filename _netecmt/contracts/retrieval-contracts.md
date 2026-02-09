@@ -28,7 +28,12 @@ export interface RetrievedChunk {
     sourceUrl?: string;
     pageNumber?: number;
     category?: string;      // ex: 'tráfego', 'copy', 'estratégia'
-    counselor?: string;     // Se o chunk for específico de um especialista
+    counselor?: string;     // Se o chunk for específico de um specialist
+    ux_metadata?: {         // NOVO: Sprint 24 (ROI & UX Intelligence)
+      type: 'headline' | 'cta' | 'hook';
+      relevance: number;
+      original_context?: string;
+    };
     performance_snapshot?: { // Added for ST-12.1
       ctr: number;
       cvr: number;

@@ -56,6 +56,7 @@ export const useContextStore = create<ContextState>()(
     }),
     {
       name: 'context-storage',
+      skipHydration: true, // SSR-safe: rehydrate manualmente em client root
     }
   )
 );

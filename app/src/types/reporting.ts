@@ -53,3 +53,35 @@ export interface AnomalyDetectionResult {
   hasAnomaly: boolean;
   alert?: Omit<AnomalyAlert, 'id' | 'status' | 'timestamp'>;
 }
+
+/**
+ * Resultado de análise de IA — consumido pelo BriefingBot (briefing-bot.ts)
+ * Sprint 29: S29-CL-02 — campos concretos derivados do consumer real
+ */
+export interface AIAnalysisResult {
+  summary: string;                    // Narrativa executiva gerada pelo Gemini
+  insights: string[];                 // Insights formatados (consumer: briefing-bot)
+  recommendations: string[];          // Próximos passos acionáveis
+  confidence?: number;                // 0-1 — confiança da análise
+  dataContext?: string;               // Ex: "Baseado em 4.500 eventos"
+  generatedAt?: Timestamp;            // Quando a análise foi gerada
+}
+
+/**
+ * Métricas de relatório — consumido pelo BriefingBot (briefing-bot.ts)
+ * Sprint 29: S29-CL-02 — campos concretos derivados do consumer real
+ */
+export interface ReportMetrics {
+  roi: number;                        // Return on Investment
+  adSpend: number;                    // Investimento em ads (R$)
+  ltvMaturation: number;              // Maturação LTV (%)
+  revenue?: number;                   // Receita bruta (R$)
+  cpa?: number;                       // Custo por aquisição (R$)
+  roas?: number;                      // Return on Ad Spend
+  roiPredicted?: number;              // ROI projetado
+  conversions?: number;               // Total de conversões
+  period?: {                          // Período de referência
+    start: Timestamp;
+    end: Timestamp;
+  };
+}

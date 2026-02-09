@@ -1,6 +1,9 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { getCreativePerformanceRanking } from '@/lib/firebase/creative-intelligence';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
  * @fileoverview API Route for Creative Intelligence Ranking
@@ -14,25 +17,24 @@ export async function GET(req: NextRequest) {
     const brandId = searchParams.get('brandId');
 
     if (!brandId) {
-      return NextResponse.json(
-        { error: 'Missing brandId parameter' },
-        { status: 400 }
-      );
+      return createApiError(400, 'Missing brandId parameter');
     }
 
-    const ranking = await getCreativePerformanceRanking(brandId);
+    const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
+    const ranking = await getCreativePerformanceRanking(safeBrandId);
 
-    return NextResponse.json({
-      brandId,
+    return createApiSuccess({
+      brandId: safeBrandId,
       ranking,
       timestamp: new Date().toISOString()
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ [API Creative Ranking] Error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal Server Error' },
-      { status: 500 }
-    );
+    if (error instanceof ApiError) {
+      return handleSecurityError(error);
+    }
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    return createApiError(500, message);
   }
 }

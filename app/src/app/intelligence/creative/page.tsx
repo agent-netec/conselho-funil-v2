@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function CreativeIntelligencePage() {
-  const { activeBrand } = useActiveBrand();
+  const activeBrand = useActiveBrand();
   const { ranking, isLoading } = useCreativeRanking(activeBrand?.id);
   const [selectedCreative, setSelectedCreative] = useState<CreativePerformance | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

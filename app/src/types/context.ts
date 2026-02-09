@@ -8,10 +8,6 @@ import { RetrievedChunk } from './retrieval';
 import { DataScope } from './scoped-data';
 import { VoiceProfile } from './intelligence';
 
-import { VoiceProfile } from './intelligence';
-import { RetrievedChunk } from './retrieval';
-import { DataScope } from './scoped-data';
-
 /**
  * Níveis de prioridade para namespaces
  */
@@ -28,10 +24,8 @@ export const NAMESPACE_PRIORITY: Record<string, number> = {
  * Boost por tipo de dado
  */
 export const DATA_TYPE_BOOST: Record<string, number> = {
-  'market_trend': 1.4,        // NOVO: Máxima prioridade (pulso do mercado)
-  'social_mention': 1.2,      // NOVO: Alta prioridade (vocabulário real)
-  'market_trend': 1.4,        // NOVO: Máxima prioridade (pulso do mercado)
-  'social_mention': 1.2,      // NOVO: Alta prioridade (vocabulário real)
+  'market_trend': 1.4,        // Máxima prioridade (pulso do mercado)
+  'social_mention': 1.2,      // Alta prioridade (vocabulário real)
   'icp_insight': 1.3,
   'voice_profile': 1.2,
   'brand_asset': 1.0,

@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -33,17 +34,11 @@ export async function PATCH(request: NextRequest) {
     const { funnelId, status } = body;
 
     if (!funnelId || !status) {
-      return NextResponse.json(
-        { error: 'funnelId and status are required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'funnelId and status are required');
     }
 
     if (!VALID_STATUSES.includes(status)) {
-      return NextResponse.json(
-        { error: `Invalid status. Valid: ${VALID_STATUSES.join(', ')}` },
-        { status: 400 }
-      );
+      return createApiError(400, `Invalid status. Valid: ${VALID_STATUSES.join(', ')}`);
     }
 
     console.log(`🔧 Admin: Updating funnel ${funnelId} status to ${status}`);
@@ -53,11 +48,7 @@ export async function PATCH(request: NextRequest) {
       updatedAt: Timestamp.now(),
     });
 
-    return NextResponse.json({
-      success: true,
-      funnelId,
-      newStatus: status,
-    });
+    return createApiSuccess({ funnelId, newStatus: status });
 
   } catch (error) {
     return handleSecurityError(error);
@@ -74,24 +65,18 @@ export async function GET(request: NextRequest) {
     const funnelId = searchParams.get('funnelId');
 
     if (!funnelId) {
-      return NextResponse.json(
-        { error: 'funnelId query param required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'funnelId query param required');
     }
 
     const { getDoc } = await import('firebase/firestore');
     const funnelDoc = await getDoc(doc(db, 'funnels', funnelId));
 
     if (!funnelDoc.exists()) {
-      return NextResponse.json(
-        { error: 'Funnel not found' },
-        { status: 404 }
-      );
+      return createApiError(404, 'Funnel not found');
     }
 
     const data = funnelDoc.data();
-    return NextResponse.json({
+    return createApiSuccess({
       id: funnelDoc.id,
       name: data.name,
       status: data.status,
@@ -100,10 +85,7 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Admin API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to get funnel', details: String(error) },
-      { status: 500 }
-    );
+    return createApiError(500, 'Failed to get funnel', { details: String(error) });
   }
 }
 

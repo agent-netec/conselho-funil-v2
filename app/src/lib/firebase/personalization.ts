@@ -1,5 +1,5 @@
 import { AudienceScan, DynamicContentRule } from "@/types/personalization";
-import { collection, query, where, orderBy, limit, getDocs, addDoc, Timestamp } from "firebase/firestore";
+import { collection, query, where, orderBy, limit, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp } from "firebase/firestore";
 import { db } from "../firebase/config";
 
 /**
@@ -44,4 +44,34 @@ export async function savePersonalizationRule(brandId: string, rule: Omit<Dynami
     ...rule,
     updatedAt: Timestamp.now()
   });
+}
+
+/**
+ * Atualiza parcialmente uma regra de personalização existente
+ */
+export async function updatePersonalizationRule(
+  brandId: string,
+  ruleId: string,
+  data: Partial<Omit<DynamicContentRule, "id" | "brandId">>
+) {
+  const ruleRef = doc(db, `brands/${brandId}/personalization_rules`, ruleId);
+  return await updateDoc(ruleRef, {
+    ...data,
+    updatedAt: Timestamp.now()
+  });
+}
+
+/**
+ * Deleta uma regra de personalização
+ */
+export async function deletePersonalizationRule(brandId: string, ruleId: string) {
+  const ruleRef = doc(db, `brands/${brandId}/personalization_rules`, ruleId);
+  return await deleteDoc(ruleRef);
+}
+
+/**
+ * Toggle ativar/desativar uma regra de personalização
+ */
+export async function togglePersonalizationRule(brandId: string, ruleId: string, isActive: boolean) {
+  return await updatePersonalizationRule(brandId, ruleId, { isActive });
 }

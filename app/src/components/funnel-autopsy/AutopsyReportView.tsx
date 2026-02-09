@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { AutopsyReport, HeuristicResult, Recommendation } from '@/types/autopsy';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
@@ -23,7 +24,7 @@ import {
 import { cn } from '@/lib/utils';
 
 interface AutopsyReportViewProps {
-  report: AutopsyReport;
+  report: AutopsyReport & { id?: string; url?: string };
 }
 
 const HeuristicCard = ({ 

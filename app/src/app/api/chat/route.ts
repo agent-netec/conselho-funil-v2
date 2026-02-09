@@ -40,6 +40,10 @@ import {
   formatFunnelContextForChat 
 } from '@/lib/ai/formatters';
 import { parseJsonBody } from '@/app/api/_utils/parse-json';
+import { requireConversationAccess } from '@/lib/auth/conversation-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { withRateLimit } from '@/lib/middleware/rate-limiter';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -56,14 +60,11 @@ interface ChatRequest {
   intensity?: 'debate' | 'consensus';
 }
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const parsed = await parseJsonBody<ChatRequest>(request);
     if (!parsed.ok) {
-      return NextResponse.json(
-        { error: parsed.error },
-        { status: 400 }
-      );
+      return createApiError(400, parsed.error);
     }
 
     const body = parsed.data;
@@ -80,17 +81,21 @@ export async function POST(request: NextRequest) {
     } = body;
 
     if (!message || !conversationId) {
-      return NextResponse.json(
-        { error: 'Message and conversationId are required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'Message and conversationId are required');
+    }
+
+    // AUTH: Categoria B — Validar ownership da conversa (DT-01)
+    try {
+      await requireConversationAccess(request, conversationId);
+    } catch (error) {
+      return handleSecurityError(error);
     }
 
     // ST-11.24 Optimization: Fetch conversation first to get userId
     const conversation = await getConversation(conversationId);
 
     if (!conversation) {
-      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
+      return createApiError(404, 'Conversation not found');
     }
 
     const userId = conversation.userId;
@@ -98,10 +103,7 @@ export async function POST(request: NextRequest) {
 
     // Só bloqueia se o limite estiver ativado
     if (CONFIG.ENABLE_CREDIT_LIMIT && credits <= 0) {
-      return NextResponse.json(
-        { error: 'insufficient_credits', message: 'Saldo de créditos insuficiente. Faça upgrade para continuar.' },
-        { status: 403 }
-      );
+      return createApiError(403, 'insufficient_credits', { details: 'Saldo de créditos insuficiente. Faça upgrade para continuar.' });
     }
 
     const isPartyMode = mode === 'party' || partyMode === true;
@@ -191,10 +193,10 @@ export async function POST(request: NextRequest) {
           // Em um ambiente real de API, o cache seria Redis, mas aqui vamos simular
           // o comportamento de evitar chamadas repetitivas ao Pinecone se os dados forem idênticos.
           
-          const brand = await getBrand(conversation.brandId);
+          const brand = await getBrand(conversation.brandId!);
           if (brand) {
             const bContext = formatBrandContextForChat(brand);
-            const bChunks = await retrieveBrandChunks(conversation.brandId, message, 5);
+            const bChunks = await retrieveBrandChunks(conversation.brandId!, message, 5);
             return { context: bContext, brandChunks: bChunks };
           }
         } catch (err) {
@@ -394,17 +396,15 @@ export async function POST(request: NextRequest) {
       console.error('Error in post-processing:', dbError);
     }
 
-    return NextResponse.json({
+    // DT-10: Wrap chat success in createApiSuccess
+    return createApiSuccess({
       response: assistantResponse,
       sources: sources, // US-1.2.3: UI agora recebe snippets e rerankScore
       version: '11.24.5-perf'
     });
   } catch (error) {
     console.error('Error in chat API:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return createApiError(500, 'Internal server error');
   }
 }
 
@@ -503,3 +503,12 @@ ${relevantIds.map(id => {
 
   return response;
 }
+
+// S32-RL-02: Rate limit — 30 req/min por brand
+const rateLimitedPOST = withRateLimit(handlePOST, {
+  maxRequests: 30,
+  windowMs: 60_000,
+  scope: 'chat',
+});
+
+export { rateLimitedPOST as POST };

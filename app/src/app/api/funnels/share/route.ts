@@ -8,6 +8,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -25,13 +28,20 @@ function generateShareToken(): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { funnelId, expiresIn } = body; // expiresIn in days, 0 = never
+    const { funnelId, expiresIn, brandId } = body; // expiresIn in days, 0 = never
 
     if (!funnelId) {
-      return NextResponse.json(
-        { error: 'funnelId is required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'funnelId is required');
+    }
+
+    if (!brandId) {
+      return createApiError(400, 'brandId is required');
+    }
+
+    try {
+      await requireBrandAccess(request, brandId);
+    } catch (error) {
+      return handleSecurityError(error);
     }
 
     // Verify funnel exists
@@ -39,10 +49,7 @@ export async function POST(request: NextRequest) {
     const funnelSnap = await getDoc(funnelRef);
     
     if (!funnelSnap.exists()) {
-      return NextResponse.json(
-        { error: 'Funnel not found' },
-        { status: 404 }
-      );
+      return createApiError(404, 'Funnel not found');
     }
 
     const shareToken = generateShareToken();
@@ -62,8 +69,7 @@ export async function POST(request: NextRequest) {
 
     const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/shared/${shareToken}`;
 
-    return NextResponse.json({
-      success: true,
+    return createApiSuccess({
       shareToken,
       shareUrl,
       expiresAt: expiresAt?.toDate() || null,
@@ -71,10 +77,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Share API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to create share link', details: String(error) },
-      { status: 500 }
-    );
+    return createApiError(500, 'Failed to create share link', { details: String(error) });
   }
 }
 
@@ -85,10 +88,7 @@ export async function DELETE(request: NextRequest) {
     const funnelId = searchParams.get('funnelId');
 
     if (!funnelId) {
-      return NextResponse.json(
-        { error: 'funnelId is required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'funnelId is required');
     }
 
     const funnelRef = doc(db, 'funnels', funnelId);
@@ -102,14 +102,11 @@ export async function DELETE(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true });
+    return createApiSuccess({});
 
   } catch (error) {
     console.error('Share API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to remove share link', details: String(error) },
-      { status: 500 }
-    );
+    return createApiError(500, 'Failed to remove share link', { details: String(error) });
   }
 }
 

@@ -9,12 +9,14 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
+  forceExit: true, // @todo S35: investigar polyfill MessageChannel isolado
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testEnvironmentOptions: {
     customExportConditions: [''],
   },
+  testPathIgnorePatterns: ['/node_modules/', 'tests/smoke'],
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

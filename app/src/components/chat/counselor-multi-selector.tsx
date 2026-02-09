@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { COUNSELORS_REGISTRY } from '@/lib/constants';
 import { CounselorId } from '@/types';
 import { cn } from '@/lib/utils';
-import { Check, Users, Sword, Handshake } from 'lucide-react';
+import { Check, Users, Sword, Handshake, X } from 'lucide-react';
 
 interface CounselorMultiSelectorProps {
   selectedIds: string[];
@@ -240,7 +240,7 @@ export function CounselorMultiSelector({
       <div className="px-4 py-4 bg-black/60 border-t border-white/[0.06] flex items-center justify-between backdrop-blur-md">
         <div className="flex items-center gap-4">
           <div className="flex -space-x-3">
-            <AnimatePresence mode="popover">
+            <AnimatePresence mode="wait">
               {selectedIds.map((id, i) => {
                 const counselor = COUNSELORS_REGISTRY[id as CounselorId];
                 if (!counselor) return null;

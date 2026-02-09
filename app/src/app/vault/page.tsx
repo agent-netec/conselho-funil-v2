@@ -34,19 +34,19 @@ const MOCK_REVIEW_CONTENT: VaultContent = {
   status: 'review',
   variants: [
     {
-      platform: 'X',
+      platform: 'x',
       copy: '🚀 O futuro do marketing não é mais sobre quem grita mais alto, mas sobre quem ouve melhor.\n\nA IA está transformando o social listening em vantagem competitiva real. Você está pronto para o Autopilot? #MarketingDigital #IA',
       mediaRefs: [],
       metadata: {}
     },
     {
-      platform: 'LinkedIn',
+      platform: 'linkedin',
       copy: 'A era do "Content Autopilot" chegou. 🤖\n\nNão se trata apenas de automatizar postagens, mas de criar uma simbiose entre inteligência de dados e criatividade humana.\n\nNo Conselho de Funil, estamos construindo o Creative Vault: a memória de longo prazo da sua marca que alimenta cada interação.\n\nO que você acha dessa evolução? 👇\n\n#SocialListening #ArtificialIntelligence #ContentStrategy',
       mediaRefs: [],
       metadata: {}
     },
     {
-      platform: 'Instagram',
+      platform: 'instagram',
       copy: 'Sua marca tem memória? 🧠✨\n\nO Creative Vault é onde o DNA da sua cópia encontra a inteligência dos dados. Transformamos insights em conteúdo que converte, em segundos.\n\nConfira no link da bio como estamos revolucionando o fluxo de criação. 🚀',
       mediaRefs: [],
       metadata: {}

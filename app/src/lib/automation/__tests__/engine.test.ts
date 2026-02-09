@@ -1,10 +1,10 @@
 import { AutomationEngine } from '../engine';
-import { AutopsyReport, CriticalGap } from '@/types/funnel';
+import { LegacyAutopsyReport, CriticalGap } from '@/types/funnel';
 import { AutomationRule } from '@/types/automation';
 import { Timestamp } from 'firebase/firestore';
 
 describe('AutomationEngine', () => {
-  const mockReport: AutopsyReport = {
+  const mockReport: LegacyAutopsyReport = {
     id: 'rep_1',
     funnelId: 'funnel_1',
     timestamp: Timestamp.now(),
@@ -54,7 +54,7 @@ describe('AutomationEngine', () => {
   });
 
   test('should NOT detect Kill-Switch if drop-off is minor', () => {
-    const safeReport: AutopsyReport = {
+    const safeReport: LegacyAutopsyReport = {
       ...mockReport,
       criticalGaps: [{
         ...mockReport.criticalGaps[0],

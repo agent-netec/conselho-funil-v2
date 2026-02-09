@@ -41,7 +41,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
             {isUser ? 'Você' : 'Conselho de Funil'}
           </span>
           <span className="text-xs text-zinc-500">
-            {message.timestamp.toLocaleTimeString('pt-BR', {
+            {(message.timestamp?.toDate?.() ?? new Date()).toLocaleTimeString('pt-BR', {
               hour: '2-digit',
               minute: '2-digit',
             })}
@@ -62,7 +62,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
                 key={i}
                 className="rounded bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400"
               >
-                {source}
+                {typeof source === 'string' ? source : source.file}
               </span>
             ))}
           </div>

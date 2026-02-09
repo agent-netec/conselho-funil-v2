@@ -14,6 +14,7 @@ export class TrendAgent {
    */
   async processTrend(brandId: string, trendData: Omit<MarketTrend, 'id' | 'expiresAt'>): Promise<MarketTrend> {
     // ... (existing logic)
+    return { ...trendData, id: `trend_${Date.now()}`, expiresAt: Timestamp.fromMillis(Date.now() + this.TTL_DAYS * 86400000) } as MarketTrend;
   }
 
   /**
@@ -36,7 +37,7 @@ export class TrendAgent {
         region: 'universal',
         timeRange: '24h',
         capturedAt: Timestamp.now(),
-        brandId,
+        inheritToChildren: false,
         scope: {
           level: 'brand',
           brandId

@@ -1,0 +1,72 @@
+"use client";
+
+import { useMemo, useState } from 'react';
+import { useBrandStore } from '@/lib/stores/brand-store';
+import { ResearchForm } from '@/components/intelligence/research/research-form';
+import { DossierViewer } from '@/components/intelligence/research/dossier-viewer';
+import type { MarketDossier, ResearchDepth } from '@/types/research';
+
+export default function ResearchPage() {
+  const { selectedBrand } = useBrandStore();
+  const brandId = selectedBrand?.id ?? '';
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState<MarketDossier[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const selected = useMemo(() => items.find((i) => i.id === selectedId) ?? null, [items, selectedId]);
+
+  const loadList = async () => {
+    if (!brandId) return;
+    const res = await fetch(`/api/intelligence/research?brandId=${brandId}`);
+    if (!res.ok) return;
+    const payload = await res.json();
+    const list = (payload?.data ?? payload) as MarketDossier[];
+    setItems(Array.isArray(list) ? list : []);
+  };
+
+  const handleSubmit = async (payload: {
+    topic: string;
+    marketSegment?: string;
+    competitors?: string[];
+    depth: ResearchDepth;
+  }) => {
+    if (!brandId) return;
+    setLoading(true);
+    try {
+      const res = await fetch('/api/intelligence/research', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brandId, ...payload }),
+      });
+      if (!res.ok) return;
+      await loadList();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto py-8 px-4 space-y-6">
+      <h1 className="text-3xl font-bold text-white">Deep Research</h1>
+      <ResearchForm onSubmit={handleSubmit} loading={loading} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <button className="text-xs text-zinc-400 underline" onClick={loadList}>
+            Recarregar dossiês
+          </button>
+          {items.map((item) => (
+            <button
+              key={item.id}
+              className="w-full text-left p-3 border border-zinc-800 rounded bg-zinc-900/20 hover:bg-zinc-900/40"
+              onClick={() => setSelectedId(item.id)}
+            >
+              <div className="text-sm text-zinc-100">{item.topic}</div>
+              <div className="text-xs text-zinc-500">{item.status}</div>
+            </button>
+          ))}
+        </div>
+        <div className="lg:col-span-2">{selected ? <DossierViewer dossier={selected} /> : null}</div>
+      </div>
+    </div>
+  );
+}

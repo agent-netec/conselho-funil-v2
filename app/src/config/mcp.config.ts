@@ -28,6 +28,11 @@ export const DEFAULT_MCP_CONFIG: MCPRouterConfig = {
       requestsPerHour: 200,
       requestsPerDay: 2000,
     },
+    glimpse: {
+      requestsPerMinute: 30,
+      requestsPerHour: 500,
+      requestsPerDay: 5000,
+    },
   },
   circuitBreaker: {
     exa: {
@@ -50,11 +55,17 @@ export const DEFAULT_MCP_CONFIG: MCPRouterConfig = {
       successThreshold: 2,
       timeout: 300000,
     },
+    glimpse: {
+      failureThreshold: 3,
+      successThreshold: 2,
+      timeout: 120000,
+    },
   },
   fallbacks: {
     exa: ['browser'],
     firecrawl: ['browser'],
     browser: [],
     bright_data: ['browser'],
+    glimpse: ['exa'],
   },
 };

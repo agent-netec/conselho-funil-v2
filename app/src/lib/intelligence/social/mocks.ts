@@ -1,4 +1,4 @@
-import { SocialInteraction } from '../../types/social';
+import { SocialInteraction } from '../../../types/social';
 import { SocialIngestionNormalizer } from './normalizer';
 
 /**

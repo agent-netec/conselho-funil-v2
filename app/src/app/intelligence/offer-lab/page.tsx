@@ -4,8 +4,10 @@ import React from 'react';
 import { OfferLabWizard } from '@/components/intelligence/offer-lab/offer-lab-wizard';
 import { Sparkles, Beaker, BrainCircuit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useBrandStore } from '@/lib/stores/brand-store';
 
 export default function OfferLabPage() {
+  const { selectedBrand } = useBrandStore();
   return (
     <div className="container mx-auto p-6 space-y-8 max-w-7xl">
       {/* Header */}
@@ -40,7 +42,7 @@ export default function OfferLabPage() {
 
       {/* Main Content */}
       <main className="mt-8">
-        <OfferLabWizard />
+        <OfferLabWizard brandId={selectedBrand?.id || ''} />
       </main>
 
       {/* Footer Info */}

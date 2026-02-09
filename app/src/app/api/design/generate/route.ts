@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getBrand, updateUserUsage } from '@/lib/firebase/firestore';
 import { getBrandAssets } from '@/lib/firebase/assets';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
  * API Proxy para Geração de Imagens via Google AI (Imagen/Nanobanana)
@@ -29,16 +32,26 @@ export async function POST(request: NextRequest) {
 
     const basePrompt = adjustPrompt || prompt;
     if (!basePrompt) {
-      return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
+      return createApiError(400, 'Prompt is required');
     }
 
     if (!userId) {
-      return NextResponse.json({ error: 'userId is required for credit management' }, { status: 400 });
+      return createApiError(400, 'userId is required for credit management');
+    }
+
+    if (!brandId) {
+      return createApiError(400, 'brandId é obrigatório.');
+    }
+
+    try {
+      await requireBrandAccess(request, brandId);
+    } catch (error) {
+      return handleSecurityError(error);
     }
 
     const apiKey = process.env.GOOGLE_AI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: 'GOOGLE_AI_API_KEY não configurada' }, { status: 500 });
+      return createApiError(500, 'GOOGLE_AI_API_KEY não configurada');
     }
 
     // ST-11.24 Optimization: Se o prompt já vem detalhado (do card), não precisamos gerar variantes
@@ -289,8 +302,7 @@ Retorne apenas o JSON array de strings.`;
       console.error('[Design] Erro ao atualizar créditos:', creditError);
     }
 
-    return NextResponse.json({
-      success: true,
+    return createApiSuccess({
       imageUrl: generationResponses[0]?.url,
       processId: generationResponses[0]?.processId,
       images: generationResponses,
@@ -307,9 +319,6 @@ Retorne apenas o JSON array de strings.`;
     });
   } catch (error) {
     console.error('Google Image Generation Error:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate image via Google AI', details: String(error) },
-      { status: 500 },
-    );
+    return createApiError(500, 'Failed to generate image via Google AI', { details: String(error) });
   }
 }

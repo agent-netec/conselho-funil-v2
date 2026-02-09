@@ -4,6 +4,7 @@ import { anomalyDetector } from '@/lib/reporting/anomaly-detector';
 import { getLatestPrediction } from '@/lib/firebase/predictive';
 import { saveAnomalyAlert } from '@/lib/firebase/reporting';
 import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
  * POST /api/reporting/anomaly-check
@@ -19,20 +20,14 @@ export async function POST(request: NextRequest) {
     const { clientId, realRoi, durationHours } = body;
 
     if (!clientId || realRoi === undefined) {
-      return NextResponse.json(
-        { error: 'Parâmetros clientId e realRoi são obrigatórios' },
-        { status: 400 }
-      );
+      return createApiError(400, 'Parâmetros clientId e realRoi são obrigatórios');
     }
 
     // 2. Busca a predição mais recente (Sprint 22)
     const latestPrediction = await getLatestPrediction(clientId, 'roi_forecast');
 
     if (!latestPrediction) {
-      return NextResponse.json(
-        { error: 'Nenhuma predição de ROI encontrada para este cliente. Execute o Prediction Engine primeiro.' },
-        { status: 404 }
-      );
+      return createApiError(404, 'Nenhuma predição de ROI encontrada para este cliente. Execute o Prediction Engine primeiro.');
     }
 
     // 3. Execução do Anomaly Detector
@@ -45,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Retorno
-    return NextResponse.json({
+    return createApiSuccess({
       hasAnomaly: result.hasAnomaly,
       alertId,
       details: result.alert || null

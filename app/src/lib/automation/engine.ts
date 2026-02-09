@@ -1,4 +1,4 @@
-import { AutopsyReport, CriticalGap } from '@/types/funnel';
+import { LegacyAutopsyReport, CriticalGap } from '@/types/funnel';
 import { AutomationRule, AutomationLog, ScalingPrediction } from '@/types/automation';
 import { Timestamp } from 'firebase/firestore';
 
@@ -33,7 +33,7 @@ export class AutomationEngine {
    */
   static evaluateAutopsy(
     brandId: string,
-    report: AutopsyReport,
+    report: LegacyAutopsyReport,
     rules: AutomationRule[]
   ): AutomationLog[] {
     const logs: AutomationLog[] = [];
@@ -140,7 +140,7 @@ export class AutomationEngine {
    * Lógica específica para o Kill-Switch (Falha Catastrófica).
    * Acionado quando o drop-off é > 50% vs benchmark (conforme ST-20.2).
    */
-  static checkKillSwitch(report: AutopsyReport): boolean {
+  static checkKillSwitch(report: LegacyAutopsyReport): boolean {
     return report.criticalGaps.some(gap => {
       // Se o valor atual é menos da metade do target (benchmark)
       // Ex: Target 2%, Atual 0.9% -> 0.9 < (2 * 0.5) -> Trigger!

@@ -18,6 +18,7 @@ import {
   getDoc,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import type { LibraryTemplate, Funnel, Proposal } from '@/types/database';
 
 export const runtime = 'nodejs';
@@ -53,16 +54,13 @@ export async function GET(request: NextRequest) {
       templates = templates.filter(t => t.metadata?.objective === objective);
     }
 
-    return NextResponse.json({
+    return createApiSuccess({
       templates,
       total: templates.length,
     });
   } catch (error) {
     console.error('Error listing templates:', error);
-    return NextResponse.json(
-      { error: 'Failed to list templates' },
-      { status: 500 }
-    );
+    return createApiError(500, 'Failed to list templates');
   }
 }
 
@@ -73,29 +71,20 @@ export async function POST(request: NextRequest) {
     const { funnelId, proposalId, name, description, tags } = body;
 
     if (!funnelId || !proposalId) {
-      return NextResponse.json(
-        { error: 'funnelId and proposalId are required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'funnelId and proposalId are required');
     }
 
     // Get funnel data
     const funnelDoc = await getDoc(doc(db, 'funnels', funnelId));
     if (!funnelDoc.exists()) {
-      return NextResponse.json(
-        { error: 'Funnel not found' },
-        { status: 404 }
-      );
+      return createApiError(404, 'Funnel not found');
     }
     const funnel = { id: funnelDoc.id, ...funnelDoc.data() } as Funnel;
 
     // Get proposal data
     const proposalDoc = await getDoc(doc(db, 'funnels', funnelId, 'proposals', proposalId));
     if (!proposalDoc.exists()) {
-      return NextResponse.json(
-        { error: 'Proposal not found' },
-        { status: 404 }
-      );
+      return createApiError(404, 'Proposal not found');
     }
     const proposal = { id: proposalDoc.id, ...proposalDoc.data() } as Proposal;
 
@@ -134,8 +123,7 @@ export async function POST(request: NextRequest) {
 
     console.log(`📚 Template salvo: ${templateRef.id}`);
 
-    return NextResponse.json({
-      success: true,
+    return createApiSuccess({
       templateId: templateRef.id,
       template: {
         id: templateRef.id,
@@ -144,9 +132,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error saving template:', error);
-    return NextResponse.json(
-      { error: 'Failed to save template', details: String(error) },
-      { status: 500 }
-    );
+    return createApiError(500, 'Failed to save template', { details: String(error) });
   }
 }

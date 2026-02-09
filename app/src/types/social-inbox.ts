@@ -4,7 +4,8 @@
  * @version 1.0.0
  */
 
-export type SocialPlatform = 'x' | 'linkedin' | 'instagram' | 'whatsapp';
+import type { SocialPlatform as _SocialPlatform } from './social-platform';
+export type SocialPlatform = _SocialPlatform;
 export type InteractionType = 'comment' | 'dm' | 'mention';
 export type InteractionStatus = 'pending' | 'read' | 'archived' | 'responded';
 

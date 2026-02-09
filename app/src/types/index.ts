@@ -2,25 +2,13 @@
 // TYPES - Conselho de Funil
 // ============================================
 
-// Conversation & Messages
-export interface Message {
-  id: string;
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  timestamp: Date;
-  metadata?: {
-    sources?: string[];
-    counselors?: string[];
-  };
-}
+import { Timestamp } from 'firebase/firestore';
 
-export interface Conversation {
-  id: string;
-  title: string;
-  messages: Message[];
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Conversation & Messages — re-export de database.ts (source of truth)
+import type { Message as _Message, SourceReference as _SourceReference, Conversation as _Conversation } from './database';
+export type Message = _Message;
+export type SourceReference = _SourceReference;
+export type Conversation = _Conversation;
 
 // Counselors
 export type CounselorId = 
@@ -58,39 +46,10 @@ export interface Counselor {
   specialty?: string; // Opcional, vindo do Conselho de Copy
 }
 
-// Funnel
-export type FunnelStatus = 
-  | 'draft'
-  | 'generating'
-  | 'review'
-  | 'approved'
-  | 'adjusting'
-  | 'executing'
-  | 'completed'
-  | 'killed';
+// Funnel — re-export de database.ts (source of truth)
+export type { Funnel, FunnelStatus, FunnelContext } from './database';
 
 export type FunnelObjective = 'leads' | 'sales' | 'calls' | 'retention';
-
-export interface FunnelContext {
-  objective: FunnelObjective;
-  audience: {
-    who: string;
-    pain: string;
-    awareness: 'unaware' | 'problem' | 'solution' | 'product';
-    objection: string;
-  };
-  offer: {
-    what: string;
-    ticket: number;
-    type: string;
-    differential: string;
-  };
-  channels: {
-    primary: string;
-    secondary?: string;
-    owned?: string[];
-  };
-}
 
 export interface FunnelStage {
   order: number;
@@ -110,19 +69,6 @@ export interface Scorecard {
   }[];
   totalScore: number;
   recommendation: 'execute' | 'adjust' | 'kill';
-}
-
-export interface Funnel {
-  id: string;
-  name: string;
-  status: FunnelStatus;
-  context: FunnelContext;
-  architecture?: {
-    stages: FunnelStage[];
-  };
-  scorecard?: Scorecard;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 // ============================================
@@ -161,7 +107,7 @@ export interface Decision {
   type: DecisionType;
   rationale: string;
   adjustments?: string[];
-  createdAt: Date;
+  createdAt: Timestamp;
 }
 
 export interface DashboardStats {

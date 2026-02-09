@@ -5,6 +5,35 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.24.0] - 2026-02-05
+
+### 🚀 Sprint 24: ROI & UX Intelligence
+
+Esta sprint foca na ativação de inteligência de UX com base em ativos reais e no reforço de isolamento multi-tenant no pipeline de inteligência.
+
+### Adicionado
+- **Discovery Hub (AssetsPanel)**:
+  - Ativos reais de UX (headlines, CTAs, hooks) carregados do Firestore.
+  - Filtros por tipo e envio direto do ativo para o Writer (injeção de contexto).
+- **Deep RAG com UX Metadata**:
+  - Consulta ao namespace `intelligence_{brandId}` no Pinecone.
+  - Boost de relevância para chunks com `ux_metadata`.
+- **Guardrails Multi-tenant**:
+  - Validação de `brandId` e bloqueio de acesso cross-tenant em rotas de inteligência.
+  - Logs de segurança para tentativas indevidas.
+- **Testes de Rotas**:
+  - Cobertura para validação e cross-tenant em `/api/intelligence/keywords`.
+
+### Melhorias
+- **Prompt do Sistema**:
+  - Priorização explícita de "Ativos de Elite" em tarefas `create_copy` e `create_funnel`.
+
+### Segurança
+- **Isolamento de marca**:
+  - Sanitização de `brandId` e verificação de ownership antes de qualquer ação.
+
+---
+
 ## [1.17.0] - 2026-01-29
 
 ### 🚀 Sprint 17: Social Command Center

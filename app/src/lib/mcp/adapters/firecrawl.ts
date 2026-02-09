@@ -140,9 +140,8 @@ export class FirecrawlAdapter implements IMCPAdapter {
 
   private async callFirecrawlMcp(tool: string, args: any) {
     // 1. Detectar se estamos no ambiente do Cursor (Dev)
-    // @ts-ignore
-    if (typeof window !== 'undefined' && (window as any).mcp) {
-      return await (window as any).mcp.callTool('firecrawl', tool, args);
+    if (typeof window !== 'undefined' && window.mcp) {
+      return await window.mcp.callTool('firecrawl', tool, args);
     }
 
     // 2. Produção (App) - Relay

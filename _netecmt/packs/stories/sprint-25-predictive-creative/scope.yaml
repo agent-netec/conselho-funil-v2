@@ -1,0 +1,152 @@
+# Sprint 25 — Predictive & Creative Engine
+# Scope Definition (Leticia — SM)
+
+sprint:
+  id: sprint-25
+  name: "Predictive & Creative Engine"
+  status: ready_for_dev
+  lane: intelligence_wing
+  start_date: "2026-02-06"
+  prepared_by: leticia
+
+# ──────────────────────────────────────────────
+# EPICS
+# ──────────────────────────────────────────────
+
+epics:
+  - id: epic-1
+    name: "Conversion Predictor"
+    priority: P0
+    stories: [S25-ST-01, S25-ST-02, S25-ST-03]
+    endpoint: "POST /api/intelligence/predict/score"
+    module_path: "app/src/lib/intelligence/predictor/"
+    types_file: "app/src/types/prediction.ts"
+
+  - id: epic-2
+    name: "Creative Automation"
+    priority: P0
+    stories: [S25-ST-04, S25-ST-05, S25-ST-06]
+    endpoint: "POST /api/intelligence/creative/generate-ads"
+    module_path: "app/src/lib/intelligence/creative-engine/"
+    types_file: "app/src/types/creative-ads.ts"
+
+  - id: epic-3
+    name: "Multi-Input Intelligence"
+    priority: P1
+    stories: [S25-ST-07, S25-ST-08, S25-ST-09]
+    endpoint: "POST /api/intelligence/analyze/text"
+    module_path: "app/src/lib/intelligence/text-analyzer/"
+    types_file: "app/src/types/text-analysis.ts"
+
+  - id: transversal
+    name: "UI — Painel de Predição + Ad Preview"
+    priority: P0
+    stories: [S25-ST-10]
+    module_path: "app/src/app/intelligence/predict/"
+    depends_on: [epic-1, epic-2]
+
+# ──────────────────────────────────────────────
+# STORIES
+# ──────────────────────────────────────────────
+
+stories:
+  - id: S25-ST-01
+    name: "Scoring Engine — 6 dimensões + CPS"
+    epic: epic-1
+    priority: P0
+    size: M  # 2-4h
+    depends_on: []
+    blocks: [S25-ST-02, S25-ST-03, S25-ST-04, S25-ST-10]
+
+  - id: S25-ST-02
+    name: "Benchmark Comparativo (ranking relativo)"
+    epic: epic-1
+    priority: P1
+    size: S  # < 2h
+    depends_on: [S25-ST-01]
+    blocks: []
+
+  - id: S25-ST-03
+    name: "Recommendations Engine (sugestões RAG-powered)"
+    epic: epic-1
+    priority: P1
+    size: M  # 2-4h
+    depends_on: [S25-ST-01]
+    blocks: []
+
+  - id: S25-ST-04
+    name: "Ad Generation Pipeline (Meta Feed, Stories, Google Search)"
+    epic: epic-2
+    priority: P0
+    size: L  # 4-8h
+    depends_on: [S25-ST-01]
+    blocks: [S25-ST-05, S25-ST-06, S25-ST-10]
+
+  - id: S25-ST-05
+    name: "Elite Asset Remixing (top 20% como referência)"
+    epic: epic-2
+    priority: P0
+    size: M  # 2-4h
+    depends_on: [S25-ST-04]
+    blocks: []
+
+  - id: S25-ST-06
+    name: "Brand Voice Compliance Gate"
+    epic: epic-2
+    priority: P1
+    size: S  # < 2h
+    depends_on: [S25-ST-04]
+    blocks: []
+
+  - id: S25-ST-07
+    name: "Text Input Analyzer (colar texto/transcrição)"
+    epic: epic-3
+    priority: P1
+    size: M  # 2-4h
+    depends_on: []
+    blocks: [S25-ST-08, S25-ST-09]
+
+  - id: S25-ST-08
+    name: "VSL Transcript Parser (estrutura narrativa)"
+    epic: epic-3
+    priority: P2
+    size: M  # 2-4h
+    depends_on: [S25-ST-07]
+    blocks: []
+
+  - id: S25-ST-09
+    name: "Ad Copy Analyzer (input de anúncio existente)"
+    epic: epic-3
+    priority: P2
+    size: S  # < 2h
+    depends_on: [S25-ST-07]
+    blocks: []
+
+  - id: S25-ST-10
+    name: "UI — Painel de Predição + Preview de Ads"
+    epic: transversal
+    priority: P0
+    size: L  # 4-8h
+    depends_on: [S25-ST-01, S25-ST-04]
+    blocks: []
+    note: "Depende de mockups de Beto/Victor (pendente)"
+
+# ──────────────────────────────────────────────
+# GUARDRAILS
+# ──────────────────────────────────────────────
+
+guardrails:
+  - "export const dynamic = 'force-dynamic' em todas as rotas"
+  - "requireBrandAccess(req, brandId) obrigatório"
+  - "Zero imports de firebase-admin"
+  - "cost-guard.ts integrado em todas as chamadas Gemini"
+  - "Sanitização de texto em analyze/text (RT-03)"
+  - "Brand Voice gate: toneMatch >= 0.75 com max 2 retries"
+  - "Multi-tenant: Elite Assets filtrados por brandId — NUNCA cross-brand"
+
+# ──────────────────────────────────────────────
+# SIZE LEGEND
+# ──────────────────────────────────────────────
+# S = Small (< 2h)
+# M = Medium (2-4h)
+# L = Large (4-8h)

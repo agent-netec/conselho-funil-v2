@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { queryPinecone, getPineconeIndex } from '@/lib/ai/pinecone';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
     console.log(`[Metrics API] brandId: ${brandId}, type: ${assetTypeFilter}`);
 
     if (!brandId) {
-      return NextResponse.json({ error: 'brandId é obrigatório' }, { status: 400 });
+      return createApiError(400, 'brandId é obrigatório');
     }
 
     // Pinecone requer um vetor para busca. Usamos um vetor com pequeno ruído aleatório.
@@ -32,9 +33,12 @@ export async function GET(request: NextRequest) {
     // DIAGNÓSTICO: Listar namespaces disponíveis para logging, mas não bloquearemos a query.
     let availableNamespaces: string[] = [];
     try {
-      const stats = await getPineconeIndex().describeIndexStats();
-      availableNamespaces = Object.keys(stats.namespaces || {});
-      console.log(`[Metrics API] Namespaces no Pinecone:`, availableNamespaces);
+      const pineconeIdx = await getPineconeIndex();
+      if (pineconeIdx) {
+        const stats = await pineconeIdx.describeIndexStats();
+        availableNamespaces = Object.keys(stats.namespaces || {});
+        console.log(`[Metrics API] Namespaces no Pinecone:`, availableNamespaces);
+      }
     } catch (e) {
       console.warn('[Metrics API] Falha ao ler stats do Pinecone, tentando queries diretas.');
     }
@@ -161,8 +165,7 @@ export async function GET(request: NextRequest) {
       ? (visualAssets.reduce((acc, curr) => (acc + (Number(curr.score) || 0)), 0) / visualCount).toFixed(1)
       : 0;
 
-    return NextResponse.json({
-      success: true,
+    return createApiSuccess({
       assets: enrichedAssets,
       summary: {
         total: enrichedAssets.length,
@@ -174,9 +177,6 @@ export async function GET(request: NextRequest) {
 
   } catch (error: any) {
     console.error('[Metrics API] Critical Error:', error);
-    return NextResponse.json({ 
-      error: 'Erro interno no dashboard de ativos', 
-      details: error.message 
-    }, { status: 500 });
+    return createApiError(500, 'Erro interno no dashboard de ativos', { details: error.message });
   }
 }

@@ -7,7 +7,6 @@
 import { Timestamp } from 'firebase/firestore';
 
 import { ScopedData, DataScope } from './scoped-data';
-import { Timestamp } from 'firebase/firestore';
 
 /**
  * Insight do ICP capturado pela Ala de Inteligência
@@ -134,7 +133,7 @@ export interface IntelligenceSource {
   url?: string;
   author?: string;
   authorUrl?: string;
-  fetchedVia: 'rss' | 'api' | 'scraping';
+  fetchedVia: 'rss' | 'api' | 'scraping' | 'text_input';
 }
 
 export type SearchIntent = 'informational' | 'navigational' | 'commercial' | 'transactional';
@@ -187,6 +186,60 @@ export interface IntelligenceMetrics {
   impressions?: number;
 }
 
+export interface UXAsset {
+  text: string;
+  type: 'headline' | 'cta' | 'hook' | 'visual';
+  location?: string;
+  relevanceScore: number;
+  copyAnalysis?: {
+    angle: string;
+    psychologicalTrigger: string[];
+  };
+}
+
+export interface UXIntelligence {
+  headlines: UXAsset[];
+  ctas: UXAsset[];
+  hooks: UXAsset[];
+  visualElements?: UXAsset[];
+  funnelStructure?: string;
+}
+
+/**
+ * Perfil de voz/tom de marca ou funil
+ * Collection: brands/{brandId}/voice_profiles
+ * Escopo: brand-level (default) ou funnel-level (override)
+ */
+export interface VoiceProfile extends ScopedData {
+  id: string;
+  brandId: string;
+
+  /** Se true, é o perfil default da brand */
+  isDefault: boolean;
+
+  /** Tom de voz configurado */
+  tone: string;
+
+  /** Estilo de escrita */
+  style?: string;
+
+  /** Personalidade da marca */
+  personality?: string;
+
+  /** Palavras/frases que a marca usa */
+  vocabulary?: string[];
+
+  /** Palavras/frases proibidas */
+  forbiddenTerms?: string[];
+
+  /** Exemplos de texto na voz da marca */
+  examples?: string[];
+
+  /** Timestamps */
+  createdAt: Timestamp;
+  updatedAt?: Timestamp;
+}
+
 /**
  * Documento de inteligência armazenado no Firestore
  * Collection: brands/{brandId}/intelligence
@@ -212,6 +265,9 @@ export interface IntelligenceDocument {
   // === MÉTRICAS ===
   metrics?: IntelligenceMetrics;
   
+  // === UX INTELLIGENCE (Sprint 24) ===
+  uxIntelligence?: UXIntelligence;
+  
   // === TIMESTAMPS ===
   collectedAt: Timestamp;
   processedAt?: Timestamp;
@@ -221,6 +277,24 @@ export interface IntelligenceDocument {
   // === SISTEMA ===
   pineconeId?: string;                  // Referência ao vetor
   version: number;                      // Versionamento otimista
+}
+
+/**
+ * Asset unificado de inteligência — normaliza dados de 3 collections
+ * Sprint 29: S29-FT-01 (DT-05, DT-10) — multi-query, NÃO collection nova
+ * Fontes: audience_scans, autopsies, offers
+ */
+export interface IntelligenceAsset {
+  id: string;
+  brandId: string;
+  type: 'audience_scan' | 'autopsy' | 'offer' | 'spy_dossier';
+  name: string;
+  summary: string;
+  status: 'ready' | 'processing' | 'error';
+  score?: number;
+  createdAt: Timestamp;
+  sourceId: string;
+  metadata?: Record<string, unknown>;
 }
 
 export type KeywordType = 'brand' | 'competitor' | 'industry' | 'product';
@@ -257,6 +331,43 @@ export interface BrandKeywordsConfig {
   updatedAt: Timestamp;
   updatedBy: string;                    // userId
   version: number;
+}
+
+/**
+ * @intentional-stub S35 — placeholder de busca semântica sem consumer ativo no fluxo atual.
+ * @todo Implementar quando a busca semântica for ativada.
+ * @see _netecmt/solutioning/architecture/arch-sprint-26-tech-debt-cleanup.md
+ */
+export interface SemanticSearchResult {
+  results: Array<{
+    title: string;
+    url: string;
+    score: number;
+    highlights: string[];
+    [key: string]: unknown;
+  }>;
+  [key: string]: unknown;
+}
+
+/**
+ * @intentional-stub S35 — placeholder de fonte de monitoramento sem consumer ativo.
+ * @todo Implementar quando a configuração avançada de fontes for ativada.
+ * @see _netecmt/solutioning/architecture/arch-sprint-26-tech-debt-cleanup.md
+ */
+export interface MonitoringSource {
+  id: string;
+  displayName: string;
+  platform: string;
+  type: string;
+  status: 'active' | 'paused' | 'error';
+  relevanceScore?: number;
+  lastError?: string;
+  scope?: {
+    level: 'brand' | 'funnel';
+    brandId?: string;
+    funnelId?: string;
+  };
+  [key: string]: unknown;
 }
 
 // === INTERFACES DE OPERAÇÃO ===

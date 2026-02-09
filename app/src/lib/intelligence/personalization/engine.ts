@@ -7,6 +7,46 @@ import { JourneyLead, JourneyEvent } from '@/types/journey';
 import { collection, query, where, limit, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { PropensityEngine } from './propensity';
+import {
+  AudienceScanResponseSchema,
+  FALLBACK_SCAN_RESPONSE,
+  type AudienceScanAIResponse,
+} from './schemas/audience-scan-schema';
+
+/**
+ * S28-PS-01 DT-09: Retry config — exponential backoff no engine (NÃO no gemini.ts)
+ * Wrapper isolado para não impactar outros chamadores de generateWithGemini.
+ */
+const RETRY_CONFIG = {
+  maxRetries: 3,
+  baseDelay: 1000,          // 1s → 2s → 4s
+  maxDelay: 10000,           // Cap em 10s
+  retryableStatuses: [429, 500, 502, 503],
+} as const;
+
+async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+  let lastError: Error | undefined;
+  for (let attempt = 0; attempt <= RETRY_CONFIG.maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      const isRetryable = RETRY_CONFIG.retryableStatuses.some(
+        status => lastError!.message.includes(String(status))
+      );
+      if (!isRetryable || attempt === RETRY_CONFIG.maxRetries) {
+        throw lastError;
+      }
+      const delay = Math.min(
+        RETRY_CONFIG.baseDelay * Math.pow(2, attempt),
+        RETRY_CONFIG.maxDelay
+      );
+      console.warn(`[AudienceEngine] Retry ${attempt + 1}/${RETRY_CONFIG.maxRetries} after ${delay}ms`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  throw lastError;
+}
 
 /**
  * @fileoverview Audience Intelligence Engine (ST-29.1)
@@ -52,13 +92,17 @@ export class AudienceIntelligenceEngine {
     const prompt = buildAudienceScanPrompt(leads, allEvents);
     
     try {
-      const aiResponse = await generateWithGemini(prompt, {
-        systemPrompt: AUDIENCE_SCAN_SYSTEM_PROMPT,
-        temperature: 0.3,
-        responseMimeType: 'application/json'
-      } as any);
+      // S28-PS-01 DT-09: Retry wrapper — backoff exponencial 1s→2s→4s
+      const aiResponse = await withRetry(() =>
+        generateWithGemini(prompt, {
+          systemPrompt: AUDIENCE_SCAN_SYSTEM_PROMPT,
+          temperature: 0.3,
+          responseMimeType: 'application/json'
+        })
+      );
 
-      const result = JSON.parse(aiResponse);
+      // S28-PS-02 DT-03: Zod safeParse + fallback (substitui JSON.parse cru)
+      const result = AudienceIntelligenceEngine.parseAndValidate(aiResponse);
 
       // Determinar segmento predominante baseado nos dados reais calculados
       const predominantSegment = (Object.entries(segmentCounts) as [keyof typeof segmentCounts, number][])
@@ -81,7 +125,8 @@ export class AudienceIntelligenceEngine {
         }
       };
 
-      const scanId = await saveAudienceScan(brandId, scanData);
+      const scanResult = await saveAudienceScan(brandId, scanData);
+      const scanId = typeof scanResult === 'string' ? scanResult : scanResult.id;
       
       return { id: scanId, ...scanData };
 
@@ -89,5 +134,28 @@ export class AudienceIntelligenceEngine {
       console.error('[AudienceIntelligenceEngine] Erro no Deep-Scan:', error);
       throw new Error('Falha ao processar inteligência de audiência com IA.');
     }
+  }
+
+  /**
+   * S28-PS-02 DT-03: Parse + Zod validation with safe fallback.
+   * Replaces raw JSON.parse — prevents corrupted Gemini responses from propagating.
+   * @internal Exported for contract tests only.
+   */
+  static parseAndValidate(aiResponse: string): AudienceScanAIResponse {
+    let aiJson: unknown;
+    try {
+      aiJson = JSON.parse(aiResponse);
+    } catch {
+      console.error('[DeepScan] Gemini returned invalid JSON');
+      return FALLBACK_SCAN_RESPONSE;
+    }
+
+    const parsed = AudienceScanResponseSchema.safeParse(aiJson);
+    if (!parsed.success) {
+      console.error('[DeepScan] Gemini response schema validation failed:', parsed.error.issues);
+      return FALLBACK_SCAN_RESPONSE;
+    }
+
+    return parsed.data;
   }
 }

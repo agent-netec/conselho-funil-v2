@@ -27,7 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function AttributionPage() {
   const [window, setWindow] = React.useState("30")
-  const { stats, loading } = useAttributionData(parseInt(window))
+  const { stats, loading, hasSpendData } = useAttributionData(parseInt(window))
 
   // Formatar dados para o gráfico
   const chartData = React.useMemo(() => {
@@ -177,6 +177,16 @@ export default function AttributionPage() {
               </Card>
             </div>
           </div>
+
+          {/* Fallback visual — Sprint 27 (P12) */}
+          {!hasSpendData && stats.length > 0 && (
+            <Card className="border-amber-200 bg-amber-50/50">
+              <CardContent className="py-4 text-sm text-amber-700 flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Sem dados de spend disponíveis. Conecte uma integração de Ads (Meta/Google) para visualizar custos reais por campanha.
+              </CardContent>
+            </Card>
+          )}
 
           {/* 3. Tabela de Performance Multicanal */}
           <Card>

@@ -1,8 +1,20 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
-import { collection, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { generateCohortId } from '@/lib/intelligence/ltv/cohort-engine';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+
+type CohortSummary = {
+  id: string;
+  leadCount: number;
+  customerCount: number;
+  totalLtv: number;
+  adSpend: number;
+  months: number[];
+};
 
 /**
  * @fileoverview API Route para dados do Dashboard de Cohort.
@@ -11,10 +23,20 @@ import { generateCohortId } from '@/lib/intelligence/ltv/cohort-engine';
 
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const brandId = searchParams.get('brandId');
+
+    if (!brandId) {
+      return createApiError(400, 'brandId é obrigatório');
+    }
+
+    const { brandId: safeBrandId } = await requireBrandAccess(request, brandId);
+
     // 1. Buscar todos os leads para agrupar por cohort
     // Em um cenário real com milhões de leads, isso seria pré-agregado em uma coleção 'cohort_metrics'
     const leadsRef = collection(db, 'leads');
-    const leadsSnap = await getDocs(leadsRef);
+    const leadsQuery = query(leadsRef, where('brandId', '==', safeBrandId));
+    const leadsSnap = await getDocs(leadsQuery);
     
     // 2. Buscar gastos de Ads (Simulado para o Payback Period)
     // Em produção, isso viria da integração com Facebook/Google Ads (S18)
@@ -25,7 +47,7 @@ export async function GET(request: NextRequest) {
       '2026-01': 1200000,
     };
 
-    const cohortMap: Record<string, any> = {};
+    const cohortMap: Record<string, CohortSummary> = {};
 
     leadsSnap.docs.forEach(doc => {
       const lead = doc.data();
@@ -58,9 +80,9 @@ export async function GET(request: NextRequest) {
     });
 
     // 3. Formatar para a UI
-    const cohorts = Object.values(cohortMap).sort((a: any, b: any) => b.id.localeCompare(a.id));
+    const cohorts = Object.values(cohortMap).sort((a, b) => b.id.localeCompare(a.id));
 
-    return NextResponse.json({
+    return createApiSuccess({
       cohorts,
       summary: {
         totalLeads: cohorts.reduce((acc, c) => acc + c.leadCount, 0),
@@ -69,11 +91,11 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Cohort API Error]:', error);
-    return NextResponse.json(
-      { error: 'Erro interno ao processar dados de cohort.' },
-      { status: 500 }
-    );
+    if (error instanceof ApiError) {
+      return handleSecurityError(error);
+    }
+    return createApiError(500, 'Erro interno ao processar dados de cohort.');
   }
 }

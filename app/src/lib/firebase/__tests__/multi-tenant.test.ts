@@ -2,6 +2,37 @@ import { createIntelligenceAsset, getCompetitorAssets } from '../intelligence';
 import { db } from '../config';
 import { collection, getDocs } from 'firebase/firestore';
 
+// Mock Firebase config
+jest.mock('../config', () => ({
+  db: {},
+}));
+
+// Mock Firebase Firestore
+jest.mock('firebase/firestore', () => ({
+  collection: jest.fn(),
+  getDocs: jest.fn(),
+  addDoc: jest.fn(),
+  query: jest.fn(),
+  where: jest.fn(),
+  orderBy: jest.fn(),
+  Timestamp: { now: jest.fn(() => ({ toDate: () => new Date() })) },
+}));
+
+// Mock intelligence module with brand-scoped storage
+const mockStorage: Record<string, any[]> = {};
+jest.mock('../intelligence', () => ({
+  createIntelligenceAsset: jest.fn(async (brandId: string, competitorId: string, asset: any) => {
+    const key = `${brandId}:${competitorId}`;
+    if (!mockStorage[key]) mockStorage[key] = [];
+    mockStorage[key].push({ ...asset, id: `asset_${Date.now()}_${Math.random()}` });
+    return 'mock-asset-id';
+  }),
+  getCompetitorAssets: jest.fn(async (brandId: string, competitorId: string) => {
+    const key = `${brandId}:${competitorId}`;
+    return mockStorage[key] || [];
+  }),
+}));
+
 describe('Multi-Tenant Isolation (Brand Isolation)', () => {
   const brandA = 'brand_alpha';
   const brandB = 'brand_beta';

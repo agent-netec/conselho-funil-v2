@@ -10,6 +10,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { extractContentFromUrl } from '@/lib/ai/url-scraper';
 import { processAssetText } from '@/lib/firebase/assets-server';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 interface RequestBody {
   url: string;
@@ -28,26 +29,17 @@ export async function POST(
 
     // Validação
     if (!url || !userId) {
-      return NextResponse.json(
-        { error: 'URL e userId são obrigatórios' },
-        { status: 400 }
-      );
+      return createApiError(400, 'URL e userId são obrigatórios');
     }
 
     // Validação de URL
     try {
       const parsedUrl = new URL(url);
       if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-        return NextResponse.json(
-          { error: 'URL inválida. Use apenas http:// ou https://' },
-          { status: 400 }
-        );
+        return createApiError(400, 'URL inválida. Use apenas http:// ou https://');
       }
     } catch {
-      return NextResponse.json(
-        { error: 'URL inválida' },
-        { status: 400 }
-      );
+      return createApiError(400, 'URL inválida');
     }
 
     // Extrair conteúdo
@@ -55,18 +47,12 @@ export async function POST(
     const scraped = await extractContentFromUrl(url);
 
     if (scraped.error) {
-      return NextResponse.json(
-        { error: scraped.error },
-        { status: 400 }
-      );
+      return createApiError(400, scraped.error);
     }
 
     // Aceita conteúdo mínimo (já ajustado no scraper). Só falha se vier vazio.
     if (!scraped.content || scraped.content.length < 20) {
-      return NextResponse.json(
-        { error: 'Não foi possível extrair conteúdo útil desta URL' },
-        { status: 400 }
-      );
+      return createApiError(400, 'Não foi possível extrair conteúdo útil desta URL');
     }
 
     // Criar asset no Firestore (coleção única para compatibilidade com RAG/assets UI)
@@ -102,20 +88,13 @@ export async function POST(
       });
 
     // Retornar asset criado
-    return NextResponse.json(
-      {
-        id: assetId,
-        ...assetData,
-        createdAt: new Date().toISOString(),
-      },
+    return createApiSuccess(
+      { id: assetId, ...assetData, createdAt: new Date().toISOString() },
       { status: 201 }
     );
   } catch (error: any) {
     console.error('[URL Asset] Erro:', error);
-    return NextResponse.json(
-      { error: 'Erro interno ao processar URL' },
-      { status: 500 }
-    );
+    return createApiError(500, 'Erro interno ao processar URL');
   }
 }
 

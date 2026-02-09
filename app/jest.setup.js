@@ -1,14 +1,60 @@
 import '@testing-library/jest-dom'
 import { TextDecoder, TextEncoder } from 'util'
 import { ReadableStream, TransformStream, WritableStream } from 'node:stream/web'
-import { MessageChannel } from 'node:worker_threads'
+import { webcrypto } from 'node:crypto'
 
 global.TextDecoder = TextDecoder
 global.TextEncoder = TextEncoder
 global.ReadableStream = ReadableStream
 global.TransformStream = TransformStream
 global.WritableStream = WritableStream
-global.MessageChannel = MessageChannel
+
+// === S35-GOV-03: MessageChannel mock leve (DT-03) ===
+const mockMessagePorts = []
+if (typeof globalThis.MessageChannel === 'undefined') {
+  class MockMessagePort {
+    constructor() {
+      this.onmessage = null
+      this._paired = null
+      this._closed = false
+    }
+
+    postMessage(data) {
+      if (this._closed || !this._paired || this._paired._closed) return
+      queueMicrotask(() => {
+        if (this._paired && typeof this._paired.onmessage === 'function') {
+          this._paired.onmessage({ data })
+        }
+      })
+    }
+
+    close() {
+      this._closed = true
+      this.onmessage = null
+      this._paired = null
+    }
+  }
+
+  global.MessageChannel = class MockMessageChannel {
+    constructor() {
+      this.port1 = new MockMessagePort()
+      this.port2 = new MockMessagePort()
+      this.port1._paired = this.port2
+      this.port2._paired = this.port1
+      mockMessagePorts.push(this.port1, this.port2)
+    }
+  }
+}
+
+// Polyfill crypto.subtle for jsdom (needed by generateLocalEmbedding in rag.ts)
+// jsdom provides crypto.getRandomValues but NOT crypto.subtle
+if (!globalThis.crypto?.subtle) {
+  Object.defineProperty(globalThis.crypto, 'subtle', {
+    value: webcrypto.subtle,
+    configurable: true,
+    enumerable: true,
+  })
+}
 
 // Mock global Request/Response/Headers if not present
 if (!global.Request) {
@@ -72,11 +118,30 @@ jest.mock('firebase/firestore', () => ({
   orderBy: jest.fn(),
   limit: jest.fn(),
   Timestamp: {
-    now: jest.fn(() => ({ toMillis: () => Date.now() })),
+    now: jest.fn(() => ({ toMillis: () => Date.now(), toDate: () => new Date() })),
     fromDate: jest.fn(),
   },
   collectionGroup: jest.fn(),
+  writeBatch: jest.fn(() => ({
+    update: jest.fn(),
+    set: jest.fn(),
+    delete: jest.fn(),
+    commit: jest.fn().mockResolvedValue(undefined),
+  })),
 }))
+
+// === S33-GOV-02: Timer leak cleanup (DT-01) ===
+afterAll(() => {
+  jest.useRealTimers();
+  jest.clearAllTimers();
+  jest.restoreAllMocks();
+  mockMessagePorts.forEach((port) => {
+    if (typeof port.close === 'function') {
+      port.close();
+    }
+  });
+  mockMessagePorts.length = 0;
+});
 
 jest.mock('firebase/storage', () => ({
   getStorage: jest.fn(),

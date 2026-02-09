@@ -138,7 +138,8 @@ export default function BrandAssetsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           imageUrl: asset.url,
-          factor: 2
+          factor: 2,
+          brandId,
         }),
       });
 

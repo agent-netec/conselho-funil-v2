@@ -15,6 +15,8 @@ export const GLIMPSE_MOCK_DATA: Omit<MarketTrend, 'id' | 'expiresAt'>[] = [
     region: 'BR',
     timeRange: '30d',
     capturedAt: Timestamp.now(),
+    scope: { level: 'brand', brandId: 'mock' },
+    inheritToChildren: false,
   },
   {
     topic: 'Social Listening Enterprise',
@@ -26,6 +28,8 @@ export const GLIMPSE_MOCK_DATA: Omit<MarketTrend, 'id' | 'expiresAt'>[] = [
     region: 'BR',
     timeRange: '7d',
     capturedAt: Timestamp.now(),
+    scope: { level: 'brand', brandId: 'mock' },
+    inheritToChildren: false,
   },
   {
     topic: 'Cold Wave 2026',
@@ -37,5 +41,7 @@ export const GLIMPSE_MOCK_DATA: Omit<MarketTrend, 'id' | 'expiresAt'>[] = [
     region: 'US',
     timeRange: '24h',
     capturedAt: Timestamp.now(),
+    scope: { level: 'brand', brandId: 'mock' },
+    inheritToChildren: false,
   }
 ];

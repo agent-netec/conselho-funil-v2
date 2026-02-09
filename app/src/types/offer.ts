@@ -18,6 +18,7 @@ export interface OfferDocument {
     coreProduct: {
       name: string;
       promise: string;
+      description?: string;
       price: number;
       perceivedValue: number;
     };
@@ -40,6 +41,9 @@ export interface OfferDocument {
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
+
+/** Alias de OfferComponent para bônus no Offer Builder */
+export type BonusItem = OfferComponent;
 
 // Para uso no Wizard (Estado Local)
 export interface OfferWizardState {

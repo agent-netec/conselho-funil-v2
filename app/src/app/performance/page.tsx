@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { WarRoomDashboard } from '@/components/performance/war-room-dashboard';
 import { AlertCenter } from '@/components/performance/alert-center';
+import { SegmentFilter } from '@/components/performance/segment-filter';
+import { SegmentBreakdown } from '@/components/performance/segment-breakdown';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,12 +17,61 @@ import {
   Activity
 } from "lucide-react";
 import { PerformanceMetric, PerformanceAnomaly } from '@/types/performance';
+import { useSegmentPerformance } from '@/lib/hooks/use-segment-performance';
+import { useBrandStore } from '@/lib/stores/brand-store';
 
 export default function PerformanceWarRoomPage() {
+  const { selectedBrand } = useBrandStore();
   const [metrics, setMetrics] = useState<PerformanceMetric[]>([]);
   const [anomalies, setAnomalies] = useState<PerformanceAnomaly[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [advisorSummary, setAdvisorSummary] = useState<string | null>(null);
+  const [advisorLoading, setAdvisorLoading] = useState(false);
+  const { breakdown, loading: segmentLoading, selectedSegment, setSelectedSegment } = useSegmentPerformance(
+    selectedBrand?.id || null
+  );
+
+  // Process blended metrics from the metrics array
+  const blendedMetrics = metrics.find(m => m.source === 'aggregated')?.data || {
+    spend: 0,
+    revenue: 0,
+    roas: 0,
+    cac: 0,
+    ctr: 0,
+    cpc: 0,
+    cpa: 0,
+    conversions: 0,
+    clicks: 0,
+    impressions: 0,
+  };
+
+  const platformMetrics = metrics
+    .filter(m => m.source !== 'aggregated')
+    .map(m => ({
+      ...m.data,
+      platform: m.source as any,
+      cpa: m.data.cac // Mapping cac to cpa for the dashboard component
+    }));
+
+  const segmentDataForAdvisor = React.useMemo(() => {
+    if (!breakdown) return null;
+    if (selectedSegment === 'all') return breakdown;
+    return {
+      selectedSegment,
+      metrics: breakdown[selectedSegment],
+    };
+  }, [breakdown, selectedSegment]);
+
+  const extractAdvisorSummary = (payload: unknown): string | null => {
+    if (!payload || typeof payload !== 'object') return null;
+    const dataPayload = payload as { data?: { summary?: string }; summary?: string };
+    if (typeof dataPayload.summary === 'string') return dataPayload.summary;
+    if (dataPayload.data && typeof dataPayload.data.summary === 'string') {
+      return dataPayload.data.summary;
+    }
+    return null;
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -46,29 +97,47 @@ export default function PerformanceWarRoomPage() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const fetchAdvisorInsight = async () => {
+      if (!breakdown || metrics.length === 0) return;
+      setAdvisorLoading(true);
+      try {
+        const response = await fetch('/api/reporting/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            metrics,
+            context: {
+              brandId: selectedBrand?.id ?? 'TEST',
+              targetRoas: blendedMetrics.roas ?? 0,
+              alerts: anomalies,
+              segmentData: segmentDataForAdvisor,
+              selectedSegment,
+            },
+          }),
+        });
+        const payload = await response.json();
+        const summary = extractAdvisorSummary(payload);
+        if (summary) {
+          setAdvisorSummary(summary);
+        } else if (!response.ok) {
+          setAdvisorSummary('Insight indisponível no momento.');
+        }
+      } catch (error) {
+        console.error('Error fetching advisor insight:', error);
+        setAdvisorSummary('Insight indisponível no momento.');
+      } finally {
+        setAdvisorLoading(false);
+      }
+    };
+
+    fetchAdvisorInsight();
+  }, [segmentDataForAdvisor, selectedSegment, metrics, anomalies, selectedBrand?.id, blendedMetrics.roas]);
+
   const handleRefresh = () => {
     setIsRefreshing(true);
     fetchData();
   };
-
-  // Process blended metrics from the metrics array
-  const blendedMetrics = metrics.find(m => m.source === 'aggregated')?.data || {
-    spend: 0,
-    revenue: 0,
-    roas: 0,
-    cac: 0,
-    ctr: 0,
-    cpc: 0,
-    conversions: 0
-  };
-
-  const platformMetrics = metrics
-    .filter(m => m.source !== 'aggregated')
-    .map(m => ({
-      ...m.data,
-      platform: m.source as any,
-      cpa: m.data.cac // Mapping cac to cpa for the dashboard component
-    }));
 
   return (
     <div className="min-h-screen bg-black text-zinc-100 p-6 space-y-8">
@@ -119,6 +188,11 @@ export default function PerformanceWarRoomPage() {
         </div>
       </div>
 
+      <div className="flex items-center justify-between">
+        <SegmentFilter value={selectedSegment} onChange={setSelectedSegment} />
+        <span className="text-xs text-zinc-500">Segment insights: {selectedSegment.toUpperCase()}</span>
+      </div>
+
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Metrics & Comparison */}
@@ -154,6 +228,15 @@ export default function PerformanceWarRoomPage() {
               </div>
             </Card>
           </div>
+
+          <div className="space-y-3">
+            <h3 className="text-xs uppercase text-zinc-500 font-bold tracking-widest">Segment Breakdown</h3>
+            <SegmentBreakdown
+              data={breakdown}
+              loading={segmentLoading}
+              selectedSegment={selectedSegment}
+            />
+          </div>
         </div>
 
         {/* Right Column: Alerts & Intelligence */}
@@ -181,8 +264,9 @@ export default function PerformanceWarRoomPage() {
               <h3 className="text-sm font-black text-white uppercase tracking-widest">AI Strategic Insight</h3>
             </div>
             <p className="text-sm text-zinc-400 leading-relaxed">
-              "O ROAS do canal Meta Ads caiu 15% nas últimas 24h, mas o LTV projetado da coorte atual é 20% superior. 
-              <span className="text-white font-bold"> Recomendação:</span> Manter budget e focar em criativos de retenção."
+              {advisorLoading
+                ? 'Gerando insight com base no segmento selecionado...'
+                : advisorSummary || 'Insight indisponível no momento.'}
             </p>
             <Button variant="link" className="text-purple-500 p-0 h-auto mt-4 text-xs font-bold uppercase tracking-tighter">
               Ver análise completa →

@@ -8,6 +8,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { doc, getDoc, collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Funnel, Proposal } from '@/types/database';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -16,23 +19,28 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const funnelId = searchParams.get('funnelId');
+    const brandId = searchParams.get('brandId');
     const proposalId = searchParams.get('proposalId');
     const format = searchParams.get('format') || 'markdown';
 
     if (!funnelId) {
-      return NextResponse.json(
-        { error: 'funnelId is required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'funnelId is required');
+    }
+
+    if (!brandId) {
+      return createApiError(400, 'brandId is required');
+    }
+
+    try {
+      await requireBrandAccess(request, brandId);
+    } catch (error) {
+      return handleSecurityError(error);
     }
 
     // Load funnel
     const funnelDoc = await getDoc(doc(db, 'funnels', funnelId));
     if (!funnelDoc.exists()) {
-      return NextResponse.json(
-        { error: 'Funnel not found' },
-        { status: 404 }
-      );
+      return createApiError(404, 'Funnel not found');
     }
     const funnel = { id: funnelDoc.id, ...funnelDoc.data() } as Funnel;
 
@@ -65,7 +73,7 @@ export async function GET(request: NextRequest) {
     }
 
     // For PDF, return JSON with markdown (frontend will convert)
-    return NextResponse.json({
+    return createApiSuccess({
       funnel: {
         id: funnel.id,
         name: funnel.name,
@@ -81,10 +89,7 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Export error:', error);
-    return NextResponse.json(
-      { error: 'Failed to export', details: String(error) },
-      { status: 500 }
-    );
+    return createApiError(500, 'Failed to export', { details: String(error) });
   }
 }
 

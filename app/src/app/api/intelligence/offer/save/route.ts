@@ -1,32 +1,34 @@
 export const dynamic = 'force-dynamic';
-import { NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { OfferLabEngine } from '@/lib/intelligence/offer/calculator';
 import { OfferDocument, OfferWizardState } from '@/types/offer';
 import { v4 as uuidv4 } from 'uuid';
-import { Timestamp } from 'firebase/firestore';
+import { doc, setDoc, Timestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
  * Endpoint para salvar ofertas do Offer Lab.
  * POST /api/intelligence/offer/save
  */
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { brandId, state, name = 'Nova Oferta' } = body;
 
     if (!brandId || !state) {
-      return NextResponse.json(
-        { error: 'brandId e state são obrigatórios.' },
-        { status: 400 }
-      );
+      return createApiError(400, 'brandId e state são obrigatórios.');
     }
 
+    const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
     const wizardState = state as OfferWizardState;
     const { total, analysis } = OfferLabEngine.calculateScore(wizardState);
 
     const offerDoc: OfferDocument = {
       id: `off_${uuidv4()}`,
-      brandId,
+      brandId: safeBrandId,
       name,
       status: 'draft',
       components: {
@@ -50,18 +52,16 @@ export async function POST(req: Request) {
       updatedAt: Timestamp.now(),
     };
 
-    // TODO: persistir no Firestore
-    // await db.collection('brands').doc(brandId).collection('offers').doc(offerDoc.id).set(offerDoc);
+    // S29-FT-02: Persistir no Firestore — await porque semântica é de "save" (DT-12)
+    const offerRef = doc(db, 'brands', safeBrandId, 'offers', offerDoc.id);
+    await setDoc(offerRef, offerDoc);
 
-    return NextResponse.json({
-      success: true,
-      offer: offerDoc,
-    });
-  } catch (error: any) {
+    return createApiSuccess({ offer: offerDoc });
+  } catch (error: unknown) {
     console.error('[OFFER_SAVE_API_ERROR]:', error);
-    return NextResponse.json(
-      { error: 'Erro ao salvar a oferta.' },
-      { status: 500 }
-    );
+    if (error instanceof ApiError) {
+      return handleSecurityError(error);
+    }
+    return createApiError(500, 'Erro ao salvar a oferta.');
   }
 }

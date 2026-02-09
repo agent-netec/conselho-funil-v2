@@ -244,7 +244,7 @@ export function CounselorSelector({
       <div className="px-4 py-4 bg-black/80 border-t border-white/[0.06] flex items-center justify-between backdrop-blur-xl">
         <div className="flex items-center gap-4">
           <div className="flex -space-x-2">
-            <AnimatePresence mode="popover">
+            <AnimatePresence mode="wait">
               {selectedIds.map((id) => {
                 const counselor = COUNSELORS_REGISTRY[id as CounselorId];
                 if (!counselor) return null;

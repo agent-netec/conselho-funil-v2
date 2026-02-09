@@ -16,7 +16,7 @@ import { useActiveBrand } from './use-active-brand';
  * Hook para buscar dados de inteligência (mentions, keywords, etc) do Firestore.
  */
 export function useIntelligenceData(filters?: Partial<IntelligenceQueryFilter>) {
-  const { activeBrand } = useActiveBrand();
+  const activeBrand = useActiveBrand();
   const [loading, setLoading] = useState(true);
   const [documents, setDocuments] = useState<IntelligenceDocument[]>([]);
   const [error, setError] = useState<Error | null>(null);
@@ -49,7 +49,7 @@ export function useIntelligenceData(filters?: Partial<IntelligenceQueryFilter>) 
  * Hook específico para buscar keywords mineradas e calculadas.
  */
 export function useKeywordIntelligence() {
-  const { activeBrand } = useActiveBrand();
+  const activeBrand = useActiveBrand();
   const [loading, setLoading] = useState(true);
   const [keywords, setKeywords] = useState<KeywordIntelligence[]>([]);
 
@@ -88,7 +88,7 @@ export function useKeywordIntelligence() {
  */
 export function useIntelligenceStats() {
   const { documents, loading } = useIntelligenceData({ limit: 100 });
-  const { activeBrand } = useActiveBrand();
+  const activeBrand = useActiveBrand();
   
   const stats = {
     socialVolume: [] as any[],

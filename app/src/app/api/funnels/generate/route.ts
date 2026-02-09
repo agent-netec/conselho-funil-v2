@@ -10,7 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ragQuery, retrieveForFunnelCreation } from '@/lib/ai/rag';
 import { generateWithGemini, isGeminiConfigured } from '@/lib/ai/gemini';
-import { updateFunnel, createProposal, getFunnel } from '@/lib/firebase/firestore';
+import { updateFunnel, createProposal, getFunnel, updateUserUsage } from '@/lib/firebase/firestore';
 import { getBrand } from '@/lib/firebase/brands';
 import type { FunnelContext, Proposal, Brand } from '@/types/database';
 import { 
@@ -19,6 +19,7 @@ import {
   buildFunnelContextPrompt 
 } from '@/lib/ai/prompts';
 import { formatBrandContextForFunnel, parseAIJSON } from '@/lib/ai/formatters';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -27,6 +28,7 @@ export const maxDuration = 120; // 2 minutes for generation
 interface GenerateRequest {
   funnelId: string;
   context: FunnelContext;
+  userId?: string;
   // Para regeneração com ajustes
   adjustments?: string[];
   originalProposalId?: string;
@@ -36,20 +38,14 @@ interface GenerateRequest {
 export async function POST(request: NextRequest) {
   try {
     const body: GenerateRequest = await request.json();
-    const { funnelId, context, adjustments, originalProposalId, baseVersion } = body;
+    const { funnelId, context, adjustments, originalProposalId, baseVersion, userId } = body;
 
     if (!funnelId || !context) {
-      return NextResponse.json(
-        { error: 'funnelId and context are required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'funnelId and context are required');
     }
 
     if (!isGeminiConfigured()) {
-      return NextResponse.json(
-        { error: 'Gemini API not configured. Add GOOGLE_AI_API_KEY to .env.local' },
-        { status: 500 }
-      );
+      return createApiError(500, 'Gemini API not configured. Add GOOGLE_AI_API_KEY to .env.local');
     }
 
     const isAdjustment = adjustments && adjustments.length > 0;
@@ -126,10 +122,7 @@ export async function POST(request: NextRequest) {
       // Update status to error
       await updateFunnel(funnelId, { status: 'draft' });
       
-      return NextResponse.json(
-        { error: 'Failed to parse AI response. Please try again.' },
-        { status: 500 }
-      );
+      return createApiError(500, 'Failed to parse AI response. Please try again.');
     }
 
     // 6. Save proposals to Firestore
@@ -165,8 +158,17 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ ${savedProposals.length} propostas geradas com sucesso!`);
 
-    return NextResponse.json({
-      success: true,
+    // SIG-API-03: Decrementar 3 créditos por geração de funil
+    if (userId) {
+      try {
+        await updateUserUsage(userId, -3);
+        console.log(`[Funnels/Generate] 3 créditos decrementados para usuário: ${userId}`);
+      } catch (creditError) {
+        console.error('[Funnels/Generate] Erro ao atualizar créditos:', creditError);
+      }
+    }
+
+    return createApiSuccess({
       funnelId,
       proposalIds: savedProposals,
       proposalsCount: savedProposals.length,
@@ -174,9 +176,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('❌ Erro ao gerar propostas:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Erro interno ao gerar propostas' },
-      { status: 500 }
-    );
+    return createApiError(500, error instanceof Error ? error.message : 'Erro interno ao gerar propostas');
   }
 }

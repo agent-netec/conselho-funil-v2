@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripPII } from '@/lib/intelligence/pii-stripper';
 import { db } from '@/lib/firebase/config';
 import { doc, getDoc, increment, updateDoc } from 'firebase/firestore';
+import { createApiError } from '@/lib/utils/api-response';
 
 // Tipos básicos para a rota
 interface MCPRequest {
@@ -24,10 +25,7 @@ export async function POST(req: NextRequest) {
 
     // 1. Validação de Input
     if (!provider || !tool || !args) {
-      return NextResponse.json(
-        { success: false, message: 'Provider, tool and args are required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'Provider, tool and args are required');
     }
 
     // 2. Budget Lock (Controle de Custos)
@@ -43,10 +41,7 @@ export async function POST(req: NextRequest) {
         const operationCost = 1; 
         
         if (credits < operationCost) {
-          return NextResponse.json(
-            { success: false, code: 'BUDGET_EXCEEDED', message: 'Insufficient credits for this operation' },
-            { status: 402 }
-          );
+          return createApiError(402, 'Insufficient credits for this operation', { code: 'BUDGET_EXCEEDED' });
         }
 
         // Deduzir crédito (atômico)
@@ -66,10 +61,7 @@ export async function POST(req: NextRequest) {
     const apiKey = getApiKey(provider);
 
     if (!workerUrl || !apiKey) {
-      return NextResponse.json(
-        { success: false, message: `Worker or API Key for \${provider} not configured` },
-        { status: 500 }
-      );
+      return createApiError(500, `Worker or API Key for ${provider} not configured`);
     }
 
     const response = await fetch(workerUrl, {
@@ -84,10 +76,7 @@ export async function POST(req: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      return NextResponse.json(
-        { success: false, message: `Worker error: \${errorText}` },
-        { status: response.status }
-      );
+      return createApiError(response.status, `Worker error: ${errorText}`);
     }
 
     const result = await response.json();
@@ -99,10 +88,7 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error('[MCP Relay Error]:', error);
-    return NextResponse.json(
-      { success: false, message: error.message || 'Internal Server Error' },
-      { status: 500 }
-    );
+    return createApiError(500, error.message || 'Internal Server Error');
   }
 }
 

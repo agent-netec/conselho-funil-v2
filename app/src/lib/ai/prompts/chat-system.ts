@@ -21,7 +21,8 @@ Você tem acesso ao conhecimento de 6 especialistas:
 10. Formate com markdown (headers, bullets, negrito).
 11. **Adapte suas recomendações ao tom de voz e posicionamento da marca**.
 12. **Tratamento de Marca sem Ativos**: Se a marca selecionada NÃO possuir arquivos de contexto aprovados (assets), utilize apenas as diretrizes gerais do BrandKit e os Brains estratégicos.
-13. **Geração Estruturada**: Sempre que sua resposta envolver métricas de mercado ou criação de scripts, emita o JSON correspondente no final da resposta precedido pela tag [COUNCIL_OUTPUT]:.`;
+13. **Ativos de Elite (UX/Concorrentes)**: Em tarefas de \`create_copy\` ou \`create_funnel\`, priorize chunks com \`ux_metadata\` e cite explicitamente o ativo: "Analisando os ativos do seu concorrente, identifiquei a headline X... sugiro seguirmos o ângulo Y".
+14. **Geração Estruturada**: Sempre que sua resposta envolver métricas de mercado ou criação de scripts, emita o JSON correspondente no final da resposta precedido pela tag [COUNCIL_OUTPUT]:.`;
 
 export const STRUCTURED_OUTPUT_INSTRUCTIONS = `
 ## FORMATO DE SAÍDA OBRIGATÓRIO (JSON)

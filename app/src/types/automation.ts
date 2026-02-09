@@ -1,4 +1,18 @@
 import { Timestamp } from 'firebase/firestore';
+import type { CriticalGap } from './funnel';
+
+/**
+ * S31-DT-07: gapDetails tipado (substituiu `any`).
+ * Aceita CriticalGap (do AutomationEngine.evaluateAutopsy) ou KillSwitchGap (do Kill-Switch route).
+ */
+export interface KillSwitchGap {
+  reason: string;
+  severity: string;
+  platform?: 'meta' | 'google';
+  type?: 'campaign' | 'adset';
+}
+
+export type AutomationGapDetails = CriticalGap | KillSwitchGap;
 
 /**
  * Collection: brands/{brandId}/automation_rules
@@ -38,7 +52,7 @@ export interface AutomationLog {
   status: 'pending_approval' | 'executed' | 'rejected' | 'failed';
   context: {
     funnelId: string;
-    gapDetails: any;
+    gapDetails: AutomationGapDetails;
     entityId: string; // ID da Campanha/Adset
   };
   executedBy?: string; // ID do usuário que aprovou
@@ -75,5 +89,41 @@ export interface OptimizationInsight {
     expectedProfitIncrease: number;
   };
   confidence: number;
+  createdAt: Timestamp;
+}
+
+/**
+ * Collection: brands/{brandId}/dead_letter_queue
+ * Webhooks falhados armazenados para retry manual.
+ *
+ * @story S31-DLQ-01
+ * DT-04: Collection name usa underscores (dead_letter_queue), não hifens.
+ * DT-12: webhookType inclui 'stripe'.
+ * P-13: payload truncado a 10KB (substring(0, 10240)).
+ */
+export interface DeadLetterItem {
+  id: string;
+  webhookType: 'meta' | 'instagram' | 'google' | 'stripe';
+  payload: string; // JSON stringified, truncado a 10KB
+  error: string;
+  timestamp: Timestamp;
+  retryCount: number;
+  status: 'pending' | 'resolved' | 'abandoned';
+  resolvedAt?: Timestamp;
+}
+
+/**
+ * Collection: brands/{brandId}/notifications
+ * Notificações in-app para ações de automação.
+ *
+ * @story S31-KS-03
+ */
+export interface InAppNotification {
+  id: string;
+  type: 'kill_switch' | 'automation' | 'system';
+  title: string;
+  message: string;
+  ruleId?: string;
+  isRead: boolean;
   createdAt: Timestamp;
 }

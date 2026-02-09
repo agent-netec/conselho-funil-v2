@@ -153,6 +153,7 @@ export async function generateWithGemini(
     topP?: number;
     maxOutputTokens?: number;
     responseMimeType?: 'text/plain' | 'application/json';
+    systemPrompt?: string;
     userId?: string;
     brandId?: string;
     feature?: string;
@@ -179,31 +180,41 @@ export async function generateWithGemini(
 
   const url = `${GEMINI_BASE_URL}/models/${model}:generateContent?key=${apiKey}`;
 
+    // S28-PS-01 DT-02: Construir body com system_instruction quando systemPrompt fornecido
+    const bodyPayload: Record<string, unknown> = {
+      contents: [
+        {
+          parts: [{ text: prompt }],
+        },
+      ],
+      generationConfig: {
+        temperature: options.temperature ?? 0.7,
+        maxOutputTokens,
+        topP: options.topP ?? 0.95,
+        topK: 40,
+        responseMimeType,
+      },
+      safetySettings: [
+        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+      ],
+    };
+
+    // DT-02: Mapear systemPrompt para system_instruction do Gemini API
+    if (options.systemPrompt) {
+      bodyPayload.system_instruction = {
+        parts: [{ text: options.systemPrompt }],
+      };
+    }
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [{ text: prompt }],
-          },
-        ],
-        generationConfig: {
-          temperature: options.temperature ?? 0.7,
-          maxOutputTokens,
-          topP: options.topP ?? 0.95,
-          topK: 40,
-          responseMimeType,
-        },
-        safetySettings: [
-          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-        ],
-      }),
+      body: JSON.stringify(bodyPayload),
     });
 
   if (!response.ok) {

@@ -31,7 +31,9 @@ interface AutomationLogCardProps {
 }
 
 export function AutomationLogCard({ log, onApprove, onReject, onViewDetails }: AutomationLogCardProps) {
-  const isCritical = log.context.gapDetails?.severity === 'critical' || log.action === 'pause_ads';
+  // S31: safe accessor — union type CriticalGap | KillSwitchGap tem campos distintos
+  const gapDetails = log.context.gapDetails as unknown as Record<string, unknown>;
+  const isCritical = gapDetails?.severity === 'critical' || log.action === 'pause_ads';
   
   const statusConfig = {
     pending_approval: { icon: Clock, color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'border-amber-400/20', label: 'Aguardando Aprovação' },
@@ -97,11 +99,11 @@ export function AutomationLogCard({ log, onApprove, onReject, onViewDetails }: A
             <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-widest">Gatilho (Autopsy)</span>
             <div className="flex items-center gap-2 text-sm text-rose-400 font-medium">
               <AlertTriangle className="h-3.5 w-3.5" />
-              <span>{log.context.gapDetails?.reason || 'Queda acentuada de conversão'}</span>
+              <span>{(log.context.gapDetails as unknown as Record<string, unknown>)?.reason as string || 'Queda acentuada de conversão'}</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-zinc-500">
               <span>Impacto Estimado:</span>
-              <span className="text-rose-400 font-bold">R$ {log.context.gapDetails?.lossEstimate?.toLocaleString('pt-BR') || '0,00'} / dia</span>
+              <span className="text-rose-400 font-bold">R$ {((log.context.gapDetails as unknown as Record<string, unknown>)?.lossEstimate as number)?.toLocaleString('pt-BR') || '0,00'} / dia</span>
             </div>
           </div>
         </div>

@@ -20,6 +20,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Funnel, Proposal } from '@/types/database';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -78,10 +79,7 @@ export async function GET(request: NextRequest) {
     const funnelId = searchParams.get('funnelId');
 
     if (!funnelId) {
-      return NextResponse.json(
-        { error: 'funnelId is required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'funnelId is required');
     }
 
     // ST-11.6: Simplified query to avoid composite index (INC-004)
@@ -103,16 +101,10 @@ export async function GET(request: NextRequest) {
       return dateB - dateA;
     });
 
-    return NextResponse.json({
-      decisions,
-      total: decisions.length,
-    });
+    return createApiSuccess({ decisions, total: decisions.length });
   } catch (error) {
     console.error('Error listing decisions:', error);
-    return NextResponse.json(
-      { error: 'Failed to list decisions' },
-      { status: 500 }
-    );
+    return createApiError(500, 'Failed to list decisions');
   }
 }
 
@@ -134,29 +126,20 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!funnelId || !proposalId || !type || !userId) {
-      return NextResponse.json(
-        { error: 'funnelId, proposalId, type, and userId are required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'funnelId, proposalId, type, and userId are required');
     }
 
     // Get funnel data
     const funnelDoc = await getDoc(doc(db, 'funnels', funnelId));
     if (!funnelDoc.exists()) {
-      return NextResponse.json(
-        { error: 'Funnel not found' },
-        { status: 404 }
-      );
+      return createApiError(404, 'Funnel not found');
     }
     const funnel = funnelDoc.data() as Funnel;
 
     // Get proposal data
     const proposalDoc = await getDoc(doc(db, 'funnels', funnelId, 'proposals', proposalId));
     if (!proposalDoc.exists()) {
-      return NextResponse.json(
-        { error: 'Proposal not found' },
-        { status: 404 }
-      );
+      return createApiError(404, 'Proposal not found');
     }
     const proposal = proposalDoc.data() as Proposal;
 
@@ -283,8 +266,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
-      success: true,
+    return createApiSuccess({
       decisionId: decisionRef.id,
       regenerationTriggered,
       decision: {
@@ -295,10 +277,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating decision:', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return NextResponse.json(
-      { error: 'Failed to create decision', details: errorMessage },
-      { status: 500 }
-    );
+    return createApiError(500, 'Failed to create decision', { details: errorMessage });
   }
 }
 

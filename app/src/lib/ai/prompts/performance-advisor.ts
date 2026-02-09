@@ -1,4 +1,5 @@
-import { PerformanceMetricDoc, PerformanceAlertDoc } from '../../types/performance';
+import { PerformanceMetricDoc, PerformanceAlertDoc } from '../../../types/performance';
+import type { SegmentBreakdownData } from '@/types/ab-testing';
 
 /**
  * Prompt para o Performance Advisor (Gemini)
@@ -6,7 +7,8 @@ import { PerformanceMetricDoc, PerformanceAlertDoc } from '../../types/performan
 export const buildPerformanceAdvisorPrompt = (
   metrics: PerformanceMetricDoc[],
   alerts: PerformanceAlertDoc[],
-  targetRoas: number
+  targetRoas: number,
+  segmentData?: SegmentBreakdownData
 ) => {
   const metricsSummary = metrics.map(m => `
 - Plataforma: ${m.platform}
@@ -27,6 +29,15 @@ export const buildPerformanceAdvisorPrompt = (
   Entidade: ${a.context.entityName}
 `).join('\n');
 
+  const segmentSection = segmentData ? `
+### Breakdown por Segmento de Propensity:
+- HOT (alta probabilidade de conversao): ${segmentData.hot.totalLeads} leads, CR: ${segmentData.hot.conversionRate.toFixed(1)}%, Revenue medio: $${segmentData.hot.avgRevenue.toFixed(2)}
+- WARM (probabilidade media): ${segmentData.warm.totalLeads} leads, CR: ${segmentData.warm.conversionRate.toFixed(1)}%, Revenue medio: $${segmentData.warm.avgRevenue.toFixed(2)}
+- COLD (baixa probabilidade): ${segmentData.cold.totalLeads} leads, CR: ${segmentData.cold.conversionRate.toFixed(1)}%, Revenue medio: $${segmentData.cold.avgRevenue.toFixed(2)}
+
+Inclua insights comparativos entre segmentos nas recomendacoes. Identifique oportunidades de escala em segmentos subotimizados.
+` : '';
+
   return `
 Você é o Performance Advisor do "Conselho de Funil", um especialista sênior em tráfego pago (Meta Ads, Google Ads, TikTok Ads).
 Sua missão é analisar as métricas e alertas abaixo e fornecer recomendações estratégicas acionáveis.
@@ -38,6 +49,8 @@ ${metricsSummary}
 ${alertsSummary}
 
 ### Meta de ROAS: ${targetRoas.toFixed(2)}
+
+${segmentSection}
 
 ### Instruções de Resposta:
 Sua resposta deve ser um JSON estrito seguindo o formato abaixo:

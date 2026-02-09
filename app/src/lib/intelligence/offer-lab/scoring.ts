@@ -9,7 +9,7 @@ export class OfferScoringEngine {
    * Calcula o Irresistibility Score de uma oferta.
    * Retorna um score de 0 a 100 e os fatores detalhados.
    */
-  static calculateScore(offerData: Omit<OfferDocument, 'id' | 'scoring' | 'createdAt' | 'updatedAt'>) {
+  static calculateScore(offerData: Omit<OfferDocument, 'id' | 'createdAt' | 'updatedAt'>) {
     const { dreamOutcome, perceivedLikelihood, timeDelay, effortSacrifice } = offerData.scoring.factors;
 
     // 1. Cálculo Base da Equação de Valor
@@ -40,7 +40,7 @@ export class OfferScoringEngine {
     else if (priceAnchorRatio >= 5) bonusPoints += 5;
 
     // Bônus por Bônus Complementares
-    const avgBonusComplementarity = offerData.components.bonuses.reduce((acc, b) => acc + b.complementarityScore, 0) / (offerData.components.bonuses.length || 1);
+    const avgBonusComplementarity = offerData.components.bonuses.reduce((acc, b) => acc + (b.complementarityScore ?? 0), 0) / (offerData.components.bonuses.length || 1);
     if (avgBonusComplementarity > 80 && offerData.components.bonuses.length >= 3) bonusPoints += 10;
 
     // Bônus por Inversão de Risco

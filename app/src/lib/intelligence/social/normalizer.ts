@@ -1,4 +1,4 @@
-import { SocialInteraction, SocialPlatform, SocialInteractionType } from '../../types/social';
+import { SocialInteraction, SocialPlatform, SocialInteractionType } from '../../../types/social';
 
 /**
  * Normalizador base para interações sociais.

@@ -6,6 +6,8 @@ import {
 } from '@/types/social-inbox';
 import { ScoutAgent } from '../scout/scout-agent';
 import { ScoutSourceConfig } from '@/types/intelligence-agents';
+import { collectInstagramInteractions } from '@/lib/integrations/social/instagram-adapter';
+import { collectLinkedInInteractions } from '@/lib/integrations/social/linkedin-adapter';
 
 /**
  * @fileoverview InboxAggregator - Responsável por coletar e unificar interações de redes sociais.
@@ -43,10 +45,8 @@ export class InboxAggregator {
    * @param brandId ID da marca
    */
   async collectFromLinkedIn(brandId: string): Promise<SocialInteraction[]> {
-    // LinkedIn ainda não possui implementação no ScoutAgent para RSS público estável
-    // TODO: Implementar integração com LinkedIn API ou Scraping ético
-    console.log(`[InboxAggregator] Coletando do LinkedIn para ${brandId} (Not Implemented)`);
-    return [];
+    console.log(`[InboxAggregator] Coletando do LinkedIn para ${brandId}`);
+    return collectLinkedInInteractions(brandId);
   }
 
   /**
@@ -54,9 +54,8 @@ export class InboxAggregator {
    * @param brandId ID da marca
    */
   async collectFromInstagram(brandId: string): Promise<SocialInteraction[]> {
-    // TODO: Implementar integração com Instagram Graph API
-    console.log(`[InboxAggregator] Coletando do Instagram para ${brandId} (Not Implemented)`);
-    return [];
+    console.log(`[InboxAggregator] Coletando do Instagram para ${brandId}`);
+    return collectInstagramInteractions(brandId);
   }
 
   /**
@@ -87,6 +86,7 @@ export class InboxAggregator {
         metadata: {
           sentimentScore: 0,
           sentimentLabel: 'neutral',
+          requires_human_review: false,
           tags: [],
           priority: 0,
         },

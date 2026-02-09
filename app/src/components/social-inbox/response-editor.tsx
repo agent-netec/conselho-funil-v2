@@ -102,7 +102,7 @@ export function ResponseEditor({
                   <div className="flex items-center gap-1.5">
                     <Badge variant="secondary" className="text-[9px] uppercase">{option.tone}</Badge>
                     {option.confidence >= 0.9 && (
-                      <CheckCircle2 className="h-3 w-3 text-green-500" title="Alta Fidelidade de Voz" />
+                      <CheckCircle2 className="h-3 w-3 text-green-500" />
                     )}
                   </div>
                   <span className={cn(

@@ -4,6 +4,15 @@
 import { POST } from '../route';
 import { KeywordMiner } from '@/lib/intelligence/keywords/miner';
 import { createIntelligenceDocument } from '@/lib/firebase/intelligence';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { ApiError } from '@/lib/utils/api-security';
+
+type PostRequest = Parameters<typeof POST>[0];
+
+const buildRequest = (jsonImpl: () => Promise<unknown>): PostRequest => ({
+  json: jsonImpl,
+  headers: new Headers(),
+} as unknown as PostRequest);
 
 jest.mock('@/lib/intelligence/keywords/miner', () => ({
   KeywordMiner: jest.fn(),
@@ -11,6 +20,10 @@ jest.mock('@/lib/intelligence/keywords/miner', () => ({
 
 jest.mock('@/lib/firebase/intelligence', () => ({
   createIntelligenceDocument: jest.fn(),
+}));
+
+jest.mock('@/lib/auth/brand-guard', () => ({
+  requireBrandAccess: jest.fn(),
 }));
 
 jest.mock('@/lib/firebase/config', () => ({
@@ -23,15 +36,16 @@ describe('API Route: /api/intelligence/keywords (Validação & Contrato)', () =>
   beforeEach(() => {
     jest.clearAllMocks();
     (KeywordMiner as jest.Mock).mockImplementation(() => ({ mine: mineMock }));
+    (requireBrandAccess as jest.Mock).mockResolvedValue({
+      userId: 'user-1',
+      brandId: 'brand-1',
+    });
   });
 
   it('deve retornar 400 quando JSON é inválido', async () => {
-    const req = {
-      json: async () => {
-        throw new Error('invalid');
-      },
-      headers: new Headers(),
-    } as any;
+    const req = buildRequest(async () => {
+      throw new Error('invalid');
+    });
 
     const res = await POST(req);
     const data = await res.json();
@@ -41,10 +55,7 @@ describe('API Route: /api/intelligence/keywords (Validação & Contrato)', () =>
   });
 
   it('deve retornar 400 quando brandId está ausente', async () => {
-    const req = {
-      json: async () => ({ seedTerm: 'marketing' }),
-      headers: new Headers(),
-    } as any;
+    const req = buildRequest(async () => ({ seedTerm: 'marketing' }));
 
     const res = await POST(req);
     const data = await res.json();
@@ -55,10 +66,7 @@ describe('API Route: /api/intelligence/keywords (Validação & Contrato)', () =>
   });
 
   it('deve retornar 400 quando seedTerm está vazio', async () => {
-    const req = {
-      json: async () => ({ brandId: 'brand-1', seedTerm: '   ' }),
-      headers: new Headers(),
-    } as any;
+    const req = buildRequest(async () => ({ brandId: 'brand-1', seedTerm: '   ' }));
 
     const res = await POST(req);
     const data = await res.json();
@@ -90,19 +98,30 @@ describe('API Route: /api/intelligence/keywords (Validação & Contrato)', () =>
       .mockResolvedValueOnce('id-1')
       .mockResolvedValueOnce('id-2');
 
-    const req = {
-      json: async () => ({ brandId: 'brand-1', seedTerm: 'marketing' }),
-      headers: new Headers(),
-    } as any;
+    const req = buildRequest(async () => ({ brandId: 'brand-1', seedTerm: 'marketing' }));
 
     const res = await POST(req);
     const data = await res.json();
 
     expect(res.status).toBe(200);
     expect(data.success).toBe(true);
-    expect(data.count).toBe(2);
-    expect(data.keywords).toEqual(['marketing digital', 'funil de vendas']);
-    expect(data.persisted).toBe(2);
-    expect(data.saveError).toBeNull();
+    expect(data.data.count).toBe(2);
+    expect(data.data.keywords).toEqual(['marketing digital', 'funil de vendas']);
+    expect(data.data.persisted).toBe(2);
+    expect(data.data.saveError).toBeNull();
+  });
+
+  it('deve retornar 403 em requisição cross-brand', async () => {
+    (requireBrandAccess as jest.Mock).mockRejectedValueOnce(
+      new ApiError(403, 'Acesso negado: brandId não pertence ao usuário')
+    );
+
+    const req = buildRequest(async () => ({ brandId: 'brand-2', seedTerm: 'marketing' }));
+
+    const res = await POST(req);
+    const data = await res.json();
+
+    expect(res.status).toBe(403);
+    expect(data.error).toBe('Acesso negado: brandId não pertence ao usuário');
   });
 });

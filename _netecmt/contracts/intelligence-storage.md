@@ -1,10 +1,11 @@
 # 🔭 Contract: Intelligence Storage Foundation
 
-**Versão:** 1.1.0  
+**Versão:** 2.0.0  
 **Status:** Active  
 **Responsável:** Athos (Architect)  
-**Sprint:** 13 - Intelligence Wing Foundation  
-**Data:** 31/01/2026
+**Sprint:** 25 - Predictive & Creative Engine (extensão de Sprint 13)  
+**Data:** 06/02/2026  
+**Changelog:** v2.0.0 — Extensão para Conversion Predictor, Creative Automation e Text Analyzer
 
 ---
 
@@ -151,6 +152,9 @@ export interface IntelligenceDocument {
   // === CONTEÚDO ===
   content: IntelligenceContent;
   
+  // === UX INTELLIGENCE (NOVO: Sprint 24) ===
+  uxIntelligence?: UXIntelligence;
+  
   // === ANÁLISE ===
   analysis?: IntelligenceAnalysis;
   
@@ -184,7 +188,7 @@ export interface IntelligenceSource {
   url?: string;
   author?: string;
   authorUrl?: string;
-  fetchedVia: 'rss' | 'api' | 'scraping';
+  fetchedVia: 'rss' | 'api' | 'scraping' | 'text_input';
 }
 
 export type IntelligencePlatform = 
@@ -245,6 +249,29 @@ export interface IntelligenceMetrics {
   comments?: number;
   reach?: number;
   impressions?: number;
+}
+
+/**
+ * Metadados estruturados de UX extraídos (Firecrawl)
+ * Parte de IntelligenceDocument
+ */
+export interface UXIntelligence {
+  headlines: UXAsset[];
+  ctas: UXAsset[];
+  hooks: UXAsset[];
+  visualElements?: UXAsset[];
+  funnelStructure?: string; // Descrição da estrutura detectada
+}
+
+export interface UXAsset {
+  text: string;
+  type: 'headline' | 'cta' | 'hook' | 'visual';
+  location?: string; // Ex: 'hero', 'footer', 'sidebar'
+  relevanceScore: number; // 0.0 a 1.0 (calculado pelo Analyst)
+  copyAnalysis?: {
+    angle: string;
+    psychologicalTrigger: string[];
+  };
 }
 ```
 
@@ -715,9 +742,75 @@ describe('Intelligence Multi-Tenant Isolation', () => {
 
 ---
 
-## 9. Referências
+---
 
-- **PRD:** `_netecmt/prd-sprint-13-intelligence-wing.md`
+## 9. Extensão Sprint 25: Predictive & Creative Engine
+
+### 9.1 Novos Módulos na Lane
+
+| Módulo | Path | Responsabilidade |
+|:-------|:-----|:-----------------|
+| Conversion Predictor | `app/src/lib/intelligence/predictor/` | Scoring preditivo (CPS) de funis |
+| Creative Automation | `app/src/lib/intelligence/creative-engine/` | Geração de ads multi-formato |
+| Text Analyzer | `app/src/lib/intelligence/text-analyzer/` | Análise de texto/transcrição |
+
+### 9.2 Novos Endpoints
+
+| Endpoint | Método | Contrato Detalhado |
+|:---------|:-------|:-------------------|
+| `/api/intelligence/predict/score` | POST | Architecture Review § 3 |
+| `/api/intelligence/creative/generate-ads` | POST | Architecture Review § 4 |
+| `/api/intelligence/analyze/text` | POST | Architecture Review § 5 |
+
+**Ref completa:** `_netecmt/solutioning/architecture/arch-sprint-25-predictive-creative-engine.md`
+
+### 9.3 Novos Tipos TypeScript
+
+| Arquivo | Módulo |
+|:--------|:-------|
+| `app/src/types/prediction.ts` | Conversion Predictor (DimensionScore, BenchmarkComparison, Recommendation) |
+| `app/src/types/creative-ads.ts` | Creative Automation (GeneratedAd, AdFormat, CopyFramework) |
+| `app/src/types/text-analysis.ts` | Text Analyzer (TextSuggestion, VSLStructure, StructuralAnalysis) |
+
+### 9.4 Novas Collections Firestore
+
+```
+firestore/
+├── brands/
+│   └── {brandId}/
+│       ├── intelligence/       # EXISTENTE (Sprint 13)
+│       ├── predictions/        # NOVO (Sprint 25) — CPS scores
+│       │   └── {predictionId}
+│       └── generated_ads/      # NOVO (Sprint 25) — Ads gerados
+│           └── {generationId}
+```
+
+### 9.5 Guardrails Sprint 25 (Adicionais)
+
+| Guardrail | Regra | Enforcement |
+|:----------|:------|:------------|
+| **Token Budget** | predict/score: 4K, generate-ads: 8K, analyze/text: 6K | `cost-guard.ts` |
+| **Rate Limiting** | predict: 20/min, generate: 10/min, analyze: 15/min | Per-brandId |
+| **Text Sanitization** | Strip HTML, rejeitar scripts/code, max 50K chars | `text-analyzer/sanitizer.ts` |
+| **Brand Voice Gate** | toneMatch >= 0.75, max 2 retries | `creative-engine/brand-compliance.ts` |
+| **Cross-Brand Isolation** | Elite Assets filtrados por brandId, NUNCA cross-brand | Lint + runtime check |
+
+### 9.6 Dependências Cross-Lane Autorizadas
+
+| De (intelligence_wing) | Para (lane) | Uso | Tipo |
+|:------------------------|:------------|:----|:-----|
+| `predictor/recommendations.ts` | `ai_retrieval` | Buscar Elite Assets via RAG | readonly |
+| `creative-engine/asset-remixer.ts` | `ai_retrieval` | Buscar top 20% assets | readonly |
+| `creative-engine/brand-compliance.ts` | `brand_voice` | Validar toneMatch | readonly |
+| `text-analyzer/text-parser.ts` | `scraping_engine` | Fallback para URL (se fornecida) | readonly |
+
+---
+
+## 10. Referências
+
+- **PRD Sprint 13:** `_netecmt/prd-sprint-13-intelligence-wing.md`
+- **PRD Sprint 25:** `_netecmt/solutioning/prd/prd-sprint-25-predictive-creative-engine.md`
+- **Architecture Review Sprint 25:** `_netecmt/solutioning/architecture/arch-sprint-25-predictive-creative-engine.md`
 - **ADR:** `_netecmt/solutioning/adr/adr-001-polling-strategy.md`
 - **Project Context:** `_netecmt/project-context.md`
 - **Pinecone Docs:** `_netecmt/docs/tools/pinecone.md`
@@ -726,4 +819,4 @@ describe('Intelligence Multi-Tenant Isolation', () => {
 ---
 
 *Contract definido por Athos (Architect) - NETECMT v2.0*  
-*Sprint 13 | Intelligence Wing Foundation | Versão 1.0*
+*Sprint 25 | Predictive & Creative Engine | Versão 2.0.0*

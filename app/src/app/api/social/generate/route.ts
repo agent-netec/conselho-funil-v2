@@ -2,6 +2,10 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { parseAIJSON } from '@/lib/ai/formatters';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { updateUserUsage } from '@/lib/firebase/firestore';
 
 export const runtime = 'nodejs';
 
@@ -10,10 +14,20 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { funnelId, userId, context } = body;
+    const { funnelId, userId, brandId, context } = body;
+
+    if (!brandId) {
+      return createApiError(400, 'brandId é obrigatório.');
+    }
+
+    try {
+      await requireBrandAccess(request, brandId);
+    } catch (error) {
+      return handleSecurityError(error);
+    }
 
     if (!funnelId || !context?.copy) {
-      return NextResponse.json({ error: 'Contexto de copy é obrigatório.' }, { status: 400 });
+      return createApiError(400, 'Contexto de copy é obrigatório.');
     }
 
     const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
@@ -50,13 +64,22 @@ export async function POST(request: NextRequest) {
     const responseText = result.response.text();
     const parsed = parseAIJSON(responseText);
 
-    return NextResponse.json({
-      success: true,
+    // SIG-API-03: Decrementar 1 crédito por geração social
+    if (userId) {
+      try {
+        await updateUserUsage(userId, -1);
+        console.log(`[Social/Generate] 1 crédito decrementado para usuário: ${userId}`);
+      } catch (creditError) {
+        console.error('[Social/Generate] Erro ao atualizar créditos:', creditError);
+      }
+    }
+
+    return createApiSuccess({
       hooks: parsed.hooks || []
     });
 
   } catch (error) {
     console.error('Social generation error:', error);
-    return NextResponse.json({ error: 'Falha ao gerar hooks.' }, { status: 500 });
+    return createApiError(500, 'Falha ao gerar hooks.');
   }
 }

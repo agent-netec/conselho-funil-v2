@@ -64,8 +64,8 @@ export class CopyGenerationLab {
     targetAudience?: string
   ): string {
     const brandKit = brand.brandKit;
-    const voiceGuidelines = brand.voiceTone || brandKit?.aiConfiguration?.voiceGuidelines || 'Profissional e persuasivo';
-    const forbiddenTerms = brandKit?.aiConfiguration?.forbiddenTerms || [];
+    const voiceGuidelines = brand.voiceTone || 'Profissional e persuasivo';
+    const forbiddenTerms: string[] = [];
     const visualStyle = brandKit?.visualStyle || 'modern';
 
     const angleDefinitions = {

@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { notify } from '@/lib/stores/notification-store';
+import { useBrandStore } from '@/lib/stores/brand-store';
 
 interface ShareDialogProps {
   isOpen: boolean;
@@ -35,6 +36,7 @@ export function ShareDialog({
   const [shareUrl, setShareUrl] = useState<string | null>(initialShareUrl || null);
   const [copied, setCopied] = useState(false);
   const [expiresIn, setExpiresIn] = useState<number>(0); // 0 = never
+  const { selectedBrand } = useBrandStore();
 
   const createShareLink = async () => {
     setIsLoading(true);
@@ -42,7 +44,7 @@ export function ShareDialog({
       const response = await fetch('/api/funnels/share', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ funnelId, expiresIn }),
+        body: JSON.stringify({ funnelId, expiresIn, brandId: selectedBrand?.id }),
       });
 
       const data = await response.json();

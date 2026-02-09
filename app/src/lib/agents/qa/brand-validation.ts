@@ -1,5 +1,6 @@
 import { generateWithGemini } from '../../ai/gemini';
-import { VaultContent, SocialPlatform } from '@/types/vault';
+import { VaultContent } from '@/types/vault';
+import { normalizePlatform, type SocialPlatform } from '@/types/social-platform';
 
 /**
  * Serviço de Validação de Marca e Plataforma (ST-16.6)
@@ -21,9 +22,9 @@ export class BrandValidationService {
 
     for (const variant of content.variants) {
       // 1. Validação de Comprimento (Hard Guardrail)
-      if (variant.platform === 'X' && variant.copy.length > 280) {
+      if (normalizePlatform(variant.platform) === 'x' && variant.copy.length > 280) {
         issues.push({
-          platform: 'X',
+          platform: variant.platform,
           type: 'length',
           message: `O post excede 280 caracteres (atual: ${variant.copy.length}).`
         });

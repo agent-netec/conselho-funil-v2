@@ -13,6 +13,7 @@ import {
 } from '@/lib/firebase/intelligence';
 import { getBrand } from '@/lib/firebase/brands';
 import { BrandKeyword, KeywordType, KeywordPriority, BrandKeywordsConfig } from '@/types/intelligence';
+import { Timestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
 
 interface KeywordManagementProps {

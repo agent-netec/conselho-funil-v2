@@ -1,6 +1,7 @@
-import { generateWithGemini } from '../ai/gemini';
-import { buildPerformanceAdvisorPrompt } from '../ai/prompts/performance-advisor';
-import { PerformanceMetricDoc, PerformanceAlertDoc } from '../../types/performance';
+import { generateWithGemini } from '../../ai/gemini';
+import { buildPerformanceAdvisorPrompt } from '../../ai/prompts/performance-advisor';
+import { PerformanceMetricDoc, PerformanceAlertDoc } from '../../../types/performance';
+import type { SegmentBreakdownData } from '@/types/ab-testing';
 
 export interface PerformanceInsight {
   summary: string;
@@ -24,9 +25,10 @@ export class PerformanceAdvisor {
   async generateInsights(
     metrics: PerformanceMetricDoc[],
     alerts: PerformanceAlertDoc[],
-    targetRoas: number
+    targetRoas: number,
+    segmentData?: SegmentBreakdownData
   ): Promise<PerformanceInsight> {
-    const prompt = buildPerformanceAdvisorPrompt(metrics, alerts, targetRoas);
+    const prompt = buildPerformanceAdvisorPrompt(metrics, alerts, targetRoas, segmentData);
 
     try {
       const response = await generateWithGemini(prompt, {

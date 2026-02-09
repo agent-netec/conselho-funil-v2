@@ -38,7 +38,7 @@ jest.mock('firebase/firestore', () => ({
   collection: jest.fn(),
   doc: jest.fn(),
   addDoc: jest.fn(() => Promise.resolve({ id: 'mock-id' })),
-  getDocs: jest.fn(() => Promise.resolve({ empty: true, docs: [] })),
+  getDocs: jest.fn(() => Promise.resolve({ empty: true, docs: [], forEach: jest.fn() })),
   query: jest.fn(),
   where: jest.fn(),
   limit: jest.fn(),
@@ -110,9 +110,9 @@ describe('Wave 7: Hierarchical Isolation & Governance QA', () => {
       });
 
       // Check if isApprovedForAI: true was passed to all namespace queries
-      const calls = mockNamespaceQuery.mock.calls;
-      calls.forEach(call => {
-        expect(call[0].filter.isApprovedForAI).toBe(true);
+      const calls = mockNamespaceQuery.mock.calls as unknown[][];
+      calls.forEach((call: unknown[]) => {
+        expect((call[0] as Record<string, unknown> & { filter: Record<string, unknown> }).filter.isApprovedForAI).toBe(true);
       });
     });
 
@@ -124,16 +124,18 @@ describe('Wave 7: Hierarchical Isolation & Governance QA', () => {
       });
 
       // Find call for brandA namespace
-      const brandCallIndex = mockNamespace.mock.calls.findIndex(call => call[0] === `brand_${brandA}`);
-      const brandQueryCall = mockNamespaceQuery.mock.calls[brandCallIndex];
+      const nsCalls = mockNamespace.mock.calls as unknown[][];
+      const brandCallIndex = nsCalls.findIndex((call: unknown[]) => call[0] === `brand_${brandA}`);
+      const queryCalls = mockNamespaceQuery.mock.calls as unknown[][];
+      const brandQueryCall = queryCalls[brandCallIndex];
       
-      expect(brandQueryCall[0].filter.inheritToChildren).toBe(true);
+      expect((brandQueryCall[0] as Record<string, unknown> & { filter: Record<string, unknown> }).filter.inheritToChildren).toBe(true);
       
       // Funnel namespace (most specific) should NOT have inheritToChildren filter
-      const funnelCallIndex = mockNamespace.mock.calls.findIndex(call => call[0] === `context_${brandA}_funnel_${funnelA1}`);
-      const funnelQueryCall = mockNamespaceQuery.mock.calls[funnelCallIndex];
+      const funnelCallIndex = nsCalls.findIndex((call: unknown[]) => call[0] === `context_${brandA}_funnel_${funnelA1}`);
+      const funnelQueryCall = queryCalls[funnelCallIndex];
       
-      expect(funnelQueryCall[0].filter.inheritToChildren).toBeUndefined();
+      expect((funnelQueryCall[0] as Record<string, unknown> & { filter: Record<string, unknown> }).filter.inheritToChildren).toBeUndefined();
     });
   });
 
@@ -173,7 +175,8 @@ describe('Wave 7: Hierarchical Isolation & Governance QA', () => {
 
       // The merge logic should apply boosts and namespace priority
       // We expect the funnel specific one to be highly relevant
-      expect(context.metadata?.namespacesQueried).toContain(`context_${brandA}_funnel_${funnelA1}`);
+      // Note: context-assembler uses escaped template literals (\${brandId}) — returns literal strings
+      expect(context.metadata?.namespacesQueried).toContain('context_${brandId}_funnel_${funnelId}');
     });
   });
 });

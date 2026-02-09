@@ -1,7 +1,9 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { ingestJourneyEvent, IngestEventInput } from '@/lib/intelligence/journey/bridge';
-import { handleSecurityError } from '@/lib/utils/api-security';
+import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
  * @fileoverview API Route para ingestão de eventos de jornada (Event Bridge).
@@ -13,35 +15,27 @@ export async function POST(request: NextRequest) {
     // 1. Validar Body
     const body = await request.json() as IngestEventInput;
     
-    if (!body.email || !body.type || !body.source) {
-      return NextResponse.json(
-        { error: 'Campos obrigatórios ausentes: email, type, source.' },
-        { status: 400 }
-      );
+    if (!body.brandId || !body.email || !body.type || !body.source) {
+      return createApiError(400, 'Campos obrigatórios ausentes: brandId, email, type, source.');
     }
 
+    await requireBrandAccess(request, body.brandId);
+
     // 2. Ingerir Evento via Bridge
-    // Nota: Esta rota é pública para permitir rastreamento de leads externos (trackers),
-    // mas em produção deve ter validação de Origin ou API Key simples se necessário.
+    // Nota: Esta rota agora exige autenticação + brandId para isolamento multi-tenant.
     const result = await ingestJourneyEvent(body);
 
     // 3. Retornar Sucesso
-    return NextResponse.json({
-      success: true,
-      ...result
-    });
+    return createApiSuccess(result);
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Event Ingest Error]:', error);
     
     // Se for um erro de segurança conhecido
-    if (error.status) {
+    if (error instanceof ApiError) {
       return handleSecurityError(error);
     }
 
-    return NextResponse.json(
-      { error: 'Erro interno ao processar evento.' },
-      { status: 500 }
-    );
+    return createApiError(500, 'Erro interno ao processar evento.');
   }
 }

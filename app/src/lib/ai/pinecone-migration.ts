@@ -1,5 +1,5 @@
 import type { AssetChunk } from '@/types/database';
-import { buildPineconeRecord, getPineconeIndex } from './pinecone-client';
+import { buildPineconeRecord, getPineconeIndex } from './pinecone';
 
 export interface MigrationReport {
   attempted: number;
@@ -18,7 +18,10 @@ export async function migrateChunksToPinecone(
   options: { namespace?: string } = {}
 ): Promise<MigrationReport> {
   const { namespace } = options;
-  const index = getPineconeIndex();
+  const index = await getPineconeIndex();
+  if (!index) {
+    return { attempted: chunks.length, upserted: 0, skipped: chunks.length, errors: [{ id: '*', reason: 'Pinecone index not available' }] };
+  }
 
   const errors: Array<{ id: string; reason: string }> = [];
   const vectors = [];

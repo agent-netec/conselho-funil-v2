@@ -1,12 +1,28 @@
 import { SpyAgent } from '../spy-agent';
 import { CompetitorProfile } from '@/types/competitors';
 
+// Mock transitive dependencies of SpyAgent
+jest.mock('uuid', () => ({
+  v4: () => 'test-uuid-mock',
+}));
+jest.mock('@/lib/firebase/storage-server', () => ({
+  uploadBufferToStorage: jest.fn(),
+}));
+jest.mock('@/lib/firebase/intelligence', () => ({
+  createIntelligenceAsset: jest.fn(),
+}));
+jest.mock('@/lib/firebase/config', () => ({
+  db: {},
+  storage: {},
+}));
+
 describe('SpyAgent Ethical Guardrails', () => {
   const mockCompetitor: CompetitorProfile = {
     id: 'comp_123',
     brandId: 'brand_456',
     name: 'Test Competitor',
     websiteUrl: 'https://example.com',
+    socialMedia: {},
     category: ['Direct'],
     status: 'active',
     createdAt: {} as any,

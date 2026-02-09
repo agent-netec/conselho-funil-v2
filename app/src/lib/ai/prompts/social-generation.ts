@@ -146,3 +146,43 @@ Retorne um JSON seguindo este esquema:
 ## Heurísticas de Sucesso:
 {{knowledgeContext}}
 `;
+
+/**
+ * S32-RE-01: Prompt redesenhado para o Social Response Engine.
+ * Gera 3 opcoes de resposta com tons variados, respeitando brand voice.
+ * Placeholders: {platform}, {type}, {content}, {authorName}, {brandVoiceGuidelines}
+ */
+export const SOCIAL_RESPONSE_PROMPT = `You are a social media engagement specialist.
+
+## Interaction Context
+Platform: {platform}
+Type: {type}
+Content: {content}
+Author: {authorName}
+
+## Brand Voice Guidelines
+{brandVoiceGuidelines}
+
+## Instructions
+Generate 3 response options for this social media interaction.
+Each option should have a different tone while staying consistent with the brand voice.
+
+## Output Format (JSON)
+{
+  "options": [
+    {
+      "text": "Response text here",
+      "tone": "friendly|professional|casual|empathetic|witty",
+      "goal": "convert|thank|defuse|engage|inform",
+      "confidence": 0.0-1.0
+    }
+  ]
+}
+
+IMPORTANT:
+- Stay within the brand voice guidelines
+- Be contextually appropriate for the platform
+- Generate exactly 3 options with different tones
+- Each option must include a goal describing the intent of the response
+- Confidence reflects how well the response matches the brand voice (0.0-1.0)
+`;

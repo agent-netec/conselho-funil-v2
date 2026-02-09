@@ -132,7 +132,7 @@ export interface Brand {
     topP: number;             // 0.1 a 1.0
     presencePenalty?: number;
     frequencyPenalty?: number;
-    profile: 'agressivo' | 'sobrio' | 'equilibrado';
+    profile: 'agressivo' | 'sobrio' | 'equilibrado' | 'criativo';
   };
 
   // ST-21.6: Governança de Custos
@@ -140,6 +140,13 @@ export interface Brand {
     dailyLimit: number;
     currentDailyUsage: number;
     lastUsage: Timestamp;
+  };
+
+  // S34-AO-02: Kill-Switch state (DT-11)
+  killSwitchState?: {
+    active: boolean;
+    activatedAt?: Timestamp;
+    reason?: string;
   };
 
   createdAt: Timestamp;
@@ -260,7 +267,7 @@ export interface FunnelContext {
   audience: {
     who: string;
     pain: string;
-    awareness: 'fria' | 'morna' | 'quente';
+    awareness: 'unaware' | 'problem' | 'solution' | 'product' | 'most_aware';
     objection?: string;
   };
   
@@ -271,6 +278,9 @@ export interface FunnelContext {
     type: 'curso' | 'servico' | 'saas' | 'mentoria' | 'produto_fisico';
   };
   
+  // URL do funil (opcional, usado para Autopsy)
+  url?: string;
+
   // Channels (channel é o novo padrão, channels é legado)
   channel?: {
     main: string;
@@ -433,17 +443,29 @@ export interface Conversation {
   updatedAt: Timestamp;
 }
 
+/** Referência a uma fonte usada pelo RAG na resposta */
+export interface SourceReference {
+  file: string;
+  section?: string;
+  content?: string;
+  similarity?: number;
+  rerankScore?: number;
+  counselor?: string;
+  type?: string;
+}
+
 export interface Message {
   id: string;
-  conversationId: string;
+  conversationId?: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
+  timestamp: Timestamp;
   metadata?: {
-    sources?: any[]; // US-1.2.3: Suporte a objetos de source (snippet, score, etc)
+    sources?: Array<string | SourceReference>;
     counselors?: string[];
     scorecard?: Scorecard;
   };
-  createdAt: Timestamp;
+  createdAt?: Timestamp;
 }
 
 // ============================================

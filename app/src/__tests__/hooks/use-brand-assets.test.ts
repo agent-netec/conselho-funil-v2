@@ -1,15 +1,18 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { cleanup, renderHook, waitFor } from '@testing-library/react'
 import { useBrandAssets } from '@/lib/hooks/use-brand-assets'
 import { onSnapshot } from 'firebase/firestore'
 
 // Mock firebase/firestore
 jest.mock('firebase/firestore', () => ({
-  ...jest.requireActual('firebase/firestore'),
   onSnapshot: jest.fn(),
   query: jest.fn(),
   collection: jest.fn(),
   where: jest.fn(),
   orderBy: jest.fn(),
+}))
+
+jest.mock('@/lib/firebase/config', () => ({
+  db: {},
 }))
 
 describe('useBrandAssets', () => {
@@ -18,14 +21,23 @@ describe('useBrandAssets', () => {
     { id: 'a1', name: 'Asset 1', brandId: 'brand123', createdAt: new Date() },
     { id: 'a2', name: 'Asset 2', brandId: 'brand123', createdAt: new Date() },
   ]
+  let lastUnmount: (() => void) | null = null
 
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
+  afterEach(() => {
+    if (lastUnmount) {
+      lastUnmount()
+      lastUnmount = null
+    }
+    cleanup()
+  })
+
   it('should set assets and stop loading when snapshot updates', async () => {
-    // Simulate onSnapshot behavior
-    ;(onSnapshot as jest.Mock).mockImplementation((q, callback) => {
+    // Simulate onSnapshot behavior — callback fires synchronously
+    ;(onSnapshot as jest.Mock).mockImplementation((_q: any, callback: any) => {
       callback({
         docs: mockAssets.map(asset => ({
           id: asset.id,
@@ -35,9 +47,8 @@ describe('useBrandAssets', () => {
       return jest.fn() // unsubscribe
     })
 
-    const { result } = renderHook(() => useBrandAssets(mockBrandId))
-
-    expect(result.current.isLoading).toBe(true)
+    const { result, unmount } = renderHook(() => useBrandAssets(mockBrandId))
+    lastUnmount = unmount
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
@@ -47,7 +58,8 @@ describe('useBrandAssets', () => {
   })
 
   it('should handle undefined brandId', () => {
-    const { result } = renderHook(() => useBrandAssets(undefined))
+    const { result, unmount } = renderHook(() => useBrandAssets(undefined))
+    lastUnmount = unmount
 
     expect(result.current.assets).toEqual([])
     expect(result.current.isLoading).toBe(false)

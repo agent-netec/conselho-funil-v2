@@ -24,6 +24,10 @@ export class EventNormalizer {
         return this.normalizeInstagram(payload);
       case 'meta':
         return this.normalizeMeta(payload);
+      case 'google':
+        // S31-DT-05: Stub — Google Ads não envia webhooks push atualmente.
+        // Quando implementado (S32+), normalizar payload de Google Ads Lead Form ou Offline Conversion.
+        throw new Error('Google webhook normalization not yet implemented. DLQ retry unavailable for Google platform.');
       default:
         throw new Error(`Plataforma ${platform} não suportada pelo normalizador.`);
     }

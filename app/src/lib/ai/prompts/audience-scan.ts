@@ -39,16 +39,19 @@ SAÍDA ESPERADA (JSON):
  */
 export function buildAudienceScanPrompt(leads: JourneyLead[], events: JourneyEvent[]): string {
   // Anonimização básica e preparação de dados para o prompt
-  const simplifiedLeads = leads.map(l => ({
-    id: l.id.substring(0, 8), // ID parcial para referência sem PII
-    tags: l.tags || [],
-    score: l.score || 0
-  }));
+  const simplifiedLeads = leads.map(l => {
+    const leadData = l as JourneyLead & { tags?: string[]; score?: number };
+    return {
+      id: leadData.id.substring(0, 8), // ID parcial para referência sem PII
+      tags: leadData.tags || [],
+      score: leadData.score || 0
+    };
+  });
 
   const simplifiedEvents = events.map(e => ({
     leadId: e.leadId.substring(0, 8),
     type: e.type,
-    metadata: e.metadata
+    metadata: e.payload.metadata
   }));
 
   return `Analise os seguintes dados de leads e eventos para gerar um AudienceScan:

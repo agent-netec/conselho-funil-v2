@@ -20,6 +20,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -119,10 +120,7 @@ export async function POST(request: NextRequest) {
     const { chunks, clear = false }: { chunks: ProcessedChunk[]; clear?: boolean } = body;
 
     if (!chunks || !Array.isArray(chunks)) {
-      return NextResponse.json(
-        { error: 'Chunks array is required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'Chunks array is required');
     }
 
     console.log(`📤 Iniciando upload de ${chunks.length} chunks...`);
@@ -201,12 +199,7 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ Upload concluído! Sucesso: ${uploaded}, Erros: ${errors}`);
 
-    return NextResponse.json({
-      success: true,
-      uploaded,
-      errors,
-      total: chunks.length,
-    });
+    return createApiSuccess({ uploaded, errors, total: chunks.length });
   } catch (error) {
     return handleSecurityError(error);
   }
@@ -225,7 +218,7 @@ export async function GET(request: NextRequest) {
     const countQuery = query(collection(db, 'knowledge'), limit(500));
     const countSnapshot = await getDocs(countQuery);
     
-    return NextResponse.json({
+    return createApiSuccess({
       status: 'ok',
       hasDocuments: !snapshot.empty,
       approximateCount: countSnapshot.size,

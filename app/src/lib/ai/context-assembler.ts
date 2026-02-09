@@ -7,6 +7,9 @@
 import { getPineconeIndex } from './pinecone';
 import { generateEmbedding } from './embeddings';
 import { db } from '@/lib/firebase/config';
+import { COUNSELORS_REGISTRY } from '@/lib/constants';
+import { estimateTokens } from '@/lib/utils/ai-helpers';
+import { sanitizeBrandId } from '@/lib/auth/brand-guard';
 import { 
   AssembledContext, 
   AssembleContextInput, 
@@ -24,6 +27,7 @@ import {
 } from '@/types/context';
 import { ICPInsight, VoiceProfile } from '@/types/intelligence';
 import { MergedChunk, RetrievedChunk } from '@/types/retrieval';
+import { ScopeLevel } from '@/types/scoped-data';
 import { collection, query, where, limit, getDocs } from 'firebase/firestore';
 
 export { DEFAULT_CONFIG };
@@ -45,6 +49,8 @@ export class ContextAssembler {
   async assembleContext(input: AssembleContextInput): Promise<AssembledContext> {
     const startTime = Date.now();
     const warnings: string[] = [];
+    const safeBrandId = sanitizeBrandId(input.brandId);
+    const safeInput = { ...input, brandId: safeBrandId };
     
     // Merge config com override
     const config = { ...this.config, ...input.configOverride };
@@ -53,13 +59,13 @@ export class ContextAssembler {
     const queryEmbedding = await generateEmbedding(input.userQuery);
     
     // 2. Determinar namespaces a consultar
-    const namespaces = this.getNamespacesToQuery(input);
+    const namespaces = this.getNamespacesToQuery(safeInput);
     
     // 3. Query paralela em todos os namespaces (com timeout)
     const queryResults = await this.queryAllNamespaces(
       queryEmbedding,
       namespaces,
-      input,
+      safeInput,
       config
     );
     
@@ -68,13 +74,13 @@ export class ContextAssembler {
     
     // 5. Buscar dados estruturados (Firestore)
     const [brandContext, icpInsights, voiceProfile] = await Promise.all([
-      this.fetchBrandContext(input.brandId),
-      this.fetchICPInsights(input.brandId, input.funnelId),
-      this.fetchVoiceProfile(input.brandId, input.funnelId),
+      this.fetchBrandContext(safeBrandId),
+      this.fetchICPInsights(safeBrandId, input.funnelId),
+      this.fetchVoiceProfile(safeBrandId, input.funnelId),
     ]);
     
       // 6. Organizar por categoria e truncar
-    const organized = this.organizeAndTruncate(mergedChunks, input, config.maxContextTokens);
+    const organized = this.organizeAndTruncate(mergedChunks, safeInput, config.maxContextTokens);
     
     // 7. Deduplicação de Sentimentos (ST-16.5 AC-3)
     organized.trends = this.consolidateTrends(organized.trends);
@@ -156,11 +162,11 @@ export class ContextAssembler {
   private async queryAllNamespaces(
     embedding: number[],
     namespaces: NamespaceQuery[],
-    input: AssembleContextInput,
+    _input: AssembleContextInput,
     config: ContextAssemblerConfig
   ): Promise<NamespaceQueryResults> {
     const index = await getPineconeIndex();
-    const results: Map<string, RetrievedChunk[]> = new Map();
+    const results: Map<string, RetrievedChunkWithPriority[]> = new Map();
     let totalChunks = 0;
     
     if (!index) throw new Error('Pinecone index not available');
@@ -178,14 +184,24 @@ export class ContextAssembler {
         ]);
         
         if (response && 'matches' in response) {
-          const chunks = (response.matches || []).map(match => ({
-            id: match.id,
-            content: (match.metadata as any)?.content || '',
-            score: match.score || 0,
-            namespace: nsQuery.namespace,
-            metadata: match.metadata as any,
-            namespacePriority: nsQuery.priority,
-          }));
+          const chunks = (response.matches || [])
+            .map((match): RetrievedChunkWithPriority | null => {
+              const metadataRecord = this.ensureMetadataRecord(match.metadata);
+              const status = typeof metadataRecord.status === 'string' ? metadataRecord.status : undefined;
+              const isApproved = metadataRecord.isApprovedForAI === true;
+              const hasValidStatus = !status || status === 'ready' || status === 'approved';
+              if (!isApproved || !hasValidStatus) return null;
+              const metadata = this.buildChunkMetadata(metadataRecord, nsQuery.namespace);
+              return {
+                id: match.id,
+                content: metadata.content || '',
+                score: match.score || 0,
+                namespace: nsQuery.namespace,
+                metadata,
+                namespacePriority: nsQuery.priority,
+              };
+            })
+            .filter((chunk): chunk is RetrievedChunkWithPriority => chunk !== null);
           results.set(nsQuery.namespace, chunks);
           totalChunks += chunks.length;
         }
@@ -205,15 +221,16 @@ export class ContextAssembler {
   ): MergedChunk[] {
     const allChunks: MergedChunk[] = [];
     
-    for (const [namespace, chunks] of queryResults.byNamespace) {
+    for (const [, chunks] of queryResults.byNamespace) {
       for (const chunk of chunks) {
         const dataType = chunk.metadata.dataType || 'default';
         const boost = DATA_TYPE_BOOST[dataType] || DATA_TYPE_BOOST['default'];
+        const uxBoost = this.getUxMetadataBoost(chunk.metadata);
         
         allChunks.push({
           ...chunk,
-          namespacePriority: (chunk as any).namespacePriority,
-          finalScore: chunk.score * ((chunk as any).namespacePriority / 100) * boost,
+          namespacePriority: chunk.namespacePriority,
+          finalScore: chunk.score * (chunk.namespacePriority / 100) * boost * uxBoost,
         });
       }
     }
@@ -320,8 +337,87 @@ export class ContextAssembler {
   }
 
   private organizeAndTruncate(chunks: MergedChunk[], input: AssembleContextInput, maxTokens: number) {
-    // ... (rest of the method remains similar, but we ensure order Trends > Comments)
-    // ...
+    const counselor = COUNSELORS_REGISTRY[input.counselorId as keyof typeof COUNSELORS_REGISTRY];
+    const counselorKnowledge: CounselorKnowledge = {
+      counselorId: input.counselorId,
+      counselorName: counselor?.name || input.counselorId,
+      expertise: counselor?.expertise ? [counselor.expertise] : [],
+      relevantChunks: [],
+      totalChunks: 0,
+    };
+
+    const templates: TemplateContext[] = [];
+    const trends: TrendContext[] = [];
+    const assets: AssetContext[] = [];
+    let tokenCount = 0;
+
+    const prioritized = [...chunks].sort((a, b) => {
+      return this.getTaskAwareScore(b, input.taskType) - this.getTaskAwareScore(a, input.taskType);
+    });
+
+    for (const chunk of prioritized) {
+      const chunkTokens = this.estimateTokens(chunk.content);
+      if (tokenCount + chunkTokens > maxTokens) continue;
+
+      const dataType = chunk.metadata.dataType || 'default';
+      const uxMetadata = chunk.metadata.ux_metadata as {
+        type?: 'headline' | 'cta' | 'hook';
+        relevance?: number;
+        original_context?: string;
+      } | undefined;
+
+      if (dataType === 'counselor_knowledge' || chunk.metadata.counselor) {
+        counselorKnowledge.relevantChunks.push(chunk);
+        counselorKnowledge.totalChunks += 1;
+      } else if (dataType === 'cloned_template' || dataType === 'system_template' || dataType === 'template') {
+        const scopeLevel = chunk.metadata.scopeLevel || 'brand';
+        const scope = scopeLevel === 'universal'
+          ? { level: 'universal' as const }
+          : {
+              level: scopeLevel,
+              brandId: chunk.metadata.brandId || input.brandId,
+              funnelId: chunk.metadata.funnelId || input.funnelId,
+              campaignId: chunk.metadata.campaignId || input.campaignId,
+            };
+        templates.push({
+          id: chunk.id,
+          name: chunk.metadata.templateName || chunk.metadata.name || 'Template',
+          type: chunk.metadata.templateType || dataType,
+          relevanceScore: chunk.finalScore,
+          snippet: this.buildSnippet(chunk.content),
+          source: dataType === 'cloned_template' ? 'cloned' : 'system',
+          scope,
+        });
+      } else if (dataType === 'trend' || dataType === 'market_trend') {
+        trends.push({
+          topic: chunk.metadata.topic || this.buildSnippet(chunk.content, 120),
+          relevance: chunk.finalScore,
+          source: chunk.metadata.source || chunk.metadata.platform || 'unknown',
+          capturedAt: chunk.metadata.capturedAt?.toDate
+            ? chunk.metadata.capturedAt.toDate()
+            : (chunk.metadata.capturedAt ? new Date(chunk.metadata.capturedAt) : new Date()),
+        });
+      } else {
+        assets.push({
+          id: chunk.id,
+          name: chunk.metadata.assetName || chunk.metadata.name || chunk.metadata.sourceFile || 'Asset',
+          type: uxMetadata?.type || dataType,
+          relevantSnippet: this.buildSnippet(chunk.content),
+          similarity: chunk.finalScore,
+        });
+      }
+
+      tokenCount += chunkTokens;
+    }
+
+    return {
+      counselorKnowledge,
+      templates,
+      trends,
+      assets,
+      totalChunks: counselorKnowledge.totalChunks + templates.length + trends.length + assets.length,
+      tokenCount,
+    };
   }
 
   /**
@@ -363,6 +459,85 @@ export class ContextAssembler {
     };
     return mapping[taskType] || 'general';
   }
+
+  private getUxMetadataBoost(metadata: Record<string, unknown>): number {
+    const uxMetadata = this.extractUxMetadata(metadata);
+    if (!uxMetadata) return 1;
+    const relevance = typeof uxMetadata.relevance === 'number' ? uxMetadata.relevance : 0.6;
+    const clamped = Math.max(0, Math.min(1, relevance));
+    return 1.25 + clamped * 0.25;
+  }
+
+  private getTaskAwareScore(chunk: MergedChunk, taskType: TaskType): number {
+    const uxMetadata = chunk.metadata?.ux_metadata;
+    const taskBoost = (taskType === 'create_copy' || taskType === 'create_funnel') && uxMetadata ? 1.15 : 1;
+    return chunk.finalScore * taskBoost;
+  }
+
+  /** Delega para utilitário centralizado (SIG-BNS-02). */
+  private estimateTokens(text: string): number {
+    return estimateTokens(text);
+  }
+
+  private buildSnippet(text: string, maxLength = 240): string {
+    if (!text) return '';
+    const cleaned = text.replace(/\s+/g, ' ').trim();
+    if (cleaned.length <= maxLength) return cleaned;
+    return `${cleaned.slice(0, maxLength - 1)}…`;
+  }
+
+  private ensureMetadataRecord(metadata: unknown): Record<string, unknown> {
+    if (metadata && typeof metadata === 'object') {
+      return metadata as Record<string, unknown>;
+    }
+    return {};
+  }
+
+  private isScopeLevel(value: unknown): value is ScopeLevel {
+    return value === 'universal' || value === 'brand' || value === 'funnel' || value === 'campaign';
+  }
+
+  private inferScopeLevel(namespace: string): ScopeLevel {
+    if (namespace === 'universal') return 'universal';
+    if (namespace.includes('_campaign_')) return 'campaign';
+    if (namespace.includes('_funnel_')) return 'funnel';
+    return 'brand';
+  }
+
+  private buildChunkMetadata(
+    metadata: Record<string, unknown>,
+    namespace: string
+  ): RetrievedChunk['metadata'] {
+    const scopeCandidate = metadata.scopeLevel;
+    const scopeLevel = this.isScopeLevel(scopeCandidate)
+      ? scopeCandidate
+      : this.inferScopeLevel(namespace);
+    const dataType = typeof metadata.dataType === 'string' ? metadata.dataType : 'default';
+    const content = typeof metadata.content === 'string' ? metadata.content : '';
+    const brandId = typeof metadata.brandId === 'string' ? metadata.brandId : undefined;
+    const funnelId = typeof metadata.funnelId === 'string' ? metadata.funnelId : undefined;
+    const campaignId = typeof metadata.campaignId === 'string' ? metadata.campaignId : undefined;
+    const isApprovedForAI = metadata.isApprovedForAI === true;
+
+    return {
+      ...metadata,
+      scopeLevel,
+      brandId,
+      funnelId,
+      campaignId,
+      dataType,
+      isApprovedForAI,
+      content,
+    } as RetrievedChunk['metadata'];
+  }
+
+  private extractUxMetadata(
+    metadata: Record<string, unknown>
+  ): { relevance?: number } | undefined {
+    const uxMetadata = metadata.ux_metadata;
+    if (!uxMetadata || typeof uxMetadata !== 'object') return undefined;
+    return uxMetadata as { relevance?: number };
+  }
 }
 
 interface NamespaceQuery {
@@ -372,6 +547,10 @@ interface NamespaceQuery {
 }
 
 interface NamespaceQueryResults {
-  byNamespace: Map<string, RetrievedChunk[]>;
+  byNamespace: Map<string, RetrievedChunkWithPriority[]>;
   totalChunks: number;
+}
+
+interface RetrievedChunkWithPriority extends RetrievedChunk {
+  namespacePriority: number;
 }

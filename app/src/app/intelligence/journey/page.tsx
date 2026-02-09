@@ -21,7 +21,7 @@ export default function JourneyPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-950 text-white">
-      <Header title="Jornada do Lead" icon={Map} />
+      <Header title="Jornada do Lead" />
       
       <main className="flex-1 p-6 max-w-4xl mx-auto w-full">
         <div className="grid gap-6">

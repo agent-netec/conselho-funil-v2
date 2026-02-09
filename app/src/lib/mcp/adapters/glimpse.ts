@@ -76,9 +76,8 @@ export class GlimpseAdapter implements IMCPAdapter {
 
   private async callGlimpseMcp(tool: string, args: any) {
     // 1. Detectar se estamos no ambiente do Cursor (Dev)
-    // @ts-ignore
-    if (typeof window !== 'undefined' && (window as any).mcp) {
-      return await (window as any).mcp.callTool('glimpse', tool, args);
+    if (typeof window !== 'undefined' && window.mcp) {
+      return await window.mcp.callTool('glimpse', tool, args);
     }
 
     // 2. Produção (App) - Relay

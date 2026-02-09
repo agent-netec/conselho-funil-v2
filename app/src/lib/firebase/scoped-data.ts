@@ -16,7 +16,7 @@ import {
   deleteDoc,
   updateDoc
 } from 'firebase/firestore';
-import { db } from './firestore';
+import { db } from './config';
 import { 
   DataScope, 
   ScopedData, 
@@ -62,9 +62,9 @@ export async function createScopedData<T extends ScopedData & { id?: string }>(
         values: [], // O chamador deve fornecer o embedding ou o sistema deve gerar
         metadata: {
           scopeLevel: data.scope.level,
-          brandId: data.scope.brandId,
-          funnelId: data.scope.funnelId,
-          campaignId: data.scope.campaignId,
+          brandId: data.scope.brandId ?? '',
+          funnelId: data.scope.funnelId ?? '',
+          campaignId: data.scope.campaignId ?? '',
           inheritToChildren: data.inheritToChildren,
           dataType: options.dataType || collectionName,
           content: content,

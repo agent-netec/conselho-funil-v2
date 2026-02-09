@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useBrandStore } from '@/lib/stores/brand-store';
 import { notify } from '@/lib/stores/notification-store';
 import { DesignGenerationCard } from '@/components/chat/design-generation-card';
 import type { Funnel } from '@/types/database';
@@ -37,6 +38,7 @@ export default function DesignCouncilPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuthStore();
+  const { selectedBrand } = useBrandStore();
   
   const funnelId = params.id as string;
   const campaignId = searchParams.get('campaignId');
@@ -91,6 +93,7 @@ export default function DesignCouncilPage() {
         body: JSON.stringify({
           funnelId,
           userId: user?.uid,
+          brandId: selectedBrand?.id,
           context: {
             objective: funnel.context.objective,
             copy: campaign.copywriting.mainScript,

@@ -125,9 +125,8 @@ export class BrightDataAdapter implements IMCPAdapter {
    */
   private async callBrightDataMcp(tool: string, args: any): Promise<any> {
     // 1. Detectar se estamos no ambiente do Cursor (Dev)
-    // @ts-ignore
-    if (typeof window !== 'undefined' && (window as any).mcp) {
-      return await (window as any).mcp.callTool('BrightData', tool, args);
+    if (typeof window !== 'undefined' && window.mcp) {
+      return await window.mcp.callTool('BrightData', tool, args);
     }
 
     // 2. Se não estiver no Cursor, estamos em Produção (App)

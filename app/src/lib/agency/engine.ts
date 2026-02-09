@@ -92,7 +92,7 @@ export async function addAgencyMember(agencyId: string, userId: string, role: Ag
 export async function getAgencyMembers(agencyId: string): Promise<AgencyMember[]> {
   const q = query(collection(db, 'agencies', agencyId, 'members'));
   const snap = await getDocs(q);
-  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as AgencyMember));
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }) as unknown as AgencyMember);
 }
 
 /**

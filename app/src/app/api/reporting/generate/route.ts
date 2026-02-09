@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { reportingEngine } from '@/lib/reporting/engine';
 import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
  * POST /api/reporting/generate
@@ -16,17 +17,14 @@ export async function POST(request: NextRequest) {
     const { metrics, context } = body;
 
     if (!metrics || !context) {
-      return NextResponse.json(
-        { error: 'Parâmetros metrics e context são obrigatórios' },
-        { status: 400 }
-      );
+      return createApiError(400, 'Parâmetros metrics e context são obrigatórios');
     }
 
     // 2. Execução do Engine
     const report = await reportingEngine.generateReport(metrics, context);
 
     // 3. Retorno
-    return NextResponse.json(report);
+    return createApiSuccess(report);
   } catch (error) {
     console.error('[API Reporting] Error:', error);
     return handleSecurityError(error);

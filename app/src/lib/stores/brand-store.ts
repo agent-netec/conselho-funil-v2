@@ -35,6 +35,7 @@ export const useBrandStore = create<BrandState>()(
       partialize: (state) => ({ 
         selectedBrand: state.selectedBrand, // Apenas persiste a marca selecionada
       }),
+      skipHydration: true, // SSR-safe: rehydrate manualmente em client root
     }
   )
 );

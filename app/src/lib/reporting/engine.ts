@@ -1,5 +1,5 @@
-import { generateWithGemini } from '../ai/gemini.ts';
-import { anonymizeDataForAI } from './anonymizer.ts';
+import { generateWithGemini } from '../ai/gemini';
+import { anonymizeDataForAI } from './anonymizer';
 
 export interface ReportMetrics {
   adSpend: number;

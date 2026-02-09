@@ -4,6 +4,8 @@
  * ST-21.6
  */
 
+import { estimateTokens as _estimateTokens } from '@/lib/utils/ai-helpers';
+
 import { db } from '@/lib/firebase/config';
 import { collection, addDoc, Timestamp, doc, getDoc, updateDoc, increment } from 'firebase/firestore';
 import { CONFIG } from '@/lib/config';
@@ -118,9 +120,10 @@ export class AICostGuard {
   }
 
   /**
-   * Estima tokens de uma string (aproximação simples: 1 token ~= 4 chars)
+   * Estima tokens de uma string (aproximação simples: 1 token ~= 4 chars).
+   * Delega para utilitário centralizado (SIG-BNS-02).
    */
   static estimateTokens(text: string): number {
-    return Math.ceil(text.length / 4);
+    return _estimateTokens(text);
   }
 }

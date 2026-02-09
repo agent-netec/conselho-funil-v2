@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SentryEngine } from '@/lib/performance/sentry-engine';
 import { PerformanceAnomaly } from '@/types/performance';
 import { Timestamp } from 'firebase/firestore';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
  * GET /api/performance/anomalies
@@ -17,33 +18,21 @@ export async function GET(req: NextRequest) {
     const mock = searchParams.get('mock') === 'true';
 
     if (!brandId) {
-      return NextResponse.json({
-        success: false,
-        message: 'brandId é obrigatório.'
-      }, { status: 400 });
+      return createApiError(400, 'brandId é obrigatório.');
     }
 
     if (mock) {
       const mockAnomalies = generateMockAnomalies(brandId);
-      return NextResponse.json({
-        success: true,
-        data: mockAnomalies
-      }, { status: 200 });
+      return createApiSuccess({ anomalies: mockAnomalies });
     }
 
     const anomalies = await SentryEngine.listAnomalies(brandId, status || undefined, limit);
 
-    return NextResponse.json({
-      success: true,
-      data: anomalies
-    }, { status: 200 });
+    return createApiSuccess({ anomalies });
 
   } catch (error) {
     console.error('[API Performance Anomalies] Erro:', error);
-    return NextResponse.json({
-      success: false,
-      message: 'Erro interno ao buscar anomalias.'
-    }, { status: 500 });
+    return createApiError(500, 'Erro interno ao buscar anomalias.');
   }
 }
 

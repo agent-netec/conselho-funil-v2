@@ -14,12 +14,14 @@ interface InteractionCardProps {
 }
 
 export function InteractionCard({ interaction, isActive, onClick }: InteractionCardProps) {
-  const PlatformIcon = {
+  const platformIconMap: Record<string, typeof Twitter> = {
     x: Twitter,
     linkedin: Linkedin,
     instagram: Instagram,
+    tiktok: Phone,
     whatsapp: Phone
-  }[interaction.platform];
+  };
+  const PlatformIcon = platformIconMap[interaction.platform];
 
   const getSentimentConfig = (score: number, label: string) => {
     if (score < 0.3) return { color: 'bg-red-500/10 text-red-500 border-red-500/20', icon: AlertCircle };

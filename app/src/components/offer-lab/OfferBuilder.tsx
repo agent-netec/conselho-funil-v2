@@ -22,7 +22,8 @@ export const OfferBuilder: React.FC<OfferBuilderProps> = ({ initialData, onSave 
   const [offer, setOffer] = useState<Partial<OfferDocument>>({
     name: initialData?.name || '',
     components: initialData?.components || {
-      coreProduct: { price: 0, perceivedValue: 0, description: '' },
+      coreProduct: { name: '', promise: '', description: '', price: 0, perceivedValue: 0 },
+      stacking: [],
       bonuses: [],
       riskReversal: '',
       scarcity: '',
@@ -36,6 +37,7 @@ export const OfferBuilder: React.FC<OfferBuilderProps> = ({ initialData, onSave 
         timeDelay: 5,
         effortSacrifice: 5,
       },
+      analysis: [],
     },
   });
 
@@ -323,7 +325,7 @@ export const OfferBuilder: React.FC<OfferBuilderProps> = ({ initialData, onSave 
                     />
                   </div>
                   <Badge variant="secondary" className="text-[10px]">
-                    {bonus.complementarityScore > 70 ? 'Alta' : bonus.complementarityScore > 40 ? 'Média' : 'Baixa'}
+                    {(bonus.complementarityScore ?? 0) > 70 ? 'Alta' : (bonus.complementarityScore ?? 0) > 40 ? 'Média' : 'Baixa'}
                   </Badge>
                 </div>
               </div>

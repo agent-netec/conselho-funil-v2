@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
 import { updateLogoLock, toggleLogoLock } from '@/lib/ai/brand-governance';
 import { getBrand } from '@/lib/firebase/firestore';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
  * POST /api/brands/[brandId]/logo-lock
@@ -18,15 +19,12 @@ export async function POST(
     const { variant, asset } = body;
 
     if (!variant || !asset) {
-      return NextResponse.json(
-        { error: 'variant e asset são obrigatórios' },
-        { status: 400 }
-      );
+      return createApiError(400, 'variant e asset são obrigatórios');
     }
 
     await updateLogoLock(brandId, variant, asset, user.id);
 
-    return NextResponse.json({ success: true });
+    return createApiSuccess({});
   } catch (error) {
     return handleSecurityError(error);
   }
@@ -47,15 +45,12 @@ export async function PATCH(
     const { locked } = body;
 
     if (typeof locked !== 'boolean') {
-      return NextResponse.json(
-        { error: 'locked (boolean) é obrigatório' },
-        { status: 400 }
-      );
+      return createApiError(400, 'locked (boolean) é obrigatório');
     }
 
     await toggleLogoLock(brandId, locked, user.id);
 
-    return NextResponse.json({ success: true, locked });
+    return createApiSuccess({ locked });
   } catch (error) {
     return handleSecurityError(error);
   }
@@ -74,13 +69,10 @@ export async function GET(
     const brand = await getBrand(brandId);
 
     if (!brand) {
-      return NextResponse.json(
-        { error: 'Marca não encontrada' },
-        { status: 404 }
-      );
+      return createApiError(404, 'Marca não encontrada');
     }
 
-    return NextResponse.json({
+    return createApiSuccess({
       logoLock: brand.brandKit?.logoLock || { variants: {}, locked: false }
     });
   } catch (error) {

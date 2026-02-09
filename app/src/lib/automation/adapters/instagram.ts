@@ -47,7 +47,6 @@ export class InstagramAdapter {
       type: 'dm_received',
       platform: 'instagram',
       timestamp: Timestamp.now(),
-      metadata: { text }
     });
   }
 
@@ -61,7 +60,7 @@ export class InstagramAdapter {
       type: 'comment_made',
       platform: 'instagram',
       timestamp: Timestamp.now(),
-      metadata: { commentId, text, mediaId }
+      contentId: mediaId,
     });
   }
 }

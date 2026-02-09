@@ -11,7 +11,8 @@ import { updateBrandKit } from '@/lib/firebase/brands';
 import { uploadLogo } from '@/lib/firebase/storage';
 import { useUser } from '@/lib/hooks/use-user';
 import { toast } from 'sonner';
-import { Loader2, Lock, Unlock, Upload, Check, Palette, BrainCircuit, Sparkles, Zap, ShieldCheck } from 'lucide-react';
+import { Loader2, Lock, Unlock, Upload, Check, Palette, BrainCircuit, Sparkles, Zap, ShieldCheck, Activity } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface BrandKitFormProps {
   brand: Brand;

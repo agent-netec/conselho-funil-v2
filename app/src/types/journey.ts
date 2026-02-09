@@ -47,6 +47,7 @@ export interface JourneyMetrics {
  */
 export interface JourneyLead {
   id: string; // ID único (ex: hash do email ou UUID)
+  brandId?: string; // Multi-tenant guardrail (obrigatório para novas gravações)
   pii: JourneyLeadPII;
   attribution: JourneyAttribution;
   metrics: JourneyMetrics;
@@ -62,6 +63,7 @@ export interface JourneyLead {
 export interface JourneyEvent {
   id: string;
   leadId: string;
+  brandId?: string; // Multi-tenant guardrail (obrigatório para novas gravações)
   type: JourneyEventType;
   source: JourneyEventSource;
   payload: {

@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { cleanup, renderHook, waitFor } from '@testing-library/react'
 import { useFunnels } from '@/lib/hooks/use-funnels'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { getUserFunnels, createFunnel } from '@/lib/firebase/firestore'
@@ -13,6 +13,7 @@ describe('useFunnels', () => {
     { id: 'f1', name: 'Funnel 1', userId: 'user123', status: 'draft' },
     { id: 'f2', name: 'Funnel 2', userId: 'user123', status: 'active' },
   ]
+  let lastUnmount: (() => void) | null = null
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -20,8 +21,17 @@ describe('useFunnels', () => {
     ;(getUserFunnels as jest.Mock).mockResolvedValue(mockFunnels)
   })
 
+  afterEach(() => {
+    if (lastUnmount) {
+      lastUnmount()
+      lastUnmount = null
+    }
+    cleanup()
+  })
+
   it('should load funnels on mount when user is authenticated', async () => {
-    const { result } = renderHook(() => useFunnels())
+    const { result, unmount } = renderHook(() => useFunnels())
+    lastUnmount = unmount
 
     expect(result.current.isLoading).toBe(true)
 
@@ -36,7 +46,8 @@ describe('useFunnels', () => {
   it('should handle error when loading funnels fails', async () => {
     ;(getUserFunnels as jest.Mock).mockRejectedValue(new Error('Failed to load'))
     
-    const { result } = renderHook(() => useFunnels())
+    const { result, unmount } = renderHook(() => useFunnels())
+    lastUnmount = unmount
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
@@ -49,7 +60,8 @@ describe('useFunnels', () => {
     const newFunnelData = { name: 'New Funnel', context: { objective: 'sales' } as any, brandId: 'brand1' }
     ;(createFunnel as jest.Mock).mockResolvedValue('new-f-id')
     
-    const { result } = renderHook(() => useFunnels())
+    const { result, unmount } = renderHook(() => useFunnels())
+    lastUnmount = unmount
     
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 

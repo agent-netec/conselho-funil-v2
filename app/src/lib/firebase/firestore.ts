@@ -448,13 +448,14 @@ export async function deleteConversation(conversationId: string) {
  */
 export async function addMessage(
   conversationId: string,
-  data: Omit<Message, 'id' | 'conversationId' | 'createdAt'>
+  data: Omit<Message, 'id' | 'conversationId' | 'createdAt' | 'timestamp'> & { timestamp?: Timestamp }
 ): Promise<string> {
   const messageRef = await addDoc(
     collection(db, 'conversations', conversationId, 'messages'),
     {
       ...data,
       conversationId,
+      timestamp: data.timestamp || Timestamp.now(),
       createdAt: Timestamp.now(),
     }
   );

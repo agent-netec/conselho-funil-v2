@@ -9,10 +9,11 @@ import {
   where, 
   getDocs, 
   Timestamp,
-  orderBy
+  orderBy,
+  limit
 } from 'firebase/firestore';
-import { AttributionBridge, AttributionPoint, AttributionResult } from '../../types/attribution';
-import { JourneyEvent, JourneyTransaction } from '../../types/journey';
+import { AttributionBridge, AttributionPoint, AttributionResult } from '../../../types/attribution';
+import { JourneyEvent, JourneyTransaction } from '../../../types/journey';
 import { AttributionEngine } from './engine';
 
 /**

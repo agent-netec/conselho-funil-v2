@@ -8,6 +8,15 @@ import { NextResponse } from 'next/server'
 jest.mock('@/lib/firebase/firestore')
 jest.mock('@/lib/ai/rag')
 jest.mock('@/lib/ai/gemini')
+jest.mock('@/lib/auth/conversation-guard', () => ({
+  requireConversationAccess: jest.fn().mockResolvedValue({ userId: 'test-user' }),
+}))
+jest.mock('@/lib/utils/api-security', () => ({
+  handleSecurityError: jest.fn().mockImplementation((error: any) => {
+    const status = error.statusCode || error.status || 500
+    return { status, json: async () => ({ error: error.message }) }
+  }),
+}))
 
 // Mock NextRequest and NextResponse for Node environment
 const mockNextResponse = {
@@ -79,7 +88,8 @@ describe('Chat API Integration', () => {
     expect(res.status).toBe(200)
     
     const data = await res.json()
-    expect(data.response).toBe('Resposta da IA')
+    expect(data.success).toBe(true)
+    expect(data.data.response).toBe('Resposta da IA')
     expect(firestore.addMessage).toHaveBeenCalled()
   })
 

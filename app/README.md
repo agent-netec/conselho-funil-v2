@@ -1,5 +1,11 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Dependencias do Projeto
+
+| Dependencia | Uso | Desde |
+|:-----------|:----|:------|
+| zod | Validacao de schemas (API responses, Gemini output, forms) | Sprint 32 (formalizada) |
+
 ## Getting Started
 
 First, run the development server:

@@ -50,3 +50,14 @@ next-env.d.ts
 
 # backup git folder
 .git_backup
+
+# backup archives
+*.zip
+
+# temporary build/test output
+tsc-output*.txt
+test-baseline.txt
+test-full.txt
+
+# claude code
+.claude/

@@ -89,7 +89,7 @@ describe('ST-20.4: Testes de Fluxo de Automação (Maestro & Webhooks)', () => {
       type: 'dm_received',
       platform: 'instagram',
       timestamp: Timestamp.now() as any,
-      metadata: { text: 'Quero saber mais sobre o produto' }
+      contentId: 'quero-saber-mais'
     };
 
     await PersonalizationMaestro.processInteraction(brandId, leadId, dmInteraction);

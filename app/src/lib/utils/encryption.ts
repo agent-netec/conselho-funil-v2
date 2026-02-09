@@ -41,6 +41,8 @@ export function encryptSensitiveFields(obj: any): any {
     'token', 
     'clientSecret', 
     'apiKey',
+    'developerToken',  // S30-PRE-03 (DT-14): Google Ads developer token
+    'appSecret',       // S30-PRE-03 (DT-14): Meta App Secret
     'email',
     'firstName',
     'lastName',
@@ -78,6 +80,8 @@ export function decryptSensitiveFields(obj: any): any {
     'token', 
     'clientSecret', 
     'apiKey',
+    'developerToken',  // S30-PRE-03 (DT-14): Google Ads developer token
+    'appSecret',       // S30-PRE-03 (DT-14): Meta App Secret
     'email',
     'firstName',
     'lastName',

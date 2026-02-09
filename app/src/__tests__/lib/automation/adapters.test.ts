@@ -7,6 +7,13 @@ import { PersonalizationMaestro } from '@/lib/intelligence/personalization/maest
 jest.mock('@/lib/firebase/config', () => ({ db: {} }));
 jest.mock('@/lib/firebase/vault');
 jest.mock('@/lib/intelligence/personalization/maestro');
+jest.mock('@/lib/integrations/ads/api-helpers', () => ({
+  fetchWithRetry: jest.fn().mockResolvedValue({
+    ok: true,
+    json: () => Promise.resolve({ success: true }),
+  }),
+  sanitizeForLog: jest.fn((s: string) => '***'),
+}));
 
 describe('ST-20.4: Automação Meta & Instagram', () => {
   const brandId = 'test-brand-ads';
@@ -15,8 +22,13 @@ describe('ST-20.4: Automação Meta & Instagram', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (MonaraTokenVault.getValidToken as jest.Mock).mockResolvedValue({
+      accessToken: 'valid_token',
+      provider: 'meta',
+    });
     (MonaraTokenVault.getToken as jest.Mock).mockResolvedValue({
-      accessToken: 'valid_token'
+      accessToken: 'valid_token',
+      provider: 'meta',
     });
   });
 
@@ -31,6 +43,15 @@ describe('ST-20.4: Automação Meta & Instagram', () => {
     
     expect(result.success).toBe(true);
     expect(result.externalId).toBe('ad_123');
+    expect(result.actionTaken).toBe('update_creative');
+  });
+
+  it('Deve chamar syncCustomAudience com SHA256 hashing', async () => {
+    const result = await adapterMeta.syncCustomAudience('audience_789', ['lead1@test.com', 'lead2@test.com']);
+    
+    expect(result.success).toBe(true);
+    expect(result.externalId).toBe('audience_789');
+    expect(result.actionTaken).toBe('sync_audience');
   });
 
   it('Deve enviar DM via Instagram e registrar no Maestro', async () => {

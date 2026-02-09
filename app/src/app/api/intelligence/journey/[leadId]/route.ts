@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLead, getLeadEvents } from '@/lib/firebase/journey';
 import { decryptSensitiveFields } from '@/lib/utils/encryption';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
  * @fileoverview API Route para buscar a jornada consolidada de um lead.
@@ -9,17 +12,22 @@ import { decryptSensitiveFields } from '@/lib/utils/encryption';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { leadId: string } }
+  { params }: { params: Promise<{ leadId: string }> }
 ) {
   try {
-    const { leadId } = params;
+    const { leadId } = await params;
+    const { searchParams } = new URL(request.url);
+    const brandId = searchParams.get('brandId');
 
     if (!leadId) {
-      return NextResponse.json(
-        { error: 'Lead ID é obrigatório.' },
-        { status: 400 }
-      );
+      return createApiError(400, 'Lead ID é obrigatório.');
     }
+
+    if (!brandId) {
+      return createApiError(400, 'brandId é obrigatório');
+    }
+
+    const { brandId: safeBrandId } = await requireBrandAccess(request, brandId);
 
     // 1. Buscar dados do Lead e Eventos em paralelo
     const [lead, events] = await Promise.all([
@@ -28,10 +36,17 @@ export async function GET(
     ]);
 
     if (!lead) {
-      return NextResponse.json(
-        { error: 'Lead não encontrado.' },
-        { status: 404 }
-      );
+      return createApiError(404, 'Lead não encontrado.');
+    }
+
+    const leadBrandId = (lead as { brandId?: string }).brandId;
+    if (!leadBrandId || leadBrandId !== safeBrandId) {
+      console.warn('[Security] Lead cross-brand access denied', {
+        leadId,
+        requestedBrandId: safeBrandId,
+        leadBrandId: leadBrandId || 'missing',
+      });
+      return createApiError(403, 'Acesso negado: lead não pertence à brand informada');
     }
 
     // 2. Descriptografar campos PII para visualização na UI (Victor/Beto)
@@ -39,16 +54,13 @@ export async function GET(
     const secureEvents = events.map(event => decryptSensitiveFields(event));
 
     // 3. Retornar dados consolidados
-    return NextResponse.json({
-      lead: secureLead,
-      events: secureEvents
-    });
+    return createApiSuccess({ lead: secureLead, events: secureEvents });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Journey API Error]:', error);
-    return NextResponse.json(
-      { error: 'Erro interno ao buscar jornada do lead.' },
-      { status: 500 }
-    );
+    if (error instanceof ApiError) {
+      return handleSecurityError(error);
+    }
+    return createApiError(500, 'Erro interno ao buscar jornada do lead.');
   }
 }

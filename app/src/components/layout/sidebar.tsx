@@ -23,6 +23,8 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { logout } from '@/lib/firebase/auth';
 import { useState, useEffect } from 'react';
 import { useMobile } from '@/lib/hooks/use-mobile';
+import { getUnreadNotificationCount, markNotificationsAsRead } from '@/lib/firebase/automation';
+import { useBrandStore } from '@/lib/stores/brand-store';
 import { UserUsageWidget } from './user-usage-widget';
 import { CONFIG } from '@/lib/config';
 import { setCredits } from '@/lib/firebase/firestore';
@@ -55,6 +57,26 @@ export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isReloading, setIsReloading] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<string[]>(['intelligence', 'strategy', 'execution', 'management']);
+
+  // S31-KS-04: Notification badge
+  const { selectedBrand } = useBrandStore();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!selectedBrand?.id) return;
+    getUnreadNotificationCount(selectedBrand.id)
+      .then(setUnreadCount)
+      .catch(() => setUnreadCount(0));
+  }, [selectedBrand?.id]);
+
+  // S31-KS-04: Marcar como lido ao navegar para /automation
+  useEffect(() => {
+    if (pathname === '/automation' && selectedBrand?.id && unreadCount > 0) {
+      markNotificationsAsRead(selectedBrand.id)
+        .then(() => setUnreadCount(0))
+        .catch(err => console.error('[Sidebar] Failed to mark notifications as read:', err));
+    }
+  }, [pathname, selectedBrand?.id, unreadCount]);
 
   const toggleGroup = (groupId: string) => {
     setExpandedGroups(prev => 
@@ -238,15 +260,17 @@ export function Sidebar() {
                 <AnimatePresence initial={false}>
                   {(isExpanded || !isMobile) && (
                     <motion.div
-                      initial={isMobile ? { height: 0, opacity: 0 } : false}
-                      animate={isMobile ? { height: 'auto', opacity: 1 } : false}
-                      exit={isMobile ? { height: 0, opacity: 0 } : false}
+                      initial={isMobile ? { height: 0, opacity: 0 } : undefined}
+                      animate={isMobile ? { height: 'auto', opacity: 1 } : undefined}
+                      exit={isMobile ? { height: 0, opacity: 0 } : undefined}
                       className="flex flex-col gap-1.5 overflow-hidden"
                     >
                       {group.items.map((item) => {
                         const Icon = resolveIcon(SIDEBAR_ICONS, item.icon, SIDEBAR_ICONS.Home, 'Sidebar NAV_ITEMS');
                         const isActive = pathname === item.href || 
                           (item.href !== '/' && pathname.startsWith(item.href));
+
+                        const isAutomationItem = item.href === '/automation';
 
                         const NavContent = (
                           <motion.div
@@ -276,6 +300,15 @@ export function Sidebar() {
                                 isActive ? "text-emerald-400" : "text-zinc-400"
                               )}>
                                 {item.label}
+                              </span>
+                            )}
+                            {/* S31-KS-04: Notification badge — Desktop: dot, Mobile: pill */}
+                            {isAutomationItem && unreadCount > 0 && !isMobile && (
+                              <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-background" />
+                            )}
+                            {isAutomationItem && unreadCount > 0 && isMobile && (
+                              <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[1.25rem] text-center">
+                                {unreadCount > 99 ? '99+' : unreadCount}
                               </span>
                             )}
                             {isActive && !isMobile && (

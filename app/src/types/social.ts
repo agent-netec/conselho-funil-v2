@@ -5,7 +5,9 @@
  * @see _netecmt/contracts/social-api-spec.md
  */
 
-export type SocialPlatform = 'instagram' | 'tiktok' | 'linkedin' | 'x' | 'whatsapp';
+import type { SocialPlatform as _SocialPlatform } from './social-platform';
+import { Timestamp } from 'firebase/firestore';
+export type SocialPlatform = _SocialPlatform;
 export type SocialInteractionType = 'dm' | 'comment';
 
 export interface SocialInteraction {
@@ -70,4 +72,22 @@ export interface TranslationResult {
     latencyMs: number;
     forbiddenWordsRemoved: string[];
   };
+}
+
+/**
+ * SocialInteractionRecord — persistencia de interacoes sociais
+ * Collection: brands/{brandId}/social_interactions
+ * @story S33-GOV-04
+ */
+export interface SocialInteractionRecord {
+  id: string;
+  authorId: string;
+  authorName: string;
+  platform: 'instagram' | 'linkedin' | 'x' | 'tiktok';
+  content: string;
+  sentiment: number;           // 0.0 a 1.0
+  responseId?: string;         // Link para resposta gerada
+  engagementScore?: number;    // 0.0 a 1.0 (STRETCH S33-BV-01)
+  brandId: string;
+  createdAt: Timestamp;
 }

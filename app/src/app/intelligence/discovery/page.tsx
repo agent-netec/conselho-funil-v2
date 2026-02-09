@@ -1,18 +1,24 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Brain } from "lucide-react";
+import { Brain, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { KeywordsMiner } from "@/components/intelligence/discovery/keywords-miner";
 import { SpyAgent } from "@/components/intelligence/discovery/spy-agent";
+import { AssetsPanel } from "@/components/intelligence/discovery/assets-panel";
 import { getUserBrands } from "@/lib/firebase/brands";
 import { toast } from "sonner";
 import { useAuthStore } from "@/lib/stores/auth-store";
+import { useIntelligenceAssets } from "@/lib/hooks/use-intelligence-assets";
 
 export default function DiscoveryPage() {
   const { user } = useAuthStore();
   const [brandId, setBrandId] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  
+  const { assets, loading: loadingAssets, error: assetsError, refetch: refetchAssets } = useIntelligenceAssets(brandId);
 
   useEffect(() => {
     async function loadBrand() {
@@ -62,18 +68,27 @@ export default function DiscoveryPage() {
         <SpyAgent brandId={brandId} />
       </div>
 
-      <Card className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-purple-500/20">
+      <AssetsPanel brandId={brandId} assets={assets} isLoading={loadingAssets} error={assetsError} onRefetch={refetchAssets} />
+
+      <Card className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-purple-500/20 hover:border-purple-500/40 transition-colors">
         <CardContent className="py-10 text-center space-y-4">
-          <Brain className="w-12 h-12 text-purple-500 mx-auto opacity-50" />
-          <h2 className="text-xl font-semibold">Inteligência Preditiva</h2>
+          <Brain className="w-12 h-12 text-purple-500 mx-auto" />
+          <h2 className="text-xl font-semibold">Predictive Engine</h2>
           <p className="text-zinc-400 max-w-md mx-auto">
-            Em breve: O Athos está calibrando os modelos de IA para antecipar movimentos do mercado e tendências de busca.
+            Analise textos, preveja a probabilidade de conversão e gere anúncios otimizados com IA.
           </p>
           <div className="flex justify-center gap-2">
             <span className="px-3 py-1 bg-purple-500/20 text-purple-400 text-[10px] font-bold uppercase tracking-widest rounded-full border border-purple-500/30">
-              Sprint 22
+              Sprint 25
             </span>
           </div>
+          <Link href="/intelligence/predict">
+            <Button className="gap-2 mt-2">
+              <Brain className="h-4 w-4" />
+              Abrir Predictive Engine
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </CardContent>
       </Card>
     </div>

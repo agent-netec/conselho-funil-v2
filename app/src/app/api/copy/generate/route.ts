@@ -38,6 +38,7 @@ import {
 } from '@/lib/constants';
 import { buildCopyPrompt } from '@/lib/ai/prompts';
 import { parseAIJSON } from '@/lib/ai/formatters';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 export const runtime = 'nodejs';
 export const maxDuration = 90; // Aumentado para lidar com RAG
@@ -62,10 +63,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!funnelId || !proposalId || !copyType) {
-      return NextResponse.json(
-        { error: 'funnelId, proposalId, and copyType are required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'funnelId, proposalId, and copyType are required');
     }
 
     // Get funnel and brand
@@ -73,7 +71,7 @@ export async function POST(request: NextRequest) {
     const funnelSnap = await getDoc(funnelRef);
     
     if (!funnelSnap.exists()) {
-      return NextResponse.json({ error: 'Funnel not found' }, { status: 404 });
+      return createApiError(404, 'Funnel not found');
     }
     
     const funnel = { id: funnelSnap.id, ...funnelSnap.data() } as Funnel;
@@ -83,7 +81,7 @@ export async function POST(request: NextRequest) {
     const proposalSnap = await getDoc(proposalRef);
     
     if (!proposalSnap.exists()) {
-      return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
+      return createApiError(404, 'Proposal not found');
     }
     
     const proposal = { id: proposalSnap.id, ...proposalSnap.data() } as Proposal;
@@ -156,10 +154,7 @@ export async function POST(request: NextRequest) {
       parsedResponse = parseAIJSON(responseText);
     } catch (parseError) {
       console.error('Failed to parse Gemini response:', responseText);
-      return NextResponse.json(
-        { error: 'Failed to parse AI response', details: String(parseError) },
-        { status: 500 }
-      );
+      return createApiError(500, 'Failed to parse AI response', { details: String(parseError) });
     }
 
     // Build CopyContent - ensure no undefined values (Firestore doesn't accept them)
@@ -223,8 +218,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
-      success: true,
+    return createApiSuccess({
       copyProposal: {
         id: newCopyDoc.id,
         ...copyProposalData,
@@ -233,10 +227,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Copy generation error:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate copy', details: String(error) },
-      { status: 500 }
-    );
+    return createApiError(500, 'Failed to generate copy', { details: String(error) });
   }
 }
 
@@ -248,7 +239,7 @@ export async function GET(request: NextRequest) {
     const proposalId = searchParams.get('proposalId');
 
     if (!funnelId) {
-      return NextResponse.json({ error: 'funnelId is required' }, { status: 400 });
+      return createApiError(400, 'funnelId is required');
     }
 
     const copyProposalsRef = collection(db, 'funnels', funnelId, 'copyProposals');
@@ -266,13 +257,10 @@ export async function GET(request: NextRequest) {
       ...doc.data(),
     }));
 
-    return NextResponse.json({ copyProposals });
+    return createApiSuccess({ copyProposals });
 
   } catch (error) {
     console.error('Error fetching copy proposals:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch copy proposals', details: String(error) },
-      { status: 500 }
-    );
+    return createApiError(500, 'Failed to fetch copy proposals', { details: String(error) });
   }
 }

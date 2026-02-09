@@ -1,5 +1,5 @@
 import { AutomationEngine } from '../engine';
-import { AutopsyReport, CriticalGap } from '@/types/funnel';
+import { LegacyAutopsyReport, CriticalGap } from '@/types/funnel';
 import { AutomationRule } from '@/types/automation';
 import { Timestamp } from 'firebase/firestore';
 
@@ -13,7 +13,7 @@ describe('AutomationEngine - Stress & Security Tests', () => {
     lossEstimate: 10000
   };
 
-  const mockReport: AutopsyReport = {
+  const mockReport: LegacyAutopsyReport = {
     id: 'rep_stress',
     funnelId: 'funnel_stress',
     timestamp: Timestamp.now(),
@@ -98,7 +98,7 @@ describe('AutomationEngine - Stress & Security Tests', () => {
    * TESTE DE ESTABILIDADE: Dados malformados ou vazios não devem quebrar o motor.
    */
   test('STABILITY: should handle empty gaps or rules gracefully', () => {
-    const emptyReport: AutopsyReport = { ...mockReport, criticalGaps: [] };
+    const emptyReport: LegacyAutopsyReport = { ...mockReport, criticalGaps: [] };
     expect(() => AutomationEngine.evaluateAutopsy('brand_1', emptyReport, [])).not.toThrow();
     expect(AutomationEngine.evaluateAutopsy('brand_1', emptyReport, []).length).toBe(0);
   });

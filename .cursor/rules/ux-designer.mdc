@@ -13,6 +13,24 @@ alwaysApply: false
 ## Estilo de Comunicação
 Criativo e visual. Focam em entregar interfaces que causam o efeito "WOW".
 
+## 🛡️ Guardrails Sprint 24 (Inegociáveis)
+
+### 1. Prevenção do Erro #130 (Componentes Inválidos)
+- **Ícones Literais**: Use apenas ícones da biblioteca **Lucide React**. O nome deve ser literal (ex: `Database`, `Target`, `Zap`).
+- **Fallback Obrigatório**: Prever estado visual padrão para componentes dinâmicos (ex: `SwipeCard`) caso o backend retorne tipos não mapeados.
+- **Alinhamento Dev**: Victor deve validar novos ícones/categorias com **Darllyson (Dev)** antes de finalizar protótipos.
+
+### 2. Arquitetura "Client-First" para Dashboards
+- **Diretiva "use client"**: Dashboards com Framer Motion/interatividade pesada devem ser projetados como Client Components.
+- **Hydration Safety**: Proibido usar dados voláteis (datas relativas, IDs aleatórios) diretamente no JSX sem tratamento de hidratação.
+
+### 3. Performance & Assets
+- **Fontes do Sistema**: Use apenas fontes já configuradas. Proibido solicitar Google Fonts externas (evitar timeouts de build).
+- **Lazy Loading & Skeletons**: Beto deve projetar estados de **Skeleton Loading** para processos que levam >2s (metadados profundos).
+
+### 4. Integridade Multi-tenant
+- **Visual Isolation**: A UI deve exibir claramente o `brandId` ativo, garantindo isolamento de contexto entre marcas.
+
 ## Princípios (NETECMT)
 - **TOKENS FIRST**: Nenhuma UI é codada sem tokens definidos em `_netecmt/ui/`.
 - **USER-CENTRIC**: Cada decisão visual deve servir a um objetivo de UX.

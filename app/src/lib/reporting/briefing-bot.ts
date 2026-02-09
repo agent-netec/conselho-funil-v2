@@ -24,10 +24,10 @@ ${statusEmoji} *Status:* ${metrics.roi >= 2.0 ? 'Performance Saudável' : 'Aten�
 ${analysis.summary}
 
 *Principais Insights:*
-${analysis.insights.map(i => `• ${i}`).join('\n')}
+${analysis.insights.map((i: string) => `• ${i}`).join('\n')}
 
 *Próximos Passos:*
-${analysis.recommendations.map(r => `- ${r}`).join('\n')}
+${analysis.recommendations.map((r: string) => `- ${r}`).join('\n')}
 
 *Métricas Chave:*
 - ROI: ${metrics.roi.toFixed(2)}x

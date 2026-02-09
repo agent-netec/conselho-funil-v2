@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { updateUserUsage } from '@/lib/firebase/firestore';
 
 /**
  * API Proxy para Motor de Upscale (NanoBanana)
  * 
  * POST /api/design/upscale
- * Body: { imageUrl: string, factor: 2 | 4 }
+ * Body: { imageUrl: string, factor: 2 | 4, brandId: string }
  */
 
 export const runtime = 'nodejs';
@@ -13,13 +17,20 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { imageUrl, factor = 2 } = body;
+    const { imageUrl, factor = 2, brandId, userId } = body;
+
+    if (!brandId) {
+      return createApiError(400, 'brandId é obrigatório.');
+    }
+
+    try {
+      await requireBrandAccess(request, brandId);
+    } catch (error) {
+      return handleSecurityError(error);
+    }
 
     if (!imageUrl) {
-      return NextResponse.json(
-        { error: 'imageUrl is required' },
-        { status: 400 }
-      );
+      return createApiError(400, 'imageUrl is required');
     }
 
     console.log(`✨ Iniciando Upscale ${factor}x...`);
@@ -32,9 +43,8 @@ export async function POST(request: NextRequest) {
       console.warn('⚠️ GOOGLE_AI_API_KEY não configurada. Usando mock de upscale.');
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      return NextResponse.json({
-        success: true,
-        upscaledUrl: imageUrl, // Não adiciona sufixo para evitar ERR_INVALID_URL
+      return createApiSuccess({
+        upscaledUrl: imageUrl,
         factor,
         processId: `up_mock_${Math.random().toString(36).substring(7)}`,
         isMock: true
@@ -106,8 +116,17 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ Upscale concluído via Google AI`);
 
-    return NextResponse.json({
-      success: true,
+    // SIG-API-03: Decrementar 3 créditos por upscale de imagem
+    if (userId) {
+      try {
+        await updateUserUsage(userId, -3);
+        console.log(`[Design/Upscale] 3 créditos decrementados para usuário: ${userId}`);
+      } catch (creditError) {
+        console.error('[Design/Upscale] Erro ao atualizar créditos:', creditError);
+      }
+    }
+
+    return createApiSuccess({
       upscaledUrl,
       factor,
       processId: `up_${Date.now()}`,
@@ -116,10 +135,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Upscale Error:', error);
-    return NextResponse.json(
-      { error: 'Failed to upscale image', details: String(error) },
-      { status: 500 }
-    );
+    return createApiError(500, 'Failed to upscale image', { details: String(error) });
   }
 }
 

@@ -26,7 +26,7 @@ jest.mock('firebase/firestore', () => ({
 }));
 
 // Agora importamos a rota e as funções mockadas
-import { POST } from './route';
+import { POST } from '../url/route';
 import { extractContentFromUrl } from '@/lib/ai/url-scraper';
 import { analyzeMultimodalWithGemini } from '@/lib/ai/gemini';
 import { createAsset } from '@/lib/firebase/assets';

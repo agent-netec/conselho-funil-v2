@@ -15,7 +15,9 @@ import {
   Copy,
   ExternalLink,
   Trash2,
-  Clock
+  Clock,
+  Linkedin,
+  Instagram
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -199,9 +201,9 @@ function ContentCard({ item, viewMode, onUse }: { item: VaultContent; viewMode: 
                 className="h-6 w-6 rounded-full bg-zinc-800 border-2 border-zinc-900 flex items-center justify-center"
                 title={v.platform}
               >
-                {v.platform === 'X' && <span className="text-[8px] font-bold">X</span>}
-                {v.platform === 'LinkedIn' && <Linkedin className="h-3 w-3 text-blue-400" />}
-                {v.platform === 'Instagram' && <Instagram className="h-3 w-3 text-pink-400" />}
+                {v.platform === 'x' && <span className="text-[8px] font-bold">X</span>}
+                {v.platform === 'linkedin' && <Linkedin className="h-3 w-3 text-blue-400" />}
+                {v.platform === 'instagram' && <Instagram className="h-3 w-3 text-pink-400" />}
               </div>
             ))}
           </div>

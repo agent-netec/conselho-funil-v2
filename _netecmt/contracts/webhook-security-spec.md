@@ -17,7 +17,7 @@ Centraliza o recebimento de eventos externos e os normaliza para o formato `Soci
 
 ### Retry Policy
 - **Backoff**: Exponencial (1m, 5m, 15m, 1h).
-- **DLQ**: Eventos que falham após 4 tentativas são movidos para `brands/{brandId}/dead-letter-queue`.
+- **DLQ**: Eventos que falham são movidos para `brands/{brandId}/dead_letter_queue`. Retry manual via `POST /api/webhooks/retry` (S31). Max 3 retries, após isso status `abandoned`.
 
 ## 2. Security & Token Management (Agente Monara)
 

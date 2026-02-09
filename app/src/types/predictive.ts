@@ -77,3 +77,118 @@ export interface IPredictionEngine {
    */
   simulateScale(input: SimulationInput): SimulationOutput;
 }
+
+// === S35-PRED-01: Churn Prediction Types ===
+
+export interface ChurnPrediction {
+  leadId: string;
+  brandId: string;
+  currentSegment: 'hot' | 'warm' | 'cold';
+  predictedSegment: 'hot' | 'warm' | 'cold';
+  churnRisk: number;
+  riskLevel: 'critical' | 'warning' | 'safe';
+  daysSinceLastEvent: number;
+  engagementTrend: 'rising' | 'stable' | 'declining';
+  factors: string[];
+  predictedAt: Timestamp;
+}
+
+export interface ChurnBatchResult {
+  brandId: string;
+  totalLeads: number;
+  atRisk: number;
+  predictions: ChurnPrediction[];
+  nextCursor?: string;
+  hasMore: boolean;
+  calculatedAt: Timestamp;
+}
+
+// === S35-PRED-01: LTV Estimation Types ===
+
+export interface LTVEstimation {
+  brandId: string;
+  cohortId: string;
+  cohortName: string;
+  segment: 'hot' | 'warm' | 'cold' | 'all';
+  leadsInCohort: number;
+  totalRevenue: number;
+  avgRevenuePerLead: number;
+  projectedLTV: {
+    m1: number;
+    m3: number;
+    m6: number;
+    m12: number;
+  };
+  growthMultiplier: number;
+  confidenceScore: number;
+  calculatedAt: Timestamp;
+}
+
+export interface LTVBatchResult {
+  brandId: string;
+  cohorts: LTVEstimation[];
+  overallLTV: number;
+  calculatedAt: Timestamp;
+}
+
+export interface LTVMultiplierConfig {
+  hot: { m1: number; m3: number; m6: number; m12: number };
+  warm: { m1: number; m3: number; m6: number; m12: number };
+  cold: { m1: number; m3: number; m6: number; m12: number };
+}
+
+export interface PredictiveConfig {
+  ltvMultipliers?: LTVMultiplierConfig;
+  alertThresholds?: {
+    churnImminentCount?: number;
+    upsellMultiplier?: number;
+    segmentShiftPercent?: number;
+  };
+}
+
+// === S35-PRED-01: Audience Forecast Types ===
+
+export interface AudienceForecast {
+  brandId: string;
+  currentDistribution: {
+    hot: number;
+    warm: number;
+    cold: number;
+  };
+  projections: {
+    days7: { hot: number; warm: number; cold: number };
+    days14: { hot: number; warm: number; cold: number };
+    days30: { hot: number; warm: number; cold: number };
+  };
+  migrationRates: {
+    hotToWarm: number;
+    warmToCold: number;
+    coldToChurned: number;
+    warmToHot: number;
+    coldToWarm: number;
+  };
+  trendsNarrative: string;
+  calculatedAt: Timestamp;
+}
+
+// === S35-PRED-01: Predictive Alerts Types ===
+
+export type PredictiveAlertType =
+  | 'churn_imminent'
+  | 'upsell_opportunity'
+  | 'segment_shift'
+  | 'ltv_milestone';
+
+export type PredictiveAlertSeverity = 'critical' | 'warning' | 'info';
+
+export interface PredictiveAlert {
+  id: string;
+  brandId: string;
+  type: PredictiveAlertType;
+  severity: PredictiveAlertSeverity;
+  title: string;
+  description: string;
+  data: Record<string, unknown>;
+  dismissed: boolean;
+  createdAt: Timestamp;
+}

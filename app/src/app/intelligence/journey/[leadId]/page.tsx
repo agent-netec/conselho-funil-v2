@@ -11,7 +11,8 @@ import {
   DollarSign, 
   Target,
   ChevronLeft,
-  ShieldCheck
+  ShieldCheck,
+  Activity
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';

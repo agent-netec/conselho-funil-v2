@@ -11,6 +11,32 @@ jest.mock('next/server', () => ({
   },
 }));
 
+// S31: Mock new dependencies added by KS-01
+jest.mock('@/lib/auth/brand-guard', () => ({
+  requireBrandAccess: jest.fn().mockResolvedValue({ userId: 'test-user', brandId: 'brand_123' }),
+}));
+jest.mock('@/lib/firebase/automation', () => ({
+  createAutomationLog: jest.fn().mockResolvedValue('mock-log-id'),
+  createInAppNotification: jest.fn().mockResolvedValue('mock-notif-id'),
+}));
+jest.mock('@/lib/notifications/slack', () => ({
+  sendSlackNotification: jest.fn().mockResolvedValue(undefined),
+  isValidSlackWebhookUrl: jest.fn().mockReturnValue(false),
+}));
+jest.mock('firebase/firestore', () => ({
+  Timestamp: { now: () => ({ seconds: 1738900000, nanoseconds: 0 }) },
+}));
+
+/** @stub Type placeholder para testes legados */
+interface KillSwitchRequest {
+  brandId: string;
+  funnelId: string;
+  reason: string;
+  severity: string;
+  affectedAdEntities: Array<{ platform: string; externalId: string; type: string }>;
+  [key: string]: unknown;
+}
+
 describe('Kill-Switch API - Guardrail P0 Validation', () => {
   const validRequest: KillSwitchRequest = {
     brandId: 'brand_123',
@@ -36,8 +62,9 @@ describe('Kill-Switch API - Guardrail P0 Validation', () => {
     const data = await response.json();
 
     expect(response.status).toBe(200);
-    expect(data.status).toBe('pending_approval');
-    expect(data.message).toContain('Pending human approval');
+    expect(data.success).toBe(true);
+    expect(data.data.status).toBe('pending_approval');
+    expect(data.data.message).toContain('Pending human approval');
   });
 
   /**

@@ -2,7 +2,8 @@ import { Timestamp } from 'firebase/firestore';
 
 export type VaultStatus = 'draft' | 'review' | 'approved' | 'published' | 'archived';
 export type DNAType = 'hook' | 'structure' | 'style_guide' | 'template';
-export type SocialPlatform = 'X' | 'LinkedIn' | 'Instagram';
+import type { SocialPlatform as _SocialPlatform } from './social-platform';
+export type SocialPlatform = _SocialPlatform;
 
 export interface CopyDNA {
   id: string;

@@ -135,11 +135,17 @@ export class SpyAgent {
 
     try {
       // 1. Configurar Browser (Headless)
+      const chromiumModule = chromium.default as unknown as {
+        args: string[];
+        defaultViewport: { width: number; height: number };
+        executablePath: () => Promise<string>;
+        headless: boolean | 'new';
+      };
       browser = await puppeteer.launch({
-        args: chromium.default.args,
-        defaultViewport: chromium.default.defaultViewport,
-        executablePath: await chromium.default.executablePath(),
-        headless: chromium.default.headless,
+        args: chromiumModule.args,
+        defaultViewport: chromiumModule.defaultViewport,
+        executablePath: await chromiumModule.executablePath(),
+        headless: chromiumModule.headless as boolean,
       });
 
       const page = await browser.newPage();

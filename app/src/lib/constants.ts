@@ -226,7 +226,9 @@ export const NAV_GROUPS: NavGroup[] = [
       { id: 'discovery', label: 'Discovery', href: '/intelligence/discovery', icon: 'Search', sub_items: ['Keywords', 'Spy Agent'] },
       { id: 'attribution', label: 'Atribuição', href: '/intelligence/attribution', icon: 'GitBranch' },
       { id: 'ltv', label: 'LTV & Retenção', href: '/intelligence/ltv', icon: 'TrendingUp' },
+      { id: 'deep-research', label: 'Deep Research', href: '/intelligence/research', icon: 'Telescope' },
       { id: 'journey', label: 'Jornada do Lead', href: '/intelligence/journey', icon: 'Map' },
+      { id: 'ab-testing', label: 'A/B Testing', href: '/intelligence/ab-testing', icon: 'FlaskConical' },
     ],
   },
   {
@@ -252,6 +254,8 @@ export const NAV_GROUPS: NavGroup[] = [
       { id: 'social', label: 'Social', href: '/social', icon: 'Share2' },
       { id: 'social-inbox', label: 'Social Inbox', href: '/social-inbox', icon: 'Inbox' },
       { id: 'automation', label: 'Automação', href: '/automation', icon: 'Cpu' },
+      { id: 'content-calendar', label: 'Calendario', href: '/content/calendar', icon: 'Calendar' },
+      { id: 'content-review', label: 'Aprovacoes', href: '/content/review', icon: 'ClipboardCheck' },
     ],
   },
   {

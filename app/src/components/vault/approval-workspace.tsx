@@ -28,14 +28,14 @@ interface ApprovalWorkspaceProps {
   onEdit: (platform: string, copy: string) => void;
 }
 
-const PLATFORM_CONFIG = {
-  X: { icon: XIcon, color: 'text-white', bg: 'bg-zinc-900', label: 'X (Twitter)' },
-  LinkedIn: { icon: Linkedin, color: 'text-blue-400', bg: 'bg-blue-900/20', label: 'LinkedIn' },
-  Instagram: { icon: Instagram, color: 'text-pink-400', bg: 'bg-pink-900/20', label: 'Instagram' },
+const PLATFORM_CONFIG: Record<string, { icon: typeof XIcon; color: string; bg: string; label: string }> = {
+  x: { icon: XIcon, color: 'text-white', bg: 'bg-zinc-900', label: 'X (Twitter)' },
+  linkedin: { icon: Linkedin, color: 'text-blue-400', bg: 'bg-blue-900/20', label: 'LinkedIn' },
+  instagram: { icon: Instagram, color: 'text-pink-400', bg: 'bg-pink-900/20', label: 'Instagram' },
 };
 
 export function ApprovalWorkspace({ content, insightText, onApprove, onEdit }: ApprovalWorkspaceProps) {
-  const [activePlatform, setActivePlatform] = useState<'X' | 'LinkedIn' | 'Instagram'>('X');
+  const [activePlatform, setActivePlatform] = useState<string>('x');
 
   const currentVariant = content.variants.find(v => v.platform === activePlatform);
 

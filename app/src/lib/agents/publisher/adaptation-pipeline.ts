@@ -3,7 +3,8 @@ import { PUBLISHER_ADAPTATION_PROMPT } from '../../ai/prompts/publisher-adaptati
 import { saveVaultContent, updatePublisherJob } from '../../firebase/vault';
 import { getBrand } from '../../firebase/firestore';
 import type { IntelligenceDocument } from '@/types/intelligence';
-import type { CopyDNA, VaultContent, SocialPlatform } from '@/types/vault';
+import type { CopyDNA, VaultContent } from '@/types/vault';
+import { normalizePlatform, type SocialPlatform } from '@/types/social-platform';
 import type { PublisherJob } from '@/types/publisher';
 
 export interface AdaptationResult {
@@ -54,9 +55,9 @@ export class AdaptationPipeline {
 
       const result: AdaptationResult = JSON.parse(responseText);
 
-      // 4. Validar Guardrails (X 280 chars)
+      // 4. Validar Guardrails (X 280 chars) — normalizePlatform() para compat PascalCase
       const validatedVariants = result.variants.map(v => {
-        if (v.platform === 'X' && v.copy.length > 280) {
+        if (normalizePlatform(v.platform) === 'x' && v.copy.length > 280) {
           console.warn(`[AdaptationPipeline] Post do X excedeu 280 caracteres (${v.copy.length}). Truncando...`);
           v.copy = v.copy.substring(0, 277) + '...';
         }
@@ -65,6 +66,7 @@ export class AdaptationPipeline {
 
       // 5. Salvar no Vault Library com status 'review'
       const contentId = await saveVaultContent(brandId, {
+        id: '', // Auto-gerado pelo vault
         sourceInsightId: insight.id,
         status: 'review',
         variants: validatedVariants.map(v => ({

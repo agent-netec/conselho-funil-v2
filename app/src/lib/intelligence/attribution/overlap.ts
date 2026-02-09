@@ -8,8 +8,8 @@ import {
   doc,
   setDoc
 } from 'firebase/firestore';
-import { AttributionBridge } from '../../types/attribution';
-import { ChannelOverlapDoc } from '../../types/cross-channel';
+import { AttributionBridge } from '../../../types/attribution';
+import { ChannelOverlapDoc } from '../../../types/cross-channel';
 
 /**
  * @class ChannelOverlapAnalyzer

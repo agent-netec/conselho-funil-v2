@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
@@ -6,6 +7,8 @@ import { buildAdsGenerationPrompt } from '@/lib/ai/prompts/ads-generation';
 import { parseAIJSON } from '@/lib/ai/formatters';
 import { CampaignContext } from '@/types/campaign';
 import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM } from '@/lib/ai/rag';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { updateUserUsage } from '@/lib/firebase/firestore';
 
 export const runtime = 'nodejs';
 export const maxDuration = 90;
@@ -18,9 +21,18 @@ export async function POST(
 ) {
   try {
     const { id: campaignId } = await params;
+
+    // Extract userId from request body for credit tracking
+    let userId: string | undefined;
+    try {
+      const body = await request.json();
+      userId = body?.userId;
+    } catch {
+      // No request body or invalid JSON — credit tracking skipped
+    }
     
     if (!campaignId) {
-      return NextResponse.json({ error: 'Campaign ID is required' }, { status: 400 });
+      return createApiError(400, 'Campaign ID is required');
     }
 
     // 1. Get campaign context
@@ -28,7 +40,7 @@ export async function POST(
     const campaignSnap = await getDoc(campaignRef);
     
     if (!campaignSnap.exists()) {
-      return NextResponse.json({ error: 'Campaign not found' }, { status: 404 });
+      return createApiError(404, 'Campaign not found');
     }
     
     const campaign = { id: campaignSnap.id, ...campaignSnap.data() } as CampaignContext;
@@ -44,7 +56,7 @@ export async function POST(
       topK: 12, 
       minSimilarity: 0.2,
       filters: { scope: 'traffic' } 
-    }, 'ads');
+    });
     
     // b) Busca em Assets da Marca (Brand Assets RAG)
     let brandContext = '';
@@ -75,10 +87,7 @@ export async function POST(
       adsData = parseAIJSON(responseText);
     } catch (parseError) {
       console.error('Failed to parse AI response:', responseText);
-      return NextResponse.json(
-        { error: 'Failed to parse AI response', details: String(parseError) },
-        { status: 500 }
-      );
+      return createApiError(500, 'Failed to parse AI response', { details: String(parseError) });
     }
     
     // Update Firestore
@@ -88,17 +97,21 @@ export async function POST(
     });
     
     console.log(`✅ Ads generated for campaign ${campaignId}`);
+
+    // SIG-API-03: Decrementar 3 créditos por geração de ads
+    if (userId) {
+      try {
+        await updateUserUsage(userId, -3);
+        console.log(`[Campaigns/GenerateAds] 3 créditos decrementados para usuário: ${userId}`);
+      } catch (creditError) {
+        console.error('[Campaigns/GenerateAds] Erro ao atualizar créditos:', creditError);
+      }
+    }
     
-    return NextResponse.json({ 
-      success: true, 
-      ads: adsData 
-    });
+    return createApiSuccess({ ads: adsData });
     
   } catch (error) {
     console.error('Ads generation error:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate ads strategy', details: String(error) },
-      { status: 500 }
-    );
+    return createApiError(500, 'Failed to generate ads strategy', { details: String(error) });
   }
 }

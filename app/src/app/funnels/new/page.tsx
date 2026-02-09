@@ -87,8 +87,10 @@ export default function NewFunnelPage() {
     if (!formData.objective) return;
     setIsSubmitting(true);
     try {
-      const awarenessMap: Record<string, 'fria' | 'morna' | 'quente'> = {
-        unaware: 'fria', problem: 'fria', solution: 'morna', product: 'quente',
+      // Schwartz awareness passthrough (canônico) — normalizeAwareness() para legado PT
+      const awarenessMap: Record<string, 'unaware' | 'problem' | 'solution' | 'product' | 'most_aware'> = {
+        unaware: 'unaware', problem: 'problem', solution: 'solution', product: 'product', most_aware: 'most_aware',
+        fria: 'unaware', morna: 'solution', quente: 'product',
       };
       const context: FunnelContext = {
         company: formData.name || 'Meu Negócio',
@@ -97,7 +99,7 @@ export default function NewFunnelPage() {
         objective: formData.objective as any,
         audience: {
           who: formData.audience, pain: formData.pain,
-          awareness: awarenessMap[formData.awareness] || 'morna',
+          awareness: awarenessMap[formData.awareness] || 'solution',
           ...(formData.objection ? { objection: formData.objection } : {}),
         },
         offer: { what: formData.product, ticket: formData.ticket, type: (formData.productType?.toLowerCase() as any) || 'servico' },

@@ -4,14 +4,14 @@ import {
   getLead, 
   upsertLead, 
   createJourneyEvent 
-} from '../../firebase/journey.ts';
-import { generateCohortId } from '../ltv/cohort-engine.ts';
+} from '../../firebase/journey';
+import { generateCohortId } from '../ltv/cohort-engine';
 import type { 
   JourneyEvent, 
   JourneyEventType, 
   JourneyEventSource,
   JourneyLead
-} from '../../../types/journey.ts';
+} from '../../../types/journey';
 
 /**
  * @fileoverview Event Bridge para ingestão e processamento de eventos de jornada.
@@ -19,6 +19,7 @@ import type {
  */
 
 export interface IngestEventInput {
+  brandId: string;
   email: string;
   type: JourneyEventType;
   source: JourneyEventSource;
@@ -43,13 +44,16 @@ export function generateLeadId(email: string): string {
  * Processa a ingestão de um evento, gerenciando a criação do lead e atribuição.
  */
 export async function ingestJourneyEvent(input: IngestEventInput) {
-  const { email, type, source, payload, session } = input;
+  const { brandId, email, type, source, payload, session } = input;
   const leadId = generateLeadId(email);
   const now = Timestamp.now();
 
   // 1. Buscar lead existente
   let lead = await getLead(leadId);
   const isNewLead = !lead;
+  if (lead?.brandId && lead.brandId !== brandId) {
+    throw new Error('Lead pertence a outra brand.');
+  }
 
   // 2. Preparar dados de atribuição
   const utmSource = session?.utmSource || 'direct';
@@ -60,6 +64,7 @@ export async function ingestJourneyEvent(input: IngestEventInput) {
     // Criar novo lead com First Source e Cohort
     const cohort = generateCohortId(now);
     const newLead: Omit<JourneyLead, 'id'> = {
+      brandId,
       pii: {
         email: email.toLowerCase().trim(),
       },
@@ -99,6 +104,7 @@ export async function ingestJourneyEvent(input: IngestEventInput) {
   // 3. Registrar o evento
   const journeyEvent: Omit<JourneyEvent, 'id'> = {
     leadId,
+    brandId,
     type,
     source,
     payload: payload || {},

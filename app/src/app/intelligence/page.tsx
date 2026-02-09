@@ -197,7 +197,7 @@ export default function IntelligencePage() {
               {loadingStats ? (
                 <Skeleton className="h-[350px] w-full rounded-xl" />
               ) : (
-                <PublicEmotion emotions={Object.values(stats.emotions).some(v => v > 0) ? stats.emotions : MOCK_EMOTIONS} />
+                <PublicEmotion emotions={Object.values(stats.emotions).some((v: number) => v > 0) ? stats.emotions as { joy: number; anger: number; sadness: number; surprise: number; fear: number; neutral: number } : MOCK_EMOTIONS} />
               )}
             </div>
           </div>

@@ -1,4 +1,15 @@
+/**
+ * @jest-environment node
+ */
 import { POST } from '../route';
+
+jest.mock('@/lib/firebase/config', () => ({
+  db: {},
+}));
+
+jest.mock('@/lib/auth/brand-guard', () => ({
+  requireBrandAccess: jest.fn().mockResolvedValue(undefined),
+}));
 
 describe('API: /api/performance/integrations/validate', () => {
   const createMockRequest = (body: any) => {

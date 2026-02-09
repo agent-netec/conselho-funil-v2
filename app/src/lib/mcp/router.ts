@@ -212,6 +212,6 @@ export class MCPRouter implements IMCPRouter {
   }
 
   configureRateLimits(config: RateLimitConfig): void {
-    this.rateLimiter.updateConfig(config);
+    this.rateLimiter.updateConfig(config as unknown as Record<MCPProvider, RateLimitConfig>);
   }
 }

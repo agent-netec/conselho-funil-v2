@@ -40,27 +40,26 @@ export interface FunnelStep {
   };
 }
 
+// AutopsyReport — re-export de autopsy.ts (source of truth)
+export type { AutopsyReport } from './autopsy';
+
 /**
- * Relatórios detalhados gerados pelo Diagnostic Engine (E41).
- * Collection: brands/{brandId}/autopsy_reports
+ * @deprecated Use AutopsyReport de autopsy.ts.
+ * Formato legado — overallHealth (0-100) e criticalGaps são incompatíveis com o
+ * formato canônico (score 0-10, heuristics). Use adaptLegacyAutopsyReport() para converter.
+ * Collection legada: brands/{brandId}/autopsy_reports
  */
-export interface AutopsyReport {
+export interface LegacyAutopsyReport {
   id: string;
   funnelId: string;
   timestamp: Timestamp;
-  
-  // Diagnóstico Geral
   overallHealth: number;
   criticalGaps: CriticalGap[];
-  
-  // Análise por Etapa
   stepAnalysis: Record<string, {
     frictionPoints: string[];
-    hypotheses: string[]; // Copy, Speed, Offer, Design
+    hypotheses: string[];
     priority: 'low' | 'medium' | 'high';
   }>;
-  
-  // Plano de Ação
   actionPlan: {
     task: string;
     expectedImpact: string;
@@ -76,5 +75,35 @@ export interface CriticalGap {
   metric: string;
   currentValue: number;
   targetValue: number;
-  lossEstimate: number; // Estimativa financeira de perda mensal
+  lossEstimate: number;
+}
+
+/**
+ * Converte LegacyAutopsyReport para formato canônico AutopsyReport.
+ * Usado para dados existentes no Firestore (PA-01: dados NÃO são alterados).
+ */
+export function adaptLegacyAutopsyReport(legacy: LegacyAutopsyReport): import('./autopsy').AutopsyReport {
+  return {
+    score: Math.round(legacy.overallHealth / 10), // 0-100 → 0-10
+    summary: legacy.criticalGaps.length > 0
+      ? `Funil com ${legacy.criticalGaps.length} gaps críticos. Saúde geral: ${legacy.overallHealth}/100.`
+      : `Funil saudável. Score: ${legacy.overallHealth}/100.`,
+    heuristics: {
+      hook: { score: Math.round(legacy.overallHealth / 10), status: legacy.overallHealth >= 70 ? 'pass' : 'warning', findings: [] },
+      story: { score: Math.round(legacy.overallHealth / 10), status: legacy.overallHealth >= 70 ? 'pass' : 'warning', findings: [] },
+      offer: { score: Math.round(legacy.overallHealth / 10), status: legacy.overallHealth >= 70 ? 'pass' : 'warning', findings: [] },
+      friction: { score: Math.round(legacy.overallHealth / 10), status: legacy.overallHealth >= 70 ? 'pass' : 'warning', findings: legacy.criticalGaps.map(g => `${g.metric}: ${g.currentValue} → ${g.targetValue}`) },
+      trust: { score: Math.round(legacy.overallHealth / 10), status: legacy.overallHealth >= 70 ? 'pass' : 'warning', findings: [] },
+    },
+    recommendations: legacy.actionPlan.map(a => ({
+      priority: a.difficulty === 'easy' ? 'high' as const : a.difficulty === 'hard' ? 'low' as const : 'medium' as const,
+      type: 'technical' as const,
+      action: a.task,
+      impact: a.expectedImpact,
+    })),
+    metadata: {
+      loadTimeMs: 0,
+      techStack: [],
+    },
+  };
 }

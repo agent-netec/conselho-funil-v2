@@ -4,30 +4,14 @@ import { KeywordMiner } from '@/lib/intelligence/keywords/miner';
 import { createIntelligenceDocument } from '@/lib/firebase/intelligence';
 import { db } from '@/lib/firebase/config';
 import { parseJsonBody } from '@/app/api/_utils/parse-json';
-
-type ErrorCode =
-  | 'INVALID_JSON'
-  | 'VALIDATION_ERROR'
-  | 'BRAND_NOT_FOUND'
-  | 'INTERNAL_ERROR';
-
-type ErrorDetails = Record<string, unknown>;
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { updateUserUsage } from '@/lib/firebase/firestore';
+import type { CreateIntelligenceInput } from '@/types/intelligence';
 
 function getRequestId(req: NextRequest) {
   return req.headers.get('x-request-id') || undefined;
-}
-
-function errorResponse(
-  status: number,
-  error: string,
-  code?: ErrorCode,
-  details?: ErrorDetails,
-  requestId?: string
-) {
-  return NextResponse.json(
-    { error, code, details, requestId },
-    { status }
-  );
 }
 
 function normalizeField(value: unknown) {
@@ -39,41 +23,36 @@ function normalizeField(value: unknown) {
 export async function POST(req: NextRequest) {
   const requestId = getRequestId(req);
   try {
-    const parsed = await parseJsonBody<{ brandId?: string; seedTerm?: string }>(req);
+    const parsed = await parseJsonBody<{ brandId?: string; seedTerm?: string; userId?: string }>(req);
     if (!parsed.ok) {
-      return errorResponse(400, parsed.error, 'INVALID_JSON', undefined, requestId);
+      return createApiError(400, parsed.error, { code: 'INVALID_JSON', requestId });
     }
 
     if (!parsed.data || typeof parsed.data !== 'object') {
-      return errorResponse(
-        400,
-        'Corpo JSON inválido',
-        'INVALID_JSON',
-        undefined,
-        requestId
-      );
+      return createApiError(400, 'Corpo JSON inválido', { code: 'INVALID_JSON', requestId });
     }
 
     const brandId = normalizeField(parsed.data.brandId);
     const seedTerm = normalizeField(parsed.data.seedTerm);
+    const userId = normalizeField(parsed.data.userId);
 
     if (!brandId || !seedTerm) {
-      return errorResponse(
-        400,
-        'brandId e seedTerm são obrigatórios',
-        'VALIDATION_ERROR',
-        {
+      return createApiError(400, 'brandId e seedTerm são obrigatórios', {
+        code: 'VALIDATION_ERROR',
+        details: {
           fields: {
             brandId: brandId ? 'ok' : 'required',
             seedTerm: seedTerm ? 'ok' : 'required',
           },
         },
-        requestId
-      );
+        requestId,
+      });
     }
 
+    const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
+
     const miner = new KeywordMiner();
-    const keywords = await miner.mine(brandId, seedTerm);
+    const keywords = await miner.mine(safeBrandId, seedTerm);
 
     // Salvar no Firestore (não bloqueia o retorno da mineração)
     const savedIds: string[] = [];
@@ -84,42 +63,50 @@ export async function POST(req: NextRequest) {
     } else if (keywords.length > 0) {
       for (const kw of keywords) {
         try {
+          const content: CreateIntelligenceInput['content'] = {
+            text: kw.term,
+            keywordData: kw,
+          };
           const id = await createIntelligenceDocument({
-            brandId,
+            brandId: safeBrandId,
             type: 'keyword',
             source: {
               platform: 'google_autocomplete',
               fetchedVia: 'api',
             },
-            content: {
-              text: kw.term,
-              keywordData: kw,
-            } as any,
+            content,
           });
           savedIds.push(id);
-        } catch (error: any) {
+        } catch (error: unknown) {
           if (!saveError) {
-            saveError = error?.message || 'Falha ao persistir keywords';
+            saveError = error instanceof Error ? error.message : 'Falha ao persistir keywords';
           }
         }
       }
     }
 
-    return NextResponse.json({
-      success: true, 
+    // SIG-API-03: Decrementar 1 crédito por mineração de keywords
+    if (userId) {
+      try {
+        await updateUserUsage(userId, -1);
+        console.log(`[Intelligence/Keywords] 1 crédito decrementado para usuário: ${userId}`);
+      } catch (creditError) {
+        console.error('[Intelligence/Keywords] Erro ao atualizar créditos:', creditError);
+      }
+    }
+
+    return createApiSuccess({
       count: keywords.length,
       keywords: keywords.map(k => k.term),
       persisted: savedIds.length,
       saveError,
     });
 
-  } catch (error: any) {
-    return errorResponse(
-      500,
-      error?.message || 'Unexpected error',
-      'INTERNAL_ERROR',
-      undefined,
-      requestId
-    );
+  } catch (error: unknown) {
+    if (error instanceof ApiError) {
+      return handleSecurityError(error);
+    }
+    const message = error instanceof Error ? error.message : 'Unexpected error';
+    return createApiError(500, message, { code: 'INTERNAL_ERROR', requestId });
   }
 }

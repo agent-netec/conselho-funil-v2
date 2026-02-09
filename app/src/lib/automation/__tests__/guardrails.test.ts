@@ -82,11 +82,11 @@ describe('ST-27.5: Automation Safety & Stress Test (Guardrails)', () => {
    * Simular múltiplas chamadas rápidas para garantir que o Rate Limit segura.
    */
   test('STRESS: concurrent calls should be handled by rate limiter', async () => {
-    const calls = Array.from({ length: 10 }, () => 
-      guardedAdapter.adjustBudget('ent_stress', 'campaign', 150)
-    );
-
-    const results = await Promise.all(calls);
+    // Execute sequentially to properly test rate limiter (Promise.all creates race condition)
+    const results: AdsActionResponse[] = [];
+    for (let i = 0; i < 10; i++) {
+      results.push(await guardedAdapter.adjustBudget('ent_stress', 'campaign', 150));
+    }
     const successes = results.filter(r => r.success).length;
     const blocked = results.filter(r => !r.success && r.error?.code === 'GUARDRAIL_BLOCKED').length;
 

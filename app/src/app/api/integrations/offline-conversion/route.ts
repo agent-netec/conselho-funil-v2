@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { getLead, createTransaction } from '../../../../lib/firebase/journey';
 import { CAPISyncEngine } from '../../../../lib/integrations/ads/capi-sync';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
  * @fileoverview Endpoint para ingestão de conversões offline (ST-25.4)
@@ -16,13 +17,13 @@ export async function POST(req: NextRequest) {
     const { leadId, value, currency, eventSource, transactionId } = body;
 
     if (!leadId || !value || !transactionId) {
-      return NextResponse.json({ error: 'Campos obrigatórios ausentes: leadId, value, transactionId' }, { status: 400 });
+      return createApiError(400, 'Campos obrigatórios ausentes: leadId, value, transactionId');
     }
 
     // 2. Recuperar dados do Lead no Firestore para enriquecimento (CAPI precisa de PII hashed)
     const lead = await getLead(leadId);
     if (!lead) {
-      return NextResponse.json({ error: `Lead ${leadId} não encontrado no sistema.` }, { status: 404 });
+      return createApiError(404, `Lead ${leadId} não encontrado no sistema.`);
     }
 
     // 3. Registrar a transação no Firestore (Histórico do Lead)
@@ -46,8 +47,9 @@ export async function POST(req: NextRequest) {
       processedAt: new Date() as any
     });
 
-    // 4. Disparar Sincronização CAPI (Meta/Google)
-    const capiEngine = new CAPISyncEngine();
+    // 4. Disparar Sincronização CAPI (Meta/Google) — S30-CAPI-00: brandId multi-tenant
+    const brandId = body.brandId || 'default';
+    const capiEngine = new CAPISyncEngine(brandId);
     const syncResults = await capiEngine.syncOfflineConversion({
       leadId,
       value,
@@ -57,13 +59,13 @@ export async function POST(req: NextRequest) {
     }, lead);
 
     // 5. Retornar status
-    return NextResponse.json({
+    return createApiSuccess({
       message: 'Conversão offline processada com sucesso.',
       syncResults
     });
 
   } catch (error: any) {
     console.error('[OfflineConversionAPI] Erro no processamento:', error);
-    return NextResponse.json({ error: 'Erro interno ao processar conversão offline.', details: error.message }, { status: 500 });
+    return createApiError(500, 'Erro interno ao processar conversão offline.', { details: error.message });
   }
 }

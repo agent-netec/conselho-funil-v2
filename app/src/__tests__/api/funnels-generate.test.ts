@@ -88,7 +88,7 @@ describe('Funnel Generation API Integration', () => {
     
     const data = await res.json()
     expect(data.success).toBe(true)
-    expect(data.proposalIds).toContain('prop123')
+    expect(data.data.proposalIds).toContain('prop123')
     expect(firestore.updateFunnel).toHaveBeenCalledWith('funnel123', { status: 'generating' })
     expect(firestore.updateFunnel).toHaveBeenCalledWith('funnel123', { status: 'review' })
   })

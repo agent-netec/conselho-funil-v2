@@ -4,11 +4,12 @@ import {
   Prediction, 
   SimulationInput, 
   SimulationOutput 
-} from '../../../types/predictive.ts';
-import { getLead, getLeadEvents } from '../../firebase/journey.ts';
-import { savePrediction } from '../../firebase/predictive.ts';
-import { generateWithGemini } from '../../ai/gemini.ts';
-import { LEAD_SCORING_SYSTEM_PROMPT, buildLeadScoringPrompt } from '../../ai/prompts/predictive-scoring.ts';
+} from '../../../types/predictive';
+import { getLead, getLeadEvents } from '../../firebase/journey';
+import { savePrediction } from '../../firebase/predictive';
+import { generateWithGemini } from '../../ai/gemini';
+import { LEAD_SCORING_SYSTEM_PROMPT, buildLeadScoringPrompt } from '../../ai/prompts/predictive-scoring';
+import { LTVEstimator } from './ltv-estimator';
 
 /**
  * @fileoverview Implementação do Prediction Engine (ST-22.2 & ST-22.3)
@@ -117,34 +118,39 @@ export class PredictionEngine implements IPredictionEngine {
    * Janelas: 30, 90, 180 dias.
    */
   async forecastCohortROI(cohortId: string): Promise<Prediction> {
-    // ... (mesma implementação anterior)
-    const baseLtv = 5000; 
-    const m1_mult = 1.4;
-    const m3_mult = 2.1;
-    const m6_mult = 2.8;
-    const m12_mult = 3.5;
+    const now = Timestamp.now();
+    const inferredBrandId = cohortId.split('-')[0] || cohortId;
+    const ltvBatch = await LTVEstimator.estimateBatch(inferredBrandId);
+    const selectedCohort =
+      ltvBatch.cohorts.find((c) => c.cohortId === cohortId) ??
+      ltvBatch.cohorts.find((c) => c.segment === 'warm') ??
+      ltvBatch.cohorts[0];
+
+    const projected = selectedCohort?.projectedLTV ?? { m1: 0, m3: 0, m6: 0, m12: 0 };
+    const predictedValue = projected.m6;
+    const confidenceScore = selectedCohort?.confidenceScore ?? 0.5;
 
     const prediction: Omit<Prediction, 'id'> = {
       targetId: cohortId,
       targetType: 'cohort',
       model: 'ltv_maturation',
       results: {
-        predictedValue: baseLtv * m6_mult,
+        predictedValue,
         confidenceInterval: {
-          low: baseLtv * m6_mult * 0.85,
-          high: baseLtv * m6_mult * 1.15
+          low: predictedValue * 0.85,
+          high: predictedValue * 1.15
         },
-        confidenceScore: 0.75
+        confidenceScore
       },
       timeframes: {
-        m1: baseLtv * m1_mult,
-        m3: baseLtv * m3_mult,
-        m6: baseLtv * m6_mult,
-        m12: baseLtv * m12_mult
+        m1: projected.m1,
+        m3: projected.m3,
+        m6: projected.m6,
+        m12: projected.m12
       },
-      features: ['historical_cohort_performance', 'early_payback_velocity'],
-      calculatedAt: Timestamp.now(),
-      expiresAt: Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      features: ['ltv_estimator_batch', 'segment_projection', 'cohort_signal'],
+      calculatedAt: now,
+      expiresAt: Timestamp.fromMillis(now.toMillis() + 7 * 24 * 60 * 60 * 1000)
     };
 
     const id = await savePrediction(prediction);

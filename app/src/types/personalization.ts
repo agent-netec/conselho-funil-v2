@@ -47,3 +47,40 @@ export interface DynamicContentRule {
   isActive: boolean;
   updatedAt: Timestamp;
 }
+
+/**
+ * Estado completo do lead — união de PropensityEngine + PersonalizationMaestro
+ * Sprint 29: S29-FT-03 — campos concretos derivados de ambos motores (DT-08)
+ * Path: brands/{brandId}/leads/{leadId}
+ */
+export interface LeadState {
+  // === Identificação (obrigatórios) ===
+  leadId: string;
+  brandId: string;
+
+  // === Awareness (PersonalizationMaestro) ===
+  awarenessLevel: 'UNAWARE' | 'PROBLEM_AWARE' | 'SOLUTION_AWARE' | 'PRODUCT_AWARE' | 'MOST_AWARE';
+
+  // === Propensity (PropensityEngine S28-PS-03) ===
+  propensityScore: number;            // 0-1 (derivado de PropensityResult.score)
+  segment: 'hot' | 'warm' | 'cold';  // Derivado de PropensityResult.segment
+  reasoning: string[];                // Derivado de PropensityResult.reasoning
+
+  // === Interaction tracking (Maestro) ===
+  lastInteraction?: {
+    type: 'ad_click' | 'dm_received' | 'comment_made' | 'page_view';
+    platform: 'meta' | 'instagram' | 'web';
+    timestamp: Timestamp;
+    contentId?: string;
+  };
+  eventCount: number;                 // Total de eventos processados
+  tags: string[];                     // Tags atribuídas pelo Maestro
+
+  // === Timestamps ===
+  firstSeenAt?: Timestamp;
+  lastInteractionAt?: Timestamp;
+  updatedAt: Timestamp;
+
+  // === Metadata extensível ===
+  metadata?: Record<string, unknown>; // Dados adicionais do Maestro
+}

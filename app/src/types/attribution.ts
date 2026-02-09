@@ -49,3 +49,16 @@ export interface MMMResult {
   estimatedOrganicLift: number; // % de vendas orgânicas que "seguem" o spend
   insight: string;
 }
+
+/**
+ * Estatísticas de atribuição por campanha — usado por use-attribution-data hook
+ * Ativado na Sprint 27 (Hybrid: Backlog Cleanup + Attribution Revival)
+ */
+export interface CampaignAttributionStats {
+  campaignName: string;
+  spend: number;
+  conversions: Record<AttributionModel, number>;
+  roi: Record<AttributionModel, number>;
+  variation: number;
+  [key: string]: unknown;
+}

@@ -1,16 +1,16 @@
 import { 
   queryIntelligence, 
   updateIntelligenceDocument 
-} from '../firebase/intelligence';
+} from '../../firebase/intelligence';
 import { 
   getBrandDNA, 
   queryVaultLibrary, 
   saveVaultContent,
   createPublisherJob,
   updatePublisherJob
-} from '../firebase/vault';
-import { queryVaultVectors } from '../vault/pinecone-vault';
-import { generateEmbedding } from '../ai/embeddings';
+} from '../../firebase/vault';
+import { queryVaultVectors } from '../../vault/pinecone-vault';
+import { generateEmbedding } from '../../ai/embeddings';
 import { Timestamp } from 'firebase/firestore';
 import type { IntelligenceDocument } from '@/types/intelligence';
 import type { CopyDNA, VaultContent } from '@/types/vault';
@@ -87,7 +87,7 @@ export class ContentCurationEngine {
       insightId: insight.id,
       status: 'pending',
       config: {
-        platforms: ['X', 'LinkedIn', 'Instagram'], // Default platforms
+        platforms: ['x', 'linkedin', 'instagram'], // Default platforms (canonical lowercase)
       },
       errors: []
     });
@@ -117,7 +117,7 @@ export class ContentCurationEngine {
       name: m.metadata?.category || 'Template',
       type: 'template',
       content: m.metadata?.text || '',
-      platform_optimization: ['X', 'LinkedIn'],
+      platform_optimization: ['x', 'linkedin'],
       tags: m.metadata?.tags || [],
       updatedAt: Timestamp.now()
     } as CopyDNA));

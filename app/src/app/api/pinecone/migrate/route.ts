@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { migrateChunksToPinecone } from '@/lib/ai/pinecone-migration';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 export const runtime = 'nodejs';
 
@@ -81,31 +82,23 @@ export async function POST(request: Request) {
     }
 
     if (allChunksToMigrate.length === 0) {
-      return NextResponse.json(
-        { 
-          ok: true, 
-          message: 'Nenhum chunk aprovado para migrar.', 
-          sourceStats,
-          report: { attempted: 0, upserted: 0, skipped: 0, errors: [] } 
-        },
-        { status: 200 }
-      );
+      return createApiSuccess({ 
+        message: 'Nenhum chunk aprovado para migrar.', 
+        sourceStats,
+        report: { attempted: 0, upserted: 0, skipped: 0, errors: [] } 
+      });
     }
 
     const report = await migrateChunksToPinecone(allChunksToMigrate, { namespace });
 
-    return NextResponse.json(
-      {
-        ok: true,
-        namespace: namespace || 'default',
-        sourceStats,
-        ...report,
-      },
-      { status: 200 }
-    );
+    return createApiSuccess({
+      namespace: namespace || 'default',
+      sourceStats,
+      ...report,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Erro desconhecido na migração para Pinecone.';
     console.error('[Pinecone] Migração falhou', error);
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    return createApiError(500, message);
   }
 }

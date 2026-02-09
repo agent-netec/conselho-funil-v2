@@ -27,14 +27,16 @@ Resumo final e próximos passos práticos.
       type: 'agent',
       agentId: 'russell_brunson',
       agentName: 'RUSSELL BRUNSON',
-      content: 'Sua perspectiva aqui sobre funis.'
+      content: 'Sua perspectiva aqui sobre funis.',
+      mentions: []
     });
 
     expect(sections[2]).toEqual({
       type: 'agent',
       agentId: 'dan_kennedy',
       agentName: 'DAN KENNEDY',
-      content: 'Minha visão sobre o que o Russell disse e sobre a oferta.'
+      content: 'Minha visão sobre o que o Russell disse e sobre a oferta.',
+      mentions: []
     });
 
     expect(sections[3]).toEqual({

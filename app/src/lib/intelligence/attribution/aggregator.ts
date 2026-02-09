@@ -10,8 +10,12 @@ import {
   orderBy
 } from 'firebase/firestore';
 import { AttributionBridgeService } from './bridge';
-import { PerformanceMetricDoc, AdPlatform, UnifiedAdsMetrics } from '../../types/performance';
-import { CrossChannelMetricDoc } from '../../types/cross-channel';
+import { PerformanceMetricDoc, AdPlatform, UnifiedAdsMetrics } from '../../../types/performance';
+import { CrossChannelMetricDoc } from '../../../types/cross-channel';
+import { adaptToPerformanceMetricDoc } from './adapters/metric-adapter';
+
+/** Extended metrics including clicks/impressions used by legacy aggregation logic */
+type ExtendedMetrics = UnifiedAdsMetrics & { clicks: number; impressions: number; cpa: number };
 
 /**
  * @class CrossChannelAggregator
@@ -39,13 +43,15 @@ export class CrossChannelAggregator {
     );
 
     const metricSnaps = await getDocs(q);
-    const rawMetrics = metricSnaps.docs.map(d => d.data() as PerformanceMetricDoc);
+    const rawMetrics = metricSnaps.docs.map(d => adaptToPerformanceMetricDoc(d.data() as Record<string, unknown>));
 
     // 2. Agrupar métricas por plataforma
-    const platformTotals: Record<AdPlatform, UnifiedAdsMetrics> = {
+    const platformTotals: Record<AdPlatform, ExtendedMetrics> = {
       meta: this.emptyMetrics(),
       google: this.emptyMetrics(),
-      tiktok: this.emptyMetrics()
+      tiktok: this.emptyMetrics(),
+      organic: this.emptyMetrics(),
+      aggregated: this.emptyMetrics()
     };
 
     rawMetrics.forEach(m => {
@@ -58,7 +64,7 @@ export class CrossChannelAggregator {
     });
 
     // 3. Calcular Totais Globais (Blended)
-    const globalTotals: UnifiedAdsMetrics & { blendedRoas: number; blendedCpa: number } = {
+    const globalTotals: ExtendedMetrics & { blendedRoas: number; blendedCpa: number } = {
       ...this.emptyMetrics(),
       blendedRoas: 0,
       blendedCpa: 0
@@ -116,14 +122,16 @@ export class CrossChannelAggregator {
     return result;
   }
 
-  private static emptyMetrics(): UnifiedAdsMetrics {
+  private static emptyMetrics(): ExtendedMetrics {
     return {
       spend: 0,
+      revenue: 0,
       clicks: 0,
       impressions: 0,
       conversions: 0,
       ctr: 0,
       cpc: 0,
+      cac: 0,
       cpa: 0,
       roas: 0
     };

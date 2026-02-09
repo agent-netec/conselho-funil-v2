@@ -3,26 +3,34 @@ import { ragQuery } from '@/lib/ai/rag';
 import { generateWithGemini, isGeminiConfigured } from '@/lib/ai/gemini';
 import { getBrand } from '@/lib/firebase/brands';
 import { SOCIAL_HOOKS_PROMPT } from '@/lib/ai/prompts';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { updateUserUsage } from '@/lib/firebase/firestore';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
-    const { brandId, platform, topic } = await request.json();
+    const { brandId, platform, topic, userId } = await request.json();
+
+    if (!brandId) {
+      return createApiError(400, 'brandId é obrigatório.');
+    }
+
+    try {
+      await requireBrandAccess(request, brandId);
+    } catch (error) {
+      return handleSecurityError(error);
+    }
 
     if (!platform || !topic) {
-      return NextResponse.json(
-        { error: 'Plataforma e tema são obrigatórios.' },
-        { status: 400 }
-      );
+      return createApiError(400, 'Plataforma e tema são obrigatórios.');
     }
 
     if (!isGeminiConfigured()) {
-      return NextResponse.json(
-        { error: 'API do Gemini não configurada.' },
-        { status: 500 }
-      );
+      return createApiError(500, 'API do Gemini não configurada.');
     }
 
     // 1. Carregar contexto da marca
@@ -80,19 +88,23 @@ Diferencial: ${brand.offer.differentiator}
       result = JSON.parse(jsonStr.trim());
     } catch (parseError) {
       console.error('Error parsing AI response:', parseError);
-      return NextResponse.json(
-        { error: 'Erro ao processar resposta da IA. Tente novamente.' },
-        { status: 500 }
-      );
+      return createApiError(500, 'Erro ao processar resposta da IA. Tente novamente.');
     }
 
-    return NextResponse.json(result);
+    // SIG-API-03: Decrementar 1 crédito por geração de hooks
+    if (userId) {
+      try {
+        await updateUserUsage(userId, -1);
+        console.log(`[Social/Hooks] 1 crédito decrementado para usuário: ${userId}`);
+      } catch (creditError) {
+        console.error('[Social/Hooks] Erro ao atualizar créditos:', creditError);
+      }
+    }
+
+    return createApiSuccess(result);
   } catch (error) {
     console.error('Hook generation error:', error);
-    return NextResponse.json(
-      { error: 'Erro interno no servidor', details: String(error) },
-      { status: 500 }
-    );
+    return createApiError(500, 'Erro interno no servidor', { details: String(error) });
   }
 }
 
