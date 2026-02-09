@@ -18,6 +18,7 @@ import type { AutomationLog, AutomationRule, DeadLetterItem } from '@/types/auto
 import { getAutomationRules, getAutomationLogs, updateAutomationLogStatus, toggleAutomationRule, getDLQItems } from '@/lib/firebase/automation';
 import { getPersonalizationRules } from '@/lib/firebase/personalization';
 import { useBrandStore } from '@/lib/stores/brand-store';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 export default function AutomationPage() {
   const { selectedBrand } = useBrandStore();
@@ -91,9 +92,10 @@ export default function AutomationPage() {
   const handleRetry = async (dlqItemId: string) => {
     setRetryingId(dlqItemId);
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch('/api/webhooks/retry', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ brandId: brandId!, dlqItemId }),
       });
       const data = await res.json();

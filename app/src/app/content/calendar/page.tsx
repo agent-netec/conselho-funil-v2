@@ -11,6 +11,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CalendarView } from '@/components/content/calendar-view';
 import { useBrandStore } from '@/lib/stores/brand-store';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { Calendar, ChevronLeft, ChevronRight, Plus, Columns, Grid } from 'lucide-react';
 import type { CalendarItem } from '@/types/content';
 
@@ -53,7 +54,8 @@ export default function ContentCalendarPage() {
         end: end.getTime().toString(),
       });
 
-      const res = await fetch(`/api/content/calendar?${params}`);
+      const headers = await getAuthHeaders();
+      const res = await fetch(`/api/content/calendar?${params}`, { headers });
       if (res.ok) {
         const json = await res.json();
         setItems(json.data?.items ?? []);
@@ -94,9 +96,10 @@ export default function ContentCalendarPage() {
     ));
 
     try {
+      const authHeaders = await getAuthHeaders();
       await fetch('/api/content/calendar/reorder', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify({
           brandId: selectedBrand.id,
           updates: [{
@@ -131,9 +134,10 @@ export default function ContentCalendarPage() {
     if (!title || !format || !platform || !dateStr) return;
 
     try {
+      const createHeaders = await getAuthHeaders();
       const res = await fetch('/api/content/calendar', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: createHeaders,
         body: JSON.stringify({
           brandId: selectedBrand.id,
           title,

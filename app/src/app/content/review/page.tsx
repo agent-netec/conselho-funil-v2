@@ -10,6 +10,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ReviewCard } from '@/components/content/review-card';
 import { useBrandStore } from '@/lib/stores/brand-store';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { ClipboardCheck, Inbox } from 'lucide-react';
 import type { CalendarItem } from '@/types/content';
 
@@ -35,7 +36,8 @@ export default function ContentReviewPage() {
         end: future90d.toString(),
       });
 
-      const res = await fetch(`/api/content/calendar?${params}`);
+      const headers = await getAuthHeaders();
+      const res = await fetch(`/api/content/calendar?${params}`, { headers });
       if (res.ok) {
         const json = await res.json();
         const allItems: CalendarItem[] = json.data?.items ?? [];
@@ -58,9 +60,10 @@ export default function ContentReviewPage() {
     if (!selectedBrand?.id) return;
 
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch('/api/content/calendar/approve', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           brandId: selectedBrand.id,
           itemId,
@@ -82,9 +85,10 @@ export default function ContentReviewPage() {
     if (!selectedBrand?.id) return;
 
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch('/api/content/calendar/approve', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           brandId: selectedBrand.id,
           itemId,

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import type { AudienceForecast, ChurnBatchResult, LTVBatchResult } from '@/types/predictive';
 
 interface UsePredictiveDataReturn {
@@ -23,7 +24,7 @@ export function usePredictiveData(brandId: string | null): UsePredictiveDataRetu
     setError(null);
     try {
       const body = JSON.stringify({ brandId });
-      const headers = { 'Content-Type': 'application/json' };
+      const headers = await getAuthHeaders();
       const [churnRes, ltvRes, forecastRes] = await Promise.all([
         fetch('/api/intelligence/predictive/churn', { method: 'POST', headers, body }),
         fetch('/api/intelligence/predictive/ltv', { method: 'POST', headers, body }),

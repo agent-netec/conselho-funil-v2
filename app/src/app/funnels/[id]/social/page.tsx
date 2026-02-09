@@ -40,6 +40,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useBrandStore } from '@/lib/stores/brand-store';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { notify } from '@/lib/stores/notification-store';
 import { MarkdownRenderer } from '@/components/chat/markdown-renderer';
 import type { Funnel } from '@/types/database';
@@ -124,9 +125,10 @@ export default function SocialCouncilPage() {
 
     setIsGenerating(true);
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/social/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           funnelId,
           userId: user?.uid,
