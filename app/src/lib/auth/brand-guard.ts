@@ -101,7 +101,8 @@ export async function requireBrandAccess(
     const brandData = brandSnap.data();
 
     // Verificar ownership ou membership
-    const isOwner = brandData.ownerId === userId;
+    // Brands usam campo 'userId' (criação) ou 'ownerId' (multi-tenant)
+    const isOwner = brandData.userId === userId || brandData.ownerId === userId;
     const isMember = Array.isArray(brandData.members) && brandData.members.includes(userId);
 
     if (!isOwner && !isMember) {
