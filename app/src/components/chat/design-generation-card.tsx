@@ -145,7 +145,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
             console.log('✅ Upload concluído com sucesso:', finalImageUrl);
           } catch (uploadErr) {
             console.error('Falha ao fazer upload da imagem para o Storage:', uploadErr);
-            // Mantemos o Base64 se o upload falhar como fallback
+            // Base64 mantido apenas para exibição — não será salvo no Firestore
           }
         }
 
@@ -153,8 +153,11 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
         setImageUrl(finalImageUrl);
         setStatus('success');
         
-        // Salvamento automático como BrandAsset
-        try {
+        // Salvamento automático como BrandAsset (somente URLs do Storage, não base64)
+        if (finalImageUrl?.startsWith('data:')) {
+          console.warn('⚠️ Upload para Storage falhou — imagem exibida em base64, mas NÃO salva no Firestore (limite 1MB).');
+          toast.warning('Imagem gerada com sucesso, mas não foi possível salvar na galeria.');
+        } else try {
           await createAsset({
             brandId: activeBrand.id,
             userId: activeBrand.userId,
@@ -213,7 +216,11 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
 
   const handleSelectForCampaign = async () => {
     if (!campaignId || !imageUrl) return;
-    
+    if (imageUrl.startsWith('data:')) {
+      toast.error('Imagem ainda em base64 — faça upload antes de selecionar para a campanha.');
+      return;
+    }
+
     setIsSelecting(true);
     try {
       // US-22.1: Sincronização de Estado (Golden Thread)

@@ -72,15 +72,15 @@ export async function uploadBase64Image(
   const storagePath = `brand-assets/${userId}/${brandId}/${Date.now()}_${fileName}`;
   const storageRef = ref(storage, storagePath);
   
-  // QA Hardening: Limpeza e conversão Data URL para Blob
   try {
-    // Remove qualquer query parameter acidental que possa ter sido anexado à string Base64
-    const cleanDataUrl = dataUrl.split('&')[0].split('?')[0];
-    const res = await fetch(cleanDataUrl);
-    const blob = await res.blob();
-    
-    await uploadBytesResumable(storageRef, blob, {
-      contentType: blob.type,
+    // Detectar mimeType da Data URL
+    const mimeMatch = dataUrl.match(/^data:([^;]+);base64,/);
+    const contentType = mimeMatch?.[1] || 'image/png';
+
+    // uploadString com formato 'data_url' é o método nativo do Firebase para
+    // Data URLs — evita problemas com fetch() em blobs base64 grandes (>2MB)
+    const snapshot = await uploadString(storageRef, dataUrl, 'data_url', {
+      contentType,
       customMetadata: {
         userId,
         brandId,
@@ -88,8 +88,8 @@ export async function uploadBase64Image(
         uploadedAt: new Date().toISOString(),
       },
     });
-    
-    return await getDownloadURL(storageRef);
+
+    return await getDownloadURL(snapshot.ref);
   } catch (error) {
     console.error('Erro ao processar binário da imagem para upload:', error);
     throw new Error('Falha na conversão binária da imagem gerada.');
