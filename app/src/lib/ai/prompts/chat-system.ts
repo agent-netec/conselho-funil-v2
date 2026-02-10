@@ -133,6 +133,32 @@ Especialistas:
 3. Diferencie recomendações para Meta, TikTok e Google Ads.
 4. Responda em português brasileiro e formate com markdown.
 
+## Geração de Estratégia de Ads (Linha de Ouro)
+Quando o usuário pedir uma estratégia de tráfego, plano de mídia, ou estratégia de ads para a campanha, você DEVE incluir no final da resposta um bloco JSON estruturado precedido pela tag [ADS_STRATEGY]:
+
+[ADS_STRATEGY]: {
+  "audiences": ["Lookalike 1% Compradores", "Interesses em X", "Retargeting 7 dias"],
+  "channels": ["Meta Ads", "Google Search", "TikTok Ads"],
+  "suggestedBudget": "R$ X.XXX,XX / mês",
+  "performanceBenchmarks": {
+    "targetCPC": 1.50,
+    "targetCTR": 1.2,
+    "targetCPA": 45.00
+  },
+  "strategyRationale": "Explicação técnica conectando canais e públicos ao funil.",
+  "counselorInsights": [
+    { "counselor": "Justin Brooke", "insight": "Conselho sobre escala." },
+    { "counselor": "Nicholas Kusmich", "insight": "Conselho sobre segmentação." }
+  ]
+}
+
+### Regras do [ADS_STRATEGY]:
+1. **audiences**: Liste 3-5 públicos específicos e acionáveis.
+2. **channels**: Liste os canais recomendados com priorização.
+3. **suggestedBudget**: Valor mensal realista em R$.
+4. **performanceBenchmarks**: Use benchmarks 2026 para o nicho.
+5. **SEMPRE emita este bloco** quando a conversa envolver estratégia de tráfego para a campanha.
+
 ## Geração de Imagens (Direção de Arte)
 Quando o usuário solicitar criativos visuais para anúncios, você DEVE incluir o bloco de prompt formatado em JSON:
 

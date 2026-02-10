@@ -6,6 +6,7 @@ import { User, Bot, Check, Copy, Gavel, Share2, ArrowRight, Sparkles } from 'luc
 import { MarkdownRenderer } from './markdown-renderer';
 import { CounselorBadges, SourcesList } from './counselor-badges';
 import { DesignGenerationCard } from './design-generation-card';
+import { AdsStrategyCard, AdsStrategyData } from './ads-strategy-card';
 import { AssetPreview } from '../council/asset-preview';
 import { cn } from '@/lib/utils';
 import { parsePartyResponse, PartySection, getInteractionSummary } from '@/lib/utils/party-parser';
@@ -170,7 +171,56 @@ export function ChatMessageBubble({
     return prompts;
   };
 
+  // Detecção de [ADS_STRATEGY] JSON para o card de estratégia de ads
+  const detectAdsStrategy = (content: string): AdsStrategyData | null => {
+    const marker = '[ADS_STRATEGY]:';
+    if (!content.includes(marker)) return null;
+
+    try {
+      const startIndex = content.indexOf(marker);
+      const startOfJson = content.indexOf('{', startIndex);
+      if (startOfJson === -1) return null;
+
+      let braceCount = 0;
+      let inString = false;
+      let escape = false;
+      let jsonStr = null;
+
+      for (let i = startOfJson; i < content.length; i++) {
+        const char = content[i];
+        if (escape) { escape = false; continue; }
+        if (char === '\\') { escape = true; continue; }
+        if (char === '"') { inString = !inString; continue; }
+
+        if (!inString) {
+          if (char === '{') braceCount++;
+          else if (char === '}') {
+            braceCount--;
+            if (braceCount === 0) {
+              jsonStr = content.substring(startOfJson, i + 1);
+              break;
+            }
+          }
+        }
+      }
+
+      if (jsonStr) {
+        const cleanedJson = jsonStr
+          .replace(/,\s*([}\]])/g, '$1')
+          .replace(/(\r\n|\n|\r)/gm, ' ');
+        const parsed = JSON.parse(cleanedJson);
+        if (parsed.audiences || parsed.channels) {
+          return parsed as AdsStrategyData;
+        }
+      }
+    } catch (e) {
+      console.warn('[ADS_STRATEGY] bloco encontrado mas não pôde ser parseado.', e);
+    }
+    return null;
+  };
+
   const nanobananaPrompts = !isUser ? detectNanobananaPrompts(message.content) : [];
+  const adsStrategy = !isUser ? detectAdsStrategy(message.content) : null;
   const councilOutput = !isUser ? detectCouncilOutput(message.content) : null;
   const partySections = !isUser ? parsePartyResponse(message.content) : [];
   const interactions = !isUser ? getInteractionSummary(partySections) : [];
@@ -383,6 +433,15 @@ export function ChatMessageBubble({
                       />
                     ))}
                   </div>
+                </div>
+              )}
+
+              {adsStrategy && (
+                <div className="mt-4 border-t border-emerald-500/10 pt-4">
+                  <AdsStrategyCard
+                    strategyData={adsStrategy}
+                    campaignId={campaignId}
+                  />
                 </div>
               )}
 
