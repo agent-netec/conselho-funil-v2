@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Header } from '@/components/layout/header';
 import { useConversations, useConversation } from '@/lib/hooks/use-conversations';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
@@ -159,11 +160,40 @@ export default function ChatPage() {
             </div>
           </div>
 
-          <ChatInputArea 
-            onSend={handleSend} 
-            isLoading={isSending} 
+          {/* CTA contextual: guia o usuário para a página dedicada da etapa */}
+          {funnelId && (chatMode === 'design' || chatMode === 'social') && messages.length > 0 && (
+            <div className="border-t border-white/[0.06] bg-zinc-950/80 backdrop-blur-sm px-4 py-2.5">
+              <Link
+                href={
+                  chatMode === 'design'
+                    ? `/funnels/${funnelId}/design${campaignId ? `?campaignId=${campaignId}` : ''}`
+                    : `/funnels/${funnelId}/social${campaignId ? `?campaignId=${campaignId}` : ''}`
+                }
+                className="flex items-center justify-between gap-3 rounded-lg border border-purple-500/20 bg-purple-500/5 px-4 py-2.5 transition-all hover:bg-purple-500/10 hover:border-purple-500/40 group"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">{chatMode === 'design' ? '\uD83C\uDFA8' : '\uD83D\uDD17'}</span>
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      {chatMode === 'design' ? 'Gerar Criativos Visuais' : 'Gerar Hooks Sociais'}
+                    </p>
+                    <p className="text-[11px] text-zinc-500">
+                      {chatMode === 'design'
+                        ? 'Ir para a p\u00e1gina de Design para criar imagens com NanoBanana AI'
+                        : 'Ir para a p\u00e1gina Social para gerar hooks estrat\u00e9gicos'}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-zinc-500 group-hover:text-purple-400 transition-colors text-lg">\u2192</span>
+              </Link>
+            </div>
+          )}
+
+          <ChatInputArea
+            onSend={handleSend}
+            isLoading={isSending}
             disabled={isBlocked}
-            disabledMessage="Saldo de créditos insuficiente"
+            disabledMessage="Saldo de cr\u00e9ditos insuficiente"
             mode={chatMode}
             onModeChange={setChatMode}
           />
