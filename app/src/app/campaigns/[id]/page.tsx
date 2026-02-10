@@ -137,13 +137,13 @@ export default function CampaignCommandCenter() {
     return () => unsubCampaign();
   }, [params.id]);
 
+  const [generatingAds, setGeneratingAds] = useState(false);
+
   const handleAction = async (stageId: string) => {
     if (!campaign) return;
-    
+
     notify.info(`Iniciando ${stageId}`, `O Conselho está sendo convocado...`);
-    
-    // Logic for handoff (ST-11.15) would go here
-    // For now, we'll navigate to the specific stage view if it exists
+
     if (stageId === 'funnel') {
       router.push(`/funnels/${campaign.funnelId}?campaignId=${campaign.id}`);
     } else if (stageId === 'copy') {
@@ -151,10 +151,31 @@ export default function CampaignCommandCenter() {
     } else if (stageId === 'social') {
       router.push(`/funnels/${campaign.funnelId}/social?campaignId=${campaign.id}`);
     } else if (stageId === 'design') {
-      // US-20.3: Direcionar para a inteligência visual do NanoBanana
       router.push(`/chat?mode=design&funnelId=${campaign.funnelId}&campaignId=${campaign.id}`);
     } else if (stageId === 'ads') {
-      // ST-11.16: Convocar Conselho de Tráfego
+      // Se ads ainda não existe, auto-gerar via API dedicada (salva direto no Firestore)
+      if (!campaign.ads) {
+        setGeneratingAds(true);
+        notify.info('Gerando Estratégia', 'O Conselho de Ads está projetando a escala...');
+        try {
+          const res = await fetch(`/api/campaigns/${campaign.id}/generate-ads`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: campaign.userId }),
+          });
+          if (res.ok) {
+            notify.info('Estratégia Gerada', 'A Escala foi adicionada à Linha de Ouro!');
+          } else {
+            console.error('Erro ao gerar ads:', await res.text());
+            notify.warning('Aviso', 'Não foi possível gerar automaticamente. Use o chat para criar a estratégia.');
+          }
+        } catch (err) {
+          console.error('Erro na chamada generate-ads:', err);
+        } finally {
+          setGeneratingAds(false);
+        }
+      }
+      // Navegar para o chat de Ads para refinamento
       router.push(`/chat?mode=ads&funnelId=${campaign.funnelId}&campaignId=${campaign.id}`);
     } else {
       notify.warning('Em desenvolvimento', `A etapa de ${stageId} está sendo preparada.`);
@@ -282,16 +303,20 @@ export default function CampaignCommandCenter() {
             title="A Escala"
             description="Conselho de Ads & Tráfego"
             icon={BarChart3}
-            status={campaign.ads ? 'approved' : campaign.design ? 'ready' : 'empty'}
+            status={campaign.ads ? 'approved' : generatingAds ? 'generating' : campaign.design ? 'ready' : 'empty'}
             summary={campaign.ads ? [
               `Canais: ${campaign.ads.channels.join(', ')}`,
-              `Budget Sugerido: ${campaign.ads.suggestedBudget}`
+              `Budget Sugerido: ${campaign.ads.suggestedBudget || 'A definir'}`,
+              ...(campaign.ads.audiences?.length ? [`${campaign.ads.audiences.length} audiência(s) segmentada(s)`] : [])
+            ] : generatingAds ? [
+              'Conselho de Ads analisando o manifesto...',
+              'Projetando audiências, canais e budget'
             ] : campaign.design ? [
               'Design & Copy sincronizados',
               'Pronto para definir canais e budget'
             ] : []}
             onAction={() => handleAction('ads')}
-            actionLabel={campaign.ads ? "Ver Campanha" : "Gerar Estrutura Ads"}
+            actionLabel={campaign.ads ? "Ver Campanha" : generatingAds ? "Gerando..." : "Gerar Estrutura Ads"}
             isActive={currentStageId === 'ads'}
           />
         </div>
