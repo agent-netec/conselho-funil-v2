@@ -104,7 +104,7 @@ export default function SocialCouncilPage() {
           }
 
           setCampaign(currentCampaign);
-          if (currentCampaign?.social?.hooks) {
+          if (Array.isArray(currentCampaign?.social?.hooks)) {
             setHooks(currentCampaign.social.hooks);
           }
         }
@@ -134,19 +134,19 @@ export default function SocialCouncilPage() {
           userId: user?.uid,
           brandId: selectedBrand?.id,
           context: {
-            objective: funnel.context.objective,
-            copy: campaign.copywriting.mainScript,
-            targetAudience: funnel.context.audience?.who
+            objective: funnel.context?.objective || '',
+            copy: campaign.copywriting.mainScript || '',
+            targetAudience: funnel.context?.audience?.who || ''
           }
         }),
       });
 
       const data = await response.json();
       if (data.success) {
-        setHooks(data.hooks);
+        setHooks(data.data?.hooks ?? data.hooks ?? []);
         notify.success('Hooks gerados com sucesso!');
       } else {
-        notify.error('Erro', data.error);
+        notify.error('Erro', data.error || 'Falha ao gerar hooks');
       }
     } catch (error) {
       notify.error('Erro', 'Falha ao convocar Conselho de Social');
