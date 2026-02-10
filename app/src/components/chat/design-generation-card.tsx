@@ -30,7 +30,6 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import { createAsset } from '@/lib/firebase/assets';
-import { uploadBase64Image } from '@/lib/firebase/storage';
 import { updateCampaignManifesto } from '@/lib/firebase/firestore';
 import { Timestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
@@ -129,33 +128,16 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
       const payload = data.data ?? data;
 
       if (data.success) {
-        let finalImageUrl = payload.imageUrl;
-
-        // US-20.3.2: Se a imagem vier em Base64 (Data URL), fazemos upload para o Storage
-        // Isso evita o erro de limite de 1MB do Firestore
-        if (finalImageUrl?.startsWith('data:')) {
-          try {
-            console.log('📤 Fazendo upload da imagem Base64 para o Firebase Storage...');
-            finalImageUrl = await uploadBase64Image(
-              payload.imageUrl,
-              activeBrand.id,
-              activeBrand.userId,
-              `design_${payload.processId}.webp`
-            );
-            console.log('✅ Upload concluído com sucesso:', finalImageUrl);
-          } catch (uploadErr) {
-            console.error('Falha ao fazer upload da imagem para o Storage:', uploadErr);
-            // Base64 mantido apenas para exibição — não será salvo no Firestore
-          }
-        }
+        const finalImageUrl = payload.imageUrl;
+        const isStorageUrl = !finalImageUrl?.startsWith('data:');
 
         // Definimos a URL primeiro e DEPOIS mudamos o status para garantir renderização imediata
         setImageUrl(finalImageUrl);
         setStatus('success');
-        
+
         // Salvamento automático como BrandAsset (somente URLs do Storage, não base64)
-        if (finalImageUrl?.startsWith('data:')) {
-          console.warn('⚠️ Upload para Storage falhou — imagem exibida em base64, mas NÃO salva no Firestore (limite 1MB).');
+        if (!isStorageUrl) {
+          console.warn('⚠️ Imagem em base64 (upload server-side falhou) — exibida mas NÃO salva no Firestore (limite 1MB).');
           toast.warning('Imagem gerada com sucesso, mas não foi possível salvar na galeria.');
         } else try {
           await createAsset({

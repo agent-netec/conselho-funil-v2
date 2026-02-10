@@ -5,6 +5,7 @@ import { getBrandAssets } from '@/lib/firebase/assets';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { uploadBufferToStorage } from '@/lib/firebase/storage-server';
 
 /**
  * API Proxy para Geração de Imagens via Google AI (Imagen/Nanobanana)
@@ -268,14 +269,26 @@ Retorne apenas o JSON array de strings.`;
         }
 
         const mimeType = inlineData.mimeType || 'image/png';
-        const dataUrl = `data:${mimeType};base64,${inlineData.data}`;
         const generatedId: string =
           data?.candidates?.[0]?.content?.role === 'model' && data?.candidates?.[0]?.content?.parts?.[0]?.id
             ? data.candidates[0].content.parts[0].id
             : `gmi_${Date.now()}_${index}`;
 
+        // Upload server-side para Firebase Storage (evita problemas de CORS/regras no client)
+        const ext = mimeType.split('/')[1] || 'png';
+        const storagePath = `brand-assets/${userId}/${brandId}/${Date.now()}_design_${generatedId}.${ext}`;
+        let imageUrl: string;
+        try {
+          const buffer = Buffer.from(inlineData.data, 'base64');
+          imageUrl = await uploadBufferToStorage(buffer, storagePath, mimeType);
+          console.log(`✅ Upload server-side concluído para variante ${index + 1}: ${imageUrl.substring(0, 80)}...`);
+        } catch (uploadErr) {
+          console.error(`⚠️ Upload server-side falhou para variante ${index + 1}, retornando data URL como fallback:`, uploadErr);
+          imageUrl = `data:${mimeType};base64,${inlineData.data}`;
+        }
+
         return {
-          url: dataUrl,
+          url: imageUrl,
           processId: generatedId,
           promptUsed: promptVariant,
           checklist: { legibility200x112: 'pending', contrast: 'pending', ctaClear: 'pending' },
