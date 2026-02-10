@@ -137,8 +137,8 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
 
         // Salvamento automático como BrandAsset (somente URLs do Storage, não base64)
         if (!isStorageUrl) {
-          console.warn('⚠️ Imagem em base64 (upload server-side falhou) — exibida mas NÃO salva no Firestore (limite 1MB).');
-          toast.warning('Imagem gerada com sucesso, mas não foi possível salvar na galeria.');
+          console.warn('⚠️ Upload server-side falhou. Debug:', payload.uploadDebug);
+          toast.warning('Imagem gerada, mas upload falhou. Veja console para detalhes.');
         } else try {
           await createAsset({
             brandId: activeBrand.id,

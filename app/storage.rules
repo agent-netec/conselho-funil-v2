@@ -1,16 +1,14 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Brand assets (design images, uploads)
-    match /brand-assets/{userId}/{brandId}/{allPaths=**} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+    // Brand assets (design images, uploads) — qualquer usuário autenticado
+    match /brand-assets/{allPaths=**} {
+      allow read, write: if request.auth != null;
     }
 
     // Brand kit (logos, vault)
     match /brands/{path=**} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+      allow read, write: if request.auth != null;
     }
 
     // Default: deny all other paths

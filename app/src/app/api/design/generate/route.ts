@@ -305,9 +305,12 @@ Retorne apenas o JSON array de strings.`;
           const downloadToken = uploadData.downloadTokens;
           imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodedPath}?alt=media&token=${downloadToken}`;
           console.log(`✅ Upload server-side concluído para variante ${index + 1}`);
-        } catch (uploadErr) {
-          console.error(`⚠️ Upload server-side falhou para variante ${index + 1}:`, uploadErr);
+        } catch (uploadErr: any) {
+          const errMsg = uploadErr?.message || String(uploadErr);
+          console.error(`⚠️ Upload server-side falhou para variante ${index + 1}:`, errMsg);
           imageUrl = `data:${mimeType};base64,${inlineData.data}`;
+          // Surfar erro para debug no client
+          (globalThis as any).__lastUploadError = errMsg;
         }
 
         return {
@@ -342,7 +345,8 @@ Retorne apenas o JSON array de strings.`;
       imageUrl: generationResponses[0]?.url,
       processId: generationResponses[0]?.processId,
       images: generationResponses,
-      version: '11.24.5-parallel',
+      version: '11.24.6-rest-upload',
+      uploadDebug: (globalThis as any).__lastUploadError || null,
       metadata: {
         type,
         aspectRatio,
