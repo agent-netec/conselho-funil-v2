@@ -10,6 +10,7 @@ import {
   deleteConversation,
   subscribeToMessages,
 } from '@/lib/firebase/firestore';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import type { Conversation, Message } from '@/types/database';
 
 export function useConversations() {
@@ -115,11 +116,10 @@ export function useConversation(conversationId: string | null) {
       });
 
       // Call the chat API to get AI response
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           message: content,
           conversationId,
