@@ -5,7 +5,6 @@ import { getBrandAssets } from '@/lib/firebase/assets';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { uploadBufferToStorage } from '@/lib/firebase/storage-server';
 
 /**
  * API Proxy para Geração de Imagens via Google AI (Imagen/Nanobanana)
@@ -274,16 +273,40 @@ Retorne apenas o JSON array de strings.`;
             ? data.candidates[0].content.parts[0].id
             : `gmi_${Date.now()}_${index}`;
 
-        // Upload server-side para Firebase Storage (evita problemas de CORS/regras no client)
+        // Upload server-side via REST API do Firebase Storage (usa token do usuário autenticado)
         const ext = mimeType.split('/')[1] || 'png';
         const storagePath = `brand-assets/${userId}/${brandId}/${Date.now()}_design_${generatedId}.${ext}`;
         let imageUrl: string;
         try {
+          const bucket = (process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? '').trim();
+          const authToken = request.headers.get('Authorization')?.replace('Bearer ', '');
+          if (!bucket || !authToken) throw new Error('Storage bucket ou auth token ausente');
+
           const buffer = Buffer.from(inlineData.data, 'base64');
-          imageUrl = await uploadBufferToStorage(buffer, storagePath, mimeType);
-          console.log(`✅ Upload server-side concluído para variante ${index + 1}: ${imageUrl.substring(0, 80)}...`);
+          const encodedPath = encodeURIComponent(storagePath);
+          const uploadRes = await fetch(
+            `https://firebasestorage.googleapis.com/v0/b/${bucket}/o?uploadType=media&name=${encodedPath}`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': mimeType,
+                'Authorization': `Firebase ${authToken}`,
+              },
+              body: buffer,
+            }
+          );
+
+          if (!uploadRes.ok) {
+            const errText = await uploadRes.text();
+            throw new Error(`Storage REST API ${uploadRes.status}: ${errText}`);
+          }
+
+          const uploadData = await uploadRes.json();
+          const downloadToken = uploadData.downloadTokens;
+          imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodedPath}?alt=media&token=${downloadToken}`;
+          console.log(`✅ Upload server-side concluído para variante ${index + 1}`);
         } catch (uploadErr) {
-          console.error(`⚠️ Upload server-side falhou para variante ${index + 1}, retornando data URL como fallback:`, uploadErr);
+          console.error(`⚠️ Upload server-side falhou para variante ${index + 1}:`, uploadErr);
           imageUrl = `data:${mimeType};base64,${inlineData.data}`;
         }
 
