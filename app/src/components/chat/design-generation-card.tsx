@@ -126,20 +126,21 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
       }
 
       const data = await response.json();
-      
+      const payload = data.data ?? data;
+
       if (data.success) {
-        let finalImageUrl = data.imageUrl;
-        
+        let finalImageUrl = payload.imageUrl;
+
         // US-20.3.2: Se a imagem vier em Base64 (Data URL), fazemos upload para o Storage
         // Isso evita o erro de limite de 1MB do Firestore
-        if (finalImageUrl.startsWith('data:')) {
+        if (finalImageUrl?.startsWith('data:')) {
           try {
             console.log('📤 Fazendo upload da imagem Base64 para o Firebase Storage...');
             finalImageUrl = await uploadBase64Image(
-              data.imageUrl,
+              payload.imageUrl,
               activeBrand.id,
               activeBrand.userId,
-              `design_${data.processId}.webp`
+              `design_${payload.processId}.webp`
             );
             console.log('✅ Upload concluído com sucesso:', finalImageUrl);
           } catch (uploadErr) {
@@ -158,7 +159,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
             brandId: activeBrand.id,
             userId: activeBrand.userId,
             name: `Design: ${promptData.platform || 'universal'} - ${new Date().toLocaleDateString()}`,
-            originalName: `design_${data.processId}.webp`,
+            originalName: `design_${payload.processId}.webp`,
             type: 'image',
             mimeType: 'image/webp',
             size: 0, // Informação simulada

@@ -169,7 +169,7 @@ export default function SocialCouncilPage() {
       });
 
       notify.success('Estratégia Social Aprovada!');
-      router.push(`/campaigns/${docId}`);
+      router.push(`/funnels/${funnelId}/design${campaignId ? `?campaignId=${campaignId}` : ''}`);
     } catch (error) {
       notify.error('Erro', 'Falha ao salvar estratégia social');
     } finally {

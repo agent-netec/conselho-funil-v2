@@ -29,6 +29,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useBrandStore } from '@/lib/stores/brand-store';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { notify } from '@/lib/stores/notification-store';
 import { DesignGenerationCard } from '@/components/chat/design-generation-card';
 import type { Funnel } from '@/types/database';
@@ -87,16 +88,17 @@ export default function DesignCouncilPage() {
 
     setIsGenerating(true);
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/design/plan', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           funnelId,
           userId: user?.uid,
           brandId: selectedBrand?.id,
           context: {
-            objective: funnel.context.objective,
-            copy: campaign.copywriting.mainScript,
+            objective: funnel.context?.objective || '',
+            copy: campaign.copywriting.mainScript || '',
             hooks: campaign.social?.hooks || []
           }
         }),
@@ -104,7 +106,7 @@ export default function DesignCouncilPage() {
 
       const data = await response.json();
       if (data.success) {
-        setPrompts(data.prompts);
+        setPrompts(data.data?.prompts ?? data.prompts ?? []);
         notify.success('Estratégia visual gerada!');
       } else {
         notify.error('Erro', data.error);
@@ -230,10 +232,11 @@ export default function DesignCouncilPage() {
 
               <div className="grid gap-6 md:grid-cols-2">
                 {prompts.map((prompt, i) => (
-                  <DesignGenerationCard 
-                    key={i} 
-                    promptData={prompt} 
-                    conversationId={funnelId} 
+                  <DesignGenerationCard
+                    key={i}
+                    promptData={prompt}
+                    conversationId={funnelId}
+                    campaignId={campaignId}
                   />
                 ))}
               </div>
