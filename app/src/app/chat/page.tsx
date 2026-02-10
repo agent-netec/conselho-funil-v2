@@ -189,6 +189,29 @@ export default function ChatPage() {
             </div>
           )}
 
+          {/* CTA Ads: último passo acionável da Linha de Ouro — volta ao Command Center */}
+          {campaignId && chatMode === 'ads' && messages.length > 0 && (
+            <div className="border-t border-white/[0.06] bg-zinc-950/80 backdrop-blur-sm px-4 py-2.5">
+              <Link
+                href={`/campaigns/${campaignId}`}
+                className="flex items-center justify-between gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-2.5 transition-all hover:bg-emerald-500/10 hover:border-emerald-500/40 group"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">{'\u2705'}</span>
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      Finalizar Linha de Ouro
+                    </p>
+                    <p className="text-[11px] text-zinc-500">
+                      Voltar ao Command Center para ver o resumo completo da campanha
+                    </p>
+                  </div>
+                </div>
+                <span className="text-zinc-500 group-hover:text-emerald-400 transition-colors text-lg">{'\u2192'}</span>
+              </Link>
+            </div>
+          )}
+
           <ChatInputArea
             onSend={handleSend}
             isLoading={isSending}
