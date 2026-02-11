@@ -83,6 +83,13 @@ export default function SocialCouncilPage() {
           const campaignDoc = await getDoc(doc(db, 'campaigns', docId));
           let currentCampaign = campaignDoc.exists() ? campaignDoc.data() : null;
 
+          // Validação de contexto: ignorar dados de hooks se a campanha pertence a outra marca
+          const funnelBrandId = funnelData.brandId;
+          if (currentCampaign && currentCampaign.brandId && funnelBrandId && currentCampaign.brandId !== funnelBrandId) {
+            console.warn(`[Context Guard] Campanha ${docId} pertence à marca ${currentCampaign.brandId}, mas funil pertence à marca ${funnelBrandId}. Ignorando hooks.`);
+            currentCampaign = { ...currentCampaign, social: undefined };
+          }
+
           if (!currentCampaign || !currentCampaign.copywriting) {
             const copyRef = collection(db, 'funnels', funnelId, 'copyProposals');
             const copySnap = await getDocs(query(copyRef, where('status', '==', 'approved'), limit(1)));
@@ -132,7 +139,7 @@ export default function SocialCouncilPage() {
         body: JSON.stringify({
           funnelId,
           userId: user?.uid,
-          brandId: selectedBrand?.id,
+          brandId: funnel?.brandId || selectedBrand?.id,
           context: {
             objective: funnel.context?.objective || '',
             copy: campaign.copywriting.mainScript || '',

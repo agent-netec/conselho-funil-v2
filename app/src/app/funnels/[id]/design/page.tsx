@@ -61,7 +61,13 @@ export default function DesignCouncilPage() {
         const docId = campaignId || funnelId;
         const campaignDoc = await getDoc(doc(db, 'campaigns', docId));
         if (campaignDoc.exists()) {
-          const data = campaignDoc.data();
+          let data = campaignDoc.data();
+          // Context Guard: ignorar dados de design se a campanha pertence a outra marca
+          const funnelBrandId = (funnelDoc.exists() ? funnelDoc.data()?.brandId : null);
+          if (data.brandId && funnelBrandId && data.brandId !== funnelBrandId) {
+            console.warn(`[Context Guard] Campanha ${docId} pertence à marca ${data.brandId}, funil à marca ${funnelBrandId}. Ignorando design.`);
+            data = { ...data, design: undefined };
+          }
           setCampaign(data);
           if (data.design?.visualPrompts) {
             // Mapeia prompts existentes para o formato do card
@@ -95,7 +101,7 @@ export default function DesignCouncilPage() {
         body: JSON.stringify({
           funnelId,
           userId: user?.uid,
-          brandId: selectedBrand?.id,
+          brandId: funnel?.brandId || selectedBrand?.id,
           context: {
             objective: funnel.context?.objective || '',
             copy: campaign.copywriting.mainScript || '',
