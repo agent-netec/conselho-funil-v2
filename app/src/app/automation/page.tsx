@@ -13,9 +13,13 @@ import { CopyRefactorWizard } from '@/components/automation/CopyRefactorWizard';
 import { AutomationControlCenter } from '@/components/performance/automation-control-center';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import type { AutomationLog, AutomationRule, DeadLetterItem } from '@/types/automation';
-import { getAutomationRules, getAutomationLogs, updateAutomationLogStatus, toggleAutomationRule, getDLQItems } from '@/lib/firebase/automation';
+import { getAutomationRules, getAutomationLogs, updateAutomationLogStatus, toggleAutomationRule, getDLQItems, saveAutomationRule } from '@/lib/firebase/automation';
 import { getPersonalizationRules } from '@/lib/firebase/personalization';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
@@ -31,6 +35,21 @@ export default function AutomationPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('v2');
   const [retryingId, setRetryingId] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [newRule, setNewRule] = useState({
+    name: '',
+    triggerType: 'metric_threshold' as AutomationRule['trigger']['type'],
+    metric: '',
+    operator: '>' as AutomationRule['trigger']['operator'],
+    value: 0,
+    stepType: '' as string,
+    actionType: 'notify' as AutomationRule['action']['type'],
+    platform: 'meta' as 'meta' | 'google',
+    targetLevel: 'campaign' as 'campaign' | 'adset',
+    adjustmentValue: 0,
+    cooldownPeriod: 24,
+  });
 
   useEffect(() => {
     if (!brandId) {
@@ -39,23 +58,32 @@ export default function AutomationPage() {
     }
     setIsLoading(true);
 
-    Promise.all([
+    Promise.allSettled([
       getAutomationRules(brandId),
       getAutomationLogs(brandId, 50),
       getPersonalizationRules(brandId),
       getDLQItems(brandId),
     ])
-      .then(([firestoreRules, firestoreLogs, personalizationRules, firestoreDLQ]) => {
-        setRules(firestoreRules);
-        setLogs(firestoreLogs);
-        setVariations(
-          personalizationRules
-            .filter(r => r.isActive)
-            .flatMap(r => r.contentVariations || []) as typeof variations
-        );
-        setDlqItems(firestoreDLQ);
+      .then(([rulesResult, logsResult, personalizationResult, dlqResult]) => {
+        if (rulesResult.status === 'fulfilled') setRules(rulesResult.value);
+        else console.error('[Automation] Failed to load rules:', rulesResult.reason);
+
+        if (logsResult.status === 'fulfilled') setLogs(logsResult.value);
+        else console.error('[Automation] Failed to load logs:', logsResult.reason);
+
+        if (personalizationResult.status === 'fulfilled') {
+          setVariations(
+            personalizationResult.value
+              .filter(r => r.isActive)
+              .flatMap(r => r.contentVariations || []) as typeof variations
+          );
+        } else {
+          console.error('[Automation] Failed to load personalization:', personalizationResult.reason);
+        }
+
+        if (dlqResult.status === 'fulfilled') setDlqItems(dlqResult.value);
+        else console.error('[Automation] Failed to load DLQ:', dlqResult.reason);
       })
-      .catch(err => console.error('[Automation Page] Failed to load data:', err))
       .finally(() => setIsLoading(false));
   }, [brandId]);
 
@@ -86,6 +114,57 @@ export default function AutomationPage() {
     await toggleAutomationRule(brandId!, id, enabled);
     setRules(prev => prev.map(r => r.id === id ? { ...r, isEnabled: enabled } : r));
     toast.info(enabled ? 'Regra ativada' : 'Regra pausada');
+  };
+
+  const handleCreateRule = async () => {
+    if (!newRule.name.trim()) {
+      toast.error('Nome da regra é obrigatório');
+      return;
+    }
+    if (!newRule.metric.trim()) {
+      toast.error('Métrica é obrigatória');
+      return;
+    }
+    setSaving(true);
+    try {
+      const rule: Omit<AutomationRule, 'id'> = {
+        name: newRule.name,
+        isEnabled: true,
+        trigger: {
+          type: newRule.triggerType,
+          metric: newRule.metric,
+          operator: newRule.operator,
+          value: newRule.value,
+          ...(newRule.stepType ? { stepType: newRule.stepType as AutomationRule['trigger']['stepType'] } : {}),
+        },
+        action: {
+          type: newRule.actionType,
+          params: {
+            platform: newRule.platform,
+            targetLevel: newRule.targetLevel,
+            ...(newRule.actionType === 'adjust_budget' ? { adjustmentValue: newRule.adjustmentValue } : {}),
+          },
+        },
+        guardrails: {
+          requireApproval: true,
+          cooldownPeriod: newRule.cooldownPeriod,
+        },
+      };
+      const id = await saveAutomationRule(brandId!, rule);
+      setRules(prev => [...prev, { id, ...rule }]);
+      setShowCreateModal(false);
+      setNewRule({
+        name: '', triggerType: 'metric_threshold', metric: '', operator: '>',
+        value: 0, stepType: '', actionType: 'notify', platform: 'meta',
+        targetLevel: 'campaign', adjustmentValue: 0, cooldownPeriod: 24,
+      });
+      toast.success('Regra criada com sucesso!');
+    } catch (err) {
+      console.error('[Automation] Failed to create rule:', err);
+      toast.error('Erro ao criar regra');
+    } finally {
+      setSaving(false);
+    }
   };
 
   // S31-DLQ-03: Retry handler
@@ -173,7 +252,7 @@ export default function AutomationPage() {
             onToggleRule={handleToggleRule}
             onApproveAction={handleApprove}
             onRejectAction={handleReject}
-            onCreateRule={() => toast.info('Abrindo modal de criação de regra...')}
+            onCreateRule={() => setShowCreateModal(true)}
           />
         </TabsContent>
 
@@ -269,6 +348,177 @@ export default function AutomationPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Modal de Criação de Regra */}
+      <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
+        <DialogContent className="bg-zinc-950 border-white/10 sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="text-white text-lg font-black">Nova Regra de Automação</DialogTitle>
+            <DialogDescription>Configure o gatilho, a ação e os guardrails.</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5 py-2">
+            {/* Nome */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold uppercase tracking-widest text-zinc-400">Nome da Regra</Label>
+              <Input
+                placeholder="Ex: Pausar ads se CVR < 1%"
+                value={newRule.name}
+                onChange={e => setNewRule(prev => ({ ...prev, name: e.target.value }))}
+                className="bg-zinc-900 border-white/10"
+              />
+            </div>
+
+            {/* Trigger */}
+            <div className="space-y-3">
+              <Label className="text-xs font-bold uppercase tracking-widest text-zinc-400">Gatilho</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-[10px] text-zinc-500">Tipo</Label>
+                  <Select value={newRule.triggerType} onValueChange={v => setNewRule(prev => ({ ...prev, triggerType: v as AutomationRule['trigger']['type'] }))}>
+                    <SelectTrigger className="bg-zinc-900 border-white/10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="metric_threshold">Threshold de Métrica</SelectItem>
+                      <SelectItem value="autopsy_gap">Gap de Autópsia</SelectItem>
+                      <SelectItem value="profit_score">Profit Score</SelectItem>
+                      <SelectItem value="fatigue_index">Índice de Fadiga</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-[10px] text-zinc-500">Métrica</Label>
+                  <Input
+                    placeholder="Ex: checkout_cvr"
+                    value={newRule.metric}
+                    onChange={e => setNewRule(prev => ({ ...prev, metric: e.target.value }))}
+                    className="bg-zinc-900 border-white/10"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <Label className="text-[10px] text-zinc-500">Operador</Label>
+                  <Select value={newRule.operator} onValueChange={v => setNewRule(prev => ({ ...prev, operator: v as AutomationRule['trigger']['operator'] }))}>
+                    <SelectTrigger className="bg-zinc-900 border-white/10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="<">{'<'} Menor que</SelectItem>
+                      <SelectItem value=">">{'>'} Maior que</SelectItem>
+                      <SelectItem value="<=">{'<='} Menor ou igual</SelectItem>
+                      <SelectItem value=">=">{'>='} Maior ou igual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-[10px] text-zinc-500">Valor</Label>
+                  <Input
+                    type="number"
+                    value={newRule.value}
+                    onChange={e => setNewRule(prev => ({ ...prev, value: Number(e.target.value) }))}
+                    className="bg-zinc-900 border-white/10"
+                  />
+                </div>
+                <div>
+                  <Label className="text-[10px] text-zinc-500">Etapa (opcional)</Label>
+                  <Select value={newRule.stepType} onValueChange={v => setNewRule(prev => ({ ...prev, stepType: v }))}>
+                    <SelectTrigger className="bg-zinc-900 border-white/10"><SelectValue placeholder="—" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ads">Ads</SelectItem>
+                      <SelectItem value="optin">Opt-in</SelectItem>
+                      <SelectItem value="vsl">VSL</SelectItem>
+                      <SelectItem value="checkout">Checkout</SelectItem>
+                      <SelectItem value="upsell">Upsell</SelectItem>
+                      <SelectItem value="thankyou">Thank You</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Action */}
+            <div className="space-y-3">
+              <Label className="text-xs font-bold uppercase tracking-widest text-zinc-400">Ação</Label>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <Label className="text-[10px] text-zinc-500">Tipo</Label>
+                  <Select value={newRule.actionType} onValueChange={v => setNewRule(prev => ({ ...prev, actionType: v as AutomationRule['action']['type'] }))}>
+                    <SelectTrigger className="bg-zinc-900 border-white/10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="notify">Notificar</SelectItem>
+                      <SelectItem value="pause_ads">Pausar Ads</SelectItem>
+                      <SelectItem value="adjust_budget">Ajustar Budget</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-[10px] text-zinc-500">Plataforma</Label>
+                  <Select value={newRule.platform} onValueChange={v => setNewRule(prev => ({ ...prev, platform: v as 'meta' | 'google' }))}>
+                    <SelectTrigger className="bg-zinc-900 border-white/10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="meta">Meta</SelectItem>
+                      <SelectItem value="google">Google</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-[10px] text-zinc-500">Nível</Label>
+                  <Select value={newRule.targetLevel} onValueChange={v => setNewRule(prev => ({ ...prev, targetLevel: v as 'campaign' | 'adset' }))}>
+                    <SelectTrigger className="bg-zinc-900 border-white/10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="campaign">Campanha</SelectItem>
+                      <SelectItem value="adset">Adset</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              {newRule.actionType === 'adjust_budget' && (
+                <div>
+                  <Label className="text-[10px] text-zinc-500">Ajuste (%)</Label>
+                  <Input
+                    type="number"
+                    placeholder="Ex: 15 para +15%"
+                    value={newRule.adjustmentValue}
+                    onChange={e => setNewRule(prev => ({ ...prev, adjustmentValue: Number(e.target.value) }))}
+                    className="bg-zinc-900 border-white/10"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Guardrails */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold uppercase tracking-widest text-zinc-400">Guardrails</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center gap-2 p-3 bg-zinc-900/50 rounded-lg border border-white/5">
+                  <div className="h-3 w-3 rounded-full bg-emerald-500" />
+                  <span className="text-xs text-zinc-400">Aprovação obrigatória</span>
+                </div>
+                <div>
+                  <Label className="text-[10px] text-zinc-500">Cooldown (horas)</Label>
+                  <Input
+                    type="number"
+                    value={newRule.cooldownPeriod}
+                    onChange={e => setNewRule(prev => ({ ...prev, cooldownPeriod: Number(e.target.value) }))}
+                    className="bg-zinc-900 border-white/10"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCreateModal(false)} className="border-white/10">
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleCreateRule}
+              disabled={saving}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold"
+            >
+              {saving ? 'Salvando...' : 'Criar Regra'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
