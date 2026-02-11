@@ -15,8 +15,6 @@ import {
   orderBy,
   limit,
   getDocs,
-  doc,
-  getDoc,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
@@ -27,6 +25,7 @@ import {
   createInAppNotification,
   getKillSwitchState,
 } from '@/lib/firebase/automation';
+import { fetchMetricsWithCache } from '@/lib/performance/fetch-and-cache';
 import type { AutomationLog } from '@/types/automation';
 import type { PerformanceMetric } from '@/types/performance';
 
@@ -114,20 +113,18 @@ export async function evaluateBrandRules(brandId: string): Promise<EvaluationRes
 
 // ---- Helpers ----
 
+/**
+ * Busca métricas para avaliação de regras.
+ * Usa fetchMetricsWithCache que:
+ *  1. Retorna cache fresco se disponível (< 15min)
+ *  2. Busca métricas reais das APIs (Meta/Google) se cache stale/vazio
+ *  3. Fallback para cache stale ou de ontem se APIs falharem
+ *  4. null se nada disponível
+ */
 async function fetchLatestMetrics(brandId: string): Promise<Record<string, number> | null> {
-  const today = new Date().toISOString().split('T')[0];
-  const yesterday = new Date(Date.now() - 86400_000).toISOString().split('T')[0];
-
-  for (const date of [today, yesterday]) {
-    const cacheRef = doc(db, 'brands', brandId, 'performance_cache', date);
-    const snap = await getDoc(cacheRef);
-    if (snap.exists()) {
-      const data = snap.data();
-      const metrics: PerformanceMetric[] = data?.metrics || [];
-      return flattenMetrics(metrics);
-    }
-  }
-  return null;
+  const result = await fetchMetricsWithCache(brandId);
+  if (!result || result.metrics.length === 0) return null;
+  return flattenMetrics(result.metrics);
 }
 
 function flattenMetrics(metrics: PerformanceMetric[]): Record<string, number> {
