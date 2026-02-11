@@ -222,9 +222,85 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
                   <h2 className="text-2xl font-bold text-white mb-2">Value Stacking</h2>
                   <p className="text-zinc-400">Empilhe os componentes do produto para que o preço pareça insignificante.</p>
                 </div>
+
+                {offer.stacking.length > 0 && (
+                  <div className="space-y-3">
+                    {offer.stacking.map((item, idx) => (
+                      <Card key={item.id} className="bg-zinc-900/50 border-zinc-800 p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-center gap-3 text-zinc-600 font-bold text-sm shrink-0 pt-2">
+                            #{idx + 1}
+                          </div>
+                          <div className="flex-1 space-y-3">
+                            <Input
+                              placeholder="Nome do módulo/entregável"
+                              className="bg-zinc-900 border-zinc-800"
+                              value={item.name}
+                              onChange={(e) => {
+                                const updated = offer.stacking.map(s => s.id === item.id ? { ...s, name: e.target.value } : s);
+                                setOffer({ ...offer, stacking: updated });
+                              }}
+                            />
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <label className="text-[10px] text-zinc-500 uppercase tracking-wider">Valor percebido (R$)</label>
+                                <Input
+                                  type="number"
+                                  placeholder="997"
+                                  className="bg-zinc-900 border-zinc-800"
+                                  value={item.value || ''}
+                                  onChange={(e) => {
+                                    const updated = offer.stacking.map(s => s.id === item.id ? { ...s, value: Number(e.target.value) } : s);
+                                    setOffer({ ...offer, stacking: updated });
+                                  }}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] text-zinc-500 uppercase tracking-wider">Descricao (opcional)</label>
+                                <Input
+                                  placeholder="Ex: 12 aulas em video"
+                                  className="bg-zinc-900 border-zinc-800"
+                                  value={item.description || ''}
+                                  onChange={(e) => {
+                                    const updated = offer.stacking.map(s => s.id === item.id ? { ...s, description: e.target.value } : s);
+                                    setOffer({ ...offer, stacking: updated });
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-zinc-500 hover:text-red-400 shrink-0 mt-2"
+                            onClick={() => setOffer({ ...offer, stacking: offer.stacking.filter(s => s.id !== item.id) })}
+                          >
+                            ✕
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                    <div className="text-right text-sm text-zinc-500">
+                      Valor total empilhado: <span className="text-white font-bold">R$ {offer.stacking.reduce((a, b) => a + b.value, 0).toLocaleString('pt-BR')}</span>
+                    </div>
+                  </div>
+                )}
+
                 <div className="p-4 border-2 border-dashed border-zinc-800 rounded-xl text-center space-y-4">
-                  <p className="text-sm text-zinc-500">Adicione os módulos ou entregáveis do seu produto principal.</p>
-                  <Button variant="outline" size="sm" className="gap-2">
+                  <p className="text-sm text-zinc-500">
+                    {offer.stacking.length === 0
+                      ? 'Adicione os modulos ou entregaveis do seu produto principal.'
+                      : 'Continue empilhando valor na sua oferta.'}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => setOffer({
+                      ...offer,
+                      stacking: [...offer.stacking, { id: crypto.randomUUID(), name: '', value: 0, description: '' }]
+                    })}
+                  >
                     <Layers className="w-4 h-4" />
                     Adicionar Item ao Stack
                   </Button>
@@ -235,25 +311,96 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
             {step === 3 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Bônus Irresistíveis</h2>
-                  <p className="text-zinc-400">Bônus devem resolver as próximas objeções ou acelerar o resultado.</p>
+                  <h2 className="text-2xl font-bold text-white mb-2">Bonus Irresistiveis</h2>
+                  <p className="text-zinc-400">Bonus devem resolver as proximas objecoes ou acelerar o resultado.</p>
                 </div>
-                <div className="space-y-4">
-                  <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-xl flex items-start gap-4">
-                    <div className="p-2 bg-purple-500/10 rounded-lg">
-                      <Sparkles className="w-5 h-5 text-purple-500" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white">Dica do Conselheiro (Russell Brunson)</h4>
-                      <p className="text-sm text-zinc-400 mt-1">
-                        "O bônus não deve ser apenas 'mais conteúdo'. Ele deve resolver um problema que o produto principal cria."
-                      </p>
+
+                <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-xl flex items-start gap-4">
+                  <div className="p-2 bg-purple-500/10 rounded-lg">
+                    <Sparkles className="w-5 h-5 text-purple-500" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white">Dica do Conselheiro (Russell Brunson)</h4>
+                    <p className="text-sm text-zinc-400 mt-1">
+                      "O bonus nao deve ser apenas mais conteudo. Ele deve resolver um problema que o produto principal cria."
+                    </p>
+                  </div>
+                </div>
+
+                {offer.bonuses.length > 0 && (
+                  <div className="space-y-3">
+                    {offer.bonuses.map((item, idx) => (
+                      <Card key={item.id} className="bg-zinc-900/50 border-zinc-800 p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-center gap-3 shrink-0 pt-2">
+                            <Gift className="w-4 h-4 text-purple-400" />
+                          </div>
+                          <div className="flex-1 space-y-3">
+                            <Input
+                              placeholder="Nome do bonus"
+                              className="bg-zinc-900 border-zinc-800"
+                              value={item.name}
+                              onChange={(e) => {
+                                const updated = offer.bonuses.map(b => b.id === item.id ? { ...b, name: e.target.value } : b);
+                                setOffer({ ...offer, bonuses: updated });
+                              }}
+                            />
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <label className="text-[10px] text-zinc-500 uppercase tracking-wider">Valor percebido (R$)</label>
+                                <Input
+                                  type="number"
+                                  placeholder="497"
+                                  className="bg-zinc-900 border-zinc-800"
+                                  value={item.value || ''}
+                                  onChange={(e) => {
+                                    const updated = offer.bonuses.map(b => b.id === item.id ? { ...b, value: Number(e.target.value) } : b);
+                                    setOffer({ ...offer, bonuses: updated });
+                                  }}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] text-zinc-500 uppercase tracking-wider">Qual objecao resolve?</label>
+                                <Input
+                                  placeholder="Ex: Nao tenho tempo"
+                                  className="bg-zinc-900 border-zinc-800"
+                                  value={item.description || ''}
+                                  onChange={(e) => {
+                                    const updated = offer.bonuses.map(b => b.id === item.id ? { ...b, description: e.target.value } : b);
+                                    setOffer({ ...offer, bonuses: updated });
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-zinc-500 hover:text-red-400 shrink-0 mt-2"
+                            onClick={() => setOffer({ ...offer, bonuses: offer.bonuses.filter(b => b.id !== item.id) })}
+                          >
+                            ✕
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                    <div className="text-right text-sm text-zinc-500">
+                      Valor total em bonus: <span className="text-white font-bold">R$ {offer.bonuses.reduce((a, b) => a + b.value, 0).toLocaleString('pt-BR')}</span>
                     </div>
                   </div>
-                  <Button variant="outline" className="w-full py-8 border-dashed border-zinc-800 hover:border-zinc-700">
-                    + Criar Novo Bônus
-                  </Button>
-                </div>
+                )}
+
+                <Button
+                  variant="outline"
+                  className="w-full py-8 border-dashed border-zinc-800 hover:border-zinc-700"
+                  onClick={() => setOffer({
+                    ...offer,
+                    bonuses: [...offer.bonuses, { id: crypto.randomUUID(), name: '', value: 0, description: '' }]
+                  })}
+                >
+                  <Gift className="w-4 h-4 mr-2" />
+                  Criar Novo Bonus
+                </Button>
               </div>
             )}
 
