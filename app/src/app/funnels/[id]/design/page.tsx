@@ -4,9 +4,14 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { 
-  doc, 
-  getDoc, 
+import {
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  limit,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
@@ -60,22 +65,40 @@ export default function DesignCouncilPage() {
 
         const docId = campaignId || funnelId;
         const campaignDoc = await getDoc(doc(db, 'campaigns', docId));
-        if (campaignDoc.exists()) {
-          let data = campaignDoc.data();
-          // Context Guard: ignorar dados de design se a campanha pertence a outra marca
-          const funnelBrandId = (funnelDoc.exists() ? funnelDoc.data()?.brandId : null);
-          if (data.brandId && funnelBrandId && data.brandId !== funnelBrandId) {
-            console.warn(`[Context Guard] Campanha ${docId} pertence à marca ${data.brandId}, funil à marca ${funnelBrandId}. Ignorando design.`);
-            data = { ...data, design: undefined };
+        let campaignData = campaignDoc.exists() ? campaignDoc.data() : null;
+
+        // Context Guard: ignorar dados de design se a campanha pertence a outra marca
+        const funnelBrandId = (funnelDoc.exists() ? funnelDoc.data()?.brandId : null);
+        if (campaignData && campaignData.brandId && funnelBrandId && campaignData.brandId !== funnelBrandId) {
+          console.warn(`[Context Guard] Campanha ${docId} pertence à marca ${campaignData.brandId}, funil à marca ${funnelBrandId}. Ignorando design.`);
+          campaignData = { ...campaignData, design: undefined };
+        }
+
+        // Scanner de Copy Fallback: se a campanha não tem copywriting, busca na subcoleção copyProposals
+        if (!campaignData || !campaignData.copywriting) {
+          const copyRef = collection(db, 'funnels', funnelId, 'copyProposals');
+          const copySnap = await getDocs(query(copyRef, where('status', '==', 'approved'), limit(1)));
+          if (copySnap.docs.length > 0) {
+            const approvedCopy = copySnap.docs[0].data();
+            campaignData = {
+              ...campaignData,
+              copywriting: {
+                bigIdea: approvedCopy.content?.primary?.slice(0, 500) || 'Big Idea aprovada',
+                headlines: approvedCopy.content?.headlines || [],
+                mainScript: approvedCopy.content?.primary || '',
+                tone: approvedCopy.awarenessStage || 'problem_aware',
+                counselor_reference: approvedCopy.copywriterInsights?.[0]?.copywriterName || 'Conselho de Copy',
+              }
+            };
           }
-          setCampaign(data);
-          if (data.design?.visualPrompts) {
-            // Mapeia prompts existentes para o formato do card
-            setPrompts(data.design.visualPrompts.map((p: any) => ({
-              ...p,
-              brandContext: data.funnel?.mainGoal
-            })));
-          }
+        }
+
+        setCampaign(campaignData);
+        if (campaignData?.design?.visualPrompts) {
+          setPrompts(campaignData.design.visualPrompts.map((p: any) => ({
+            ...p,
+            brandContext: campaignData?.funnel?.mainGoal
+          })));
         }
       } catch (error) {
         console.error('Error loading data:', error);
