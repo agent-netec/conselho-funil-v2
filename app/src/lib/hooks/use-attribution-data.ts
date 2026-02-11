@@ -31,15 +31,20 @@ export function useAttributionData(days: number = 30) {
         const startDate = new Timestamp(now.seconds - (days * 24 * 60 * 60), 0);
 
         // 1. Buscar transações da marca no período
-        const transactionsRef = collection(db, 'transactions');
-        const qTransactions = query(
-          transactionsRef,
-          where('brandId', '==', activeBrand!.id),
-          where('createdAt', '>=', startDate),
-          orderBy('createdAt', 'desc')
-        );
-        const transactionSnap = await getDocs(qTransactions);
-        const transactions = transactionSnap.docs.map(d => ({ id: d.id, ...d.data() } as JourneyTransaction));
+        let transactions: JourneyTransaction[] = [];
+        try {
+          const transactionsRef = collection(db, 'transactions');
+          const qTransactions = query(
+            transactionsRef,
+            where('brandId', '==', activeBrand!.id),
+            where('createdAt', '>=', startDate),
+            orderBy('createdAt', 'desc')
+          );
+          const transactionSnap = await getDocs(qTransactions);
+          transactions = transactionSnap.docs.map(d => ({ id: d.id, ...d.data() } as JourneyTransaction));
+        } catch (err) {
+          console.warn('[Attribution] Transactions query failed (index may be building):', err instanceof Error ? err.message : err);
+        }
 
         if (transactions.length === 0) {
           setStats([]);
@@ -50,14 +55,19 @@ export function useAttributionData(days: number = 30) {
 
         // 2. Buscar spend de performance_metrics (Sprint 27 — DT-02 Opção A)
         // Collection: brands/{brandId}/performance_metrics
-        const metricsRef = collection(db, 'brands', activeBrand!.id, 'performance_metrics');
-        const qMetrics = query(
-          metricsRef,
-          where('timestamp', '>=', startDate),
-          orderBy('timestamp', 'desc')
-        );
-        const metricsSnap = await getDocs(qMetrics);
-        const metrics = metricsSnap.docs.map(d => ({ id: d.id, ...d.data() } as PerformanceMetric));
+        let metrics: PerformanceMetric[] = [];
+        try {
+          const metricsRef = collection(db, 'brands', activeBrand!.id, 'performance_metrics');
+          const qMetrics = query(
+            metricsRef,
+            where('timestamp', '>=', startDate),
+            orderBy('timestamp', 'desc')
+          );
+          const metricsSnap = await getDocs(qMetrics);
+          metrics = metricsSnap.docs.map(d => ({ id: d.id, ...d.data() } as PerformanceMetric));
+        } catch (err) {
+          console.warn('[Attribution] Metrics query failed:', err instanceof Error ? err.message : err);
+        }
 
         // Agregar spend total por source (platform)
         const spendBySource: Record<string, number> = {};
@@ -74,14 +84,20 @@ export function useAttributionData(days: number = 30) {
         const campaignAggregation: Record<string, CampaignAttributionStats & { _eventCountBySource: Record<string, number> }> = {};
 
         for (const transaction of transactions) {
-          const eventsRef = collection(db, 'events');
-          const qEvents = query(
-            eventsRef,
-            where('leadId', '==', transaction.leadId),
-            orderBy('timestamp', 'asc')
-          );
-          const eventSnap = await getDocs(qEvents);
-          const events = eventSnap.docs.map(d => ({ id: d.id, ...d.data() } as JourneyEvent));
+          let events: JourneyEvent[] = [];
+          try {
+            const eventsRef = collection(db, 'events');
+            const qEvents = query(
+              eventsRef,
+              where('leadId', '==', transaction.leadId),
+              orderBy('timestamp', 'asc')
+            );
+            const eventSnap = await getDocs(qEvents);
+            events = eventSnap.docs.map(d => ({ id: d.id, ...d.data() } as JourneyEvent));
+          } catch (err) {
+            console.warn('[Attribution] Events query failed (index may be building):', err instanceof Error ? err.message : err);
+            continue;
+          }
 
           // 4. Aplicar modelos de atribuição
           const models: AttributionModel[] = ['last_touch', 'linear', 'u_shape', 'time_decay'];
