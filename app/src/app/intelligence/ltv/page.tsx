@@ -13,23 +13,29 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CohortDashboard } from '@/components/intelligence/ltv/CohortDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useBrandStore } from '@/lib/stores/brand-store';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 /**
  * @fileoverview Página Principal do Dashboard de LTV e Cohorts.
  * @author Victor (UI) & Beto (UX)
  */
 export default function LTVDashboardPage() {
+  const { selectedBrand } = useBrandStore();
+  const brandId = selectedBrand?.id;
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function fetchLtvData() {
+    if (!brandId) return;
     setLoading(true);
     try {
-      const response = await fetch('/api/intelligence/ltv/cohorts');
+      const headers = await getAuthHeaders();
+      const response = await fetch(`/api/intelligence/ltv/cohorts?brandId=${brandId}`, { headers });
       if (!response.ok) throw new Error('Falha ao carregar dados de LTV');
       const json = await response.json();
-      setData(json);
+      setData(json?.data ?? json);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -39,7 +45,7 @@ export default function LTVDashboardPage() {
 
   useEffect(() => {
     fetchLtvData();
-  }, []);
+  }, [brandId]);
 
   if (loading) return <LtvSkeleton />;
   if (error || !data) return <LtvError message={error || 'Dados não disponíveis'} onRetry={fetchLtvData} />;

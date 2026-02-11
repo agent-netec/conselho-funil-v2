@@ -9,6 +9,7 @@ import { ABTestWizard } from '@/components/intelligence/ab-test-wizard';
 import { ABTestCard } from '@/components/intelligence/ab-test-card';
 import { ABTestResults } from '@/components/intelligence/ab-test-results';
 import { useBrandStore } from '@/lib/stores/brand-store';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import type { ABTest } from '@/types/ab-testing';
 
 export default function ABTestingPage() {
@@ -26,7 +27,8 @@ export default function ABTestingPage() {
     if (!selectedBrand?.id) return;
     setLoading(true);
     try {
-      const response = await fetch(`/api/intelligence/ab-tests?brandId=${selectedBrand.id}`);
+      const headers = await getAuthHeaders();
+      const response = await fetch(`/api/intelligence/ab-tests?brandId=${selectedBrand.id}`, { headers });
       const payload = await response.json();
       const data = payload?.data ?? payload;
       setTests(Array.isArray(data) ? data : []);
@@ -45,9 +47,10 @@ export default function ABTestingPage() {
     if (!selectedBrand?.id || !selectedTest) return;
     setUpdating(true);
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(`/api/intelligence/ab-tests/${selectedTest.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           brandId: selectedBrand.id,
           action,
@@ -69,9 +72,10 @@ export default function ABTestingPage() {
     if (!selectedBrand?.id || !selectedTest) return;
     setUpdating(true);
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(`/api/intelligence/ab-tests/${selectedTest.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           brandId: selectedBrand.id,
           autoOptimize: nextValue,
@@ -93,9 +97,10 @@ export default function ABTestingPage() {
     if (!selectedBrand?.id || !selectedTest) return;
     setUpdating(true);
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(`/api/intelligence/ab-tests/${selectedTest.id}/optimize`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ brandId: selectedBrand.id }),
       });
       if (!response.ok) {
