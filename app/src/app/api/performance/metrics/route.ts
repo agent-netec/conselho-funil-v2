@@ -23,9 +23,19 @@ async function handleGET(req: NextRequest) {
     const brandId = searchParams.get('brandId');
     const mock = searchParams.get('mock') === 'true';
     const period = (searchParams.get('period') || 'daily') as 'hourly' | 'daily' | 'weekly';
+    const startDate = searchParams.get('startDate') || undefined;
+    const endDate = searchParams.get('endDate') || undefined;
 
     if (!brandId) {
       return createApiError(400, 'brandId é obrigatório.');
+    }
+
+    const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (startDate && !isoDateRegex.test(startDate)) {
+      return createApiError(400, 'startDate inválido. Use formato YYYY-MM-DD.');
+    }
+    if (endDate && !isoDateRegex.test(endDate)) {
+      return createApiError(400, 'endDate inválido. Use formato YYYY-MM-DD.');
     }
 
     try {
@@ -41,7 +51,7 @@ async function handleGET(req: NextRequest) {
     }
 
     // S30-PERF-01: Fetch real com hybrid cache (shared module)
-    const result = await fetchMetricsWithCache(brandId, { period });
+    const result = await fetchMetricsWithCache(brandId, { period, startDate, endDate });
 
     if (!result) {
       return createApiError(502, 'APIs externas indisponíveis e sem cache disponível.');
