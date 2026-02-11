@@ -31,6 +31,8 @@ interface AutomationControlCenterProps {
   onApproveAction: (logId: string) => void;
   onRejectAction: (logId: string) => void;
   onCreateRule: () => void;
+  onRunEvaluation?: () => Promise<void>;
+  isEvaluating?: boolean;
 }
 
 export function AutomationControlCenter({
@@ -39,7 +41,9 @@ export function AutomationControlCenter({
   onToggleRule,
   onApproveAction,
   onRejectAction,
-  onCreateRule
+  onCreateRule,
+  onRunEvaluation,
+  isEvaluating,
 }: AutomationControlCenterProps) {
   const pendingActions = logs.filter(l => l.status === 'pending_approval');
 
@@ -60,6 +64,17 @@ export function AutomationControlCenter({
               <ShieldCheck className="h-4 w-4 text-blue-500" />
             </div>
           </div>
+          {onRunEvaluation && (
+            <Button
+              variant="outline"
+              onClick={onRunEvaluation}
+              disabled={isEvaluating}
+              className="border-white/10 hover:bg-blue-500/10 hover:text-blue-400 hover:border-blue-500/20 font-bold"
+            >
+              <Play className={cn("mr-2 h-4 w-4", isEvaluating && "animate-spin")} />
+              {isEvaluating ? 'Avaliando...' : 'Rodar Avaliação'}
+            </Button>
+          )}
           <Button onClick={onCreateRule} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold">
             <Plus className="mr-2 h-4 w-4" /> Nova Regra
           </Button>

@@ -602,6 +602,14 @@ export async function getUserStats(userId: string): Promise<DashboardStats> {
 // ============================================
 
 /**
+ * Retorna todos os IDs de brands (para cron jobs).
+ */
+export async function getAllBrandIds(): Promise<string[]> {
+  const snap = await getDocs(collection(db, 'brands'));
+  return snap.docs.map(d => d.id);
+}
+
+/**
  * Busca uma marca específica pelo ID.
  */
 export async function getBrand(brandId: string): Promise<Brand | null> {

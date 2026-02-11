@@ -37,6 +37,7 @@ export default function AutomationPage() {
   const [retryingId, setRetryingId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [isEvaluating, setIsEvaluating] = useState(false);
   const [newRule, setNewRule] = useState({
     name: '',
     triggerType: 'metric_threshold' as AutomationRule['trigger']['type'],
@@ -167,6 +168,34 @@ export default function AutomationPage() {
     }
   };
 
+  const handleRunEvaluation = async () => {
+    if (!brandId) return;
+    setIsEvaluating(true);
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/automation/evaluate', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ brandId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        const d = data.data;
+        toast.success(`Avaliação concluída: ${d.logsCreated} ações criadas, ${d.rulesEvaluated} regras avaliadas`);
+        if (d.logsCreated > 0) {
+          const freshLogs = await getAutomationLogs(brandId, 50);
+          setLogs(freshLogs);
+        }
+      } else {
+        toast.error(data.error || 'Erro na avaliação');
+      }
+    } catch {
+      toast.error('Falha ao rodar avaliação');
+    } finally {
+      setIsEvaluating(false);
+    }
+  };
+
   // S31-DLQ-03: Retry handler
   const handleRetry = async (dlqItemId: string) => {
     setRetryingId(dlqItemId);
@@ -253,6 +282,8 @@ export default function AutomationPage() {
             onApproveAction={handleApprove}
             onRejectAction={handleReject}
             onCreateRule={() => setShowCreateModal(true)}
+            onRunEvaluation={handleRunEvaluation}
+            isEvaluating={isEvaluating}
           />
         </TabsContent>
 
