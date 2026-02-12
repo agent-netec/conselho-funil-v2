@@ -21,8 +21,12 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/lib/hooks/use-user';
+import { useBrandStore } from '@/lib/stores/brand-store';
 import { saveIntegration, getIntegrations } from '@/lib/firebase/firestore';
+import { MonaraTokenVault } from '@/lib/firebase/vault';
+import { Timestamp } from 'firebase/firestore';
 import { Integration } from '@/types/database';
+import { toast } from 'sonner';
 
 interface IntegrationCardProps {
   id: string;
@@ -86,6 +90,8 @@ function IntegrationCard({
 
 export default function IntegrationsPage() {
   const { user } = useUser();
+  const { selectedBrand } = useBrandStore();
+  const brandId = selectedBrand?.id;
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -96,34 +102,66 @@ export default function IntegrationsPage() {
 
   useEffect(() => {
     async function loadIntegrations() {
-      if (user?.tenantId) {
-        const data = await getIntegrations(user.tenantId);
-        setIntegrations(data);
-        
-        const meta = data.find(i => i.provider === 'meta');
-        if (meta) {
-          setMetaConfig(meta.config);
+      const tenantId = user?.tenantId || user?.id;
+      if (tenantId) {
+        try {
+          const data = await getIntegrations(tenantId);
+          setIntegrations(data);
+          const meta = data.find(i => i.provider === 'meta');
+          if (meta) {
+            setMetaConfig(meta.config);
+          }
+        } catch (err) {
+          console.warn('[Integrations] Failed to load:', err);
         }
       }
     }
     loadIntegrations();
-  }, [user?.tenantId]);
+  }, [user?.tenantId, user?.id]);
 
   const handleSaveMeta = async () => {
-    if (!user?.tenantId) return;
+    if (!brandId) {
+      toast.error('Selecione uma marca antes de salvar a integração.');
+      return;
+    }
+    if (!metaConfig.adAccountId || !metaConfig.accessToken) {
+      toast.error('Preencha o Ad Account ID e o Token de Acesso.');
+      return;
+    }
     setIsSaving(true);
-    
+
     try {
-      await saveIntegration(user.tenantId, 'meta', metaConfig);
-      const data = await getIntegrations(user.tenantId);
-      setIntegrations(data);
+      // 1. Salvar no MonaraTokenVault (usado pelo pipeline de métricas e automação)
+      await MonaraTokenVault.saveToken(brandId, {
+        brandId,
+        provider: 'meta',
+        accessToken: metaConfig.accessToken,
+        expiresAt: Timestamp.fromMillis(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 dias (System User Token)
+        scopes: ['ads_read', 'read_insights', 'ads_management'],
+        metadata: {
+          adAccountId: metaConfig.adAccountId,
+          appId: '',       // Preenchido depois para auto-refresh
+          appSecret: '',   // Preenchido depois para auto-refresh
+        },
+      });
+
+      // 2. Salvar também no doc de integração (para a UI mostrar status)
+      const tenantId = user?.tenantId || user?.id;
+      if (tenantId) {
+        await saveIntegration(tenantId, 'meta', metaConfig);
+        const data = await getIntegrations(tenantId);
+        setIntegrations(data);
+      }
+
       setSaved(true);
+      toast.success('Meta Ads conectado com sucesso!');
       setTimeout(() => {
         setSaved(false);
         setActiveConfig(null);
       }, 2000);
     } catch (error) {
       console.error('Error saving Meta integration:', error);
+      toast.error('Erro ao salvar integração. Tente novamente.');
     } finally {
       setIsSaving(false);
     }
