@@ -74,17 +74,22 @@ export default function PerformanceWarRoomPage() {
   };
 
   const fetchData = async () => {
+    const bid = selectedBrand?.id;
+    if (!bid) return;
     setLoading(true);
     try {
-      // Mocking the API calls as requested
-      const metricsRes = await fetch('/api/performance/metrics?brandId=TEST&mock=true');
-      const anomaliesRes = await fetch('/api/performance/anomalies?brandId=TEST&mock=true');
-      
-      const metricsData = await metricsRes.json();
-      const anomaliesData = await anomaliesRes.json();
-      
-      setMetrics(metricsData);
-      setAnomalies(anomaliesData);
+      const metricsRes = await fetch(`/api/performance/metrics?brandId=${bid}`);
+      const anomaliesRes = await fetch(`/api/performance/anomalies?brandId=${bid}`);
+
+      const metricsJson = await metricsRes.json();
+      const anomaliesJson = await anomaliesRes.json();
+
+      // A API retorna { data: { metrics: [...] } } via createApiSuccess
+      const metricsData = metricsJson.data?.metrics ?? metricsJson.data ?? [];
+      const anomaliesData = anomaliesJson.data ?? [];
+
+      setMetrics(Array.isArray(metricsData) ? metricsData : []);
+      setAnomalies(Array.isArray(anomaliesData) ? anomaliesData : []);
     } catch (error) {
       console.error('Error fetching performance data:', error);
     } finally {
@@ -95,7 +100,7 @@ export default function PerformanceWarRoomPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [selectedBrand?.id]);
 
   useEffect(() => {
     const fetchAdvisorInsight = async () => {
@@ -252,7 +257,7 @@ export default function PerformanceWarRoomPage() {
               context: {
                 platform: 'Aggregated',
                 deviation: a.deviationPercentage,
-                entityName: 'Brand TEST'
+                entityName: selectedBrand?.name || 'Brand'
               }
             })) as any}
             onAcknowledge={(id) => console.log('Acknowledge alert:', id)}
