@@ -46,7 +46,7 @@ jobs:
           test -f app/src/app/assets/page.tsx || { echo "FAIL: /assets route missing"; exit 1; }
           
           # Sprint 11 - Campaign Command Center
-          test -f app/src/app/campaign/\[id\]/page.tsx || { echo "FAIL: /campaign/[id] route missing"; exit 1; }
+          test -f app/src/app/campaigns/\[id\]/page.tsx || { echo "FAIL: /campaigns/[id] route missing"; exit 1; }
           
           # Sprint 13 - Intelligence Foundation
           test -f app/src/app/intelligence/page.tsx || { echo "FAIL: /intelligence route missing"; exit 1; }
