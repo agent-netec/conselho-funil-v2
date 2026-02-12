@@ -81,6 +81,11 @@ Este documento detalha a recuperação da infraestrutura de deploy do projeto **
 12. **Build de Produção Estável:** Use sempre `npm run build` (que mapeia para `next build`). Evite flags experimentais como `--turbo` em produção até segunda ordem.
 13. **Firecrawl em Produção:** Antes de validar scraping, confirme `FIRECRAWL_API_KEY` e `FIRECRAWL_WORKER_URL` na Vercel. Se houver allowlist no provedor, use Static IPs da Vercel e cadastre os IPs no Firecrawl.
 14. **QA em Endpoints Protegidos:** Para testes de QA/automação, use `x-vercel-protection-bypass` com `VERCEL_AUTOMATION_BYPASS_SECRET` ou remova a proteção se os endpoints forem públicos.
+15. **Sanitização de Env Vars (CLI):** Ao adicionar variáveis via CLI, usar `printf` (NUNCA `echo`). O `echo` injeta `\n` que causa build failure de 0ms. Validar sempre com `vercel env pull`. *(Incidente #2)*
+16. **Validação Pós-Cadastro:** Após cadastrar qualquer env var, obrigatório `vercel env pull` + `grep` para confirmar ausência de whitespace.
+17. **Diagnóstico de Build 0ms:** Se deploy falhar com 0ms, rodar `vercel inspect <url> --logs` antes de investigar código. A causa é quase sempre env var com whitespace.
+18. **Deploy via CLI Proibido na Raiz:** Nunca `vercel --prod` na raiz do repo (sobe 1.6GB). Usar `vercel redeploy`, `git push`, ou redeploy manual no dashboard.
+19. **CRON_SECRET:** Deve existir apenas em Production, hash hex 64 chars, sem whitespace. Referência: `incidents/INCIDENT-2026-02-12-CRON-SECRET-WHITESPACE.md`.
 
 ---
 

@@ -72,13 +72,16 @@ export class MonaraTokenVault {
   static async saveToken(brandId: string, tokenData: Omit<MonaraToken, 'updatedAt'>): Promise<void> {
     const secretRef = doc(db, this.getCollectionPath(brandId), `token_${tokenData.provider}`);
     
-    // Criptografar tokens sensíveis
-    const encryptedToken: MonaraToken = {
+    // Criptografar tokens sensíveis (omitir campos undefined — Firestore rejeita)
+    const encryptedToken: Record<string, any> = {
       ...tokenData,
       accessToken: encrypt(tokenData.accessToken),
-      refreshToken: tokenData.refreshToken ? encrypt(tokenData.refreshToken) : undefined,
-      updatedAt: Timestamp.now()
+      updatedAt: Timestamp.now(),
     };
+
+    if (tokenData.refreshToken) {
+      encryptedToken.refreshToken = encrypt(tokenData.refreshToken);
+    }
 
     await setDoc(secretRef, encryptedToken);
   }
@@ -296,10 +299,13 @@ export async function createPublisherJob(brandId: string, job: Omit<PublisherJob
  */
 export async function updatePublisherJob(brandId: string, jobId: string, data: Partial<PublisherJob>) {
   const jobRef = doc(db, 'brands', brandId, 'publisher', 'jobs', jobId);
+  const updateData: Record<string, any> = { ...data };
+  if (data.status === 'completed' || data.status === 'failed') {
+    updateData.completedAt = Timestamp.now();
+  }
+  // Remove campos undefined (Firestore rejeita)
+  Object.keys(updateData).forEach(k => updateData[k] === undefined && delete updateData[k]);
   await withResilience(async () => {
-    await updateDoc(jobRef, {
-      ...data,
-      completedAt: data.status === 'completed' || data.status === 'failed' ? Timestamp.now() : undefined,
-    });
+    await updateDoc(jobRef, updateData);
   });
 }

@@ -22,7 +22,14 @@ Todos os comandos abaixo devem usar a **trava de proxy** obrigatoria.
 - `vercel link`
 - `vercel env ls`
 - `vercel env pull`
-- `vercel --prod`
+- `vercel redeploy <deploy-url> --no-wait` (metodo preferido de deploy)
+
+### Deploy via CLI - NUNCA na raiz do repo (Incidente #2)
+**PROIBIDO:** `vercel --prod` na raiz do repositorio. O CLI tenta subir 1.6GB (inclui `.git/` e `node_modules/`).
+**Usar apenas:**
+1. `git push origin master` (deploy automatico via GitHub integration)
+2. `vercel redeploy <deploy-url> --no-wait` (redeploy de um deploy existente)
+3. Dashboard > Deployments > Redeploy sem cache (manual)
 
 ### Re-link seguro do CLI para o projeto `app`
 Use este procedimento quando o CLI estiver apontando para o projeto errado.
@@ -54,6 +61,33 @@ $env:HTTP_PROXY=""; $env:HTTPS_PROXY=""; $env:ALL_PROXY=""; vercel --prod
 ## 🔑 Variaveis de Ambiente
 As variaveis listadas em `app/.env.example` devem ser cadastradas no painel da Vercel (Settings -> Environment Variables).
 
+### Cadastro via CLI - TRAVA DE SANITIZACAO (Incidente #2)
+**ATENCAO:** Nunca usar `echo` para passar valores ao `vercel env add`. O `echo` injeta `\n` (newline) no final, o que causa falha silenciosa de build (0ms, status "Error").
+
+```powershell
+# CORRETO - printf nao adiciona \n
+printf "valor_limpo" | vercel env add NOME_VAR production
+
+# ERRADO - echo adiciona \n ao final
+echo "valor" | vercel env add NOME_VAR production
+```
+
+### Validacao obrigatoria apos cadastro
+Apos adicionar ou alterar qualquer env var, SEMPRE validar:
+```powershell
+vercel env pull .env.check --environment production
+grep "NOME_VAR" .env.check
+# Verificar: sem \n, sem espacos extras, sem caracteres invisiveis
+rm .env.check
+```
+
+### CRON_SECRET (variavel critica)
+- Deve existir APENAS no environment `Production`
+- Valor: hash hex de 64 caracteres (SHA-256), sem whitespace
+- Usada para autenticacao dos cron jobs em `/api/cron/*`
+- Se contiver whitespace, o build falha ANTES de iniciar (0ms)
+- Referencia: `incidents/INCIDENT-2026-02-12-CRON-SECRET-WHITESPACE.md`
+
 ## 🔄 Processo de Redeploy
 Se o site apresentar erros estranhos ou nao atualizar, realize um redeploy limpo:
 1. Va na aba **Deployments**.
@@ -65,9 +99,14 @@ Se o site apresentar erros estranhos ou nao atualizar, realize um redeploy limpo
 - [ ] O build local (`npm run build`) passa sem erros?
 - [ ] O console do navegador esta limpo (Zero Runtime Errors)?
 - [ ] Todas as variaveis de ambiente estao configuradas na Vercel?
+- [ ] Env vars validadas com `vercel env pull`? (sem whitespace/newlines)
+- [ ] `CRON_SECRET` presente em Production? (sem `\n`)
 - [ ] O Root Directory esta definido como `app`?
+- [ ] Deploy sera via `git push` ou `vercel redeploy`? (nunca `vercel --prod` na raiz)
 
 ## 🚨 Troubleshooting
+- **Build Error 0ms (Error instantaneo)**: Rodar `vercel inspect <url> --logs` para ver a mensagem real. Se mencionar "whitespace" em env var, corrigir com `printf` + `vercel env rm/add`. Ref: Incidente #2.
 - **Build Error (Fonts/Network)**: Verifique se `optimizeFonts: false` esta no `next.config.ts`.
 - **Hydration Error**: Verifique se as paginas de dashboard tem `"use client"` no topo.
-- **Module Not Found (fs/path)**: Verifique se o código de servidor (Pinecone) esta isolado com guards de `typeof window`.
+- **Module Not Found (fs/path)**: Verifique se o codigo de servidor (Pinecone) esta isolado com guards de `typeof window`.
+- **CLI upload 1.6GB travado**: Nao usar `vercel --prod` na raiz. Usar `vercel redeploy` ou `git push`.
