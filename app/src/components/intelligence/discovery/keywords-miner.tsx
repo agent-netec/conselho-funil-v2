@@ -41,11 +41,17 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
         body: JSON.stringify({ brandId, seedTerm }),
       });
 
-      const data = await response.json();
+      const body = await response.json();
 
-      if (data.success) {
-        // A API retorna apenas os termos no momento, vamos simular os metadados para a UI
-        // Em uma versão futura, a API retornará o objeto completo
+      if (!response.ok) {
+        const errorMsg = body?.error || body?.message || `Erro na API (${response.status})`;
+        toast.error(errorMsg);
+        return;
+      }
+
+      const data = body.data ?? body;
+
+      if (data.keywords && data.keywords.length > 0) {
         const mappedResults = data.keywords.map((term: string) => ({
           term,
           intent: 'Informativa',
@@ -56,7 +62,7 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
         setResults(mappedResults);
         toast.success(`Mineradas ${data.count} palavras-chave com sucesso!`);
       } else {
-        toast.error(data.error || 'Erro ao minerar palavras-chave');
+        toast.error('Nenhuma keyword encontrada para este termo.');
       }
     } catch (error) {
       console.error('Error mining keywords:', error);
