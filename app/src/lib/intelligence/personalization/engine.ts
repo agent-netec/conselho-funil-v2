@@ -1,10 +1,9 @@
 import { generateWithGemini } from '../../ai/gemini';
 import { AUDIENCE_SCAN_SYSTEM_PROMPT, buildAudienceScanPrompt } from '../../ai/prompts/audience-scan';
 import { saveAudienceScan } from '../../firebase/personalization';
-import { getLeadEvents } from '../../firebase/journey';
 import { AudienceScan } from '@/types/personalization';
 import { JourneyLead, JourneyEvent } from '@/types/journey';
-import { collection, query, where, limit, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, query, where, limit, getDocs, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { PropensityEngine } from './propensity';
 import {
@@ -59,15 +58,11 @@ export class AudienceIntelligenceEngine {
    * Analisa leads e eventos recentes para deduzir personas.
    */
   static async runDeepScan(brandId: string, leadLimit: number = 100): Promise<AudienceScan> {
-    // 1. Coletar leads recentes da marca
-    const leadsRef = collection(db, 'leads');
-    const qLeads = query(
-      leadsRef, 
-      where('brandId', '==', brandId), 
-      limit(leadLimit)
-    );
+    // 1. Coletar leads recentes da marca (subcollection brands/{brandId}/leads)
+    const leadsRef = collection(db, 'brands', brandId, 'leads');
+    const qLeads = query(leadsRef, limit(leadLimit));
     const leadsSnap = await getDocs(qLeads);
-    const leads = leadsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as JourneyLead));
+    const leads = leadsSnap.docs.map(d => ({ id: d.id, brandId, ...d.data() } as JourneyLead));
 
     if (leads.length === 0) {
       throw new Error(`Nenhum lead encontrado para a marca ${brandId}.`);
@@ -78,8 +73,12 @@ export class AudienceIntelligenceEngine {
     let totalScore = 0;
     const segmentCounts = { hot: 0, warm: 0, cold: 0 };
 
-    for (const lead of leads.slice(0, 20)) { 
-      const events = await getLeadEvents(lead.id, 10);
+    for (const lead of leads.slice(0, 20)) {
+      // Eventos ficam em brands/{brandId}/leads/{leadId}/events
+      const eventsRef = collection(db, 'brands', brandId, 'leads', lead.id, 'events');
+      const qEvents = query(eventsRef, orderBy('timestamp', 'desc'), limit(10));
+      const eventsSnap = await getDocs(qEvents);
+      const events = eventsSnap.docs.map(d => ({ id: d.id, ...d.data() } as JourneyEvent));
       allEvents.push(...events);
 
       // ST-29.3: Refinamento de Propensão
