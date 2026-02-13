@@ -21,6 +21,7 @@ import {
   BrainCircuit,
   CheckCircle2,
   Circle,
+  Download,
   Pencil,
   Plus,
   RefreshCw,
@@ -43,6 +44,7 @@ export default function PersonalizationPage() {
   const [error, setError] = React.useState<string | null>(null)
   const [selectedScan, setSelectedScan] = React.useState<AudienceScan | null>(null)
   const [isScanning, setIsScanning] = React.useState(false)
+  const [isImporting, setIsImporting] = React.useState(false)
   const [editingRule, setEditingRule] = React.useState<DynamicContentRule | null>(null)
   const [showRuleEditor, setShowRuleEditor] = React.useState(false)
 
@@ -102,6 +104,39 @@ export default function PersonalizationPage() {
       toast.error(`Erro ao executar scan: ${message}`)
     } finally {
       setIsScanning(false)
+    }
+  }
+
+  // ── Import leads from Meta ──────────────────────────────────────────────
+  const handleImportLeads = async () => {
+    if (!brandId) return
+    setIsImporting(true)
+    toast.info("Importando leads do Meta Ads...")
+
+    try {
+      const headers = await getAuthHeaders()
+      const response = await fetch("/api/intelligence/audience/import", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ brandId }),
+      })
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => null)
+        const serverMsg = body?.error || body?.message
+        throw new Error(serverMsg || `Falha na API (${response.status})`)
+      }
+
+      const body = await response.json()
+      const data = body.data ?? body
+      toast.success(
+        `${data.leadsImported} leads importados de ${data.formsFound} formulário(s)!`
+      )
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro desconhecido"
+      toast.error(message)
+    } finally {
+      setIsImporting(false)
     }
   }
 
@@ -190,18 +225,33 @@ export default function PersonalizationPage() {
             inteligência psicográfica.
           </p>
         </div>
-        <Button
-          onClick={handleRunScan}
-          disabled={isScanning || !brandId}
-          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 gap-2"
-        >
-          {isScanning ? (
-            <RefreshCw className="w-4 h-4 animate-spin" />
-          ) : (
-            <Wand2 className="w-4 h-4" />
-          )}
-          {isScanning ? "Escaneando..." : "Executar Deep-Scan (IA)"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleImportLeads}
+            disabled={isImporting || !brandId}
+            variant="outline"
+            className="gap-2"
+          >
+            {isImporting ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            {isImporting ? "Importando..." : "Importar Leads (Meta)"}
+          </Button>
+          <Button
+            onClick={handleRunScan}
+            disabled={isScanning || !brandId}
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 gap-2"
+          >
+            {isScanning ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Wand2 className="w-4 h-4" />
+            )}
+            {isScanning ? "Escaneando..." : "Executar Deep-Scan (IA)"}
+          </Button>
+        </div>
       </div>
 
       {/* ── ERROR STATE ─────────────────────────────────────────────────── */}
@@ -268,19 +318,37 @@ export default function PersonalizationPage() {
                     personas, dores e propensão de compra.
                   </p>
                 </div>
-                <Button
-                  size="sm"
-                  onClick={handleRunScan}
-                  disabled={isScanning || !brandId}
-                  className="gap-2 bg-purple-600 hover:bg-purple-700"
-                >
-                  {isScanning ? (
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Wand2 className="w-4 h-4" />
-                  )}
-                  Executar primeiro scan
-                </Button>
+                <div className="flex flex-col items-center gap-2">
+                  <Button
+                    size="sm"
+                    onClick={handleImportLeads}
+                    disabled={isImporting || !brandId}
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    {isImporting ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Download className="w-4 h-4" />
+                    )}
+                    {isImporting
+                      ? "Importando..."
+                      : "1. Importar Leads (Meta)"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleRunScan}
+                    disabled={isScanning || !brandId}
+                    className="gap-2 bg-purple-600 hover:bg-purple-700"
+                  >
+                    {isScanning ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Wand2 className="w-4 h-4" />
+                    )}
+                    2. Executar Deep-Scan (IA)
+                  </Button>
+                </div>
               </div>
             ) : null}
           </div>
