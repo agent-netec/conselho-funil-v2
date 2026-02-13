@@ -32,6 +32,7 @@ import { db } from '@/lib/firebase/config';
 import type { Funnel, Proposal, ProposalScorecard, FunnelStage } from '@/types/database';
 import { cn } from '@/lib/utils';
 import { updateFunnel } from '@/lib/firebase/firestore';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 // Generate markdown for a single proposal
 function generateProposalMarkdown(funnel: Funnel, proposal: Proposal): string {
@@ -305,9 +306,10 @@ export default function ProposalDetailPage() {
     setDialogOpen(false);
     
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/decisions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           funnelId: funnel.id,
           proposalId: proposal.id,
@@ -418,9 +420,10 @@ export default function ProposalDetailPage() {
     
     setIsSavingToLibrary(true);
     try {
+      const libHeaders = await getAuthHeaders();
       const response = await fetch('/api/library', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: libHeaders,
         body: JSON.stringify({
           funnelId: funnel.id,
           proposalId: proposal.id,

@@ -35,6 +35,7 @@ import { getBrandAssets, deleteAsset, toggleAssetApproval, createAsset } from '@
 import { Timestamp } from 'firebase/firestore';
 import type { BrandAsset } from '@/types/database';
 import { toast } from 'sonner';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import {
   Dialog,
   DialogContent,
@@ -133,9 +134,10 @@ export default function BrandAssetsPage() {
     try {
       setUpscalingAssetId(asset.id);
       
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/design/upscale', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           imageUrl: asset.url,
           factor: 2,

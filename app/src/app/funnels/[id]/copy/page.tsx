@@ -15,6 +15,7 @@ import {
   getDocs,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { Header } from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
 import { 
@@ -518,9 +519,10 @@ export default function CopyCouncilPage() {
     try {
       const conversationId = searchParams.get('id');
       
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/copy/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           funnelId,
           proposalId: activeProposalId,
@@ -552,9 +554,10 @@ export default function CopyCouncilPage() {
   const handleDecision = async (copyProposalId: string, type: 'approve' | 'adjust' | 'kill', adjustments?: string[]) => {
     setIsLoading(true); // Bloqueia a tela para garantir o save
     try {
+      const decHeaders = await getAuthHeaders();
       const response = await fetch('/api/copy/decisions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: decHeaders,
         body: JSON.stringify({
           funnelId,
           campaignId, // ST-11.15: Passa o campaignId único para a persistência atômica

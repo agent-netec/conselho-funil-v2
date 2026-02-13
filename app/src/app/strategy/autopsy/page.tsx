@@ -9,6 +9,7 @@ import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import { AutopsyRunResponse, AutopsyReport } from '@/types/autopsy';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 export default function FunnelAutopsyPage() {
   const activeBrand = useActiveBrand();
@@ -31,9 +32,10 @@ export default function FunnelAutopsyPage() {
     setReport(null);
 
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/intelligence/autopsy/run', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           brandId: activeBrand.id,
           url,

@@ -36,6 +36,7 @@ import { cn } from '@/lib/utils';
 import { DecisionTimeline } from '@/components/decisions/decision-timeline';
 import { VersionHistory } from '@/components/proposals/version-history';
 import { notify } from '@/lib/stores/notification-store';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { ShareDialog } from '@/components/funnels/share-dialog';
 import { ExportDialog } from '@/components/funnels/export-dialog';
 
@@ -479,10 +480,11 @@ export default function FunnelDetailPage() {
     
     setIsAutopsying(true);
     try {
+      const authHeaders = await getAuthHeaders();
       const response = await fetch('/api/intelligence/autopsy/run', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        headers: authHeaders,
+        body: JSON.stringify({
           brandId: funnel.brandId || 'default',
           url: funnel.context.url,
           depth: 'deep',
@@ -512,9 +514,10 @@ export default function FunnelDetailPage() {
     
     setIsGenerating(true);
     try {
+      const genHeaders = await getAuthHeaders();
       const response = await fetch('/api/funnels/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: genHeaders,
         body: JSON.stringify({ funnelId: funnel.id, context: funnel.context }),
       });
       
@@ -657,9 +660,10 @@ export default function FunnelDetailPage() {
     
     setIsSavingToLibrary(true);
     try {
+      const libHeaders = await getAuthHeaders();
       const response = await fetch('/api/library', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: libHeaders,
         body: JSON.stringify({
           funnelId: funnel.id,
           proposalId: selectedProposal.id,

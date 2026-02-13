@@ -5,6 +5,7 @@ import { useBrandStore } from '@/lib/stores/brand-store';
 import { ResearchForm } from '@/components/intelligence/research/research-form';
 import { DossierViewer } from '@/components/intelligence/research/dossier-viewer';
 import type { MarketDossier, ResearchDepth } from '@/types/research';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 export default function ResearchPage() {
   const { selectedBrand } = useBrandStore();
@@ -33,9 +34,10 @@ export default function ResearchPage() {
     if (!brandId) return;
     setLoading(true);
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch('/api/intelligence/research', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ brandId, ...payload }),
       });
       if (!res.ok) return;

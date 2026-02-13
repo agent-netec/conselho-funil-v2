@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { notify } from '@/lib/stores/notification-store';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 import { MonitoringDashboard, Metric } from '@/components/campaigns/monitoring-dashboard';
 
@@ -158,9 +159,10 @@ export default function CampaignCommandCenter() {
         setGeneratingAds(true);
         notify.info('Gerando Estratégia', 'O Conselho de Ads está projetando a escala...');
         try {
+          const authHeaders = await getAuthHeaders();
           const res = await fetch(`/api/campaigns/${campaign.id}/generate-ads`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders,
             body: JSON.stringify({ userId: campaign.userId }),
           });
           if (res.ok) {

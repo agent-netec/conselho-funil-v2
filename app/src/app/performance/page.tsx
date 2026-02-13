@@ -19,6 +19,7 @@ import {
 import { PerformanceMetric, PerformanceAnomaly } from '@/types/performance';
 import { useSegmentPerformance } from '@/lib/hooks/use-segment-performance';
 import { useBrandStore } from '@/lib/stores/brand-store';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 export default function PerformanceWarRoomPage() {
   const { selectedBrand } = useBrandStore();
@@ -107,9 +108,10 @@ export default function PerformanceWarRoomPage() {
       if (!breakdown || metrics.length === 0) return;
       setAdvisorLoading(true);
       try {
+        const authHeaders = await getAuthHeaders();
         const response = await fetch('/api/reporting/generate', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders,
           body: JSON.stringify({
             metrics,
             context: {

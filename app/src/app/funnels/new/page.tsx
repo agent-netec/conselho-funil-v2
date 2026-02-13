@@ -11,6 +11,7 @@ import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import type { FunnelContext, LibraryTemplate } from '@/types/database';
 import { doc, getDoc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 // Wizard Components
 import { WizardProgress } from '@/components/funnels/wizard/wizard-progress';
@@ -113,7 +114,7 @@ export default function NewFunnelPage() {
         brandId: activeBrand?.id, // Vincula à marca selecionada
       });
       
-      fetch('/api/funnels/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ funnelId, context }) }).catch(console.error);
+      getAuthHeaders().then(h => fetch('/api/funnels/generate', { method: 'POST', headers: h, body: JSON.stringify({ funnelId, context }) })).catch(console.error);
       if (template) updateDoc(doc(db, 'library', template.id), { usageCount: increment(1) }).catch(console.error);
       router.push(`/funnels/${funnelId}`);
     } catch (error) {

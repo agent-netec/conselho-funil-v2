@@ -34,6 +34,7 @@ import { uploadBrandAsset } from '@/lib/firebase/storage';
 import { createAsset } from '@/lib/firebase/assets';
 import { Timestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 export default function AssetsPage() {
   const { user } = useAuthStore();
@@ -54,9 +55,10 @@ export default function AssetsPage() {
 
   const handleProcessAsset = async (assetId: string) => {
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/ingest/process-worker', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ assetId, namespace: `brand-${activeBrand?.id}` }),
       });
 

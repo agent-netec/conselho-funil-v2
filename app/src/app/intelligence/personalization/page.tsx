@@ -30,6 +30,7 @@ import {
   Wand2,
 } from "lucide-react"
 import { toast } from "sonner"
+import { getAuthHeaders } from "@/lib/utils/auth-headers"
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function PersonalizationPage() {
@@ -78,9 +79,10 @@ export default function PersonalizationPage() {
     toast.info("Iniciando Deep-Scan de audiência com IA...")
 
     try {
+      const headers = await getAuthHeaders()
       const response = await fetch("/api/intelligence/audience/scan", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ brandId }),
       })
 
