@@ -87,10 +87,13 @@ export default function PersonalizationPage() {
       })
 
       if (!response.ok) {
-        throw new Error(`Falha na API (${response.status})`)
+        const body = await response.json().catch(() => null)
+        const serverMsg = body?.error || body?.message
+        throw new Error(serverMsg || `Falha na API (${response.status})`)
       }
 
-      const newScan: AudienceScan = await response.json()
+      const body = await response.json()
+      const newScan: AudienceScan = body.data ?? body
       setScans((prev) => [newScan, ...prev].slice(0, 10))
       setSelectedScan(newScan)
       toast.success("Novo scan de audiência concluído!")

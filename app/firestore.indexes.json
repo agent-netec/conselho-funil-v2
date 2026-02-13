@@ -77,7 +77,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "leadId", "order": "ASCENDING" },
-        { "fieldPath": "timestamp", "order": "ASCENDING" }
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
       ]
     },
     {

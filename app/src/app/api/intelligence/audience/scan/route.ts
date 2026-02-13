@@ -47,10 +47,10 @@ async function handlePOST(req: NextRequest) {
       return handleSecurityError(error);
     }
     // Mensagem segura — sem PII ou stack trace no response
-    const safeMessage = error instanceof Error && error.message.startsWith('Nenhum lead')
-      ? error.message
-      : 'Erro interno ao processar scan de audiência.';
-    return createApiError(500, safeMessage);
+    if (error instanceof Error && error.message.startsWith('Nenhum lead')) {
+      return createApiError(422, 'Nenhum lead encontrado para esta marca. Importe leads ou configure webhooks antes de executar o scan.');
+    }
+    return createApiError(500, 'Erro interno ao processar scan de audiência.');
   }
 }
 
