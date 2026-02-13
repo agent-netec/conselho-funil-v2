@@ -18,20 +18,27 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   AlertTriangle,
+  ArrowRight,
   BrainCircuit,
   CheckCircle2,
   Circle,
   Download,
+  ExternalLink,
   Pencil,
   Plus,
   RefreshCw,
   Search,
+  Settings2,
   Sparkles,
+  Target,
   Trash2,
+  Users,
   Wand2,
+  Zap,
 } from "lucide-react"
 import { toast } from "sonner"
 import { getAuthHeaders } from "@/lib/utils/auth-headers"
+import Link from "next/link"
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function PersonalizationPage() {
@@ -507,8 +514,8 @@ export default function PersonalizationPage() {
                 />
               )}
             </>
-          ) : (
-            /* ── No scan selected placeholder ─────────────────────── */
+          ) : scans.length > 0 ? (
+            /* ── Has scans but none selected ──────────────────────── */
             <div className="h-full flex flex-col items-center justify-center py-20 border-2 border-dashed rounded-xl bg-muted/10">
               <Sparkles className="w-12 h-12 text-muted-foreground/20 mb-4" />
               <h3 className="text-lg font-medium">Selecione um Scan</h3>
@@ -516,6 +523,171 @@ export default function PersonalizationPage() {
                 Escolha um scan ao lado para visualizar a persona completa e
                 configurar regras de conteúdo dinâmico.
               </p>
+            </div>
+          ) : (
+            /* ── Onboarding guide (no scans yet) ─────────────────── */
+            <div className="space-y-6">
+              {/* O que é */}
+              <Card>
+                <CardContent className="p-6 space-y-3">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <BrainCircuit className="w-5 h-5 text-purple-500" />
+                    O que a Personalização Dinâmica faz?
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    A IA analisa os leads que interagiram com sua marca (formulários, DMs,
+                    cliques) e gera <strong>personas psicográficas</strong> com dores, desejos,
+                    objeções e nível de sofisticação. Com isso, você cria <strong>regras de
+                    conteúdo dinâmico</strong> que adaptam headlines, VSLs e ofertas para cada
+                    perfil de audiência automaticamente.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Como configurar */}
+              <Card>
+                <CardContent className="p-6 space-y-4">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <Settings2 className="w-5 h-5 text-blue-500" />
+                    Como configurar
+                  </h3>
+
+                  <div className="space-y-4">
+                    {/* Step 1 */}
+                    <div className="flex gap-3">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+                        1
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Conectar Meta Ads</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Vá em{" "}
+                          <Link
+                            href="/integrations"
+                            className="text-blue-500 hover:underline inline-flex items-center gap-0.5"
+                          >
+                            Integrações <ExternalLink className="w-3 h-3" />
+                          </Link>{" "}
+                          e insira o Ad Account ID e o System User Token da sua
+                          conta Meta. O token precisa da permissão{" "}
+                          <code className="text-[11px] bg-muted px-1 py-0.5 rounded">
+                            leads_retrieval
+                          </code>{" "}
+                          para importar leads.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step 2 */}
+                    <div className="flex gap-3">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+                        2
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">
+                          Importar Leads do Meta
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Clique em{" "}
+                          <strong>&quot;Importar Leads (Meta)&quot;</strong>{" "}
+                          acima. O sistema busca automaticamente todos os
+                          formulários de Lead Ads da conta e importa os leads
+                          que preencheram.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step 3 */}
+                    <div className="flex gap-3">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-purple-100 text-purple-700 text-xs font-bold">
+                        3
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">
+                          Executar Deep-Scan (IA)
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Com leads importados, clique em{" "}
+                          <strong>&quot;Executar Deep-Scan (IA)&quot;</strong>.
+                          O Gemini analisa até 200 leads, calcula propensão de
+                          compra (hot/warm/cold) e gera a persona da sua audiência.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step 4 */}
+                    <div className="flex gap-3">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-bold">
+                        4
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">
+                          Criar Regras de Conteúdo
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Com a persona gerada, crie regras que mudam headlines,
+                          VSLs e ofertas automaticamente com base no perfil do
+                          visitante.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Casos de uso */}
+              <Card>
+                <CardContent className="p-6 space-y-4">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-amber-500" />
+                    Casos de uso
+                  </h3>
+
+                  <div className="grid gap-3">
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                      <Target className="w-4 h-4 text-purple-500 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium">
+                          Segmentar por dor principal
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          O scan identifica as top 3 dores da audiência. Crie
+                          headlines diferentes para quem sofre com &quot;falta de
+                          tempo&quot; vs &quot;falta de dinheiro&quot;.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                      <Users className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium">
+                          Personalizar por nível de consciência
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Leads &quot;hot&quot; (alta propensão) veem oferta
+                          direta. Leads &quot;cold&quot; veem conteúdo
+                          educacional antes da oferta.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                      <ArrowRight className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium">
+                          Otimizar funil por persona
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Cada persona identificada recebe uma variação de VSL
+                          e copy diferente, aumentando a taxa de conversão do
+                          funil como um todo.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
         </div>
