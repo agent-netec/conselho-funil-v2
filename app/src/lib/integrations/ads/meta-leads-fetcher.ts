@@ -38,6 +38,11 @@ interface MetaPaginatedResponse<T> {
   paging?: { cursors?: { after: string }; next?: string };
 }
 
+interface MetaPage {
+  id: string;
+  name: string;
+}
+
 export interface LeadImportResult {
   formsFound: number;
   leadsImported: number;
@@ -69,38 +74,73 @@ export async function fetchMetaLeads(brandId: string): Promise<LeadImportResult>
 
   const headers = { Authorization: `Bearer ${token.accessToken}` };
 
-  // 2. List all lead gen forms for the ad account
-  const formsUrl = `${META_API.BASE_URL}/act_${adAccountId}/leadgen_forms?fields=id,name,status,leads_count&limit=100`;
-  console.log(`[MetaLeadsFetcher] Listing forms for act_${adAccountId}`);
+  // 2. Get pages associated with the ad account
+  //    leadgen_forms is a PAGE-level edge, not AdAccount-level.
+  //    We must first discover the pages, then query forms per page.
+  const pagesUrl = `${META_API.BASE_URL}/act_${adAccountId}/promote_pages?fields=id,name&limit=100`;
+  console.log(`[MetaLeadsFetcher] Listing pages for act_${adAccountId}`);
 
-  const formsResponse = await fetchWithRetry(formsUrl, { headers }, { timeoutMs: META_API.TIMEOUT_MS });
+  const pagesResponse = await fetchWithRetry(pagesUrl, { headers }, { timeoutMs: META_API.TIMEOUT_MS });
 
-  if (!formsResponse.ok) {
-    const errorData = await formsResponse.json().catch(() => ({}));
-    const errorMsg = errorData?.error?.message || formsResponse.statusText;
+  if (!pagesResponse.ok) {
+    const errorData = await pagesResponse.json().catch(() => ({}));
+    const errorMsg = errorData?.error?.message || pagesResponse.statusText;
     const code = errorData?.error?.code;
 
-    // Permission error — clear guidance
-    if (formsResponse.status === 403 || code === 200 || code === 190) {
+    if (pagesResponse.status === 403 || code === 200 || code === 190) {
       throw new Error(
-        `Permissão insuficiente no token Meta. Regenere o token em Meta Business Settings → System Users com a permissão "leads_retrieval" habilitada.`
+        `Permissão insuficiente no token Meta. Regenere o token em Meta Business Settings → System Users com as permissões "leads_retrieval" e "pages_read_engagement" habilitadas.`
       );
     }
-    throw new Error(`Meta API Error (${formsResponse.status}): ${errorMsg}`);
+    throw new Error(`Meta API Error (${pagesResponse.status}): ${errorMsg}`);
   }
 
-  const formsData: MetaPaginatedResponse<MetaLeadForm> = await formsResponse.json();
-  const forms = formsData.data || [];
-  result.formsFound = forms.length;
+  const pagesData: MetaPaginatedResponse<MetaPage> = await pagesResponse.json();
+  const pages = pagesData.data || [];
 
-  if (forms.length === 0) {
-    throw new Error('Nenhum formulário de Lead Ads encontrado nesta conta. Crie uma campanha de Lead Ads no Meta Ads Manager.');
+  if (pages.length === 0) {
+    throw new Error('Nenhuma página encontrada vinculada a esta conta de anúncios. Verifique se a página do Facebook está associada à conta no Meta Business Settings.');
   }
 
-  console.log(`[MetaLeadsFetcher] Found ${forms.length} forms`);
+  console.log(`[MetaLeadsFetcher] Found ${pages.length} pages, fetching lead forms...`);
 
-  // 3. For each form, fetch leads and write to Firestore
-  for (const form of forms) {
+  // 3. For each page, fetch its lead gen forms
+  const allForms: MetaLeadForm[] = [];
+
+  for (const page of pages) {
+    try {
+      const formsUrl = `${META_API.BASE_URL}/${page.id}/leadgen_forms?fields=id,name,status,leads_count&limit=100`;
+      const formsResponse = await fetchWithRetry(formsUrl, { headers }, { timeoutMs: META_API.TIMEOUT_MS });
+
+      if (!formsResponse.ok) {
+        const errorData = await formsResponse.json().catch(() => ({}));
+        const errorMsg = errorData?.error?.message || formsResponse.statusText;
+        console.warn(`[MetaLeadsFetcher] Could not fetch forms for page ${page.name} (${page.id}): ${errorMsg}`);
+        result.errors.push(`Página "${page.name}": ${errorMsg}`);
+        continue;
+      }
+
+      const formsData: MetaPaginatedResponse<MetaLeadForm> = await formsResponse.json();
+      const forms = formsData.data || [];
+      console.log(`[MetaLeadsFetcher] Page "${page.name}" has ${forms.length} lead forms`);
+      allForms.push(...forms);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(`[MetaLeadsFetcher] Error fetching forms for page ${page.name}:`, msg);
+      result.errors.push(`Página "${page.name}": ${msg}`);
+    }
+  }
+
+  result.formsFound = allForms.length;
+
+  if (allForms.length === 0) {
+    throw new Error('Nenhum formulário de Lead Ads encontrado nas páginas desta conta. Crie uma campanha de Lead Ads no Meta Ads Manager.');
+  }
+
+  console.log(`[MetaLeadsFetcher] Found ${allForms.length} forms across ${pages.length} pages`);
+
+  // 4. For each form, fetch leads and write to Firestore
+  for (const form of allForms) {
     try {
       const count = await fetchAndStoreFormLeads(brandId, form, headers);
       result.leadsImported += count;
