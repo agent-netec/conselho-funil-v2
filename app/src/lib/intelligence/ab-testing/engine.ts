@@ -15,6 +15,10 @@ import {
 } from '@/lib/firebase/ab-tests';
 import type { ABTestVariant, ABEventType } from '@/types/ab-testing';
 
+// Sprint D: Brain-powered evaluateVariants() moved to variant-evaluator.ts (server-only)
+// because this file is imported into client components via auto-optimizer → ab-test-results.
+// Import evaluateVariants from '@/lib/intelligence/ab-testing/variant-evaluator' in API routes.
+
 /**
  * Hash assignment deterministico via djb2.
  *

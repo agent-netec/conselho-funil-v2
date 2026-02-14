@@ -176,3 +176,12 @@ Quando o usuário solicitar criativos visuais para anúncios, você DEVE incluir
   "aspectRatio": "[1:1 | 16:9 | 4:5 | 9:16]",
   "brandContext": { "colors": ["#HEX1"], "style": "[Estilo Visual]" }
 }`;
+
+/**
+ * Sprint D: Enriches a base system prompt with server-side brain context.
+ * brainContext comes from buildChatBrainContext() in chat-brain-context.ts (server-only).
+ */
+export function enrichChatPromptWithBrain(basePrompt: string, brainContext: string): string {
+  if (!brainContext) return basePrompt;
+  return `${basePrompt}\n\n${brainContext}\n\nUse o conhecimento real dos especialistas acima para fundamentar cada recomendacao. Cite o expert pelo nome e referencie seus principios quando aplicavel.`;
+}

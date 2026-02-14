@@ -4,7 +4,45 @@ import {
   buildSynthesisPrompt,
   RESEARCH_SYSTEM_PROMPT,
 } from '@/lib/ai/prompts/research-synthesis';
+import { loadBrain } from '@/lib/intelligence/brains/loader';
+import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
+import type { CounselorId } from '@/types';
 import type { MarketDossierSections, ResearchQuery, ResearchSource } from '@/types/research';
+
+// ═══════════════════════════════════════════════════════
+// RESEARCH → EXPERTS MAPPING (Brain Integration — Sprint D)
+// ═══════════════════════════════════════════════════════
+
+interface ResearchExpertMapping {
+  counselorId: CounselorId;
+  frameworkId: string;
+}
+
+const RESEARCH_EXPERT_MAP: ResearchExpertMapping[] = [
+  { counselorId: 'eugene_schwartz', frameworkId: 'awareness_alignment' },
+  { counselorId: 'russell_brunson', frameworkId: 'value_ladder_score' },
+];
+
+function buildResearchBrainContext(): string {
+  const parts: string[] = [];
+
+  for (const { counselorId, frameworkId } of RESEARCH_EXPERT_MAP) {
+    const brain = loadBrain(counselorId);
+    if (!brain) continue;
+
+    const frameworkJson = buildScoringPromptFromBrain(counselorId, frameworkId);
+    if (!frameworkJson) continue;
+
+    parts.push(
+      `### ${brain.name} — ${brain.subtitle}\n` +
+      `**Filosofia:** ${brain.philosophy.slice(0, 200)}...\n` +
+      `**Principios:** ${brain.principles.slice(0, 300)}...\n` +
+      `**Framework (${frameworkId}):**\n${frameworkJson}`
+    );
+  }
+
+  return parts.join('\n\n---\n\n');
+}
 
 const SOURCE_SNIPPET_LIMIT = 3000;
 
@@ -55,7 +93,12 @@ export class DossierGenerator {
     }
 
     // Fase 2 (DT-12): síntese final consolidada com os resumos
-    const synthesisPrompt = buildSynthesisPrompt(summaries, query);
+    // Sprint D: Inject counselor perspective into synthesis
+    const brainContext = buildResearchBrainContext();
+    const baseSynthesisPrompt = buildSynthesisPrompt(summaries, query);
+    const synthesisPrompt = brainContext
+      ? `${baseSynthesisPrompt}\n\n## PERSPECTIVA DOS CONSELHEIROS (use para enriquecer a analise)\n${brainContext}\n\nConsidere os frameworks acima ao avaliar oportunidades, ameacas e recomendacoes. Identifique o nivel de consciencia do mercado (Schwartz) e oportunidades na escada de valor (Brunson).`
+      : baseSynthesisPrompt;
     const finalText = await generateWithGemini(synthesisPrompt, {
       systemPrompt: RESEARCH_SYSTEM_PROMPT,
       temperature: 0.4,

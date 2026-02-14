@@ -162,6 +162,7 @@ Seu objetivo é simular uma deliberação estratégica entre os especialistas se
 
 export interface PartyModeOptions {
   intensity?: 'debate' | 'consensus';
+  brainContext?: string;
 }
 
 export function buildPartyPrompt(
@@ -178,9 +179,13 @@ export function buildPartyPrompt(
     .map(agent => `- **${agent.name}**: ${agent.description}`)
     .join('\n');
 
-  const intensityInstruction = options.intensity === 'consensus' 
+  const intensityInstruction = options.intensity === 'consensus'
     ? 'O objetivo desta deliberação é chegar a um **consenso unificado**. Os especialistas devem trabalhar juntos para construir uma única visão coesa.'
     : 'O objetivo desta deliberação é um **debate vigoroso**. Os especialistas devem destacar diferentes pontos de vista, divergências estratégicas e alternativas, permitindo que o usuário veja múltiplos ângulos do problema.';
+
+  const brainSection = options.brainContext
+    ? `\n${options.brainContext}\n`
+    : '';
 
   return `${CHAT_SYSTEM_PROMPT}
 
@@ -191,7 +196,7 @@ ${intensityInstruction}
 
 ## Especialistas Convocados para esta Mesa Redonda:
 ${agentsDescription}
-
+${brainSection}
 ## Contexto e Ativos da Marca
 ${context || 'Nenhum contexto específico da marca fornecido.'}
 

@@ -26,14 +26,17 @@ import {
 } from '@/lib/firebase/firestore';
 import { getBrand } from '@/lib/firebase/brands';
 import type { Funnel, Proposal, Brand } from '@/types/database';
-import { 
-  buildChatPrompt, 
-  CHAT_SYSTEM_PROMPT, 
-  COPY_CHAT_SYSTEM_PROMPT, 
+import {
+  buildChatPrompt,
+  CHAT_SYSTEM_PROMPT,
+  COPY_CHAT_SYSTEM_PROMPT,
   SOCIAL_CHAT_SYSTEM_PROMPT,
   ADS_CHAT_SYSTEM_PROMPT,
-  DESIGN_CHAT_SYSTEM_PROMPT
+  DESIGN_CHAT_SYSTEM_PROMPT,
+  enrichChatPromptWithBrain
 } from '@/lib/ai/prompts';
+import { buildChatBrainContext } from '@/lib/ai/prompts/chat-brain-context';
+import { buildPartyBrainContext } from '@/lib/ai/prompts/party-brain-context';
 import { CONFIG } from '@/lib/config';
 import { COUNSELORS_REGISTRY } from '@/lib/constants';
 import { CounselorId } from '@/types';
@@ -217,22 +220,26 @@ async function handlePOST(request: NextRequest) {
     };
     
     // Choose system prompt based on mode
+    // Sprint D: Enrich with brain context (identity cards)
     let systemPrompt = CHAT_SYSTEM_PROMPT;
     if (effectiveMode === 'copy') {
-      systemPrompt = COPY_CHAT_SYSTEM_PROMPT;
+      systemPrompt = enrichChatPromptWithBrain(COPY_CHAT_SYSTEM_PROMPT, buildChatBrainContext('copy'));
       retrievalConfig.filters.docType = 'copywriting';
     } else if (effectiveMode === 'social') {
-      systemPrompt = SOCIAL_CHAT_SYSTEM_PROMPT;
+      systemPrompt = enrichChatPromptWithBrain(SOCIAL_CHAT_SYSTEM_PROMPT, buildChatBrainContext('social'));
       retrievalConfig.filters.counselor = 'social';
       retrievalConfig.topK = 15;
     } else if (effectiveMode === 'ads') {
-      systemPrompt = ADS_CHAT_SYSTEM_PROMPT;
-      retrievalConfig.filters.scope = 'traffic'; 
+      systemPrompt = enrichChatPromptWithBrain(ADS_CHAT_SYSTEM_PROMPT, buildChatBrainContext('ads'));
+      retrievalConfig.filters.scope = 'traffic';
       retrievalConfig.topK = 15;
     } else if (effectiveMode === 'design') {
       systemPrompt = DESIGN_CHAT_SYSTEM_PROMPT;
       retrievalConfig.filters.counselor = 'design_director';
       retrievalConfig.topK = 15;
+    } else if (effectiveMode !== 'party') {
+      // general / funnel_creation / funnel_evaluation / funnel_review → funnel council
+      systemPrompt = enrichChatPromptWithBrain(CHAT_SYSTEM_PROMPT, buildChatBrainContext('funnel'));
     }
 
     switch (effectiveMode) {
@@ -354,11 +361,13 @@ async function handlePOST(request: NextRequest) {
         assistantResponse = generateFallbackResponse(message, chunks, systemPrompt);
       } else if (effectiveMode === 'party' && selectedAgents.length > 0) {
         console.log('Generating Party Mode response with agents:', selectedAgents);
+        // Sprint D: Inject identity cards for selected agents
+        const partyBrainCtx = buildPartyBrainContext(selectedAgents);
         assistantResponse = await generatePartyResponseWithGemini(
           message,
           context,
           selectedAgents,
-          { intensity },
+          { intensity, brainContext: partyBrainCtx },
           PRO_GEMINI_MODEL
         );
       } else {
