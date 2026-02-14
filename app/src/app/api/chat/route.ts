@@ -7,10 +7,11 @@ import {
   formatBrandContextForLLM
 } from '@/lib/ai/rag';
 import { getBrandKeywords, formatKeywordsForPrompt } from '@/lib/firebase/intelligence';
-import { 
-  generateCouncilResponseWithGemini, 
+import {
+  generateCouncilResponseWithGemini,
   generatePartyResponseWithGemini,
-  isGeminiConfigured 
+  isGeminiConfigured,
+  PRO_GEMINI_MODEL
 } from '@/lib/ai/gemini';
 import { 
   addMessage, 
@@ -354,10 +355,11 @@ async function handlePOST(request: NextRequest) {
       } else if (effectiveMode === 'party' && selectedAgents.length > 0) {
         console.log('Generating Party Mode response with agents:', selectedAgents);
         assistantResponse = await generatePartyResponseWithGemini(
-          message, 
-          context, 
-          selectedAgents, 
-          { intensity }
+          message,
+          context,
+          selectedAgents,
+          { intensity },
+          PRO_GEMINI_MODEL
         );
       } else {
         // US-1.2.3: Se o RAG falhar em modo específico, avisamos a IA mas deixamos ela responder
@@ -369,8 +371,8 @@ async function handlePOST(request: NextRequest) {
           : context;
 
         console.log(`Generating council response for mode: ${effectiveMode}`);
-        // ST-11.6: Alinhamento com Benchmark 2026 - Flash para Design Chat
-        const model = effectiveMode === 'design' ? 'gemini-3-flash-preview' : undefined;
+        // ST-11.6: Design usa Flash preview; demais usam Pro para máxima qualidade
+        const model = effectiveMode === 'design' ? 'gemini-3-flash-preview' : PRO_GEMINI_MODEL;
         assistantResponse = await generateCouncilResponseWithGemini(message, enrichedContext, systemPrompt, model);
       }
     } catch (aiError) {

@@ -3,12 +3,13 @@
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Activity } from 'lucide-react';
+import { Activity, AlertTriangle, Award } from 'lucide-react';
 import { CPSGauge } from './cps-gauge';
 import { DimensionBars } from './dimension-bars';
 import { BenchmarkCard } from './benchmark-card';
 import { RecommendationsList } from './recommendations-list';
-import type { PredictScoreResponse } from '@/types/prediction';
+import type { PredictScoreResponse, CounselorOpinion } from '@/types/prediction';
+import { COUNSELORS_REGISTRY } from '@/lib/constants';
 
 interface PredictionPanelProps {
   data: PredictScoreResponse | null;
@@ -58,6 +59,86 @@ function PredictionSkeleton() {
   );
 }
 
+/** Sprint B: Card individual de opinião do conselheiro */
+function CounselorOpinionCard({ opinion }: { opinion: CounselorOpinion }) {
+  const counselor = COUNSELORS_REGISTRY[opinion.counselorId as keyof typeof COUNSELORS_REGISTRY];
+  const icon = counselor?.icon || '🧠';
+  const color = counselor?.color || '#a78bfa';
+
+  return (
+    <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-lg" role="img" aria-label={opinion.counselorName}>{icon}</span>
+          <div>
+            <span className="text-sm font-medium text-zinc-200">{opinion.counselorName}</span>
+            <span className="text-[10px] text-zinc-500 ml-2">{opinion.dimension.replace(/_/g, ' ')}</span>
+          </div>
+        </div>
+        <span
+          className="text-sm font-bold tabular-nums"
+          style={{ color }}
+        >
+          {opinion.score}
+        </span>
+      </div>
+
+      <p className="text-xs text-zinc-400 italic leading-relaxed">
+        &ldquo;{opinion.opinion}&rdquo;
+      </p>
+
+      {opinion.redFlagsTriggered.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {opinion.redFlagsTriggered.map((flag) => (
+            <span
+              key={flag}
+              className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-red-950/50 text-red-400 border border-red-900/50"
+            >
+              <AlertTriangle className="h-2.5 w-2.5" />
+              {flag.replace(/_/g, ' ')}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {opinion.goldStandardsHit.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {opinion.goldStandardsHit.map((gs) => (
+            <span
+              key={gs}
+              className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-emerald-950/50 text-emerald-400 border border-emerald-900/50"
+            >
+              <Award className="h-2.5 w-2.5" />
+              {gs.replace(/_/g, ' ')}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Sprint B: Seção completa de opiniões do conselho */
+function CounselorOpinionsSection({ opinions }: { opinions: CounselorOpinion[] }) {
+  if (!opinions || opinions.length === 0) return null;
+
+  // Group by counselor for cleaner display
+  const uniqueCounselors = [...new Set(opinions.map(o => o.counselorId))];
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-sm font-medium text-zinc-400">
+        Opinião do Conselho ({uniqueCounselors.length} experts)
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {opinions.map((opinion, i) => (
+          <CounselorOpinionCard key={`${opinion.counselorId}-${opinion.dimension}-${i}`} opinion={opinion} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function PredictionPanel({ data, loading, className }: PredictionPanelProps) {
   if (loading) {
     return (
@@ -101,6 +182,11 @@ export function PredictionPanel({ data, loading, className }: PredictionPanelPro
           </CardContent>
         </Card>
       </div>
+
+      {/* Opinião do Conselho (Sprint B) */}
+      {data.counselorOpinions && data.counselorOpinions.length > 0 && (
+        <CounselorOpinionsSection opinions={data.counselorOpinions} />
+      )}
 
       {/* Benchmark */}
       {data.benchmark && (

@@ -1,13 +1,14 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { SCALING_PREDICTOR_PROMPT } from '../ai/prompts/scaling-predictor';
 import { ScalingPrediction } from '@/types/automation';
+import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 
 export class ScalingPredictor {
   private model: any;
 
   constructor(apiKey: string) {
     const genAI = new GoogleGenerativeAI(apiKey);
-    this.model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    this.model = genAI.getGenerativeModel({ model: DEFAULT_GEMINI_MODEL });
   }
 
   async predict(data: {

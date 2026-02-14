@@ -15,7 +15,7 @@
  */
 
 import { Timestamp } from 'firebase/firestore';
-import { generateWithGemini } from '@/lib/ai/gemini';
+import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { getBrand } from '@/lib/firebase/firestore';
 import {
   CONTENT_SYSTEM_INSTRUCTION,
@@ -186,7 +186,7 @@ export async function generateContent(
       metadata: {
         format: params.format,
         platform: params.platform,
-        model: 'gemini-2.0-flash',
+        model: DEFAULT_GEMINI_MODEL,
         generatedAt: Timestamp.now().toDate().toISOString(),
         brandId,
       },
@@ -202,7 +202,7 @@ export async function generateContent(
       metadata: {
         format: params.format,
         platform: params.platform,
-        model: 'gemini-2.0-flash',
+        model: DEFAULT_GEMINI_MODEL,
         generatedAt: Timestamp.now().toDate().toISOString(),
         brandId,
       },

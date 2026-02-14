@@ -22,6 +22,12 @@ import {
 import { UXIntelligence, UXAsset } from '@/types/intelligence';
 import { generateWithGemini } from '@/lib/ai/gemini';
 import { AICostGuard } from '@/lib/ai/cost-guard';
+import { loadBrain } from '@/lib/intelligence/brains/loader';
+import {
+  formatRedFlagsForPrompt,
+  formatGoldStandardsForPrompt,
+} from '@/lib/intelligence/brains/prompt-builder';
+import type { CounselorId } from '@/types';
 
 // ═══════════════════════════════════════════════════════
 // CONSTANTES
@@ -50,7 +56,7 @@ const DIMENSION_ASSET_MAP: Record<ConversionDimension, ('headline' | 'cta' | 'ho
   trust_signals: ['visual', 'headline'],
 };
 
-/** Frameworks de copywriting dos Conselheiros */
+/** Frameworks de copywriting dos Conselheiros (fallback) */
 const COPYWRITING_FRAMEWORKS: Record<string, FrameworkInfo> = {
   schwartz: {
     name: 'Eugene Schwartz — Níveis de Consciência',
@@ -68,6 +74,50 @@ const COPYWRITING_FRAMEWORKS: Record<string, FrameworkInfo> = {
     applicableTo: ['headline_strength', 'cta_effectiveness', 'trust_signals'],
   },
 };
+
+/** Sprint B: Mapeamento dimensão → conselheiros para red_flags/gold_standards reais */
+const DIMENSION_COUNSELORS: Record<ConversionDimension, CounselorId[]> = {
+  headline_strength: ['gary_halbert', 'david_ogilvy'],
+  cta_effectiveness: ['drayton_bird', 'dan_kennedy_copy'],
+  hook_quality: ['john_carlton', 'joseph_sugarman'],
+  offer_structure: ['dan_kennedy_copy', 'russell_brunson'],
+  funnel_coherence: ['joseph_sugarman', 'eugene_schwartz'],
+  trust_signals: ['claude_hopkins', 'david_ogilvy'],
+};
+
+/**
+ * Sprint B: Builds real red_flags and gold_standards context from brain identity cards.
+ */
+function buildRealFrameworksContext(dimensions: ConversionDimension[]): string {
+  const parts: string[] = [];
+
+  for (const dimension of dimensions) {
+    const counselorIds = DIMENSION_COUNSELORS[dimension] || [];
+    const dimParts: string[] = [];
+
+    for (const counselorId of counselorIds) {
+      const brain = loadBrain(counselorId);
+      if (!brain) continue;
+
+      const redFlags = formatRedFlagsForPrompt(counselorId);
+      const goldStandards = formatGoldStandardsForPrompt(counselorId);
+
+      if (redFlags || goldStandards) {
+        dimParts.push(
+          `#### ${brain.name}\n` +
+          (redFlags ? `Red Flags (problemas a corrigir com exemplos antes/depois):\n${redFlags}\n` : '') +
+          (goldStandards ? `Gold Standards (padrões de excelência a atingir):\n${goldStandards}` : '')
+        );
+      }
+    }
+
+    if (dimParts.length > 0) {
+      parts.push(`### ${dimension}\n${dimParts.join('\n\n')}`);
+    }
+  }
+
+  return parts.join('\n\n');
+}
 
 // ═══════════════════════════════════════════════════════
 // INTERFACES INTERNAS
@@ -356,7 +406,7 @@ async function generateAIRecommendations(
   // Chamar Gemini
   const rawResponse = await generateWithGemini(prompt, {
     model,
-    temperature: 0.4,
+    temperature: 0.3, // Sprint B: Recomendações mais consistentes
     maxOutputTokens: TOKEN_BUDGET,
     responseMimeType: 'application/json',
     userId,
@@ -437,9 +487,14 @@ function buildRecommendationsPrompt(
     .map((h) => `- "${h.text}"`)
     .join('\n');
 
-  return `Você é um consultor especialista em conversão digital, treinado nas metodologias de Eugene Schwartz, Gary Halbert e Russell Brunson.
+  // Sprint B: build real frameworks context from brain identity cards
+  const realFrameworksContext = buildRealFrameworksContext(
+    weakDimensions.map((d) => d.dimension)
+  );
 
-Analise as dimensões fracas de um funil de vendas e gere recomendações CONCRETAS e ACIONÁVEIS para cada uma.
+  return `Você é um consultor especialista em conversão digital. Use os red flags e gold standards REAIS dos experts abaixo para gerar recomendações CONCRETAS e ACIONÁVEIS.
+
+Baseie sua análise EXCLUSIVAMENTE nos dados fornecidos.
 
 ## Dimensões que Precisam de Melhoria
 ${dimensionsList}
@@ -452,6 +507,10 @@ ${origCTAs || 'Nenhum CTA.'}
 ### Hooks
 ${origHooks || 'Nenhum hook.'}
 ${eliteSection}
+
+## Frameworks dos Conselheiros (Red Flags & Gold Standards)
+
+${realFrameworksContext}
 ${frameworkSection}
 
 ## Instruções

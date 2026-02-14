@@ -12,6 +12,7 @@ import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { generateContent } from '@/lib/content/generation-engine';
 import { createCalendarItem } from '@/lib/firebase/content-calendar';
+import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import type { ContentGenerationParams } from '@/types/content';
 
 export const dynamic = 'force-dynamic';
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
           metadata: {
             generatedBy: 'ai',
             promptParams: { topic, tone: tone || '', platform },
-            generationModel: 'gemini-2.0-flash',
+            generationModel: DEFAULT_GEMINI_MODEL,
             generatedAt: Timestamp.now(),
           },
         });

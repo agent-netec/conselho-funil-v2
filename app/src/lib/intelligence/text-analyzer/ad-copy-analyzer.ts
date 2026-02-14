@@ -16,6 +16,8 @@ import {
 } from '@/types/text-analysis';
 import { generateWithGemini } from '@/lib/ai/gemini';
 import { AICostGuard } from '@/lib/ai/cost-guard';
+import { loadBrain } from '@/lib/intelligence/brains/loader';
+import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
 
 // ═══════════════════════════════════════════════════════
 // CONSTANTES
@@ -104,10 +106,56 @@ interface GeminiAdCopyResponse {
 // PROMPT BUILDER
 // ═══════════════════════════════════════════════════════
 
-function buildAdCopyPrompt(text: string, wordCount: number, detectedFormat: string): string {
-  return `Você é um especialista em análise de anúncios digitais e copywriting de performance, treinado nas metodologias de Eugene Schwartz, Gary Halbert e Russell Brunson.
+/**
+ * Sprint B: Builds real framework context for ad copy analysis.
+ * Experts: Halbert (specificity), Schwartz (awareness_alignment), Bird (benefit hierarchy)
+ */
+function buildCopyCouncilContext(): string {
+  const expertFrameworks: string[] = [];
 
-Analise o seguinte texto de anúncio e identifique seus elementos persuasivos.
+  // Halbert — headline_score (specificity focus)
+  const halbertFramework = buildScoringPromptFromBrain('gary_halbert', 'headline_score');
+  const halbertBrain = loadBrain('gary_halbert');
+  if (halbertFramework && halbertBrain) {
+    expertFrameworks.push(
+      `### ${halbertBrain.name} — headline_score (foco: especificidade)\n${halbertFramework}\n` +
+      `Red Flags: ${JSON.stringify(halbertBrain.redFlags.slice(0, 3).map(rf => ({ id: rf.id, label: rf.label, before: rf.before, after: rf.after })))}`
+    );
+  }
+
+  // Schwartz — awareness_alignment
+  const schwartzFramework = buildScoringPromptFromBrain('eugene_schwartz', 'awareness_alignment');
+  const schwartzBrain = loadBrain('eugene_schwartz');
+  if (schwartzFramework && schwartzBrain) {
+    expertFrameworks.push(
+      `### ${schwartzBrain.name} — awareness_alignment\n${schwartzFramework}\n` +
+      `Red Flags: ${JSON.stringify(schwartzBrain.redFlags.slice(0, 3).map(rf => ({ id: rf.id, label: rf.label, before: rf.before, after: rf.after })))}`
+    );
+  }
+
+  // Bird — simplicity_efficiency (benefit hierarchy focus)
+  const birdFramework = buildScoringPromptFromBrain('drayton_bird', 'simplicity_efficiency');
+  const birdBrain = loadBrain('drayton_bird');
+  if (birdFramework && birdBrain) {
+    expertFrameworks.push(
+      `### ${birdBrain.name} — simplicity_efficiency (foco: hierarquia de benefícios)\n${birdFramework}\n` +
+      `Red Flags: ${JSON.stringify(birdBrain.redFlags.slice(0, 3).map(rf => ({ id: rf.id, label: rf.label, before: rf.before, after: rf.after })))}`
+    );
+  }
+
+  return expertFrameworks.join('\n\n');
+}
+
+function buildAdCopyPrompt(text: string, wordCount: number, detectedFormat: string): string {
+  const copyCouncilContext = buildCopyCouncilContext();
+
+  return `Você é um especialista em análise de anúncios digitais e copywriting de performance. Use os frameworks REAIS dos experts abaixo para fundamentar sua análise.
+
+Baseie sua análise EXCLUSIVAMENTE nos dados fornecidos.
+
+## Frameworks dos Experts do Conselho
+
+${copyCouncilContext}
 
 ## Dados do Anúncio
 - Word count: ${wordCount} palavras

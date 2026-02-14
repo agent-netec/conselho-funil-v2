@@ -63,6 +63,21 @@ export interface DimensionScore {
   explanation: string;         // Justificativa textual
   evidence: string[];          // Elementos que justificam o score
   suggestions?: string[];      // Sugestões de melhoria (score < 60)
+  confidence?: 'high' | 'medium' | 'low';
+}
+
+// ═══════════════════════════════════════════════════════
+// OPINIÃO DO CONSELHO (Sprint B)
+// ═══════════════════════════════════════════════════════
+
+export interface CounselorOpinion {
+  counselorId: string;
+  counselorName: string;
+  dimension: ConversionDimension;
+  score: number;
+  opinion: string;
+  redFlagsTriggered: string[];
+  goldStandardsHit: string[];
 }
 
 // ═══════════════════════════════════════════════════════
@@ -114,6 +129,7 @@ export interface PredictScoreResponse {
   score: number;
   grade: ConversionGrade;
   breakdown: DimensionScore[];
+  counselorOpinions?: CounselorOpinion[];
   recommendations: Recommendation[];
   benchmark: BenchmarkComparison;
   metadata: {

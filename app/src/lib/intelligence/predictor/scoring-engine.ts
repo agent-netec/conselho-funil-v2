@@ -1,14 +1,20 @@
 /**
  * Scoring Engine — Conversion Probability Score (CPS)
- * Sprint 25 · S25-ST-01
+ * Sprint 25 · S25-ST-01 / Sprint B · Brain Integration
  *
- * Calcula o CPS (0-100) baseado em 6 dimensões de análise:
- *   headline_strength (0.20), cta_effectiveness (0.20),
- *   hook_quality (0.15), offer_structure (0.20),
- *   funnel_coherence (0.15), trust_signals (0.10)
+ * Calcula o CPS (0-100) baseado em 6 dimensões de análise,
+ * usando frameworks REAIS dos identity cards dos conselheiros.
+ *
+ * Dimensão → Experts:
+ *   headline_strength  → Halbert (headline_score) + Ogilvy (headline_excellence)
+ *   cta_effectiveness  → Bird (simplicity_efficiency) + Kennedy (market_match)
+ *   hook_quality       → Carlton (hook_and_fascinations) + Sugarman (slippery_slide)
+ *   offer_structure    → Kennedy (offer_architecture) + Brunson (value_ladder_score)
+ *   funnel_coherence   → Sugarman (slippery_slide) + Schwartz (awareness_alignment)
+ *   trust_signals      → Hopkins (trial_and_proof) + Ogilvy (big_idea_test)
  *
  * @contract arch-sprint-25-predictive-creative-engine.md § 3
- * @token_budget 4.000 tokens (tag: predict_score)
+ * @token_budget 5.000 tokens (tag: predict_score)
  */
 
 import {
@@ -20,16 +26,20 @@ import {
   cpsToGrade,
   validateWeights,
 } from '@/types/prediction';
+import type { CounselorOpinion } from '@/types/prediction';
 import { UXIntelligence } from '@/types/intelligence';
-import { generateWithGemini } from '@/lib/ai/gemini';
+import { generateWithGemini, PRO_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { AICostGuard } from '@/lib/ai/cost-guard';
+import { loadBrain } from '@/lib/intelligence/brains/loader';
+import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
+import type { CounselorId } from '@/types';
 
 // ═══════════════════════════════════════════════════════
 // CONSTANTES
 // ═══════════════════════════════════════════════════════
 
 const FEATURE_TAG = 'predict_score';
-const TOKEN_BUDGET = 4000;
+const TOKEN_BUDGET = 5000;
 
 /** Mapeamento de dimensão para chave nos pesos */
 const DIMENSION_WEIGHT_MAP: Record<ConversionDimension, keyof DimensionWeights> = {
@@ -52,6 +62,43 @@ const DIMENSION_LABELS: Record<ConversionDimension, string> = {
 };
 
 // ═══════════════════════════════════════════════════════
+// DIMENSION → EXPERTS MAPPING (Brain Integration)
+// ═══════════════════════════════════════════════════════
+
+interface DimensionExpertMapping {
+  counselorId: CounselorId;
+  frameworkId: string;
+}
+
+/** Cada dimensão usa 2 experts específicos com frameworks reais */
+const DIMENSION_EXPERT_MAP: Record<ConversionDimension, DimensionExpertMapping[]> = {
+  headline_strength: [
+    { counselorId: 'gary_halbert', frameworkId: 'headline_score' },
+    { counselorId: 'david_ogilvy', frameworkId: 'headline_excellence' },
+  ],
+  cta_effectiveness: [
+    { counselorId: 'drayton_bird', frameworkId: 'simplicity_efficiency' },
+    { counselorId: 'dan_kennedy_copy', frameworkId: 'market_match' },
+  ],
+  hook_quality: [
+    { counselorId: 'john_carlton', frameworkId: 'hook_and_fascinations' },
+    { counselorId: 'joseph_sugarman', frameworkId: 'slippery_slide' },
+  ],
+  offer_structure: [
+    { counselorId: 'dan_kennedy_copy', frameworkId: 'offer_architecture' },
+    { counselorId: 'russell_brunson', frameworkId: 'value_ladder_score' },
+  ],
+  funnel_coherence: [
+    { counselorId: 'joseph_sugarman', frameworkId: 'slippery_slide' },
+    { counselorId: 'eugene_schwartz', frameworkId: 'awareness_alignment' },
+  ],
+  trust_signals: [
+    { counselorId: 'claude_hopkins', frameworkId: 'trial_and_proof' },
+    { counselorId: 'david_ogilvy', frameworkId: 'big_idea_test' },
+  ],
+};
+
+// ═══════════════════════════════════════════════════════
 // INTERFACES INTERNAS
 // ═══════════════════════════════════════════════════════
 
@@ -61,23 +108,87 @@ interface GeminiDimensionResult {
   explanation: string;
   evidence: string[];
   suggestions: string[];
+  confidence: 'high' | 'medium' | 'low';
 }
 
 interface GeminiScoringResponse {
   dimensions: GeminiDimensionResult[];
+  counselorOpinions: CounselorOpinion[];
 }
 
 export interface ScoringResult {
   score: number;
   grade: ConversionGrade;
   breakdown: DimensionScore[];
+  counselorOpinions: CounselorOpinion[];
   tokensUsed: number;
   modelUsed: string;
 }
 
 // ═══════════════════════════════════════════════════════
-// PROMPT BUILDER
+// PROMPT BUILDER (Brain-Powered)
 // ═══════════════════════════════════════════════════════
+
+/**
+ * Builds the framework context for all dimensions using real identity cards.
+ */
+function buildFrameworkContext(): string {
+  const sections: string[] = [];
+
+  for (const [dimension, experts] of Object.entries(DIMENSION_EXPERT_MAP)) {
+    const expertParts: string[] = [];
+
+    for (const { counselorId, frameworkId } of experts) {
+      const frameworkJson = buildScoringPromptFromBrain(counselorId, frameworkId);
+      if (!frameworkJson) continue;
+
+      const brain = loadBrain(counselorId);
+      if (!brain) continue;
+
+      const redFlagIds = brain.redFlags.map(rf => rf.id);
+      const goldStandardIds = brain.goldStandards.map(gs => gs.id);
+
+      expertParts.push(
+        `#### ${brain.name} — ${frameworkId}\n` +
+        `${frameworkJson}\n` +
+        `Red Flag IDs: [${redFlagIds.join(', ')}]\n` +
+        `Gold Standard IDs: [${goldStandardIds.join(', ')}]`
+      );
+    }
+
+    if (expertParts.length > 0) {
+      sections.push(
+        `### ${dimension} (${DIMENSION_LABELS[dimension as ConversionDimension]})\n${expertParts.join('\n\n')}`
+      );
+    }
+  }
+
+  return sections.join('\n\n');
+}
+
+/**
+ * Builds the list of unique experts and their dimensions for the prompt.
+ */
+function buildExpertsInstructions(): string {
+  const expertDimensions = new Map<string, { name: string; dimensions: string[] }>();
+
+  for (const [dimension, experts] of Object.entries(DIMENSION_EXPERT_MAP)) {
+    for (const { counselorId } of experts) {
+      if (!expertDimensions.has(counselorId)) {
+        const brain = loadBrain(counselorId);
+        expertDimensions.set(counselorId, {
+          name: brain?.name ?? counselorId,
+          dimensions: [],
+        });
+      }
+      expertDimensions.get(counselorId)!.dimensions.push(dimension);
+    }
+  }
+
+  return Array.from(expertDimensions.entries())
+    .map(([id, { name, dimensions }]) => `- ${id} (${name}): avalia ${dimensions.join(', ')}`)
+    .join('\n');
+}
 
 function buildScoringPrompt(data: UXIntelligence): string {
   const headlines = data.headlines
@@ -94,9 +205,12 @@ function buildScoringPrompt(data: UXIntelligence): string {
     : 'Nenhum elemento visual identificado.';
   const structure = data.funnelStructure || 'Estrutura não identificada.';
 
-  return `Você é um especialista em conversão digital e copywriting direto, treinado nas metodologias de Eugene Schwartz, Gary Halbert e Russell Brunson.
+  const frameworkContext = buildFrameworkContext();
+  const expertsInstructions = buildExpertsInstructions();
 
-Analise os seguintes ativos de um funil de vendas e avalie cada uma das 6 dimensões abaixo com um score de 0 a 100.
+  return `Você é um painel de especialistas em conversão digital e copywriting direto. Cada dimensão será avaliada usando os frameworks REAIS fornecidos abaixo.
+
+Baseie sua análise EXCLUSIVAMENTE nos dados fornecidos. Se não há dados suficientes para uma dimensão, diga explicitamente e atribua confidence "low".
 
 ## Ativos do Funil
 
@@ -115,14 +229,12 @@ ${visuals}
 ### Estrutura do Funil
 ${structure}
 
-## Dimensões para Avaliação
+## Frameworks de Avaliação por Dimensão
 
-1. **headline_strength**: Força e clareza das headlines. Considera: especificidade, benefício claro, curiosidade, urgência.
-2. **cta_effectiveness**: Efetividade dos CTAs. Considera: clareza da ação, senso de urgência, benefício implícito.
-3. **hook_quality**: Qualidade dos hooks de abertura. Considera: interrupção de padrão, relevância, conexão emocional.
-4. **offer_structure**: Estrutura da oferta. Considera: valor percebido, stacking, garantias, bônus, ancoragem de preço.
-5. **funnel_coherence**: Coerência narrativa do funil. Considera: fluxo lógico, consistência de mensagem, alinhamento headline→CTA.
-6. **trust_signals**: Sinais de confiança. Considera: provas sociais, depoimentos, garantias, autoridade, badges.
+${frameworkContext}
+
+## Experts e Dimensões
+${expertsInstructions}
 
 ## Formato de Resposta (JSON)
 
@@ -132,21 +244,37 @@ Responda EXCLUSIVAMENTE com um JSON válido, sem markdown, no seguinte formato:
   "dimensions": [
     {
       "dimension": "headline_strength",
-      "score": 0,
-      "explanation": "Justificativa detalhada em português",
-      "evidence": ["Elemento 1 que justifica o score", "Elemento 2"],
-      "suggestions": ["Sugestão de melhoria 1", "Sugestão 2"]
+      "score": 75,
+      "explanation": "Justificativa baseada nos critérios e pesos dos frameworks acima, em português",
+      "evidence": ["Citação LITERAL de elemento do funil"],
+      "suggestions": ["Sugestão baseada nos critérios do framework"],
+      "confidence": "high"
+    }
+  ],
+  "counselorOpinions": [
+    {
+      "counselorId": "gary_halbert",
+      "counselorName": "Gary Halbert",
+      "dimension": "headline_strength",
+      "score": 78,
+      "opinion": "Opinião na VOZ AUTÊNTICA do expert (1-2 frases, usando seu estilo único)",
+      "redFlagsTriggered": ["generic_headline"],
+      "goldStandardsHit": []
     }
   ]
 }
 
 REGRAS:
-- Score de 0 a 100 para cada dimensão.
+- Score de 0 a 100 para cada dimensão, calculado usando os critérios e pesos dos frameworks.
 - Se uma dimensão tem score < 60, OBRIGATÓRIO incluir pelo menos 2 suggestions.
-- Explanation deve ser em português, concisa (1-3 frases).
-- Evidence deve citar elementos reais dos ativos fornecidos.
-- Se não houver dados suficientes para avaliar uma dimensão, atribua score entre 20-35 e explique a ausência.
-- Retorne EXATAMENTE 6 dimensões, uma para cada dimensão listada acima.`;
+- Explanation deve referenciar os critérios específicos do framework usado.
+- Evidence deve citar elementos LITERAIS dos ativos fornecidos.
+- Se não houver dados suficientes, atribua score 20-35, confidence "low", e explique.
+- Retorne EXATAMENTE 6 dimensões.
+- counselorOpinions: gere UMA opinião por expert POR dimensão que ele avalia (conforme lista acima).
+- A opinion deve ser na VOZ AUTÊNTICA do expert, como se ele estivesse falando diretamente.
+- redFlagsTriggered: IDs dos red flags aplicáveis (da lista fornecida). Array vazio se nenhum.
+- goldStandardsHit: IDs dos gold standards alcançados. Array vazio se nenhum.`;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -160,7 +288,7 @@ REGRAS:
  * @param data - UXIntelligence com assets do funil
  * @param weights - Pesos customizados (default: DEFAULT_DIMENSION_WEIGHTS)
  * @param userId - ID do usuário para cost-guard
- * @returns ScoringResult com score, grade e breakdown
+ * @returns ScoringResult com score, grade, breakdown e counselorOpinions
  */
 export async function calculateCPS(
   brandId: string,
@@ -173,8 +301,8 @@ export async function calculateCPS(
     throw new Error('INVALID_WEIGHTS: A soma dos pesos deve ser ~1.0 (tolerância: 0.01)');
   }
 
-  // 2. Verificar budget
-  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  // 2. Verificar budget (Scoring usa Pro para máxima qualidade)
+  const model = PRO_GEMINI_MODEL;
   const hasBudget = await AICostGuard.checkBudget({
     userId,
     brandId,
@@ -197,7 +325,7 @@ export async function calculateCPS(
 
   const rawResponse = await generateWithGemini(prompt, {
     model,
-    temperature: 0.3, // Baixa temperatura para scoring consistente
+    temperature: 0.1, // Sprint B: Consistência máxima para scoring
     maxOutputTokens: TOKEN_BUDGET,
     responseMimeType: 'application/json',
     userId,
@@ -217,6 +345,7 @@ export async function calculateCPS(
     score: Math.round(score * 100) / 100,
     grade,
     breakdown,
+    counselorOpinions: parsed.counselorOpinions || [],
     tokensUsed: AICostGuard.estimateTokens(prompt + rawResponse),
     modelUsed: model,
   };
@@ -272,8 +401,14 @@ function parseGeminiResponse(raw: string): GeminiScoringResponse {
           explanation: 'Dados insuficientes para avaliação desta dimensão.',
           evidence: [],
           suggestions: ['Forneça mais dados sobre esta dimensão para uma avaliação precisa.'],
+          confidence: 'low',
         });
       }
+    }
+
+    // Normalizar counselorOpinions
+    if (!parsed.counselorOpinions || !Array.isArray(parsed.counselorOpinions)) {
+      parsed.counselorOpinions = [];
     }
 
     return parsed;
@@ -294,6 +429,7 @@ function buildBreakdown(dimensions: GeminiDimensionResult[]): DimensionScore[] {
     explanation: d.explanation || '',
     evidence: d.evidence || [],
     suggestions: d.score < 60 ? (d.suggestions?.length ? d.suggestions : ['Considere melhorar esta dimensão.']) : d.suggestions,
+    confidence: d.confidence,
   }));
 }
 

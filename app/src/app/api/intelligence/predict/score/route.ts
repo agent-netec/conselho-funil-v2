@@ -120,6 +120,7 @@ export async function POST(req: NextRequest) {
       score: scoringResult.score,
       grade: scoringResult.grade,
       breakdown: scoringResult.breakdown,
+      counselorOpinions: scoringResult.counselorOpinions,
       recommendations,
       benchmark,
       metadata: {

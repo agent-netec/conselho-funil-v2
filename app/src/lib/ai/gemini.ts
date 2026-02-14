@@ -11,8 +11,11 @@ import { CouncilOutput } from '@/types';
 
 const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
 
-/** Modelo padrão: 2.0 estável na v1beta. Override via GEMINI_MODEL. */
-export const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+/** Modelo padrão (bulk): 2.5-flash. Override via GEMINI_MODEL. */
+export const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+
+/** Modelo Pro (scoring, chat, autopsy): 3-pro. Override via GEMINI_PRO_MODEL. */
+export const PRO_GEMINI_MODEL = process.env.GEMINI_PRO_MODEL || 'gemini-3-pro-preview';
 
 /**
  * Get Gemini API Key - lê a variável de ambiente em tempo de execução
@@ -337,7 +340,7 @@ export async function* generateWithGeminiStream(
  * @param query - A pergunta do usuário.
  * @param context - O contexto recuperado via RAG.
  * @param systemPrompt - Instruções específicas do sistema ou do conselheiro.
- * @param model - Modelo opcional a ser usado (ex: gemini-2.0-flash). Padrão: GEMINI_MODEL ou gemini-2.0-flash.
+ * @param model - Modelo opcional a ser usado. Padrão: DEFAULT_GEMINI_MODEL (2.5-flash).
  * @returns Uma promessa com a resposta gerada.
  */
 export async function generateCouncilResponseWithGemini(
@@ -411,10 +414,12 @@ export async function generatePartyResponseWithGemini(
   query: string,
   context: string,
   selectedAgentIds: string[],
-  options?: PartyModeOptions
+  options?: PartyModeOptions,
+  model?: string
 ): Promise<string> {
   const fullPrompt = buildPartyPrompt(query, context, selectedAgentIds, options);
   return generateWithGemini(fullPrompt, {
+    model,
     maxOutputTokens: 8192, // Mais tokens para debate longo
     temperature: 0.8, // Mais criatividade/debate
   });
