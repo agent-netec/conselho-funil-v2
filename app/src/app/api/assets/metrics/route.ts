@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
 
     // 2. Busca no namespace da marca (Principal - Ingestão v2)
     let knowledgeAssets: any[] = [];
-    const brandNamespace = `brand-${brandId}`;
+    const brandNamespace = `brand_${brandId}`;
     
     try {
       console.log(`[Metrics] Querying Pinecone namespace '${brandNamespace}'`);

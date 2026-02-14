@@ -30,7 +30,7 @@ export async function processAssetText(assetId: string, text: string, namespace?
     if (!asset) throw new Error('Asset não encontrado');
 
     // Se namespace não fornecido, usa o padrão por marca (ST-11.23)
-    const targetNamespace = namespace || `brand-${asset.brandId}`;
+    const targetNamespace = namespace || `brand_${asset.brandId}`;
 
     await updateAssetStatus(assetId, 'processing');
 

@@ -10,43 +10,49 @@ export const COUNSELORS_REGISTRY: Record<CounselorId, Counselor> = {
     id: 'russell_brunson',
     name: 'Russell Brunson',
     expertise: 'Arquitetura de Funil',
-    color: '#6366f1', // indigo
+    color: '#6366f1',
     icon: '🎯',
+    domain: 'funnel',
   },
   dan_kennedy: {
     id: 'dan_kennedy',
     name: 'Dan Kennedy',
     expertise: 'Oferta & Copy',
-    color: '#8b5cf6', // violet
+    color: '#8b5cf6',
     icon: '✍️',
+    domain: 'funnel',
   },
   frank_kern: {
     id: 'frank_kern',
     name: 'Frank Kern',
     expertise: 'Psicologia & Comportamento',
-    color: '#ec4899', // pink
+    color: '#ec4899',
     icon: '🧠',
+    domain: 'funnel',
   },
   sam_ovens: {
     id: 'sam_ovens',
     name: 'Sam Ovens',
     expertise: 'Aquisição & Qualificação',
-    color: '#14b8a6', // teal
+    color: '#14b8a6',
     icon: '🎣',
+    domain: 'funnel',
   },
   ryan_deiss: {
     id: 'ryan_deiss',
     name: 'Ryan Deiss',
     expertise: 'LTV & Retenção',
-    color: '#f97316', // orange
+    color: '#f97316',
     icon: '📈',
+    domain: 'funnel',
   },
   perry_belcher: {
     id: 'perry_belcher',
     name: 'Perry Belcher',
     expertise: 'Monetização Simples',
-    color: '#84cc16', // lime
+    color: '#84cc16',
     icon: '💰',
+    domain: 'funnel',
   },
 
   // Social Counselors
@@ -54,29 +60,33 @@ export const COUNSELORS_REGISTRY: Record<CounselorId, Counselor> = {
     id: 'lia_haberman',
     name: 'Lia Haberman',
     expertise: 'Algoritmo & Mudanças',
-    color: '#06b6d4', // cyan
+    color: '#06b6d4',
     icon: '📊',
+    domain: 'social',
   },
   rachel_karten: {
     id: 'rachel_karten',
     name: 'Rachel Karten',
     expertise: 'Criativo & Hooks',
-    color: '#f43f5e', // rose
+    color: '#f43f5e',
     icon: '🪝',
+    domain: 'social',
   },
   nikita_beer: {
     id: 'nikita_beer',
     name: 'Nikita Beer',
     expertise: 'Viralização & Trends',
-    color: '#8b5cf6', // violet
+    color: '#8b5cf6',
     icon: '🚀',
+    domain: 'social',
   },
   justin_welsh: {
     id: 'justin_welsh',
     name: 'Justin Welsh',
     expertise: 'Funil Social',
-    color: '#10b981', // emerald
+    color: '#10b981',
     icon: '⛓️',
+    domain: 'social',
   },
 
   // Copy Counselors
@@ -85,72 +95,81 @@ export const COUNSELORS_REGISTRY: Record<CounselorId, Counselor> = {
     name: 'Eugene Schwartz',
     expertise: 'Consciência de Mercado',
     specialty: 'Estrutura de copy para diferentes estágios de consciência',
-    color: '#6366f1', // indigo
+    color: '#6366f1',
     icon: '🎯',
+    domain: 'copy',
   },
   claude_hopkins: {
     id: 'claude_hopkins',
     name: 'Claude Hopkins',
     expertise: 'Método Científico',
     specialty: 'Testes, medição, prova social',
-    color: '#3b82f6', // blue
+    color: '#3b82f6',
     icon: '🔬',
+    domain: 'copy',
   },
   gary_halbert: {
     id: 'gary_halbert',
     name: 'Gary Halbert',
     expertise: 'Headlines & Psicologia',
     specialty: 'Headlines que prendem, curiosidade, especificidade',
-    color: '#f59e0b', // amber
+    color: '#f59e0b',
     icon: '⚡',
+    domain: 'copy',
   },
   joseph_sugarman: {
     id: 'joseph_sugarman',
     name: 'Joseph Sugarman',
     expertise: 'Narrativa & Estrutura',
     specialty: 'Storytelling, transições, long-form copy',
-    color: '#8b5cf6', // violet
+    color: '#8b5cf6',
     icon: '📖',
+    domain: 'copy',
   },
   dan_kennedy_copy: {
     id: 'dan_kennedy_copy',
     name: 'Dan Kennedy',
     expertise: 'Oferta & Urgência',
     specialty: 'Ofertas irresistíveis, garantia, urgência real',
-    color: '#10b981', // emerald
+    color: '#10b981',
     icon: '💰',
+    domain: 'copy',
   },
   david_ogilvy: {
     id: 'david_ogilvy',
     name: 'David Ogilvy',
     expertise: 'Brand Premium',
     specialty: 'Pesquisa, diferenciação, big idea',
-    color: '#64748b', // slate
+    color: '#64748b',
     icon: '👔',
+    domain: 'copy',
   },
   john_carlton: {
     id: 'john_carlton',
     name: 'John Carlton',
     expertise: 'Voz Autêntica',
     specialty: 'Autenticidade, fluxo natural, conversação',
-    color: '#ec4899', // pink
+    color: '#ec4899',
     icon: '🎤',
+    domain: 'copy',
   },
   drayton_bird: {
     id: 'drayton_bird',
     name: 'Drayton Bird',
     expertise: 'Simplicidade & Eficiência',
     specialty: 'Benefício claro, direto, resposta direta',
-    color: '#14b8a6', // teal
+    color: '#14b8a6',
     icon: '✂️',
+    domain: 'copy',
   },
   frank_kern_copy: {
     id: 'frank_kern_copy',
     name: 'Frank Kern',
     expertise: 'Fluxo de Vendas',
     specialty: 'Sequências, automação, comportamento',
-    color: '#f97316', // orange
+    color: '#f97316',
     icon: '🔄',
+    domain: 'copy',
   },
 
   // Ads Counselors
@@ -158,36 +177,41 @@ export const COUNSELORS_REGISTRY: Record<CounselorId, Counselor> = {
     id: 'justin_brooke',
     name: 'Justin Brooke',
     expertise: 'Estratégia & Escala',
-    color: '#3b82f6', // blue
+    color: '#3b82f6',
     icon: '📊',
+    domain: 'ads',
   },
   nicholas_kusmich: {
     id: 'nicholas_kusmich',
     name: 'Nicholas Kusmich',
     expertise: 'Meta Ads & Contexto',
-    color: '#2563eb', // blue-600
+    color: '#2563eb',
     icon: '🎯',
+    domain: 'ads',
   },
   jon_loomer: {
     id: 'jon_loomer',
     name: 'Jon Loomer',
     expertise: 'Analytics & Técnico',
-    color: '#1d4ed8', // blue-700
+    color: '#1d4ed8',
     icon: '⚙️',
+    domain: 'ads',
   },
   savannah_sanchez: {
     id: 'savannah_sanchez',
     name: 'Savannah Sanchez',
     expertise: 'TikTok & UGC',
-    color: '#0ea5e9', // sky
+    color: '#0ea5e9',
     icon: '📱',
+    domain: 'ads',
   },
   design_director: {
     id: 'design_director',
     name: 'Diretor de Design',
     expertise: 'Direção de Arte & Briefing',
-    color: '#a855f7', // purple-500
+    color: '#a855f7',
     icon: '🎨',
+    domain: 'design',
   },
 };
 

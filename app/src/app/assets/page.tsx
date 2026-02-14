@@ -59,7 +59,7 @@ export default function AssetsPage() {
       const response = await fetch('/api/ingest/process-worker', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ assetId, namespace: `brand-${activeBrand?.id}` }),
+        body: JSON.stringify({ assetId, namespace: `brand_${activeBrand?.id}` }),
       });
 
       if (!response.ok) {

@@ -50,7 +50,7 @@ export function StrategicContext({ brandId }: StrategicContextProps) {
       const response = await fetch('/api/ingest/process-worker', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ assetId, namespace: `brand-${brandId}` }),
+        body: JSON.stringify({ assetId, namespace: `brand_${brandId}` }),
       });
 
       if (!response.ok) {

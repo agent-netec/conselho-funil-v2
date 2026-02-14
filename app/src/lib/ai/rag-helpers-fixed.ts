@@ -14,7 +14,7 @@ export async function searchSimilarChunks(
     if (filters?.funnelStage) pineconeFilters.funnelStage = { '$eq': filters.funnelStage };
     if (filters?.channel) pineconeFilters.channel = { '$eq': filters.channel };
 
-    const namespace = `brand-${brandId}`;
+    const namespace = `brand_${brandId}`;
     const { queryPinecone } = await import('./pinecone');
     const pineconeResponse = await queryPinecone({
       vector: queryEmbedding,

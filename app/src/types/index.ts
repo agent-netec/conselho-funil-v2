@@ -43,7 +43,8 @@ export interface Counselor {
   expertise: string;
   color: string;
   icon: string;
-  specialty?: string; // Opcional, vindo do Conselho de Copy
+  specialty?: string;
+  domain?: 'copy' | 'funnel' | 'social' | 'ads' | 'design';
 }
 
 // Funnel — re-export de database.ts (source of truth)

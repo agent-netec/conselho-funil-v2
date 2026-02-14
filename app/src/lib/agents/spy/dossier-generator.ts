@@ -157,6 +157,6 @@ export class DossierGenerator {
       }
     };
 
-    await upsertToPinecone([record], { namespace: `brand-${brandId}` });
+    await upsertToPinecone([record], { namespace: `brand_${brandId}` });
   }
 }

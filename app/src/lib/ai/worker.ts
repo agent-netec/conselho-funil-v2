@@ -144,7 +144,7 @@ export async function processAsset(assetId: string, namespace?: string): Promise
     }));
 
     // ST-11.23 Hotfix: Garantir namespace correto para o Dashboard de Ativos
-    const targetNamespace = namespace || `brand-${asset.brandId}`;
+    const targetNamespace = namespace || `brand_${asset.brandId}`;
     const pineconeResult = await upsertToPinecone(pineconeRecords, { namespace: targetNamespace });
 
     await updateBrandAsset(asset.id, {

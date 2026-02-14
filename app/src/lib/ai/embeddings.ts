@@ -1,5 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { 
+import {
   doc, 
   getDoc, 
   setDoc, 
@@ -35,7 +34,7 @@ async function getCacheKey(text: string): Promise<string> {
 }
 
 /**
- * Generates an embedding for a given text using Gemini's text-embedding-004 model.
+ * Generates an embedding for a given text using Gemini's gemini-embedding-001 model.
  * Includes a Firestore cache to reduce costs and latency.
  * 
  * @param text - The input text to embed.
@@ -90,21 +89,18 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 
   // 2. Cache MISS - Call API
   try {
-    // RESOLUÇÃO DEFINITIVA (Dandara/Kai): 
-    // 1. text-embedding-004 e embedding-001 via SDK (@google/generative-ai) estão retornando API_KEY_INVALID 
-    //    mesmo com chaves válidas, possivelmente por depreciação ou conflito de headers do SDK.
-    // 2. A chamada direta via fetch para 'gemini-embedding-001' ignorando o SDK funciona 100%.
-    // 3. Mantemos o fetch direto como padrão para garantir estabilidade do RAG.
+    // Fetch direto para gemini-embedding-001 (SDK tinha issues com API_KEY_INVALID).
+    // Migrado de text-embedding-004 (depreciado Jan 2026) em Sprint A.
     
-    console.log(`[Embeddings] Calling text-embedding-004 with dimensionality: 768`);
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent', {
+    console.log(`[Embeddings] Calling gemini-embedding-001 with dimensionality: 768`);
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-goog-api-key': apiKey,
       },
       body: JSON.stringify({
-        model: 'models/text-embedding-004',
+        model: 'models/gemini-embedding-001',
         content: { parts: [{ text }] },
         outputDimensionality: 768,
       }),
@@ -190,8 +186,7 @@ export async function generateEmbeddingsBatch(texts: string[]): Promise<number[]
     throw new Error('GOOGLE_AI_API_KEY not configured for embeddings');
   }
 
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+  // Batch calls use fetch directly (SDK had API_KEY_INVALID issues)
 
   try {
     console.log(`[Embeddings] Batch Cache MISS - Calling API for ${missTexts.length}/${texts.length} items`);
@@ -206,7 +201,7 @@ export async function generateEmbeddingsBatch(texts: string[]): Promise<number[]
       console.log(`[Embeddings] Processing API sub-batch ${i / BATCH_SIZE + 1} (${batchTexts.length} items)`);
       
       // Switching to fetch to avoid SDK inconsistencies (Ref: generateEmbedding)
-      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents', {
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:batchEmbedContents', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -214,7 +209,7 @@ export async function generateEmbeddingsBatch(texts: string[]): Promise<number[]
         },
         body: JSON.stringify({
           requests: batchTexts.map((text) => ({
-            model: 'models/text-embedding-004',
+            model: 'models/gemini-embedding-001',
             content: { parts: [{ text }] },
             outputDimensionality: 768
           })),
