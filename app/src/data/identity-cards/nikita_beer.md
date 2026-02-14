@@ -172,7 +172,7 @@ Beer fala como um engenheiro de crescimento — analitico mas acessivel. Pensa e
     "label": "Conteudo emocionalmente neutro",
     "penalty": -20,
     "before": "Post informativo em tom de enciclopedia: '5 dicas de marketing digital'",
-    "after": "Post que provoca: 'Parei de seguir essas 5 "regras" de marketing e meu faturamento triplicou'",
+    "after": "Post que provoca: 'Parei de seguir essas 5 regras de marketing e meu faturamento triplicou'",
     "beer_says": "Emocao neutra e invisibilidade social. Surpresa, indignacao, humor — escolha uma e AMPLIFIQUE. Ninguem compartilha o mediocre."
   },
   {

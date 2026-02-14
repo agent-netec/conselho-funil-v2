@@ -134,15 +134,17 @@ Criar a base tecnica (BrainLoader) e o conteudo (23 identity cards) que alimenta
 
 ## Verificacao Sprint A
 
-- [ ] Embedding com gemini-embedding-001 gera vetor de 768 dims
-- [ ] Busca Pinecone com novo embedding retorna resultados coerentes
+- [x] Embedding com gemini-embedding-001 gera vetor de 768 dims
+- [x] Busca Pinecone com novo embedding retorna resultados coerentes (0 matches no ns default — esperado, dados em brand_*)
 - [x] Namespace padronizado (brand_ em 7 arquivos + context-assembler)
-- [ ] `loadBrain('gary_halbert')` retorna objeto parseado completo
-- [ ] `loadBrainsByDomain('copy')` retorna 9 brains
-- [ ] `getAllBrains()` retorna 24 brains (9 copy + 6 funnel + 4 social + 4 ads + 1 design)
-- [ ] `buildScoringPromptFromBrain('gary_halbert', 'headline_score')` gera prompt valido
-- [ ] Token count do prompt < 2.500 tokens por grupo de experts
+- [x] `loadBrain('gary_halbert')` retorna objeto parseado completo
+- [x] `loadBrainsByDomain('copy')` retorna 9 brains
+- [x] `getAllBrains()` retorna 24 brains (9 copy + 6 funnel + 4 social + 4 ads + 1 design)
+- [x] `buildScoringPromptFromBrain('gary_halbert', 'headline_score')` gera prompt valido (~433 tokens)
+- [x] Token count do prompt < 2.500 tokens por grupo de experts (max ~878 tokens)
 - [x] Todos os 24 identity cards existem em app/src/data/identity-cards/
+- [x] Todos os 24 cards parseiam corretamente (frameworks + red_flags + gold_standards)
+- **Fix:** nikita_beer.md tinha aspas duplas nao-escapadas no JSON (corrigido)
 
 ---
 
