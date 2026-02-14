@@ -97,7 +97,13 @@ export async function POST(req: NextRequest) {
 
     return createApiSuccess({
       count: keywords.length,
-      keywords: keywords.map(k => k.term),
+      keywords: keywords.map(k => ({
+        term: k.term,
+        intent: k.intent,
+        volume: k.metrics.volume,
+        difficulty: k.metrics.difficulty,
+        opportunityScore: k.metrics.opportunityScore,
+      })),
       persisted: savedIds.length,
       saveError,
     });

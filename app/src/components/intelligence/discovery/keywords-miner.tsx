@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Sparkles, Loader2, ArrowRight, Tag, TrendingUp, Target } from 'lucide-react';
+import { Search, Sparkles, Loader2, Tag, TrendingUp, Target, ChevronDown, ShoppingCart, Eye, Compass, Info } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,10 +21,50 @@ interface KeywordResult {
   difficulty: number;
 }
 
+const INTENT_CONFIG: Record<string, { label: string; color: string; icon: typeof Search; hint: string }> = {
+  transactional: {
+    label: 'Compra',
+    color: 'text-green-400 border-green-500/30 bg-green-500/10',
+    icon: ShoppingCart,
+    hint: 'Pessoa pronta para comprar. Use em anúncios de oferta direta e páginas de venda.',
+  },
+  commercial: {
+    label: 'Comparação',
+    color: 'text-amber-400 border-amber-500/30 bg-amber-500/10',
+    icon: Eye,
+    hint: 'Pessoa avaliando opções. Use em comparativos, reviews e provas sociais.',
+  },
+  navigational: {
+    label: 'Navegação',
+    color: 'text-purple-400 border-purple-500/30 bg-purple-500/10',
+    icon: Compass,
+    hint: 'Pessoa buscando algo específico. Oportunidade de brand awareness.',
+  },
+  informational: {
+    label: 'Informativa',
+    color: 'text-blue-400 border-blue-500/30 bg-blue-500/10',
+    icon: Info,
+    hint: 'Pessoa pesquisando. Use em conteúdo educacional, blog posts e hooks de vídeo.',
+  },
+};
+
+function getScoreColor(score: number): string {
+  if (score >= 70) return 'text-green-400';
+  if (score >= 40) return 'text-amber-400';
+  return 'text-zinc-500';
+}
+
+function getDifficultyLabel(difficulty: number): string {
+  if (difficulty >= 60) return 'Alta';
+  if (difficulty >= 30) return 'Média';
+  return 'Baixa';
+}
+
 export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
   const [seedTerm, setSeedTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<KeywordResult[]>([]);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   async function handleMine() {
     if (!seedTerm.trim()) {
@@ -34,6 +74,7 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
 
     try {
       setLoading(true);
+      setExpandedIndex(null);
       const headers = await getAuthHeaders();
       const response = await fetch('/api/intelligence/keywords', {
         method: 'POST',
@@ -52,13 +93,16 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
       const data = body.data ?? body;
 
       if (data.keywords && data.keywords.length > 0) {
-        const mappedResults = data.keywords.map((term: string) => ({
-          term,
-          intent: 'Informativa',
-          opportunityScore: Math.floor(Math.random() * 40) + 60,
-          volume: Math.floor(Math.random() * 1000) + 100,
-          difficulty: Math.floor(Math.random() * 50) + 10,
-        }));
+        // API now sends full objects { term, intent, volume, difficulty, opportunityScore }
+        const mappedResults: KeywordResult[] = data.keywords.map((kw: KeywordResult | string) => {
+          if (typeof kw === 'string') {
+            // Fallback for old API format
+            return { term: kw, intent: 'informational', opportunityScore: 50, volume: 0, difficulty: 0 };
+          }
+          return kw;
+        });
+        // Sort by opportunityScore descending
+        mappedResults.sort((a, b) => b.opportunityScore - a.opportunityScore);
         setResults(mappedResults);
         toast.success(`Mineradas ${data.count} palavras-chave com sucesso!`);
       } else {
@@ -96,8 +140,8 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
               disabled={loading}
             />
           </div>
-          <Button 
-            onClick={handleMine} 
+          <Button
+            onClick={handleMine}
             disabled={loading || !seedTerm.trim()}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
@@ -106,35 +150,116 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
           </Button>
         </div>
 
+        {/* Summary bar */}
+        {results.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            {Object.entries(
+              results.reduce((acc, kw) => {
+                acc[kw.intent] = (acc[kw.intent] || 0) + 1;
+                return acc;
+              }, {} as Record<string, number>)
+            ).map(([intent, count]) => {
+              const config = INTENT_CONFIG[intent] || INTENT_CONFIG.informational;
+              return (
+                <Badge key={intent} variant="outline" className={`text-[10px] ${config.color}`}>
+                  {config.label}: {count}
+                </Badge>
+              );
+            })}
+            <span className="text-[10px] text-zinc-600 ml-auto">{results.length} termos</span>
+          </div>
+        )}
+
         <div className="flex-1 overflow-y-auto min-h-[200px] max-h-[400px] space-y-2 pr-2 custom-scrollbar">
           {results.length > 0 ? (
-            results.map((kw, i) => (
-              <div 
-                key={i} 
-                className="group flex items-center justify-between p-3 rounded-lg bg-zinc-950/50 border border-zinc-800/50 hover:border-blue-500/50 transition-all"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-md bg-blue-500/10">
-                    <Tag className="w-4 h-4 text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-zinc-200">{kw.term}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className="text-[10px] py-0 h-4 border-zinc-800 text-zinc-500">
-                        {kw.intent}
-                      </Badge>
-                      <span className="text-[10px] text-zinc-600 flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3" />
-                        Score: {kw.opportunityScore}
-                      </span>
+            results.map((kw, i) => {
+              const isExpanded = expandedIndex === i;
+              const intentConfig = INTENT_CONFIG[kw.intent] || INTENT_CONFIG.informational;
+              const IntentIcon = intentConfig.icon;
+
+              return (
+                <div
+                  key={i}
+                  className={`p-3 rounded-lg bg-zinc-950/50 border transition-all cursor-pointer ${
+                    isExpanded ? 'border-blue-500/50' : 'border-zinc-800/50 hover:border-zinc-700/50'
+                  }`}
+                  onClick={() => setExpandedIndex(isExpanded ? null : i)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className={`p-1.5 rounded-md shrink-0 ${intentConfig.color}`}>
+                        <IntentIcon className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-zinc-200 truncate">{kw.term}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Badge variant="outline" className={`text-[9px] py-0 h-4 ${intentConfig.color}`}>
+                            {intentConfig.label}
+                          </Badge>
+                          <span className={`text-[10px] flex items-center gap-0.5 ${getScoreColor(kw.opportunityScore)}`}>
+                            <TrendingUp className="w-3 h-3" />
+                            {kw.opportunityScore}
+                          </span>
+                        </div>
+                      </div>
                     </div>
+                    <ChevronDown className={`w-4 h-4 text-zinc-600 shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                   </div>
+
+                  {/* Expanded details */}
+                  {isExpanded && (
+                    <div className="mt-3 pt-3 border-t border-zinc-800/50 space-y-3">
+                      {/* Metrics */}
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="p-2 rounded bg-zinc-900 text-center">
+                          <p className="text-[9px] uppercase tracking-wider text-zinc-600 font-bold">Score</p>
+                          <p className={`text-lg font-bold ${getScoreColor(kw.opportunityScore)}`}>{kw.opportunityScore}</p>
+                        </div>
+                        <div className="p-2 rounded bg-zinc-900 text-center">
+                          <p className="text-[9px] uppercase tracking-wider text-zinc-600 font-bold">Volume</p>
+                          <p className="text-lg font-bold text-zinc-300">{kw.volume}</p>
+                        </div>
+                        <div className="p-2 rounded bg-zinc-900 text-center">
+                          <p className="text-[9px] uppercase tracking-wider text-zinc-600 font-bold">Dificuldade</p>
+                          <p className="text-lg font-bold text-zinc-300">{getDifficultyLabel(kw.difficulty)}</p>
+                        </div>
+                      </div>
+
+                      {/* Intent insight */}
+                      <div className="p-2.5 rounded-lg bg-zinc-900/80 border border-zinc-800/50">
+                        <p className="text-[10px] uppercase tracking-wider text-zinc-600 font-bold mb-1">
+                          Insight de Intenção
+                        </p>
+                        <p className="text-xs text-zinc-400 leading-relaxed">
+                          {intentConfig.hint}
+                        </p>
+                      </div>
+
+                      {/* Actionable tip */}
+                      <div className="p-2.5 rounded-lg bg-blue-500/5 border border-blue-500/10">
+                        <p className="text-[10px] uppercase tracking-wider text-blue-400/60 font-bold mb-1">
+                          Sugestão de uso
+                        </p>
+                        <p className="text-xs text-zinc-400 leading-relaxed">
+                          {kw.intent === 'transactional' && (
+                            <>Use <strong className="text-zinc-300">&quot;{kw.term}&quot;</strong> como keyword principal em anúncios de conversão. A pessoa já quer comprar — mostre a oferta direta.</>
+                          )}
+                          {kw.intent === 'commercial' && (
+                            <>Crie um comparativo ou review usando <strong className="text-zinc-300">&quot;{kw.term}&quot;</strong>. A pessoa está avaliando opções — posicione seu produto como a melhor escolha.</>
+                          )}
+                          {kw.intent === 'navigational' && (
+                            <>Monitore <strong className="text-zinc-300">&quot;{kw.term}&quot;</strong> para brand awareness. Se menciona um concorrente, crie conteúdo posicionando sua marca como alternativa.</>
+                          )}
+                          {kw.intent === 'informational' && (
+                            <>Use <strong className="text-zinc-300">&quot;{kw.term}&quot;</strong> como tema de conteúdo educacional (blog, vídeo, reels). Atraia a audiência antes de fazer a oferta.</>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <ArrowRight className="w-4 h-4 text-zinc-500" />
-                </Button>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-zinc-800 rounded-xl">
               <div className="p-3 rounded-full bg-zinc-800/50 mb-3">
