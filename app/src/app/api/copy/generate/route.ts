@@ -24,6 +24,7 @@ import { db } from '@/lib/firebase/config';
 import { updateUserUsage } from '@/lib/firebase/firestore';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM } from '@/lib/ai/rag';
+import { getBrandKeywords, formatKeywordsForPrompt } from '@/lib/firebase/intelligence';
 import type { 
   Funnel, 
   Proposal, 
@@ -106,7 +107,21 @@ export async function POST(request: NextRequest) {
       brandContext = formatBrandContextForLLM(brandChunks);
     }
 
-    // 3. Contexto de Anexos do Chat (Busca no histórico da conversa)
+    // 3. Contexto de Keywords Estratégicas (Intelligence Miner)
+    let keywordContext = '';
+    if (funnel.brandId) {
+      try {
+        const keywords = await getBrandKeywords(funnel.brandId, 10);
+        if (keywords.length > 0) {
+          keywordContext = formatKeywordsForPrompt(keywords);
+          console.log(`📊 ${keywords.length} keywords estratégicas carregadas para copy`);
+        }
+      } catch (err) {
+        console.warn('[Copy] Erro ao buscar keywords:', err);
+      }
+    }
+
+    // 4. Contexto de Anexos do Chat (Busca no histórico da conversa)
     let attachmentsContext = '';
     if (conversationId) {
       const messagesRef = collection(db, 'conversations', conversationId, 'messages');
@@ -129,13 +144,14 @@ export async function POST(request: NextRequest) {
     // Build prompt with all context
     const awarenessInfo = AWARENESS_STAGES[finalAwarenessStage];
     const prompt = buildCopyPrompt(
-      funnel, 
-      proposal, 
-      copyType as CopyType, 
+      funnel,
+      proposal,
+      copyType as CopyType,
       awarenessInfo,
       {
         ragContext,
         brandContext,
+        keywordContext,
         attachmentsContext
       }
     );

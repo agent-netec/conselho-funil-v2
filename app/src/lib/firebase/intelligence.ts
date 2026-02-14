@@ -14,12 +14,13 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 import { withResilience } from './resilience';
-import type { 
-  IntelligenceDocument, 
-  BrandKeywordsConfig, 
+import type {
+  IntelligenceDocument,
+  BrandKeywordsConfig,
   IntelligenceQueryFilter,
   IntelligenceQueryResult,
-  CreateIntelligenceInput
+  CreateIntelligenceInput,
+  KeywordIntelligence,
 } from '@/types/intelligence';
 import type { CompetitorProfile, IntelligenceAsset } from '@/types/competitors';
 
@@ -213,6 +214,74 @@ export async function saveBrandKeywordsConfig(brandId: string, config: Partial<B
     updatedAt: now,
     version: (config.version || 0) + 1,
   }, { merge: true });
+}
+
+// ============================================
+// KEYWORD INTELLIGENCE HELPERS
+// ============================================
+
+/**
+ * Busca as top keywords mineradas de uma marca.
+ * Usada para enriquecer copy generation, content engine, e chat/conselho.
+ * Retorna keywords ordenadas por opportunityScore (desc).
+ */
+export async function getBrandKeywords(
+  brandId: string,
+  maxResults = 15
+): Promise<KeywordIntelligence[]> {
+  try {
+    const result = await queryIntelligence({
+      brandId,
+      types: ['keyword'],
+      orderBy: 'collectedAt',
+      orderDirection: 'desc',
+      limit: maxResults,
+    });
+
+    return result.documents
+      .map(doc => (doc.content as any)?.keywordData as KeywordIntelligence | undefined)
+      .filter((kw): kw is KeywordIntelligence => !!kw && !!kw.term)
+      .sort((a, b) => (b.metrics?.opportunityScore ?? 0) - (a.metrics?.opportunityScore ?? 0));
+  } catch (error) {
+    console.warn('[Intelligence] getBrandKeywords failed:', error);
+    return [];
+  }
+}
+
+/**
+ * Formata keywords da marca para injeção em prompts de IA.
+ * Agrupa por intenção para contexto mais rico.
+ */
+export function formatKeywordsForPrompt(keywords: KeywordIntelligence[]): string {
+  if (keywords.length === 0) return '';
+
+  const byIntent: Record<string, string[]> = {
+    transactional: [],
+    commercial: [],
+    informational: [],
+    navigational: [],
+  };
+
+  for (const kw of keywords) {
+    const bucket = byIntent[kw.intent] || byIntent.informational;
+    bucket.push(`${kw.term} (score: ${kw.metrics?.opportunityScore ?? '?'})`);
+  }
+
+  const sections: string[] = [];
+  if (byIntent.transactional.length > 0) {
+    sections.push(`**Compra (prontos para converter):** ${byIntent.transactional.join(', ')}`);
+  }
+  if (byIntent.commercial.length > 0) {
+    sections.push(`**Comparação (avaliando opções):** ${byIntent.commercial.join(', ')}`);
+  }
+  if (byIntent.informational.length > 0) {
+    sections.push(`**Informativa (pesquisando):** ${byIntent.informational.join(', ')}`);
+  }
+  if (byIntent.navigational.length > 0) {
+    sections.push(`**Navegação (buscando marca/site):** ${byIntent.navigational.join(', ')}`);
+  }
+
+  return `## PALAVRAS-CHAVE ESTRATÉGICAS DA MARCA (Intelligence Miner)\n\nEstas são as buscas reais do Google que o público-alvo está fazendo. Use-as para criar copy mais relevante e alinhada com as dores e desejos reais.\n\n${sections.join('\n')}`;
 }
 
 // ============================================

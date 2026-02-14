@@ -152,6 +152,7 @@ export interface KeywordIntelligence {
   metrics: KeywordMetrics;
   relatedTerms: string[];
   suggestedBy: 'scout' | 'analyst' | 'manual';
+  suggestion?: string;
 }
 
 export interface IntelligenceContent {

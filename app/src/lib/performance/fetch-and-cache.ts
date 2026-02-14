@@ -22,13 +22,6 @@ export interface CacheResult {
   warning?: string;
 }
 
-interface FetchMetricsOptions {
-  forceFresh?: boolean;
-  period?: 'hourly' | 'daily' | 'weekly';
-  startDate?: string;
-  endDate?: string;
-}
-
 /**
  * Busca métricas de performance com cache Firestore (DT-12).
  * 1. Se cache fresco (< 15min) → retorna cached
@@ -38,19 +31,12 @@ interface FetchMetricsOptions {
  */
 export async function fetchMetricsWithCache(
   brandId: string,
-  options?: FetchMetricsOptions
+  options?: { forceFresh?: boolean; period?: 'hourly' | 'daily' | 'weekly' }
 ): Promise<CacheResult | null> {
   const today = new Date().toISOString().split('T')[0];
   const period = options?.period || 'daily';
-  const resolvedStart = options?.startDate || getDefaultStartDate();
-  const resolvedEnd = options?.endDate || today;
-  // Se intervalo customizado for usado, evita colisão de cache com doc "today".
-  const cacheKey = `${resolvedStart}_${resolvedEnd}_${period}`;
   const cacheRef = doc(db, 'brands', brandId, 'performance_cache', today);
-  const rangeCacheRef = doc(db, 'brands', brandId, 'performance_cache', cacheKey);
-  const isCustomRange = !!options?.startDate || !!options?.endDate;
-  const activeCacheRef = isCustomRange ? rangeCacheRef : cacheRef;
-  const cacheSnap = await getDoc(activeCacheRef);
+  const cacheSnap = await getDoc(cacheRef);
 
   // 1. Check cache freshness
   if (!options?.forceFresh && cacheSnap.exists()) {
@@ -66,13 +52,10 @@ export async function fetchMetricsWithCache(
 
   // 2. Try real fetch
   try {
-    const metrics = await fetchRealMetrics(brandId, period, {
-      startDate: resolvedStart,
-      endDate: resolvedEnd,
-    });
+    const metrics = await fetchRealMetrics(brandId, period);
 
     // Persist (fire-and-forget)
-    persistCache(activeCacheRef, metrics).catch(err =>
+    persistCache(cacheRef, metrics).catch(err =>
       console.warn(`[FetchAndCache] Cache persist failed:`, err.message)
     );
 
@@ -117,14 +100,13 @@ export async function fetchMetricsWithCache(
  */
 export async function fetchRealMetrics(
   brandId: string,
-  period: 'hourly' | 'daily' | 'weekly' = 'daily',
-  options?: { startDate?: string; endDate?: string }
+  period: 'hourly' | 'daily' | 'weekly' = 'daily'
 ): Promise<PerformanceMetric[]> {
   const metaAdapter = new MetaMetricsAdapter();
   const googleAdapter = new GoogleMetricsAdapter();
   const now = Timestamp.now();
-  const endDate = options?.endDate || new Date().toISOString().split('T')[0];
-  const startDate = options?.startDate || getDefaultStartDate();
+  const startDate = getDefaultStartDate();
+  const endDate = new Date().toISOString().split('T')[0];
 
   const [metaToken, googleToken] = await Promise.all([
     ensureFreshToken(brandId, 'meta').catch(err => {

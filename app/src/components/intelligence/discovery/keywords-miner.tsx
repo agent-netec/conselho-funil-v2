@@ -19,6 +19,7 @@ interface KeywordResult {
   opportunityScore: number;
   volume: number;
   difficulty: number;
+  suggestion?: string;
 }
 
 const INTENT_CONFIG: Record<string, { label: string; color: string; icon: typeof Search; hint: string }> = {
@@ -235,24 +236,14 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
                         </p>
                       </div>
 
-                      {/* Actionable tip */}
+                      {/* AI Suggestion */}
                       <div className="p-2.5 rounded-lg bg-blue-500/5 border border-blue-500/10">
-                        <p className="text-[10px] uppercase tracking-wider text-blue-400/60 font-bold mb-1">
-                          Sugestão de uso
+                        <p className="text-[10px] uppercase tracking-wider text-blue-400/60 font-bold mb-1 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          Sugestão da IA
                         </p>
                         <p className="text-xs text-zinc-400 leading-relaxed">
-                          {kw.intent === 'transactional' && (
-                            <>Use <strong className="text-zinc-300">&quot;{kw.term}&quot;</strong> como keyword principal em anúncios de conversão. A pessoa já quer comprar — mostre a oferta direta.</>
-                          )}
-                          {kw.intent === 'commercial' && (
-                            <>Crie um comparativo ou review usando <strong className="text-zinc-300">&quot;{kw.term}&quot;</strong>. A pessoa está avaliando opções — posicione seu produto como a melhor escolha.</>
-                          )}
-                          {kw.intent === 'navigational' && (
-                            <>Monitore <strong className="text-zinc-300">&quot;{kw.term}&quot;</strong> para brand awareness. Se menciona um concorrente, crie conteúdo posicionando sua marca como alternativa.</>
-                          )}
-                          {kw.intent === 'informational' && (
-                            <>Use <strong className="text-zinc-300">&quot;{kw.term}&quot;</strong> como tema de conteúdo educacional (blog, vídeo, reels). Atraia a audiência antes de fazer a oferta.</>
-                          )}
+                          {kw.suggestion || intentConfig.hint}
                         </p>
                       </div>
                     </div>
@@ -266,7 +257,7 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
                 <Target className="w-6 h-6 text-zinc-500" />
               </div>
               <p className="text-zinc-500 text-sm">
-                {loading ? 'Minerando a web...' : 'Digite um nicho ou termo para começar a mineração.'}
+                {loading ? 'Minerando a web e analisando com IA...' : 'Digite um nicho ou termo para começar a mineração.'}
               </p>
             </div>
           )}

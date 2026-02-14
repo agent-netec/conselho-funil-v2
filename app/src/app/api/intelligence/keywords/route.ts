@@ -103,6 +103,7 @@ export async function POST(req: NextRequest) {
         volume: k.metrics.volume,
         difficulty: k.metrics.difficulty,
         opportunityScore: k.metrics.opportunityScore,
+        ...(k.suggestion ? { suggestion: k.suggestion } : {}),
       })),
       persisted: savedIds.length,
       saveError,

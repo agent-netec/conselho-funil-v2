@@ -1,14 +1,13 @@
 /**
- * Hook de assets de inteligência — multi-query paralela em 3 collections
- * Sprint 29: S29-FT-01 (DT-05) — NÃO cria collection nova
- * Fontes: audience_scans, autopsies, offers
+ * Hook de assets de inteligência — multi-query paralela em 4 collections
+ * Fontes: audience_scans, autopsies, offers, intelligence (keywords)
  */
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { collection, getDocs, query, orderBy, limit, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, limit, Timestamp, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import type { IntelligenceAsset } from '@/types/intelligence';
+import type { IntelligenceAsset, IntelligenceDocument, KeywordIntelligence } from '@/types/intelligence';
 import type { AudienceScan } from '@/types/personalization';
 import type { AutopsyDocument } from '@/types/autopsy';
 import type { OfferDocument } from '@/types/offer';
@@ -70,6 +69,61 @@ function mapOfferToAsset(doc: OfferDocument): IntelligenceAsset {
   };
 }
 
+const INTENT_LABELS: Record<string, string> = {
+  transactional: 'Compra',
+  commercial: 'Comparação',
+  informational: 'Informativa',
+  navigational: 'Navegação',
+};
+
+function mapKeywordGroupToAsset(brandId: string, docs: IntelligenceDocument[]): IntelligenceAsset | null {
+  if (docs.length === 0) return null;
+
+  // Group keywords by seed term (approximate: use first collected batch)
+  const keywords = docs
+    .map(d => (d.content as any)?.keywordData as KeywordIntelligence | undefined)
+    .filter((kw): kw is KeywordIntelligence => !!kw);
+
+  if (keywords.length === 0) return null;
+
+  // Build summary with intent distribution
+  const intentCounts: Record<string, number> = {};
+  let totalScore = 0;
+  for (const kw of keywords) {
+    intentCounts[kw.intent] = (intentCounts[kw.intent] || 0) + 1;
+    totalScore += kw.metrics?.opportunityScore ?? 0;
+  }
+  const avgScore = Math.round(totalScore / keywords.length);
+
+  const intentSummary = Object.entries(intentCounts)
+    .map(([intent, count]) => `${INTENT_LABELS[intent] || intent}: ${count}`)
+    .join(' | ');
+
+  const topTerms = keywords.slice(0, 5).map(kw => kw.term).join(', ');
+
+  return {
+    id: `kw-group-${docs[0].id}`,
+    brandId,
+    type: 'spy_dossier', // Reuse spy_dossier type for keywords display
+    name: `Keywords Mineradas (${keywords.length} termos)`,
+    summary: `${intentSummary}\nTop: ${topTerms}`,
+    status: 'ready',
+    score: avgScore,
+    createdAt: docs[0].collectedAt || Timestamp.now(),
+    sourceId: docs[0].id,
+    metadata: {
+      totalKeywords: keywords.length,
+      avgOpportunityScore: avgScore,
+      intentDistribution: intentCounts,
+      topKeywords: keywords.slice(0, 10).map(kw => ({
+        term: kw.term,
+        intent: kw.intent,
+        score: kw.metrics?.opportunityScore,
+      })),
+    },
+  };
+}
+
 // === Query helpers ===
 
 const MAX_RESULTS = 20;
@@ -119,6 +173,22 @@ async function getOffers(brandId: string): Promise<OfferDocument[]> {
   }
 }
 
+async function getKeywordDocs(brandId: string): Promise<IntelligenceDocument[]> {
+  try {
+    const q = query(
+      collection(db, 'brands', brandId, 'intelligence'),
+      where('type', '==', 'keyword'),
+      orderBy('collectedAt', 'desc'),
+      limit(50)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as IntelligenceDocument));
+  } catch (err) {
+    console.warn('[IntelligenceAssets] Error fetching keywords:', err);
+    return [];
+  }
+}
+
 // === Hook principal ===
 
 export function useIntelligenceAssets(brandId: string): UseIntelligenceAssetsReturn {
@@ -137,11 +207,12 @@ export function useIntelligenceAssets(brandId: string): UseIntelligenceAssetsRet
     setError(null);
 
     try {
-      // Multi-query paralela em 3 collections (DT-05)
-      const [scans, autopsies, offers] = await Promise.all([
+      // Multi-query paralela em 4 collections
+      const [scans, autopsies, offers, keywordDocs] = await Promise.all([
         getAudienceScans(brandId),
         getAutopsies(brandId),
         getOffers(brandId),
+        getKeywordDocs(brandId),
       ]);
 
       // Normalizar e unificar
@@ -149,7 +220,15 @@ export function useIntelligenceAssets(brandId: string): UseIntelligenceAssetsRet
         ...scans.map(mapScanToAsset),
         ...autopsies.map(mapAutopsyToAsset),
         ...offers.map(mapOfferToAsset),
-      ].sort((a, b) => {
+      ];
+
+      // Add keyword group as a single asset card (if keywords exist)
+      const keywordAsset = mapKeywordGroupToAsset(brandId, keywordDocs);
+      if (keywordAsset) {
+        normalized.push(keywordAsset);
+      }
+
+      normalized.sort((a, b) => {
         const aTime = a.createdAt instanceof Timestamp ? a.createdAt.toMillis() : 0;
         const bTime = b.createdAt instanceof Timestamp ? b.createdAt.toMillis() : 0;
         return bTime - aTime;

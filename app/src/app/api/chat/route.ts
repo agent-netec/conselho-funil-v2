@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  ragQuery, 
-  retrieveChunks, 
-  formatContextForLLM, 
-  retrieveBrandChunks, 
-  formatBrandContextForLLM 
+import {
+  ragQuery,
+  retrieveChunks,
+  formatContextForLLM,
+  retrieveBrandChunks,
+  formatBrandContextForLLM
 } from '@/lib/ai/rag';
+import { getBrandKeywords, formatKeywordsForPrompt } from '@/lib/firebase/intelligence';
 import { 
   generateCouncilResponseWithGemini, 
   generatePartyResponseWithGemini,
@@ -251,6 +252,22 @@ async function handlePOST(request: NextRequest) {
 
     const knowledgePromise = retrieveChunks(message, retrievalConfig);
 
+    // 6. Keywords Intelligence (mineradas pelo Keywords Miner)
+    let keywordsPromise = Promise.resolve('');
+    if (conversation?.brandId) {
+      keywordsPromise = (async () => {
+        try {
+          const keywords = await getBrandKeywords(conversation.brandId!, 10);
+          if (keywords.length > 0) {
+            return formatKeywordsForPrompt(keywords);
+          }
+        } catch (err) {
+          console.warn('[Chat API] Keywords fetch failed:', err);
+        }
+        return '';
+      })();
+    }
+
     // Wait for everything in parallel
     console.log('[Chat API] Starting parallel context retrieval...');
     const [
@@ -258,13 +275,15 @@ async function handlePOST(request: NextRequest) {
       campaignContext,
       userFunnelsContext,
       brandResult,
-      chunks
+      chunks,
+      keywordContext
     ] = await Promise.all([
       funnelPromise,
       campaignPromise,
       userFunnelsPromise,
       brandContextPromise,
-      knowledgePromise
+      knowledgePromise,
+      keywordsPromise
     ]);
     console.log('[Chat API] Context retrieval completed.');
 
@@ -309,6 +328,9 @@ async function handlePOST(request: NextRequest) {
     }
     if (userFunnelsContext) {
       context = `${userFunnelsContext}\n\n---\n\n${context}`;
+    }
+    if (keywordContext) {
+      context = `${keywordContext}\n\n---\n\n${context}`;
     }
 
     // ST-12.5: Otimização de Resiliência - Context Truncation/Summarization

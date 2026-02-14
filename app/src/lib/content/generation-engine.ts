@@ -31,6 +31,7 @@ import {
   type ContentGenerationResult,
 } from '@/types/content';
 import { getTopEngagementExamples, formatEngagementContext } from '@/lib/content/engagement-scorer';
+import { getBrandKeywords } from '@/lib/firebase/intelligence';
 
 /** Mapa de prompts por formato */
 const FORMAT_PROMPTS: Record<ContentFormat, string> = {
@@ -141,8 +142,23 @@ export async function generateContent(
     // 3. Montar system instruction com Brand Voice
     const systemInstruction = buildSystemInstruction(brand);
 
+    // 3.1 Enriquecer keywords com Intelligence Miner (se não fornecidas pelo usuário)
+    let enrichedParams = params;
+    try {
+      const intelligenceKeywords = await getBrandKeywords(brandId, 8);
+      if (intelligenceKeywords.length > 0) {
+        const kwTerms = intelligenceKeywords.map(kw => kw.term);
+        enrichedParams = {
+          ...params,
+          keywords: [...new Set([...(params.keywords || []), ...kwTerms])],
+        };
+      }
+    } catch (err) {
+      console.warn('[GenerationEngine] Failed to fetch intelligence keywords:', err);
+    }
+
     // 4. Preencher prompt com parametros
-    const filledPrompt = fillPrompt(promptTemplate, params, brand.name || 'Brand');
+    const filledPrompt = fillPrompt(promptTemplate, enrichedParams, brand.name || 'Brand');
 
     // 4.1 Injetar exemplos de alta performance (se existirem)
     const engagementExamples = await getTopEngagementExamples(brandId);

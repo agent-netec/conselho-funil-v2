@@ -185,6 +185,7 @@ export function buildCopyPrompt(
   context?: {
     ragContext?: string;
     brandContext?: string;
+    keywordContext?: string;
     attachmentsContext?: string;
   }
 ): string {
@@ -224,6 +225,8 @@ ${proposal.architecture?.stages?.map((s, i) => `${i + 1}. ${s.name} — ${s.obje
 ${context?.ragContext ? `## CONHECIMENTO ESTRATÉGICO (PLAYBOOKS)\n${context.ragContext}\n` : ''}
 
 ${context?.brandContext ? `## CONHECIMENTO DA MARCA\n${context.brandContext}\n` : ''}
+
+${context?.keywordContext ? `${context.keywordContext}\n` : ''}
 
 ${context?.attachmentsContext ? `## REFERÊNCIAS E ANEXOS (CHAT)\n${context.attachmentsContext}\n` : ''}
 
