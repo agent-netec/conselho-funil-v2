@@ -32,6 +32,9 @@ import {
 } from '@/types/content';
 import { getTopEngagementExamples, formatEngagementContext } from '@/lib/content/engagement-scorer';
 import { getBrandKeywords } from '@/lib/firebase/intelligence';
+import { loadBrain } from '@/lib/intelligence/brains/loader';
+import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
+import type { CounselorId } from '@/types';
 
 /** Mapa de prompts por formato */
 const FORMAT_PROMPTS: Record<ContentFormat, string> = {
@@ -40,6 +43,75 @@ const FORMAT_PROMPTS: Record<ContentFormat, string> = {
   carousel: CONTENT_CAROUSEL_PROMPT,
   reel: CONTENT_REEL_PROMPT,
 };
+
+// ═══════════════════════════════════════════════════════
+// CONTENT TYPE → EXPERTS MAPPING (Brain Integration — Sprint C)
+// ═══════════════════════════════════════════════════════
+
+type ContentCategory = 'social_post' | 'email_copy' | 'landing_page';
+
+interface ContentExpertMapping {
+  counselorId: CounselorId;
+  frameworkId: string;
+}
+
+/** Maps content format to its category for expert selection */
+const FORMAT_CATEGORY_MAP: Record<ContentFormat, ContentCategory> = {
+  post: 'social_post',
+  story: 'social_post',
+  carousel: 'social_post',
+  reel: 'social_post',
+};
+
+/** Maps content category to 2 domain experts with real frameworks */
+const CONTENT_EXPERT_MAP: Record<ContentCategory, ContentExpertMapping[]> = {
+  social_post: [
+    { counselorId: 'rachel_karten', frameworkId: 'hook_effectiveness' },
+    { counselorId: 'justin_welsh', frameworkId: 'social_funnel_score' },
+  ],
+  email_copy: [
+    { counselorId: 'dan_kennedy_copy', frameworkId: 'offer_architecture' },
+    { counselorId: 'frank_kern_copy', frameworkId: 'sequence_logic' },
+  ],
+  landing_page: [
+    { counselorId: 'david_ogilvy', frameworkId: 'big_idea_test' },
+    { counselorId: 'joseph_sugarman', frameworkId: 'slippery_slide' },
+  ],
+};
+
+/**
+ * Sprint C: Builds brain context for content generation.
+ * Loads frameworks + red_flags from 2 experts relevant to the content type.
+ */
+function buildContentBrainContext(format: ContentFormat): string {
+  const category = FORMAT_CATEGORY_MAP[format];
+  const experts = CONTENT_EXPERT_MAP[category];
+  if (!experts) return '';
+
+  const parts: string[] = [];
+
+  for (const { counselorId, frameworkId } of experts) {
+    const brain = loadBrain(counselorId);
+    if (!brain) continue;
+
+    const frameworkJson = buildScoringPromptFromBrain(counselorId, frameworkId);
+    if (!frameworkJson) continue;
+
+    const redFlagExamples = brain.redFlags.slice(0, 3).map(rf =>
+      `- **${rf.label}**: "${rf.before}" → "${rf.after}"`
+    ).join('\n');
+
+    parts.push(
+      `### ${brain.name} — ${brain.subtitle}\n` +
+      `Framework: ${frameworkId}\n${frameworkJson}\n` +
+      (redFlagExamples ? `\nCommon Mistakes to Avoid:\n${redFlagExamples}` : '')
+    );
+  }
+
+  if (parts.length === 0) return '';
+
+  return `\n\n## Expert Guidelines (Conselho de Funil)\n${parts.join('\n\n')}`;
+}
 
 /**
  * Monta o system instruction com Brand Voice injetada.
@@ -163,7 +235,11 @@ export async function generateContent(
     // 4.1 Injetar exemplos de alta performance (se existirem)
     const engagementExamples = await getTopEngagementExamples(brandId);
     const engagementContext = formatEngagementContext(engagementExamples);
-    const enrichedPrompt = filledPrompt + engagementContext;
+
+    // 4.2 Sprint C: Injetar brain context dos experts relevantes ao tipo de conteudo
+    const brainContext = buildContentBrainContext(params.format);
+
+    const enrichedPrompt = filledPrompt + engagementContext + brainContext;
 
     // 5. Chamar Gemini com JSON mode
     const result = await generateWithGemini(enrichedPrompt, {

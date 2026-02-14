@@ -7,10 +7,18 @@ export const ADS_GENERATION_RULES = `
 2. **ESPECIFICIDADE**: Defina públicos, canais e estruturas de campanha reais (CBO/ABO, segmentação por interesses, lookalike).
 3. **MÉTRICAS 2026**: Utilize benchmarks atualizados de CPC, CTR e ROAS para 2026.
 4. **FORMATO**: Retorne APENAS o JSON válido seguindo a estrutura solicitada.
-5. **INSIGHTS**: Forneça justificativas técnicas baseadas nos especialistas.
+5. **INSIGHTS**: Forneça justificativas técnicas baseadas nos frameworks dos especialistas.
 `;
 
-export function buildAdsGenerationPrompt(campaign: CampaignContext, context?: { ragContext?: string; brandContext?: string }): string {
+/**
+ * Sprint C: brainContext is passed from server-side caller (buildAdsBrainContext in ads-brain-context.ts)
+ * because this file is re-exported through prompts/index.ts into client components
+ * and cannot import from loader.ts (which uses fs).
+ */
+export function buildAdsGenerationPrompt(
+  campaign: CampaignContext,
+  context?: { ragContext?: string; brandContext?: string; brainContext?: string }
+): string {
   const adsCounselors = [
     COUNSELORS_REGISTRY.justin_brooke,
     COUNSELORS_REGISTRY.nicholas_kusmich,
@@ -18,10 +26,13 @@ export function buildAdsGenerationPrompt(campaign: CampaignContext, context?: { 
     COUNSELORS_REGISTRY.savannah_sanchez
   ];
 
+  const brainContext = context?.brainContext || '';
+
   return `Você é o Conselho de Ads, um sistema de inteligência composto por 4 mestres do tráfego pago e escala:
 
 ${adsCounselors.map((c, i) => `${i + 1}. **${c.name}** — ${c.expertise}`).join('\n')}
 
+${brainContext ? `## IDENTITY CARDS DOS ESPECIALISTAS (Frameworks Reais)\n\n${brainContext}\n` : ''}
 ## THE GOLDEN THREAD: MANIFESTO DA CAMPANHA
 
 ### 1. O CÉREBRO (FUNIL)
@@ -50,8 +61,8 @@ ${context?.brandContext ? `## CONHECIMENTO DA MARCA\n${context.brandContext}\n` 
 
 ## TAREFA: GERAR ESTRATÉGIA DE ADS (ESCALA)
 
-Sua tarefa é ler todo o manifesto acima e projetar a estrutura de escala desta campanha. 
-Não invente dados que contradigam a copy ou o design. 
+Sua tarefa é ler todo o manifesto acima e projetar a estrutura de escala desta campanha.
+${brainContext ? 'Use os frameworks dos especialistas acima para fundamentar cada decisão.\n' : ''}Não invente dados que contradigam a copy ou o design.
 Se o Copywriter definiu uma Big Idea, o Ad deve ser o veículo dessa ideia.
 
 ## FORMATO DE SAÍDA (JSON)
@@ -69,11 +80,23 @@ Se o Copywriter definiu uma Big Idea, o Ad deve ser o veículo dessa ideia.
   "counselorInsights": [
     {
       "counselor": "Justin Brooke",
-      "insight": "Conselho sobre escala e distribuição de verba."
+      "frameworkUsed": "ad_strategy_score",
+      "insight": "Conselho baseado no framework de estratégia e escala."
     },
     {
       "counselor": "Nicholas Kusmich",
-      "insight": "Conselho sobre segmentação e contexto no Meta."
+      "frameworkUsed": "meta_ads_score",
+      "insight": "Conselho baseado no framework de Meta Ads e contexto."
+    },
+    {
+      "counselor": "Jon Loomer",
+      "frameworkUsed": "technical_setup_score",
+      "insight": "Conselho baseado no framework técnico e de mensuração."
+    },
+    {
+      "counselor": "Savannah Sanchez",
+      "frameworkUsed": "creative_native_score",
+      "insight": "Conselho baseado no framework de criativo nativo e plataforma."
     }
   ]
 }

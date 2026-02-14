@@ -4,6 +4,7 @@ import { doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { buildAdsGenerationPrompt } from '@/lib/ai/prompts/ads-generation';
+import { buildAdsBrainContext } from '@/lib/ai/prompts/ads-brain-context';
 import { parseAIJSON } from '@/lib/ai/formatters';
 import { CampaignContext } from '@/types/campaign';
 import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM } from '@/lib/ai/rag';
@@ -72,8 +73,11 @@ export async function POST(
       }
     }
     
-    // 3. Build prompt with injected context
-    const prompt = buildAdsGenerationPrompt(campaign, { ragContext, brandContext });
+    // 3. Sprint C: Build brain context from identity cards (server-only)
+    const brainContext = buildAdsBrainContext();
+
+    // 4. Build prompt with injected context
+    const prompt = buildAdsGenerationPrompt(campaign, { ragContext, brandContext, brainContext });
     
     // 4. Call AI
     const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';

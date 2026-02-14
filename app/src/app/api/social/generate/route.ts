@@ -1,15 +1,76 @@
 export const dynamic = 'force-dynamic';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { parseAIJSON } from '@/lib/ai/formatters';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { updateUserUsage } from '@/lib/firebase/firestore';
+import { loadBrain } from '@/lib/intelligence/brains/loader';
+import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
+import type { CounselorId } from '@/types';
 
 export const runtime = 'nodejs';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
+
+// ═══════════════════════════════════════════════════════
+// SOCIAL → EXPERTS MAPPING (Brain Integration — Sprint C)
+// ═══════════════════════════════════════════════════════
+
+interface SocialExpertMapping {
+  counselorId: CounselorId;
+  frameworkId: string;
+}
+
+/** 4 social counselors with their primary frameworks */
+const SOCIAL_EXPERT_MAP: Record<string, SocialExpertMapping[]> = {
+  hooks_viral: [
+    { counselorId: 'rachel_karten', frameworkId: 'hook_effectiveness' },
+    { counselorId: 'nikita_beer', frameworkId: 'viral_potential' },
+  ],
+  funnel_algorithm: [
+    { counselorId: 'justin_welsh', frameworkId: 'social_funnel_score' },
+    { counselorId: 'lia_haberman', frameworkId: 'algorithm_alignment' },
+  ],
+};
+
+/**
+ * Sprint C: Builds brain context for social hook generation.
+ * Loads frameworks + red_flags from the 4 social counselors.
+ */
+function buildSocialBrainContext(): string {
+  const parts: string[] = [];
+
+  for (const [area, experts] of Object.entries(SOCIAL_EXPERT_MAP)) {
+    const expertParts: string[] = [];
+
+    for (const { counselorId, frameworkId } of experts) {
+      const brain = loadBrain(counselorId);
+      if (!brain) continue;
+
+      const frameworkJson = buildScoringPromptFromBrain(counselorId, frameworkId);
+      if (!frameworkJson) continue;
+
+      const redFlags = brain.redFlags.slice(0, 3).map(rf =>
+        `- **${rf.label}**: "${rf.before}" → "${rf.after}"`
+      ).join('\n');
+
+      expertParts.push(
+        `### ${brain.name} — ${brain.subtitle}\n` +
+        `**Principios:** ${brain.principles.slice(0, 200)}...\n` +
+        `**Framework (${frameworkId}):**\n${frameworkJson}\n` +
+        (redFlags ? `**Erros a Evitar:**\n${redFlags}` : '')
+      );
+    }
+
+    if (expertParts.length > 0) {
+      parts.push(expertParts.join('\n\n'));
+    }
+  }
+
+  return parts.join('\n\n---\n\n');
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,31 +92,45 @@ export async function POST(request: NextRequest) {
     }
 
     const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
-    const model = genAI.getGenerativeModel({ 
+    const model = genAI.getGenerativeModel({
       model: modelName,
       generationConfig: { responseMimeType: "application/json" }
     });
 
+    // Sprint C: Build brain context with real identity cards
+    const brainContext = buildSocialBrainContext();
+
     const prompt = `
-      Você é o Conselho de Social Media do "Conselho de Funil".
+      Você é o Conselho de Social Media do "Conselho de Funil", composto por 4 especialistas com frameworks reais de avaliação.
       Sua missão é extrair HOOKS (ganchos de atenção) magnéticos de uma copy aprovada.
 
-      [CONTEXTO ESTRATÉGICO]
+      ## IDENTITY CARDS DOS ESPECIALISTAS (Frameworks Reais)
+
+      ${brainContext}
+
+      ## CONTEXTO ESTRATÉGICO
       Objetivo: ${context.objective}
       Público-alvo: ${context.targetAudience}
-      
-      [COPY DE REFERÊNCIA]
+
+      ## COPY DE REFERÊNCIA
       ${context.copy}
 
-      [INSTRUÇÕES]
+      ## INSTRUÇÕES
       1. Crie 5 hooks diferentes focados em parar o scroll.
       2. Varie os estilos: Curiosidade, Medo/Alerta, Benefício Direto, Contra-intuitivo, Prova Social.
       3. Adapte cada hook para ser multi-plataforma (Instagram, LinkedIn, TikTok).
-      
+      4. Use os frameworks dos especialistas acima para fundamentar cada hook.
+      5. Referencie qual framework/princípio justifica cada hook no campo "reasoning".
+
       Retorne APENAS um JSON no formato:
       {
         "hooks": [
-          { "content": "Texto do hook...", "style": "Estilo", "platform": "Plataforma sugerida" }
+          {
+            "content": "Texto do hook...",
+            "style": "Estilo",
+            "platform": "Plataforma sugerida",
+            "reasoning": "Por que este hook funciona, referenciando framework do especialista"
+          }
         ]
       }
     `;
