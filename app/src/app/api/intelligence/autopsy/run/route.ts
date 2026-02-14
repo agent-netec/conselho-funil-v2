@@ -94,6 +94,10 @@ export async function POST(req: NextRequest) {
     };
 
     const autopsyRef = doc(db, 'brands', safeBrandId, 'autopsies', response.id);
+    // Firestore rejects undefined values — strip screenshotUrl if absent
+    if (autopsyDoc.result?.metadata?.screenshotUrl === undefined) {
+      delete autopsyDoc.result.metadata.screenshotUrl;
+    }
     setDoc(autopsyRef, autopsyDoc).catch(err => {
       console.error('[Autopsy] Persist failed:', err);
     });

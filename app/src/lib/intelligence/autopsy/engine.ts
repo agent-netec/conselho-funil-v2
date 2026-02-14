@@ -38,8 +38,9 @@ export class AutopsyEngine {
         heuristics: analysis.heuristics,
         recommendations: analysis.recommendations,
         metadata: {
-          ...metadata,
-          screenshotUrl: metadata.screenshotUrl,
+          loadTimeMs: metadata.loadTimeMs,
+          techStack: metadata.techStack,
+          ...(metadata.screenshotUrl ? { screenshotUrl: metadata.screenshotUrl } : {}),
         },
       };
     } catch (error) {
