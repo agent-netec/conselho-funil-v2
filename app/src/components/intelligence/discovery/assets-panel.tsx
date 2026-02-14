@@ -66,12 +66,14 @@ function formatDate(ts: Timestamp | unknown): string {
 }
 
 function AssetCard({ asset }: { asset: IntelligenceAsset }) {
+  const [expanded, setExpanded] = useState(false);
   const Icon = TYPE_ICONS[asset.type] || Search;
   const typeLabel = TYPE_LABELS[asset.type] || asset.type;
   const typeColor = TYPE_COLORS[asset.type] || TYPE_COLORS.audience_scan;
   const statusBadge = STATUS_BADGES[asset.status] || STATUS_BADGES.ready;
 
-  const handleCopy = () => {
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const text = `${asset.name}\n${asset.summary}`;
     navigator.clipboard.writeText(text).then(() => {
       toast.success('Copiado para o clipboard');
@@ -81,7 +83,10 @@ function AssetCard({ asset }: { asset: IntelligenceAsset }) {
   };
 
   return (
-    <Card className="bg-zinc-900/50 border-white/[0.05] hover:border-white/[0.12] transition-all duration-200 group">
+    <Card
+      className={`bg-zinc-900/50 border-white/[0.05] hover:border-white/[0.12] transition-all duration-200 group cursor-pointer ${expanded ? 'lg:col-span-2 xl:col-span-3' : ''}`}
+      onClick={() => setExpanded(!expanded)}
+    >
       <CardContent className="p-4 space-y-3">
         {/* Header: Ícone + Tipo + Status */}
         <div className="flex items-center justify-between">
@@ -99,14 +104,32 @@ function AssetCard({ asset }: { asset: IntelligenceAsset }) {
         </div>
 
         {/* Nome */}
-        <h3 className="text-sm font-medium text-zinc-200 line-clamp-1 group-hover:text-white transition-colors">
+        <h3 className={`text-sm font-medium text-zinc-200 group-hover:text-white transition-colors ${expanded ? '' : 'line-clamp-1'}`}>
           {asset.name}
         </h3>
 
         {/* Resumo */}
-        <p className="text-xs text-zinc-500 line-clamp-2">
+        <p className={`text-xs text-zinc-500 ${expanded ? 'whitespace-pre-wrap' : 'line-clamp-2'}`}>
           {asset.summary}
         </p>
+
+        {/* Expanded: metadata */}
+        {expanded && asset.metadata && Object.keys(asset.metadata).length > 0 && (
+          <div className="pt-2 border-t border-white/[0.05] space-y-2">
+            {Object.entries(asset.metadata).map(([key, value]) => {
+              if (value === null || value === undefined) return null;
+              const displayValue = typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value);
+              return (
+                <div key={key}>
+                  <span className="text-[10px] uppercase tracking-wider text-zinc-600 font-bold">{key}</span>
+                  <p className={`text-xs text-zinc-400 mt-0.5 ${typeof value === 'object' ? 'font-mono text-[10px] whitespace-pre-wrap bg-zinc-950 p-2 rounded' : ''}`}>
+                    {displayValue}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Footer: Score + Data + Actions */}
         <div className="flex items-center justify-between pt-1 border-t border-white/[0.03]">
@@ -122,13 +145,18 @@ function AssetCard({ asset }: { asset: IntelligenceAsset }) {
               {formatDate(asset.createdAt)}
             </span>
           </div>
-          <button
-            onClick={handleCopy}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-white/5"
-            title="Copiar para clipboard"
-          >
-            <Copy className="h-3 w-3 text-zinc-500" />
-          </button>
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] text-zinc-600">
+              {expanded ? 'Clique para fechar' : 'Clique para expandir'}
+            </span>
+            <button
+              onClick={handleCopy}
+              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-white/5"
+              title="Copiar para clipboard"
+            >
+              <Copy className="h-3 w-3 text-zinc-500" />
+            </button>
+          </div>
         </div>
       </CardContent>
     </Card>
