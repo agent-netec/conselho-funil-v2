@@ -1,15 +1,15 @@
-import { 
-  IMCPAdapter, 
-  MCPTask, 
-  MCPResult, 
-  MCPProvider, 
-  SemanticSearchInput, 
-  SemanticSearchResult, 
+import {
+  IMCPAdapter,
+  MCPTask,
+  MCPResult,
+  MCPProvider,
+  SemanticSearchInput,
+  SemanticSearchResult,
   MCPHealthStatus
 } from '../types';
 
 /**
- * Adapter para o Exa MCP (via Docker ou Relay de Produção)
+ * Adapter para o Exa MCP (via Docker, API direta ou Relay de Produção)
  */
 export class ExaAdapter implements IMCPAdapter {
   provider: MCPProvider = 'exa';
@@ -94,7 +94,29 @@ export class ExaAdapter implements IMCPAdapter {
       });
     }
 
-    // 2. Produção (App) - Relay
+    // 2. Server-side — chamar Exa API diretamente (sem relay HTTP)
+    if (typeof window === 'undefined') {
+      const apiKey = process.env.EXA_API_KEY;
+      const baseUrl = process.env.EXA_WORKER_URL || 'https://api.exa.ai/search';
+      if (!apiKey) {
+        throw new Error('EXA_API_KEY not configured');
+      }
+      const response = await fetch(baseUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({ query, numResults }),
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Exa API error ${response.status}: ${errorText}`);
+      }
+      return await response.json();
+    }
+
+    // 3. Client-side (Produção) — Relay
     const response = await fetch('/api/mcp/execute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -1,17 +1,17 @@
-import { 
-  IMCPAdapter, 
-  MCPTask, 
-  MCPResult, 
-  MCPProvider, 
-  UrlToMarkdownInput, 
-  UrlToMarkdownResult, 
+import {
+  IMCPAdapter,
+  MCPTask,
+  MCPResult,
+  MCPProvider,
+  UrlToMarkdownInput,
+  UrlToMarkdownResult,
   FullScrapeInput,
   FullScrapeResult,
   MCPHealthStatus
 } from '../types';
 
 /**
- * Adapter para o Firecrawl MCP (via Docker ou Relay de Produção)
+ * Adapter para o Firecrawl MCP (via Docker, API direta ou Relay de Produção)
  */
 export class FirecrawlAdapter implements IMCPAdapter {
   provider: MCPProvider = 'firecrawl';
@@ -54,7 +54,7 @@ export class FirecrawlAdapter implements IMCPAdapter {
 
   private async scrapeUrl(task: MCPTask, startTime: number): Promise<MCPResult> {
     const input = task.input as UrlToMarkdownInput;
-    
+
     const response = await this.callFirecrawlMcp('scrape', {
       url: input.url,
       formats: ['markdown'],
@@ -62,14 +62,14 @@ export class FirecrawlAdapter implements IMCPAdapter {
     });
 
     const data: UrlToMarkdownResult = {
-      markdown: response.markdown || '',
-      title: response.metadata?.title || '',
-      links: response.links || [],
-      images: response.images || [],
+      markdown: response.markdown || response.data?.markdown || '',
+      title: response.metadata?.title || response.data?.metadata?.title || '',
+      links: response.links || response.data?.links || [],
+      images: response.images || response.data?.images || [],
       metadata: {
-        author: response.metadata?.author,
-        publishedDate: response.metadata?.publishedDate,
-        description: response.metadata?.description,
+        author: response.metadata?.author || response.data?.metadata?.author,
+        publishedDate: response.metadata?.publishedDate || response.data?.metadata?.publishedDate,
+        description: response.metadata?.description || response.data?.metadata?.description,
       }
     };
 
@@ -84,7 +84,7 @@ export class FirecrawlAdapter implements IMCPAdapter {
 
   private async crawlSite(task: MCPTask, startTime: number): Promise<MCPResult> {
     const input = task.input as FullScrapeInput;
-    
+
     const response = await this.callFirecrawlMcp('crawl', {
       url: input.url,
       maxPages: input.maxPages || 10,
@@ -144,7 +144,30 @@ export class FirecrawlAdapter implements IMCPAdapter {
       return await window.mcp.callTool('firecrawl', tool, args);
     }
 
-    // 2. Produção (App) - Relay
+    // 2. Server-side — chamar Firecrawl API diretamente (sem relay HTTP)
+    if (typeof window === 'undefined') {
+      const apiKey = process.env.FIRECRAWL_API_KEY;
+      const baseUrl = process.env.FIRECRAWL_WORKER_URL || 'https://api.firecrawl.dev/v1';
+      if (!apiKey) {
+        throw new Error('FIRECRAWL_API_KEY not configured');
+      }
+      const endpoint = tool === 'crawl' ? `${baseUrl}/crawl` : `${baseUrl}/scrape`;
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(args),
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Firecrawl API error ${response.status}: ${errorText}`);
+      }
+      return await response.json();
+    }
+
+    // 3. Client-side (Produção) — Relay
     const response = await fetch('/api/mcp/execute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
