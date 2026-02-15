@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     const response = await generateWithGemini(fullPrompt, {
       model: DEFAULT_GEMINI_MODEL,
       temperature: 0.8,
-      maxOutputTokens: 8192,
+      maxOutputTokens: 16384,
       responseMimeType: 'application/json',
     });
 
@@ -140,7 +140,9 @@ export async function POST(request: NextRequest) {
       proposalsData = parseAIJSON(response);
     } catch (parseError) {
       console.error('Error parsing Gemini response:', parseError);
-      console.log('Raw response:', response.substring(0, 500));
+      console.log('Raw response (first 500):', response.substring(0, 500));
+      console.log('Raw response (last 200):', response.substring(response.length - 200));
+      console.log('Response length:', response.length);
 
       // Update status to error
       await updateFunnel(funnelId, { status: 'draft' });
