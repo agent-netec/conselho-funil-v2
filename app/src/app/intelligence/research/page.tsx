@@ -11,6 +11,7 @@ export default function ResearchPage() {
   const { selectedBrand } = useBrandStore();
   const brandId = selectedBrand?.id ?? '';
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<MarketDossier[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -32,8 +33,12 @@ export default function ResearchPage() {
     competitors?: string[];
     depth: ResearchDepth;
   }) => {
-    if (!brandId) return;
+    if (!brandId) {
+      setError('Selecione uma brand antes de gerar o dossiê.');
+      return;
+    }
     setLoading(true);
+    setError(null);
     try {
       const headers = await getAuthHeaders();
       const res = await fetch('/api/intelligence/research', {
@@ -41,8 +46,20 @@ export default function ResearchPage() {
         headers,
         body: JSON.stringify({ brandId, ...payload }),
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        setError(`Erro ${res.status}: ${body || res.statusText}`);
+        return;
+      }
+      const result = await res.json();
+      const dossier = result?.data ?? result;
+      if (dossier?.status === 'failed') {
+        const failMsg = dossier?.sections?.marketOverview || 'Dossiê retornou com status failed.';
+        setError(typeof failMsg === 'string' ? failMsg : 'Falha ao gerar dossiê.');
+      }
       await loadList();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro inesperado ao gerar dossiê.');
     } finally {
       setLoading(false);
     }
@@ -52,6 +69,11 @@ export default function ResearchPage() {
     <div className="container mx-auto py-8 px-4 space-y-6">
       <h1 className="text-3xl font-bold text-white">Deep Research</h1>
       <ResearchForm onSubmit={handleSubmit} loading={loading} />
+      {error && (
+        <div className="border border-red-800 bg-red-900/20 rounded-lg p-4 text-red-300 text-sm">
+          {error}
+        </div>
+      )}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="space-y-2">
           <button className="text-xs text-zinc-400 underline" onClick={loadList}>
