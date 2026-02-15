@@ -222,6 +222,9 @@ Sprint de checagem final executado manualmente pelo usuario **diretamente no sit
 | # | Sprint | Teste | Descricao | Severidade | Status |
 |---|--------|-------|-----------|------------|--------|
 | 1 | F (I-9) | 9.1 | POST `/api/funnels/generate` retorna 500 — 3 causas defensivas + 1 root cause real | CRITICO | CORRIGIDO |
+| 1c | F (I-9) | 9.1 | maxOutputTokens 8192 insuficiente para 2 propostas completas — aumentado para 16384 | CRITICO | CORRIGIDO |
+| 1d | F (I-9) | 9.1 | Catch-all nao resetava status para draft — funil travava em 'generating' | MEDIO | CORRIGIDO |
+| 2 | F (I-7) | 7.1 | POST `/api/design/generate` retorna 400 "Prompt is required" — visualPrompt ausente | ALTO | CORRIGIDO |
 
 ### Decisao Final
 
@@ -347,6 +350,48 @@ sem wrappers markdown, sem texto extra, sem truncar no meio de um campo.
 
 ---
 
+### Issue #2 — Design Generate 400 "Prompt is required"
+
+**Reportado em:** 2026-02-15
+**Teste relacionado:** I-7 (Design Generate com Brain — Sprint F1)
+**Severidade:** ALTO (geracao de criativos bloqueada)
+**Caminho:** `/funnels/[id]/design` → Card NanoBanana → Botao "Gerar Criativo"
+**Endpoint:** `POST /api/design/generate`
+
+#### Sintoma
+A estrategia visual (C.H.A.P.E.U, Safe Zones, Copy & Hooks) gera com sucesso via `/api/design/plan`.
+Mas ao clicar "Gerar Criativo Baseado na Intencao", o console mostra:
+```
+POST /api/design/generate 400 (Bad Request)
+Generation Error: Error: Prompt is required
+```
+
+#### Root Cause
+
+**Arquivo:** `app/src/components/chat/design-generation-card.tsx` (linha 100)
+
+O componente envia `prompt: promptData.visualPrompt || promptData.prompt` ao API.
+Porem, o Gemini no `/api/design/plan` as vezes omite o campo `visualPrompt` no JSON de resposta,
+resultando em `prompt: undefined` → API retorna 400.
+
+#### Fix Aplicado
+
+Adicionado fallback que constroi um prompt basico a partir dos dados disponiveis (strategy, platform, assets):
+```diff
+- const visualPrompt = promptData.visualPrompt || promptData.prompt;
++ const visualPrompt = promptData.visualPrompt || promptData.prompt
++   || `Professional ${platform} ad creative, ${strategy.contrastFocus}, ${assets.headline}, ${strategy.unityTheme}`;
+```
+
+Agora mesmo que o Gemini omita `visualPrompt`, o usuario ainda consegue gerar criativos.
+
+#### Resultado
+- Build local: OK
+- Commit: 426565558
+- Aguardando deploy + re-teste
+
+---
+
 ## Pos-Aprovacao
 
 Apos aprovacao:
@@ -365,6 +410,9 @@ Apos aprovacao:
 | 2026-02-15 | Inicio dos testes em producao | EM ANDAMENTO | Sessao de debug ao vivo |
 | 2026-02-15 | Issue #1: Funnels Generate 500 | CORRIGIDO | 3 fixes defensivos + varredura 20 arquivos gemini-2.0-flash |
 | 2026-02-15 | Issue #1b: Root cause confirmado (parse AI response) | CORRIGIDO | responseMimeType: application/json |
+| 2026-02-15 | Issue #1c: maxOutputTokens 8192→16384 | CORRIGIDO | JSON truncado causava parse failure |
+| 2026-02-15 | Issue #1d: Catch-all status reset | CORRIGIDO | Funil nao trava mais em 'generating' |
+| 2026-02-15 | Issue #2: Design Generate 400 | CORRIGIDO | Fallback prompt quando visualPrompt ausente |
 | | Testes manuais Sprint E | PENDENTE | |
 | | Testes manuais Sprint F | PENDENTE | |
 | | Testes manuais Sprint G | PENDENTE | |
