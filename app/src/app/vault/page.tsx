@@ -27,40 +27,9 @@ import {
 } from '@/lib/firebase/vault';
 import type { VaultContent, CopyDNA, VaultAsset } from '@/types/vault';
 
-// Mock data para desenvolvimento inicial (será substituído por dados reais do Firebase)
-const MOCK_REVIEW_CONTENT: VaultContent = {
-  id: 'mock-1',
-  brandId: 'brand-1',
-  status: 'review',
-  variants: [
-    {
-      platform: 'x',
-      copy: '🚀 O futuro do marketing não é mais sobre quem grita mais alto, mas sobre quem ouve melhor.\n\nA IA está transformando o social listening em vantagem competitiva real. Você está pronto para o Autopilot? #MarketingDigital #IA',
-      mediaRefs: [],
-      metadata: {}
-    },
-    {
-      platform: 'linkedin',
-      copy: 'A era do "Content Autopilot" chegou. 🤖\n\nNão se trata apenas de automatizar postagens, mas de criar uma simbiose entre inteligência de dados e criatividade humana.\n\nNo Conselho de Funil, estamos construindo o Creative Vault: a memória de longo prazo da sua marca que alimenta cada interação.\n\nO que você acha dessa evolução? 👇\n\n#SocialListening #ArtificialIntelligence #ContentStrategy',
-      mediaRefs: [],
-      metadata: {}
-    },
-    {
-      platform: 'instagram',
-      copy: 'Sua marca tem memória? 🧠✨\n\nO Creative Vault é onde o DNA da sua cópia encontra a inteligência dos dados. Transformamos insights em conteúdo que converte, em segundos.\n\nConfira no link da bio como estamos revolucionando o fluxo de criação. 🚀',
-      mediaRefs: [],
-      metadata: {}
-    }
-  ],
-  approvalChain: {},
-  createdAt: { seconds: Date.now() / 1000, nanoseconds: 0 } as any
-};
-
-const MOCK_INSIGHT = "Usuários estão demonstrando alto interesse em como a IA pode automatizar o social listening sem perder o tom de voz da marca. O volume de buscas por 'Social Listening Autopilot' cresceu 45% na última semana.";
-
 export default function VaultPage() {
   const [activeTab, setActiveTab] = useState('review');
-  const [reviewItems, setReviewItems] = useState<VaultContent[]>([MOCK_REVIEW_CONTENT]);
+  const [reviewItems, setReviewItems] = useState<VaultContent[]>([]);
   const [libraryItems, setLibraryItems] = useState<VaultContent[]>([]);
   const [dnaItems, setDnaItems] = useState<CopyDNA[]>([]);
   const [assets, setAssets] = useState<VaultAsset[]>([]);
@@ -192,9 +161,9 @@ export default function VaultPage() {
                   transition={{ duration: 0.2 }}
                 >
                   {reviewItems.length > 0 ? (
-                    <ApprovalWorkspace 
-                      content={reviewItems[0]} 
-                      insightText={MOCK_INSIGHT}
+                    <ApprovalWorkspace
+                      content={reviewItems[0]}
+                      insightText=""
                       onApprove={handleApprove}
                       onEdit={handleEdit}
                     />

@@ -21,8 +21,9 @@ import {
 } from 'lucide-react';
 import { notify } from '@/lib/stores/notification-store';
 import { cn } from '@/lib/utils';
-import { 
-  DropdownMenu, 
+import { useActiveBrand } from '@/lib/hooks/use-active-brand';
+import {
+  DropdownMenu,
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuLabel, 
@@ -31,19 +32,21 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export default function SocialInboxPage() {
+  const activeBrand = useActiveBrand();
   const [interactions, setInteractions] = useState<SocialInteraction[]>([]);
   const [selectedInteraction, setSelectedInteraction] = useState<SocialInteraction | null>(null);
   const [suggestions, setSuggestions] = useState<BrandVoiceSuggestion | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('marketing digital'); 
+  const [searchQuery, setSearchQuery] = useState('marketing digital');
   const [platformFilter, setPlatformFilter] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const fetchInteractions = async () => {
+    if (!activeBrand?.id) return;
     setIsLoading(true);
     try {
-      const brandId = 'mock-brand-123';
+      const brandId = activeBrand.id;
       let url = `/api/social-inbox?brandId=${brandId}&keyword=${searchQuery}`;
       if (platformFilter) url += `&platform=${platformFilter}`;
       
@@ -63,9 +66,10 @@ export default function SocialInboxPage() {
   };
 
   const fetchSuggestions = async (interaction: SocialInteraction) => {
+    if (!activeBrand?.id) return;
     setIsLoadingSuggestions(true);
     try {
-      const brandId = 'mock-brand-123';
+      const brandId = activeBrand.id;
       const response = await fetch(`/api/social-inbox?brandId=${brandId}&keyword=${searchQuery}`);
       const data = await response.json();
       if (data.sampleSuggestions) {
@@ -73,6 +77,7 @@ export default function SocialInboxPage() {
       }
     } catch (error) {
       console.error("Erro ao carregar sugestões:", error);
+      notify.error("Erro nas sugestões", "Não foi possível carregar sugestões de resposta.");
     } finally {
       setIsLoadingSuggestions(false);
     }
@@ -90,7 +95,7 @@ export default function SocialInboxPage() {
 
   useEffect(() => {
     fetchInteractions();
-  }, [platformFilter]);
+  }, [platformFilter, activeBrand?.id]);
 
   const handleSelectInteraction = (interaction: SocialInteraction) => {
     setSelectedInteraction(interaction);

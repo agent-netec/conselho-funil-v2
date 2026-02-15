@@ -224,11 +224,11 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ Copy gerado com sucesso: ${newCopyDoc.id}`);
 
-    // ST-11.19: Decrementar 1 crédito por geração de copy
+    // ST-11.19: Decrementar 2 créditos por geração de copy (editorial completo com RAG + scorecard)
     if (userId) {
       try {
-        await updateUserUsage(userId, -1);
-        console.log(`[Copy] 1 crédito decrementado para usuário: ${userId}`);
+        await updateUserUsage(userId, -2);
+        console.log(`[Copy] 2 créditos decrementados para usuário: ${userId}`);
       } catch (creditError) {
         console.error('[Copy] Erro ao atualizar créditos:', creditError);
       }

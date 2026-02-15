@@ -45,11 +45,11 @@ export async function POST(req: NextRequest) {
       targetAudience
     });
 
-    // SIG-API-03: Decrementar 2 créditos por geração de copy variants
+    // SIG-API-03: Decrementar 1 crédito por geração de copy variants (angles simples)
     if (userId) {
       try {
-        await updateUserUsage(userId, -2);
-        console.log(`[Intelligence/Copy] 2 créditos decrementados para usuário: ${userId}`);
+        await updateUserUsage(userId, -1);
+        console.log(`[Intelligence/Copy] 1 crédito decrementado para usuário: ${userId}`);
       } catch (creditError) {
         console.error('[Intelligence/Copy] Erro ao atualizar créditos:', creditError);
       }

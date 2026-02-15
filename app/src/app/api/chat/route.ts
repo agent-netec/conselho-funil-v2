@@ -234,7 +234,7 @@ async function handlePOST(request: NextRequest) {
       retrievalConfig.filters.scope = 'traffic';
       retrievalConfig.topK = 15;
     } else if (effectiveMode === 'design') {
-      systemPrompt = DESIGN_CHAT_SYSTEM_PROMPT;
+      systemPrompt = enrichChatPromptWithBrain(DESIGN_CHAT_SYSTEM_PROMPT, buildChatBrainContext('design'));
       retrievalConfig.filters.counselor = 'design_director';
       retrievalConfig.topK = 15;
     } else if (effectiveMode !== 'party') {

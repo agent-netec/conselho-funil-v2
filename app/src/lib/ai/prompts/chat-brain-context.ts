@@ -13,7 +13,7 @@ import type { CounselorId } from '@/types';
 // CHAT → COUNSELORS BY COUNCIL TYPE (Brain Integration — Sprint D)
 // ═══════════════════════════════════════════════════════
 
-type CouncilType = 'funnel' | 'copy' | 'social' | 'ads';
+type CouncilType = 'funnel' | 'copy' | 'social' | 'ads' | 'design';
 
 const COUNCIL_COUNSELORS: Record<CouncilType, CounselorId[]> = {
   funnel: [
@@ -30,6 +30,9 @@ const COUNCIL_COUNSELORS: Record<CouncilType, CounselorId[]> = {
   ],
   ads: [
     'justin_brooke', 'nicholas_kusmich', 'jon_loomer', 'savannah_sanchez',
+  ],
+  design: [
+    'design_director',
   ],
 };
 

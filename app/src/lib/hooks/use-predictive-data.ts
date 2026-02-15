@@ -45,6 +45,7 @@ export function usePredictiveData(brandId: string | null): UsePredictiveDataRetu
       setLtv((ltvPayload?.data ?? ltvPayload) as LTVBatchResult);
       setForecast((forecastPayload?.data ?? forecastPayload) as AudienceForecast);
     } catch (err) {
+      console.error('[Predictive] Error loading predictive data:', err);
       setError(err instanceof Error ? err.message : 'Erro ao carregar dados preditivos');
     } finally {
       setIsLoading(false);

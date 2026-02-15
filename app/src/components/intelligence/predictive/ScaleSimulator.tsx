@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Target } from 'lucide-react';
+import { Target, Info } from 'lucide-react';
 import { PredictionEngine } from '@/lib/intelligence/predictive/engine';
 import { SimulationInput, SimulationOutput } from '@/types/predictive';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -71,6 +71,10 @@ export const ScaleSimulator = () => {
               <Target size={20} />
             </div>
             <h2 className="text-lg font-semibold text-white">Painel de Controle</h2>
+            <Badge variant="outline" className="ml-auto text-[10px] border-amber-500/30 text-amber-400 bg-amber-500/10">
+              <Info className="h-3 w-3 mr-1" />
+              Projecao Simulada
+            </Badge>
           </div>
           <div className="space-y-6">
             <div className="space-y-2">
