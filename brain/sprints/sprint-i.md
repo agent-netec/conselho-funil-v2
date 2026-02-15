@@ -229,6 +229,9 @@ Sprint de checagem final executado manualmente pelo usuario **diretamente no sit
 | 3b | — | — | Copies aprovadas nao podiam ser re-selecionadas — botoes de acao ocultos para status `approved` | MEDIO | CORRIGIDO |
 | 4a | F (I-7) | 7.2 | Imagens genericas — brain context/C.H.A.P.E.U nao aplicado no plan nem no single-gen mode | ALTO | CORRIGIDO |
 | 4b | F (I-7) | 7.2 | Texto das imagens em ingles — plan pedia prompts em ingles, assets sem idioma da copy | ALTO | CORRIGIDO |
+| 5 | — | — | Real-Time Performance no Campaign Command Center e 100% hardcoded/mock (CTR 0.65%, CPC R$2.45, etc.) — sem integracao real com Meta Ads API. Botao "Atualizar Dados" so mostra toast. `campaigns/[id]/page.tsx:36` comentario `// Mock metrics for ST-11.17`. Anomalias tambem sao strings fixas. | OBSERVACAO | BACKLOG |
+| 6 | H (I-13) | 13.2 | `POST /api/campaigns/[id]/generate-ads` retorna 504 FUNCTION_INVOCATION_TIMEOUT — pipeline faz 7-13 chamadas Gemini sequenciais (3x CPS PRO + 3-9x brand voice) que excedem timeout Vercel. Fix: `lightMode` pula scoring PRO e brand voice, usa heuristica (~15-25s vs ~120-210s) | CRITICO | CORRIGIDO |
+| 7 | F (I-7) | 7.2 | Imagens com texto misturando ingles e portugues — instrucao de idioma enterrada no final do prompt (baixa prioridade para modelo de imagem). Fix: idioma movido para INICIO do prompt, instrucao bilingual reforçada, excecao para termos tecnicos do nicho | MEDIO | CORRIGIDO |
 
 ### Decisao Final
 
@@ -528,6 +531,117 @@ para encontrar copies aprovadas e injetar no estado — evita "A Voz" mostrar co
 
 ---
 
+### Issue #6 — Generate Ads 504 (FUNCTION_INVOCATION_TIMEOUT)
+
+**Reportado em:** 2026-02-15
+**Teste relacionado:** I-13 (Ad Generation Unificada — Sprint H1)
+**Severidade:** CRITICO (geracao de ads completamente bloqueada)
+**Caminho:** `/campaigns/[id]` → Botao "Gerar Estrutura Ads"
+**Endpoint:** `POST /api/campaigns/[id]/generate-ads`
+
+#### Sintoma
+Ao clicar "Gerar Estrutura Ads" no Campaign Command Center, apos longa espera, console mostra:
+```
+POST /api/campaigns/[id]/generate-ads 504 (Gateway Timeout)
+Erro ao gerar ads: An error occurred with your deployment
+FUNCTION_INVOCATION_TIMEOUT
+gru1::5h6cc-1771183518404-b52db0ed68ff
+```
+
+#### Root Cause Analysis
+
+O pipeline `generateAds` faz chamadas Gemini sequenciais demais para caber no timeout serverless:
+
+| Etapa | Chamadas Gemini | Modelo | Tempo estimado |
+|-------|----------------|--------|----------------|
+| Firestore + Pinecone (RAG + brand) | 0 | — | ~3-5s |
+| `remixWithEliteAssets` | 0 (so Pinecone) | — | ~1-3s |
+| Geracao principal | 1 | flash | ~10-20s |
+| `enrichWithCPS` x3 ads | 3 | **PRO (gemini-3-pro)** | **~45-135s** |
+| `validateBrandVoice` x3 ads | 3-9 | flash | ~15-45s |
+| **TOTAL** | **7-13** | | **~75-210s** |
+
+O Vercel tem `maxDuration = 90` mas o pipeline excede ate o pior cenario.
+Gargalo principal: `enrichWithCPS` chama o modelo PRO 3x em sequencia (1 por ad gerado).
+
+#### Correcao Aplicada
+
+**Fix 6.1 — `lightMode` no ad-generator.ts:**
+Adicionado opcao `lightMode` ao `GenerateAdsOptions`:
+- Quando `lightMode: true`, pula `enrichWithCPS` (scoring PRO) e usa `estimateHeuristicCPS` direto
+- Quando `lightMode: true`, pula `validateBrandVoice` (compliance gate)
+- Pipeline reduzido: ~15-25s (dentro do timeout)
+- Nao afeta chamadas diretas de `/intelligence/creative` que podem usar pipeline completo
+
+**Fix 6.2 — Ativado `lightMode` na rota de campaigns:**
+```diff
+  const result = await generateAds(brandId || campaignId, eliteAssets, ['meta_feed', 'meta_stories'], {
+    ...options,
++   lightMode: true,
+  }, userId || 'system');
+```
+
+#### Resultado
+- Build local: Aguardando verificacao
+- Aguardando deploy + re-teste pelo usuario
+
+---
+
+### Issue #7 — Texto nas imagens misturando ingles e portugues
+
+**Reportado em:** 2026-02-15
+**Teste relacionado:** I-7 (Design Generate com Brain — Sprint F1)
+**Severidade:** MEDIO (qualidade visual reduzida, nao bloqueante)
+**Caminho:** `/funnels/[id]/design` e `/campaigns/[id]` (design step)
+
+#### Sintoma
+Imagens geradas pelo NanoBanana AI exibem textos misturando ingles ("MANUAL GRUNT WORK", "AI PRECISION", "CAMPAIGN GENERATED: SUCCESS") com portugues ("CHEGA DE CULPA.", "RESOLVA ISSO AGORA."). Termos tecnicos em ingles sao aceitaveis, mas frases completas devem respeitar o idioma da copy.
+
+#### Root Cause
+A instrucao de idioma no prompt de geracao de imagem estava **enterrada no final** (pipe-separated, baixa prioridade):
+```
+${basePrompt} | ${brainInstructions} | ${langInstruction} | ...
+```
+Modelos de imagem priorizam o INICIO do prompt. A instrucao de idioma era facilmente ignorada.
+
+No plan route, o `visualPrompt` pedia "Detailed prompt in English..." sem reforco suficiente sobre o idioma dos textos renderizados.
+
+#### Correcoes Aplicadas (4 fixes — abordagem sistematica)
+
+**Arquitetura: separacao cena (EN) vs texto overlay (PT)**
+O prompt para o modelo de imagem agora e composto em 2 camadas:
+- Camada 1 (topo): `textOverlayBlock` — regra de idioma + headline exata em portugues
+- Camada 2 (corpo): descricao da cena 100% em ingles (melhor para o modelo de imagem)
+Injetado no ponto final de montagem, afetando TODOS os modos (single, variante, fallback).
+
+**Fix 7.1 — `textOverlayBlock` compartilhado:**
+Construido UMA VEZ e injetado no topo de CADA variante antes de enviar ao modelo de imagem:
+- `[MANDATORY LANGUAGE RULE]` — bilingual (EN+PT), inegociavel, com excecao para termos tecnicos
+- `[TEXT TO RENDER]` — headline exata em portugues para renderizar sem traduzir
+
+**Fix 7.2 — Variant mode (Flash) agora gera prompts em ingles:**
+O `promptRequest` para o Flash foi reescrito em ingles com instrucao explicita:
+- "Write ALL prompts in ENGLISH"
+- "Do NOT include any text/headline/CTA content — text overlays will be added separately"
+- Foco apenas em cena visual: composicao, iluminacao, mood, props, cores
+
+**Fix 7.3 — Fallback prompts tambem padronizados:**
+Prompts de fallback agora seguem o mesmo padrao (cena em ingles, sem texto hardcoded).
+
+**Fix 7.4 — Plan route: instrucoes de idioma reforçadas:**
+- `visualPrompt` agora inclui: "End the prompt with: 'CRITICAL: Render all text overlays in ${copyLanguage} only.'"
+- Adicionada excecao explicita: termos tecnicos consagrados do nicho (ROAS, CPA, Meta Ads) podem permanecer em ingles
+- Instrucao geral marcada como "INEGOCIAVEL"
+
+#### Nota (recomendacao futura)
+Modelos de geracao de imagem tem limitacao inerente com texto em idiomas que nao ingles. A separacao cena/texto melhora significativamente os resultados. Para 100% de controle, a evolucao natural seria um pipeline de post-processing com overlay de texto via Canvas/Sharp (render texto programatico sobre a imagem gerada).
+
+#### Resultado
+- Build local: OK
+- Aguardando deploy + re-teste pelo usuario
+
+---
+
 ## Pos-Aprovacao
 
 Apos aprovacao:
@@ -551,6 +665,9 @@ Apos aprovacao:
 | 2026-02-15 | Issue #2: Design Generate 400 | CORRIGIDO | Fallback prompt quando visualPrompt ausente |
 | 2026-02-15 | Issue #3: Linha de Ouro reset + copies travadas | CORRIGIDO | 5 fixes: docSnap.id, sanitize campaignId, guard updateCampaignManifesto, re-approve button, resilience scan |
 | 2026-02-15 | Issue #4: Imagens genericas + texto em ingles | CORRIGIDO | Brain context no plan + single-gen, idioma da copy, headline passthrough |
+| 2026-02-15 | Issue #5: Real-Time Performance mock | OBSERVACAO | Dados hardcoded, sem Meta Ads API — backlog |
+| 2026-02-15 | Issue #6: Generate Ads 504 timeout | CORRIGIDO | lightMode: pula CPS PRO + brand voice, usa heuristica |
+| 2026-02-15 | Issue #7: Texto imagens misturando idiomas | CORRIGIDO | Idioma movido para inicio do prompt, instrucao bilingual, excecao termos tecnicos |
 | | Testes manuais Sprint E | PENDENTE | |
 | | Testes manuais Sprint F | PENDENTE | |
 | | Testes manuais Sprint G | PENDENTE | |

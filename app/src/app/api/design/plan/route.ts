@@ -60,11 +60,13 @@ export async function POST(request: NextRequest) {
       Copy aprovada: ${context.copy}
       Hooks aprovados: ${JSON.stringify(context.hooks)}
 
-      [REGRA DE IDIOMA — OBRIGATÓRIO]
+      [REGRA DE IDIOMA — OBRIGATÓRIO E INEGOCIÁVEL]
       O idioma da copy aprovada é: ${copyLanguage}.
       TODOS os textos de assets (headline, primaryText, callToAction) DEVEM ser escritos em ${copyLanguage}.
       O visualPrompt deve ser escrito em inglês (para o motor de imagem), mas DEVE incluir instruções explícitas
       para renderizar qualquer texto visível na imagem em ${copyLanguage}.
+      EXCEÇÃO ÚNICA: termos técnicos consagrados do nicho (ex: "ROAS", "CPA", "Meta Ads") podem permanecer em inglês.
+      Fora isso, headlines, CTAs, subtítulos e qualquer frase completa DEVEM estar em ${copyLanguage}.
 
       [INSTRUÇÕES C.H.A.P.E.U — RIGOROSO]
       Para cada criativo, aplique TODOS os 6 pilares:
@@ -84,7 +86,7 @@ export async function POST(request: NextRequest) {
             "platform": "meta",
             "format": "square",
             "safeZone": "feed",
-            "visualPrompt": "Detailed prompt in English with explicit instruction: any visible text in the image MUST be in ${copyLanguage}. Include specific description of scene, lighting, composition, human presence, and emotional tone based on the copy context.",
+            "visualPrompt": "Scene description in English for image model. MANDATORY LANGUAGE RULE: ALL visible text, headlines, CTAs, subtitles rendered in the image MUST be written in ${copyLanguage} — NEVER in English. Include specific description of scene, lighting, composition, human presence, and emotional tone. End the prompt with: 'CRITICAL: Render all text overlays in ${copyLanguage} only.'",
             "aspectRatio": "1:1",
             "strategy": {
               "contrastFocus": "Descrição específica do contraste usado",

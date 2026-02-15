@@ -62,6 +62,8 @@ export interface GenerateAdsOptions {
   ragContext?: string;
   /** Sprint H: Brand context from brand assets */
   brandContext?: string;
+  /** Sprint I: Skip heavy post-processing (CPS scoring + brand voice) to stay within serverless timeout */
+  lightMode?: boolean;
 }
 
 export interface GenerateAdsResult {
@@ -377,19 +379,31 @@ export async function generateAds(
     }
   }
 
-  // 8. Calcular estimatedCPS para cada variação via scoring-engine (ST-01)
-  await enrichWithCPS(validAds, brandId, assets, userId);
+  // 8. Calcular estimatedCPS para cada variação
+  if (options.lightMode) {
+    // lightMode: heuristic CPS only (skip PRO model scoring — saves ~45-135s)
+    for (const ad of validAds) {
+      ad.estimatedCPS = estimateHeuristicCPS(ad);
+    }
+    console.log('[AdGenerator] lightMode: CPS heurístico aplicado, scoring PRO pulado');
+  } else {
+    await enrichWithCPS(validAds, brandId, assets, userId);
+  }
 
   // 9. Brand Voice Compliance Gate (ST-06)
   let brandVoiceRejected = 0;
-  try {
-    const complianceReport = await validateBrandVoice(brandId, validAds, {
-      minToneMatch: options.minToneMatch,
-    });
-    brandVoiceRejected = complianceReport.totalRejected;
-  } catch (error) {
-    console.warn('[AdGenerator] Brand Voice compliance falhou, prosseguindo sem validação:', error);
-    // Graceful degradation: ads passam sem validação de Brand Voice
+  if (!options.lightMode) {
+    try {
+      const complianceReport = await validateBrandVoice(brandId, validAds, {
+        minToneMatch: options.minToneMatch,
+      });
+      brandVoiceRejected = complianceReport.totalRejected;
+    } catch (error) {
+      console.warn('[AdGenerator] Brand Voice compliance falhou, prosseguindo sem validação:', error);
+      // Graceful degradation: ads passam sem validação de Brand Voice
+    }
+  } else {
+    console.log('[AdGenerator] lightMode: Brand Voice validation pulada');
   }
 
   totalRejected += brandVoiceRejected;

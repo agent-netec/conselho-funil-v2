@@ -91,6 +91,7 @@ export async function POST(
     }
 
     // 4. Call canonical generateAds pipeline
+    // lightMode: skip CPS PRO scoring + brand voice validation to stay within Vercel timeout
     const result = await generateAds(
       brandId || campaignId,
       eliteAssets,
@@ -101,6 +102,7 @@ export async function POST(
         brainContext,
         ragContext,
         brandContext,
+        lightMode: true,
       },
       userId || 'system'
     );

@@ -129,40 +129,54 @@ export async function POST(request: NextRequest) {
       console.warn('⚠️ Falha ao carregar brain context do design_director:', brainErr);
     }
 
-    const promptRequest = `
-Você é um diretor de arte sênior. Gere EXATAMENTE um JSON array com 3 strings de prompts detalhados para IA Generativa: ["v1","v2","v3"].
+    // Sprint I: Build language + text overlay blocks ONCE, inject into ALL modes
+    const textOverlayBlock = (() => {
+      const langPart = copyLanguage
+        ? `[MANDATORY LANGUAGE RULE]\nAll visible text in this image MUST be written in ${copyLanguage}.\nNÃO use inglês para textos visíveis. Todo texto renderizado na imagem DEVE estar em ${copyLanguage}.\nThis is NON-NEGOTIABLE. Any headline, CTA, subtitle, or overlay text = ${copyLanguage} ONLY.\nException: established technical terms (ROAS, CPA, Meta Ads) may stay in English.\n`
+        : '';
+      const headlinePart = copyHeadline
+        ? `[TEXT TO RENDER]\nExact headline to display: "${copyHeadline}"\nDo NOT translate or change this text. Render it exactly as provided.\n`
+        : '';
+      return langPart + headlinePart;
+    })();
 
-${designBrainContext ? `${designBrainContext}\n\nAplique os frameworks acima em cada prompt gerado.\n` : `Cada prompt deve aplicar rigorosamente o Framework C.H.A.P.E.U:
-1. [C] Contexto: Integrar plataforma e objetivo de conversão.
-2. [H] Hierarquia: Definir ordem visual clara (Jornada do Olhar).
-3. [A] Atmosfera: Estilo e iluminação cinematográfica e tom emocional.
-4. [P] Paleta & Props: Usar paleta, logo e props estratégicos.
-5. [E] Estrutura: Composição baseada em camadas e profundidade, respeitando Safe Zones.
-6. [U] Única Ação: Espaço negativo planejado para Headline e CTA.
+    // Variant mode: Flash generates ENGLISH scene descriptions (image model works best in English)
+    // Portuguese text is injected separately via textOverlayBlock at the final assembly point
+    const promptRequest = `
+You are a senior art director. Generate EXACTLY a JSON array with 3 detailed prompt strings for generative AI image models: ["v1","v2","v3"].
+
+IMPORTANT: Write ALL prompts in ENGLISH (the image model performs best with English scene descriptions).
+Do NOT include any text/headline/CTA content in the prompts — text overlays will be added separately.
+Focus ONLY on the visual scene: composition, lighting, mood, subjects, props, colors.
+
+${designBrainContext ? `${designBrainContext}\n\nApply the frameworks above in each generated prompt.\n` : `Each prompt must rigorously apply the C.H.A.P.E.U Framework:
+1. [C] Context: Integrate platform and conversion objective.
+2. [H] Hierarchy: Define clear visual order (Eye Journey).
+3. [A] Atmosphere: Cinematic lighting style and emotional tone.
+4. [P] Palette & Props: Use brand palette, logo, and strategic props.
+5. [E] Structure: Layered composition with depth, respecting Safe Zones.
+6. [U] Unique Action: Planned negative space for Headline and CTA placement.
 `}
-Contexto da plataforma: ${platformContext}
-Estilo visual: "${visualStyle}"
-Paleta: ${brandColors.join(', ') || 'n/a'}
+Platform context: ${platformContext}
+Visual style: "${visualStyle}"
+Palette: ${brandColors.join(', ') || 'n/a'}
 Logo: ${logoInstruction}
-Heurísticas técnicas: ${seniorHeuristics.lighting}, ${seniorHeuristics.composition}, ${seniorHeuristics.sharpness}.
-Briefing base: ${basePrompt}.
-Retorne apenas o JSON array de strings.`;
+Technical heuristics: ${seniorHeuristics.lighting}, ${seniorHeuristics.composition}, ${seniorHeuristics.sharpness}.
+Base briefing: ${basePrompt}.
+Return ONLY the JSON array of strings.`;
 
     let promptVariants: string[] = [];
     
     if (isSingleGeneration) {
-      // Sprint I: Single generation with brain context + language + heuristics
-      const langInstruction = copyLanguage
-        ? `CRITICAL: Any visible text rendered in the image MUST be in ${copyLanguage}. Do NOT use English for text overlays.`
+      // Sprint I: Single generation — scene in English, text overlay injected at final assembly
+      const brainBlock = designBrainContext
+        ? `[VISUAL FRAMEWORK]\nApply C.H.A.P.E.U: High Contrast, Visual Hierarchy (eye journey), Human presence (anthropomorphism), Proof elements, Emotional structure with negative space for CTA, Visual urgency.\n`
         : '';
-      const headlineInstruction = copyHeadline
-        ? `TEXT OVERLAY: Render this headline in the image: "${copyHeadline}"`
-        : '';
-      const brainInstructions = designBrainContext
-        ? `Apply C.H.A.P.E.U framework: High Contrast, Visual Hierarchy (eye journey), Human presence (anthropomorphism), Proof elements, Emotional structure with negative space for CTA, Visual urgency.`
-        : '';
-      promptVariants = [`${basePrompt} | ${brainInstructions} | ${langInstruction} | ${headlineInstruction} | ${seniorHeuristics.lighting} | ${seniorHeuristics.composition} | ${seniorHeuristics.sharpness} | ${logoInstruction}`];
-      console.log('✨ Usando modo de geração única com brain context + language.');
+      const technicalBlock = `[TECHNICAL]\n${seniorHeuristics.lighting} | ${seniorHeuristics.composition} | ${seniorHeuristics.sharpness} | ${logoInstruction}`;
+
+      // Scene only — textOverlayBlock is prepended at the final assembly point (line ~253)
+      promptVariants = [`[SCENE]\n${basePrompt}\n\n${brainBlock}${technicalBlock}`];
+      console.log('✨ Usando modo de geração única com brain context.');
     } else {
       try {
         const flashModel = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
@@ -184,13 +198,14 @@ Retorne apenas o JSON array de strings.`;
     }
 
     if (promptVariants.length === 0) {
+      // Fallback prompts: English scene descriptions (text overlay injected at final assembly)
       promptVariants = [
-        `[STANDARD] ${basePrompt} | ${seniorHeuristics.lighting} | ${seniorHeuristics.composition} | ${seniorHeuristics.sharpness} | ${logoInstruction}`,
+        `[SCENE - STANDARD] ${basePrompt} | ${seniorHeuristics.lighting} | ${seniorHeuristics.composition} | ${seniorHeuristics.sharpness}`,
       ];
       if (!isSingleGeneration) {
         promptVariants.push(
-          `[ALTERNATIVE] ${basePrompt} | cinematic mood | ${seniorHeuristics.composition} | ${logoInstruction}`,
-          `[CREATIVE] ${basePrompt} | bold contrast, experimental angles | ${seniorHeuristics.sharpness} | ${logoInstruction}`
+          `[SCENE - ALTERNATIVE] ${basePrompt} | cinematic mood | ${seniorHeuristics.composition}`,
+          `[SCENE - CREATIVE] ${basePrompt} | bold contrast, experimental angles | ${seniorHeuristics.sharpness}`
         );
       }
     }
@@ -242,11 +257,14 @@ Retorne apenas o JSON array de strings.`;
 
     const generationPromises = promptVariants.map(async (promptVariant, index) => {
       try {
+        // Sprint I: textOverlayBlock (language + headline) prepended to ALL variants
+        // Scene description in English + text overlay in target language = best results
+        const finalPrompt = `${textOverlayBlock}\n${promptVariant}\n\n[LOGO_RULE]: ${logoInstruction}\n[REFERENCES]: ${imageReferences.join(', ')}`;
         const contents = [
           {
             role: 'user',
             parts: [
-              { text: `${promptVariant}\n\n[LOGO_RULE]: ${logoInstruction}\n[REFERENCES]: ${imageReferences.join(', ')}` },
+              { text: finalPrompt },
               ...referenceParts.filter(Boolean),
               ...(editImagePart ? [editImagePart] : []),
             ],
