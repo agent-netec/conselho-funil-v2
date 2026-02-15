@@ -4,8 +4,8 @@ Tracking de progresso da plataforma.
 
 ## Sprint Ativo
 
-> **Sprint E** — Quick Fixes (Achados P0 da Auditoria)
-> Ver: [sprint-e.md](sprint-e.md)
+> **Sprint J** — UX Polish & User Testing Readiness (proximo a executar)
+> Ver: [sprint-j.md](sprint-j.md)
 
 ## Estrutura
 
@@ -15,12 +15,18 @@ Tracking de progresso da plataforma.
 - `sprint-c.md` — Tier 2 Engines (Content, Creative, Ads, Social)
 - `sprint-d.md` — Tier 3 (Offer Lab, Research, A/B Testing, Chat, Party)
 
-### Fase 2: Auditoria & Correcoes (PENDENTES)
+### Fase 2: Auditoria & Correcoes (CONCLUIDOS)
 - `sprint-e.md` — Quick Fixes (P0s: design chat, social inbox, errors, vault, pricing, simulator)
 - `sprint-f.md` — Brain Integration Wave (design generate, copy generate, funnels generate)
 - `sprint-g.md` — Infrastructure Fixes (cross-channel, LTV cohorts, journey page)
 - `sprint-h.md` — Consolidation (ad unification, copy lab brain)
-- `sprint-i.md` — Verificacao Final & Testes Manuais (QA pelo usuario)
+- `sprint-i.md` — Verificacao Final & Testes Manuais (QA pelo usuario — 17 issues, 8 corrigidos, 9 backlog)
+
+### Fase 3: Evolucao Pos-QA (PENDENTES)
+- `sprint-j.md` — UX Polish & User Testing Readiness (Issues #8, #14, #16, #17)
+- `sprint-k.md` — Tool Integration & Enrichment (Issues #9, #10, #14 nivel 2, #17 evolucao: Deep Research v2 com Audiencia, Chat, RAG)
+- `sprint-l.md` — Data Pipeline Foundation (Issues #5, #11, #12, #13 — tracking, webhooks, cron)
+- `sprint-m.md` — Analytics Activation & Dashboard Wiring (Issues #5, #11, #12 — depende de L)
 
 ### Handoffs (documentos de contexto para novo agente)
 - `HANDOFF-SPRINT-A.md` — Contexto para iniciar Sprint A
@@ -34,11 +40,15 @@ Tracking de progresso da plataforma.
 | B | CONCLUIDO | Scoring + Autopsy + Recommendations + Text Analyzer + UI counselorOpinions | c0b0b3138 |
 | C | CONCLUIDO | Content + Creative Scoring + Ads + Social generation | bef34873e |
 | D | CONCLUIDO | Offer Lab + Research + A/B Testing + Chat (23) + Party Mode | 80b3d0bc2 |
-| E | PENDENTE | 6 quick fixes (design chat, social inbox, errors, vault, pricing, simulator) | — |
-| F | PENDENTE | 3 brain integrations (design, copy, funnels generate) | — |
-| G | PENDENTE | 3 infrastructure fixes (cross-channel, LTV, journey) | — |
-| H | PENDENTE | 2 consolidations (ad unification, copy lab brain) | — |
-| I | PENDENTE | QA final + testes manuais pelo usuario | — |
+| E | CONCLUIDO | 6 quick fixes (design chat, social inbox, errors, vault, pricing, simulator) | 59a93b711 |
+| F | CONCLUIDO | 3 brain integrations (design, copy, funnels generate) | 59a93b711 |
+| G | CONCLUIDO | 3 infrastructure fixes (cross-channel, LTV, journey) | 59a93b711 |
+| H | CONCLUIDO | 2 consolidations (ad unification, copy lab brain) | 59a93b711 |
+| I | EM ANDAMENTO | QA final: 17 issues (8 corrigidos, 9 backlog) | 84aa988ec |
+| **J** | **PENDENTE** | **UX polish: Offer Lab, Campaign completion, Autopsy rename, Research** | — |
+| **K** | **PENDENTE** | **Tool integration: Keywords→Brand, Spy Agent v2, Forensics→Pipeline, Deep Research v2 (Audiencia + RAG)** | — |
+| **L** | **PENDENTE** | **Data pipeline: tracking pixel, webhook pagamento, journey backend, ads sync** | — |
+| **M** | **PENDENTE** | **Analytics: Attribution, LTV/Cohort, Real-Time Performance, Cross-Channel** | — |
 
 ## Como Usar os Prompts de Handoff
 
