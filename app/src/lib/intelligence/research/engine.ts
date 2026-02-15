@@ -6,9 +6,9 @@ import { getCachedResearch, saveResearch } from '@/lib/firebase/research';
 import type { MarketDossier, ResearchDepth, ResearchQuery, ResearchSource } from '@/types/research';
 
 const DEPTH_CONFIG: Record<ResearchDepth, { exaResults: number; enrichTop: number }> = {
-  quick: { exaResults: 5, enrichTop: 0 },
-  standard: { exaResults: 10, enrichTop: 3 },
-  deep: { exaResults: 15, enrichTop: 5 },
+  quick: { exaResults: 3, enrichTop: 0 },
+  standard: { exaResults: 5, enrichTop: 0 },
+  deep: { exaResults: 10, enrichTop: 3 },
 };
 
 function isValidSourceUrl(value: string): boolean {

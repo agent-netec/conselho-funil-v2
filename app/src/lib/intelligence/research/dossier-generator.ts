@@ -1,9 +1,5 @@
 import { generateWithGemini } from '@/lib/ai/gemini';
-import {
-  buildSourceSummaryPrompt,
-  buildSynthesisPrompt,
-  RESEARCH_SYSTEM_PROMPT,
-} from '@/lib/ai/prompts/research-synthesis';
+import { RESEARCH_SYSTEM_PROMPT } from '@/lib/ai/prompts/research-synthesis';
 import { loadBrain } from '@/lib/intelligence/brains/loader';
 import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
 import type { CounselorId } from '@/types';
@@ -44,7 +40,7 @@ function buildResearchBrainContext(): string {
   return parts.join('\n\n---\n\n');
 }
 
-const SOURCE_SNIPPET_LIMIT = 3000;
+const SOURCE_SNIPPET_LIMIT = 2000;
 
 function normalizeSections(value: unknown): MarketDossierSections {
   const raw = (value ?? {}) as Partial<MarketDossierSections>;
@@ -70,36 +66,43 @@ function normalizeSections(value: unknown): MarketDossierSections {
 }
 
 export class DossierGenerator {
+  /**
+   * Single-pass synthesis: all sources + brain context in ONE Gemini call.
+   * Previous approach made N+1 sequential calls (per-source summary + final)
+   * which exceeded Vercel's 60s timeout on standard depth.
+   */
   static async synthesize(sources: ResearchSource[], query: ResearchQuery): Promise<MarketDossierSections> {
-    // Fase 1 (DT-12): resumo individual por fonte
-    const summaries: string[] = [];
-    for (const source of sources) {
-      const prompt = buildSourceSummaryPrompt({
-        title: source.title,
-        url: source.url,
-        snippet: source.snippet.slice(0, SOURCE_SNIPPET_LIMIT),
-      });
-      try {
-        const summary = await generateWithGemini(prompt, {
-          systemPrompt: RESEARCH_SYSTEM_PROMPT,
-          temperature: 0.4,
-          responseMimeType: 'application/json',
-          feature: 'research_source_summary',
-        });
-        summaries.push(summary);
-      } catch {
-        summaries.push(JSON.stringify({ summary: source.snippet.slice(0, 600), trends: [], signals: [] }));
-      }
-    }
-
-    // Fase 2 (DT-12): síntese final consolidada com os resumos
-    // Sprint D: Inject counselor perspective into synthesis
     const brainContext = buildResearchBrainContext();
-    const baseSynthesisPrompt = buildSynthesisPrompt(summaries, query);
-    const synthesisPrompt = brainContext
-      ? `${baseSynthesisPrompt}\n\n## PERSPECTIVA DOS CONSELHEIROS (use para enriquecer a analise)\n${brainContext}\n\nConsidere os frameworks acima ao avaliar oportunidades, ameacas e recomendacoes. Identifique o nivel de consciencia do mercado (Schwartz) e oportunidades na escada de valor (Brunson).`
-      : baseSynthesisPrompt;
-    const finalText = await generateWithGemini(synthesisPrompt, {
+
+    const sourcesBlock = sources
+      .map((s, i) => [
+        `## Fonte ${i + 1}: ${s.title}`,
+        `URL: ${s.url}`,
+        `Relevancia: ${s.relevanceScore.toFixed(2)}`,
+        s.snippet.slice(0, SOURCE_SNIPPET_LIMIT),
+      ].join('\n'))
+      .join('\n\n---\n\n');
+
+    const prompt = [
+      `# Dossie de Mercado`,
+      `Topico: ${query.topic}`,
+      `Segmento: ${query.marketSegment ?? 'nao informado'}`,
+      `Concorrentes: ${(query.competitors ?? []).join(', ') || 'nao informados'}`,
+      '',
+      `# FONTES COLETADAS (${sources.length})`,
+      sourcesBlock,
+      '',
+      brainContext
+        ? `# PERSPECTIVA DOS CONSELHEIROS\n${brainContext}\n\nConsidere os frameworks acima ao avaliar oportunidades, ameacas e recomendacoes. Identifique o nivel de consciencia do mercado (Schwartz) e oportunidades na escada de valor (Brunson).\n`
+        : '',
+      '# INSTRUCOES',
+      'Analise TODAS as fontes acima e gere um dossie de mercado completo.',
+      'Retorne JSON com EXATAMENTE estes campos:',
+      '{"marketOverview":"visao geral do mercado (2-3 paragrafos)","marketSize":"tamanho estimado e potencial","trends":["tendencia 1","tendencia 2",...],"competitors":[{"name":"nome","strengths":["..."],"weaknesses":["..."]}],"opportunities":["oportunidade 1",...],"threats":["ameaca 1",...],"recommendations":["recomendacao acionavel 1",...]}',
+      'Escreva em PT-BR com foco executivo. Seja especifico com dados e numeros das fontes.',
+    ].filter(Boolean).join('\n');
+
+    const finalText = await generateWithGemini(prompt, {
       systemPrompt: RESEARCH_SYSTEM_PROMPT,
       temperature: 0.4,
       responseMimeType: 'application/json',
