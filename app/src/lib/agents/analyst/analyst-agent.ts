@@ -1,4 +1,4 @@
-import { generateWithGemini } from '@/lib/ai/gemini';
+import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { 
   IntelligenceAnalysis, 
   IntelligenceDocument,
@@ -95,7 +95,7 @@ export class AnalystAgent {
 
     try {
       const response = await generateWithGemini(prompt, {
-        model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+        model: DEFAULT_GEMINI_MODEL,
         temperature: 0.1, // Baixa temperatura para extração mais factual
         responseMimeType: 'application/json',
       });

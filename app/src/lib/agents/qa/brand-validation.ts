@@ -1,4 +1,4 @@
-import { generateWithGemini } from '../../ai/gemini';
+import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '../../ai/gemini';
 import { VaultContent } from '@/types/vault';
 import { normalizePlatform, type SocialPlatform } from '@/types/social-platform';
 
@@ -48,7 +48,7 @@ export class BrandValidationService {
 
       try {
         const response = await generateWithGemini(toneCheckPrompt, {
-          model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+          model: DEFAULT_GEMINI_MODEL,
           temperature: 0.1,
           responseMimeType: 'application/json'
         });

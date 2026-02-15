@@ -41,6 +41,7 @@ import { buildCopyPrompt } from '@/lib/ai/prompts';
 import { parseAIJSON } from '@/lib/ai/formatters';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { buildCopyBrainContext } from '@/lib/ai/prompts/copy-brain-context';
+import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 
 export const runtime = 'nodejs';
 export const maxDuration = 90; // Aumentado para lidar com RAG
@@ -172,7 +173,7 @@ export async function POST(request: NextRequest) {
     console.log(`\n✍️  Gerando ${copyType} enriquecido para funil "${funnel.name}"...`);
 
     // Generate with Gemini (using model from env or default to gemini-2.0-flash)
-    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+    const modelName = DEFAULT_GEMINI_MODEL;
     const model = genAI.getGenerativeModel({ model: modelName });
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();

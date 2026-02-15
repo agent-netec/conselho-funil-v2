@@ -24,7 +24,7 @@ import {
   GENERATION_LIMITS,
 } from '@/types/creative-ads';
 import { UXIntelligence, UXAsset } from '@/types/intelligence';
-import { generateWithGemini } from '@/lib/ai/gemini';
+import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { AICostGuard } from '@/lib/ai/cost-guard';
 import { calculateCPS } from '@/lib/intelligence/predictor/scoring-engine';
 import { remixWithEliteAssets } from './asset-remixer';
@@ -277,7 +277,7 @@ export async function generateAds(
   }
 
   // 4. Cost guard — budget check
-  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  const model = DEFAULT_GEMINI_MODEL;
   const hasBudget = await AICostGuard.checkBudget({
     userId,
     brandId,

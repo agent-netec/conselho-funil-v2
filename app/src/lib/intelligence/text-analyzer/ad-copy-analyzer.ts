@@ -14,7 +14,7 @@ import {
   AdCopyAnalysis,
   TextSuggestion,
 } from '@/types/text-analysis';
-import { generateWithGemini } from '@/lib/ai/gemini';
+import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { AICostGuard } from '@/lib/ai/cost-guard';
 import { loadBrain } from '@/lib/intelligence/brains/loader';
 import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
@@ -252,7 +252,7 @@ export async function analyzeAdCopy(
   const localFormat = detectFormatLocally(sanitizedText, wordCount);
 
   // 2. Verificar budget
-  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  const model = DEFAULT_GEMINI_MODEL;
   const hasBudget = await AICostGuard.checkBudget({
     userId,
     brandId,

@@ -21,6 +21,7 @@ import {
 import { formatBrandContextForFunnel, parseAIJSON } from '@/lib/ai/formatters';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { buildFunnelBrainContext } from '@/lib/ai/prompts/funnel-brain-context';
+import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -120,29 +121,44 @@ export async function POST(request: NextRequest) {
     console.log('🤖 Gerando propostas com Gemini...');
     
     const response = await generateWithGemini(fullPrompt, {
-      model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+      model: DEFAULT_GEMINI_MODEL,
       temperature: 0.8,
       maxOutputTokens: 8192,
+      responseMimeType: 'application/json',
     });
 
-    // 5. Parse JSON response
+    // 5. Validate Gemini response is not empty
+    if (!response || response.trim().length === 0) {
+      console.error('❌ Gemini returned empty response');
+      await updateFunnel(funnelId, { status: 'draft' });
+      return createApiError(500, 'AI returned empty response. Please try again.');
+    }
+
+    // 6. Parse JSON response
     let proposalsData;
     try {
       proposalsData = parseAIJSON(response);
     } catch (parseError) {
       console.error('Error parsing Gemini response:', parseError);
       console.log('Raw response:', response.substring(0, 500));
-      
+
       // Update status to error
       await updateFunnel(funnelId, { status: 'draft' });
-      
+
       return createApiError(500, 'Failed to parse AI response. Please try again.');
     }
 
-    // 6. Save proposals to Firestore
+    // 7. Validate proposals array exists
+    if (!proposalsData?.proposals || !Array.isArray(proposalsData.proposals) || proposalsData.proposals.length === 0) {
+      console.error('❌ Parsed response missing proposals array:', JSON.stringify(proposalsData).substring(0, 300));
+      await updateFunnel(funnelId, { status: 'draft' });
+      return createApiError(500, 'AI response missing proposals. Please try again.');
+    }
+
+    // 8. Save proposals to Firestore
     const savedProposals: string[] = [];
     const startVersion = baseVersion ? baseVersion + 1 : 1;
-    
+
     for (let i = 0; i < proposalsData.proposals.length; i++) {
       const proposal = proposalsData.proposals[i];
       const version = isAdjustment ? startVersion : i + 1;

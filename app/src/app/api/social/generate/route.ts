@@ -9,6 +9,7 @@ import { updateUserUsage } from '@/lib/firebase/firestore';
 import { loadBrain } from '@/lib/intelligence/brains/loader';
 import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
 import type { CounselorId } from '@/types';
+import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 
 export const runtime = 'nodejs';
 
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
       return createApiError(400, 'Contexto de copy é obrigatório.');
     }
 
-    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+    const modelName = DEFAULT_GEMINI_MODEL;
     const model = genAI.getGenerativeModel({
       model: modelName,
       generationConfig: { responseMimeType: "application/json" }

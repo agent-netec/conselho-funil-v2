@@ -17,7 +17,7 @@ import {
   TextSuggestion,
   StructuralAnalysis,
 } from '@/types/text-analysis';
-import { generateWithGemini } from '@/lib/ai/gemini';
+import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { AICostGuard } from '@/lib/ai/cost-guard';
 import { sanitizeTextInput, stripSubtitleTimestamps } from './sanitizer';
 import { parseVSLTranscript } from './vsl-parser';
@@ -226,7 +226,7 @@ export async function parseText(input: TextParserInput): Promise<TextParserResul
   const wordCount = sanitizedText.split(/\s+/).filter(Boolean).length;
 
   // 4. Verificar budget
-  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  const model = DEFAULT_GEMINI_MODEL;
   const hasBudget = await AICostGuard.checkBudget({
     userId,
     brandId,

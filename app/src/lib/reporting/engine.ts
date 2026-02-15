@@ -1,4 +1,4 @@
-import { generateWithGemini } from '../ai/gemini';
+import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '../ai/gemini';
 import { anonymizeDataForAI } from './anonymizer';
 
 export interface ReportMetrics {
@@ -24,7 +24,7 @@ export interface AIAnalysisResult {
  * Responsible for translating raw performance data into strategic narratives
  */
 export class ReportingEngine {
-  private model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  private model = DEFAULT_GEMINI_MODEL;
 
   /**
    * Generates a strategic report narrative using Gemini

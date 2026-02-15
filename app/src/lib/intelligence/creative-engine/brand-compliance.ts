@@ -20,7 +20,7 @@
 
 import { GeneratedAd, GENERATION_LIMITS } from '@/types/creative-ads';
 import { VoiceProfile } from '@/types/intelligence';
-import { generateWithGemini } from '@/lib/ai/gemini';
+import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { db } from '@/lib/firebase/config';
 import {
   collection,
@@ -284,7 +284,7 @@ REGRAS:
 
   try {
     const response = await generateWithGemini(prompt, {
-      model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+      model: DEFAULT_GEMINI_MODEL,
       temperature: 0.1, // Baixa temperatura para avaliação consistente
       maxOutputTokens: 500,
       responseMimeType: 'application/json',
@@ -342,7 +342,7 @@ Considerando que os ajustes acima foram comunicados ao modelo de geração, re-a
 
   try {
     const response = await generateWithGemini(prompt, {
-      model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+      model: DEFAULT_GEMINI_MODEL,
       temperature: 0.1,
       maxOutputTokens: 500,
       responseMimeType: 'application/json',

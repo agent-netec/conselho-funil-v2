@@ -1,4 +1,4 @@
-import { generateWithGemini } from '../../ai/gemini';
+import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '../../ai/gemini';
 import { buildPerformanceAdvisorPrompt } from '../../ai/prompts/performance-advisor';
 import { PerformanceMetricDoc, PerformanceAlertDoc } from '../../../types/performance';
 import type { SegmentBreakdownData } from '@/types/ab-testing';
@@ -32,7 +32,7 @@ export class PerformanceAdvisor {
 
     try {
       const response = await generateWithGemini(prompt, {
-        model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+        model: DEFAULT_GEMINI_MODEL,
         responseMimeType: 'application/json',
         temperature: 0.3
       });

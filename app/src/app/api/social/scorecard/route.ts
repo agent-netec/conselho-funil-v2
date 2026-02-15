@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ragQuery } from '@/lib/ai/rag';
-import { generateWithGemini, isGeminiConfigured } from '@/lib/ai/gemini';
+import { generateWithGemini, isGeminiConfigured, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { getBrand } from '@/lib/firebase/brands';
 import { SOCIAL_SCORECARD_PROMPT } from '@/lib/ai/prompts';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
@@ -66,7 +66,7 @@ Dores: ${brand.audience.pain}
 
     // 4. Gerar com Gemini
     const response = await generateWithGemini(fullPrompt, {
-      model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+      model: DEFAULT_GEMINI_MODEL,
       temperature: 0.2, // Lower temperature for more consistent evaluation
     });
 

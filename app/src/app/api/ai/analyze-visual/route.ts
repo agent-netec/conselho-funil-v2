@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { analyzeMultimodalWithGemini } from '@/lib/ai/gemini';
+import { analyzeMultimodalWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { buildVisionAnalysisPrompt } from '@/lib/ai/prompts/vision-heuristics';
 import { getBrand, updateUserUsage } from '@/lib/firebase/firestore';
 import { formatBrandContextForChat, parseAIJSON } from '@/lib/ai/formatters';
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       prompt,
       fileBase64,
       mimeType,
-      { model: process.env.GEMINI_MODEL || 'gemini-2.0-flash', temperature: 0.2 }
+      { model: DEFAULT_GEMINI_MODEL, temperature: 0.2 }
     );
 
     // 4. Parsear Resultado

@@ -1,5 +1,5 @@
 import { MCPRouter } from '@/lib/mcp/router';
-import { generateWithGemini } from '@/lib/ai/gemini';
+import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { createScopedData } from '@/lib/firebase/scoped-data';
 import { Timestamp } from 'firebase/firestore';
 import { ScopedData } from '@/types/scoped-data';
@@ -153,7 +153,7 @@ export class FunnelCloner {
     `;
 
     const response = await generateWithGemini(prompt, {
-      model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+      model: DEFAULT_GEMINI_MODEL,
       temperature: 0.2,
       responseMimeType: 'application/json'
     });

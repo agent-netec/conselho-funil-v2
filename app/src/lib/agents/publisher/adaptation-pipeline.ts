@@ -1,4 +1,4 @@
-import { generateWithGemini } from '../../ai/gemini';
+import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '../../ai/gemini';
 import { PUBLISHER_ADAPTATION_PROMPT } from '../../ai/prompts/publisher-adaptation';
 import { saveVaultContent, updatePublisherJob } from '../../firebase/vault';
 import { getBrand } from '../../firebase/firestore';
@@ -48,7 +48,7 @@ export class AdaptationPipeline {
         .replace('{{brandContext}}', brandContext);
 
       const responseText = await generateWithGemini(prompt, {
-        model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+        model: DEFAULT_GEMINI_MODEL,
         temperature: 0.7,
         responseMimeType: 'application/json'
       });
