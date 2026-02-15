@@ -7,7 +7,7 @@ import type { MarketDossier, ResearchDepth, ResearchQuery, ResearchSource } from
 
 const DEPTH_CONFIG: Record<ResearchDepth, { exaResults: number; enrichTop: number }> = {
   quick: { exaResults: 3, enrichTop: 0 },
-  standard: { exaResults: 5, enrichTop: 0 },
+  standard: { exaResults: 5, enrichTop: 2 },
   deep: { exaResults: 10, enrichTop: 3 },
 };
 
@@ -114,24 +114,34 @@ export class ResearchEngine {
       .sort((a, b) => b.relevanceScore - a.relevanceScore)
       .slice(0, enrichTop);
 
-    for (const src of top) {
-      try {
-        const fireTask = {
-          id: `firecrawl-${Timestamp.now().toMillis()}`,
-          brandId: queryInput.brandId,
-          type: 'url_to_markdown',
-          input: { url: src.url },
-        } as const;
-        const fireResult = await firecrawl.execute(fireTask);
-        if (fireResult.success && fireResult.data && typeof fireResult.data === 'object') {
-          const markdown = String((fireResult.data as { markdown?: string }).markdown ?? '');
-          const idx = sources.findIndex((s) => s.url === src.url);
-          if (idx >= 0 && markdown) {
+    // Firecrawl enrichment em PARALELO (não sequencial) para caber no timeout
+    if (top.length > 0) {
+      const enrichResults = await Promise.allSettled(
+        top.map(async (src) => {
+          const fireTask = {
+            id: `firecrawl-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            brandId: queryInput.brandId,
+            type: 'url_to_markdown' as const,
+            input: { url: src.url },
+          };
+          const fireResult = await firecrawl.execute(fireTask);
+          if (fireResult.success && fireResult.data && typeof fireResult.data === 'object') {
+            const markdown = String((fireResult.data as { markdown?: string }).markdown ?? '');
+            if (markdown) return { url: src.url, markdown };
+          }
+          return null;
+        })
+      );
+
+      for (const result of enrichResults) {
+        if (result.status === 'fulfilled' && result.value) {
+          const { url, markdown } = result.value;
+          const idx = sources.findIndex((s) => s.url === url);
+          if (idx >= 0) {
             sources[idx] = { ...sources[idx], snippet: markdown.slice(0, 3000), source: 'firecrawl', fetchedAt: Timestamp.now() };
           }
         }
-      } catch {
-        // graceful degradation: mantém snippet original do Exa
+        // graceful degradation: fontes que falharam mantém snippet original do Exa
       }
     }
 
