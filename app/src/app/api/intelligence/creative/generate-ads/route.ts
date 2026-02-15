@@ -14,6 +14,9 @@ import {
 } from '@/types/creative-ads';
 import { db } from '@/lib/firebase/config';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { buildAdsBrainContext } from '@/lib/ai/prompts/ads-brain-context';
+import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM } from '@/lib/ai/rag';
+import { updateUserUsage } from '@/lib/firebase/firestore';
 
 /**
  * POST /api/intelligence/creative/generate-ads
@@ -70,7 +73,39 @@ export async function POST(req: NextRequest) {
     // 5. Auth — requireBrandAccess
     const { userId, brandId: safeBrandId } = await requireBrandAccess(req, brandId);
 
-    // 6. Executar Ad Generation Pipeline
+    // 6. Sprint H: Load brain + RAG + brand context
+    let brainContext = '';
+    let ragContext = '';
+    let brandContext = '';
+
+    try {
+      brainContext = buildAdsBrainContext();
+    } catch (e) {
+      console.warn('[GENERATE_ADS] Brain context failed, continuing without:', e);
+    }
+
+    try {
+      const ragSearchQuery = `Estratégias de anúncios, copywriting e conversão para tráfego pago`;
+      const { context } = await ragQuery(ragSearchQuery, {
+        topK: 12,
+        minSimilarity: 0.2,
+        filters: { scope: 'traffic' },
+      });
+      ragContext = context;
+    } catch (e) {
+      console.warn('[GENERATE_ADS] RAG context failed, continuing without:', e);
+    }
+
+    try {
+      const brandChunks = await retrieveBrandChunks(safeBrandId, 'estratégia de anúncios e conversão', 5);
+      if (brandChunks.length > 0) {
+        brandContext = formatBrandContextForLLM(brandChunks);
+      }
+    } catch (e) {
+      console.warn('[GENERATE_ADS] Brand context failed, continuing without:', e);
+    }
+
+    // 7. Executar Ad Generation Pipeline (com brain + RAG + brand)
     const result = await generateAds(
       safeBrandId,
       eliteAssets,
@@ -81,14 +116,25 @@ export async function POST(req: NextRequest) {
         minToneMatch: options?.minToneMatch ?? GENERATION_LIMITS.minToneMatchDefault,
         preferredFrameworks: options?.preferredFrameworks,
         includeImageSuggestions: options?.includeImageSuggestions,
+        brainContext,
+        ragContext,
+        brandContext,
       },
       userId
     );
 
-    // 7. Persistir no Firestore: brands/{brandId}/generated_ads (TTL: 30 dias)
+    // 8. Sprint H: Decrementar 5 créditos (custo unificado)
+    try {
+      await updateUserUsage(userId, -5);
+      console.log(`[GENERATE_ADS] 5 créditos decrementados para usuário: ${userId}`);
+    } catch (creditError) {
+      console.error('[GENERATE_ADS] Erro ao atualizar créditos:', creditError);
+    }
+
+    // 9. Persistir no Firestore: brands/{brandId}/generated_ads (TTL: 30 dias)
     await persistGeneratedAds(safeBrandId, sourceUrl, result);
 
-    // 8. Montar resposta
+    // 10. Montar resposta
     const processingTimeMs = Date.now() - startTime;
 
     const response: GenerateAdsResponse = {

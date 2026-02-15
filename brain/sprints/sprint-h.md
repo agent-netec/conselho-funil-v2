@@ -1,7 +1,7 @@
 # Sprint H — Consolidation (Duplicacoes + Brain Extras)
 
 > Fase: Pos-Auditoria — Unificacao e Polimento
-> Status: PENDENTE
+> Status: CONCLUIDO
 > Dependencia: Sprint G concluido
 > Estimativa: ~14h total
 
@@ -34,7 +34,7 @@ Unificar as rotas duplicadas de ad generation, integrar brain context no Copy Ge
 - **PRESERVAR:** Output da Rota 2 (strategy + insights) — adicionar ao output da Rota 1
 - **Estimativa:** 8-12h
 - **Verificacao:** Ambas as rotas retornam ads com brain context. Rota 2 e proxy da Rota 1
-- **Status:** PENDENTE
+- **Status:** CONCLUIDO
 
 #### Prompt de Handoff — H1 → H2
 
@@ -97,7 +97,7 @@ VERIFICACAO: Variantes de copy refletem expertise dos counselors especificos do 
 - **Token budget:** ~800 tokens por angulo
 - **Estimativa:** 3-4h
 - **Verificacao:** Variantes refletem expertise dos counselors especificos
-- **Status:** PENDENTE
+- **Status:** CONCLUIDO
 
 #### Prompt de Handoff — H2 → Build
 
@@ -121,12 +121,12 @@ APOS BUILD: Sprint H completo. Atualizar changelog no sprint-h.md.
 
 ## Verificacao Sprint H
 
-- [ ] Ad generation unificada: endpoint canonico com brain + RAG + brand
-- [ ] Rota de campaigns e proxy do canonico
-- [ ] Custo unificado de ads: 5 creditos
-- [ ] Copy Lab usa brain context por angulo
-- [ ] Variantes de fear/greed/authority/curiosity refletem counselors especificos
-- [ ] Build sem erros (`npm run build` no diretorio `app/`)
+- [x] Ad generation unificada: endpoint canonico com brain + RAG + brand
+- [x] Rota de campaigns e proxy do canonico
+- [x] Custo unificado de ads: 5 creditos
+- [x] Copy Lab usa brain context por angulo
+- [x] Variantes de fear/greed/authority/curiosity refletem counselors especificos
+- [x] Build sem erros (`npm run build` no diretorio `app/`)
 
 ---
 
@@ -134,6 +134,6 @@ APOS BUILD: Sprint H completo. Atualizar changelog no sprint-h.md.
 
 | Data | Tarefa | Status | Observacoes |
 |------|--------|--------|-------------|
-| | H1 Ad generation unificada | PENDENTE | |
-| | H2 Copy Lab brain integration | PENDENTE | |
-| | Build verification | PENDENTE | |
+| 2026-02-15 | H1 Ad generation unificada | CONCLUIDO | Rota 1 canonico com brain+RAG+brand context, Rota 2 proxy via generateAds(), custo 5 creditos, persistencia unificada em brands/{brandId}/generated_ads |
+| 2026-02-15 | H2 Copy Lab brain integration | CONCLUIDO | ANGLE_COUNSELOR_MAP com 4 angulos x 2 counselors, buildAngleBrainContext() com framework+red_flags, corrigido psychological_triggers→full_copy_score, scientific_testing→scientific_rigor |
+| 2026-02-15 | Build verification | CONCLUIDO | Compiled 18.9s, 0 erros, 40 static pages |

@@ -56,6 +56,12 @@ export interface GenerateAdsOptions {
   minToneMatch?: number;
   preferredFrameworks?: CopyFramework[];
   includeImageSuggestions?: boolean;
+  /** Sprint H: Brain context from identity cards */
+  brainContext?: string;
+  /** Sprint H: RAG context from knowledge base */
+  ragContext?: string;
+  /** Sprint H: Brand context from brand assets */
+  brandContext?: string;
 }
 
 export interface GenerateAdsResult {
@@ -114,6 +120,17 @@ function buildGenerationPrompt(
     ? `\n## Nível de Consciência do Público (Schwartz)\nNível: ${getAudienceLevelLabel(options.audienceLevel)}\nAdapte o tom e a abordagem de cada anúncio para este nível.`
     : '';
 
+  // Sprint H: Brain/RAG/Brand enrichment
+  const brainSection = options.brainContext
+    ? `\n## IDENTITY CARDS DOS ESPECIALISTAS (Frameworks Reais)\n\n${options.brainContext}\n`
+    : '';
+  const ragSection = options.ragContext
+    ? `\n## CONHECIMENTO ESTRATÉGICO (ADS PLAYBOOKS)\n${options.ragContext}\n`
+    : '';
+  const brandSection = options.brandContext
+    ? `\n## CONHECIMENTO DA MARCA\n${options.brandContext}\n`
+    : '';
+
   const frameworkInstructions = options.preferredFrameworks?.length
     ? `\nFrameworks preferidos: ${options.preferredFrameworks.join(', ')}`
     : `\nUse frameworks variados entre: schwartz, halbert_aida, brunson_story, cialdini, ogilvy`;
@@ -151,10 +168,10 @@ function buildGenerationPrompt(
     .join('\n\n');
 
   return `Você é um copywriter sênior especializado em anúncios de performance digital, treinado nas metodologias de Eugene Schwartz (níveis de consciência), Gary Halbert (AIDA), Russell Brunson (Story→Offer→Close), Robert Cialdini (persuasão) e David Ogilvy (copy longo, headline-driven).
-
+${brainSection}${ragSection}${brandSection}
 ## Tarefa
 Gere ${maxVariations} variações de anúncio a partir dos ativos de elite abaixo. Cada variação deve usar um formato e framework de copywriting diferente quando possível.
-${audienceContext}
+${options.brainContext ? 'Use os frameworks dos especialistas acima para fundamentar cada variação.\n' : ''}${audienceContext}
 ${frameworkInstructions}
 
 ## Elite Assets
