@@ -18,7 +18,8 @@ export default function ResearchPage() {
 
   const loadList = async () => {
     if (!brandId) return;
-    const res = await fetch(`/api/intelligence/research?brandId=${brandId}`);
+    const headers = await getAuthHeaders();
+    const res = await fetch(`/api/intelligence/research?brandId=${brandId}`, { headers });
     if (!res.ok) return;
     const payload = await res.json();
     const list = (payload?.data ?? payload) as MarketDossier[];
