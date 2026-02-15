@@ -238,7 +238,7 @@ export default function FunnelsPage() {
                             <div className="flex items-center justify-between text-xs">
                               <span className="text-zinc-500 font-medium">Ticket Médio</span>
                               <span className="text-emerald-400 font-bold">
-                                R$ {Number(funnel.context.offer?.ticket || 0).toLocaleString('pt-BR')}
+                                R$ {(Number(funnel.context.offer?.ticket) || 0).toLocaleString('pt-BR')}
                               </span>
                             </div>
                           </div>

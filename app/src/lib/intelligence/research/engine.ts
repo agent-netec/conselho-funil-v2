@@ -20,7 +20,12 @@ function isValidSourceUrl(value: string): boolean {
 export class ResearchEngine {
   static async generateDossier(input: ResearchQuery): Promise<MarketDossier> {
     const now = Timestamp.now();
-    const cached = await getCachedResearch(input.brandId, input.topic);
+    let cached: MarketDossier | null = null;
+    try {
+      cached = await getCachedResearch(input.brandId, input.topic);
+    } catch {
+      // Composite index may not exist yet — skip cache gracefully
+    }
     if (cached) return cached;
 
     const cfg = DEPTH_CONFIG[input.depth];
