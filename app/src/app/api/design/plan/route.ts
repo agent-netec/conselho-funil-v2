@@ -7,6 +7,7 @@ import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { updateUserUsage } from '@/lib/firebase/firestore';
 import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
+import { buildDesignBrainContext } from '@/lib/ai/prompts/design-brain-context';
 
 export const runtime = 'nodejs';
 
@@ -32,43 +33,69 @@ export async function POST(request: NextRequest) {
     }
 
     const modelName = DEFAULT_GEMINI_MODEL;
-    const model = genAI.getGenerativeModel({ 
+    const model = genAI.getGenerativeModel({
       model: modelName,
       generationConfig: { responseMimeType: "application/json" }
     });
 
+    // Sprint I: Load brain context from design_director identity card
+    let designBrainContext = '';
+    try {
+      designBrainContext = buildDesignBrainContext();
+    } catch (brainErr) {
+      console.warn('⚠️ Falha ao carregar brain context do design_director:', brainErr);
+    }
+
+    // Detect language from copy content (default: Portuguese)
+    const copyLanguage = context.language || 'português brasileiro';
+
     const prompt = `
       Você é o Conselho de Design Estratégico do "Conselho de Funil".
-      Sua missão é criar prompts visuais baseados no framework C.H.A.P.E.U.
+      Sua missão é criar prompts visuais ESTRATÉGICOS baseados no framework C.H.A.P.E.U.
+
+      ${designBrainContext ? `${designBrainContext}\n\nAplique RIGOROSAMENTE os frameworks e princípios do Diretor de Arte acima.\n` : ''}
 
       [CONTEXTO ESTRATÉGICO]
       Objetivo: ${context.objective}
-      Copy: ${context.copy}
-      Hooks: ${JSON.stringify(context.hooks)}
+      Copy aprovada: ${context.copy}
+      Hooks aprovados: ${JSON.stringify(context.hooks)}
 
-      [INSTRUÇÕES C.H.A.P.E.U]
-      1. Planeje 3 criativos visuais diferentes.
-      2. Foque em Contraste Alto e Hierarquia Visual.
-      3. Use Antropomorfismo (presença humana ou rostos expressivos).
-      4. Indique as Safe Zones (Meta Stories, Feed, LinkedIn).
-      
+      [REGRA DE IDIOMA — OBRIGATÓRIO]
+      O idioma da copy aprovada é: ${copyLanguage}.
+      TODOS os textos de assets (headline, primaryText, callToAction) DEVEM ser escritos em ${copyLanguage}.
+      O visualPrompt deve ser escrito em inglês (para o motor de imagem), mas DEVE incluir instruções explícitas
+      para renderizar qualquer texto visível na imagem em ${copyLanguage}.
+
+      [INSTRUÇÕES C.H.A.P.E.U — RIGOROSO]
+      Para cada criativo, aplique TODOS os 6 pilares:
+      1. [C] CONTRASTE ALTO: Diferença dramática entre fundo e elementos-chave. Use cores complementares, luz vs sombra, grande vs pequeno.
+      2. [H] HIERARQUIA VISUAL: Defina a "Jornada do Olhar" — qual elemento o usuário vê PRIMEIRO, SEGUNDO e TERCEIRO.
+      3. [A] ANTROPOMORFISMO: Presença humana OBRIGATÓRIA — rostos expressivos, olhar direto para câmera, emoção visível.
+      4. [P] PROVA & PROPS: Elementos que transmitem credibilidade — números, badges, selos, depoimentos visuais.
+      5. [E] ESTRUTURA & ESPAÇO: Composição em camadas com profundidade. Espaço negativo para headline e CTA.
+      6. [U] URGÊNCIA VISUAL: Elemento que gera senso de ação imediata — timer, seta, brilho, destaque no CTA.
+
+      Planeje EXATAMENTE 2 criativos diferentes (um para Feed e outro para Stories/Reels).
+
       Retorne APENAS um JSON no formato:
       {
         "prompts": [
-          { 
-            "platform": "meta", 
-            "format": "square", 
-            "safeZone": "feed", 
-            "visualPrompt": "Prompt detalhado em inglês...", 
+          {
+            "platform": "meta",
+            "format": "square",
+            "safeZone": "feed",
+            "visualPrompt": "Detailed prompt in English with explicit instruction: any visible text in the image MUST be in ${copyLanguage}. Include specific description of scene, lighting, composition, human presence, and emotional tone based on the copy context.",
             "aspectRatio": "1:1",
             "strategy": {
-              "contrastFocus": "Descrição do contraste...",
+              "contrastFocus": "Descrição específica do contraste usado",
               "balanceType": "asymmetrical",
-              "hierarchyOrder": ["Headline", "Product", "CTA"]
+              "hierarchyOrder": ["Headline", "Product", "CTA"],
+              "proximityLogic": "Como os elementos se agrupam",
+              "unityTheme": "Tema visual unificador"
             },
             "assets": {
-              "headline": "Texto curto para imagem",
-              "primaryText": "Texto principal do Ad"
+              "headline": "Headline CURTA e IMPACTANTE em ${copyLanguage} (extraída/adaptada da copy aprovada)",
+              "primaryText": "Texto principal do Ad em ${copyLanguage}"
             }
           }
         ]

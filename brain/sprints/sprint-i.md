@@ -227,6 +227,8 @@ Sprint de checagem final executado manualmente pelo usuario **diretamente no sit
 | 2 | F (I-7) | 7.1 | POST `/api/design/generate` retorna 400 "Prompt is required" — visualPrompt ausente | ALTO | CORRIGIDO |
 | 3a | — | — | "A Voz" reseta ao navegar entre paginas da Linha de Ouro — `campaign.id` undefined causava cascata de writes para `campaigns/undefined` | CRITICO | CORRIGIDO |
 | 3b | — | — | Copies aprovadas nao podiam ser re-selecionadas — botoes de acao ocultos para status `approved` | MEDIO | CORRIGIDO |
+| 4a | F (I-7) | 7.2 | Imagens genericas — brain context/C.H.A.P.E.U nao aplicado no plan nem no single-gen mode | ALTO | CORRIGIDO |
+| 4b | F (I-7) | 7.2 | Texto das imagens em ingles — plan pedia prompts em ingles, assets sem idioma da copy | ALTO | CORRIGIDO |
 
 ### Decisao Final
 
@@ -482,6 +484,50 @@ para encontrar copies aprovadas e injetar no estado — evita "A Voz" mostrar co
 
 ---
 
+### Issue #4 — Imagens genericas + texto em ingles
+
+**Reportado em:** 2026-02-15
+**Severidade:** ALTO (qualidade dos criativos abaixo do esperado)
+**Caminho:** `/funnels/[id]/design` → NanoBanana → Gerar Criativo
+
+#### Sintoma
+
+**Bug 4a:** As imagens geradas sao genericas, nao refletem a metodologia C.H.A.P.E.U nem o brain context do design_director. Sem contraste estrategico, hierarquia visual ou antropomorfismo intencional.
+
+**Bug 4b:** Os textos renderizados nas imagens (headlines, CTAs) saem em ingles mesmo quando a copy aprovada esta em portugues.
+
+#### Root Cause
+
+**4a — Brain context nao aplicado:**
+- `/api/design/plan`: NAO importava `buildDesignBrainContext()`. O prompt era generico, sem a filosofia/frameworks do design_director.
+- `/api/design/generate`: O card envia sem `generateVariants`, ativando `isSingleGeneration`. Nesse modo, o brain context era completamente ignorado — apenas concatenava heuristicas tecnicas.
+
+**4b — Idioma hardcoded em ingles:**
+- `/api/design/plan`: Prompt pedia explicitamente `"visualPrompt": "Prompt detalhado em inglês..."`.
+- Os assets (headline, primaryText) eram gerados em ingles pelo Gemini.
+- O card nao enviava os assets (headline) nem indicacao de idioma para o `/api/design/generate`.
+
+#### Correcoes Aplicadas (3 fixes)
+
+**Fix 4.1 — Plan route com brain context + idioma:**
+- Importou `buildDesignBrainContext()` para injetar filosofia/frameworks do design_director
+- Adicionou regra de idioma: assets DEVEM ser no idioma da copy, visualPrompt em ingles mas com instrucao de renderizar texto na lingua correta
+- Expandiu as instrucoes C.H.A.P.E.U com os 6 pilares detalhados
+
+**Fix 4.2 — Generate route com brain context no single mode:**
+- Adicionou instrucoes de C.H.A.P.E.U e language no modo single generation
+- Aceita `copyHeadline` e `copyLanguage` do body para injetar no prompt de geracao
+- Instrucao explicita: "Any visible text MUST be in {copyLanguage}"
+
+**Fix 4.3 — Card passa headline + language:**
+- `design-generation-card.tsx` agora envia `copyHeadline` (do assets.headline) e `copyLanguage: 'português brasileiro'` para a API
+
+#### Resultado
+- Build local: OK
+- Aguardando deploy + re-teste pelo usuario
+
+---
+
 ## Pos-Aprovacao
 
 Apos aprovacao:
@@ -504,6 +550,7 @@ Apos aprovacao:
 | 2026-02-15 | Issue #1d: Catch-all status reset | CORRIGIDO | Funil nao trava mais em 'generating' |
 | 2026-02-15 | Issue #2: Design Generate 400 | CORRIGIDO | Fallback prompt quando visualPrompt ausente |
 | 2026-02-15 | Issue #3: Linha de Ouro reset + copies travadas | CORRIGIDO | 5 fixes: docSnap.id, sanitize campaignId, guard updateCampaignManifesto, re-approve button, resilience scan |
+| 2026-02-15 | Issue #4: Imagens genericas + texto em ingles | CORRIGIDO | Brain context no plan + single-gen, idioma da copy, headline passthrough |
 | | Testes manuais Sprint E | PENDENTE | |
 | | Testes manuais Sprint F | PENDENTE | |
 | | Testes manuais Sprint G | PENDENTE | |

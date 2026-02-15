@@ -114,7 +114,9 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
           aspectRatio: promptData.aspectRatio,
           brandId: activeBrand.id,
           userId: activeBrand.userId,
-          brandContext: promptData.brandContext
+          brandContext: promptData.brandContext,
+          copyHeadline: promptData.assets?.headline || '',
+          copyLanguage: 'português brasileiro',
         }),
       });
 

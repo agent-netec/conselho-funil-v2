@@ -29,6 +29,8 @@ export async function POST(request: NextRequest) {
       imageSize = '2K',
       adjustPrompt,
       editOf,
+      copyHeadline,
+      copyLanguage,
     } = body;
 
     const basePrompt = adjustPrompt || prompt;
@@ -149,9 +151,18 @@ Retorne apenas o JSON array de strings.`;
     let promptVariants: string[] = [];
     
     if (isSingleGeneration) {
-      // Caso simples: usa o prompt base diretamente com as heurísticas
-      promptVariants = [`${basePrompt} | ${seniorHeuristics.lighting} | ${seniorHeuristics.composition} | ${seniorHeuristics.sharpness} | ${logoInstruction}`];
-      console.log('✨ Usando modo de geração única para acelerar resposta.');
+      // Sprint I: Single generation with brain context + language + heuristics
+      const langInstruction = copyLanguage
+        ? `CRITICAL: Any visible text rendered in the image MUST be in ${copyLanguage}. Do NOT use English for text overlays.`
+        : '';
+      const headlineInstruction = copyHeadline
+        ? `TEXT OVERLAY: Render this headline in the image: "${copyHeadline}"`
+        : '';
+      const brainInstructions = designBrainContext
+        ? `Apply C.H.A.P.E.U framework: High Contrast, Visual Hierarchy (eye journey), Human presence (anthropomorphism), Proof elements, Emotional structure with negative space for CTA, Visual urgency.`
+        : '';
+      promptVariants = [`${basePrompt} | ${brainInstructions} | ${langInstruction} | ${headlineInstruction} | ${seniorHeuristics.lighting} | ${seniorHeuristics.composition} | ${seniorHeuristics.sharpness} | ${logoInstruction}`];
+      console.log('✨ Usando modo de geração única com brain context + language.');
     } else {
       try {
         const flashModel = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
