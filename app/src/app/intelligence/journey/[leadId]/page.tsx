@@ -20,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LeadTimeline } from '@/components/intelligence/journey/LeadTimeline';
+import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import type { JourneyLead, JourneyEvent } from '@/types/journey';
 
 /**
@@ -29,27 +30,41 @@ import type { JourneyLead, JourneyEvent } from '@/types/journey';
 export default function LeadJourneyPage() {
   const params = useParams();
   const leadId = params.leadId as string;
-  
+  const activeBrand = useActiveBrand();
+  const brandId = activeBrand?.id;
+
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<{ lead: JourneyLead; events: JourneyEvent[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!leadId || !brandId) {
+      if (!brandId) setLoading(false);
+      return;
+    }
+
     async function fetchJourney() {
+      setLoading(true);
+      setError(null);
       try {
-        const response = await fetch(`/api/intelligence/journey/${leadId}`);
-        if (!response.ok) throw new Error('Falha ao carregar jornada do lead');
+        const response = await fetch(`/api/intelligence/journey/${leadId}?brandId=${brandId}`);
+        if (!response.ok) {
+          const errJson = await response.json().catch(() => null);
+          throw new Error(errJson?.error || 'Falha ao carregar jornada do lead');
+        }
         const json = await response.json();
-        setData(json);
-      } catch (err: any) {
-        setError(err.message);
+        // API uses createApiSuccess wrapper: { success: true, data: { lead, events } }
+        const payload = json.data || json;
+        setData(payload);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Erro desconhecido');
       } finally {
         setLoading(false);
       }
     }
 
-    if (leadId) fetchJourney();
-  }, [leadId]);
+    fetchJourney();
+  }, [leadId, brandId]);
 
   if (loading) return <JourneySkeleton />;
   if (error || !data) return <JourneyError message={error || 'Lead não encontrado'} />;

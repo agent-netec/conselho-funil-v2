@@ -1,122 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { UnifiedCrossChannelDashboard } from '@/components/performance/cross-channel/UnifiedDashboard';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  Calendar, 
-  Filter, 
-  Download, 
+import {
+  Calendar,
+  Download,
   RefreshCcw,
   LayoutDashboard,
-  Zap
+  AlertCircle
 } from "lucide-react";
-import { Timestamp } from 'firebase/firestore';
-
-// MOCK DATA - Em produção viria de um hook useCrossChannelMetrics
-const MOCK_METRICS = {
-  id: 'ccm_mock_2026_01',
-  brandId: 'brand_123',
-  period: {
-    start: Timestamp.now(),
-    end: Timestamp.now(),
-    type: 'monthly' as const
-  },
-  totals: {
-    spend: 125400,
-    clicks: 45200,
-    impressions: 1250000,
-    conversions: 842,
-    ctr: 0.036,
-    cpc: 2.77,
-    cpa: 148.93,
-    roas: 3.85,
-    blendedRoas: 4.12,
-    blendedCpa: 132.40
-  },
-  channels: {
-    meta: {
-      metrics: {
-        spend: 65000,
-        clicks: 28000,
-        impressions: 850000,
-        conversions: 412,
-        ctr: 0.032,
-        cpc: 2.32,
-        cpa: 157.76,
-        roas: 3.2
-      },
-      shareOfSpend: 0.52,
-      shareOfConversions: 0.49
-    },
-    google: {
-      metrics: {
-        spend: 45000,
-        clicks: 12000,
-        impressions: 320000,
-        conversions: 310,
-        ctr: 0.037,
-        cpc: 3.75,
-        cpa: 145.16,
-        roas: 4.8
-      },
-      shareOfSpend: 0.36,
-      shareOfConversions: 0.37
-    },
-    tiktok: {
-      metrics: {
-        spend: 15400,
-        clicks: 5200,
-        impressions: 80000,
-        conversions: 120,
-        ctr: 0.065,
-        cpc: 2.96,
-        cpa: 128.33,
-        roas: 5.2
-      },
-      shareOfSpend: 0.12,
-      shareOfConversions: 0.14
-    }
-  },
-  updatedAt: Timestamp.now()
-};
-
-const MOCK_INSIGHTS = [
-  {
-    id: 'ins_1',
-    type: 'channel_scale' as const,
-    platform: 'tiktok',
-    reasoning: 'O TikTok Ads apresenta o maior ROAS marginal (5.2x) com um CPA 15% abaixo da média blended. Há espaço para escala de orçamento sem fadiga de audiência detectada.',
-    impact: {
-      suggestedChange: 0.25,
-      expectedProfitIncrease: 12500
-    },
-    confidence: 0.92,
-    createdAt: Timestamp.now()
-  },
-  {
-    id: 'ins_2',
-    type: 'budget_reallocation' as const,
-    platform: 'meta',
-    reasoning: 'O custo por aquisição no Meta subiu 12% nos últimos 7 dias. Recomendamos realocar 15% do budget de prospecção do Meta para o Google Search (Fundo de Funil) para manter o Blended ROAS.',
-    impact: {
-      suggestedChange: -0.15,
-      expectedProfitIncrease: 8400
-    },
-    confidence: 0.88,
-    createdAt: Timestamp.now()
-  }
-];
+import { useCrossChannelMetrics } from '@/lib/hooks/use-cross-channel-metrics';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function CrossChannelWarRoomPage() {
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 1000);
-  };
+  const { metrics, insights, loading, error, refresh } = useCrossChannelMetrics(30);
 
   return (
     <div className="container mx-auto py-8 px-4 space-y-8">
@@ -139,43 +39,81 @@ export default function CrossChannelWarRoomPage() {
         <div className="flex items-center gap-3">
           <Button variant="outline" className="border-white/5 bg-zinc-900/50 text-zinc-400 gap-2">
             <Calendar size={18} />
-            Jan 2026
+            Últimos 30 dias
           </Button>
           <Button variant="outline" className="border-white/5 bg-zinc-900/50 text-zinc-400 gap-2">
             <Download size={18} />
             Exportar
           </Button>
-          <Button 
-            onClick={handleRefresh}
-            disabled={isRefreshing}
+          <Button
+            onClick={refresh}
+            disabled={loading}
             className="bg-purple-600 hover:bg-purple-500 text-white gap-2"
           >
-            <RefreshCcw size={18} className={isRefreshing ? 'animate-spin' : ''} />
+            <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} />
             Atualizar
           </Button>
         </div>
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-28 w-full rounded-xl bg-zinc-800/50" />
+            ))}
+          </div>
+          <Skeleton className="h-64 w-full rounded-xl bg-zinc-800/50" />
+          <Skeleton className="h-48 w-full rounded-xl bg-zinc-800/50" />
+        </div>
+      )}
+
+      {/* Error State */}
+      {!loading && error && (
+        <Card className="p-8 bg-red-950/20 border-red-500/20 text-center">
+          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-red-300 mb-2">Erro ao carregar dados</h3>
+          <p className="text-sm text-red-400/70 mb-4">{error}</p>
+          <Button onClick={refresh} variant="outline" className="border-red-500/20 text-red-300">
+            Tentar novamente
+          </Button>
+        </Card>
+      )}
+
+      {/* Empty State */}
+      {!loading && !error && metrics && Object.keys(metrics.channels).length === 0 && (
+        <Card className="p-12 bg-zinc-900/50 border-white/5 text-center">
+          <LayoutDashboard className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-zinc-400 mb-2">Sem dados de performance</h3>
+          <p className="text-sm text-zinc-500 max-w-md mx-auto">
+            Conecte suas contas de Meta Ads, Google Ads ou TikTok Ads para visualizar métricas cross-channel consolidadas.
+          </p>
+        </Card>
+      )}
+
       {/* Main Dashboard Component */}
-      <UnifiedCrossChannelDashboard 
-        metrics={MOCK_METRICS as any} 
-        insights={MOCK_INSIGHTS as any} 
-      />
+      {!loading && !error && metrics && Object.keys(metrics.channels).length > 0 && (
+        <UnifiedCrossChannelDashboard
+          metrics={metrics}
+          insights={insights}
+        />
+      )}
 
       {/* Footer Status */}
       <div className="flex items-center justify-between p-4 rounded-xl bg-zinc-900/50 border border-white/5">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span className="text-xs text-zinc-500">Data Sync: OK</span>
+            <div className={`w-2 h-2 rounded-full ${error ? 'bg-red-500' : 'bg-emerald-500'}`} />
+            <span className="text-xs text-zinc-500">Data Sync: {error ? 'Error' : 'OK'}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500" />
             <span className="text-xs text-zinc-500">Attribution Bridge: Active</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
-            <span className="text-xs text-zinc-500">AI Optimizer: Processing</span>
+            <div className={`w-2 h-2 rounded-full ${loading ? 'bg-purple-500 animate-pulse' : 'bg-emerald-500'}`} />
+            <span className="text-xs text-zinc-500">AI Optimizer: {loading ? 'Processing' : 'Ready'}</span>
           </div>
         </div>
         <p className="text-[10px] text-zinc-600 font-mono">
