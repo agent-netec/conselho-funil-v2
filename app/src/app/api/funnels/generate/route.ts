@@ -38,9 +38,11 @@ interface GenerateRequest {
 }
 
 export async function POST(request: NextRequest) {
+  let _funnelId: string | undefined;
   try {
     const body: GenerateRequest = await request.json();
     const { funnelId, context, adjustments, originalProposalId, baseVersion, userId } = body;
+    _funnelId = funnelId;
 
     if (!funnelId || !context) {
       return createApiError(400, 'funnelId and context are required');
@@ -208,6 +210,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('❌ Erro ao gerar propostas:', error);
+
+    // Reset funnel status to draft so it doesn't get stuck in 'generating'
+    if (_funnelId) {
+      try { await updateFunnel(_funnelId, { status: 'draft' }); } catch { /* best effort */ }
+    }
+
     return createApiError(500, error instanceof Error ? error.message : 'Erro interno ao gerar propostas');
   }
 }
