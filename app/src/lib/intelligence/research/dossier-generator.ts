@@ -105,15 +105,24 @@ export class DossierGenerator {
     const finalText = await generateWithGemini(prompt, {
       systemPrompt: RESEARCH_SYSTEM_PROMPT,
       temperature: 0.4,
+      maxOutputTokens: 8192,
       responseMimeType: 'application/json',
       feature: 'research_final_synthesis',
     });
 
     try {
+      // Tentar parse direto
       return normalizeSections(JSON.parse(finalText));
     } catch {
+      // Fallback: extrair JSON de markdown fences ou texto misto
+      const jsonMatch = finalText.match(/```(?:json)?\s*([\s\S]*?)```/) || finalText.match(/(\{[\s\S]*\})/);
+      if (jsonMatch?.[1]) {
+        try {
+          return normalizeSections(JSON.parse(jsonMatch[1].trim()));
+        } catch { /* fall through */ }
+      }
       return {
-        marketOverview: 'Nao foi possivel consolidar o dossie com confianca.',
+        marketOverview: finalText || 'Nao foi possivel consolidar o dossie com confianca.',
         marketSize: '',
         trends: [],
         competitors: [],

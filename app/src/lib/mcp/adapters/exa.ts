@@ -107,7 +107,14 @@ export class ExaAdapter implements IMCPAdapter {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`,
         },
-        body: JSON.stringify({ query, numResults }),
+        body: JSON.stringify({
+          query,
+          numResults,
+          useAutoprompt: true,
+          contents: {
+            text: { maxCharacters: 2000 },
+          },
+        }),
       });
       if (!response.ok) {
         const errorText = await response.text();
