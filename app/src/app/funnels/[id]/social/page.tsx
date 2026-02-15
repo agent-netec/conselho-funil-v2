@@ -61,7 +61,8 @@ export default function SocialCouncilPage() {
   const { selectedBrand } = useBrandStore();
   
   const funnelId = params.id as string;
-  const campaignId = searchParams.get('campaignId');
+  const _rawCampaignId = searchParams.get('campaignId');
+  const campaignId = _rawCampaignId && _rawCampaignId !== 'undefined' && _rawCampaignId !== 'null' ? _rawCampaignId : null;
   const [funnel, setFunnel] = useState<Funnel | null>(null);
   const [campaign, setCampaign] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);

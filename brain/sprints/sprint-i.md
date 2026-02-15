@@ -225,6 +225,8 @@ Sprint de checagem final executado manualmente pelo usuario **diretamente no sit
 | 1c | F (I-9) | 9.1 | maxOutputTokens 8192 insuficiente para 2 propostas completas — aumentado para 16384 | CRITICO | CORRIGIDO |
 | 1d | F (I-9) | 9.1 | Catch-all nao resetava status para draft — funil travava em 'generating' | MEDIO | CORRIGIDO |
 | 2 | F (I-7) | 7.1 | POST `/api/design/generate` retorna 400 "Prompt is required" — visualPrompt ausente | ALTO | CORRIGIDO |
+| 3a | — | — | "A Voz" reseta ao navegar entre paginas da Linha de Ouro — `campaign.id` undefined causava cascata de writes para `campaigns/undefined` | CRITICO | CORRIGIDO |
+| 3b | — | — | Copies aprovadas nao podiam ser re-selecionadas — botoes de acao ocultos para status `approved` | MEDIO | CORRIGIDO |
 
 ### Decisao Final
 
@@ -392,6 +394,94 @@ Agora mesmo que o Gemini omita `visualPrompt`, o usuario ainda consegue gerar cr
 
 ---
 
+### Issue #3 — Linha de Ouro: "A Voz" reseta + copies aprovadas nao re-selecionaveis
+
+**Reportado em:** 2026-02-15
+**Severidade:** CRITICO (UX completamente quebrada na Linha de Ouro)
+**Caminho:** `/campaigns/[id]` → Qualquer step → voltar ao Command Center
+
+#### Sintoma (2 bugs interligados)
+
+**Bug 3a:** Toda vez que o usuario sai da pagina de Design (ou qualquer step da Linha de Ouro) e volta ao Campaign Command Center, o step "A Voz" aparece como PENDENTE — como se a copy nunca tivesse sido aprovada. O usuario precisa re-aprovar a cada navegacao.
+
+**Bug 3b:** As copies que o usuario ja aprovou ficam com o badge "Aprovado" mas SEM botoes de acao. Impossivel re-aprovar ou re-enviar para a campanha.
+
+#### Root Cause Analysis
+
+**Root cause primario:** `campaign.id` era `undefined` apos o primeiro carregamento do Firestore.
+
+O Firestore `docSnap.data()` NAO inclui o document ID no retorno. O campo `id` nao era gravado no documento pela rota de copy decisions. Resultado: `campaign.id = undefined`.
+
+**Cadeia de consequencias:**
+
+```
+1. onSnapshot(campaigns/ABC123) → docSnap.data() → { funnelId: 'ABC123', copywriting: {...} }
+   → campaign.id = undefined  (data() nao inclui doc ID)
+
+2. Click "A Atencao" → router.push('/funnels/ABC123/social?campaignId=undefined')
+   → campaignId na URL = string "undefined" (truthy!)
+
+3. Social page: docId = campaignId || funnelId = "undefined"
+   → Le campaigns/undefined (NAO campaigns/ABC123!)
+   → Escreve social para campaigns/undefined
+
+4. Voltar ao Command Center via "Voltar ao Comando"
+   → Link vai para /campaigns/undefined (nao /campaigns/ABC123)
+   → campaigns/undefined tem social mas NAO tem copywriting
+   → "A Voz" mostra como PENDENTE
+```
+
+Problema agravado porque `'undefined'` (string) e truthy em JS — o fallback `|| funnelId` nunca e ativado.
+
+#### Correcoes Aplicadas (4 fixes)
+
+**Fix 3.1 — Setar `id` do document ID no onSnapshot:**
+```diff
+  // campaigns/[id]/page.tsx
+- const campaignData = docSnap.data() as CampaignContext;
++ const campaignData = { ...docSnap.data(), id: docSnap.id } as CampaignContext;
+```
+Agora `campaign.id` sempre tem o ID correto do documento Firestore.
+
+**Fix 3.2 — Sanitizar `campaignId` em todas as paginas da Linha de Ouro:**
+```diff
+  // funnels/[id]/copy/page.tsx, social/page.tsx, design/page.tsx
+- const campaignId = searchParams.get('campaignId');
++ const _rawCampaignId = searchParams.get('campaignId');
++ const campaignId = _rawCampaignId && _rawCampaignId !== 'undefined' && _rawCampaignId !== 'null' ? _rawCampaignId : null;
+```
+Se `campaignId` vier como `'undefined'` ou `'null'`, trata como `null` (fallback para funnelId).
+
+**Fix 3.3 — Guard em `updateCampaignManifesto`:**
+```diff
+  // lib/firebase/firestore.ts
++ if (!campaignId || campaignId === 'undefined' || campaignId === 'null') {
++   throw new Error('campaignId invalido');
++ }
+```
+Previne criacao de documentos orfaos em `campaigns/undefined`.
+
+**Fix 3.4 — Botao "Re-aprovar" para copies ja aprovadas:**
+```diff
+  // funnels/[id]/copy/page.tsx - CopyProposalCard
++ {copyProposal.status === 'approved' && (
++   <Button onClick={() => onDecision('approve')}>
++     Re-aprovar na Linha de Ouro
++   </Button>
++ )}
+```
+Permite re-enviar a copy aprovada para o manifesto da campanha se o handoff falhou.
+
+**Fix 3.5 — Scan de resiliencia no campaign page:**
+Se o documento da campanha existe mas NAO tem `copywriting`, faz um scan na subcoleção `copyProposals`
+para encontrar copies aprovadas e injetar no estado — evita "A Voz" mostrar como pendente.
+
+#### Resultado
+- Build local: OK
+- Aguardando deploy + re-teste pelo usuario
+
+---
+
 ## Pos-Aprovacao
 
 Apos aprovacao:
@@ -413,6 +503,7 @@ Apos aprovacao:
 | 2026-02-15 | Issue #1c: maxOutputTokens 8192→16384 | CORRIGIDO | JSON truncado causava parse failure |
 | 2026-02-15 | Issue #1d: Catch-all status reset | CORRIGIDO | Funil nao trava mais em 'generating' |
 | 2026-02-15 | Issue #2: Design Generate 400 | CORRIGIDO | Fallback prompt quando visualPrompt ausente |
+| 2026-02-15 | Issue #3: Linha de Ouro reset + copies travadas | CORRIGIDO | 5 fixes: docSnap.id, sanitize campaignId, guard updateCampaignManifesto, re-approve button, resilience scan |
 | | Testes manuais Sprint E | PENDENTE | |
 | | Testes manuais Sprint F | PENDENTE | |
 | | Testes manuais Sprint G | PENDENTE | |

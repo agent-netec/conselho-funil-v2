@@ -52,9 +52,31 @@ export default function CampaignCommandCenter() {
     const funnelId = params.id as string;
 
     // Monitora a Campanha (Manifesto da Linha de Ouro)
-    const unsubCampaign = onSnapshot(doc(db, 'campaigns', funnelId), (docSnap) => {
+    const unsubCampaign = onSnapshot(doc(db, 'campaigns', funnelId), async (docSnap) => {
       if (docSnap.exists()) {
-        const campaignData = docSnap.data() as CampaignContext;
+        const campaignData = { ...docSnap.data(), id: docSnap.id } as CampaignContext;
+
+        // Resilience: se o doc da campanha existe mas sem copywriting, scanner de copy aprovada
+        if (!campaignData.copywriting && campaignData.funnelId) {
+          try {
+            const copyRef = collection(db, 'funnels', campaignData.funnelId, 'copyProposals');
+            const copySnap = await getDocs(query(copyRef, where('status', '==', 'approved'), limit(1)));
+            if (copySnap.docs.length > 0) {
+              const approvedCopy = copySnap.docs[0].data();
+              campaignData.copywriting = {
+                bigIdea: approvedCopy.content?.primary?.slice(0, 500) || 'Big Idea aprovada',
+                headlines: approvedCopy.content?.headlines || [],
+                mainScript: approvedCopy.content?.primary || '',
+                tone: approvedCopy.awarenessStage || 'problem_aware',
+                keyBenefits: [],
+                counselor_reference: approvedCopy.copywriterInsights?.[0]?.copywriterName || 'Conselho de Copy',
+              };
+            }
+          } catch (err) {
+            console.warn('[Campaign] Fallback copy scan failed:', err);
+          }
+        }
+
         updateUnifiedState(campaignData);
       } else {
         // Se a campanha não existe, tenta carregar do Funil

@@ -744,9 +744,14 @@ export async function getCampaign(campaignId: string): Promise<CampaignContext |
  * Implementa resiliência via retry e backoff (ST-11.23).
  */
 export async function updateCampaignManifesto(
-  campaignId: string, 
+  campaignId: string,
   data: Partial<CampaignContext>
 ) {
+  // Guard: reject invalid campaign IDs to prevent orphan documents
+  if (!campaignId || campaignId === 'undefined' || campaignId === 'null') {
+    console.error('[updateCampaignManifesto] Invalid campaignId:', campaignId);
+    throw new Error('campaignId inválido para updateCampaignManifesto');
+  }
   const campaignRef = doc(db, 'campaigns', campaignId);
   
   return await withResilience(async () => {

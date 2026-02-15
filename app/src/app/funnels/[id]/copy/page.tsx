@@ -384,6 +384,18 @@ function CopyProposalCard({
                     </Button>
                   </div>
                 )}
+                {copyProposal.status === 'approved' && (
+                  <div className="flex gap-2 pt-2">
+                    <Button
+                      onClick={() => onDecision('approve')}
+                      variant="outline"
+                      className="flex-1 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+                    >
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      Re-aprovar na Linha de Ouro
+                    </Button>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
@@ -435,7 +447,8 @@ export default function CopyCouncilPage() {
   const { user } = useAuthStore();
   
   const funnelId = params.id as string;
-  const campaignId = searchParams.get('campaignId');
+  const _rawCampaignId = searchParams.get('campaignId');
+  const campaignId = _rawCampaignId && _rawCampaignId !== 'undefined' && _rawCampaignId !== 'null' ? _rawCampaignId : null;
   const urlProposalId = searchParams.get('proposalId');
 
   const [funnel, setFunnel] = useState<Funnel | null>(null);
