@@ -20,6 +20,7 @@ import {
 } from '@/lib/ai/prompts';
 import { formatBrandContextForFunnel, parseAIJSON } from '@/lib/ai/formatters';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { buildFunnelBrainContext } from '@/lib/ai/prompts/funnel-brain-context';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -94,11 +95,24 @@ export async function POST(request: NextRequest) {
       `[${c.metadata.counselor || 'General'}] ${c.content}`
     ).join('\n\n---\n\n');
 
-    // 3. Build the full prompt (include brand context if available)
+    // 3. Build the full prompt (include brand context + brain context if available)
     let contextPrompt = buildFunnelContextPrompt(context, knowledgeContext, adjustments);
     if (brandContext) {
       contextPrompt = `${brandContext}\n\n${contextPrompt}`;
     }
+
+    // Sprint F: Load brain context from funnel counselor identity cards
+    let funnelBrainContext = '';
+    try {
+      funnelBrainContext = buildFunnelBrainContext();
+      if (funnelBrainContext) {
+        console.log('🧠 Brain context carregado para funnels (6 counselors)');
+        contextPrompt = `${contextPrompt}\n\n${funnelBrainContext}`;
+      }
+    } catch (brainErr) {
+      console.warn('⚠️ Falha ao carregar brain context para funnels:', brainErr);
+    }
+
     const basePrompt = isAdjustment ? FUNNEL_ADJUSTMENT_PROMPT : FUNNEL_GENERATION_PROMPT;
     const fullPrompt = `${basePrompt}\n\n${contextPrompt}`;
 

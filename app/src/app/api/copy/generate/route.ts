@@ -40,6 +40,7 @@ import {
 import { buildCopyPrompt } from '@/lib/ai/prompts';
 import { parseAIJSON } from '@/lib/ai/formatters';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { buildCopyBrainContext } from '@/lib/ai/prompts/copy-brain-context';
 
 export const runtime = 'nodejs';
 export const maxDuration = 90; // Aumentado para lidar com RAG
@@ -141,6 +142,17 @@ export async function POST(request: NextRequest) {
     const finalAwarenessStage: AwarenessStage = awarenessStage || 
       mapAwareness(funnel.context.audience.awareness);
 
+    // Sprint F: Build brain context from identity cards for this awareness stage
+    let brainContext = '';
+    try {
+      brainContext = buildCopyBrainContext(finalAwarenessStage);
+      if (brainContext) {
+        console.log(`🧠 Brain context carregado para copy (awareness: ${finalAwarenessStage})`);
+      }
+    } catch (brainErr) {
+      console.warn('⚠️ Falha ao carregar brain context para copy:', brainErr);
+    }
+
     // Build prompt with all context
     const awarenessInfo = AWARENESS_STAGES[finalAwarenessStage];
     const prompt = buildCopyPrompt(
@@ -152,7 +164,8 @@ export async function POST(request: NextRequest) {
         ragContext,
         brandContext,
         keywordContext,
-        attachmentsContext
+        attachmentsContext,
+        brainContext,
       }
     );
 

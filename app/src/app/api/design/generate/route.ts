@@ -5,6 +5,7 @@ import { getBrandAssets } from '@/lib/firebase/assets';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { buildDesignBrainContext } from '@/lib/ai/prompts/design-brain-context';
 
 /**
  * API Proxy para Geração de Imagens via Google AI (Imagen/Nanobanana)
@@ -118,16 +119,29 @@ export async function POST(request: NextRequest) {
       ? `Plataforma: ${platform}, Formato: ${format || 'n/a'}, Safe Zone: ${safeZone || 'n/a'}` 
       : '';
 
+    // Sprint F: Load brain context from design_director identity card
+    let designBrainContext = '';
+    try {
+      designBrainContext = buildDesignBrainContext();
+    } catch (brainErr) {
+      console.warn('⚠️ Falha ao carregar brain context do design_director:', brainErr);
+    }
+
     const promptRequest = `
 Você é um diretor de arte sênior. Gere EXATAMENTE um JSON array com 3 strings de prompts detalhados para IA Generativa: ["v1","v2","v3"].
-Cada prompt deve aplicar rigorosamente o Framework C.H.A.P.E.U:
-1. [C] Contexto: Integrar plataforma ${platformContext} e objetivo de conversão.
+
+${designBrainContext ? `${designBrainContext}\n\nAplique os frameworks acima em cada prompt gerado.\n` : `Cada prompt deve aplicar rigorosamente o Framework C.H.A.P.E.U:
+1. [C] Contexto: Integrar plataforma e objetivo de conversão.
 2. [H] Hierarquia: Definir ordem visual clara (Jornada do Olhar).
-3. [A] Atmosfera: Estilo "${visualStyle}", iluminação cinematográfica e tom emocional.
-4. [P] Paleta & Props: Usar paleta (${brandColors.join(', ') || 'n/a'}), logo (${logoInstruction}) e props estratégicos.
+3. [A] Atmosfera: Estilo e iluminação cinematográfica e tom emocional.
+4. [P] Paleta & Props: Usar paleta, logo e props estratégicos.
 5. [E] Estrutura: Composição baseada em camadas e profundidade, respeitando Safe Zones.
 6. [U] Única Ação: Espaço negativo planejado para Headline e CTA.
-
+`}
+Contexto da plataforma: ${platformContext}
+Estilo visual: "${visualStyle}"
+Paleta: ${brandColors.join(', ') || 'n/a'}
+Logo: ${logoInstruction}
 Heurísticas técnicas: ${seniorHeuristics.lighting}, ${seniorHeuristics.composition}, ${seniorHeuristics.sharpness}.
 Briefing base: ${basePrompt}.
 Retorne apenas o JSON array de strings.`;

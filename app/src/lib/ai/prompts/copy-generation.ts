@@ -187,6 +187,7 @@ export function buildCopyPrompt(
     brandContext?: string;
     keywordContext?: string;
     attachmentsContext?: string;
+    brainContext?: string;
   }
 ): string {
   const copywriters = Object.values(COPY_COUNSELORS);
@@ -194,6 +195,8 @@ export function buildCopyPrompt(
   return `Você é o Conselho de Copywriting, um sistema de inteligência composto por 9 mestres do copywriting de resposta direta:
 
 ${copywriters.map((c, i) => `${i + 1}. **${c.name}** — ${c.expertise}: ${c.specialty}`).join('\n')}
+
+${context?.brainContext || ''}
 
 ## CONTEXTO DO FUNIL
 
