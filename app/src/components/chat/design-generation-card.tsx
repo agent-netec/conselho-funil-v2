@@ -97,7 +97,8 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
     setError(null);
 
     try {
-      const visualPrompt = promptData.visualPrompt || promptData.prompt;
+      const visualPrompt = promptData.visualPrompt || promptData.prompt
+        || `Professional ${promptData.platform || 'social media'} ad creative, ${promptData.strategy?.contrastFocus || 'high contrast'}, ${promptData.assets?.headline || 'marketing visual'}, ${promptData.strategy?.unityTheme || 'modern clean design'}`;
       const type = promptData.platform || promptData.format || 'design';
 
       const headers = await getAuthHeaders();
