@@ -47,6 +47,32 @@ export function AutomationControlCenter({
 }: AutomationControlCenterProps) {
   const pendingActions = logs.filter(l => l.status === 'pending_approval');
 
+  // Compute real stats from logs (J-4.1, J-4.2, J-4.3)
+  const isLast24h = (ts: { seconds: number }) =>
+    Date.now() - ts.seconds * 1000 < 24 * 60 * 60 * 1000;
+
+  const executedLast24h = logs.filter(
+    l => l.status === 'executed' && isLast24h(l.timestamp)
+  );
+
+  const budgetLogs = executedLast24h.filter(l => l.action === 'adjust_budget');
+  const totalAdjustment = budgetLogs.reduce((sum, log) => {
+    const rule = rules.find(r => r.id === log.ruleId);
+    return sum + (rule?.action.params.adjustmentValue || 0);
+  }, 0);
+
+  const getLastExecution = (ruleId: string) => {
+    const lastLog = logs.find(l => l.ruleId === ruleId && l.status === 'executed');
+    if (!lastLog) return 'Nunca';
+    const diffMs = Date.now() - lastLog.timestamp.seconds * 1000;
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 60) return `${diffMins}min atrás`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h atrás`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}d atrás`;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header com Stats Rápidos */}
@@ -110,8 +136,8 @@ export function AutomationControlCenter({
                   <p className="text-xs font-bold text-zinc-500 uppercase">Ações Executadas (24h)</p>
                   <TrendingUp className="h-4 w-4 text-emerald-500" />
                 </div>
-                <div className="text-3xl font-black text-white">142</div>
-                <p className="text-[10px] text-emerald-500 mt-1">+12% vs ontem</p>
+                <div className="text-3xl font-black text-white">{executedLast24h.length}</div>
+                <p className="text-[10px] text-zinc-500 mt-1">Últimas 24 horas</p>
               </CardContent>
             </Card>
             <Card className="bg-zinc-900/50 border-white/5">
@@ -120,8 +146,14 @@ export function AutomationControlCenter({
                   <p className="text-xs font-bold text-zinc-500 uppercase">Budget Otimizado</p>
                   <ArrowUpRight className="h-4 w-4 text-blue-500" />
                 </div>
-                <div className="text-3xl font-black text-white">R$ 12.450</div>
-                <p className="text-[10px] text-blue-500 mt-1">Economia estimada: R$ 2.100</p>
+                <div className="text-3xl font-black text-white">
+                  {budgetLogs.length > 0 ? `${totalAdjustment > 0 ? '+' : ''}${totalAdjustment}%` : '—'}
+                </div>
+                <p className="text-[10px] text-zinc-500 mt-1">
+                  {budgetLogs.length > 0
+                    ? `${budgetLogs.length} ajuste${budgetLogs.length !== 1 ? 's' : ''} nas últimas 24h`
+                    : 'Nenhum ajuste nas últimas 24h'}
+                </p>
               </CardContent>
             </Card>
             <Card className="bg-zinc-900/50 border-white/5">
@@ -221,7 +253,7 @@ export function AutomationControlCenter({
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Activity className="h-3 w-3 text-zinc-500" />
-                      Última Execução: 2h atrás
+                      Última Execução: {getLastExecution(rule.id)}
                     </div>
                   </div>
                 </CardContent>

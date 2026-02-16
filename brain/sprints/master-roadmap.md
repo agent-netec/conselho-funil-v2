@@ -203,16 +203,21 @@ Paralelos possíveis:
 
 **Arquivos:** `api/content/calendar/route.ts`, `reorder/route.ts`, `approve/route.ts`, `api/content/generate/route.ts`
 
-#### J-4. Automation — Fix Valores Hardcoded
+#### J-4. Automation — Fix Valores Hardcoded ✅
 **Origem:** `roadmap-automation-v2.md` Fase 1
+**Status:** CONCLUÍDO (2026-02-16) — Commit `3c0776ea8`
 
-- [ ] J-4.1 — Substituir "142 Ações" por query real: `logs.filter(l => l.status === 'executed' && last24h(l.timestamp)).length`
-- [ ] J-4.2 — Substituir "R$ 12.450" por soma de `adjustmentValue` dos logs, ou "Sem dados"
-- [ ] J-4.3 — Substituir "+12%" por comparação real ou esconder
-- [ ] J-4.4 — Conectar Copy Refactor a dados reais (último resultado de Autópsia) ou empty state
-- [ ] J-4.5 — Configurar cron em `vercel.json`: `/api/cron/automation-evaluate` a cada 1h
+- [x] J-4.1 — **"142 Ações" → dados reais:** `executedLast24h.length` filtrando logs com `status === 'executed'` e timestamp nas últimas 24h
+- [x] J-4.2 — **"R$ 12.450" → dados reais ou "—":** Soma de `adjustmentValue` das rules linkadas a logs `adjust_budget` executados, ou "—" + "Nenhum ajuste nas últimas 24h"
+- [x] J-4.3 — **"+12% vs ontem" → removido:** Sem dados históricos para comparação. Substituído por "Últimas 24 horas"
+- [x] J-4.4 — **Copy Refactor → autópsia real ou empty state:** Busca última autópsia da brand via Firestore (`brands/{brandId}/autopsies`). Se existe, extrai `frictionPoint` das recommendations e `originalContext` do summary. Se não, mostra empty state com orientação
+- [x] J-4.5 — **Cron já configurado:** `vercel.json` já contém `/api/cron/automation-evaluate` com schedule `0 * * * *` (a cada hora). Nenhuma alteração necessária
 
-**Arquivos:** `automation-control-center.tsx`, `automation/page.tsx`, `vercel.json`
+**Extras corrigidos:**
+- "Última Execução: 2h atrás" hardcoded nos cards de regras → `getLastExecution(ruleId)` com tempo relativo real
+- "Economia estimada: R$ 2.100" → removido (sem dados de budget real)
+
+**Arquivos:** `automation-control-center.tsx`, `automation/page.tsx`
 
 #### J-5. Social — Fix CSS Overlap
 **Origem:** `roadmap-social-v2.md` Fase 1.1

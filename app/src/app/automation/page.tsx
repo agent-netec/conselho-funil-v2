@@ -18,6 +18,8 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { collection, query, orderBy, limit as firestoreLimit, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 import type { AutomationLog, AutomationRule, DeadLetterItem } from '@/types/automation';
 import { getAutomationRules, getAutomationLogs, updateAutomationLogStatus, toggleAutomationRule, getDLQItems, saveAutomationRule } from '@/lib/firebase/automation';
 import { getPersonalizationRules } from '@/lib/firebase/personalization';
@@ -32,6 +34,10 @@ export default function AutomationPage() {
   const [logs, setLogs] = useState<AutomationLog[]>([]);
   const [variations, setVariations] = useState<{ id: string; headline: string; hook: string; justification: string; impactScore: number }[]>([]);
   const [dlqItems, setDlqItems] = useState<DeadLetterItem[]>([]);
+  const [latestAutopsy, setLatestAutopsy] = useState<{
+    frictionPoint: string;
+    originalContext: string;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('v2');
   const [retryingId, setRetryingId] = useState<string | null>(null);
@@ -59,13 +65,35 @@ export default function AutomationPage() {
     }
     setIsLoading(true);
 
+    // Fetch latest autopsy for this brand
+    const fetchLatestAutopsy = async () => {
+      const q = query(
+        collection(db, 'brands', brandId, 'autopsies'),
+        orderBy('createdAt', 'desc'),
+        firestoreLimit(1)
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) return null;
+      const doc = snap.docs[0].data();
+      const result = doc.result;
+      if (!result) return null;
+      // Extract friction point from recommendations or heuristics
+      const frictionPoint = result.recommendations?.[0]?.description
+        || result.heuristics?.friction?.findings?.[0]
+        || result.summary
+        || 'Ponto de fricção não especificado';
+      const originalContext = result.summary || 'Contexto não disponível';
+      return { frictionPoint, originalContext };
+    };
+
     Promise.allSettled([
       getAutomationRules(brandId),
       getAutomationLogs(brandId, 50),
       getPersonalizationRules(brandId),
       getDLQItems(brandId),
+      fetchLatestAutopsy(),
     ])
-      .then(([rulesResult, logsResult, personalizationResult, dlqResult]) => {
+      .then(([rulesResult, logsResult, personalizationResult, dlqResult, autopsyResult]) => {
         if (rulesResult.status === 'fulfilled') setRules(rulesResult.value);
         else console.error('[Automation] Failed to load rules:', rulesResult.reason);
 
@@ -84,6 +112,10 @@ export default function AutomationPage() {
 
         if (dlqResult.status === 'fulfilled') setDlqItems(dlqResult.value);
         else console.error('[Automation] Failed to load DLQ:', dlqResult.reason);
+
+        if (autopsyResult.status === 'fulfilled' && autopsyResult.value) {
+          setLatestAutopsy(autopsyResult.value);
+        }
       })
       .finally(() => setIsLoading(false));
   }, [brandId]);
@@ -303,16 +335,26 @@ export default function AutomationPage() {
         </TabsContent>
 
         <TabsContent value="refactor" className="mt-0 outline-none h-[700px]">
-          <CopyRefactorWizard 
-            frictionPoint="Usuários abandonam o vídeo nos primeiros 15 segundos devido a uma promessa genérica."
-            originalCopy="Como ganhar dinheiro online usando apenas o seu celular e 2 horas por dia."
-            variations={variations}
-            onApply={(v) => {
-              toast.success(`Refatoração "${v.headline}" aplicada com sucesso!`);
-              setActiveTab('v2');
-            }}
-            onRegenerate={() => new Promise(resolve => setTimeout(resolve, 2000))}
-          />
+          {latestAutopsy ? (
+            <CopyRefactorWizard
+              frictionPoint={latestAutopsy.frictionPoint}
+              originalCopy={latestAutopsy.originalContext}
+              variations={variations}
+              onApply={(v) => {
+                toast.success(`Refatoração "${v.headline}" aplicada com sucesso!`);
+                setActiveTab('v2');
+              }}
+              onRegenerate={() => new Promise(resolve => setTimeout(resolve, 2000))}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full text-zinc-500 bg-zinc-900/30 rounded-xl border border-dashed border-white/10">
+              <BrainCircuit className="h-12 w-12 mb-4 opacity-20" />
+              <p className="font-bold uppercase tracking-widest text-xs mb-2">Nenhuma autópsia disponível</p>
+              <p className="text-xs text-zinc-600 max-w-md text-center">
+                Execute uma Autópsia de Página para que o AI Copy Refactor possa gerar sugestões baseadas em pontos de fricção reais.
+              </p>
+            </div>
+          )}
         </TabsContent>
 
         {/* S31-DLQ-03: Dead Letter Queue Tab */}
