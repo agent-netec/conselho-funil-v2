@@ -4,6 +4,22 @@ import { Timestamp } from 'firebase/firestore';
 // USER
 // ============================================
 
+export interface UserPreferences {
+  theme: 'dark' | 'light' | 'system';
+  notifications: {
+    funnelReview: boolean;
+    proposalsGenerated: boolean;
+    updates: boolean;
+  };
+  branding: {
+    logoUrl: string;
+    colors: {
+      primary: string;
+      secondary: string;
+    };
+  };
+}
+
 export interface User {
   id: string;
   email: string;
@@ -14,6 +30,7 @@ export interface User {
   role: 'admin' | 'member' | 'viewer' | 'agency_admin' | 'agency_manager' | 'agency_viewer';
   credits: number;     // US-16.1
   usage: number;       // US-16.1
+  preferences?: UserPreferences;
   createdAt: Timestamp;
   lastLogin: Timestamp;
 }

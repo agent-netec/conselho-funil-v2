@@ -60,7 +60,7 @@ export class PersonalizationMaestro {
       return;
     }
 
-    // Lógica de progressão de consciência (Simplificada para MVP)
+    // Lógica de progressão de consciência (score-based)
     let nextAwareness = context.currentAwareness;
     const currentScore = context.score;
     let scoreGain = 5;

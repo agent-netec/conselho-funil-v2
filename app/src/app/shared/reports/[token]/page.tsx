@@ -71,8 +71,7 @@ export default function ClientReportPage() {
     async function loadReportData() {
       try {
         // 1. Buscar o relatório pelo token
-        // Nota: Em um sistema real, o token seria validado via API ou uma collection de 'shared_links'
-        // Para este MVP, estamos buscando diretamente na collection de reports (assumindo que o token é o ID ou um campo indexado)
+        // Busca diretamente na collection de reports pelo sharingToken (campo indexado)
         const reportsRef = collection(db, 'reports');
         const q = query(reportsRef, where('sharingToken', '==', token), limit(1));
         const snapshot = await getDocs(q);

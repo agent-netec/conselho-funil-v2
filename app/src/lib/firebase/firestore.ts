@@ -21,6 +21,7 @@ import { withResilience } from './resilience';
 import { encryptSensitiveFields } from '../utils/encryption';
 import type {
   User,
+  UserPreferences,
   Tenant,
   Funnel,
   FunnelContext,
@@ -52,7 +53,7 @@ export async function createUser(userId: string, data: Omit<User, 'id' | 'create
   
   await setDoc(userRef, {
     ...data,
-    credits: 10, // MVP Default: 10 credits (US-16.1)
+    credits: 10, // Default: 10 credits (US-16.1)
     usage: 0,
     createdAt: now,
     lastLogin: now,
@@ -130,6 +131,33 @@ export async function getUser(userId: string): Promise<User | null> {
 export async function updateUserLastLogin(userId: string) {
   const userRef = doc(db, 'users', userId);
   await updateDoc(userRef, { lastLogin: Timestamp.now() });
+}
+
+/**
+ * Busca as preferências do usuário (tema, notificações, branding).
+ */
+export async function getUserPreferences(userId: string): Promise<UserPreferences | null> {
+  const userData = await getUser(userId);
+  return userData?.preferences ?? null;
+}
+
+/**
+ * Atualiza as preferências do usuário (merge parcial).
+ */
+export async function updateUserPreferences(userId: string, prefs: Partial<UserPreferences>) {
+  const userRef = doc(db, 'users', userId);
+  // Flatten nested fields for Firestore dot-notation merge
+  const updates: Record<string, any> = {};
+  if (prefs.theme !== undefined) {
+    updates['preferences.theme'] = prefs.theme;
+  }
+  if (prefs.notifications !== undefined) {
+    updates['preferences.notifications'] = prefs.notifications;
+  }
+  if (prefs.branding !== undefined) {
+    updates['preferences.branding'] = prefs.branding;
+  }
+  await updateDoc(userRef, updates);
 }
 
 // ============================================

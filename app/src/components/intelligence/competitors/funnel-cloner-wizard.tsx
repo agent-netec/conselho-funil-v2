@@ -90,7 +90,7 @@ export const FunnelClonerWizard: React.FC<FunnelClonerWizardProps> = ({
         </div>
         <CardTitle className="text-2xl flex items-center gap-2">
           <Globe className="w-6 h-6 text-primary" />
-          Funnel Cloner MVP
+          Funnel Cloner
         </CardTitle>
         <CardDescription>
           Cole a URL de um funil de concorrente para extrair sua arquitetura, headlines e CTAs.

@@ -82,7 +82,7 @@ export class ScoutAgent {
   }
 
   /**
-   * Coleta dados do Google News via RSS (estratégia MVP).
+   * Coleta dados do Google News via RSS.
    */
   async collectFromGoogleNews(
     brandId: string, 
@@ -106,7 +106,7 @@ export class ScoutAgent {
   }
 
   /**
-   * Coleta dados do Reddit via API (estratégia MVP via JSON).
+   * Coleta dados do Reddit via JSON API.
    */
   async collectFromReddit(
     brandId: string,
@@ -186,14 +186,13 @@ export class ScoutAgent {
   }
 
   /**
-   * Coleta dados do X (Twitter) via RSS/Scraping (estratégia MVP via Nitter ou similar).
+   * Coleta dados do X (Twitter) via Nitter RSS.
    */
   async collectFromX(
     brandId: string,
     keyword: string
   ): Promise<ScoutCollectionResult> {
-    // Para o MVP, usaremos uma instância pública do Nitter para RSS, 
-    // contornando as restrições da API oficial do X.
+    // Usa instância pública do Nitter para RSS (contorna restrições da API oficial do X)
     const encodedKeyword = encodeURIComponent(keyword);
     const endpoint = `https://nitter.net/search/rss?q=${encodedKeyword}`;
     

@@ -26,8 +26,8 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { useUser } from '@/lib/hooks/use-user';
 import { logout } from '@/lib/firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { saveIntegration, getIntegrations } from '@/lib/firebase/firestore';
-import { Integration } from '@/types/database';
+import { saveIntegration, getIntegrations, getUserPreferences, updateUserPreferences } from '@/lib/firebase/firestore';
+import { Integration, UserPreferences } from '@/types/database';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
@@ -119,20 +119,10 @@ export default function SettingsPage() {
   // ============================================
   const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs>(DEFAULT_NOTIFICATION_PREFS);
 
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(NOTIFICATION_STORAGE_KEY);
-      if (stored) {
-        setNotifPrefs(JSON.parse(stored));
-      }
-    } catch {
-      // ignore parse errors
-    }
-  }, []);
-
   const updateNotifPref = useCallback((key: keyof NotificationPrefs, value: boolean) => {
     setNotifPrefs(prev => {
       const next = { ...prev, [key]: value };
+      // Cache locally for instant reads
       localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(next));
       return next;
     });
@@ -144,19 +134,9 @@ export default function SettingsPage() {
   const { branding, updateBranding } = useBranding();
   const [theme, setTheme] = useState<ThemePreference>('dark');
 
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(THEME_STORAGE_KEY) as ThemePreference | null;
-      if (stored && ['dark', 'light', 'system'].includes(stored)) {
-        setTheme(stored);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
   const applyTheme = useCallback((preference: ThemePreference) => {
     setTheme(preference);
+    // Cache locally for instant reads on next page load
     localStorage.setItem(THEME_STORAGE_KEY, preference);
 
     const root = document.documentElement;
@@ -169,6 +149,67 @@ export default function SettingsPage() {
       root.classList.toggle('light', preference === 'light');
     }
   }, []);
+
+  // ============================================
+  // LOAD ALL PREFERENCES FROM FIRESTORE
+  // ============================================
+  useEffect(() => {
+    async function loadPreferences() {
+      const uid = authUser?.uid;
+      if (!uid) return;
+
+      try {
+        const prefs = await getUserPreferences(uid);
+
+        if (prefs?.notifications) {
+          setNotifPrefs(prefs.notifications);
+          localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(prefs.notifications));
+        } else {
+          // Fallback: read from localStorage cache
+          try {
+            const cached = localStorage.getItem(NOTIFICATION_STORAGE_KEY);
+            if (cached) setNotifPrefs(JSON.parse(cached));
+          } catch { /* ignore */ }
+        }
+
+        if (prefs?.theme) {
+          setTheme(prefs.theme);
+          localStorage.setItem(THEME_STORAGE_KEY, prefs.theme);
+        } else {
+          // Fallback: read from localStorage cache
+          try {
+            const cached = localStorage.getItem(THEME_STORAGE_KEY) as ThemePreference | null;
+            if (cached && ['dark', 'light', 'system'].includes(cached)) {
+              setTheme(cached);
+            }
+          } catch { /* ignore */ }
+        }
+
+        if (prefs?.branding) {
+          updateBranding(prefs.branding);
+          localStorage.setItem('cf-branding', JSON.stringify(prefs.branding));
+        } else {
+          // Fallback: read from localStorage cache
+          try {
+            const cached = localStorage.getItem('cf-branding');
+            if (cached) updateBranding(JSON.parse(cached));
+          } catch { /* ignore */ }
+        }
+      } catch (err) {
+        console.error('Error loading preferences from Firestore:', err);
+        // Graceful degradation: load from localStorage cache
+        try {
+          const cachedNotif = localStorage.getItem(NOTIFICATION_STORAGE_KEY);
+          if (cachedNotif) setNotifPrefs(JSON.parse(cachedNotif));
+          const cachedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemePreference | null;
+          if (cachedTheme && ['dark', 'light', 'system'].includes(cachedTheme)) setTheme(cachedTheme);
+          const cachedBranding = localStorage.getItem('cf-branding');
+          if (cachedBranding) updateBranding(JSON.parse(cachedBranding));
+        } catch { /* ignore */ }
+      }
+    }
+    loadPreferences();
+  }, [authUser?.uid, updateBranding]);
 
   // ============================================
   // SAVE HANDLERS
@@ -320,13 +361,25 @@ export default function SettingsPage() {
   const handleSaveAppearance = async () => {
     setIsSaving(true);
     try {
-      // Persist branding to localStorage
+      const uid = authUser?.uid;
+      if (!uid) throw new Error('Usuário não autenticado.');
+
+      // Persist to Firestore (source of truth) + localStorage (cache)
+      await updateUserPreferences(uid, {
+        theme,
+        branding: {
+          logoUrl: branding.logoUrl || '',
+          colors: { primary: branding.colors.primary, secondary: branding.colors.secondary },
+        },
+      });
       localStorage.setItem('cf-branding', JSON.stringify(branding));
-      // Theme is already persisted on selection
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+
       setSaved(true);
       toast.success('Preferências salvas!');
       setTimeout(() => setSaved(false), 2000);
     } catch (err) {
+      console.error('Error saving appearance:', err);
       toast.error('Erro ao salvar preferências.');
     } finally {
       setIsSaving(false);
@@ -344,13 +397,21 @@ export default function SettingsPage() {
       case 'appearance':
         return handleSaveAppearance();
       case 'notifications':
-        // Notifications auto-save on toggle, but show feedback
         setIsSaving(true);
-        localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(notifPrefs));
-        setSaved(true);
-        toast.success('Notificações salvas!');
-        setTimeout(() => setSaved(false), 2000);
-        setIsSaving(false);
+        try {
+          const uid = authUser?.uid;
+          if (!uid) throw new Error('Usuário não autenticado.');
+          await updateUserPreferences(uid, { notifications: notifPrefs });
+          localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(notifPrefs));
+          setSaved(true);
+          toast.success('Notificações salvas!');
+          setTimeout(() => setSaved(false), 2000);
+        } catch (err) {
+          console.error('Error saving notifications:', err);
+          toast.error('Erro ao salvar notificações.');
+        } finally {
+          setIsSaving(false);
+        }
         return;
       default:
         return;

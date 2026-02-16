@@ -50,7 +50,7 @@ describe('Kill-Switch API - Guardrail P0 Validation', () => {
 
   /**
    * TESTE DE SEGURANÇA: Validar se a API bloqueia execução direta.
-   * No MVP, o status DEVE ser 'pending_approval'.
+   * O status DEVE ser 'pending_approval' (requireApproval é obrigatório).
    */
   test('GUARDRAIL P0: Kill-Switch must NOT execute immediately, should return pending_approval', async () => {
     const req = {

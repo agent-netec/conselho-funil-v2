@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
         const brandData = brandSnap.data();
         const credits = brandData.credits ?? 0;
         
-        // Custo estimado por operação (simplificado para o MVP)
+        // Custo fixo por operação (1 crédito)
         const operationCost = 1; 
         
         if (credits < operationCost) {

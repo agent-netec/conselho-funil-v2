@@ -1,7 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { AgencyBranding } from '@/types/agency';
+import { useAuthStore } from '@/lib/stores/auth-store';
+import { getUserPreferences } from '@/lib/firebase/firestore';
 
 interface BrandingContextType {
   branding: AgencyBranding;
@@ -25,8 +27,10 @@ export function BrandingProvider({
   children: React.ReactNode;
   initialBranding?: AgencyBranding;
 }) {
+  const { user: authUser } = useAuthStore();
+
   const [branding, setBranding] = useState<AgencyBranding>(() => {
-    // J-1.5: Load persisted branding from localStorage
+    // Load from localStorage cache for instant display (avoids flash)
     if (typeof window !== 'undefined') {
       try {
         const stored = localStorage.getItem('cf-branding');
@@ -37,6 +41,34 @@ export function BrandingProvider({
     }
     return initialBranding || DEFAULT_BRANDING;
   });
+
+  // Load from Firestore (source of truth) once auth is ready
+  useEffect(() => {
+    async function loadFromFirestore() {
+      if (!authUser?.uid) return;
+      try {
+        const prefs = await getUserPreferences(authUser.uid);
+        if (prefs?.branding) {
+          setBranding(prev => {
+            const next: AgencyBranding = {
+              ...prev,
+              logoUrl: prefs.branding.logoUrl || prev.logoUrl,
+              colors: {
+                ...prev.colors,
+                ...prefs.branding.colors,
+              },
+            };
+            // Sync cache
+            localStorage.setItem('cf-branding', JSON.stringify(next));
+            return next;
+          });
+        }
+      } catch {
+        // Graceful degradation: keep localStorage/default values
+      }
+    }
+    loadFromFirestore();
+  }, [authUser?.uid]);
 
   useEffect(() => {
     // Injeta as variáveis CSS no :root
@@ -52,7 +84,7 @@ export function BrandingProvider({
     }
   }, [branding]);
 
-  const updateBranding = (newBranding: Partial<AgencyBranding>) => {
+  const updateBranding = useCallback((newBranding: Partial<AgencyBranding>) => {
     setBranding(prev => ({
       ...prev,
       ...newBranding,
@@ -61,7 +93,7 @@ export function BrandingProvider({
         ...(newBranding.colors || {})
       }
     }));
-  };
+  }, []);
 
   return (
     <BrandingContext.Provider value={{ branding, updateBranding }}>

@@ -33,8 +33,7 @@ export class BrandVoiceTranslator {
         responseMimeType: 'application/json',
       });
 
-      // O prompt SOCIAL_RESPONSE_PROMPT deve ser configurado para retornar JSON estruturado
-      // Para este MVP, vamos simular o parse do retorno estruturado
+      // Parse do retorno estruturado da IA
       const parsedResponse = this.parseAIResponse(response);
 
       return {

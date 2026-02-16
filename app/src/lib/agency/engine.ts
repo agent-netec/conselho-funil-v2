@@ -124,10 +124,8 @@ export async function createAgencyInvite(
  * Aceita um convite de agência.
  */
 export async function acceptAgencyInvite(token: string, userId: string) {
-  // Busca o convite pelo token usando collectionGroup (requer índice)
-  // Como alternativa para o MVP, podemos buscar em uma coleção global de invites ou 
-  // passar o agencyId no link do convite.
-  // Vamos assumir que o link contém o agencyId: /invite?token=...&agencyId=...
+  // O link do convite contém o agencyId: /invite?token=...&agencyId=...
+  // TODO: migrar para collectionGroup query quando índice estiver criado
 }
 
 /**

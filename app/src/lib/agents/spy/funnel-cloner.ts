@@ -39,7 +39,7 @@ export interface ClonedFunnelTemplate extends ScopedData {
 }
 
 /**
- * Funnel Cloner MVP - Transforma URLs em templates estruturados
+ * Funnel Cloner — Transforma URLs em templates estruturados
  */
 export class FunnelCloner {
   private router: MCPRouter;

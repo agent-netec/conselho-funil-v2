@@ -37,7 +37,7 @@ export interface AutomationRule {
     };
   };
   guardrails: {
-    requireApproval: boolean; // Sempre true no MVP
+    requireApproval: boolean; // Sempre true (segurança obrigatória)
     cooldownPeriod: number; // Horas antes de agir novamente na mesma entidade
   };
 }
