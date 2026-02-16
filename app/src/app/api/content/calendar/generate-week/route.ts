@@ -56,14 +56,15 @@ const GENERATE_WEEK_PROMPT = `Você é o planejador de conteúdo do Conselho Soc
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { brandId, pillars, platform, startDate, userId } = body;
+    const { brandId, pillars, platform, startDate } = body;
 
     if (!brandId) {
       return createApiError(400, 'brandId is required');
     }
 
+    let userId = '';
     try {
-      await requireBrandAccess(req, brandId);
+      userId = (await requireBrandAccess(req, brandId)).userId;
     } catch (error) {
       return handleSecurityError(error);
     }

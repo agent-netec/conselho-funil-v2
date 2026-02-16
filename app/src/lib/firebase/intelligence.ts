@@ -285,6 +285,140 @@ export function formatKeywordsForPrompt(keywords: KeywordIntelligence[]): string
 }
 
 // ============================================
+// BRAND KEYWORDS (Sprint N — brands/{id}/keywords)
+// ============================================
+
+export interface SavedBrandKeyword {
+  term: string;
+  volume: number;
+  difficulty: number;
+  intent: string;
+  opportunityScore: number;
+  source: 'miner' | 'dataforseo' | 'manual';
+  suggestion?: string;
+  savedAt: Timestamp;
+}
+
+/**
+ * Save a keyword to the brand's keyword collection.
+ * Collection: brands/{brandId}/keywords
+ * Limit: 100 keywords per brand.
+ */
+export async function saveBrandKeyword(
+  brandId: string,
+  keyword: Omit<SavedBrandKeyword, 'savedAt'>
+): Promise<string> {
+  const keywordsRef = collection(db, 'brands', brandId, 'keywords');
+
+  // Check limit (100 max)
+  const existingSnap = await getDocs(keywordsRef);
+  if (existingSnap.size >= 100) {
+    throw new Error('Limite de 100 keywords por marca atingido.');
+  }
+
+  // Check if keyword already exists (by term, case-insensitive)
+  const existing = existingSnap.docs.find(
+    d => (d.data().term as string).toLowerCase() === keyword.term.toLowerCase()
+  );
+  if (existing) {
+    await updateDoc(doc(db, 'brands', brandId, 'keywords', existing.id), {
+      ...keyword,
+      savedAt: Timestamp.now(),
+    });
+    return existing.id;
+  }
+
+  const docRef = await addDoc(keywordsRef, {
+    ...keyword,
+    savedAt: Timestamp.now(),
+  });
+  return docRef.id;
+}
+
+/**
+ * Save multiple keywords to brand in batch.
+ */
+export async function saveBrandKeywordsBatch(
+  brandId: string,
+  keywords: Omit<SavedBrandKeyword, 'savedAt'>[]
+): Promise<number> {
+  let saved = 0;
+  for (const kw of keywords) {
+    try {
+      await saveBrandKeyword(brandId, kw);
+      saved++;
+    } catch {
+      break; // Hit limit
+    }
+  }
+  return saved;
+}
+
+/**
+ * Get saved brand keywords from brands/{id}/keywords collection.
+ * Returns keywords ordered by opportunityScore desc.
+ */
+export async function getSavedBrandKeywords(
+  brandId: string,
+  maxResults = 50
+): Promise<SavedBrandKeyword[]> {
+  const keywordsRef = collection(db, 'brands', brandId, 'keywords');
+  const q = query(keywordsRef, orderBy('savedAt', 'desc'), limit(maxResults));
+  const snap = await getDocs(q);
+
+  return snap.docs
+    .map(d => ({ ...d.data() } as SavedBrandKeyword))
+    .sort((a, b) => (b.opportunityScore ?? 0) - (a.opportunityScore ?? 0));
+}
+
+/**
+ * Format saved brand keywords for prompt injection.
+ * Combines with legacy getBrandKeywords for maximum coverage.
+ */
+export async function getAllBrandKeywordsForPrompt(
+  brandId: string,
+  maxResults = 15
+): Promise<string> {
+  // 1. Get from new collection
+  const saved = await getSavedBrandKeywords(brandId, maxResults);
+
+  // 2. Get from legacy intelligence collection
+  const legacy = await getBrandKeywords(brandId, maxResults);
+
+  // 3. Merge, deduplicate by term
+  const seen = new Set<string>();
+  const merged: KeywordIntelligence[] = [];
+
+  for (const kw of saved) {
+    const key = kw.term.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      merged.push({
+        term: kw.term,
+        intent: kw.intent as KeywordIntelligence['intent'],
+        metrics: { volume: kw.volume, difficulty: kw.difficulty, opportunityScore: kw.opportunityScore },
+        relatedTerms: [],
+        suggestedBy: 'manual',
+        suggestion: kw.suggestion,
+      });
+    }
+  }
+
+  for (const kw of legacy) {
+    const key = kw.term.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      merged.push(kw);
+    }
+  }
+
+  // Sort by opportunity score
+  merged.sort((a, b) => (b.metrics?.opportunityScore ?? 0) - (a.metrics?.opportunityScore ?? 0));
+
+  return formatKeywordsForPrompt(merged.slice(0, maxResults));
+}
+
+// ============================================
 // HELPERS
 // ============================================
 

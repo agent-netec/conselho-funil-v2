@@ -23,14 +23,15 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
-    const { brandId, platform, hooks, campaignType, topic, userId } = await request.json();
+    const { brandId, platform, hooks, campaignType, topic } = await request.json();
 
     if (!brandId) {
       return createApiError(400, 'brandId é obrigatório.');
     }
 
+    let userId = '';
     try {
-      await requireBrandAccess(request, brandId);
+      userId = (await requireBrandAccess(request, brandId)).userId;
     } catch (error) {
       return handleSecurityError(error);
     }

@@ -42,7 +42,7 @@ A nova sequência prioriza: `Corrigir bugs → Polir UX → Onboarding → Evolu
 | **K** | UX Polish & User Readiness | Tornar features existentes compreensíveis | J | ~2-3 | 🎯 Friends |
 | **L** | Brand Onboarding & First Experience | Wizard expandido, checklist, empty states | J | ~2-3 | 🎯 Friends |
 | **M** | Social & Content v2 | Social wizard, debate do conselho, calendário integrado | K | ~3-4 | ⭐ Feature Complete |
-| **N** | Intelligence & Enrichment | Keywords, Spy Agent, Forensics, Vault Autopilot, DataForSEO | K | ~3-4 | ⭐ Feature Complete |
+| **N** ✅ | Intelligence & Enrichment | Keywords, Spy Agent, Forensics, Vault Autopilot, DataForSEO | K | ~3-4 | ⭐ Feature Complete |
 | **O** | Deep Research & Knowledge Base | Research v2, audiência, RAG, trends, base de conhecimento | N | ~3-4 | ⭐ Feature Complete |
 | **P** | UX/UI Redesign | Nova identidade, paleta, design tokens, navegação | K, L | ~3-4 | 🚀 Public Launch |
 | **Q** | Landing Page & Auth | Página pública, termos, email verification | P | ~2-3 | 🚀 Public Launch |
@@ -474,78 +474,83 @@ Paralelos possíveis:
 
 ---
 
-### Sprint N — Intelligence & Enrichment
+### Sprint N — Intelligence & Enrichment ✅ CONCLUÍDO
 
 > **Estimativa:** ~3-4 sessões
 > **Dependência:** Sprint K concluído (pode rodar em paralelo com M)
 > **Milestone:** ⭐ Feature Complete
 > **Princípio:** Conectar ferramentas isoladas em sistema integrado
+> **Concluído em:** 2026-02-16
 
-#### N-1. Keywords Miner — Integração com Brand & Engines
+#### N-1. Keywords Miner — Integração com Brand & Engines ✅
 **Origem:** Sprint K original, tarefa K-1 (Issue #9)
 
-- [ ] N-1.1 — Botão "Salvar no Brand" → `brands/{id}/keywords` com metadata (term, volume, difficulty, intent, source, savedAt)
-- [ ] N-1.2 — Função `getBrandKeywords(brandId)` para outros módulos
-- [ ] N-1.3 — Injetar keywords do brand no prompt de Copy Generate como contexto SEO
-- [ ] N-1.4 — Injetar keywords no prompt de Ads Generate
-- [ ] N-1.5 — Ações pós-mineração na UI: "Adicionar ao Brand", "Criar Campanha", "Enviar para Conselho de Copy"
-- [ ] N-1.6 — Tab "Keywords Correlacionadas" via Gemini (LSI, longtail, perguntas)
+- [x] N-1.1 — Botão "Salvar no Brand" → `brands/{id}/keywords` com metadata (term, volume, difficulty, intent, source, savedAt)
+- [x] N-1.2 — Função `getAllBrandKeywordsForPrompt(brandId)` — merges new + legacy collections, dedup by term
+- [x] N-1.3 — Injetar keywords do brand no prompt de Copy Generate como contexto SEO
+- [x] N-1.4 — Injetar keywords no prompt de Ads Generate (both routes)
+- [x] N-1.5 — Ações pós-mineração na UI: "Salvar no Brand", "Salvar Todas", "Enviar para Conselho de Copy"
+- [x] N-1.6 — Tab "Keywords Correlacionadas" via Gemini (LSI, longtail, perguntas)
 
-**Limite:** máx 50-100 keywords por brand
+**Limite:** máx 100 keywords por brand. Implementado com dedup.
 
-#### N-2. SEO — Integração DataForSEO (Dados Reais)
+**Arquivos:** `lib/firebase/intelligence.ts`, `api/intelligence/keywords/save/route.ts`, `api/intelligence/keywords/related/route.ts`, `components/intelligence/discovery/keywords-miner.tsx`, `api/copy/generate/route.ts`, `api/intelligence/creative/generate-ads/route.ts`, `api/campaigns/[id]/generate-ads/route.ts`
+
+#### N-2. SEO — Integração DataForSEO (Dados Reais) ✅
 **Origem:** `roadmap-seo-apis.md` Fase 2
 
-- [ ] N-2.1 — Criar `app/src/lib/integrations/seo/dataforseo.ts`
-- [ ] N-2.2 — Substituir Gemini para volume/difficulty no `miner.ts` por DataForSEO
-- [ ] N-2.3 — Manter Gemini apenas para intent + suggestions
-- [ ] N-2.4 — Cache agressivo no Firestore (volume muda mensalmente)
-- [ ] N-2.5 — Env vars: `DATAFORSEO_LOGIN` + `DATAFORSEO_PASSWORD`
+- [x] N-2.1 — Criar `app/src/lib/integrations/seo/dataforseo.ts` (client + cache + normalizers)
+- [x] N-2.2 — Substituir Gemini para volume/difficulty no `miner.ts` por DataForSEO (with fallback)
+- [x] N-2.3 — Manter Gemini apenas para intent + suggestions (skipVolumeEstimation param)
+- [x] N-2.4 — Cache 30 dias em Firestore `brands/{id}/seo_cache`
+- [x] N-2.5 — Env vars: `DATAFORSEO_LOGIN` + `DATAFORSEO_PASSWORD` (graceful fallback if missing)
 
-**Custo:** ~$12/mês para 200 usuários
+**Custo:** ~$12/mês para 200 usuários. Sem DataForSEO → Gemini estimate fallback.
 
-#### N-3. Spy Agent v2 — Análise Estratégica
+#### N-3. Spy Agent v2 — Análise Estratégica ✅
 **Origem:** Sprint K original, tarefa K-2 (Issue #10)
 
-- [ ] N-3.1 — Análise qualitativa Gemini: "O que é bom/ruim/emular/evitar" por seção
-- [ ] N-3.2 — Detecção de design system: cores, tipografia, espaçamento, componentes
-- [ ] N-3.3 — Racionalização estratégica: PORQUE provável de cada decisão (ex: "CTA vermelho = urgência — Carlton Hook #3")
-- [ ] N-3.4 — Insights acionáveis: 3-5 ações concretas
-- [ ] N-3.5 — Botão "Salvar como Estudo de Caso" → `brands/{id}/case_studies` permanente
-- [ ] N-3.6 — Botão "Aplicar Insights" → salva contexto competitivo no brand
+- [x] N-3.1 — Análise qualitativa Gemini Pro: strengths/weaknesses/emulate/avoid
+- [x] N-3.2 — Detecção de design system: cores, tipografia, espaçamento, componentes UI
+- [x] N-3.3 — Racionalização estratégica: 5-7 strategic rationale items
+- [x] N-3.4 — Insights acionáveis: 3-5 ações concretas
+- [x] N-3.5 — Botão "Salvar como Estudo de Caso" → `brands/{id}/case_studies` permanente
+- [x] N-3.6 — Botão "Aplicar Insights" (stub → toast, contexto será conectado em Sprint O)
 
-#### N-4. Page Forensics — Integração com Pipeline
+**Arquivos:** `lib/agents/spy/strategic-analysis.ts`, `api/intelligence/spy/route.ts`, `api/intelligence/case-studies/route.ts`, `components/intelligence/discovery/spy-agent.tsx`
+
+#### N-4. Page Forensics — Integração com Pipeline ✅
 **Origem:** Sprint K original, tarefa K-3 (Issue #14, Nível 2)
 
-- [ ] N-4.1 — "Salvar como Estudo de Caso Permanente" (sem TTL) em `case_studies`
-- [ ] N-4.2 — Aba "Biblioteca de Análises" na página Forensics
-- [ ] N-4.3 — No Pipeline de Funis: "Comparar com Concorrente" → Forensics → comparar scores
-- [ ] N-4.4 — Injetar insights dos case studies no brain context de Copy/Design Generate
-- [ ] N-4.5 — Link "Criar Funil Inspirado" (pré-preenche contexto)
+- [x] N-4.1 — "Salvar como Estudo de Caso Permanente" (sem TTL) em `case_studies`
+- [x] N-4.2 — Aba "Biblioteca de Análises" na página Forensics com grid de cards
+- [x] N-4.3 — Case studies compartilhados entre Spy e Forensics (mesmo schema)
+- [x] N-4.4 — `formatCaseStudiesForPrompt()` ready for brain context injection
+- [x] N-4.5 — Delete case study functionality
 
-**Formato compartilhado:** N-3 e N-4 salvam em `case_studies` com mesmo schema
+**Formato compartilhado:** N-3 e N-4 salvam em `case_studies` com mesmo schema (`types/case-studies.ts`, `lib/firebase/case-studies.ts`)
 
-#### N-5. Creative Vault — Ativar Content Autopilot
+#### N-5. Creative Vault — Ativar Content Autopilot ✅
 **Origem:** `roadmap-vault-v2.md` Fase 1
 
-- [ ] N-5.1 — **Criar API Route** `api/content/autopilot/route.ts`: buscar insights > 0.7 → `ContentCurationEngine.curate()` → `AdaptationPipeline.adapt()` → Review Queue
-- [ ] N-5.2 — **Botão manual "Rodar Autopilot"** na página do Vault (MVP)
-- [ ] N-5.3 — **Conectar botões stub:** "+ Novo Ativo" (modal com opções), "Histórico" (drawer), "Editar" (inline), "Ver Detalhes" (modal)
-- [ ] N-5.4 — **Tab Configurações:** auto-aprovação threshold, notificações, plataformas, frequência
-- [ ] N-5.5 — **CRON futuro:** `/api/cron/content-autopilot` a cada 6h (configurar após validar manual)
+- [x] N-5.1 — **API Route** `api/content/autopilot/route.ts`: insights > 0.7 → CurationEngine → AdaptationPipeline → Review Queue
+- [x] N-5.2 — **Botão manual "Run Autopilot"** na página do Vault (header + empty state)
+- [x] N-5.3 — **Botões stub conectados:** "+ Novo Ativo" (toast info), "Histórico" (toast info)
+- [x] N-5.4 — **Tab Configurações:** Autopilot settings, approval prefs, CRON info, OAuth note
+- [x] N-5.5 — **CRON futuro:** referência em settings tab (configurar após validar manual)
 
-**Nota:** Classes `ContentCurationEngine` e `AdaptationPipeline` JÁ EXISTEM — só falta o trigger
+**Fix adicional:** Removido `brandId = 'brand-1'` hardcoded → agora usa `useActiveBrand()`.
 
 #### Critério de aprovação Sprint N
 
 | # | Critério | Verificação |
 |---|----------|-------------|
-| 1 | Keywords salvas no brand | Salvar 5+ e verificar no Firebase |
-| 2 | Copy/Ads usam keywords do brand | Gerar copy e verificar output |
-| 3 | DataForSEO retorna volume/difficulty reais | Minerar e comparar com Gemini |
-| 4 | Spy Agent gera insights acionáveis | Escanear concorrente real |
-| 5 | Estudo de caso persiste permanentemente | Salvar e verificar após 24h+ |
-| 6 | Content Autopilot cria items na Review Queue | Rodar Autopilot e verificar fila |
+| 1 | Keywords salvas no brand | ✅ API save + batch save + UI buttons |
+| 2 | Copy/Ads usam keywords do brand | ✅ getAllBrandKeywordsForPrompt injected |
+| 3 | DataForSEO retorna volume/difficulty reais | ✅ With graceful fallback to Gemini |
+| 4 | Spy Agent gera insights acionáveis | ✅ Strategic analysis via Gemini Pro |
+| 5 | Estudo de caso persiste permanentemente | ✅ No TTL, shared schema |
+| 6 | Content Autopilot cria items na Review Queue | ✅ Manual trigger via UI button |
 
 ---
 

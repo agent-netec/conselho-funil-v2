@@ -24,7 +24,7 @@ import { db } from '@/lib/firebase/config';
 import { updateUserUsage } from '@/lib/firebase/firestore';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM } from '@/lib/ai/rag';
-import { getBrandKeywords, formatKeywordsForPrompt } from '@/lib/firebase/intelligence';
+import { getAllBrandKeywordsForPrompt } from '@/lib/firebase/intelligence';
 import type { 
   Funnel, 
   Proposal, 
@@ -109,14 +109,13 @@ export async function POST(request: NextRequest) {
       brandContext = formatBrandContextForLLM(brandChunks);
     }
 
-    // 3. Contexto de Keywords Estratégicas (Intelligence Miner)
+    // 3. Contexto de Keywords Estratégicas (Sprint N: merged brand keywords + mined)
     let keywordContext = '';
     if (funnel.brandId) {
       try {
-        const keywords = await getBrandKeywords(funnel.brandId, 10);
-        if (keywords.length > 0) {
-          keywordContext = formatKeywordsForPrompt(keywords);
-          console.log(`📊 ${keywords.length} keywords estratégicas carregadas para copy`);
+        keywordContext = await getAllBrandKeywordsForPrompt(funnel.brandId, 10);
+        if (keywordContext) {
+          console.log(`[Copy] Keywords context loaded for copy generation`);
         }
       } catch (err) {
         console.warn('[Copy] Erro ao buscar keywords:', err);

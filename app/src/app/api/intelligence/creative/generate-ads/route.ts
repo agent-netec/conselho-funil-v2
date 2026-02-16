@@ -16,6 +16,7 @@ import { db } from '@/lib/firebase/config';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import { buildAdsBrainContext } from '@/lib/ai/prompts/ads-brain-context';
 import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM } from '@/lib/ai/rag';
+import { getAllBrandKeywordsForPrompt } from '@/lib/firebase/intelligence';
 import { updateUserUsage } from '@/lib/firebase/firestore';
 
 /**
@@ -73,10 +74,11 @@ export async function POST(req: NextRequest) {
     // 5. Auth — requireBrandAccess
     const { userId, brandId: safeBrandId } = await requireBrandAccess(req, brandId);
 
-    // 6. Sprint H: Load brain + RAG + brand context
+    // 6. Sprint H: Load brain + RAG + brand context + keywords (Sprint N)
     let brainContext = '';
     let ragContext = '';
     let brandContext = '';
+    let keywordContext = '';
 
     try {
       brainContext = buildAdsBrainContext();
@@ -105,6 +107,16 @@ export async function POST(req: NextRequest) {
       console.warn('[GENERATE_ADS] Brand context failed, continuing without:', e);
     }
 
+    // Sprint N-1.4: Inject brand keywords as SEO context for ads
+    try {
+      keywordContext = await getAllBrandKeywordsForPrompt(safeBrandId, 10);
+      if (keywordContext) {
+        console.log(`[GENERATE_ADS] Keywords context loaded for ads generation`);
+      }
+    } catch (e) {
+      console.warn('[GENERATE_ADS] Keywords context failed, continuing without:', e);
+    }
+
     // 7. Executar Ad Generation Pipeline (com brain + RAG + brand)
     const result = await generateAds(
       safeBrandId,
@@ -119,6 +131,7 @@ export async function POST(req: NextRequest) {
         brainContext,
         ragContext,
         brandContext,
+        keywordContext,
       },
       userId
     );

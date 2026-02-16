@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { SpyAgent } from '@/lib/agents/spy/spy-agent';
 import { DossierGenerator } from '@/lib/agents/spy/dossier-generator';
+import { analyzeCompetitorStrategy } from '@/lib/agents/spy/strategic-analysis';
 import { db } from '@/lib/firebase/config';
 import { getCompetitorProfile, updateCompetitorProfile, getCompetitorAssets } from '@/lib/firebase/intelligence';
 import { Timestamp } from 'firebase/firestore';
@@ -10,6 +11,8 @@ import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { withRateLimit } from '@/lib/middleware/rate-limiter';
+import { extractContentFromUrl } from '@/lib/ai/url-scraper';
+import { updateUserUsage } from '@/lib/firebase/firestore';
 import type { CompetitorTechStack, SpyScanResult } from '@/types/competitors';
 
 const getErrorMessage = (error: unknown, fallback: string) =>
@@ -20,15 +23,59 @@ const getErrorMessage = (error: unknown, fallback: string) =>
  */
 async function handlePOST(req: NextRequest) {
   try {
-    const parsed = await parseJsonBody<{ brandId?: string; competitorId?: string; action?: string }>(req);
+    const parsed = await parseJsonBody<{
+      brandId?: string;
+      competitorId?: string;
+      action?: string;
+      url?: string;
+      userId?: string;
+    }>(req);
     if (!parsed.ok) {
       return createApiError(400, parsed.error);
     }
 
-    const { brandId, competitorId, action } = parsed.data;
+    const { brandId, competitorId, action, url: directUrl, userId } = parsed.data;
 
-    if (!brandId || !competitorId) {
-      return createApiError(400, 'brandId and competitorId are required');
+    if (!brandId) {
+      return createApiError(400, 'brandId is required');
+    }
+
+    // N-3: Support direct URL analysis without competitorId
+    if (action === 'analyze' && directUrl) {
+      const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
+
+      try {
+        // 1. Scrape the URL
+        const scraped = await extractContentFromUrl(directUrl, { brandId: safeBrandId });
+        if (scraped.error || !scraped.content?.trim()) {
+          return createApiError(422, `Falha no scraping: ${scraped.error || 'Conteúdo insuficiente'}`);
+        }
+
+        // 2. Run strategic analysis
+        const analysis = await analyzeCompetitorStrategy(directUrl, scraped.rawHtml || scraped.content, {});
+
+        // 3. Deduct 2 credits for strategic analysis
+        if (userId) {
+          try {
+            await updateUserUsage(userId, -2);
+          } catch (creditError) {
+            console.error('[Spy Analyze] Credit error:', creditError);
+          }
+        }
+
+        return createApiSuccess({
+          message: 'Strategic analysis completed',
+          url: directUrl,
+          analysis,
+        });
+      } catch (error: unknown) {
+        console.error('[API Spy Analyze] Error:', error);
+        return createApiError(502, getErrorMessage(error, 'Falha na análise estratégica.'));
+      }
+    }
+
+    if (!competitorId) {
+      return createApiError(400, 'competitorId is required');
     }
 
     if (!db) {

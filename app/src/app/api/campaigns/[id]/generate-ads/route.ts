@@ -8,6 +8,7 @@ import { updateUserUsage } from '@/lib/firebase/firestore';
 import { generateAds } from '@/lib/intelligence/creative-engine/ad-generator';
 import { buildAdsBrainContext } from '@/lib/ai/prompts/ads-brain-context';
 import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM } from '@/lib/ai/rag';
+import { getAllBrandKeywordsForPrompt } from '@/lib/firebase/intelligence';
 import { GENERATION_LIMITS } from '@/types/creative-ads';
 import type { UXIntelligence } from '@/types/intelligence';
 
@@ -56,10 +57,11 @@ export async function POST(
     // 2. Build synthetic elite assets from campaign data
     const eliteAssets = buildEliteAssetsFromCampaign(campaign);
 
-    // 3. Load brain + RAG + brand context (graceful degradation)
+    // 3. Load brain + RAG + brand context + keywords (graceful degradation)
     let brainContext = '';
     let ragContext = '';
     let brandContext = '';
+    let keywordContext = '';
 
     try {
       brainContext = buildAdsBrainContext();
@@ -88,6 +90,16 @@ export async function POST(
       } catch (e) {
         console.warn('[Campaigns/GenerateAds] Brand context failed:', e);
       }
+
+      // Sprint N-1.4: Inject brand keywords as SEO context
+      try {
+        keywordContext = await getAllBrandKeywordsForPrompt(brandId, 10);
+        if (keywordContext) {
+          console.log(`[Campaigns/GenerateAds] Keywords context loaded`);
+        }
+      } catch (e) {
+        console.warn('[Campaigns/GenerateAds] Keywords context failed:', e);
+      }
     }
 
     // 4. Call canonical generateAds pipeline
@@ -102,6 +114,7 @@ export async function POST(
         brainContext,
         ragContext,
         brandContext,
+        keywordContext,
         lightMode: true,
       },
       userId || 'system'
