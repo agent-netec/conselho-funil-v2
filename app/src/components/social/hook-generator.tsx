@@ -88,7 +88,7 @@ export function HookGenerator() {
       if (!response.ok) throw new Error('Falha ao gerar hooks');
 
       const data = await response.json();
-      setResult(data);
+      setResult(data.data);
       notify.success('Hooks gerados com sucesso!');
     } catch (error) {
       console.error('Error:', error);
@@ -123,11 +123,11 @@ export function HookGenerator() {
       if (!response.ok) throw new Error('Falha ao gerar estrutura');
 
       const data = await response.json();
-      setStructure(data);
+      setStructure(data.data);
       notify.success('Estrutura completa gerada!');
-      
+
       // Auto-generate scorecard after structure
-      handleGenerateScorecard(data);
+      handleGenerateScorecard(data.data);
       
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
@@ -155,7 +155,7 @@ export function HookGenerator() {
       if (!response.ok) throw new Error('Falha ao gerar scorecard');
 
       const data = await response.json();
-      setScorecard(data);
+      setScorecard(data.data);
     } catch (error) {
       console.error('Error:', error);
       notify.error('Erro ao avaliar conteúdo.');
