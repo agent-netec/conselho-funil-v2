@@ -1,8 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
+/**
+ * Social Scorecard API — Calibrated evaluation with real brain frameworks
+ * Sprint M: Now uses PRO model + real evaluation frameworks from 4 social counselors
+ *
+ * @route POST /api/social/scorecard
+ * @credits 1
+ */
+
+import { NextRequest } from 'next/server';
 import { ragQuery } from '@/lib/ai/rag';
-import { generateWithGemini, isGeminiConfigured, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
+import { generateWithGemini, isGeminiConfigured, PRO_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { getBrand } from '@/lib/firebase/brands';
 import { SOCIAL_SCORECARD_PROMPT } from '@/lib/ai/prompts';
+import { buildSocialBrainContext } from '@/lib/ai/prompts/social-brain-context';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
@@ -33,7 +42,7 @@ export async function POST(request: NextRequest) {
       return createApiError(500, 'API do Gemini não configurada.');
     }
 
-    // 1. Carregar contexto da marca
+    // 1. Load brand context
     let brandContext = 'Nenhuma marca selecionada.';
     if (brandId) {
       const brand = await getBrand(brandId);
@@ -49,7 +58,10 @@ Dores: ${brand.audience.pain}
       }
     }
 
-    // 2. Buscar heurísticas de sucesso via RAG
+    // 2. Build brain context with real evaluation frameworks
+    const brainContext = buildSocialBrainContext();
+
+    // 3. Fetch success heuristics via RAG
     const queryText = `Critérios de sucesso, métricas de retenção e heurísticas de viralização para ${platform}.`;
     const { context: knowledgeContext } = await ragQuery(queryText, {
       topK: 10,
@@ -57,20 +69,21 @@ Dores: ${brand.audience.pain}
       filters: { docType: 'heuristics' }
     });
 
-    // 3. Montar Prompt
+    // 4. Build prompt with brain context injected
     const fullPrompt = SOCIAL_SCORECARD_PROMPT
+      .replace('{{brainContext}}', brainContext)
       .replace('{{brandContext}}', brandContext)
       .replace('{{platform}}', platform)
       .replace('{{content}}', typeof content === 'string' ? content : JSON.stringify(content, null, 2))
       .replace('{{knowledgeContext}}', knowledgeContext || 'Use conhecimento geral sobre avaliação de performance em redes sociais.');
 
-    // 4. Gerar com Gemini
+    // 5. Generate with PRO model (calibrated evaluation)
     const response = await generateWithGemini(fullPrompt, {
-      model: DEFAULT_GEMINI_MODEL,
-      temperature: 0.2, // Lower temperature for more consistent evaluation
+      model: PRO_GEMINI_MODEL,
+      temperature: 0.2,
     });
 
-    // 5. Parse JSON
+    // 6. Parse JSON
     let result;
     try {
       let jsonStr = response.trim();
@@ -89,7 +102,7 @@ Dores: ${brand.audience.pain}
       return createApiError(500, 'Erro ao processar avaliação do scorecard. Tente novamente.');
     }
 
-    // SIG-API-03: Decrementar 1 crédito por geração de scorecard
+    // 7. Debit 1 credit
     if (userId) {
       try {
         await updateUserUsage(userId, -1);
@@ -105,9 +118,3 @@ Dores: ${brand.audience.pain}
     return createApiError(500, 'Erro interno no servidor', { details: String(error) });
   }
 }
-
-
-
-
-
-

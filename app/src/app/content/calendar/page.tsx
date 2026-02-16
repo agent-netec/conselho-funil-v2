@@ -12,9 +12,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { CalendarView } from '@/components/content/calendar-view';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Columns, Grid, X, Clock, Eye, CheckCircle, XCircle, Send, Shield } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Columns, Grid, X, Clock, Eye, CheckCircle, XCircle, Send, Shield, Sparkles, Loader2, BookmarkPlus, Repeat, Tag } from 'lucide-react';
 import { toast } from 'sonner';
-import type { CalendarItem, CalendarItemStatus } from '@/types/content';
+import type { CalendarItem, CalendarItemStatus, ContentTemplate } from '@/types/content';
 
 type ViewMode = 'week' | 'month';
 
@@ -27,6 +27,10 @@ export default function ContentCalendarPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [selectedItem, setSelectedItem] = useState<CalendarItem | null>(null);
   const [approving, setApproving] = useState(false);
+  const [generatingWeek, setGeneratingWeek] = useState(false);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [templates, setTemplates] = useState<ContentTemplate[]>([]);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   // === Fetch items ===
   const fetchItems = useCallback(async () => {
@@ -217,6 +221,79 @@ export default function ContentCalendarPage() {
     }
   };
 
+  // === Generate week ===
+  const handleGenerateWeek = async () => {
+    if (!selectedBrand?.id) return;
+    setGeneratingWeek(true);
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch('/api/content/calendar/generate-week', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({
+          brandId: selectedBrand.id,
+          platform: 'instagram',
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        toast.success(`${data.data?.count || 0} posts gerados para a semana!`);
+        fetchItems();
+      } else {
+        toast.error('Erro ao gerar semana');
+      }
+    } catch {
+      toast.error('Falha ao gerar conteúdo semanal');
+    } finally {
+      setGeneratingWeek(false);
+    }
+  };
+
+  // === Save as template ===
+  const handleSaveAsTemplate = async (item: CalendarItem) => {
+    if (!selectedBrand?.id) return;
+    setSavingTemplate(true);
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch('/api/content/calendar/templates', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({
+          brandId: selectedBrand.id,
+          title: item.title,
+          format: item.format,
+          platform: item.platform,
+          content: item.content,
+          pillar: item.metadata?.promptParams?.pillar || '',
+        }),
+      });
+      if (res.ok) {
+        toast.success('Salvo como template!');
+      } else {
+        toast.error('Erro ao salvar template');
+      }
+    } catch {
+      toast.error('Falha ao salvar template');
+    } finally {
+      setSavingTemplate(false);
+    }
+  };
+
+  // === Fetch templates ===
+  const fetchTemplates = useCallback(async () => {
+    if (!selectedBrand?.id) return;
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch(`/api/content/calendar/templates?brandId=${selectedBrand.id}`, { headers: authHeaders });
+      if (res.ok) {
+        const data = await res.json();
+        setTemplates(data.data?.templates || []);
+      }
+    } catch (err) {
+      console.error('[Calendar] Templates fetch error:', err);
+    }
+  }, [selectedBrand?.id]);
+
   // === Date label ===
   const dateLabel = view === 'week'
     ? (() => {
@@ -242,13 +319,30 @@ export default function ContentCalendarPage() {
           </div>
         </div>
 
-        <button
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          Novo Conteudo
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleGenerateWeek}
+            disabled={generatingWeek || !selectedBrand?.id}
+            className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+          >
+            {generatingWeek ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            Gerar Semana
+          </button>
+          <button
+            onClick={() => { setShowTemplates(!showTemplates); if (!showTemplates) fetchTemplates(); }}
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            <BookmarkPlus className="h-4 w-4" />
+            Templates
+          </button>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Novo Conteudo
+          </button>
+        </div>
       </div>
 
       {/* Controls */}
@@ -283,6 +377,45 @@ export default function ContentCalendarPage() {
           </button>
         </div>
       </div>
+
+      {/* Templates Panel */}
+      {showTemplates && (
+        <div className="bg-zinc-900/60 border border-zinc-700/50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <BookmarkPlus className="h-4 w-4 text-violet-400" />
+              Templates Salvos
+            </h3>
+            <button onClick={() => setShowTemplates(false)} className="text-zinc-400 hover:text-white">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          {templates.length === 0 ? (
+            <p className="text-xs text-zinc-500 py-4 text-center">Nenhum template salvo. Aprove um post e use &ldquo;Salvar como Template&rdquo;.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {templates.map((tpl) => (
+                <div key={tpl.id} className="p-3 bg-zinc-800/50 rounded-lg border border-zinc-700/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-white truncate">{tpl.title}</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-400 capitalize">{tpl.format}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-400 capitalize">{tpl.platform}</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-zinc-500 line-clamp-2">{tpl.content}</p>
+                  {tpl.pillar && (
+                    <div className="flex items-center gap-1 mt-2">
+                      <Tag className="h-3 w-3 text-violet-400" />
+                      <span className="text-[10px] text-violet-400">{tpl.pillar}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Calendar Grid */}
       {loading ? (
@@ -438,6 +571,20 @@ export default function ContentCalendarPage() {
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Save as Template */}
+            {(selectedItem.status === 'approved' || selectedItem.status === 'published') && (
+              <div className="border-t border-zinc-700/50 pt-4 mt-4">
+                <button
+                  onClick={() => handleSaveAsTemplate(selectedItem)}
+                  disabled={savingTemplate}
+                  className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 w-full justify-center"
+                >
+                  {savingTemplate ? <Loader2 className="h-4 w-4 animate-spin" /> : <BookmarkPlus className="h-4 w-4" />}
+                  Salvar como Template
+                </button>
               </div>
             )}
           </div>

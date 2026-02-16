@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
-    const { brandId, platform, topic, userId } = await request.json();
+    const { brandId, platform, topic, campaignType, contentFormats, userId } = await request.json();
 
     if (!brandId) {
       return createApiError(400, 'brandId é obrigatório.');
@@ -63,6 +63,8 @@ Diferencial: ${brand.offer.differentiator}
     const fullPrompt = SOCIAL_HOOKS_PROMPT
       .replace('{{brandContext}}', brandContext)
       .replace('{{platform}}', platform)
+      .replace('{{campaignType}}', campaignType || 'organic')
+      .replace('{{contentFormats}}', (contentFormats || []).join(', ') || 'Todos os formatos')
       .replace('{{topic}}', topic)
       .replace('{{knowledgeContext}}', knowledgeContext || 'Use conhecimento geral sobre melhores práticas de redes sociais.');
 

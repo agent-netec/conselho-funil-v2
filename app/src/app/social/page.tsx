@@ -1,5 +1,5 @@
 import { AppShell } from '@/components/layout/app-shell';
-import { HookGenerator } from '@/components/social/hook-generator';
+import { SocialWizard } from '@/components/social/social-wizard';
 import { Sparkles } from 'lucide-react';
 
 export default function SocialPage() {
@@ -12,16 +12,16 @@ export default function SocialPage() {
             <span className="text-sm font-bold uppercase tracking-wider">Conselho Social</span>
           </div>
           <h1 className="text-3xl font-bold text-zinc-100 sm:text-4xl tracking-tight">
-            Geração de Hooks Sociais
+            Geração de Conteúdo Social
           </h1>
           <p className="text-zinc-400 max-w-2xl">
-            Crie ganchos magnéticos para suas redes sociais usando as heurísticas do Conselho Social. 
-            Selecione a plataforma, informe o tema e deixe a IA otimizar sua retenção.
+            Configure sua campanha, gere hooks estratégicos, assista ao debate do Conselho Social
+            e receba uma avaliação calibrada com frameworks reais dos 4 conselheiros.
           </p>
         </div>
 
         <div className="w-full">
-          <HookGenerator />
+          <SocialWizard />
         </div>
       </div>
     </AppShell>

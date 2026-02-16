@@ -135,3 +135,49 @@ export interface ReorderUpdate {
   order: number;
   scheduledDate?: Timestamp;
 }
+
+// === Content Template Types ===
+
+export interface ContentTemplate {
+  id: string;
+  title: string;
+  format: ContentFormat;
+  platform: ContentPlatform;
+  content: string;
+  pillar?: string;
+  tags?: string[];
+  metadata?: CalendarItemMetadata;
+  brandId: string;
+  createdBy?: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+// === Recurrence Types ===
+
+export type RecurrenceFrequency = 'daily' | 'weekly' | 'monthly';
+
+export interface RecurrenceRule {
+  id: string;
+  templateId: string;
+  frequency: RecurrenceFrequency;
+  dayOfWeek?: number; // 0-6 for weekly
+  dayOfMonth?: number; // 1-31 for monthly
+  pillar?: string;
+  active: boolean;
+  brandId: string;
+  lastCreatedAt?: Timestamp;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+// === Content Pillar Types ===
+
+export interface ContentPillar {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  dayOfWeek?: number; // preferred day
+  brandId: string;
+}

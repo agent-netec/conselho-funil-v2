@@ -1,0 +1,111 @@
+/**
+ * Social Debate API — Council of 4 social experts debate generated hooks
+ * Uses buildPartyPrompt() + buildPartyBrainContext() with PRO model
+ *
+ * @route POST /api/social/debate
+ * @sprint M — M-2.1
+ * @credits 1
+ */
+
+import { NextRequest } from 'next/server';
+import { generateWithGemini, isGeminiConfigured, PRO_GEMINI_MODEL } from '@/lib/ai/gemini';
+import { getBrand } from '@/lib/firebase/brands';
+import { buildPartyPrompt } from '@/lib/ai/prompts/party-mode';
+import { buildPartyBrainContext } from '@/lib/ai/prompts/party-brain-context';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
+import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { updateUserUsage } from '@/lib/firebase/firestore';
+import { SOCIAL_COUNSELOR_IDS } from '@/lib/ai/prompts/social-brain-context';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+export async function POST(request: NextRequest) {
+  try {
+    const { brandId, platform, hooks, campaignType, topic, userId } = await request.json();
+
+    if (!brandId) {
+      return createApiError(400, 'brandId é obrigatório.');
+    }
+
+    try {
+      await requireBrandAccess(request, brandId);
+    } catch (error) {
+      return handleSecurityError(error);
+    }
+
+    if (!platform || !hooks || !Array.isArray(hooks) || hooks.length === 0) {
+      return createApiError(400, 'Plataforma e hooks são obrigatórios.');
+    }
+
+    if (!isGeminiConfigured()) {
+      return createApiError(500, 'API do Gemini não configurada.');
+    }
+
+    // 1. Load brand context
+    let brandContext = 'Nenhuma marca selecionada.';
+    const brand = await getBrand(brandId);
+    if (brand) {
+      brandContext = `
+Marca: ${brand.name}
+Vertical: ${brand.vertical}
+Posicionamento: ${brand.positioning}
+Tom de Voz: ${brand.voiceTone}
+Audiência: ${brand.audience.who}
+Dores: ${brand.audience.pain}
+Oferta: ${brand.offer.what}
+Diferencial: ${brand.offer.differentiator}
+      `.trim();
+    }
+
+    // 2. Build brain context for the 4 social counselors
+    const brainContext = buildPartyBrainContext(SOCIAL_COUNSELOR_IDS);
+
+    // 3. Format hooks for the debate query
+    const hooksText = hooks.map((h: { style: string; content: string }, i: number) =>
+      `${i + 1}. [${h.style}] "${h.content}"`
+    ).join('\n');
+
+    const debateQuery = `Analisem os seguintes hooks gerados para ${platform} (objetivo: ${campaignType || 'organic'}, tema: "${topic || 'não especificado'}"):
+
+${hooksText}
+
+Cada conselheiro deve:
+1. Avaliar os hooks sob sua perspectiva especializada
+2. Indicar qual(is) hook(s) são mais fortes e por quê
+3. Sugerir melhorias específicas baseadas em sua expertise
+4. Recomendar o melhor hook para o objetivo de campanha
+
+O Veredito do Conselho deve consolidar as opiniões e recomendar o hook final com justificativa.`;
+
+    // 4. Build party prompt with debate intensity
+    const fullPrompt = buildPartyPrompt(
+      debateQuery,
+      brandContext,
+      SOCIAL_COUNSELOR_IDS,
+      { intensity: 'debate', brainContext }
+    );
+
+    // 5. Generate with PRO model (critical decision)
+    const response = await generateWithGemini(fullPrompt, {
+      model: PRO_GEMINI_MODEL,
+      temperature: 0.7,
+    });
+
+    // 6. Debit 1 credit
+    if (userId) {
+      try {
+        await updateUserUsage(userId, -1);
+        console.log(`[Social/Debate] 1 crédito decrementado para usuário: ${userId}`);
+      } catch (creditError) {
+        console.error('[Social/Debate] Erro ao atualizar créditos:', creditError);
+      }
+    }
+
+    return createApiSuccess({ debate: response });
+  } catch (error) {
+    console.error('Social debate error:', error);
+    return createApiError(500, 'Erro interno no servidor', { details: String(error) });
+  }
+}

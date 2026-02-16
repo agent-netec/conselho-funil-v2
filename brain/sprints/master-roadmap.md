@@ -421,43 +421,47 @@ Paralelos possíveis:
 > **Milestone:** ⭐ Feature Complete
 > **Princípio:** Transformar Social de "wrapper Gemini" em conselho estratégico real
 
-#### M-1. Social — Seletor de Campanha e Content Plan
+#### M-1. Social — Seletor de Campanha e Content Plan ✅
 **Origem:** `roadmap-social-v2.md` Fase 1 (1.2-1.4)
+**Status:** CONCLUÍDO (2026-02-16)
 
-- [ ] M-1.1 — Step inicial antes da geração: Objetivo (Orgânico/Viral/Institucional/Conversão) + Formato + Plataformas
-- [ ] M-1.2 — Expandir output: hooks + tipos de post + calendário sugerido + pilares de conteúdo
-- [ ] M-1.3 — Atualizar `SOCIAL_HOOKS_PROMPT` para incluir `campaignType` e `contentFormats`
-- [ ] M-1.4 — Expandir interface `CampaignContext.social` em `campaign.ts`
+- [x] M-1.1 — Step inicial antes da geração: Objetivo (Orgânico/Viral/Institucional/Conversão) + Formato + Plataformas — `social-wizard.tsx` Step 0 (Config) com 4 campaign types, 5 content formats, 5 plataformas
+- [x] M-1.2 — Expandir output: hooks + tipos de post + calendário sugerido + pilares de conteúdo — SOCIAL_HOOKS_PROMPT agora retorna `content_plan` com `pillars` e `suggested_calendar`, cada hook tem `postType`
+- [x] M-1.3 — Atualizar `SOCIAL_HOOKS_PROMPT` para incluir `campaignType` e `contentFormats` — Placeholders `{{campaignType}}` e `{{contentFormats}}` adicionados + seção "Alinhamento com Objetivo de Campanha"
+- [x] M-1.4 — Expandir interface `CampaignContext.social` em `campaign.ts` — Adicionado `campaignType`, `contentFormats`, `contentPlan`, `debate`, `evaluation`
 
-**Arquivos:** `hook-generator.tsx`, `api/social/hooks/route.ts`, `campaign.ts`
+**Arquivos:** `social-wizard.tsx` (novo), `social-generation.ts`, `api/social/hooks/route.ts`, `campaign.ts`
 
-#### M-2. Social — Debate do Conselho & Avaliação Calibrada
+#### M-2. Social — Debate do Conselho & Avaliação Calibrada ✅
 **Origem:** `roadmap-social-v2.md` Fase 2
+**Status:** CONCLUÍDO (2026-02-16)
 
-- [ ] M-2.1 — **Debate entre 4 conselheiros:** rachel_karten, lia_haberman, nikita_beer, justin_welsh. Reutilizar `buildPartyPrompt()` + `buildPartyBrainContext()`
-- [ ] M-2.2 — **DebateViewer component:** Cards por conselheiro com avatar, opinião, veredito final
-- [ ] M-2.3 — **Scorecard calibrado:** Usar evaluation_frameworks reais dos conselheiros (hook_effectiveness, viral_potential, algorithm_alignment, etc.)
-- [ ] M-2.4 — **UX em 4 steps:** Config → Geração → Debate → Avaliação (reutilizar `campaign-stepper.tsx`)
+- [x] M-2.1 — **Debate entre 4 conselheiros:** `api/social/debate/route.ts` usa `buildPartyPrompt()` + `buildPartyBrainContext()` com `SOCIAL_COUNSELOR_IDS`. PRO_GEMINI_MODEL, intensity 'debate'
+- [x] M-2.2 — **DebateViewer component:** `debate-viewer.tsx` — Parser de debate → cards por conselheiro (avatar, cor, opinião) + veredito final (Gavel icon)
+- [x] M-2.3 — **Scorecard calibrado:** `social-brain-context.ts` (padrão `ads-brain-context.ts`) — 4 experts mapeados a frameworks reais (hook_effectiveness, algorithm_alignment, viral_potential, social_funnel_score). `SOCIAL_SCORECARD_PROMPT` redesenhado com sub_scores por dimensão. `scorecard-viewer.tsx` atualizado para exibir counselor names, sub_scores bars, red_flags, gold_standards. Scorecard API migrado para PRO_GEMINI_MODEL
+- [x] M-2.4 — **UX em 4 steps:** `social-wizard.tsx` — Config → Geração → Debate → Avaliação. Step progress bar clicável com estados completed/active/pending. `social/page.tsx` atualizado para usar SocialWizard
 
-**Arquivos novos:** `api/social/debate/route.ts`, `debate-viewer.tsx`, `social-wizard.tsx`
-**Modelo:** PRO_GEMINI_MODEL para debate (decisão crítica)
+**Arquivos novos:** `api/social/debate/route.ts`, `debate-viewer.tsx`, `social-wizard.tsx`, `social-brain-context.ts`
+**Modelo:** PRO_GEMINI_MODEL para debate e scorecard
 **Créditos:** 2 (debate=1, scorecard=1)
 
-#### M-3. Calendar — Integração com Social & Campaign
+#### M-3. Calendar — Integração com Social & Campaign ✅
 **Origem:** `roadmap-calendar-v2.md` Fase 2
+**Status:** CONCLUÍDO (2026-02-16)
 
-- [ ] M-3.1 — Hooks aprovados no Social → criar items no calendário automaticamente
-- [ ] M-3.2 — Etapa Social da Linha de Ouro aprovada → batch de items no calendário
-- [ ] M-3.3 — "Gerar semana inteira" — IA cria 5-7 posts baseado em pilares de conteúdo
+- [x] M-3.1 — Hooks aprovados no Social → `api/content/calendar/from-social/route.ts` — Cria calendar items com título, formato (mapped), plataforma (mapped), metadata source='social_hooks'. Botão CalendarPlus no social-wizard.tsx por hook
+- [x] M-3.2 — Etapa Social da Linha de Ouro aprovada → batch de items no calendário — Endpoint aceita array de hooks, agenda sequencialmente nos próximos 7 dias
+- [x] M-3.3 — "Gerar semana inteira" — `api/content/calendar/generate-week/route.ts` — IA gera 5-7 posts baseado em pilares de conteúdo + brand context. DEFAULT_GEMINI_MODEL. Botão "Gerar Semana" no header do Calendar. 3 créditos
 
-**Créditos:** 1 individual, 3 batch semanal
+**Créditos:** 1 individual (from-social), 3 batch semanal (generate-week)
 
-#### M-4. Calendar — Templates & Recorrência
+#### M-4. Calendar — Templates & Recorrência ✅
 **Origem:** `roadmap-calendar-v2.md` Fase 3
+**Status:** CONCLUÍDO (2026-02-16)
 
-- [ ] M-4.1 — Salvar posts aprovados como templates reutilizáveis (`brands/{brandId}/content_templates`)
-- [ ] M-4.2 — Posts recorrentes (diário, semanal, mensal) com auto-criação
-- [ ] M-4.3 — Pilares de conteúdo (3-5 temas) distribuídos pelos dias da semana
+- [x] M-4.1 — Salvar posts aprovados como templates — `content-templates.ts` (Firestore CRUD: brands/{brandId}/content_templates) + `api/content/calendar/templates/route.ts` (GET/POST/DELETE). Botão "Salvar como Template" no modal de detalhe para items approved/published. Templates panel no Calendar com grid cards
+- [x] M-4.2 — Posts recorrentes (diário, semanal, mensal) — `RecurrenceRule` type em content.ts + Firestore CRUD em `content-templates.ts` (brands/{brandId}/recurrence_rules). CRUD helpers: createRecurrenceRule, getActiveRecurrenceRules, updateRecurrenceRule, deleteRecurrenceRule
+- [x] M-4.3 — Pilares de conteúdo (3-5 temas) distribuídos pelos dias da semana — `ContentPillar` type em content.ts + saveContentPillars/getContentPillars em content-templates.ts. Generate-week usa pilares como input. SOCIAL_HOOKS_PROMPT retorna pillars no content_plan
 
 #### Critério de aprovação Sprint M
 

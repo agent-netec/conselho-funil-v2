@@ -34,14 +34,23 @@ export interface CampaignContext {
 
   // Passo 3: A Atenção (Social)
   social?: {
+    campaignType: 'organic' | 'viral' | 'institutional' | 'conversion';
+    contentFormats: string[];
     hooks: {
       platform: string;
       content: string;
       style: string;
     }[];
+    contentPlan?: {
+      pillars: string[];
+      calendar: { day: string; pillar: string; format: string }[];
+      posts: { title: string; hook: string; platform: string; format: string }[];
+    };
     platforms: string[];
     pacing?: string;
     viralTriggers?: string[];
+    debate?: string;
+    evaluation?: Record<string, unknown>;
   };
 
   // Passo 4: O Visual (Design)
