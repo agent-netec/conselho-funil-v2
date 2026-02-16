@@ -178,15 +178,16 @@ Paralelos possíveis:
 
 **Arquivos:** `app/src/app/settings/page.tsx`, `app/src/components/providers/branding-provider.tsx`, `app/src/types/database.ts`, `app/src/lib/firebase/firestore.ts`
 
-#### J-2. Assets — Fix 3 Bugs Críticos
+#### J-2. Assets — Fix 3 Bugs Críticos ✅
 **Origem:** `roadmap-assets-v2.md` Fase 1
+**Status:** CONCLUÍDO (2026-02-16) — Commit `5ea20cb8f`
 
-- [ ] J-2.1 — **Asset invisível:** Adicionar fallback ao Firestore em `api/assets/metrics/route.ts`. Mostrar status processing/error com badges
-- [ ] J-2.2 — **LogoLock undefined:** Fix em `brand-kit-form.tsx:48-49` — `|| null` nos variants. Filtrar undefined antes de `updateDoc()`. Mesmo fix em `brand-governance.ts:68-75`
-- [ ] J-2.3 — **Botão delete:** Adicionar trash icon em `metrics-table.tsx` e/ou `asset-detail-modal.tsx`. Handler: `deleteAsset()` + remover chunks do Pinecone. Modal de confirmação
-- [ ] J-2.4 — **aria-describedby:** Adicionar `<DialogDescription>` no Dialog de upload
+- [x] J-2.1 — **Asset invisível:** Metrics API agora consulta Firestore como source of truth + merge com Pinecone. Badges de status processing/error. Fix unwrap do envelope `createApiSuccess` no hook
+- [x] J-2.2 — **LogoLock undefined:** Optional chaining + `|| null` nos variants. Filter undefined/null antes de `updateDoc()` em `brand-kit-form.tsx` e `brand-governance.ts`
+- [x] J-2.3 — **Botão delete:** Trash2 em 3 layouts do `metrics-table.tsx` + `asset-detail-modal.tsx`. Novo endpoint `api/assets/delete` (Firestore + Storage + Pinecone). Nova fn `deleteFromPinecone()` em `pinecone.ts`
+- [x] J-2.4 — **aria-describedby:** `<DialogDescription>` em 3 arquivos: `asset-detail-modal.tsx`, `assets/page.tsx`, `brands/[id]/assets/page.tsx`
 
-**Arquivos:** `api/assets/metrics/route.ts`, `brand-kit-form.tsx`, `brand-governance.ts`, `metrics-table.tsx`
+**Arquivos:** `api/assets/metrics/route.ts`, `api/assets/delete/route.ts` (novo), `brand-kit-form.tsx`, `brand-governance.ts`, `metrics-table.tsx`, `asset-detail-modal.tsx`, `assets/page.tsx`, `brands/[id]/assets/page.tsx`, `pinecone.ts`, `use-asset-metrics.ts`
 
 #### J-3. Calendar — Fix Error 500
 **Origem:** `roadmap-calendar-v2.md` Fase 1.1
