@@ -8,17 +8,20 @@ import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Sparkles, 
-  ArrowRight, 
-  ArrowLeft, 
-  Target, 
-  Layers, 
-  Gift, 
-  Zap, 
+import {
+  Sparkles,
+  ArrowRight,
+  ArrowLeft,
+  Target,
+  Layers,
+  Gift,
+  Zap,
   TrendingUp,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  ChevronDown,
+  HelpCircle,
+  Info
 } from 'lucide-react';
 
 import { 
@@ -32,7 +35,7 @@ import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 // --- Components ---
 
-const IrresistibilityScore = ({ score, analysis }: { score: number; analysis: string[] }) => {
+const IrresistibilityScore = ({ score, analysis, scoringFactors }: { score: number; analysis: string[]; scoringFactors: { dreamOutcome: number; perceivedLikelihood: number; timeDelay: number; effortSacrifice: number } }) => {
   const getScoreColor = (s: number) => {
     if (s < 40) return 'text-red-500';
     if (s < 70) return 'text-yellow-500';
@@ -64,7 +67,37 @@ const IrresistibilityScore = ({ score, analysis }: { score: number; analysis: st
           </Badge>
         </div>
         <Progress value={score} className="h-2 bg-zinc-800" />
-        
+
+        {/* K-1.3: Contextual feedback explaining WHY score is low */}
+        {score < 60 && (
+          <div className="space-y-1.5 mt-3">
+            {scoringFactors.dreamOutcome < 5 && (
+              <div className="flex gap-2 text-[11px] text-amber-400/80 leading-tight">
+                <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                <span>Resultado desejado baixo — defina um sonho mais ambicioso para o cliente</span>
+              </div>
+            )}
+            {scoringFactors.perceivedLikelihood < 5 && (
+              <div className="flex gap-2 text-[11px] text-amber-400/80 leading-tight">
+                <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                <span>Probabilidade percebida baixa — adicione provas sociais e garantias</span>
+              </div>
+            )}
+            {scoringFactors.timeDelay > 5 && (
+              <div className="flex gap-2 text-[11px] text-amber-400/80 leading-tight">
+                <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                <span>Tempo percebido alto está reduzindo seu score — adicione bônus de aceleração</span>
+              </div>
+            )}
+            {scoringFactors.effortSacrifice > 5 && (
+              <div className="flex gap-2 text-[11px] text-amber-400/80 leading-tight">
+                <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                <span>Esforço percebido alto está reduzindo seu score — simplifique o processo</span>
+              </div>
+            )}
+          </div>
+        )}
+
         {analysis.length > 0 && (
           <div className="space-y-2 mt-4">
             <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Insights do Conselho:</p>
@@ -81,6 +114,46 @@ const IrresistibilityScore = ({ score, analysis }: { score: number; analysis: st
   );
 };
 
+const ValueEquationGuide = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <Card className="bg-zinc-900/30 border-zinc-800">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
+      >
+        <span className="flex items-center gap-2">
+          <HelpCircle className="w-4 h-4 text-purple-400" />
+          Como funciona a Equação de Valor?
+        </span>
+        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+      {isOpen && (
+        <CardContent className="pt-0 pb-4 space-y-3">
+          <div className="p-3 bg-zinc-950/50 rounded-lg border border-zinc-800/50">
+            <p className="text-xs text-zinc-300 font-mono text-center mb-2">
+              Score = (Resultado Desejado × Probabilidade) / (Tempo + Esforço)
+            </p>
+          </div>
+          <div className="space-y-2 text-[11px] text-zinc-400 leading-relaxed">
+            <div className="flex gap-2">
+              <TrendingUp className="w-3 h-3 text-green-400 shrink-0 mt-0.5" />
+              <span><strong className="text-zinc-300">Aumente o numerador:</strong> Prometa um resultado ambicioso + demonstre que é alcançável</span>
+            </div>
+            <div className="flex gap-2">
+              <Zap className="w-3 h-3 text-amber-400 shrink-0 mt-0.5" />
+              <span><strong className="text-zinc-300">Diminua o denominador:</strong> Mostre que é rápido e fácil de implementar</span>
+            </div>
+          </div>
+          <p className="text-[10px] text-zinc-500 italic">
+            Baseado no framework "$100M Offers" de Alex Hormozi.
+          </p>
+        </CardContent>
+      )}
+    </Card>
+  );
+};
+
 export function OfferLabWizard({ brandId }: { brandId: string }) {
   const [step, setStep] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
@@ -93,10 +166,10 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
     scarcity: '',
     riskReversal: '',
     scoringFactors: {
-      dreamOutcome: 5,
-      perceivedLikelihood: 5,
-      timeDelay: 5,
-      effortSacrifice: 5
+      dreamOutcome: 8,
+      perceivedLikelihood: 8,
+      timeDelay: 2,
+      effortSacrifice: 2
     }
   });
   const [result, setResult] = useState<{ total: number; analysis: string[] }>({ total: 0, analysis: [] });
@@ -457,7 +530,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
       </div>
 
       <div className="space-y-6">
-        <IrresistibilityScore score={result.total} analysis={result.analysis} />
+        <IrresistibilityScore score={result.total} analysis={result.analysis} scoringFactors={offer.scoringFactors} />
         
         <Card className="bg-zinc-900/30 border-zinc-800">
           <CardHeader>
@@ -467,32 +540,55 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* K-1.1: Callout explaining slider importance */}
+            <div className="flex gap-2 p-2.5 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+              <Info className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+              <p className="text-[11px] text-purple-300/80 leading-relaxed">
+                Estes sliders controlam ~80% do score de irresistibilidade. Ajuste-os com cuidado.
+              </p>
+            </div>
             {[
               { id: 'dreamOutcome', label: 'Resultado Desejado', value: offer.scoringFactors.dreamOutcome },
               { id: 'perceivedLikelihood', label: 'Probabilidade Percebida', value: offer.scoringFactors.perceivedLikelihood },
-              { id: 'timeDelay', label: 'Tempo para Resultado', value: offer.scoringFactors.timeDelay, inverse: true },
-              { id: 'effortSacrifice', label: 'Esforço e Sacrifício', value: offer.scoringFactors.effortSacrifice, inverse: true },
-            ].map((factor) => (
-              <div key={factor.id} className="space-y-1">
-                <div className="flex justify-between text-[10px] uppercase tracking-wider">
-                  <span className="text-zinc-500">{factor.label}</span>
-                  <span className="text-zinc-300 font-bold">{factor.value}/10</span>
+              { id: 'timeDelay', label: 'Velocidade do Resultado', value: offer.scoringFactors.timeDelay, inverse: true },
+              { id: 'effortSacrifice', label: 'Facilidade de Execução', value: offer.scoringFactors.effortSacrifice, inverse: true },
+            ].map((factor) => {
+              const displayValue = factor.inverse ? 11 - factor.value : factor.value;
+              return (
+                <div key={factor.id} className="space-y-1">
+                  <div className="flex justify-between text-[10px] uppercase tracking-wider">
+                    <span className="text-zinc-500">{factor.label}</span>
+                    <span className="text-zinc-300 font-bold">{displayValue}/10</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    value={displayValue}
+                    onChange={(e) => {
+                      const raw = Number(e.target.value);
+                      const internal = factor.inverse ? 11 - raw : raw;
+                      setOffer({
+                        ...offer,
+                        scoringFactors: { ...offer.scoringFactors, [factor.id]: internal }
+                      });
+                    }}
+                    className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                  />
+                  {factor.inverse && (
+                    <div className="flex justify-between text-[9px] text-zinc-600">
+                      <span>{factor.id === 'timeDelay' ? 'Lento' : 'Difícil'}</span>
+                      <span>{factor.id === 'timeDelay' ? 'Rápido' : 'Fácil'}</span>
+                    </div>
+                  )}
                 </div>
-                <input 
-                  type="range" 
-                  min="1" 
-                  max="10" 
-                  value={factor.value}
-                  onChange={(e) => setOffer({
-                    ...offer, 
-                    scoringFactors: { ...offer.scoringFactors, [factor.id]: Number(e.target.value) }
-                  })}
-                  className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
-                />
-              </div>
-            ))}
+              );
+            })}
           </CardContent>
         </Card>
+
+        {/* K-1.5: Mini-guide for Hormozi Value Equation */}
+        <ValueEquationGuide />
 
         <Card className="bg-zinc-900/30 border-zinc-800">
           <CardHeader>

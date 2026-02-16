@@ -263,7 +263,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: 'funnels', label: 'Funis', href: '/funnels', icon: 'Target' },
       { id: 'offer-lab', label: 'Offer Lab', href: '/intelligence/offer-lab', icon: 'Beaker' },
-      { id: 'funnel-autopsy', label: 'Funnel Autopsy', href: '/strategy/autopsy', icon: 'Stethoscope' },
+      { id: 'page-forensics', label: 'Page Forensics', href: '/strategy/autopsy', icon: 'Stethoscope' },
       { id: 'copy-chat', label: 'Copywriting', href: '/chat?mode=copy', icon: 'PencilLine' },
     ],
   },

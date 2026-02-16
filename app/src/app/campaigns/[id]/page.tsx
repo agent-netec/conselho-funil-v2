@@ -8,20 +8,27 @@ import { Header } from '@/components/layout/header';
 import { CampaignStepper } from '@/components/campaigns/campaign-stepper';
 import { StageCard } from '@/components/campaigns/stage-card';
 import { CampaignContext } from '@/types/campaign';
-import { 
-  Target, 
-  PenTool, 
-  Share2, 
-  Palette, 
+import {
+  Target,
+  PenTool,
+  Share2,
+  Palette,
   BarChart3,
   Sparkles,
   Zap,
   ShieldCheck,
-  TrendingUp
+  TrendingUp,
+  Trophy,
+  FileText,
+  Copy,
+  Download,
+  CheckSquare,
+  ExternalLink
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { notify } from '@/lib/stores/notification-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
+import { toast } from 'sonner';
 
 import { MonitoringDashboard, Metric } from '@/components/campaigns/monitoring-dashboard';
 
@@ -161,6 +168,62 @@ export default function CampaignCommandCenter() {
   }, [params.id]);
 
   const [generatingAds, setGeneratingAds] = useState(false);
+  const [briefText, setBriefText] = useState<string | null>(null);
+
+  // K-2.1: Detect campaign complete
+  const isCampaignComplete = !!(campaign?.funnel && campaign?.copywriting && campaign?.social && campaign?.design && campaign?.ads);
+
+  // K-2.3: Generate Campaign Brief
+  const generateBrief = () => {
+    if (!campaign) return;
+    const lines = [
+      '=== CAMPAIGN BRIEF ===',
+      `Nome: ${campaign.name}`,
+      '',
+      '--- FUNIL ---',
+      `Tipo: ${campaign.funnel?.type || '—'}`,
+      `Objetivo: ${campaign.funnel?.mainGoal || '—'}`,
+      `Público: ${campaign.funnel?.targetAudience || '—'}`,
+      `Resumo: ${campaign.funnel?.summary || '—'}`,
+      '',
+      '--- COPYWRITING ---',
+      `Big Idea: ${campaign.copywriting?.bigIdea || '—'}`,
+      `Tom: ${campaign.copywriting?.tone || '—'}`,
+      `Headlines: ${campaign.copywriting?.headlines?.join(', ') || '—'}`,
+      '',
+      '--- SOCIAL ---',
+      `Hooks: ${campaign.social?.hooks?.length || 0} hooks estratégicos`,
+      `Plataformas: ${campaign.social?.platforms?.join(', ') || '—'}`,
+      '',
+      '--- DESIGN ---',
+      `Estilo Visual: ${campaign.design?.visualStyle || '—'}`,
+      `Assets: ${campaign.design?.assetsUrl?.length || 0} criativos`,
+      '',
+      '--- ADS ---',
+      `Canais: ${campaign.ads?.channels?.join(', ') || '—'}`,
+      `Budget Sugerido: ${campaign.ads?.suggestedBudget || 'A definir'}`,
+      `Audiências: ${campaign.ads?.audiences?.length || 0} segmentações`,
+    ];
+    setBriefText(lines.join('\n'));
+  };
+
+  // K-2.5: Export Brief
+  const copyBrief = async () => {
+    if (!briefText) return;
+    await navigator.clipboard.writeText(briefText);
+    toast.success('Brief copiado para a área de transferência!');
+  };
+
+  const downloadBrief = () => {
+    if (!briefText) return;
+    const blob = new Blob([briefText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `campaign-brief-${campaign?.name?.replace(/\s+/g, '-').toLowerCase() || 'brief'}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const handleAction = async (stageId: string) => {
     if (!campaign) return;
@@ -261,6 +324,112 @@ export default function CampaignCommandCenter() {
             completedStages={completedStages} 
           />
         </section>
+
+        {/* K-2.2: Campaign Completion Card */}
+        <AnimatePresence>
+          {isCampaignComplete && (
+            <motion.section
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8"
+            >
+              <div className="relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-emerald-600/5 to-zinc-900/50 p-6 sm:p-8">
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/20">
+                    <Trophy className="h-6 w-6 text-emerald-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Campanha Completa!</h2>
+                    <p className="text-sm text-zinc-400 mt-1">Todos os 5 stages da Linha de Ouro foram concluídos</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+                  <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/50">
+                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Funil</p>
+                    <p className="text-xs text-zinc-300 mt-1 truncate">{campaign?.funnel?.type} — {campaign?.funnel?.mainGoal?.slice(0, 30)}</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/50">
+                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Copy</p>
+                    <p className="text-xs text-zinc-300 mt-1 truncate">{campaign?.copywriting?.bigIdea?.slice(0, 40)}...</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/50">
+                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Social</p>
+                    <p className="text-xs text-zinc-300 mt-1">{campaign?.social?.hooks?.length || 0} hooks</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/50">
+                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Design</p>
+                    <p className="text-xs text-zinc-300 mt-1 truncate">{campaign?.design?.visualStyle || 'Definido'}</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/50">
+                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Ads</p>
+                    <p className="text-xs text-zinc-300 mt-1 truncate">{campaign?.ads?.channels?.join(', ')}</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={generateBrief}
+                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <FileText className="h-4 w-4" />
+                    Gerar Campaign Brief
+                  </button>
+                  {briefText && (
+                    <>
+                      <button onClick={copyBrief} className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg text-sm font-medium transition-colors">
+                        <Copy className="h-4 w-4" />
+                        Copiar Brief
+                      </button>
+                      <button onClick={downloadBrief} className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg text-sm font-medium transition-colors">
+                        <Download className="h-4 w-4" />
+                        Download .txt
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* K-2.3: Brief text display */}
+                {briefText && (
+                  <pre className="mt-4 p-4 bg-zinc-950/80 border border-zinc-800 rounded-lg text-xs text-zinc-300 whitespace-pre-wrap max-h-64 overflow-y-auto font-mono">
+                    {briefText}
+                  </pre>
+                )}
+
+                {/* K-2.4: Next Steps */}
+                <div className="mt-6 pt-6 border-t border-zinc-800/50">
+                  <h3 className="text-sm font-bold text-zinc-300 mb-3 flex items-center gap-2">
+                    <CheckSquare className="h-4 w-4 text-blue-400" />
+                    Próximos Passos
+                  </h3>
+                  <div className="space-y-2">
+                    {[
+                      { label: 'Configurar pixel de rastreamento', href: '/settings' },
+                      { label: 'Criar anúncios nas plataformas', href: null },
+                      { label: 'Agendar conteúdo social no Calendário', href: '/content/calendar' },
+                      { label: 'Monitorar métricas no Dashboard', href: '/intelligence' },
+                      { label: 'Configurar automações de otimização', href: '/automation' },
+                    ].map((step, i) => (
+                      <div key={i} className="flex items-center gap-3 text-sm">
+                        <div className="w-5 h-5 rounded border border-zinc-700 bg-zinc-900 flex items-center justify-center shrink-0">
+                          <span className="text-[10px] text-zinc-500">{i + 1}</span>
+                        </div>
+                        {step.href ? (
+                          <a href={step.href} className="text-zinc-400 hover:text-emerald-400 transition-colors flex items-center gap-1">
+                            {step.label}
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        ) : (
+                          <span className="text-zinc-400">{step.label}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.section>
+          )}
+        </AnimatePresence>
 
         {/* Action Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-12">

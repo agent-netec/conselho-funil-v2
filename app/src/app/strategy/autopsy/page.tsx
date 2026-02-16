@@ -80,9 +80,9 @@ export default function FunnelAutopsyPage() {
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Funnel Autopsy</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Forensics de Página</h1>
         <p className="text-muted-foreground">
-          Diagnóstico profundo e identificação de gargalos em funis de alta escala.
+          Análise profunda de uma página específica — identifica gargalos de conversão, UX e copy.
         </p>
       </div>
 
@@ -93,7 +93,7 @@ export default function FunnelAutopsyPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
               <Input 
-                placeholder="Insira a URL do funil para análise (ex: https://lp.concorrente.com)" 
+                placeholder="Insira a URL da página para análise (ex: https://lp.exemplo.com)" 
                 className="pl-10 bg-zinc-950 border-zinc-800 focus:ring-emerald-500/20"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
@@ -113,13 +113,22 @@ export default function FunnelAutopsyPage() {
               ) : (
                 <>
                   <Stethoscope className="mr-2 h-4 w-4" />
-                  Iniciar Autópsia
+                  Analisar Página
                 </>
               )}
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      {/* K-3.3: Info note about full funnel analysis */}
+      <div className="flex items-start gap-3 p-4 bg-blue-500/5 border border-blue-500/10 rounded-xl">
+        <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+        <div className="text-sm">
+          <p className="text-blue-300 font-medium">Quer analisar um funil completo?</p>
+          <p className="text-zinc-400 text-xs mt-1">Em breve: Funnel Journey Analysis — análise multi-página com detecção de drop-off entre etapas.</p>
+        </div>
+      </div>
 
       {report ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -262,8 +271,8 @@ export default function FunnelAutopsyPage() {
       ) : !isLoading && (
         <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-zinc-800 rounded-2xl bg-zinc-900/20">
           <Stethoscope className="w-12 h-12 text-zinc-700 mb-4" />
-          <h3 className="text-lg font-medium text-zinc-400">Nenhum diagnóstico ativo</h3>
-          <p className="text-sm text-zinc-500 mt-1">Insira uma URL acima para iniciar a autópsia forense do funil.</p>
+          <h3 className="text-lg font-medium text-zinc-400">Nenhuma análise ativa</h3>
+          <p className="text-sm text-zinc-500 mt-1">Insira uma URL acima para iniciar a análise forense da página.</p>
         </div>
       )}
     </div>

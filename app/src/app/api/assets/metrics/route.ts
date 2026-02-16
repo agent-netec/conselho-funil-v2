@@ -210,11 +210,7 @@ export async function GET(request: NextRequest) {
 
     const enrichedAssets = allAssets.map(asset => ({
       ...asset,
-      metrics: asset.metrics || {
-        ctr: (Math.random() * 5 + 0.5).toFixed(2),
-        conversion: (Math.random() * 2 + 0.1).toFixed(2),
-        roi: (Math.random() * 10 + 1).toFixed(1) + 'x',
-      }
+      metrics: asset.metrics || null,
     }));
 
     const visualCount = enrichedAssets.filter(a => a.namespace === 'visual').length;

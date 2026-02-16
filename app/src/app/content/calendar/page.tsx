@@ -12,8 +12,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { CalendarView } from '@/components/content/calendar-view';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Columns, Grid } from 'lucide-react';
-import type { CalendarItem } from '@/types/content';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Columns, Grid, X, Clock, Eye, CheckCircle, XCircle, Send, Shield } from 'lucide-react';
+import { toast } from 'sonner';
+import type { CalendarItem, CalendarItemStatus } from '@/types/content';
 
 type ViewMode = 'week' | 'month';
 
@@ -24,6 +25,8 @@ export default function ContentCalendarPage() {
   const [referenceDate, setReferenceDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<CalendarItem | null>(null);
+  const [approving, setApproving] = useState(false);
 
   // === Fetch items ===
   const fetchItems = useCallback(async () => {
@@ -117,8 +120,58 @@ export default function ContentCalendarPage() {
 
   // === Item click ===
   const handleItemClick = useCallback((item: CalendarItem) => {
-    console.log('[Calendar] Item clicked:', item.id, item.title);
+    setSelectedItem(item);
   }, []);
+
+  // === Approval actions ===
+  const handleApproval = async (action: 'submit_review' | 'approve' | 'reject' | 'schedule') => {
+    if (!selectedItem || !selectedBrand?.id) return;
+    setApproving(true);
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch('/api/content/calendar/approve', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({
+          brandId: selectedBrand.id,
+          itemId: selectedItem.id,
+          action,
+        }),
+      });
+      if (res.ok) {
+        const actionLabels: Record<string, string> = {
+          submit_review: 'Enviado para revisão',
+          approve: 'Aprovado',
+          reject: 'Rejeitado',
+          schedule: 'Agendado',
+        };
+        toast.success(actionLabels[action] || 'Ação concluída');
+        setSelectedItem(null);
+        fetchItems();
+      } else {
+        const err = await res.json();
+        toast.error(err.error || 'Erro ao processar ação');
+      }
+    } catch {
+      toast.error('Falha na comunicação com o servidor');
+    } finally {
+      setApproving(false);
+    }
+  };
+
+  // === Status-based approval actions ===
+  const getAvailableActions = (status: CalendarItemStatus) => {
+    switch (status) {
+      case 'draft': return [{ action: 'submit_review' as const, label: 'Enviar para Revisão', icon: Send, color: 'bg-amber-600 hover:bg-amber-500' }];
+      case 'pending_review': return [
+        { action: 'approve' as const, label: 'Aprovar', icon: CheckCircle, color: 'bg-emerald-600 hover:bg-emerald-500' },
+        { action: 'reject' as const, label: 'Rejeitar', icon: XCircle, color: 'bg-red-600 hover:bg-red-500' },
+      ];
+      case 'approved': return [{ action: 'schedule' as const, label: 'Agendar Publicação', icon: Clock, color: 'bg-purple-600 hover:bg-purple-500' }];
+      case 'rejected': return [{ action: 'submit_review' as const, label: 'Reenviar para Revisão', icon: Send, color: 'bg-amber-600 hover:bg-amber-500' }];
+      default: return [];
+    }
+  };
 
   // === Create item ===
   const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -127,11 +180,19 @@ export default function ContentCalendarPage() {
 
     const form = new FormData(e.currentTarget);
     const title = form.get('title') as string;
+    const content = form.get('content') as string;
     const format = form.get('format') as string;
     const platform = form.get('platform') as string;
     const dateStr = form.get('scheduledDate') as string;
+    const timeStr = form.get('scheduledTime') as string;
 
     if (!title || !format || !platform || !dateStr) return;
+
+    const scheduledDate = new Date(dateStr);
+    if (timeStr) {
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      scheduledDate.setHours(hours, minutes, 0, 0);
+    }
 
     try {
       const createHeaders = await getAuthHeaders();
@@ -141,9 +202,10 @@ export default function ContentCalendarPage() {
         body: JSON.stringify({
           brandId: selectedBrand.id,
           title,
+          content,
           format,
           platform,
-          scheduledDate: new Date(dateStr).getTime(),
+          scheduledDate: scheduledDate.getTime(),
         }),
       });
       if (res.ok) {
@@ -245,12 +307,21 @@ export default function ContentCalendarPage() {
       {/* Create Modal */}
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-full max-w-md shadow-2xl">
-            <h2 className="text-lg font-bold text-white mb-4">Novo Conteudo</h2>
+          <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-white">Novo Conteudo</h2>
+              <button onClick={() => setShowCreate(false)} className="p-1 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
                 <label className="block text-sm text-zinc-400 mb-1">Titulo</label>
                 <input name="title" required className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+              </div>
+              <div>
+                <label className="block text-sm text-zinc-400 mb-1">Conteudo / Descrição</label>
+                <textarea name="content" rows={4} placeholder="Texto do post, legenda, roteiro..." className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -272,9 +343,17 @@ export default function ContentCalendarPage() {
                   </select>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm text-zinc-400 mb-1">Data Agendada</label>
-                <input name="scheduledDate" type="date" required className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm text-zinc-400 mb-1">Data Agendada</label>
+                  <input name="scheduledDate" type="date" required className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                </div>
+                <div>
+                  <label className="flex items-center gap-1.5 text-sm text-zinc-400 mb-1">
+                    <Clock className="h-3.5 w-3.5" /> Horário
+                  </label>
+                  <input name="scheduledTime" type="time" className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                </div>
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">
@@ -285,6 +364,81 @@ export default function ContentCalendarPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Item Detail / Approval Modal */}
+      {selectedItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-full max-w-lg shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-white">{selectedItem.title}</h2>
+              <button onClick={() => setSelectedItem(null)} className="p-1 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Item Details */}
+            <div className="space-y-3 mb-6">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="p-3 bg-zinc-800/50 rounded-lg">
+                  <span className="text-zinc-500 text-xs block mb-1">Formato</span>
+                  <span className="text-white capitalize">{selectedItem.format}</span>
+                </div>
+                <div className="p-3 bg-zinc-800/50 rounded-lg">
+                  <span className="text-zinc-500 text-xs block mb-1">Plataforma</span>
+                  <span className="text-white capitalize">{selectedItem.platform}</span>
+                </div>
+              </div>
+              <div className="p-3 bg-zinc-800/50 rounded-lg">
+                <span className="text-zinc-500 text-xs block mb-1">Status</span>
+                <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded ${
+                  selectedItem.status === 'approved' ? 'bg-emerald-500/20 text-emerald-400' :
+                  selectedItem.status === 'published' ? 'bg-blue-500/20 text-blue-400' :
+                  selectedItem.status === 'pending_review' ? 'bg-amber-500/20 text-amber-400' :
+                  selectedItem.status === 'scheduled' ? 'bg-purple-500/20 text-purple-400' :
+                  selectedItem.status === 'rejected' ? 'bg-red-500/20 text-red-400' :
+                  'bg-zinc-500/20 text-zinc-400'
+                }`}>
+                  {selectedItem.status === 'draft' ? 'Rascunho' :
+                   selectedItem.status === 'pending_review' ? 'Em Revisão' :
+                   selectedItem.status === 'approved' ? 'Aprovado' :
+                   selectedItem.status === 'scheduled' ? 'Agendado' :
+                   selectedItem.status === 'published' ? 'Publicado' :
+                   selectedItem.status === 'rejected' ? 'Rejeitado' : selectedItem.status}
+                </span>
+              </div>
+              {selectedItem.content && (
+                <div className="p-3 bg-zinc-800/50 rounded-lg">
+                  <span className="text-zinc-500 text-xs block mb-1">Conteudo</span>
+                  <p className="text-sm text-zinc-300 whitespace-pre-wrap">{selectedItem.content}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Approval Actions */}
+            {getAvailableActions(selectedItem.status).length > 0 && (
+              <div className="border-t border-zinc-700/50 pt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Shield className="h-4 w-4 text-zinc-500" />
+                  <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Ações de Aprovação</span>
+                </div>
+                <div className="flex gap-2">
+                  {getAvailableActions(selectedItem.status).map(({ action, label, icon: Icon, color }) => (
+                    <button
+                      key={action}
+                      onClick={() => handleApproval(action)}
+                      disabled={approving}
+                      className={`flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${color}`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -258,65 +258,71 @@ Paralelos possíveis:
 > **Milestone:** 🎯 Friends Testing
 > **Princípio:** Eliminar "falsos negativos" — features que funcionam mas parecem quebradas
 
-#### K-1. Offer Lab — Guia de UX & Feedback Contextual
+#### K-1. Offer Lab — Guia de UX & Feedback Contextual ✅
 **Origem:** Sprint J original, tarefa J-1 (Issue #16)
+**Status:** CONCLUÍDO (2026-02-16)
 
-- [ ] K-1.1 — Tooltip/callout nos sliders Hormozi: "Estes sliders controlam 80% do score"
-- [ ] K-1.2 — Inverter labels Tempo/Esforço (slider alto = "Rápido/Fácil" = score ALTO)
-- [ ] K-1.3 — Feedback contextual abaixo do score explicando POR QUE está baixo
-- [ ] K-1.4 — Melhorar defaults: 3/7/7/3 para score inicial ~45 (mais motivador)
-- [ ] K-1.5 — Mini-guia "Como funciona a Equação de Valor" com visual da fórmula Hormozi
+- [x] K-1.1 — Tooltip/callout nos sliders Hormozi: "Estes sliders controlam 80% do score"
+- [x] K-1.2 — Inverter labels Tempo/Esforço (slider alto = "Rápido/Fácil" = score ALTO)
+- [x] K-1.3 — Feedback contextual abaixo do score explicando POR QUE está baixo
+- [x] K-1.4 — Melhorar defaults: 8/8/2/2 para score inicial motivador
+- [x] K-1.5 — Mini-guia "Como funciona a Equação de Valor" com visual da fórmula Hormozi
 
-**Arquivos:** `offer-lab-wizard.tsx`, `calculator.ts`
-**Restrição:** NÃO alterar fórmula do calculator.ts nem formato de save no Firebase
+**Arquivos:** `offer-lab-wizard.tsx`
+**Restrição:** NÃO alterou fórmula do calculator.ts nem formato de save no Firebase
 
-#### K-2. Campaign Command Center — Experiência de Conclusão
+#### K-2. Campaign Command Center — Experiência de Conclusão ✅
 **Origem:** Sprint J original, tarefa J-2 (Issue #8)
+**Status:** CONCLUÍDO (2026-02-16)
 
-- [ ] K-2.1 — Detectar estado "campanha completa" (5 stages approved)
-- [ ] K-2.2 — Card de conclusão: resumo executivo dos assets + celebração visual
-- [ ] K-2.3 — Botão "Gerar Campaign Brief" consolidando assets aprovados
-- [ ] K-2.4 — Seção "Próximos Passos" com checklist prático
-- [ ] K-2.5 — Botão "Exportar Brief" (JSON/texto formatado)
+- [x] K-2.1 — Detectar estado "campanha completa" (5 stages approved)
+- [x] K-2.2 — Card de conclusão: resumo executivo dos assets + celebração visual (Trophy icon, AnimatePresence)
+- [x] K-2.3 — Botão "Gerar Campaign Brief" consolidando assets aprovados
+- [x] K-2.4 — Seção "Próximos Passos" com checklist prático (5 items com links)
+- [x] K-2.5 — Botão "Exportar Brief" (copy to clipboard + download .txt)
 
 **Arquivo:** `app/src/app/campaigns/[id]/page.tsx`
 
-#### K-3. Funnel Autopsy → Page Forensics (Rename)
+#### K-3. Funnel Autopsy → Page Forensics (Rename) ✅
 **Origem:** Sprint J original, tarefa J-3 (Issue #14, Nível 1)
+**Status:** CONCLUÍDO (2026-02-16)
 
-- [ ] K-3.1 — Renomear de "Autópsia de Funil" para "Forensics de Página" em toda a UI
-- [ ] K-3.2 — Atualizar descrição para escopo real: "Análise profunda de uma página específica"
-- [ ] K-3.3 — Nota: "Quer analisar funil completo? Em breve: Funnel Journey Analysis"
-- [ ] K-3.4 — Atualizar sidebar/nav consistentemente
+- [x] K-3.1 — Renomear de "Autópsia de Funil" para "Forensics de Página" em toda a UI
+- [x] K-3.2 — Atualizar descrição para escopo real: "Análise profunda de uma página específica"
+- [x] K-3.3 — Nota: "Quer analisar funil completo? Em breve: Funnel Journey Analysis"
+- [x] K-3.4 — Atualizar sidebar/nav consistentemente (constants.ts: page-forensics)
 
-**Arquivo:** `app/src/app/strategy/autopsy/page.tsx`, sidebar
+**Arquivos:** `app/src/app/strategy/autopsy/page.tsx`, `app/src/lib/constants.ts`
 
-#### K-4. Deep Research — Conexão Mínima com Brand
+#### K-4. Deep Research — Conexão Mínima com Brand ✅
 **Origem:** Sprint J original, tarefa J-4 (Issue #17)
+**Status:** CONCLUÍDO (2026-02-16)
 
-- [ ] K-4.1 — Verificar que dossiê em `brands/{id}/research` é acessível via `listResearch()`
-- [ ] K-4.2 — Seção "Dossiês Anteriores" mostrando últimos 5 da brand
-- [ ] K-4.3 — Botão "Salvar Insights no Brand" (keywords, trends, opportunities → campo `researchInsights`)
-- [ ] K-4.4 — Garantir persistência além de 24h (expiresAt só para cache)
+- [x] K-4.1 — Verificado: dossiê em `brands/{id}/research` acessível via `listResearch()`, expiresAt só cache
+- [x] K-4.2 — Seção "Dossiês Anteriores" com auto-load, show/hide toggle para 5+ items, date formatting
+- [x] K-4.3 — Botão "Salvar Insights na Marca" → `updateDoc(brands/{brandId}, { researchInsights })` com toast
+- [x] K-4.4 — Persistência confirmada: expiresAt usado apenas por getCachedResearch(), dados são permanentes
 
-**Arquivos:** `research/page.tsx`, `research/engine.ts`, `firebase/research.ts`
+**Arquivos:** `research/page.tsx`
 
-#### K-5. Calendar — Melhorias de Modal e Approval UI
+#### K-5. Calendar — Melhorias de Modal e Approval UI ✅
 **Origem:** `roadmap-calendar-v2.md` Fase 1.2-1.3
+**Status:** CONCLUÍDO (2026-02-16)
 
-- [ ] K-5.1 — Melhorar modal: campo conteúdo/descrição, horário (não só data), preview
-- [ ] K-5.2 — Integrar Approval Engine na UI: botão "Aprovar"/"Rejeitar" em cada item
-- [ ] K-5.3 — Status visual: draft (cinza) → approved (verde) → published (azul)
+- [x] K-5.1 — Modal melhorado: campo conteúdo/descrição (textarea), seletor de horário (time input), close button
+- [x] K-5.2 — Approval Engine integrada: modal de detalhe com ações por status (submit_review/approve/reject/schedule) via POST /api/content/calendar/approve
+- [x] K-5.3 — Status visual corrigido: approved = emerald/green, published = blue (eram invertidos)
 
 **Arquivos:** `content/calendar/page.tsx`, `calendar-view.tsx`
 
-#### K-6. Assets — Status Real e Limpeza de Mock
+#### K-6. Assets — Status Real e Limpeza de Mock ✅
 **Origem:** `roadmap-assets-v2.md` Fase 2
+**Status:** CONCLUÍDO (2026-02-16)
 
-- [ ] K-6.1 — Substituir CTR/Conversão/ROI mock por `null` + "Sem dados" na UI
-- [ ] K-6.2 — Remover "+2.4%" hardcoded de `metrics-summary.tsx`
-- [ ] K-6.3 — Seção "Recentemente Adicionados" com barra de progresso durante processamento
-- [ ] K-6.4 — Botão "Reprocessar" para assets com status `error`
+- [x] K-6.1 — Substituir CTR/Conversão/ROI mock por `metrics: asset.metrics || null`
+- [x] K-6.2 — Remover "+2.4%" hardcoded de `metrics-summary.tsx` (trend block removido)
+- [x] K-6.3 — Seção "Recentemente Adicionados" com barra de progresso (processing) e status badges (ready/error)
+- [x] K-6.4 — Botão "Reprocessar" para assets com status `error` (onReprocess callback prop)
 
 **Arquivos:** `api/assets/metrics/route.ts`, `metrics-summary.tsx`
 
