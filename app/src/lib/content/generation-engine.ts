@@ -30,6 +30,7 @@ import {
   type ContentGenerationParams,
   type ContentGenerationResult,
 } from '@/types/content';
+import { getPersonalityInstruction } from '@/lib/ai/formatters';
 import { getTopEngagementExamples, formatEngagementContext } from '@/lib/content/engagement-scorer';
 import { getBrandKeywords } from '@/lib/firebase/intelligence';
 import { loadBrain } from '@/lib/intelligence/brains/loader';
@@ -211,8 +212,10 @@ export async function generateContent(
       };
     }
 
-    // 3. Montar system instruction com Brand Voice
-    const systemInstruction = buildSystemInstruction(brand);
+    // 3. Montar system instruction com Brand Voice + Personality
+    const personalityNote = getPersonalityInstruction(brand.aiConfiguration?.profile);
+    const systemInstruction = buildSystemInstruction(brand)
+      + (personalityNote ? `\n\nPersonality Style: ${personalityNote}` : '');
 
     // 3.1 Enriquecer keywords com Intelligence Miner (se não fornecidas pelo usuário)
     let enrichedParams = params;
@@ -245,7 +248,8 @@ export async function generateContent(
     const result = await generateWithGemini(enrichedPrompt, {
       responseMimeType: 'application/json',
       systemPrompt: systemInstruction,
-      temperature: 0.7,
+      temperature: brand.aiConfiguration?.temperature || 0.7,
+      topP: brand.aiConfiguration?.topP || 0.95,
       brandId,
       feature: 'content_generation',
     });

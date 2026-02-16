@@ -219,21 +219,23 @@ Paralelos possíveis:
 
 **Arquivos:** `automation-control-center.tsx`, `automation/page.tsx`
 
-#### J-5. Social — Fix CSS Overlap
+#### J-5. Social — Fix CSS Overlap ✅
 **Origem:** `roadmap-social-v2.md` Fase 1.1
+**Status:** CONCLUÍDO (2026-02-16)
 
-- [ ] J-5.1 — Fix sobreposição de texto no `structure-viewer.tsx` — ajustar layout dos cards (purpose sobrepondo verbal)
+- [x] J-5.1 — Fix sobreposição de texto no `structure-viewer.tsx`: coluna esquerda `md:w-32` → `md:w-36` + `overflow-hidden`, Badge com `max-w-full truncate`, coluna direita com `min-w-0` para respeitar flex layout
 
 **Arquivo:** `app/src/components/social/structure-viewer.tsx`
 
-#### J-6. Brand Hub — Fix AI Config Desconectado
+#### J-6. Brand Hub — Fix AI Config Desconectado ✅
 **Origem:** `roadmap-brand-hub-v2.md` Fase 2
+**Status:** CONCLUÍDO (2026-02-16)
 
-- [ ] J-6.1 — **Content Generation:** `generation-engine.ts:248` — substituir `temperature: 0.7` por `brand?.aiConfiguration?.temperature || 0.7`. Adicionar `topP`
-- [ ] J-6.2 — **Ad Generation:** `ad-generator.ts:299` — mesmo fix
-- [ ] J-6.3 — **Copy Generation:** `copy-gen.ts:109` — adicionar `topP: brand?.aiConfiguration?.topP || 0.95`
-- [ ] J-6.4 — **Personality Injection:** Criar `PERSONALITY_INSTRUCTIONS` em `formatters.ts` e injetar nos prompts junto com voiceTone
-- [ ] J-6.5 — Remover `presencePenalty` e `frequencyPenalty` de `database.ts` (Gemini não suporta)
+- [x] J-6.1 — **Content Generation:** `generation-engine.ts` — `temperature: 0.7` → `brand.aiConfiguration?.temperature || 0.7` + `topP: brand.aiConfiguration?.topP || 0.95`
+- [x] J-6.2 — **Ad Generation:** `ad-generator.ts` — mesmo fix + `getBrand(brandId)` adicionado para buscar config
+- [x] J-6.3 — **Copy Generation:** `copy-gen.ts` — `topP: brand.aiConfiguration?.topP || 0.95` adicionado
+- [x] J-6.4 — **Personality Injection:** `PERSONALITY_INSTRUCTIONS` criado em `formatters.ts` com 4 perfis (agressivo/sóbrio/criativo/equilibrado). `getPersonalityInstruction()` helper exportado. Injetado nos 3 engines (Content, Ad, Copy). Brand Compliance NÃO alterado (temperature 0.1 intencional)
+- [x] J-6.5 — `presencePenalty` e `frequencyPenalty` removidos de `database.ts` (Gemini não suporta, eram campos mortos da OpenAI)
 
 **Arquivos:** `generation-engine.ts`, `ad-generator.ts`, `copy-gen.ts`, `formatters.ts`, `database.ts`
 

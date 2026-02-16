@@ -1,5 +1,6 @@
 import { Brand } from '@/types/database';
 import { generateWithGemini } from '../../ai/gemini';
+import { getPersonalityInstruction } from '@/lib/ai/formatters';
 import { loadBrain } from '@/lib/intelligence/brains/loader';
 import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
 import type { CounselorId } from '@/types';
@@ -107,6 +108,7 @@ export class CopyGenerationLab {
     try {
       const response = await generateWithGemini(prompt, {
         temperature: brand.aiConfiguration?.temperature || 0.7,
+        topP: brand.aiConfiguration?.topP || 0.95,
         responseMimeType: 'application/json',
       });
 
@@ -153,13 +155,19 @@ export class CopyGenerationLab {
       console.warn(`[CopyGenerationLab] Brain context failed for angle ${angle}:`, e);
     }
 
+    // Sprint J-6: Personality injection from brand AI config
+    const personalityNote = getPersonalityInstruction(brand.aiConfiguration?.profile);
+    const personalitySection = personalityNote
+      ? `\n      ESTILO DE PERSONALIDADE DA MARCA: ${personalityNote}`
+      : '';
+
     return `
       Você é um Copywriter Sênior especialista em Resposta Direta e Psicologia de Vendas.
       Sua tarefa é criar 3 variações de um anúncio (Headline + Primary Text) baseadas em um gancho específico.
 ${brainSection}
       MARCA: "${brand.name}"
       POSICIONAMENTO: ${brand.positioning}
-      TOM DE VOZ: ${voiceGuidelines}
+      TOM DE VOZ: ${voiceGuidelines}${personalitySection}
       ESTILO VISUAL: ${visualStyle}
       PÚBLICO-ALVO: ${targetAudience || brand.audience?.who || 'Público geral'}
 

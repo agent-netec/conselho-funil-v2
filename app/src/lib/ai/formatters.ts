@@ -6,6 +6,27 @@ import type { Brand, Funnel, Proposal } from '@/types/database';
  */
 
 /**
+ * Personality instructions mapped to AI profile presets.
+ * Injected into prompts alongside voiceTone to guide generation style.
+ * Sprint J-6: Brand Hub AI Config — personality is now textual, not just numbers.
+ */
+export const PERSONALITY_INSTRUCTIONS: Record<string, string> = {
+  agressivo: 'Use headlines disruptivas e provocativas. CTAs diretos e urgentes. Desafie o status quo. Linguagem de impacto com frases curtas. Aposte em FOMO e escassez.',
+  sobrio: 'Mantenha tom institucional e profissional. Priorize dados, fatos e credibilidade. Evite hipérboles, exclamações excessivas e promessas infladas. Clareza acima de tudo.',
+  criativo: 'Explore metáforas, storytelling e ângulos inesperados. Surpreenda o leitor com analogias originais. Use humor quando apropriado. Busque o "fator WOW" em cada peça.',
+  equilibrado: 'Balance criatividade com clareza. Tom conversacional mas informado. Headlines atraentes sem exagero. Persuasão sutil baseada em benefícios reais.',
+};
+
+/**
+ * Returns the personality instruction for a brand's AI profile.
+ * Falls back to empty string if no profile is set.
+ */
+export function getPersonalityInstruction(profile?: string): string {
+  if (!profile) return '';
+  return PERSONALITY_INSTRUCTIONS[profile] || '';
+}
+
+/**
  * Formats brand information for funnel generation prompts.
  * Includes specific instructions for the AI to follow the brand guidelines.
  */

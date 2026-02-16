@@ -147,8 +147,6 @@ export interface Brand {
   aiConfiguration?: {
     temperature: number;      // 0.1 a 1.0
     topP: number;             // 0.1 a 1.0
-    presencePenalty?: number;
-    frequencyPenalty?: number;
     profile: 'agressivo' | 'sobrio' | 'equilibrado' | 'criativo';
   };
 

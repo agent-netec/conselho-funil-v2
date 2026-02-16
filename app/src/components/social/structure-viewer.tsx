@@ -82,20 +82,20 @@ export function StructureViewer({ structure }: StructureViewerProps) {
               <Card className="relative ml-4 p-5 bg-zinc-900/40 border-white/[0.04] group-hover:border-rose-500/20 transition-all">
                 <div className="flex flex-col md:flex-row gap-4">
                   {/* Left: Time & Purpose */}
-                  <div className="flex flex-row md:flex-col gap-3 md:w-32 shrink-0">
+                  <div className="flex flex-row md:flex-col gap-3 md:w-36 shrink-0 overflow-hidden">
                     {element.timestamp && (
                       <div className="flex items-center gap-1.5 text-rose-400 font-mono text-xs bg-rose-500/5 px-2 py-1 rounded border border-rose-500/10">
                         <Clock className="h-3 w-3" />
                         {element.timestamp}
                       </div>
                     )}
-                    <Badge variant="secondary" className="bg-zinc-800 text-zinc-400 text-[10px] uppercase border-none py-0.5">
+                    <Badge variant="secondary" className="bg-zinc-800 text-zinc-400 text-[10px] uppercase border-none py-0.5 max-w-full truncate">
                       {element.purpose}
                     </Badge>
                   </div>
 
                   {/* Right: Verbal & Visual */}
-                  <div className="flex-1 space-y-3">
+                  <div className="flex-1 min-w-0 space-y-3">
                     <div className="space-y-1">
                       <span className="text-[10px] font-bold text-zinc-600 uppercase">O que falar:</span>
                       <p className="text-zinc-200 text-sm leading-relaxed">
