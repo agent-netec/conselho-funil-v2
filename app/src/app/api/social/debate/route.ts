@@ -17,6 +17,7 @@ import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { updateUserUsage } from '@/lib/firebase/firestore';
 import { SOCIAL_COUNSELOR_IDS } from '@/lib/ai/prompts/social-brain-context';
+import { retrieveSocialKnowledge } from '@/lib/ai/rag';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -63,7 +64,23 @@ Diferencial: ${brand.offer.differentiator}
     // 2. Build brain context for the 4 social counselors
     const brainContext = buildPartyBrainContext(SOCIAL_COUNSELOR_IDS);
 
-    // 3. Format hooks for the debate query
+    // 3. Sprint O — O-5.4: Retrieve social knowledge base (policies & best practices)
+    let socialKbContext = '';
+    try {
+      const channelKey = (platform || '').toLowerCase().replace(/[^a-z]/g, '');
+      const { context } = await retrieveSocialKnowledge(
+        `${campaignType || 'organic'} content ${platform} ${topic || ''}`,
+        { channel: channelKey || undefined, topK: 5 }
+      );
+      socialKbContext = context;
+      if (socialKbContext) {
+        console.log(`[Social/Debate] KB context injected (${channelKey})`);
+      }
+    } catch (err) {
+      console.warn('[Social/Debate] KB retrieval failed:', err);
+    }
+
+    // 4. Format hooks for the debate query
     const hooksText = hooks.map((h: { style: string; content: string }, i: number) =>
       `${i + 1}. [${h.style}] "${h.content}"`
     ).join('\n');
@@ -71,16 +88,16 @@ Diferencial: ${brand.offer.differentiator}
     const debateQuery = `Analisem os seguintes hooks gerados para ${platform} (objetivo: ${campaignType || 'organic'}, tema: "${topic || 'não especificado'}"):
 
 ${hooksText}
-
+${socialKbContext ? `\n${socialKbContext}\n\nIMPORTANTE: Considerem as políticas e boas práticas acima ao avaliar os hooks. Se algum hook conflitar com uma política, indiquem o problema e sugiram correção.\n` : ''}
 Cada conselheiro deve:
 1. Avaliar os hooks sob sua perspectiva especializada
 2. Indicar qual(is) hook(s) são mais fortes e por quê
 3. Sugerir melhorias específicas baseadas em sua expertise
 4. Recomendar o melhor hook para o objetivo de campanha
-
+${socialKbContext ? '5. Verificar conformidade com políticas de plataforma' : ''}
 O Veredito do Conselho deve consolidar as opiniões e recomendar o hook final com justificativa.`;
 
-    // 4. Build party prompt with debate intensity
+    // 5. Build party prompt with debate intensity
     const fullPrompt = buildPartyPrompt(
       debateQuery,
       brandContext,
@@ -88,13 +105,13 @@ O Veredito do Conselho deve consolidar as opiniões e recomendar o hook final co
       { intensity: 'debate', brainContext }
     );
 
-    // 5. Generate with PRO model (critical decision)
+    // 6. Generate with PRO model (critical decision)
     const response = await generateWithGemini(fullPrompt, {
       model: PRO_GEMINI_MODEL,
       temperature: 0.7,
     });
 
-    // 6. Debit 1 credit
+    // 7. Debit 1 credit
     if (userId) {
       try {
         await updateUserUsage(userId, -1);

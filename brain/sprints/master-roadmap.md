@@ -554,57 +554,57 @@ Paralelos possíveis:
 
 ---
 
-### Sprint O — Deep Research & Knowledge Base
+### Sprint O — Deep Research & Knowledge Base ✅ CONCLUÍDO
 
 > **Estimativa:** ~3-4 sessões
 > **Dependência:** Sprint N concluído
 > **Milestone:** ⭐ Feature Complete
 > **Princípio:** Transformar pesquisa genérica em inteligência de audiência acionável
 
-#### O-1. Deep Research v2 — Prompts Estruturados & UX
+#### O-1. Deep Research v2 — Prompts Estruturados & UX ✅ CONCLUÍDO
 **Origem:** Sprint K original, tarefa K-4 Fase A
 
-- [ ] O-1.1 — Biblioteca de **task templates** clicáveis: "Análise de Audiência", "Análise de Concorrente", "Tendências", "Pesquisa de Produto", "Mapeamento de Nicho"
-- [ ] O-1.2 — Cada template pré-preenche campos e ajusta profundidade/fontes
-- [ ] O-1.3 — Campo "URLs Customizadas" para scraping específico (Instagram, YouTube, blogs)
+- [x] O-1.1 — Biblioteca de **task templates** clicáveis: 5 templates (Audiência, Concorrente, Tendências, Produto, Nicho) em `research/templates.ts` + grid UI em `research-form.tsx`
+- [x] O-1.2 — Cada template pré-preenche campos e ajusta profundidade/fontes. `templateId` propagado até engine e salvo no dossiê
+- [x] O-1.3 — Campo "URLs Customizadas" com add/remove badges. Engine scrape via Firecrawl e appende como sources
 
-#### O-2. Deep Research v2 — Análise de Audiência (Voz Ativa)
+#### O-2. Deep Research v2 — Análise de Audiência (Voz Ativa) ✅ CONCLUÍDO
 **Origem:** Sprint K original, tarefa K-4 Fase B
 
-- [ ] O-2.1 — Parser de comentários sociais via Firecrawl (Instagram, YouTube, blogs)
-- [ ] O-2.2 — Prompt Gemini para análise de voz ativa: tom, dores, desejos, perguntas, gatilhos
-- [ ] O-2.3 — Gerar Persona de Audiência baseada em dados reais
+- [x] O-2.1 — `api/intelligence/research/audience/route.ts`: Firecrawl scrape até 5 URLs sociais
+- [x] O-2.2 — Prompt Gemini PRO para análise de voz ativa: tom, dores, desejos, perguntas, gatilhos, objeções
+- [x] O-2.3 — Gerar `AudiencePersona` e salvar no dossiê. 2 créditos
 
-#### O-3. Deep Research v2 — Chat de Refinamento & RAG
+#### O-3. Deep Research v2 — Chat de Refinamento & RAG ✅ CONCLUÍDO
 **Origem:** Sprint K original, tarefa K-4 Fases C-D
 
-- [ ] O-3.1 — Aba de chat split-view ao lado do dossiê (perguntas, refinamentos, contexto extra)
-- [ ] O-3.2 — Histórico de refinamentos salvo com o dossiê
-- [ ] O-3.3 — Botão "Adicionar ao Conselho" — checkboxes por seção para RAG
-- [ ] O-3.4 — Salvar seções como embeddings no Pinecone (768 dims, text-embedding-004)
-- [ ] O-3.5 — Conselheiros buscam research context automaticamente ao gerar conteúdo
-- [ ] O-3.6 — Indicador visual: "Usando insights de Deep Research: [nome do dossiê]"
+- [x] O-3.1 — 3-tab interface (Dossiê/Audiência/Chat) em `research/page.tsx`
+- [x] O-3.2 — `api/intelligence/research/chat/route.ts`: histórico salvo no dossiê via `chatHistory`
+- [x] O-3.3 — Checkboxes por seção com botão "Adicionar ao Conselho" em `research/page.tsx`
+- [x] O-3.4 — `api/intelligence/research/add-to-rag/route.ts`: embeddings Pinecone (768d), namespace 'knowledge', docType 'research_insight'. Máx 20 chunks/brand
+- [x] O-3.5 — `retrieveResearchContext()` em `rag.ts`, injetado em `copy/generate/route.ts`
+- [x] O-3.6 — Indicador visual "Usando insights de Deep Research" com ícone Brain
 
 **Modelo chat:** PRO_GEMINI_MODEL
 **Limite:** máx 20 research chunks ativos por brand
 
-#### O-4. Social — Pesquisa de Trends & Análise de Perfil
+#### O-4. Social — Pesquisa de Trends & Análise de Perfil ✅ CONCLUÍDO
 **Origem:** `roadmap-social-v2.md` Fase 3
 
-- [ ] O-4.1 — **Trend Research:** Exa search ("trending [platform] content [vertical]") → Firecrawl enrich → Gemini síntese
-- [ ] O-4.2 — **TrendPanel component:** Cards de trends com tags, growth indicators, links
-- [ ] O-4.3 — **Competitor Profile Analysis:** Firecrawl scrape perfil público → Gemini analisa frequência, hooks, engajamento
-- [ ] O-4.4 — **ProfileAnalyzer component:** Input URL → Report com strengths/weaknesses/patterns
+- [x] O-4.1 — `api/social/trends/route.ts`: Exa search → Firecrawl enrich top 2 → Gemini síntese 5-8 trends. 1 crédito
+- [x] O-4.2 — `components/social/trend-panel.tsx`: Cards com growth indicators (Flame/Zap/Minus), tags, source links
+- [x] O-4.3 — `api/social/profile-analysis/route.ts`: Firecrawl scrape → Gemini PRO analysis. 2 créditos
+- [x] O-4.4 — `components/social/profile-analyzer.tsx`: Input URL → Report strengths/weaknesses/opportunities. Integrado no Step 0 do SocialWizard
 
 **Créditos:** Trends=1, Profile Analysis=2
 
-#### O-5. Social — Base de Conhecimento & Políticas
+#### O-5. Social — Base de Conhecimento & Políticas ✅ CONCLUÍDO
 **Origem:** `roadmap-social-v2.md` Fase 4
 
-- [ ] O-5.1 — Upload de documentos de políticas por plataforma (`docType: 'social_policy'`)
-- [ ] O-5.2 — Upload de boas práticas (`docType: 'social_best_practices'`)
-- [ ] O-5.3 — RAG filter para Social: policy, best_practices, case_study, por channel
-- [ ] O-5.4 — Workaround Engine: debate consulta KB quando identifica conflito com política
+- [x] O-5.1 — `api/social/knowledge/route.ts`: Upload policies com `docType: 'social_policy'`, chunking + Pinecone embedding
+- [x] O-5.2 — Mesma API com `docType: 'social_best_practices'`
+- [x] O-5.3 — `retrieveSocialKnowledge()` em `rag.ts`: filtro por docType + channel, rerank
+- [x] O-5.4 — Social debate consulta KB automaticamente via `retrieveSocialKnowledge()`, injeta políticas no prompt com instrução de verificar conformidade
 
 #### Critério de aprovação Sprint O
 

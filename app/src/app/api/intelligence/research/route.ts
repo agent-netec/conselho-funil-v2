@@ -17,6 +17,8 @@ export async function POST(req: NextRequest) {
       marketSegment?: string;
       competitors?: string[];
       depth?: ResearchDepth;
+      templateId?: string;
+      customUrls?: string[];
     };
 
     if (!body.brandId || !body.topic) {
@@ -30,6 +32,8 @@ export async function POST(req: NextRequest) {
       marketSegment: body.marketSegment,
       competitors: body.competitors,
       depth: body.depth ?? 'standard',
+      templateId: body.templateId as any,
+      customUrls: body.customUrls,
     });
     return createApiSuccess(dossier);
   } catch (error: unknown) {

@@ -28,6 +28,8 @@ import { notify } from '@/lib/stores/notification-store';
 import { StructureViewer } from './structure-viewer';
 import { ScorecardViewer } from './scorecard-viewer';
 import { DebateViewer } from './debate-viewer';
+import { TrendPanel } from './trend-panel';
+import { ProfileAnalyzer } from './profile-analyzer';
 
 // === Constants ===
 
@@ -451,6 +453,12 @@ export function SocialWizard() {
             )}
           </div>
         </Card>
+
+        {/* Sprint O — O-4: Trend Research & Profile Analysis (before generation) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <TrendPanel />
+          <ProfileAnalyzer />
+        </div>
       </div>
     );
   }

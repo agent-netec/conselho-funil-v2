@@ -30,6 +30,13 @@ export class ResearchEngine {
 
     const cfg = DEPTH_CONFIG[input.depth];
     const sources = await this.collectSources(input, cfg.exaResults, cfg.enrichTop);
+
+    // Sprint O: Scrape custom URLs via Firecrawl and append as sources
+    if (input.customUrls?.length) {
+      const customSources = await this.scrapeCustomUrls(input.brandId, input.customUrls);
+      sources.push(...customSources);
+    }
+
     if (sources.length === 0) {
       return this.failed(input.brandId, input.topic, now, 'Nenhuma fonte encontrada para o topico informado.');
     }
@@ -48,6 +55,8 @@ export class ResearchEngine {
           typeof Timestamp.fromMillis === 'function'
             ? Timestamp.fromMillis(now.toMillis() + 24 * 60 * 60 * 1000)
             : now,
+        ...(input.templateId && { templateId: input.templateId }),
+        ...(input.customUrls?.length && { customUrls: input.customUrls }),
       };
       const savedId = await saveResearch(input.brandId, dossier);
       dossier.id = savedId;
@@ -146,6 +155,42 @@ export class ResearchEngine {
     }
 
     return sources;
+  }
+
+  /** Sprint O: Scrape custom URLs provided by user (Instagram, YouTube, blogs) */
+  private static async scrapeCustomUrls(
+    brandId: string,
+    urls: string[]
+  ): Promise<ResearchSource[]> {
+    const firecrawl = new FirecrawlAdapter();
+    const results = await Promise.allSettled(
+      urls.map(async (url) => {
+        const task = {
+          id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          brandId,
+          type: 'url_to_markdown' as const,
+          input: { url },
+        };
+        const result = await firecrawl.execute(task);
+        if (result.success && result.data && typeof result.data === 'object') {
+          const data = result.data as { markdown?: string; title?: string };
+          return {
+            url,
+            title: data.title || url,
+            snippet: (data.markdown || '').slice(0, 3000),
+            relevanceScore: 0.95,
+            source: 'firecrawl' as const,
+            fetchedAt: Timestamp.now(),
+          };
+        }
+        return null;
+      })
+    );
+
+    return results
+      .filter((r): r is PromiseFulfilledResult<ResearchSource | null> => r.status === 'fulfilled')
+      .map(r => r.value)
+      .filter((s): s is ResearchSource => s !== null);
   }
 
   private static failed(

@@ -23,7 +23,7 @@ import {
 import { db } from '@/lib/firebase/config';
 import { updateUserUsage } from '@/lib/firebase/firestore';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM } from '@/lib/ai/rag';
+import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM, retrieveResearchContext } from '@/lib/ai/rag';
 import { getAllBrandKeywordsForPrompt } from '@/lib/firebase/intelligence';
 import type { 
   Funnel, 
@@ -122,7 +122,24 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 4. Contexto de Anexos do Chat (Busca no histórico da conversa)
+    // 4. Sprint O — O-3.5: Research context from Deep Research RAG
+    let researchContext = '';
+    if (funnel.brandId) {
+      try {
+        const { context } = await retrieveResearchContext(
+          `${copyType} para ${funnel.context.market} ${funnel.context.objective}`,
+          3
+        );
+        if (context) {
+          researchContext = context;
+          console.log(`[Copy] Research context injected from Deep Research RAG`);
+        }
+      } catch (err) {
+        console.warn('[Copy] Erro ao buscar research context:', err);
+      }
+    }
+
+    // 5. Contexto de Anexos do Chat (Busca no histórico da conversa)
     let attachmentsContext = '';
     if (conversationId) {
       const messagesRef = collection(db, 'conversations', conversationId, 'messages');
@@ -161,7 +178,7 @@ export async function POST(request: NextRequest) {
       copyType as CopyType,
       awarenessInfo,
       {
-        ragContext,
+        ragContext: ragContext + researchContext,
         brandContext,
         keywordContext,
         attachmentsContext,

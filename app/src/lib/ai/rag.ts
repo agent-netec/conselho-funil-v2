@@ -237,6 +237,63 @@ export async function retrieveBenchmarks(queryText: string, topK = 5) {
 }
 
 /**
+ * Sprint O — O-3.5: Retrieve research insights from RAG for content generation.
+ * Counselors automatically search for research_insight docs when generating content.
+ */
+export async function retrieveResearchContext(
+  queryText: string,
+  topK = 5
+): Promise<{ chunks: RetrievedChunk[]; context: string }> {
+  const chunks = await retrieveChunks(queryText, {
+    topK,
+    minSimilarity: 0.3,
+    filters: { docType: 'research_insight' },
+  });
+  const context = chunks.length > 0
+    ? '\n## DEEP RESEARCH INSIGHTS\n' + chunks.map(c =>
+      `- ${c.content}`
+    ).join('\n')
+    : '';
+  return { chunks, context };
+}
+
+/**
+ * Sprint O — O-5.3: Retrieve social policies and best practices from RAG.
+ * Filters by docType (social_policy | social_best_practices) and optional channel.
+ */
+export async function retrieveSocialKnowledge(
+  queryText: string,
+  options: { channel?: string; docTypes?: string[]; topK?: number } = {}
+): Promise<{ chunks: RetrievedChunk[]; context: string }> {
+  const { channel, docTypes = ['social_policy', 'social_best_practices'], topK = 5 } = options;
+  const allChunks: RetrievedChunk[] = [];
+
+  for (const docType of docTypes) {
+    const filters: RetrievalConfig['filters'] = { docType };
+    if (channel) filters.channel = channel;
+    const chunks = await retrieveChunks(queryText, {
+      topK: Math.ceil(topK / docTypes.length),
+      minSimilarity: 0.25,
+      filters,
+    });
+    allChunks.push(...chunks);
+  }
+
+  // Sort by relevance and take topK
+  allChunks.sort((a, b) => (b.rerankScore ?? b.similarity) - (a.rerankScore ?? a.similarity));
+  const finalChunks = allChunks.slice(0, topK);
+
+  const context = finalChunks.length > 0
+    ? '\n## SOCIAL KNOWLEDGE BASE\n' + finalChunks.map(c => {
+        const label = c.metadata.docType === 'social_policy' ? 'POLÍTICA' : 'BOA PRÁTICA';
+        return `- [${label}${c.metadata.channel ? ` / ${c.metadata.channel}` : ''}] ${c.content}`;
+      }).join('\n')
+    : '';
+
+  return { chunks: finalChunks, context };
+}
+
+/**
  * Keyword match scoring via Jaccard Similarity.
  * Sprint 28 — S28-CL-06 (DT-10)
  *
