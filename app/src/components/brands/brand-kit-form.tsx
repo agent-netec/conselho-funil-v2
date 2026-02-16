@@ -44,11 +44,11 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
     visualStyle: brand.brandKit?.visualStyle || 'modern',
     logoLock: {
       variants: {
-        primary: brand.brandKit?.logoLock.variants.primary || { url: '', storagePath: '', format: 'png' },
-        horizontal: brand.brandKit?.logoLock.variants.horizontal,
-        icon: brand.brandKit?.logoLock.variants.icon,
+        primary: brand.brandKit?.logoLock?.variants?.primary || { url: '', storagePath: '', format: 'png' },
+        horizontal: brand.brandKit?.logoLock?.variants?.horizontal || null,
+        icon: brand.brandKit?.logoLock?.variants?.icon || null,
       },
-      locked: brand.brandKit?.logoLock.locked ?? false,
+      locked: brand.brandKit?.logoLock?.locked ?? false,
     },
     updatedAt: brand.brandKit?.updatedAt || Timestamp.now(),
   }));
@@ -63,10 +63,19 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
     if (!brand?.id) return;
     setLoading(true);
     try {
-      // Atualizar tanto o BrandKit quanto a configuração de IA
+      // Filter out undefined/null variant values before saving to Firestore
+      const cleanKit = {
+        ...kit,
+        logoLock: {
+          ...kit.logoLock,
+          variants: Object.fromEntries(
+            Object.entries(kit.logoLock.variants).filter(([_, v]) => v !== undefined && v !== null)
+          ),
+        },
+      };
       const { updateBrand } = await import('@/lib/firebase/brands');
       await Promise.all([
-        updateBrandKit(brand.id, kit),
+        updateBrandKit(brand.id, cleanKit as typeof kit),
         updateBrand(brand.id, { aiConfiguration: aiConfig })
       ]);
       toast.success('Configurações salvas com sucesso');

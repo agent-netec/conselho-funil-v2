@@ -39,6 +39,7 @@ import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -503,9 +504,9 @@ export default function BrandAssetsPage() {
                   <DialogTitle className="text-white text-base">
                     Preview: {previewAsset?.name}
                   </DialogTitle>
-                  <p className="text-xs text-zinc-500 mt-0.5">
+                  <DialogDescription className="text-xs text-zinc-500 mt-0.5">
                     Conteúdo extraído para inteligência do RAG
-                  </p>
+                  </DialogDescription>
                 </div>
               </div>
               <div className="flex items-center gap-2">

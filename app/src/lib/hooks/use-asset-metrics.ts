@@ -11,7 +11,10 @@ export interface AssetMetric {
   strategicAdvice?: string;
   imageUri?: string;
   name?: string;
+  url?: string;
   createdAt: string;
+  status?: 'uploaded' | 'processing' | 'ready' | 'error';
+  processingError?: string;
   metrics: {
     ctr: string;
     conversion: string;
@@ -51,9 +54,10 @@ export function useAssetMetrics() {
         throw new Error('Falha ao carregar métricas do dashboard');
       }
 
-      const data = await response.json();
-      setAssets(data.assets || []);
-      setSummary(data.summary || null);
+      const json = await response.json();
+      const payload = json.data ?? json;
+      setAssets(payload.assets || []);
+      setSummary(payload.summary || null);
     } catch (err: any) {
       console.error('[useAssetMetrics] Error:', err);
       setError(err.message || 'Erro desconhecido ao carregar métricas');

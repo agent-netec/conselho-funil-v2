@@ -1,14 +1,17 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { 
-  BarChart3, 
-  ExternalLink, 
-  Eye, 
-  FileText, 
-  ImageIcon, 
+import {
+  BarChart3,
+  ExternalLink,
+  Eye,
+  FileText,
+  ImageIcon,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  Trash2,
+  Loader2,
+  Clock
 } from 'lucide-react';
 import { AssetMetric } from '@/lib/hooks/use-asset-metrics';
 import { cn } from '@/lib/utils';
@@ -19,11 +22,25 @@ interface AssetMetricsTableProps {
   assets: AssetMetric[];
   isLoading: boolean;
   viewMode?: 'list' | 'grid';
+  onDelete?: (assetId: string) => Promise<void>;
 }
 
-export function AssetMetricsTable({ assets, isLoading, viewMode = 'list' }: AssetMetricsTableProps) {
+export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDelete }: AssetMetricsTableProps) {
   const [selectedAsset, setSelectedAsset] = useState<AssetMetric | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (asset: AssetMetric) => {
+    if (!onDelete) return;
+    if (!confirm('Tem certeza? Isso remove o asset e todos os chunks vetorizados.')) return;
+
+    setDeletingId(asset.id);
+    try {
+      await onDelete(asset.id);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleViewDetails = (asset: AssetMetric) => {
     setSelectedAsset(asset);
@@ -89,12 +106,22 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list' }: Asse
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <span className={cn(
-                  "text-xs font-bold px-2 py-0.5 rounded-full",
-                  asset.score >= 80 ? "text-emerald-400 bg-emerald-500/10" : asset.score >= 50 ? "text-amber-400 bg-amber-500/10" : "text-red-400 bg-red-500/10"
-                )}>
-                  {asset.score}
-                </span>
+                {asset.status === 'processing' ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-yellow-400 bg-yellow-500/10 flex items-center gap-1">
+                    <Clock className="h-3 w-3 animate-pulse" /> Processando...
+                  </span>
+                ) : asset.status === 'error' ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-red-400 bg-red-500/10 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" /> Erro
+                  </span>
+                ) : (
+                  <span className={cn(
+                    "text-xs font-bold px-2 py-0.5 rounded-full",
+                    asset.score >= 80 ? "text-emerald-400 bg-emerald-500/10" : asset.score >= 50 ? "text-amber-400 bg-amber-500/10" : "text-red-400 bg-red-500/10"
+                  )}>
+                    {asset.score}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -121,14 +148,23 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list' }: Asse
                 Visualizar
               </button>
               {asset.imageUri && (
-                <a 
-                  href={asset.imageUri} 
-                  target="_blank" 
+                <a
+                  href={asset.imageUri}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-800 text-zinc-300"
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
                 </a>
+              )}
+              {onDelete && (
+                <button
+                  onClick={() => handleDelete(asset)}
+                  disabled={deletingId === asset.id}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
+                >
+                  {deletingId === asset.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                </button>
               )}
             </div>
           </motion.div>
@@ -197,21 +233,30 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list' }: Asse
 
               {/* Action Overlay */}
               <div className="p-2 bg-zinc-950/50 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button 
+                <button
                   onClick={() => handleViewDetails(asset)}
                   className="flex-1 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[10px] font-bold text-zinc-300 flex items-center justify-center gap-1.5 transition-all"
                 >
                   <Eye className="h-3.5 w-3.5" /> Detalhes
                 </button>
                 {asset.imageUri && (
-                  <a 
-                    href={asset.imageUri} 
-                    target="_blank" 
+                  <a
+                    href={asset.imageUri}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="h-8 w-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 flex items-center justify-center transition-all"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
                   </a>
+                )}
+                {onDelete && (
+                  <button
+                    onClick={() => handleDelete(asset)}
+                    disabled={deletingId === asset.id}
+                    className="h-8 w-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 flex items-center justify-center transition-all disabled:opacity-50"
+                  >
+                    {deletingId === asset.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                  </button>
                 )}
               </div>
             </motion.div>
@@ -267,14 +312,24 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list' }: Asse
                   </div>
                 </td>
                 <td className="px-4 py-4 text-center">
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-zinc-800 text-zinc-400 border border-white/[0.05]">
-                    {asset.assetType}
-                  </span>
+                  {asset.status === 'processing' ? (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 inline-flex items-center gap-1">
+                      <Clock className="h-3 w-3 animate-pulse" /> Processando
+                    </span>
+                  ) : asset.status === 'error' ? (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-red-500/10 text-red-400 border border-red-500/20 inline-flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" /> Erro
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-zinc-800 text-zinc-400 border border-white/[0.05]">
+                      {asset.assetType}
+                    </span>
+                  )}
                 </td>
                 <td className="px-4 py-4 text-center">
                   <div className="flex items-center justify-center gap-2">
                     <div className="h-1.5 w-12 rounded-full bg-zinc-800 overflow-hidden">
-                      <div 
+                      <div
                         className={cn(
                           "h-full rounded-full",
                           asset.score >= 80 ? "bg-emerald-500" : asset.score >= 50 ? "bg-amber-500" : "bg-red-500"
@@ -296,21 +351,30 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list' }: Asse
                 </td>
                 <td className="px-4 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <button 
+                    <button
                       onClick={() => handleViewDetails(asset)}
                       className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-500 hover:text-white transition-colors"
                     >
                       <Eye className="h-4 w-4" />
                     </button>
                     {asset.imageUri && (
-                      <a 
-                        href={asset.imageUri} 
-                        target="_blank" 
+                      <a
+                        href={asset.imageUri}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-500 hover:text-white transition-colors"
                       >
                         <ExternalLink className="h-4 w-4" />
                       </a>
+                    )}
+                    {onDelete && (
+                      <button
+                        onClick={() => handleDelete(asset)}
+                        disabled={deletingId === asset.id}
+                        className="p-1.5 rounded-md hover:bg-red-500/10 text-zinc-500 hover:text-red-400 transition-colors disabled:opacity-50"
+                      >
+                        {deletingId === asset.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                      </button>
                     )}
                   </div>
                 </td>
@@ -321,10 +385,14 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list' }: Asse
       </div>
       )}
 
-      <AssetDetailModal 
+      <AssetDetailModal
         asset={selectedAsset}
         isOpen={isModalOpen}
         onOpenChange={setIsModalOpen}
+        onDelete={onDelete ? async (id) => {
+          await onDelete(id);
+          setIsModalOpen(false);
+        } : undefined}
       />
     </div>
   );

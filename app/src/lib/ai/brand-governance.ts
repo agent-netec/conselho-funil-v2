@@ -65,12 +65,18 @@ export async function updateLogoLock(
     asset.svgRaw = sanitizeSvg(asset.svgRaw);
   }
 
+  const rawVariants = {
+    ...brandData.brandKit?.logoLock?.variants,
+    [variant]: asset,
+  };
+  // Filter out undefined/null values to avoid Firestore errors
+  const cleanVariants = Object.fromEntries(
+    Object.entries(rawVariants).filter(([_, v]) => v !== undefined && v !== null)
+  );
+
   const updatedLogoLock = {
     ...brandData.brandKit?.logoLock,
-    variants: {
-      ...brandData.brandKit?.logoLock?.variants,
-      [variant]: asset,
-    },
+    variants: cleanVariants,
     updatedAt: Timestamp.now(),
   };
 

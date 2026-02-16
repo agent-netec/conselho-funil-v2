@@ -9,28 +9,33 @@ import {
 } from '@/components/ui/dialog';
 import { AssetMetric } from '@/lib/hooks/use-asset-metrics';
 import { motion } from 'framer-motion';
-import { 
-  ImageIcon, 
-  FileText, 
-  TrendingUp, 
-  MessageSquare, 
+import {
+  ImageIcon,
+  FileText,
+  TrendingUp,
+  MessageSquare,
   Zap,
   Target,
   Layout,
   Eye,
-  ArrowUpRight
+  ArrowUpRight,
+  Trash2,
+  Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 interface AssetDetailModalProps {
   asset: AssetMetric | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onDelete?: (assetId: string) => Promise<void>;
 }
 
-export function AssetDetailModal({ asset, isOpen, onOpenChange }: AssetDetailModalProps) {
+export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete }: AssetDetailModalProps) {
   const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   if (!asset) return null;
 
@@ -53,6 +58,9 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange }: AssetDetailMod
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl bg-zinc-950/90 backdrop-blur-2xl border-white/[0.08] text-white p-0 overflow-hidden shadow-2xl">
+        <DialogDescription className="sr-only">
+          Detalhes do ativo {asset.name || asset.assetType}
+        </DialogDescription>
         <div className="relative">
           {/* Header Visual */}
           <div className="h-32 w-full bg-gradient-to-br from-purple-500/20 via-emerald-500/10 to-zinc-950 border-b border-white/[0.05]" />
@@ -149,16 +157,36 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange }: AssetDetailMod
                   </div>
                 </div>
 
-                {/* Botão de Ação */}
-                <button 
-                  onClick={handleConsultCouncil}
-                  className="w-full group relative flex items-center justify-center gap-3 h-12 rounded-xl bg-white text-black font-black text-xs uppercase tracking-widest overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity" />
-                  <MessageSquare className="h-4 w-4" />
-                  Consultar Conselho sobre este Ativo
-                  <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                </button>
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleConsultCouncil}
+                    className="flex-1 group relative flex items-center justify-center gap-3 h-12 rounded-xl bg-white text-black font-black text-xs uppercase tracking-widest overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity" />
+                    <MessageSquare className="h-4 w-4" />
+                    Consultar Conselho
+                    <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </button>
+                  {onDelete && (
+                    <button
+                      onClick={async () => {
+                        if (!confirm('Tem certeza? Isso remove o asset e todos os chunks vetorizados.')) return;
+                        setIsDeleting(true);
+                        try {
+                          await onDelete(asset.id);
+                        } finally {
+                          setIsDeleting(false);
+                        }
+                      }}
+                      disabled={isDeleting}
+                      className="h-12 w-12 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 transition-all flex items-center justify-center disabled:opacity-50"
+                      aria-label="Deletar asset"
+                    >
+                      {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 

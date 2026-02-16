@@ -95,6 +95,32 @@ export async function checkPineconeHealth() {
 }
 
 /**
+ * Deletes all vectors for a given asset from Pinecone (brand namespace + visual + knowledge).
+ */
+export async function deleteFromPinecone(
+  assetId: string,
+  brandId: string
+): Promise<{ deleted: boolean }> {
+  if (typeof window !== 'undefined') return { deleted: false };
+
+  const index = await getPineconeIndex();
+  if (!index) return { deleted: false };
+
+  const namespacesToClean = [`brand_${brandId}`, 'knowledge', 'visual'];
+
+  for (const ns of namespacesToClean) {
+    try {
+      const target = index.namespace(ns);
+      await target.deleteMany({ assetId: { '$eq': assetId } });
+    } catch (err: any) {
+      console.warn(`[Pinecone] Failed to delete from namespace '${ns}':`, err.message);
+    }
+  }
+
+  return { deleted: true };
+}
+
+/**
  * Prepara vetor para upsert no Pinecone seguindo o contrato de ingestão.
  * Absorvido de pinecone-client.ts (SIG-ARC-01 / DT-11).
  */

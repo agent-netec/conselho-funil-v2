@@ -21,12 +21,13 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
   DialogTitle,
-  DialogTrigger 
+  DialogTrigger
 } from '@/components/ui/dialog';
 import { AssetUploader } from '@/components/brands/asset-uploader';
 import { useAuthStore } from '@/lib/stores/auth-store';
@@ -144,6 +145,27 @@ export default function AssetsPage() {
     }
   };
 
+  const handleDeleteAsset = async (assetId: string) => {
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch('/api/assets/delete', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ assetId, brandId: activeBrand?.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao deletar asset');
+      }
+
+      await refresh();
+      toast.success('Asset removido com sucesso');
+    } catch (err) {
+      console.error('Erro ao deletar asset:', err);
+      toast.error('Erro ao deletar asset');
+    }
+  };
+
   const handleExport = () => {
     if (filteredAssets.length === 0) {
       toast.error('Nenhum ativo para exportar');
@@ -217,6 +239,9 @@ export default function AssetsPage() {
                     <ShieldCheck className="h-5 w-5 text-emerald-500" />
                     Alimentar Inteligência
                   </DialogTitle>
+                  <DialogDescription className="sr-only">
+                    Faça upload de arquivos ou adicione URLs para enriquecer a inteligência da marca.
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="mt-4">
                   <AssetUploader 
@@ -341,10 +366,11 @@ export default function AssetsPage() {
           </div>
           
           <div className="p-2">
-            <AssetMetricsTable 
-              assets={filteredAssets} 
-              isLoading={isLoading} 
+            <AssetMetricsTable
+              assets={filteredAssets}
+              isLoading={isLoading}
               viewMode={viewMode}
+              onDelete={handleDeleteAsset}
             />
           </div>
         </div>
