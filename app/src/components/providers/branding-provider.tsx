@@ -18,14 +18,25 @@ const DEFAULT_BRANDING: AgencyBranding = {
 
 const BrandingContext = createContext<BrandingContextType | undefined>(undefined);
 
-export function BrandingProvider({ 
-  children, 
-  initialBranding 
-}: { 
+export function BrandingProvider({
+  children,
+  initialBranding
+}: {
   children: React.ReactNode;
   initialBranding?: AgencyBranding;
 }) {
-  const [branding, setBranding] = useState<AgencyBranding>(initialBranding || DEFAULT_BRANDING);
+  const [branding, setBranding] = useState<AgencyBranding>(() => {
+    // J-1.5: Load persisted branding from localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('cf-branding');
+        if (stored) return JSON.parse(stored);
+      } catch {
+        // ignore parse errors
+      }
+    }
+    return initialBranding || DEFAULT_BRANDING;
+  });
 
   useEffect(() => {
     // Injeta as variáveis CSS no :root
