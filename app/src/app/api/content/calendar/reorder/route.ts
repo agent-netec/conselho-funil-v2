@@ -10,6 +10,7 @@ import { NextRequest } from 'next/server';
 import { Timestamp } from 'firebase/firestore';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 import { reorderCalendarItems } from '@/lib/firebase/content-calendar';
 import type { ReorderUpdate } from '@/types/content';
 
@@ -27,7 +28,11 @@ export async function POST(req: NextRequest) {
       return createApiError(400, 'Missing required fields: brandId, updates[]');
     }
 
-    await requireBrandAccess(req, brandId);
+    try {
+      await requireBrandAccess(req, brandId);
+    } catch (error) {
+      return handleSecurityError(error);
+    }
 
     // Converter scheduledDate de ms para Timestamp se presente
     const typedUpdates: ReorderUpdate[] = updates.map((u) => ({
@@ -42,7 +47,6 @@ export async function POST(req: NextRequest) {
 
     return createApiSuccess({ reordered: true, count: updates.length });
   } catch (error) {
-    if (error instanceof Response) return error;
     console.error('[ContentCalendar] Reorder error:', error);
     return createApiError(500, 'Failed to reorder calendar items');
   }

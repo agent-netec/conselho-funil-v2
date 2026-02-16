@@ -11,6 +11,7 @@
 import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 import { transitionStatus } from '@/lib/content/approval-engine';
 import type { ApprovalAction } from '@/types/content';
 
@@ -36,7 +37,11 @@ export async function POST(req: NextRequest) {
       return createApiError(400, `Invalid action: ${action}. Valid: ${VALID_ACTIONS.join(', ')}`);
     }
 
-    await requireBrandAccess(req, brandId);
+    try {
+      await requireBrandAccess(req, brandId);
+    } catch (error) {
+      return handleSecurityError(error);
+    }
 
     const result = await transitionStatus(brandId, itemId, action, comment);
 
@@ -46,7 +51,6 @@ export async function POST(req: NextRequest) {
 
     return createApiSuccess({ item: result.item });
   } catch (error) {
-    if (error instanceof Response) return error;
     console.error('[ContentApprove] POST error:', error);
     return createApiError(500, 'Failed to process approval action');
   }

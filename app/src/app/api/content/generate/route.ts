@@ -10,6 +10,7 @@ import { NextRequest } from 'next/server';
 import { Timestamp } from 'firebase/firestore';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 import { generateContent } from '@/lib/content/generation-engine';
 import { createCalendarItem } from '@/lib/firebase/content-calendar';
 import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
@@ -36,7 +37,11 @@ export async function POST(req: NextRequest) {
       return createApiError(400, 'Missing required fields: brandId, format, platform, topic');
     }
 
-    await requireBrandAccess(req, brandId);
+    try {
+      await requireBrandAccess(req, brandId);
+    } catch (error) {
+      return handleSecurityError(error);
+    }
 
     // Gerar conteudo
     const result = await generateContent(brandId, {
@@ -76,7 +81,6 @@ export async function POST(req: NextRequest) {
 
     return createApiSuccess(result);
   } catch (error) {
-    if (error instanceof Response) return error;
     console.error('[ContentGenerate] POST error:', error);
     return createApiError(500, 'Failed to generate content');
   }

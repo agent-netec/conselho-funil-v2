@@ -189,13 +189,19 @@ Paralelos possíveis:
 
 **Arquivos:** `api/assets/metrics/route.ts`, `api/assets/delete/route.ts` (novo), `brand-kit-form.tsx`, `brand-governance.ts`, `metrics-table.tsx`, `asset-detail-modal.tsx`, `assets/page.tsx`, `brands/[id]/assets/page.tsx`, `pinecone.ts`, `use-asset-metrics.ts`
 
-#### J-3. Calendar — Fix Error 500
+#### J-3. Calendar — Fix Error 500 ✅
 **Origem:** `roadmap-calendar-v2.md` Fase 1.1
+**Status:** CONCLUÍDO (2026-02-16) — Commit `76417184c`
 
-- [ ] J-3.1 — Extrair `requireBrandAccess` para try/catch separado com `handleSecurityError()` em TODOS os handlers (POST, PUT, DELETE)
-- [ ] J-3.2 — Aplicar mesmo fix em `reorder/route.ts`, `approve/route.ts`, `generate/route.ts`
+- [x] J-3.1 — Extrair `requireBrandAccess` para try/catch separado com `handleSecurityError()` em TODOS os handlers de `calendar/route.ts` (GET, POST, PUT, DELETE). Adicionado import de `handleSecurityError`. Removido `if (error instanceof Response)` inútil
+- [x] J-3.2 — Aplicar mesmo fix em `reorder/route.ts` (1 handler POST)
+- [x] J-3.3 — Aplicar mesmo fix em `approve/route.ts` (1 handler POST)
+- [x] J-3.4 — Aplicar mesmo fix em `generate/route.ts` (1 handler POST). Removido `if (error instanceof Response)` inútil
 
-**Arquivos:** `api/content/calendar/route.ts`, `reorder/route.ts`, `approve/route.ts`, `generate/route.ts`
+**Bug:** `requireBrandAccess()` lança `ApiError` (extends `Error`), mas catch verificava `instanceof Response` — nunca true. Todos os erros 401/403/404 caíam no 500 genérico.
+**Fix:** Try/catch separado para auth com `handleSecurityError()`, padrão já usado em 15+ routes (social/hooks, chat, design, admin, etc.)
+
+**Arquivos:** `api/content/calendar/route.ts`, `reorder/route.ts`, `approve/route.ts`, `api/content/generate/route.ts`
 
 #### J-4. Automation — Fix Valores Hardcoded
 **Origem:** `roadmap-automation-v2.md` Fase 1
