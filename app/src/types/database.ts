@@ -31,6 +31,7 @@ export interface User {
   credits: number;     // US-16.1
   usage: number;       // US-16.1
   preferences?: UserPreferences;
+  onboardingCompleted?: boolean; // L-4: Post-signup onboarding
   createdAt: Timestamp;
   lastLogin: Timestamp;
 }

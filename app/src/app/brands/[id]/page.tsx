@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Header } from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ import type { Brand } from '@/types/database';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BrandKitForm } from '@/components/brands/brand-kit-form';
 import { ProjectList } from '@/components/brands/project-list';
+import { BrandCompleteness } from '@/components/brands/brand-completeness';
 
 const VOICE_TONE_LABELS: Record<string, string> = {
   professional: 'Profissional 👔',
@@ -51,7 +52,9 @@ const OFFER_TYPE_LABELS: Record<string, string> = {
 export default function BrandDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const brandId = params.id as string;
+  const defaultTab = searchParams.get('tab') || 'overview';
   const { getById, remove } = useBrands();
   const { selectedBrand, setSelectedBrand } = useBrandStore();
   const [brand, setBrand] = useState<Brand | null>(null);
@@ -172,7 +175,10 @@ export default function BrandDetailPage() {
             </motion.div>
           )}
 
-          <Tabs defaultValue="overview" className="space-y-6">
+          {/* Brand Completeness */}
+          <BrandCompleteness brand={brand} mode="detailed" brandId={brandId} />
+
+          <Tabs defaultValue={defaultTab} className="space-y-6">
             <TabsList className="bg-white/5 border border-white/10 p-1">
               <TabsTrigger value="overview">Visão Geral</TabsTrigger>
               <TabsTrigger value="projects">Projetos</TabsTrigger>

@@ -292,7 +292,8 @@ export default function ContentCalendarPage() {
       ) : !selectedBrand?.id ? (
         <div className="flex flex-col items-center justify-center h-64 text-zinc-500">
           <Calendar className="h-12 w-12 mb-3 opacity-30" />
-          <p className="text-sm">Selecione uma marca para ver o calendario</p>
+          <p className="text-sm mb-1">Selecione uma marca para ver o calendario</p>
+          <p className="text-xs text-zinc-600">Crie conteudo para redes sociais com datas e horarios otimizados pela IA.</p>
         </div>
       ) : (
         <CalendarView

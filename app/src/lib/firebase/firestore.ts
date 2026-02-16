@@ -55,6 +55,7 @@ export async function createUser(userId: string, data: Omit<User, 'id' | 'create
     ...data,
     credits: 10, // Default: 10 credits (US-16.1)
     usage: 0,
+    onboardingCompleted: false, // L-4: Post-signup onboarding
     createdAt: now,
     lastLogin: now,
   });

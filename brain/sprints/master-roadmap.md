@@ -346,48 +346,54 @@ Paralelos possíveis:
 > **Milestone:** 🎯 Friends Testing
 > **Princípio:** Usuário novo consegue configurar marca completa sem se perder
 
-#### L-1. Wizard de Criação Expandido (6-7 Steps)
+#### L-1. Wizard de Criação Expandido (6-7 Steps) ✅ CONCLUÍDO
 **Origem:** `roadmap-brand-hub-v2.md` Fase 1
 
-- [ ] L-1.1 — Manter steps atuais: Identity → Audience → Offer
-- [ ] L-1.2 — **Novo Step 4: Visual Identity** — Cores (primary, secondary, accent), visual style, tipografia
-- [ ] L-1.3 — **Novo Step 5: Logo** — Upload com preview, Logo Lock toggle
-- [ ] L-1.4 — **Novo Step 6: AI Configuration** — Preset rápido (Agressivo/Sóbrio/Criativo/Equilibrado)
-- [ ] L-1.5 — **Step 7: Confirmação** — Review completo de TODOS os dados
-- [ ] L-1.6 — Cada step OPCIONAL (exceto Identity) com "Pular por agora"
-- [ ] L-1.7 — Progress bar de completude da marca
+- [x] L-1.1 — Manter steps atuais: Identity → Audience → Offer
+- [x] L-1.2 — **Novo Step 4: Visual Identity** — Cores (primary, secondary, accent), visual style, tipografia
+- [x] L-1.3 — **Novo Step 5: Logo** — Upload com preview, Logo Lock toggle
+- [x] L-1.4 — **Novo Step 6: AI Configuration** — Preset rápido (Agressivo/Sóbrio/Criativo/Equilibrado)
+- [x] L-1.5 — **Step 7: Confirmação** — Review completo de TODOS os dados
+- [x] L-1.6 — Cada step OPCIONAL (exceto Identity) com "Pular por agora"
+- [x] L-1.7 — Progress bar de completude da marca
 
 **Arquivo:** `app/src/app/brands/new/page.tsx`
+**Novos:** `step-visual-identity.tsx`, `step-logo.tsx`, `step-ai-config.tsx`
 
-#### L-2. Brand Completeness Score
+#### L-2. Brand Completeness Score ✅ CONCLUÍDO
 **Origem:** `roadmap-brand-hub-v2.md` Fase 1.2
 
-- [ ] L-2.1 — Indicador visual na listagem e header: "Marca 60% configurada"
-- [ ] L-2.2 — Nudge: "Complete o Brand Hub para resultados melhores"
-- [ ] L-2.3 — Campos rastreados: nome, audience, offer, cores, logo, AI config, assets
+- [x] L-2.1 — Indicador visual na listagem e header: "Marca 60% configurada"
+- [x] L-2.2 — Nudge: "Complete o Brand Hub para resultados melhores"
+- [x] L-2.3 — Campos rastreados: nome, audience, offer, cores, logo, AI config, assets
 
 **Arquivo novo:** `app/src/components/brands/brand-completeness.tsx`
+**Utilitário:** `app/src/lib/utils/brand-completeness.ts`
 
-#### L-3. Eliminar Duplicação brand-hub vs brands/[id]
+#### L-3. Eliminar Duplicação brand-hub vs brands/[id] ✅ CONCLUÍDO
 **Origem:** `roadmap-brand-hub-v2.md` Fase 1.3
 
-- [ ] L-3.1 — Manter `/brands/{id}` com tabs como página principal
-- [ ] L-3.2 — Redirecionar `/brand-hub` para `/brands/{selectedBrandId}` tab Brand Hub
+- [x] L-3.1 — Manter `/brands/{id}` com tabs como página principal (+ suporte `?tab=`)
+- [x] L-3.2 — Redirecionar `/brand-hub` para `/brands/{selectedBrandId}` tab Brand Hub
 
-#### L-4. Onboarding Pós-Signup
+#### L-4. Onboarding Pós-Signup ✅ CONCLUÍDO
 **Origem:** `roadmap-product-launch.md` Parte 3, Seção E
 
-- [ ] L-4.1 — Welcome screen após signup: explicação rápida do produto (30s)
-- [ ] L-4.2 — Primeira ação guiada: "Consultar o Conselho" OU "Criar funil" OU "Analisar concorrente"
-- [ ] L-4.3 — Checklist persistente no sidebar: itens de setup com progresso %
-- [ ] L-4.4 — Fix Quick Action "/library" (rota não existe)
+- [x] L-4.1 — Welcome screen após signup: explicação rápida do produto (30s)
+- [x] L-4.2 — Primeira ação guiada: "Consultar o Conselho" OU "Criar funil" OU "Analisar concorrente"
+- [x] L-4.3 — Checklist persistente no sidebar: itens de setup com progresso %
+- [x] L-4.4 — Fix Quick Action "/library" (rota verificada — existe em `/app/src/app/library/page.tsx`)
 
-#### L-5. Empty States Guiados
+**Novos:** `welcome/page.tsx`, `onboarding-store.ts`, `onboarding-checklist.tsx`
+
+#### L-5. Empty States Guiados ✅ CONCLUÍDO
 **Origem:** `roadmap-product-launch.md` Parte 3, Seção E.3
 
-- [ ] L-5.1 — Cada página com 0 items: explicação + CTA + mini tutorial
-- [ ] L-5.2 — Exemplos: Calendar vazio → "Crie seu primeiro conteúdo", Assets vazio → "Faça upload do brand book"
-- [ ] L-5.3 — Dashboard redesign para novos usuários (cards informativos em vez de zeros)
+- [x] L-5.1 — Cada página com 0 items: explicação + CTA + mini tutorial
+- [x] L-5.2 — Exemplos: Calendar vazio → "Crie seu primeiro conteúdo", Assets vazio → "Faça upload do brand book"
+- [x] L-5.3 — Dashboard redesign para novos usuários (cards informativos em vez de zeros)
+
+**Novo:** `app/src/components/ui/guided-empty-state.tsx`
 
 #### Critério de aprovação Sprint L
 

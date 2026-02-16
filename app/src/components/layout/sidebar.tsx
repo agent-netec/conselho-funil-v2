@@ -26,6 +26,7 @@ import { useMobile } from '@/lib/hooks/use-mobile';
 import { getUnreadNotificationCount, markNotificationsAsRead } from '@/lib/firebase/automation';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { UserUsageWidget } from './user-usage-widget';
+import { OnboardingChecklist } from './onboarding-checklist';
 import { CONFIG } from '@/lib/config';
 import { setCredits } from '@/lib/firebase/firestore';
 import { RefreshCw } from 'lucide-react';
@@ -350,6 +351,9 @@ export function Sidebar() {
             );
           })}
         </nav>
+
+        {/* Onboarding Checklist — L-4 */}
+        <OnboardingChecklist isMobile={isMobile} />
 
         {/* Bottom section */}
         <div className={cn(

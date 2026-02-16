@@ -2,6 +2,7 @@
 import { useState, ChangeEvent, FormEvent, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { signupWithEmail } from '@/lib/firebase/auth';
+import { createUser } from '@/lib/firebase/firestore';
 import {
   Ripple,
   AuthTabs,
@@ -197,8 +198,18 @@ export default function SignupPage() {
     setIsLoading(true);
 
     try {
-      await signupWithEmail(formData.email, formData.password, formData.name);
-      router.push('/');
+      const firebaseUser = await signupWithEmail(formData.email, formData.password, formData.name);
+      // L-4: Create Firestore user document
+      try {
+        await createUser(firebaseUser.uid, {
+          email: formData.email,
+          name: formData.name,
+          role: 'admin',
+        });
+      } catch (firestoreErr) {
+        console.error('Failed to create Firestore user doc:', firestoreErr);
+      }
+      router.push('/welcome');
     } catch (err: any) {
       if (err.code === 'auth/email-already-in-use') {
         setError('Este email já está em uso');

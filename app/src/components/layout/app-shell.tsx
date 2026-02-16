@@ -94,6 +94,7 @@ export function AppShell({ children }: AppShellProps) {
 
   const isPublicPage = PUBLIC_PATHS.includes(pathname);
   const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/signup');
+  const isWelcomePage = pathname === '/welcome';
 
   useEffect(() => {
     if (!isInitialized) return;
@@ -134,8 +135,8 @@ export function AppShell({ children }: AppShellProps) {
     );
   }
 
-  // Auth pages - no sidebar
-  if (isAuthPage) {
+  // Welcome page & Auth pages - no sidebar
+  if (isAuthPage || isWelcomePage) {
     return (
       <div className="min-h-screen bg-[#09090b]">
         {/* Background effects */}

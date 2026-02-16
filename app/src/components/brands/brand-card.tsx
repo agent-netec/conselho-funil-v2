@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Brand } from '@/types/database';
 import { cn } from '@/lib/utils';
+import { calculateBrandCompleteness } from '@/lib/utils/brand-completeness';
 
 interface BrandCardProps {
   brand: Brand;
@@ -15,9 +16,8 @@ interface BrandCardProps {
 }
 
 export function BrandCard({ brand, onEdit, onDelete, delay = 0 }: BrandCardProps) {
-  // Simulação de AHI (Asset Health Index) para o badge (ST-12.3)
-  // Em uma implementação real, isso viria de uma média dos assets da marca
-  const ahiScore = 92; 
+  const completeness = calculateBrandCompleteness(brand);
+  const ahiScore = completeness.score;
   const ahiStatus = ahiScore > 85 ? 'winner' : ahiScore < 60 ? 'critical' : 'stable';
 
   return (
@@ -104,15 +104,18 @@ export function BrandCard({ brand, onEdit, onDelete, delay = 0 }: BrandCardProps
           <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-zinc-600">
             <div className="flex items-center gap-2">
               <Activity className="h-3 w-3" />
-              <span>Contexto RAG</span>
+              <span>Completude</span>
             </div>
-            <span className="text-emerald-500">85%</span>
+            <span className={ahiScore >= 80 ? 'text-emerald-500' : ahiScore >= 50 ? 'text-amber-500' : 'text-red-500'}>{ahiScore}%</span>
           </div>
           <div className="h-1 w-full bg-zinc-900 rounded-full overflow-hidden">
-            <motion.div 
+            <motion.div
               initial={{ width: 0 }}
-              animate={{ width: '85%' }}
-              className="h-full bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full"
+              animate={{ width: `${ahiScore}%` }}
+              className={cn(
+                'h-full rounded-full',
+                ahiScore >= 80 ? 'bg-gradient-to-r from-emerald-500 to-blue-500' : ahiScore >= 50 ? 'bg-amber-500' : 'bg-red-500'
+              )}
             />
           </div>
           
