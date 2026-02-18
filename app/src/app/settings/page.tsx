@@ -26,8 +26,8 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { useUser } from '@/lib/hooks/use-user';
 import { logout } from '@/lib/firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { saveIntegration, getIntegrations, getUserPreferences, updateUserPreferences } from '@/lib/firebase/firestore';
-import { Integration, UserPreferences } from '@/types/database';
+import { getUserPreferences, updateUserPreferences } from '@/lib/firebase/firestore';
+import { UserPreferences } from '@/types/database';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
@@ -86,25 +86,8 @@ export default function SettingsPage() {
   }, [authUser?.displayName]);
 
   // ============================================
-  // INTEGRATIONS STATE
+  // INTEGRATIONS — Moved to /integrations (Sprint U-1.3)
   // ============================================
-  const [integrations, setIntegrations] = useState<Integration[]>([]);
-  const [metaConfig, setMetaConfig] = useState({ adAccountId: '', accessToken: '' });
-
-  useEffect(() => {
-    async function loadIntegrations() {
-      if (user?.tenantId) {
-        const data = await getIntegrations(user.tenantId);
-        setIntegrations(data);
-
-        const meta = data.find(i => i.provider === 'meta');
-        if (meta) {
-          setMetaConfig(meta.config);
-        }
-      }
-    }
-    loadIntegrations();
-  }, [user?.tenantId]);
 
   // ============================================
   // SECURITY STATE (J-1.3)
@@ -277,25 +260,7 @@ export default function SettingsPage() {
     }
   };
 
-  const handleSaveIntegrations = async () => {
-    setIsSaving(true);
-    setError(null);
-    try {
-      if (user?.tenantId) {
-        await saveIntegration(user.tenantId, 'meta', metaConfig);
-        const data = await getIntegrations(user.tenantId);
-        setIntegrations(data);
-      }
-      setSaved(true);
-      toast.success('Integração salva!');
-      setTimeout(() => setSaved(false), 2000);
-    } catch (err) {
-      console.error('Error saving integration:', err);
-      toast.error('Erro ao salvar integração.');
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  // handleSaveIntegrations removed — Sprint U-1.3: integrations managed at /integrations
 
   const handleSavePassword = async () => {
     setPasswordError(null);
@@ -391,7 +356,7 @@ export default function SettingsPage() {
       case 'profile':
         return handleSaveProfile();
       case 'integrations':
-        return handleSaveIntegrations();
+        return; // Managed at /integrations
       case 'security':
         return handleSavePassword();
       case 'appearance':
@@ -584,95 +549,22 @@ export default function SettingsPage() {
                 )}
 
                 {activeTab === 'integrations' && (
-                  <div className="space-y-6">
-                    <div className="card-premium p-6">
-                      <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-white">
-                          Conectar Meta Ads
-                        </h3>
-                        {integrations.find(i => i.provider === 'meta') && (
-                          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
-                            <div className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" />
-                            Ativo
-                          </span>
-                        )}
-                      </div>
-                      
-                      <p className="text-zinc-500 mb-8 text-sm leading-relaxed">
-                        Conecte sua conta de anúncios da Meta para permitir que o Conselho 
-                        analise suas métricas de performance e sugira otimizações baseadas em dados reais.
-                      </p>
-
-                      <div className="space-y-5">
-                        <div>
-                          <label className="block text-sm font-medium text-zinc-300 mb-2">
-                            ID da Conta de Anúncios (Ad Account ID)
-                          </label>
-                          <Input
-                            placeholder="act_123456789..."
-                            value={metaConfig.adAccountId}
-                            onChange={(e) => setMetaConfig({ ...metaConfig, adAccountId: e.target.value })}
-                            className="input-premium"
-                          />
-                          <p className="mt-2 text-[11px] text-zinc-500 flex items-center gap-1.5">
-                            Localizado nas Configurações do Gerenciador de Negócios.
-                            <a href="https://adsmanager.facebook.com/adsmanager/manage/campaigns" target="_blank" rel="noreferrer" className="text-emerald-500 hover:underline inline-flex items-center gap-1">
-                              Abrir Gerenciador <ExternalLink className="h-2 w-2" />
-                            </a>
-                          </p>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-zinc-300 mb-2">
-                            Token de Acesso (System User Token)
-                          </label>
-                          <Input
-                            type="password"
-                            placeholder="EAA..."
-                            value={metaConfig.accessToken}
-                            onChange={(e) => setMetaConfig({ ...metaConfig, accessToken: e.target.value })}
-                            className="input-premium"
-                          />
-                          <p className="mt-2 text-[11px] text-zinc-500 flex items-center gap-1.5">
-                            Gere um token permanente em Usuários do Sistema.
-                            <a href="https://business.facebook.com/settings/system-users" target="_blank" rel="noreferrer" className="text-emerald-500 hover:underline inline-flex items-center gap-1">
-                              Configurações do Negócio <ExternalLink className="h-2 w-2" />
-                            </a>
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-8 p-4 rounded-xl bg-zinc-900/50 border border-white/[0.04]">
-                        <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
-                          Permissões Necessárias
-                        </h4>
-                        <ul className="space-y-2">
-                          {[
-                            'ads_read',
-                            'read_insights',
-                            'ads_management (opcional para automação)'
-                          ].map((perm) => (
-                            <li key={perm} className="flex items-center gap-2 text-xs text-zinc-500">
-                              <div className="h-1 w-1 rounded-full bg-emerald-500/50" />
-                              {perm}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end">
-                      <Button onClick={handleSave} className="btn-accent" disabled={isSaving}>
-                        {isSaving ? (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : saved ? (
-                          <Check className="mr-2 h-4 w-4" />
-                        ) : (
-                          <Save className="mr-2 h-4 w-4" />
-                        )}
-                        {saved ? 'Salvo!' : 'Salvar Integração'}
-                      </Button>
-                    </div>
+                  <div className="card-premium p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4">
+                      Central de Integrações
+                    </h3>
+                    <p className="text-zinc-400 mb-6 text-sm leading-relaxed">
+                      Todas as integrações (Ads, Redes Sociais, Comunicação e Dados) são
+                      gerenciadas na <strong className="text-white">Central de Integrações</strong>,
+                      onde você pode conectar, validar e monitorar a saúde de cada conexão.
+                    </p>
+                    <Link
+                      href="/integrations"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 text-sm font-medium hover:bg-emerald-500/20 transition-colors"
+                    >
+                      Abrir Central de Integrações
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
                   </div>
                 )}
 

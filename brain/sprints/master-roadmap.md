@@ -49,7 +49,7 @@ A nova sequência prioriza: `Corrigir bugs → Polir UX → Onboarding → Evolu
 | **R** | Production Hardening | Segurança, performance, monitoring, LGPD | J | ~2-3 | 🚀 Public Launch |
 | **S** | Data Pipeline Foundation | Tracking pixel, webhooks, lead journey, ads sync | J | ~4-5 | 📊 Data-Driven |
 | **T** | Analytics Activation | Attribution, LTV, Cohort, Real-Time, Cross-Channel | S | ~2-3 | 📊 Data-Driven |
-| **U** | OAuth & Integrations Hub | OAuth flows (Meta/Google/TikTok), Central de Integrações | R | ~3-4 | 🏗️ Full Platform |
+| **U** ✅ | OAuth & Integrations Hub | OAuth flows (Meta/Google/TikTok/LinkedIn/Instagram), Central de Integrações | R | ~3-4 | 🏗️ Full Platform |
 | **V** | OAuth-Powered Features | Publicação real, Social Command Center, Import de criativos | U | ~3-4 | 🏗️ Full Platform |
 | **W** | Automation v2 Full & Content Analytics | Regras compostas, conselho de ads, execução real, feedback loop | U, T | ~3-4 | 🏗️ Full Platform |
 | **X** | Advanced Features & Polish | Voice avançado, DNA, A/B testing, versionamento, Glimpse | V, W | ~2-3 | 🏗️ Full Platform |
@@ -887,29 +887,29 @@ Paralelos possíveis:
 #### U-1. Reorganizar Central de Integrações
 **Origem:** `roadmap-settings-v2.md` Fase 3
 
-- [ ] U-1.1 — Reorganizar em categorias: Ads, Redes Sociais, Comunicação, Pesquisa & Dados
-- [ ] U-1.2 — Expandir de 3 para 15+ cards com status
-- [ ] U-1.3 — Eliminar duplicação `/integrations` vs `/settings` tab Integrações
-- [ ] U-1.4 — Health Dashboard: status real-time, último sync, rate limit, alertas de expiração
+- [x] U-1.1 — Reorganizar em categorias: Ads, Redes Sociais, Comunicação, Pesquisa & Dados
+- [x] U-1.2 — Expandir de 3 para 15+ cards com status (14 integrations: 4 ads, 4 social, 3 communication, 3 data)
+- [x] U-1.3 — Eliminar duplicação `/integrations` vs `/settings` tab Integrações (redirect para /integrations)
+- [x] U-1.4 — Health Dashboard: status real-time, último sync, alertas de expiração de tokens
 
 #### U-2. OAuth Flows
 **Origem:** `roadmap-settings-v2.md` Fase 3.6
 
-- [ ] U-2.1 — **Meta OAuth:** `api/auth/meta/callback/route.ts` → fb_exchange_token → long-lived → auto-refresh
-- [ ] U-2.2 — **Google OAuth:** `api/auth/google/callback/route.ts` → refresh_token → auto-refresh
-- [ ] U-2.3 — **Instagram OAuth:** Compartilha Graph API com Meta
-- [ ] U-2.4 — **LinkedIn OAuth:** `api/auth/linkedin/callback/route.ts`
-- [ ] U-2.5 — **TikTok OAuth:** `api/auth/tiktok/callback/route.ts`
+- [x] U-2.1 — **Meta OAuth:** `api/auth/meta/callback/route.ts` → fb_exchange_token → long-lived → auto-refresh
+- [x] U-2.2 — **Google OAuth:** `api/auth/google/callback/route.ts` → refresh_token → auto-refresh
+- [x] U-2.3 — **Instagram OAuth:** `api/auth/instagram/callback/route.ts` — Graph API com Meta
+- [x] U-2.4 — **LinkedIn OAuth:** `api/auth/linkedin/callback/route.ts`
+- [x] U-2.5 — **TikTok OAuth:** `api/auth/tiktok/callback/route.ts`
 
 #### U-3. Validação e Token Management
-- [ ] U-3.1 — Pre-save validation: chamar `/api/performance/integrations/validate` (endpoint JÁ EXISTE)
-- [ ] U-3.2 — Coletar appId/appSecret para auto-refresh (hoje não coletados)
-- [ ] U-3.3 — Token storage dual: `tenants/{tenantId}/integrations` + `MonaraTokenVault`
+- [x] U-3.1 — Pre-save validation: botão "Validar" chama `/api/performance/integrations/validate` + validação Slack URL
+- [x] U-3.2 — Coletar appId/appSecret para Meta, full creds para Google (clientId, clientSecret, refreshToken, developerToken)
+- [x] U-3.3 — Token storage dual: `tenants/{tenantId}/integrations` + `MonaraTokenVault` em todos os saves
 
 #### U-4. Comunicação
-- [ ] U-4.1 — **Slack:** UI config para webhook URL (backend JÁ FUNCIONA)
-- [ ] U-4.2 — **WhatsApp Business:** Formulário Phone Number ID + Access Token
-- [ ] U-4.3 — **Email (SendGrid/Resend):** API Key + From Address — necessário para email verification
+- [x] U-4.1 — **Slack:** UI config para webhook URL + channel name (backend em lib/notifications/slack.ts)
+- [x] U-4.2 — **WhatsApp Business:** Formulário Phone Number ID + Access Token
+- [x] U-4.3 — **Email (SendGrid/Resend):** API Key + From Address + From Name + Provider select
 
 ---
 

@@ -675,12 +675,23 @@ export interface CopyDecision {
 // INTEGRATION (subcollection de Tenant)
 // ============================================
 
+export type IntegrationProvider =
+  | 'meta' | 'google' | 'tiktok' | 'linkedin' | 'instagram'
+  | 'facebook_pages' | 'pinterest' | 'youtube'
+  | 'slack' | 'whatsapp' | 'email'
+  | 'google_analytics' | 'search_console' | 'dataforseo';
+
+export type IntegrationCategory = 'ads' | 'social' | 'communication' | 'data';
+
 export interface Integration {
   id: string;
   tenantId: string;
-  provider: 'meta' | 'google' | 'tiktok';
-  status: 'active' | 'expired' | 'revoked';
-  config: MetaIntegrationConfig | any;
+  provider: IntegrationProvider;
+  status: 'active' | 'expired' | 'revoked' | 'error';
+  config: Record<string, any>;
+  lastSyncAt?: Timestamp;
+  lastValidatedAt?: Timestamp;
+  expiresAt?: Timestamp;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -688,6 +699,34 @@ export interface Integration {
 export interface MetaIntegrationConfig {
   adAccountId: string;
   accessToken: string;
+  appId?: string;
+  appSecret?: string;
+}
+
+export interface GoogleIntegrationConfig {
+  customerId: string;
+  developerToken: string;
+  clientId: string;
+  clientSecret: string;
+  refreshToken: string;
+  accessToken: string;
+}
+
+export interface SlackIntegrationConfig {
+  webhookUrl: string;
+  channelName?: string;
+}
+
+export interface WhatsAppIntegrationConfig {
+  phoneNumberId: string;
+  accessToken: string;
+}
+
+export interface EmailIntegrationConfig {
+  provider: 'sendgrid' | 'resend';
+  apiKey: string;
+  fromAddress: string;
+  fromName?: string;
 }
 
 // ============================================

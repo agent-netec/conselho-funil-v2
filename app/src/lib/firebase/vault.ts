@@ -50,9 +50,11 @@ export interface GoogleTokenMetadata {
 
 // ─── MonaraToken interface ───
 
+export type VaultProvider = 'meta' | 'google' | 'instagram' | 'linkedin' | 'tiktok' | 'stripe';
+
 export interface MonaraToken {
   brandId: string;
-  provider: 'meta' | 'google' | 'instagram' | 'stripe';
+  provider: VaultProvider;
   accessToken: string;
   refreshToken?: string;
   expiresAt: Timestamp;
@@ -89,7 +91,7 @@ export class MonaraTokenVault {
   /**
    * Recupera um token do Vault e o descriptografa.
    */
-  static async getToken(brandId: string, provider: MonaraToken['provider']): Promise<MonaraToken | null> {
+  static async getToken(brandId: string, provider: VaultProvider): Promise<MonaraToken | null> {
     const secretRef = doc(db, this.getCollectionPath(brandId), `token_${provider}`);
     const snap = await getDoc(secretRef);
 
