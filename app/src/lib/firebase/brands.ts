@@ -109,7 +109,8 @@ export async function updateBrandKit(brandId: string, kit: BrandKit) {
  * R-4.1: Cascade delete — remove brand and all subcollections.
  * Subcollections: content_calendar, automation_rules, automation_logs,
  * social_interactions, voice_profiles, funnels, conversations, proposals,
- * research, keywords, rate_limits, performance_metrics, performance_anomalies
+ * research, keywords, rate_limits, performance_metrics, performance_anomalies,
+ * transactions, webhook_idempotency
  */
 const BRAND_SUBCOLLECTIONS = [
   'content_calendar',
@@ -125,6 +126,8 @@ const BRAND_SUBCOLLECTIONS = [
   'rate_limits',
   'performance_metrics',
   'performance_anomalies',
+  'transactions',
+  'webhook_idempotency',
 ];
 
 async function deleteSubcollection(brandId: string, subcollectionName: string) {

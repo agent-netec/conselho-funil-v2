@@ -5,6 +5,10 @@
     {
       "path": "/api/cron/automation-evaluate",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/ads-sync",
+      "schedule": "0 */6 * * *"
     }
   ],
   "functions": {

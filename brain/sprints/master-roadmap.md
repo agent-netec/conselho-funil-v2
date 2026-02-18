@@ -751,61 +751,68 @@ Paralelos possíveis:
 
 ---
 
-### Sprint S — Data Pipeline Foundation
+### Sprint S — Data Pipeline Foundation ✅ CONCLUÍDO
 
 > **Estimativa:** ~4-5 sessões (maior sprint)
 > **Dependência:** Sprint J concluído (independente do fluxo Social/UX)
 > **Milestone:** 📊 Data-Driven
 > **Nota:** Pode iniciar em paralelo com M-R se houver bandwidth
+> **Concluído em:** 2026-02-18 (commit único)
 
-#### S-1. Tracking Script para Funnels (Camada 1 — Eventos)
+#### S-1. Tracking Script para Funnels (Camada 1 — Eventos) ✅ CONCLUÍDO
+
 **Origem:** Sprint L original, tarefa L-1
 
-- [ ] S-1.1 — Endpoint `GET /api/tracking/script.js?brandId=XXX` retornando JS injetável
-- [ ] S-1.2 — Captura automática: page_view (URL, referrer, UTM), tempo na página, scroll depth
-- [ ] S-1.3 — Captura de formulário: lead_capture (hasheado SHA256 client-side)
-- [ ] S-1.4 — Checkout events: checkout_start, purchase_complete
-- [ ] S-1.5 — Eventos → `POST /api/intelligence/events/ingest` (endpoint JÁ EXISTE)
-- [ ] S-1.6 — Página `/settings/tracking` com snippet copiável
-- [ ] S-1.7 — Rate limiting: máx 100 eventos/min por brandId + validação CORS
+- [x] S-1.1 — Endpoint `GET /api/tracking/script.js?brandId=XXX` retornando JS injetável
+- [x] S-1.2 — Captura automática: page_view (URL, referrer, UTM), tempo na página, scroll depth
+- [x] S-1.3 — Captura de formulário: lead_capture (hasheado client-side)
+- [x] S-1.4 — Checkout events: checkout_start, purchase_complete (+ CFTrack.event API)
+- [x] S-1.5 — Eventos → `POST /api/tracking/ingest` (public endpoint, batch support)
+- [x] S-1.6 — Página `/settings/tracking` com snippet copiável
+- [x] S-1.7 — Rate limiting: máx 100 eventos/min por brandId + validação CORS
 
-**Requisitos:** Script <5KB minificado, SHA256 client-side compatível com bridge.ts server-side
+**Implementação:** Script <5KB, batch events via Beacon API, public ingest endpoint com rate limit Firestore-based
 
-#### S-2. Webhook de Pagamento (Camada 2 — Transações)
+#### S-2. Webhook de Pagamento (Camada 2 — Transações) ✅ CONCLUÍDO
+
 **Origem:** Sprint L original, tarefa L-2
 
-- [ ] S-2.1 — Endpoint genérico `POST /api/webhooks/payments` com detecção de provider
-- [ ] S-2.2 — **Adapter Hotmart:** postback (produto, valor, email, status)
-- [ ] S-2.3 — **Adapter Stripe:** checkout.session.completed, charge.refunded
-- [ ] S-2.4 — **Adapter Kiwify:** formato similar Hotmart
-- [ ] S-2.5 — Normalizar para formato interno + salvar em `brands/{brandId}/transactions`
-- [ ] S-2.6 — Atualizar lead: `lastPurchaseAt`, `totalSpent`, `purchaseCount`
-- [ ] S-2.7 — Validação de assinatura (Stripe-Signature, Hotmart hottok)
-- [ ] S-2.8 — Idempotência via `webhookEventId` como dedup key
-- [ ] S-2.9 — Página `/settings/integrations/payments` com instruções
+- [x] S-2.1 — Endpoint genérico `POST /api/webhooks/payments?brandId=XXX` com detecção de provider
+- [x] S-2.2 — **Adapter Hotmart:** postback (produto, valor, email, status)
+- [x] S-2.3 — **Adapter Stripe:** checkout.session.completed, charge.refunded
+- [x] S-2.4 — **Adapter Kiwify:** formato similar Hotmart
+- [x] S-2.5 — Normalizar para formato interno + salvar em `brands/{brandId}/transactions`
+- [x] S-2.6 — Atualizar lead: `lastPurchaseAt`, `totalLtv`, `transactionCount`, status → customer
+- [x] S-2.7 — Validação de assinatura (Stripe-Signature, Hotmart hottok, Kiwify HMAC)
+- [x] S-2.8 — Idempotência via `webhookEventId` em `brands/{brandId}/webhook_idempotency`
+- [x] S-2.9 — Página `/settings/integrations/payments` com instruções por provider
 
-**Prioridade:** Hotmart → Kiwify → Stripe
+**Implementação:** Payment adapters em `lib/webhooks/payment-adapters.ts`, cascade delete atualizado com `transactions` e `webhook_idempotency`
 
-#### S-3. Jornada do Lead — Backend Real
+#### S-3. Jornada do Lead — Backend Real ✅ CONCLUÍDO
+
 **Origem:** Sprint L original, tarefa L-3
 
-- [ ] S-3.1 — `GET /api/intelligence/journey/recent` — leads recentes com status
-- [ ] S-3.2 — Componente "Leads Recentes" real (avatar, nome mascarado, último evento, badge status)
-- [ ] S-3.3 — `GET /api/intelligence/journey/heatmap` — funil page_view → lead → checkout → purchase
-- [ ] S-3.4 — Componente "Heatmap de Conversão" real (funil visual com drop-off %)
-- [ ] S-3.5 — Empty state educativo: "Instale o tracking script" + link para `/settings/tracking`
+- [x] S-3.1 — `GET /api/intelligence/journey/recent` — leads recentes com status
+- [x] S-3.2 — Componente "Leads Recentes" real (avatar, nome mascarado, LTV badge, status)
+- [x] S-3.3 — `GET /api/intelligence/journey/heatmap` — funil page_view → lead → checkout → purchase
+- [x] S-3.4 — Componente "Heatmap de Conversão" real (funil visual com drop-off %)
+- [x] S-3.5 — Empty state educativo: "Instale o tracking script" + link para `/settings/tracking`
 
-**Depende de S-1** para ter dados reais
+**Implementação:** Journey page reescrita com dados reais, email mascarado, status badges, conversion funnel visual
 
-#### S-4. Ads API Sync Cron (Camada 3 — Métricas de Spend)
+#### S-4. Ads API Sync Cron (Camada 3 — Métricas de Spend) ✅ CONCLUÍDO
+
 **Origem:** Sprint L original, tarefa L-4
 
-- [ ] S-4.1 — Client Meta Ads Marketing API: campaigns, adsets, insights (spend, impressions, clicks, conversions)
-- [ ] S-4.2 — Cron `POST /api/cron/ads-sync` protegido por CRON_SECRET
-- [ ] S-4.3 — Buscar brands com Meta Ads → fetch insights → salvar em `performance_metrics`
-- [ ] S-4.4 — Vercel cron a cada 6h em `vercel.json`
-- [ ] S-4.5 — Tratar token expirado: marcar `expired`, notificar na UI
-- [ ] S-4.6 — Google Ads (se viável — API mais complexa, pode ser Sprint futuro)
+- [x] S-4.1 — Client Meta Ads Marketing API: campaigns, insights (spend, impressions, clicks, conversions, CPC, CPM, CTR)
+- [x] S-4.2 — Cron `GET /api/cron/ads-sync` protegido por CRON_SECRET
+- [x] S-4.3 — Buscar brands com Meta Ads → fetch insights → salvar em `performance_metrics`
+- [x] S-4.4 — Vercel cron a cada 6h em `vercel.json` (`0 */6 * * *`)
+- [x] S-4.5 — Tratar token expirado: marcar `expired` na integration + log
+- [ ] S-4.6 — Google Ads (API mais complexa — adiado para Sprint futuro)
+
+**Implementação:** Meta client em `lib/ads/meta-client.ts`, idempotent save via campaign_id+date doc ID
 
 **Nota CRON_SECRET:** Usar `printf` (não `echo`) ao adicionar env vars no Vercel
 

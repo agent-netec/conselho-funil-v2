@@ -6,14 +6,15 @@ import { Timestamp } from 'firebase/firestore';
  * @version 1.0.0
  */
 
-export type JourneyEventType = 
-  | 'page_view' 
-  | 'vsl_watch' 
-  | 'checkout_init' 
-  | 'lead_capture' 
+export type JourneyEventType =
+  | 'page_view'
+  | 'vsl_watch'
+  | 'checkout_init'
+  | 'lead_capture'
+  | 'purchase_complete'
   | 'custom';
 
-export type JourneyEventSource = 'web' | 'crm' | 'ads_api';
+export type JourneyEventSource = 'web' | 'crm' | 'ads_api' | 'webhook';
 
 export interface JourneyLeadPII {
   email: string;       // [PII] - Criptografado
@@ -103,6 +104,7 @@ export interface JourneyTransaction {
     method: 'credit_card' | 'pix' | 'boleto';
     installments: number;
   };
+  webhookEventId?: string; // Idempotency key from webhook provider
   processedAt: Timestamp;
   createdAt: Timestamp;
 }
