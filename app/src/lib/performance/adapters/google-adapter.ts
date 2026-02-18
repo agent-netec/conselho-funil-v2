@@ -2,6 +2,7 @@ import { AdsPlatformAdapter, RawAdsData, AdCredentials, isGoogleCredentials } fr
 import { AdPlatform } from '../../../types/performance';
 import { fetchWithRetry } from '../../integrations/ads/api-helpers';
 import { GOOGLE_ADS_API } from '../../integrations/ads/constants';
+import { getServiceAccountToken } from '../../integrations/ads/google-service-account';
 
 /**
  * @fileoverview GoogleMetricsAdapter (S30-GOOG-01)
@@ -35,12 +36,15 @@ export class GoogleMetricsAdapter extends AdsPlatformAdapter {
 
     const url = `${GOOGLE_ADS_API.BASE_URL}/customers/${credentials.customerId}/googleAds:searchStream`;
 
-    console.log(`[GoogleMetricsAdapter] Fetching metrics for customer=${credentials.customerId} period=${startDate}..${endDate}`);
+    // Use OAuth token if present, otherwise fall back to platform service account
+    const accessToken = credentials.accessToken || await getServiceAccountToken();
+
+    console.log(`[GoogleMetricsAdapter] Fetching metrics for customer=${credentials.customerId} period=${startDate}..${endDate} method=${credentials.accessToken ? 'oauth' : 'service_account'}`);
 
     const response = await fetchWithRetry(url, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${credentials.accessToken}`,
+        'Authorization': `Bearer ${accessToken}`,
         'developer-token': credentials.developerToken,
         'Content-Type': 'application/json',
       },
