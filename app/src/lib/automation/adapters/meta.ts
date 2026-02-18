@@ -1,13 +1,15 @@
 import { MonaraTokenVault } from '../../firebase/vault';
-import { AdsActionResponse } from './types';
+import { IAdsAdapter, AdsActionResponse } from './types';
 import { fetchWithRetry, sanitizeForLog } from '../../integrations/ads/api-helpers';
 import { META_API } from '../../integrations/ads/constants';
 import { createHash } from 'crypto';
 
 /**
- * @fileoverview Meta Ads Adapter (S30-META-02/03)
+ * @fileoverview Meta Ads Adapter (S30-META-02/03, W-3.1)
  * Conecta o Maestro à Meta Ads API para gestão de anúncios e audiências.
  * Chamadas reais ao Graph API v21.0 (não mais mocks).
+ *
+ * W-3.1: Now implements IAdsAdapter (pauseAdEntity, adjustBudget, getEntityStatus).
  */
 
 export interface MetaCreative {
@@ -16,7 +18,7 @@ export interface MetaCreative {
   image_url?: string;
 }
 
-export class MetaAdsAdapter {
+export class MetaAdsAdapter implements IAdsAdapter {
   private brandId: string;
   private adAccountId?: string;
 
@@ -110,6 +112,169 @@ export class MetaAdsAdapter {
    * Endpoint: POST /{audienceId}/users com schema EMAIL + dados hashados.
    * LGPD compliance: emails são hashados com SHA256 antes do envio.
    */
+  /**
+   * W-3.1: Pausa uma campanha/adset via Meta Graph API.
+   * POST /{entityId} com status: 'PAUSED'
+   */
+  async pauseAdEntity(entityId: string, type: 'campaign' | 'adset'): Promise<AdsActionResponse> {
+    try {
+      const token = await this.getAccessToken();
+      const url = `${META_API.BASE_URL}/${entityId}`;
+
+      console.log(`[MetaAdsAdapter] Pausing ${type} ${entityId} brand=${this.brandId}`);
+
+      const response = await fetchWithRetry(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'PAUSED' }),
+      }, { timeoutMs: META_API.TIMEOUT_MS });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMsg = errorData?.error?.message || response.statusText;
+
+        return {
+          success: false,
+          externalId: entityId,
+          platform: 'meta',
+          actionTaken: 'pause',
+          error: {
+            code: `META_API_${response.status}`,
+            message: errorMsg,
+            retryable: response.status >= 500 || response.status === 429,
+          },
+        };
+      }
+
+      console.log(`[MetaAdsAdapter] ${type} ${entityId} paused successfully`);
+
+      return {
+        success: true,
+        externalId: entityId,
+        platform: 'meta',
+        actionTaken: 'pause',
+        details: { type, previousStatus: 'ACTIVE' },
+      };
+    } catch (error: any) {
+      console.error(`[MetaAdsAdapter] pauseAdEntity error:`, error.message);
+      return {
+        success: false,
+        externalId: entityId,
+        platform: 'meta',
+        actionTaken: 'pause',
+        error: {
+          code: 'META_PAUSE_ERROR',
+          message: error.message,
+          retryable: true,
+        },
+      };
+    }
+  }
+
+  /**
+   * W-3.1: Ajusta budget de uma campanha via Meta Graph API.
+   * POST /{entityId} com daily_budget em centavos.
+   */
+  async adjustBudget(entityId: string, type: 'campaign' | 'adset', newBudget: number): Promise<AdsActionResponse> {
+    try {
+      const token = await this.getAccessToken();
+      const url = `${META_API.BASE_URL}/${entityId}`;
+      const dailyBudgetCents = Math.round(newBudget * 100);
+
+      console.log(`[MetaAdsAdapter] Adjusting budget for ${type} ${entityId} to ${newBudget} (${dailyBudgetCents} cents)`);
+
+      const response = await fetchWithRetry(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ daily_budget: dailyBudgetCents }),
+      }, { timeoutMs: META_API.TIMEOUT_MS });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMsg = errorData?.error?.message || response.statusText;
+
+        return {
+          success: false,
+          externalId: entityId,
+          platform: 'meta',
+          actionTaken: 'adjust_budget',
+          error: {
+            code: `META_API_${response.status}`,
+            message: errorMsg,
+            retryable: response.status >= 500 || response.status === 429,
+          },
+        };
+      }
+
+      console.log(`[MetaAdsAdapter] Budget adjusted for ${entityId}: ${newBudget}`);
+
+      return {
+        success: true,
+        externalId: entityId,
+        platform: 'meta',
+        actionTaken: 'adjust_budget',
+        newValue: newBudget,
+        details: { dailyBudgetCents, type },
+      };
+    } catch (error: any) {
+      console.error(`[MetaAdsAdapter] adjustBudget error:`, error.message);
+      return {
+        success: false,
+        externalId: entityId,
+        platform: 'meta',
+        actionTaken: 'adjust_budget',
+        error: {
+          code: 'META_BUDGET_ERROR',
+          message: error.message,
+          retryable: true,
+        },
+      };
+    }
+  }
+
+  /**
+   * W-3.1: Consulta status e budget de uma campanha/adset via Meta Graph API.
+   * GET /{entityId}?fields=status,daily_budget,name
+   */
+  async getEntityStatus(entityId: string): Promise<{ status: string; currentBudget: number }> {
+    try {
+      const token = await this.getAccessToken();
+      const url = `${META_API.BASE_URL}/${entityId}?fields=status,daily_budget,name`;
+
+      console.log(`[MetaAdsAdapter] Getting status for entity=${entityId} brand=${this.brandId}`);
+
+      const response = await fetchWithRetry(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      }, { timeoutMs: META_API.TIMEOUT_MS });
+
+      if (!response.ok) {
+        console.error(`[MetaAdsAdapter] getEntityStatus failed (${response.status})`);
+        return { status: 'UNKNOWN', currentBudget: 0 };
+      }
+
+      const data = await response.json();
+      const status = data.status || 'UNKNOWN';
+      const dailyBudgetCents = parseInt(data.daily_budget || '0', 10);
+      const currentBudget = dailyBudgetCents / 100;
+
+      console.log(`[MetaAdsAdapter] Entity ${entityId}: status=${status} budget=${currentBudget}`);
+
+      return { status, currentBudget };
+    } catch (error: any) {
+      console.error(`[MetaAdsAdapter] getEntityStatus error:`, error.message);
+      return { status: 'ERROR', currentBudget: 0 };
+    }
+  }
+
   async syncCustomAudience(audienceId: string, leadIds: string[]): Promise<AdsActionResponse> {
     try {
       const token = await this.getAccessToken();

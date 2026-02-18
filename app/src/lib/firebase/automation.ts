@@ -28,7 +28,7 @@ import {
   getCountFromServer,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import type { AutomationRule, AutomationLog, DeadLetterItem } from '@/types/automation';
+import type { AutomationRule, AutomationLog, DeadLetterItem, MetricsSnapshot, ExecutionResult, ImpactAnalysis } from '@/types/automation';
 
 // ====== AUTOMATION RULES ======
 // Collection: brands/{brandId}/automation_rules
@@ -198,4 +198,75 @@ export async function getDLQItems(
   );
   const snap = await getDocs(q);
   return snap.docs.map(d => ({ id: d.id, ...d.data() } as DeadLetterItem));
+}
+
+// ====== METRICS HISTORY ======
+// Collection: brands/{brandId}/metrics_history
+// W-1.2: Daily snapshots for trend detection
+
+export async function getMetricsHistory(
+  brandId: string,
+  maxDays: number = 7
+): Promise<MetricsSnapshot[]> {
+  const histRef = collection(db, 'brands', brandId, 'metrics_history');
+  const q = query(histRef, orderBy('date', 'desc'), limit(maxDays));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() } as MetricsSnapshot));
+}
+
+export async function saveMetricsSnapshot(
+  brandId: string,
+  snapshot: Omit<MetricsSnapshot, 'id'>
+): Promise<string> {
+  const histRef = collection(db, 'brands', brandId, 'metrics_history');
+  const docRef = await addDoc(histRef, snapshot);
+  return docRef.id;
+}
+
+// ====== EXECUTION TRACKING ======
+// W-3.3: Update log with execution result
+
+export async function updateAutomationLogExecution(
+  brandId: string,
+  logId: string,
+  executionResult: ExecutionResult,
+  executedBy?: string
+): Promise<void> {
+  const logRef = doc(db, 'brands', brandId, 'automation_logs', logId);
+  const updateData: Record<string, unknown> = {
+    status: executionResult.success ? 'executed' : 'failed',
+    executionResult,
+  };
+  if (executedBy) updateData.executedBy = executedBy;
+  await updateDoc(logRef, updateData);
+}
+
+// W-4.1: Update log with impact analysis
+
+export async function updateAutomationLogImpact(
+  brandId: string,
+  logId: string,
+  impactAnalysis: ImpactAnalysis
+): Promise<void> {
+  const logRef = doc(db, 'brands', brandId, 'automation_logs', logId);
+  await updateDoc(logRef, { impactAnalysis });
+}
+
+// W-4.2: Get logs for proactive suggestion analysis
+
+export async function getExecutedLogsForRule(
+  brandId: string,
+  ruleId: string,
+  maxResults: number = 10
+): Promise<AutomationLog[]> {
+  const logsRef = collection(db, 'brands', brandId, 'automation_logs');
+  const q = query(
+    logsRef,
+    where('ruleId', '==', ruleId),
+    where('status', '==', 'executed'),
+    orderBy('timestamp', 'desc'),
+    limit(maxResults)
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() } as AutomationLog));
 }

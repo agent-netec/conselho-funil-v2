@@ -15,19 +15,41 @@ export interface KillSwitchGap {
 export type AutomationGapDetails = CriticalGap | KillSwitchGap;
 
 /**
+ * W-1.1: Individual condition for composite rules.
+ */
+export interface AutomationCondition {
+  type: 'metric_threshold' | 'autopsy_gap' | 'profit_score' | 'fatigue_index' | 'trend';
+  metric?: string;
+  operator: '<' | '>' | '<=' | '>=';
+  value: number;
+  stepType?: 'ads' | 'optin' | 'vsl' | 'checkout' | 'upsell' | 'thankyou';
+  /** W-1.2: For trend triggers — number of consecutive days to compare */
+  trendPeriodDays?: number;
+  /** W-1.2: For trend triggers — direction of the trend */
+  trendDirection?: 'rising' | 'falling';
+}
+
+/**
  * Collection: brands/{brandId}/automation_rules
  */
 export interface AutomationRule {
   id: string;
   name: string;
   isEnabled: boolean;
+  /** Legacy single trigger — backward compatible */
   trigger: {
-    type: 'metric_threshold' | 'autopsy_gap' | 'profit_score' | 'fatigue_index';
-    metric?: string; // ex: 'checkout_cvr'
+    type: 'metric_threshold' | 'autopsy_gap' | 'profit_score' | 'fatigue_index' | 'trend';
+    metric?: string;
     operator: '<' | '>' | '<=' | '>=';
     value: number;
     stepType?: 'ads' | 'optin' | 'vsl' | 'checkout' | 'upsell' | 'thankyou';
+    trendPeriodDays?: number;
+    trendDirection?: 'rising' | 'falling';
   };
+  /** W-1.1: Multi-condition rules (optional — if absent, uses single trigger) */
+  conditions?: AutomationCondition[];
+  /** W-1.1: Logic operator for multi-condition rules */
+  logicOperator?: 'AND' | 'OR';
   action: {
     type: 'pause_ads' | 'notify' | 'adjust_budget';
     params: {
@@ -37,9 +59,48 @@ export interface AutomationRule {
     };
   };
   guardrails: {
-    requireApproval: boolean; // Sempre true (segurança obrigatória)
-    cooldownPeriod: number; // Horas antes de agir novamente na mesma entidade
+    requireApproval: boolean;
+    cooldownPeriod: number;
   };
+}
+
+/**
+ * W-2.3: Council debate verdict persisted with automation log.
+ */
+export interface CouncilDebateVote {
+  agentId: string;
+  name: string;
+  recommendation: 'approve' | 'reject';
+  reason: string;
+}
+
+export interface CouncilDebateResult {
+  fullText: string;
+  votes: CouncilDebateVote[];
+  verdict: string;
+  confidence: number;
+}
+
+/**
+ * W-3.3: Execution result after ads action is performed.
+ */
+export interface ExecutionResult {
+  success: boolean;
+  externalId?: string;
+  platform?: 'meta' | 'google';
+  error?: string;
+  timestamp: Timestamp;
+}
+
+/**
+ * W-4.1: Impact analysis after execution (before/after metrics).
+ */
+export interface ImpactAnalysis {
+  beforeMetrics: Record<string, number>;
+  afterMetrics: Record<string, number>;
+  delta: Record<string, number>;
+  summary: string;
+  measuredAt: Timestamp;
 }
 
 /**
@@ -53,9 +114,27 @@ export interface AutomationLog {
   context: {
     funnelId: string;
     gapDetails: AutomationGapDetails;
-    entityId: string; // ID da Campanha/Adset
+    entityId: string;
+    /** W-2.3: Council debate result */
+    councilDebate?: CouncilDebateResult;
   };
-  executedBy?: string; // ID do usuário que aprovou
+  executedBy?: string;
+  /** W-3.3: Result of real ads execution */
+  executionResult?: ExecutionResult;
+  /** W-4.1: Impact measurement (before/after) */
+  impactAnalysis?: ImpactAnalysis;
+  timestamp: Timestamp;
+}
+
+/**
+ * W-1.2: Metrics history snapshot for trend detection.
+ * Collection: brands/{brandId}/metrics_history
+ */
+export interface MetricsSnapshot {
+  id: string;
+  date: string; // YYYY-MM-DD
+  metrics: Record<string, number>;
+  source: 'cron' | 'manual';
   timestamp: Timestamp;
 }
 

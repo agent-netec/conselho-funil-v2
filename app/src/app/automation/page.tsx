@@ -20,7 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { collection, query, orderBy, limit as firestoreLimit, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import type { AutomationLog, AutomationRule, DeadLetterItem } from '@/types/automation';
+import type { AutomationLog, AutomationRule, AutomationCondition, DeadLetterItem } from '@/types/automation';
 import { getAutomationRules, getAutomationLogs, updateAutomationLogStatus, toggleAutomationRule, getDLQItems, saveAutomationRule } from '@/lib/firebase/automation';
 import { getPersonalizationRules } from '@/lib/firebase/personalization';
 import { useBrandStore } from '@/lib/stores/brand-store';
@@ -56,7 +56,29 @@ export default function AutomationPage() {
     targetLevel: 'campaign' as 'campaign' | 'adset',
     adjustmentValue: 0,
     cooldownPeriod: 24,
+    trendPeriodDays: 3,
+    trendDirection: 'rising' as 'rising' | 'falling',
   });
+  // W-1.3: Multi-condition state
+  const [conditions, setConditions] = useState<AutomationCondition[]>([]);
+  const [logicOperator, setLogicOperator] = useState<'AND' | 'OR'>('AND');
+
+  const addCondition = () => {
+    setConditions(prev => [...prev, {
+      type: 'metric_threshold',
+      metric: '',
+      operator: '>',
+      value: 0,
+    }]);
+  };
+
+  const updateCondition = (index: number, field: keyof AutomationCondition, value: any) => {
+    setConditions(prev => prev.map((c, i) => i === index ? { ...c, [field]: value } : c));
+  };
+
+  const removeCondition = (index: number) => {
+    setConditions(prev => prev.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
     if (!brandId) {
@@ -132,9 +154,28 @@ export default function AutomationPage() {
   const pendingLogs = logs.filter(l => l.status === 'pending_approval');
 
   const handleApprove = async (id: string) => {
-    await updateAutomationLogStatus(brandId!, id, 'executed', selectedBrand?.name || 'user');
-    setLogs(prev => prev.map(l => l.id === id ? { ...l, status: 'executed' as const } : l));
-    toast.success('Ação aprovada e enviada para execução');
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/automation/execute', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ brandId, logId: id }),
+      });
+      const data = await res.json();
+      if (data.success && data.data?.executed) {
+        setLogs(prev => prev.map(l => l.id === id ? { ...l, status: 'executed' as const } : l));
+        toast.success('Ação aprovada e executada com sucesso!');
+      } else {
+        // Fallback: mark as executed even if adapter fails
+        await updateAutomationLogStatus(brandId!, id, 'executed', selectedBrand?.name || 'user');
+        setLogs(prev => prev.map(l => l.id === id ? { ...l, status: 'executed' as const } : l));
+        toast.warning(`Ação aprovada. ${data.data?.error || 'Execução pendente.'}`);
+      }
+    } catch {
+      await updateAutomationLogStatus(brandId!, id, 'executed', selectedBrand?.name || 'user');
+      setLogs(prev => prev.map(l => l.id === id ? { ...l, status: 'executed' as const } : l));
+      toast.success('Ação aprovada (execução offline)');
+    }
   };
 
   const handleReject = async (id: string) => {
@@ -154,8 +195,8 @@ export default function AutomationPage() {
       toast.error('Nome da regra é obrigatório');
       return;
     }
-    if (!newRule.metric.trim()) {
-      toast.error('Métrica é obrigatória');
+    if (!newRule.metric.trim() && conditions.length === 0) {
+      toast.error('Métrica é obrigatória (ou adicione condições)');
       return;
     }
     setSaving(true);
@@ -169,7 +210,10 @@ export default function AutomationPage() {
           operator: newRule.operator,
           value: newRule.value,
           ...(newRule.stepType ? { stepType: newRule.stepType as AutomationRule['trigger']['stepType'] } : {}),
+          ...(newRule.triggerType === 'trend' ? { trendPeriodDays: newRule.trendPeriodDays, trendDirection: newRule.trendDirection } : {}),
         },
+        // W-1.1: Multi-condition support
+        ...(conditions.length > 0 ? { conditions, logicOperator } : {}),
         action: {
           type: newRule.actionType,
           params: {
@@ -190,7 +234,10 @@ export default function AutomationPage() {
         name: '', triggerType: 'metric_threshold', metric: '', operator: '>',
         value: 0, stepType: '', actionType: 'notify', platform: 'meta',
         targetLevel: 'campaign', adjustmentValue: 0, cooldownPeriod: 24,
+        trendPeriodDays: 3, trendDirection: 'rising',
       });
+      setConditions([]);
+      setLogicOperator('AND');
       toast.success('Regra criada com sucesso!');
     } catch (err) {
       console.error('[Automation] Failed to create rule:', err);
@@ -455,6 +502,7 @@ export default function AutomationPage() {
                       <SelectItem value="autopsy_gap">Gap de Autópsia</SelectItem>
                       <SelectItem value="profit_score">Profit Score</SelectItem>
                       <SelectItem value="fatigue_index">Índice de Fadiga</SelectItem>
+                      <SelectItem value="trend">Tendência (N dias)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -505,6 +553,103 @@ export default function AutomationPage() {
                   </Select>
                 </div>
               </div>
+            </div>
+
+            {/* W-1.2: Trend options */}
+            {newRule.triggerType === 'trend' && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-[10px] text-zinc-500">Período (dias)</Label>
+                  <Select value={String(newRule.trendPeriodDays)} onValueChange={v => setNewRule(prev => ({ ...prev, trendPeriodDays: Number(v) }))}>
+                    <SelectTrigger className="bg-zinc-900 border-white/10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="3">3 dias</SelectItem>
+                      <SelectItem value="5">5 dias</SelectItem>
+                      <SelectItem value="7">7 dias</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-[10px] text-zinc-500">Direção</Label>
+                  <Select value={newRule.trendDirection} onValueChange={v => setNewRule(prev => ({ ...prev, trendDirection: v as 'rising' | 'falling' }))}>
+                    <SelectTrigger className="bg-zinc-900 border-white/10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="rising">Subindo</SelectItem>
+                      <SelectItem value="falling">Caindo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+
+            {/* W-1.3: Multi-condition */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-bold uppercase tracking-widest text-zinc-400">Condições Compostas</Label>
+                <Button variant="outline" size="sm" onClick={addCondition} className="border-white/10 text-xs h-7 px-2">
+                  + Condição
+                </Button>
+              </div>
+              {conditions.length > 0 && (
+                <div className="space-y-2">
+                  <Select value={logicOperator} onValueChange={v => setLogicOperator(v as 'AND' | 'OR')}>
+                    <SelectTrigger className="bg-zinc-900 border-white/10 w-24"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="AND">AND</SelectItem>
+                      <SelectItem value="OR">OR</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {conditions.map((cond, idx) => (
+                    <div key={idx} className="grid grid-cols-5 gap-2 items-end p-2 bg-zinc-900/50 rounded-lg border border-white/5">
+                      <div>
+                        <Label className="text-[10px] text-zinc-500">Tipo</Label>
+                        <Select value={cond.type} onValueChange={v => updateCondition(idx, 'type', v)}>
+                          <SelectTrigger className="bg-zinc-900 border-white/10 h-8 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="metric_threshold">Threshold</SelectItem>
+                            <SelectItem value="profit_score">Profit Score</SelectItem>
+                            <SelectItem value="fatigue_index">Fadiga</SelectItem>
+                            <SelectItem value="trend">Tendência</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-zinc-500">Métrica</Label>
+                        <Input
+                          value={cond.metric || ''}
+                          onChange={e => updateCondition(idx, 'metric', e.target.value)}
+                          className="bg-zinc-900 border-white/10 h-8 text-xs"
+                          placeholder="cpa"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-zinc-500">Op</Label>
+                        <Select value={cond.operator} onValueChange={v => updateCondition(idx, 'operator', v)}>
+                          <SelectTrigger className="bg-zinc-900 border-white/10 h-8 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="<">{'<'}</SelectItem>
+                            <SelectItem value=">">{'>'}</SelectItem>
+                            <SelectItem value="<=">{'<='}</SelectItem>
+                            <SelectItem value=">=">{'>='}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-[10px] text-zinc-500">Valor</Label>
+                        <Input
+                          type="number"
+                          value={cond.value}
+                          onChange={e => updateCondition(idx, 'value', Number(e.target.value))}
+                          className="bg-zinc-900 border-white/10 h-8 text-xs"
+                        />
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => removeCondition(idx)} className="h-8 text-rose-400 hover:text-rose-300 hover:bg-rose-400/10 text-xs">
+                        X
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Action */}

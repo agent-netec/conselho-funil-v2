@@ -1,10 +1,13 @@
 import { LegacyAutopsyReport, CriticalGap } from '@/types/funnel';
-import { AutomationRule, AutomationLog, ScalingPrediction } from '@/types/automation';
+import { AutomationRule, AutomationLog, ScalingPrediction, AutomationCondition, MetricsSnapshot } from '@/types/automation';
 import { Timestamp } from 'firebase/firestore';
 
 /**
  * AutomationEngine: O cérebro que decide quando acionar o Kill-Switch
  * ou sugerir otimizações baseadas nos relatórios do Autopsy.
+ *
+ * W-1.1: Multi-condition support (AND/OR).
+ * W-1.2: Trend evaluation (N consecutive days).
  */
 export class AutomationEngine {
   /**
@@ -53,42 +56,131 @@ export class AutomationEngine {
   }
 
   /**
-   * Avalia métricas de performance (Profit Score, Fatigue Index) contra as regras.
-   * ST-27.1: Suporte a métricas de lucro e fadiga.
+   * Avalia métricas de performance contra as regras.
+   * W-1.1: Supports multi-condition rules with AND/OR logic.
+   * W-1.2: Supports trend triggers using metrics history.
    */
   static evaluatePerformanceMetrics(
     brandId: string,
     metrics: Record<string, number>,
-    rules: AutomationRule[]
+    rules: AutomationRule[],
+    metricsHistory?: MetricsSnapshot[]
   ): AutomationLog[] {
     const logs: AutomationLog[] = [];
     const activeRules = rules.filter(r => r.isEnabled);
 
     activeRules.forEach(rule => {
-      const { type, metric, operator, value } = rule.trigger;
-      
-      let currentValue: number | undefined;
+      let triggered = false;
 
-      if (type === 'profit_score') {
-        currentValue = metrics['profit_score'];
-      } else if (type === 'fatigue_index') {
-        currentValue = metrics['fatigue_index'];
-      } else if (type === 'metric_threshold' && metric) {
-        currentValue = metrics[metric];
+      // W-1.1: Multi-condition evaluation
+      if (rule.conditions && rule.conditions.length > 0) {
+        triggered = this.evaluateMultiCondition(rule.conditions, rule.logicOperator || 'AND', metrics, metricsHistory);
+      } else {
+        // Legacy single trigger (backward compatible)
+        triggered = this.evaluateSingleCondition(rule.trigger, metrics, metricsHistory);
       }
 
-      if (currentValue !== undefined && this.compare(currentValue, operator, value)) {
+      if (triggered) {
         logs.push(this.createActionProposal(brandId, 'performance_loop', {
-          id: `metric_${type}`,
-          metricName: metric || type,
-          currentValue,
-          targetValue: value,
+          id: `metric_${rule.trigger.type}`,
+          metricName: rule.trigger.metric || rule.trigger.type,
+          currentValue: metrics[rule.trigger.metric || rule.trigger.type] ?? 0,
+          targetValue: rule.trigger.value,
           impact: 'performance_optimization'
         } as any, rule));
       }
     });
 
     return logs;
+  }
+
+  /**
+   * W-1.1: Evaluates multiple conditions with AND/OR logic.
+   */
+  private static evaluateMultiCondition(
+    conditions: AutomationCondition[],
+    logicOperator: 'AND' | 'OR',
+    metrics: Record<string, number>,
+    metricsHistory?: MetricsSnapshot[]
+  ): boolean {
+    if (conditions.length === 0) return false;
+
+    if (logicOperator === 'AND') {
+      return conditions.every(c => this.evaluateSingleCondition(c, metrics, metricsHistory));
+    } else {
+      return conditions.some(c => this.evaluateSingleCondition(c, metrics, metricsHistory));
+    }
+  }
+
+  /**
+   * Evaluates a single condition (trigger or condition object).
+   * W-1.2: Supports trend type.
+   */
+  private static evaluateSingleCondition(
+    condition: AutomationCondition | AutomationRule['trigger'],
+    metrics: Record<string, number>,
+    metricsHistory?: MetricsSnapshot[]
+  ): boolean {
+    const { type, metric, operator, value } = condition;
+
+    // W-1.2: Trend evaluation
+    if (type === 'trend') {
+      return this.evaluateTrend(condition, metricsHistory);
+    }
+
+    let currentValue: number | undefined;
+
+    if (type === 'profit_score') {
+      currentValue = metrics['profit_score'];
+    } else if (type === 'fatigue_index') {
+      currentValue = metrics['fatigue_index'];
+    } else if (type === 'metric_threshold' && metric) {
+      currentValue = metrics[metric];
+    }
+
+    if (currentValue !== undefined) {
+      return this.compare(currentValue, operator, value);
+    }
+
+    return false;
+  }
+
+  /**
+   * W-1.2: Evaluates a trend trigger against metrics history.
+   * Checks if a metric has been consistently rising/falling for N days.
+   */
+  private static evaluateTrend(
+    condition: AutomationCondition | AutomationRule['trigger'],
+    metricsHistory?: MetricsSnapshot[]
+  ): boolean {
+    if (!metricsHistory || metricsHistory.length < 2) return false;
+
+    const metric = condition.metric;
+    if (!metric) return false;
+
+    const periodDays = condition.trendPeriodDays || 3;
+    const direction = condition.trendDirection || 'rising';
+
+    // Sort by date descending, take the last N snapshots
+    const sorted = [...metricsHistory]
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, periodDays);
+
+    if (sorted.length < periodDays) return false;
+
+    // Reverse to chronological order
+    const chronological = sorted.reverse();
+    const values = chronological.map(s => s.metrics[metric]).filter(v => v !== undefined);
+
+    if (values.length < periodDays) return false;
+
+    // Check consecutive trend
+    for (let i = 1; i < values.length; i++) {
+      if (direction === 'rising' && values[i] <= values[i - 1]) return false;
+      if (direction === 'falling' && values[i] >= values[i - 1]) return false;
+    }
+
+    return true;
   }
 
   /**
