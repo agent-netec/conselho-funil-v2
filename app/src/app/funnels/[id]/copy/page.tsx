@@ -205,14 +205,16 @@ function CopyProposalCard({
             </div>
 
             {/* Score */}
-            <div className={cn(
-              'text-lg font-bold',
-              copyProposal.scorecard.overall >= 8 ? 'text-emerald-400' :
-              copyProposal.scorecard.overall >= 6 ? 'text-amber-400' :
-              'text-red-400'
-            )}>
-              {copyProposal.scorecard.overall.toFixed(1)}
-            </div>
+            {copyProposal.scorecard && (
+              <div className={cn(
+                'text-lg font-bold',
+                copyProposal.scorecard.overall >= 8 ? 'text-emerald-400' :
+                copyProposal.scorecard.overall >= 6 ? 'text-amber-400' :
+                'text-red-400'
+              )}>
+                {copyProposal.scorecard.overall.toFixed(1)}
+              </div>
+            )}
 
             {/* Toggle */}
             <Button variant="ghost" size="sm" className="text-zinc-500">
@@ -321,10 +323,12 @@ function CopyProposalCard({
                 </div>
 
                 {/* Scorecard */}
-                <div>
-                  <span className="text-sm font-medium text-zinc-400 block mb-2">Scorecard</span>
-                  <CopyScoreDisplay scorecard={copyProposal.scorecard} />
-                </div>
+                {copyProposal.scorecard && (
+                  <div>
+                    <span className="text-sm font-medium text-zinc-400 block mb-2">Scorecard</span>
+                    <CopyScoreDisplay scorecard={copyProposal.scorecard} />
+                  </div>
+                )}
 
                 {/* Reasoning */}
                 {copyProposal.reasoning && (
