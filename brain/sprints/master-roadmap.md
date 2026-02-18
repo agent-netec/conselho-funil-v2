@@ -625,12 +625,18 @@ Paralelos possíveis:
 
 ---
 
+> **⚠️ REORDENAÇÃO (2026-02-17):** Sprint P (UX/UI Redesign) e Q (Landing Page) movidos para o final
+> do roadmap. Motivo: P requer trabalho de designer e não bloqueia os sprints técnicos (R, S, T, U, V, W, X).
+> Email verification (Q-3.1) e password recovery (Q-3.2) foram absorvidos por R-1.
+> Nova sequência: R → S → T → U → V → W → X → P → Q
+
 ### Sprint P — UX/UI Redesign
 
 > **Estimativa:** ~3-4 sessões
-> **Dependência:** Sprints K e L concluídos
+> **Dependência:** Designer pronto + todos os sprints técnicos concluídos
 > **Milestone:** 🚀 Public Launch
 > **Princípio:** NADA é sagrado — paleta, nome, layout, tudo pode mudar
+> **Nota:** Movido para o final — requer designer. Não bloqueia sprints técnicos.
 
 #### P-1. Renomeação do Produto
 **Origem:** `roadmap-product-launch.md` Parte 2, Seção A
@@ -670,8 +676,9 @@ Paralelos possíveis:
 ### Sprint Q — Landing Page & Auth
 
 > **Estimativa:** ~2-3 sessões
-> **Dependência:** Sprint P concluído
+> **Dependência:** Sprint P concluído (precisa da nova identidade visual)
 > **Milestone:** 🚀 Public Launch
+> **Nota:** Movido para o final junto com P. Q-3.1 e Q-3.2 absorvidos por R-1.
 
 #### Q-1. Landing Page Pública
 **Origem:** `roadmap-product-launch.md` Parte 2, Seção D
@@ -685,20 +692,21 @@ Paralelos possíveis:
 - [ ] Q-2.2 — Política de privacidade (LGPD compliance)
 - [ ] Q-2.3 — Pricing (se SaaS)
 
-#### Q-3. Auth Melhorado
+#### Q-3. Auth Redesign
 **Origem:** `roadmap-product-launch.md` Parte 3, Seção F
 
-- [ ] Q-3.1 — Email verification: `sendEmailVerification()` + banner "Verifique seu email"
-- [ ] Q-3.2 — Password recovery: "Esqueci minha senha" com `sendPasswordResetEmail()`
+- [ ] ~~Q-3.1 — Email verification~~ → **Movido para R-1.7**
+- [ ] ~~Q-3.2 — Password recovery~~ → **Movido para R-1.8**
 - [ ] Q-3.3 — Redesign login/signup com nova identidade visual
 
 ---
 
 ### Sprint R — Production Hardening
 
-> **Estimativa:** ~2-3 sessões
-> **Dependência:** Sprint J concluído (pode rodar em paralelo com M-Q)
-> **Milestone:** 🚀 Public Launch
+> **Estimativa:** ~3-4 sessões
+> **Dependência:** Sprint O concluído (próximo sprint a executar)
+> **Milestone:** 🔒 Production Ready
+> **Nota:** Absorveu Q-3.1 (email verification) e Q-3.2 (password recovery) — são backend puro, não dependem de designer
 
 #### R-1. Segurança
 **Origem:** `roadmap-product-launch.md` Parte 4, Seção G.1
@@ -709,6 +717,8 @@ Paralelos possíveis:
 - [ ] R-1.4 — CORS + CSP headers
 - [ ] R-1.5 — Password strength requirements no signup (hoje mín 6 chars)
 - [ ] R-1.6 — Input sanitization (XSS prevention)
+- [ ] R-1.7 — **Email verification:** `sendEmailVerification()` + banner "Verifique seu email" (absorvido de Q-3.1)
+- [ ] R-1.8 — **Password recovery:** "Esqueci minha senha" com `sendPasswordResetEmail()` (absorvido de Q-3.2)
 
 #### R-2. Performance
 - [ ] R-2.1 — Lighthouse audit (target: 90+ em todas as métricas)
@@ -733,10 +743,10 @@ Paralelos possíveis:
 
 ---
 
-### 🚀 MILESTONE: Public Launch Ready (após P + Q + R)
+### 🔒 MILESTONE: Production Ready (após R)
 
-> **Estimativa acumulada:** ~22-30 sessões
-> **Resultado:** Produto com identidade visual profissional, landing page, onboarding, segurança auditada, e conformidade legal. Pronto para usuários reais.
+> **Estimativa acumulada:** ~18-25 sessões
+> **Resultado:** Segurança auditada, email verification, password recovery, monitoring, LGPD compliance. Plataforma segura para dados reais. P e Q (visual redesign + landing) ficam para após sprints técnicos.
 
 ---
 
@@ -1031,66 +1041,69 @@ Paralelos possíveis:
 
 ---
 
+### 🚀 MILESTONE: Public Launch Ready (após P + Q)
+
+> **Estimativa acumulada:** ~43-57 sessões
+> **Resultado:** Produto com identidade visual profissional (designer), landing page pública, nova paleta/tipografia, navegação redesenhada, login/signup com nova identidade. Pronto para marketing e aquisição de usuários.
+> **Nota:** P e Q foram movidos para o final porque dependem de designer e não bloqueiam nenhum sprint técnico.
+
+---
+
 ## 5. Roadmap Visual — Sequência Recomendada
 
-### Faixa 1: Caminho Crítico (sequencial)
+> **Atualizado 2026-02-17:** P e Q movidos para o final (dependem de designer).
+> Email verification e password recovery absorvidos por R-1.
+
+### Faixa 1: Features Core (concluído)
 
 ```
-[J: Bug Blitz] → [K: UX Polish] → [M: Social v2] → [N: Intelligence] → [O: Research]
-     2 sess         2-3 sess        3-4 sess         3-4 sess          3-4 sess
+✅ [J: Bug Blitz] → [K: UX Polish] → [L: Onboarding] → [M: Social v2] → [N: Intelligence] → [O: Research]
+      2 sess          2-3 sess         2-3 sess          3-4 sess          3-4 sess           3-4 sess
 ```
 
-### Faixa 2: Onboarding & Launch (pode iniciar após J)
+### Faixa 2: Hardening + Data (próximos)
 
 ```
-[J] → [L: Onboarding] → [P: UX/UI] → [Q: Landing Page]
-           2-3 sess       3-4 sess      2-3 sess
+[R: Hardening] → [S: Data Pipeline] → [T: Analytics]
+   3-4 sess          4-5 sess            2-3 sess
 ```
 
-### Faixa 3: Data Pipeline (independente, pode iniciar após J)
-
-```
-[J] → [S: Data Pipeline] → [T: Analytics]
-           4-5 sess           2-3 sess
-```
-
-### Faixa 4: Hardening (pode rodar em paralelo)
-
-```
-[J] → [R: Production Hardening]
-           2-3 sess
-```
-
-### Faixa 5: OAuth (requer R + dados reais)
+### Faixa 3: OAuth + Platform (requer R + T)
 
 ```
 [R] → [U: OAuth Hub] → [V: OAuth Features] → [X: Advanced]
-         3-4 sess        3-4 sess               2-3 sess
+         3-4 sess          3-4 sess              2-3 sess
 [T] ──────────────────→ [W: Automation v2] ──→ [X]
-                           3-4 sess
+                            3-4 sess
+```
+
+### Faixa 4: Visual Redesign (requer designer — final)
+
+```
+[X concluído] → [P: UX/UI Redesign] → [Q: Landing Page]
+                     3-4 sess             2-3 sess
 ```
 
 ### Ordem recomendada para DESENVOLVEDOR SOLO
 
-Se trabalhando sozinho, a sequência ótima é:
-
 ```
-Fase 1 — Testers:    J → K → L                        (~6-9 sessões)
-Fase 2 — Features:   M → N → O                        (~9-12 sessões)
-Fase 3 — Launch:     P → Q → R (R pode intercalar)    (~7-10 sessões)
-Fase 4 — Data:       S → T                            (~6-8 sessões)
-Fase 5 — Platform:   U → V → W → X                   (~11-15 sessões)
+✅ Fase 1 — Testers:    J → K → L                         (~6-9 sessões)  CONCLUÍDO
+✅ Fase 2 — Features:   M → N → O                         (~9-12 sessões) CONCLUÍDO
+   Fase 3 — Hardening:  R                                 (~3-4 sessões)  PRÓXIMO
+   Fase 4 — Data:       S → T                             (~6-8 sessões)
+   Fase 5 — Platform:   U → V → W → X                    (~11-15 sessões)
+   Fase 6 — Launch:     P → Q (designer)                  (~5-7 sessões)
 
-TOTAL: ~39-54 sessões
-```
-
-### Ordem ALTERNATIVA (se priorizar dados reais cedo)
-
-```
-J → K → L → S → M → N → T → P → Q → R → O → U → V → W → X
+TOTAL: ~40-55 sessões
 ```
 
-Nesta ordem, o Data Pipeline (S) entra antes de Social/Intelligence, permitindo testar tracking pixel com os primeiros testers. A vantagem é que quando chegar em Analytics (T), já terá semanas de dados acumulados.
+### Por que P e Q ficam por último?
+
+1. **P requer designer** — redesign de paleta, tipografia, navegação, identidade visual
+2. **Q depende de P** — landing page e auth redesign precisam da nova identidade
+3. **Nenhum sprint técnico depende de P ou Q** — R, S, T, U, V, W, X são independentes
+4. **Email verification e password recovery** — extraídos de Q-3 e absorvidos por R-1 (são backend puro)
+5. **Vantagem:** Quando o designer entregar, a plataforma já estará completa tecnicamente
 
 ---
 
@@ -1117,18 +1130,19 @@ Nesta ordem, o Data Pipeline (S) entra antes de Social/Intelligence, permitindo 
 | Vault ativado | Content Autopilot gerando items na Review Queue |
 | Case studies | Spy Agent e Forensics salvam estudos permanentes |
 
-### 🚀 Milestone 3: Public Launch Ready
-**Após:** + P + Q + R | **~22-30 sessões**
+### 🔒 Milestone 3: Production Ready
+**Após:** + R | **~18-25 sessões**
 
 | Critério | Descrição |
 |----------|-----------|
-| Identidade visual | Nova paleta, design tokens, navegação redesenhada |
-| Presença pública | Landing page, termos, privacidade, email verification |
 | Segurança auditada | Encryption, CORS, CSP, rate limiting, Firebase rules |
+| Email verification | sendEmailVerification() + banner de verificação |
+| Password recovery | "Esqueci minha senha" funcional |
 | Governança | Cascade delete, export, LGPD compliance |
+| Monitoring | Sentry, logging estruturado, uptime monitoring |
 
 ### 📊 Milestone 4: Data-Driven
-**Após:** + S + T | **~28-38 sessões**
+**Após:** + S + T | **~27-36 sessões**
 
 | Critério | Descrição |
 |----------|-----------|
@@ -1146,6 +1160,16 @@ Nesta ordem, o Data Pipeline (S) entra antes de Social/Intelligence, permitindo 
 | Publicação real | Social, Calendar, Vault publicam via APIs |
 | Automation real | Conselho de Ads + execução + feedback loop |
 | Features avançadas | Voice, DNA, A/B testing, versionamento |
+
+### 🚀 Milestone 6: Public Launch Ready
+**Após:** + P + Q | **~43-57 sessões**
+
+| Critério | Descrição |
+|----------|-----------|
+| Identidade visual | Nova paleta, design tokens, tipografia, navegação redesenhada |
+| Presença pública | Landing page, termos, privacidade, pricing |
+| Auth redesign | Login/signup com nova identidade visual |
+| Navegação simplificada | Sidebar reduzida, progressive disclosure, breadcrumbs |
 
 ---
 
