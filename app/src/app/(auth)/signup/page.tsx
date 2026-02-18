@@ -192,10 +192,26 @@ export default function SignupPage() {
     }));
   };
 
+  // R-1.5: Password strength validation
+  const validatePassword = (password: string): string | null => {
+    if (password.length < 8) return 'A senha deve ter pelo menos 8 caracteres';
+    if (!/[A-Z]/.test(password)) return 'A senha deve conter pelo menos 1 letra maiúscula';
+    if (!/[0-9]/.test(password)) return 'A senha deve conter pelo menos 1 número';
+    return null;
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError('');
     setIsLoading(true);
+
+    // R-1.5: Validate password strength before submitting
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) {
+      setError(passwordError);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const firebaseUser = await signupWithEmail(formData.email, formData.password, formData.name);
@@ -214,7 +230,7 @@ export default function SignupPage() {
       if (err.code === 'auth/email-already-in-use') {
         setError('Este email já está em uso');
       } else if (err.code === 'auth/weak-password') {
-        setError('A senha deve ter pelo menos 6 caracteres');
+        setError('A senha deve ter pelo menos 8 caracteres, 1 maiúscula e 1 número');
       } else {
         setError('Erro ao criar conta. Tente novamente.');
       }
@@ -252,7 +268,7 @@ export default function SignupPage() {
         label: 'Senha',
         required: true,
         type: 'password' as any,
-        placeholder: 'Mínimo 6 caracteres',
+        placeholder: 'Mín 8 chars, 1 maiúscula, 1 número',
         onChange: (event: ChangeEvent<HTMLInputElement>) =>
           handleInputChange(event, 'password'),
       },

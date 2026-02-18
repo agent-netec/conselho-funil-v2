@@ -127,8 +127,10 @@ export function withRateLimit(
 
       return handler(req, ...args);
     } catch (error) {
-      console.error(`[RateLimiter] Transaction failed for scope=${config.scope}:`, error);
-      // Em caso de falha na transaction, permitir request (fail open)
+      // R-1.3: Log failure but still allow request (fail-open with monitoring).
+      // Fail-closed would block all requests if Firestore is temporarily unavailable.
+      console.error(`[RateLimiter] Transaction failed for scope=${config.scope}, brandId=${brandId}:`, error);
+      // TODO R-3.4: Send Slack alert for rate limiter failures
       return handler(req, ...args);
     }
   };

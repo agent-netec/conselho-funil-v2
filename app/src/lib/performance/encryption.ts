@@ -1,10 +1,14 @@
 import CryptoJS from 'crypto-js';
 
 /**
- * Chave mestra para criptografia de performance (BYO Keys).
- * Deve ser configurada via variável de ambiente PERFORMANCE_ENCRYPTION_KEY.
+ * R-1.1: Chave mestra para criptografia de performance (BYO Keys) — server-only.
+ * Prioridade: PERFORMANCE_ENCRYPTION_KEY > ENCRYPTION_KEY > NEXT_PUBLIC_ENCRYPTION_KEY (migration).
+ * Sem fallback hardcoded.
  */
-const PERFORMANCE_ENCRYPTION_KEY = process.env.PERFORMANCE_ENCRYPTION_KEY || process.env.NEXT_PUBLIC_ENCRYPTION_KEY || 'netecmt-performance-war-room-2026-secret';
+const PERFORMANCE_ENCRYPTION_KEY = process.env.PERFORMANCE_ENCRYPTION_KEY || process.env.ENCRYPTION_KEY || process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
+if (!PERFORMANCE_ENCRYPTION_KEY) {
+  throw new Error('[Security] PERFORMANCE_ENCRYPTION_KEY or ENCRYPTION_KEY env var is required.');
+}
 
 /**
  * Criptografa dados sensíveis usando AES-256-GCM.

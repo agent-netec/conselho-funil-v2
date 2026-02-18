@@ -5,6 +5,8 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
+  sendEmailVerification as firebaseSendEmailVerification,
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
   type User,
 } from 'firebase/auth';
 import { auth } from './config';
@@ -73,6 +75,12 @@ export const signupWithEmail = async (email: string, password: string, displayNa
     const { updateProfile } = await import('firebase/auth');
     await updateProfile(result.user, { displayName });
   }
+  // R-1.7: Send email verification after signup
+  try {
+    await firebaseSendEmailVerification(result.user);
+  } catch (e) {
+    console.warn('[Auth] Email verification send failed:', e);
+  }
   return result.user;
 };
 
@@ -85,6 +93,20 @@ export function onAuthChange(callback: (user: User | null) => void) {
 // Get current user
 export function getCurrentUser() {
   return auth?.currentUser || null;
+}
+
+// R-1.7: Send email verification
+export async function sendEmailVerification(user?: User | null) {
+  const target = user || auth?.currentUser;
+  if (!target) throw new Error('Nenhum usuário autenticado');
+  if (target.emailVerified) return;
+  await firebaseSendEmailVerification(target);
+}
+
+// R-1.8: Send password reset email
+export async function sendPasswordReset(email: string) {
+  if (!auth) throw new Error('Auth não disponível');
+  await firebaseSendPasswordResetEmail(auth, email);
 }
 
 // Error messages in Portuguese

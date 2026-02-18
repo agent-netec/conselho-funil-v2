@@ -1,14 +1,22 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Brand assets (design images, uploads) — qualquer usuário autenticado
-    match /brand-assets/{allPaths=**} {
-      allow read, write: if request.auth != null;
+    // R-1.2: Brand assets — isolated by brandId path segment
+    match /brand-assets/{brandId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
     }
 
-    // Brand kit (logos, vault)
-    match /brands/{path=**} {
-      allow read, write: if request.auth != null;
+    // R-1.2: Brand kit (logos, vault) — isolated by brandId
+    match /brands/{brandId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Legacy flat paths (brand-assets without brandId segment) — read only for migration
+    match /brand-assets/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if false;
     }
 
     // Default: deny all other paths

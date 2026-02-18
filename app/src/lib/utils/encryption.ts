@@ -1,10 +1,14 @@
 import CryptoJS from 'crypto-js';
 
 /**
- * Chave mestra para criptografia. 
- * Em produção, deve vir de uma variável de ambiente segura (ex: ENCRYPTION_KEY).
+ * R-1.1: Chave mestra para criptografia — server-only.
+ * Prioridade: ENCRYPTION_KEY > NEXT_PUBLIC_ENCRYPTION_KEY (migration).
+ * Sem fallback hardcoded — falha se não configurada.
  */
-const ENCRYPTION_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY || 'netecmt-v2-default-secret-key-2026';
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
+if (!ENCRYPTION_KEY) {
+  throw new Error('[Security] ENCRYPTION_KEY env var is required. Set it in Vercel/environment.');
+}
 
 /**
  * Criptografa um dado sensível usando AES-256.

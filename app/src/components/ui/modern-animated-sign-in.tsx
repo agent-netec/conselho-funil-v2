@@ -334,10 +334,13 @@ type AnimatedFormProps = {
   submitButton: string;
   textVariantButton?: string;
   errorField?: string;
+  successField?: string;
   fieldPerRow?: number;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   googleLogin?: string;
   goTo?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  secondaryLinkText?: string;
+  onSecondaryLink?: () => void;
 };
 
 type Errors = {
@@ -351,10 +354,13 @@ const AnimatedForm = memo(function AnimatedForm({
   submitButton,
   textVariantButton,
   errorField,
+  successField,
   fieldPerRow = 1,
   onSubmit,
   googleLogin,
   goTo,
+  secondaryLinkText,
+  onSecondaryLink,
 }: AnimatedFormProps) {
   const [visible, setVisible] = useState<boolean>(false);
   const [errors, setErrors] = useState<Errors>({});
@@ -374,9 +380,9 @@ const AnimatedForm = memo(function AnimatedForm({
         currentErrors[field.label] = 'Invalid email address';
       }
 
-      if (field.type === 'password' && value && value.length < 6) {
+      if (field.type === 'password' && value && value.length < 8) {
         currentErrors[field.label] =
-          'Password must be at least 6 characters long';
+          'A senha deve ter pelo menos 8 caracteres';
       }
     });
     return currentErrors;
@@ -515,7 +521,23 @@ const AnimatedForm = memo(function AnimatedForm({
           {errorField && (
             <p className='text-red-500 text-sm mb-4'>{errorField}</p>
           )}
+          {successField && (
+            <p className='text-emerald-400 text-sm mb-4'>{successField}</p>
+          )}
         </BoxReveal>
+
+        {/* R-1.8: Secondary link (e.g. "Esqueci minha senha") */}
+        {secondaryLinkText && onSecondaryLink && (
+          <div className='mb-3 text-right'>
+            <button
+              type='button'
+              className='text-xs text-zinc-400 hover:text-emerald-400 transition-colors outline-none'
+              onClick={onSecondaryLink}
+            >
+              {secondaryLinkText}
+            </button>
+          </div>
+        )}
 
         <BoxReveal
           width='100%'
@@ -526,7 +548,7 @@ const AnimatedForm = memo(function AnimatedForm({
           <button
             className='bg-gradient-to-br relative group/btn from-zinc-200 dark:from-zinc-900
             dark:to-zinc-900 to-zinc-200 block dark:bg-zinc-800 w-full text-black
-            dark:text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] 
+            dark:text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset]
               dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] outline-none hover:cursor-pointer'
             type='submit'
           >
@@ -576,6 +598,10 @@ interface AuthTabsProps {
     }>;
     submitButton: string;
     textVariantButton?: string;
+    errorField?: string;
+    successField?: string;
+    secondaryLinkText?: string;
+    onSecondaryLink?: () => void;
   };
   goTo: (event: React.MouseEvent<HTMLButtonElement>) => void;
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;

@@ -1,7 +1,7 @@
 'use client';
 import { useState, ChangeEvent, FormEvent, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { loginWithEmail } from '@/lib/firebase/auth';
+import { loginWithEmail, sendPasswordReset } from '@/lib/firebase/auth';
 import {
   Ripple,
   AuthTabs,
@@ -176,6 +176,7 @@ export default function LoginPage() {
     password: '',
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (
@@ -215,6 +216,24 @@ export default function LoginPage() {
     router.push('/signup');
   };
 
+  const handleForgotPassword = async () => {
+    if (!formData.email) {
+      setError('Digite seu email primeiro para recuperar a senha');
+      return;
+    }
+    try {
+      await sendPasswordReset(formData.email);
+      setError('');
+      setSuccess('Email de recuperação enviado! Verifique sua caixa de entrada.');
+    } catch (err: any) {
+      if (err.code === 'auth/user-not-found') {
+        setError('Email não encontrado');
+      } else {
+        setError('Erro ao enviar email de recuperação');
+      }
+    }
+  };
+
   const formFields = {
     header: 'Bem-vindo ao Conselho',
     subHeader: 'Acesse sua central estratégica',
@@ -239,6 +258,9 @@ export default function LoginPage() {
     submitButton: isLoading ? 'Autenticando...' : 'Acessar Comando',
     textVariantButton: 'Não tem conta? Criar agora',
     errorField: error,
+    successField: success,
+    secondaryLinkText: 'Esqueci minha senha',
+    onSecondaryLink: handleForgotPassword,
   };
 
   return (

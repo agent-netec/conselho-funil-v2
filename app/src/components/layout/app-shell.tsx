@@ -1,11 +1,12 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from './sidebar';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { ToastNotifications } from '@/components/ui/toast-notifications';
+import { sendEmailVerification } from '@/lib/firebase/auth';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -158,16 +159,46 @@ export function AppShell({ children }: AppShellProps) {
     );
   }
 
+  // R-1.7: Email verification banner
+  const [verificationSent, setVerificationSent] = useState(false);
+  const showVerificationBanner = user && !user.emailVerified && !isAuthPage && !isWelcomePage;
+
+  const handleResendVerification = async () => {
+    try {
+      await sendEmailVerification(user);
+      setVerificationSent(true);
+      setTimeout(() => setVerificationSent(false), 5000);
+    } catch {
+      // Rate limited or other error — silently ignore
+    }
+  };
+
   // Protected pages - with sidebar
   return (
     <div className="min-h-screen bg-background selection:bg-emerald-500/20 selection:text-emerald-200">
       {/* Background effects */}
       <div className="fixed inset-0 bg-dot-pattern opacity-[0.15] pointer-events-none" />
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(16,185,129,0.08),transparent)] pointer-events-none" />
-      
+
       <Sidebar />
-      
+
       <main className="md:ml-[72px] min-h-screen relative flex flex-col">
+        {/* R-1.7: Email verification banner */}
+        {showVerificationBanner && (
+          <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 flex items-center justify-between text-sm">
+            <span className="text-amber-200">
+              Verifique seu email para ativar todas as funcionalidades.
+            </span>
+            <button
+              onClick={handleResendVerification}
+              disabled={verificationSent}
+              className="text-amber-400 hover:text-amber-300 font-medium transition-colors disabled:opacity-50"
+            >
+              {verificationSent ? 'Email enviado!' : 'Reenviar email'}
+            </button>
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
           <motion.div
             key={pathname}
@@ -181,7 +212,7 @@ export function AppShell({ children }: AppShellProps) {
           </motion.div>
         </AnimatePresence>
       </main>
-      
+
       {/* Toast Notifications */}
       <ToastNotifications />
     </div>

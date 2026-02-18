@@ -106,15 +106,46 @@ export async function updateBrandKit(brandId: string, kit: BrandKit) {
 }
 
 /**
- * Exclui uma marca permanentemente.
- * 
- * ⚠️ ATENÇÃO: Esta operação não remove automaticamente os vínculos em funis, 
- * conversas e propostas de copy. Certifique-se de lidar com essas dependências 
- * antes de excluir uma marca.
- * 
- * @param brandId - O ID da marca.
+ * R-4.1: Cascade delete — remove brand and all subcollections.
+ * Subcollections: content_calendar, automation_rules, automation_logs,
+ * social_interactions, voice_profiles, funnels, conversations, proposals,
+ * research, keywords, rate_limits, performance_metrics, performance_anomalies
  */
+const BRAND_SUBCOLLECTIONS = [
+  'content_calendar',
+  'automation_rules',
+  'automation_logs',
+  'social_interactions',
+  'voice_profiles',
+  'funnels',
+  'conversations',
+  'proposals',
+  'research',
+  'keywords',
+  'rate_limits',
+  'performance_metrics',
+  'performance_anomalies',
+];
+
+async function deleteSubcollection(brandId: string, subcollectionName: string) {
+  const subRef = collection(db, 'brands', brandId, subcollectionName);
+  const snapshot = await getDocs(subRef);
+  const deletions = snapshot.docs.map((d) => deleteDoc(d.ref));
+  await Promise.all(deletions);
+}
+
 export async function deleteBrand(brandId: string) {
+  // R-4.1: Delete all subcollections first
+  const results = await Promise.allSettled(
+    BRAND_SUBCOLLECTIONS.map((sub) => deleteSubcollection(brandId, sub))
+  );
+
+  const failures = results.filter((r) => r.status === 'rejected');
+  if (failures.length > 0) {
+    console.error(`[deleteBrand] ${failures.length} subcollection(s) failed to delete for brand ${brandId}`);
+  }
+
+  // Delete the brand document itself
   const brandRef = doc(db, 'brands', brandId);
   await deleteDoc(brandRef);
 }

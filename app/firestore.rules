@@ -99,15 +99,17 @@ service cloud.firestore {
       );
     }
 
-    // Knowledge base & Library (Public Read, Admin Write)
+    // Knowledge base (Public Read, Admin Write via custom claims)
     match /knowledge/{chunkId} {
       allow read: if true;
-      allow write: if isAuthenticated() && isAgencyAdmin(request.auth.token.agencyId); // Exemplo usando custom claims se existirem
+      allow write: if isAuthenticated() && isAgencyAdmin(request.auth.token.agencyId);
     }
-    
+
+    // R-1.2: Library — Public read, write restricted to owner
     match /library/{templateId} {
       allow read: if true;
-      allow write: if isAuthenticated(); 
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
 
     // Bloqueio Global de Segurança (NUNCA deixar allow true aqui)
