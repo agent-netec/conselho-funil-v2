@@ -97,6 +97,9 @@ export function AppShell({ children }: AppShellProps) {
   const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/signup');
   const isWelcomePage = pathname === '/welcome';
 
+  // R-1.7: Must be declared here (before any early returns) to satisfy Rules of Hooks
+  const [verificationSent, setVerificationSent] = useState(false);
+
   useEffect(() => {
     if (!isInitialized) return;
 
@@ -160,7 +163,6 @@ export function AppShell({ children }: AppShellProps) {
   }
 
   // R-1.7: Email verification banner
-  const [verificationSent, setVerificationSent] = useState(false);
   const showVerificationBanner = user && !user.emailVerified && !isAuthPage && !isWelcomePage;
 
   const handleResendVerification = async () => {
