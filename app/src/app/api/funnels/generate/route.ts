@@ -22,6 +22,8 @@ import { formatBrandContextForFunnel, parseAIJSON } from '@/lib/ai/formatters';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { buildFunnelBrainContext } from '@/lib/ai/prompts/funnel-brain-context';
 import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -57,6 +59,20 @@ export async function POST(request: NextRequest) {
 
     // Update funnel status to generating
     await updateFunnel(funnelId, { status: 'generating' });
+
+    // Auth guard: derive brandId from funnel, then verify access
+    try {
+      const funnelForAuth = await getFunnel(funnelId);
+      if (funnelForAuth?.brandId) {
+        try {
+          await requireBrandAccess(request, funnelForAuth.brandId);
+        } catch (err: any) {
+          return handleSecurityError(err);
+        }
+      }
+    } catch {
+      // Funnel lookup failed — proceed without auth (graceful degradation)
+    }
 
     // Load brand context if funnel has brandId
     let brandContext = '';

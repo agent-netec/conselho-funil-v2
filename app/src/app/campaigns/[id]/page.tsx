@@ -40,18 +40,9 @@ export default function CampaignCommandCenter() {
   const [completedStages, setCompletedStages] = useState<string[]>([]);
   const [currentStageId, setCurrentStageId] = useState<string>('funnel');
 
-  // Mock metrics for ST-11.17
-  const [metrics] = useState<Metric[]>([
-    { label: 'CTR Médio', value: 0.65, target: 1.2, unit: '%', status: 'danger', change: -12 },
-    { label: 'CPC Médio', value: 2.45, target: 1.5, unit: 'currency', status: 'warning', change: 8 },
-    { label: 'Conversão', value: 3.2, target: 5.0, unit: '%', status: 'warning', change: -5 },
-    { label: 'ROAS', value: 2.1, target: 4.0, unit: 'ratio', status: 'danger', change: -15 },
-  ]);
+  const [metrics] = useState<Metric[]>([]);
 
-  const [anomalies] = useState<string[]>([
-    "CTR < 0.8%: O Design não está parando o scroll no Meta Ads. O framework C.H.A.P.E.U sugere aumentar o Contraste e a Hierarquia Visual nos primeiros 3 segundos.",
-    "CPC acima do benchmark: A segmentação de audiência pode estar muito ampla ou a Big Idea da copy não está ressonando com o público 'Inconsciente'."
-  ]);
+  const [anomalies] = useState<string[]>([]);
 
   useEffect(() => {
     if (!params.id) return;

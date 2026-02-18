@@ -6,12 +6,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  collection, 
-  getDocs, 
-  addDoc, 
-  query, 
-  orderBy, 
+import {
+  collection,
+  getDocs,
+  addDoc,
+  query,
+  orderBy,
   where,
   Timestamp,
   doc,
@@ -20,6 +20,8 @@ import {
 import { db } from '@/lib/firebase/config';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import type { LibraryTemplate, Funnel, Proposal } from '@/types/database';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -80,6 +82,15 @@ export async function POST(request: NextRequest) {
       return createApiError(404, 'Funnel not found');
     }
     const funnel = { id: funnelDoc.id, ...funnelDoc.data() } as Funnel;
+
+    // Auth guard: derive brandId from funnel, then verify access
+    if ((funnel as any).brandId) {
+      try {
+        await requireBrandAccess(request, (funnel as any).brandId);
+      } catch (err: any) {
+        return handleSecurityError(err);
+      }
+    }
 
     // Get proposal data
     const proposalDoc = await getDoc(doc(db, 'funnels', funnelId, 'proposals', proposalId));

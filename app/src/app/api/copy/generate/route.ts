@@ -42,6 +42,8 @@ import { parseAIJSON } from '@/lib/ai/formatters';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { buildCopyBrainContext } from '@/lib/ai/prompts/copy-brain-context';
 import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 export const maxDuration = 90; // Aumentado para lidar com RAG
@@ -78,6 +80,15 @@ export async function POST(request: NextRequest) {
     }
     
     const funnel = { id: funnelSnap.id, ...funnelSnap.data() } as Funnel;
+
+    // Auth guard: derive brandId from funnel, then verify access
+    if (funnel.brandId) {
+      try {
+        await requireBrandAccess(request, funnel.brandId);
+      } catch (err: any) {
+        return handleSecurityError(err);
+      }
+    }
 
     // Get proposal
     const proposalRef = doc(db, 'funnels', funnelId, 'proposals', proposalId);
@@ -286,6 +297,19 @@ export async function GET(request: NextRequest) {
 
     if (!funnelId) {
       return createApiError(400, 'funnelId is required');
+    }
+
+    // Auth guard: derive brandId from funnel, then verify access
+    const funnelDocSnap = await getDoc(doc(db, 'funnels', funnelId));
+    if (funnelDocSnap.exists()) {
+      const funnelBrandId = (funnelDocSnap.data() as any).brandId;
+      if (funnelBrandId) {
+        try {
+          await requireBrandAccess(request, funnelBrandId);
+        } catch (err: any) {
+          return handleSecurityError(err);
+        }
+      }
     }
 
     const copyProposalsRef = collection(db, 'funnels', funnelId, 'copyProposals');

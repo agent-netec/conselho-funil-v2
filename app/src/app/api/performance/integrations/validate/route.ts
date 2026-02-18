@@ -18,7 +18,7 @@ import { META_API, GOOGLE_ADS_API } from '@/lib/integrations/ads/constants';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { brandId, platform, apiKey, accountId, mock } = body;
+    const { brandId, platform, apiKey, accountId } = body;
 
     // Security check: brandId é obrigatório
     if (!brandId) {
@@ -34,23 +34,6 @@ export async function POST(req: NextRequest) {
       await requireBrandAccess(req, brandId);
     } catch (error) {
       return handleSecurityError(error);
-    }
-
-    // Lógica de Mock para validação inicial (ST-18.2) — P-08: mock=true preservado
-    if (mock === true || mock === 'true') {
-      console.log(`[Mock] Validando integração ${platform} para brand ${brandId}`);
-      
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      const isValid = apiKey.startsWith('sk_') || apiKey.startsWith('meta_') || apiKey === 'mock_key';
-
-      if (isValid) {
-        return createApiSuccess({
-          message: `[Mock] Integração com ${platform} validada com sucesso.`
-        });
-      } else {
-        return createApiError(401, `[Mock] Chave de API inválida para ${platform}.`);
-      }
     }
 
     // ─── Validação real (S30-FN-02) ───

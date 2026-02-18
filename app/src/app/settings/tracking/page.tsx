@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Header } from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
-import { useBrandStore } from '@/lib/stores/brand-store';
+import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import {
   Code2,
   Copy,
@@ -18,7 +18,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 
 export default function TrackingSettingsPage() {
-  const { activeBrand } = useBrandStore();
+  const activeBrand = useActiveBrand();
   const [copied, setCopied] = useState(false);
   const brandId = activeBrand?.id;
 

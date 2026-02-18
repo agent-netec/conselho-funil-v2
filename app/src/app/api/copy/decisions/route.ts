@@ -19,6 +19,8 @@ import { updateCampaignManifesto } from '@/lib/firebase/firestore';
 import type { CopyDecision } from '@/types/database';
 import type { CampaignContext } from '@/types/campaign';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 
@@ -35,6 +37,19 @@ export async function POST(request: NextRequest) {
     // Validate type
     if (!['approve', 'adjust', 'kill'].includes(type)) {
       return createApiError(400, 'type must be approve, adjust, or kill');
+    }
+
+    // Auth guard: derive brandId from funnel, then verify access
+    const funnelGuardSnap = await getDoc(doc(db, 'funnels', funnelId));
+    if (funnelGuardSnap.exists()) {
+      const funnelBrandId = (funnelGuardSnap.data() as any).brandId;
+      if (funnelBrandId) {
+        try {
+          await requireBrandAccess(request, funnelBrandId);
+        } catch (err: any) {
+          return handleSecurityError(err);
+        }
+      }
     }
 
     // Verify copy proposal exists

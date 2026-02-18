@@ -24,6 +24,7 @@ import { VaultExplorer } from '@/components/vault/vault-explorer';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
+import { useAuthStore } from '@/lib/stores/auth-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import {
   queryVaultLibrary,
@@ -32,9 +33,12 @@ import {
   saveVaultContent
 } from '@/lib/firebase/vault';
 import type { VaultContent, CopyDNA, VaultAsset } from '@/types/vault';
+import { DNAWizard } from '@/components/vault/dna-wizard';
+import { Dna } from 'lucide-react';
 
 export default function VaultPage() {
   const activeBrand = useActiveBrand();
+  const { user } = useAuthStore();
   const brandId = activeBrand?.id;
   const [activeTab, setActiveTab] = useState('review');
   const [reviewItems, setReviewItems] = useState<VaultContent[]>([]);
@@ -43,6 +47,7 @@ export default function VaultPage() {
   const [assets, setAssets] = useState<VaultAsset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [runningAutopilot, setRunningAutopilot] = useState(false);
+  const [showDNAWizard, setShowDNAWizard] = useState(false);
 
   const loadVaultData = useCallback(async () => {
     if (!brandId) return;
@@ -79,7 +84,7 @@ export default function VaultPage() {
         ...contentToApprove,
         status: 'approved',
         approvalChain: {
-          approvedBy: 'current-user',
+          approvedBy: user?.uid || 'unknown',
           approvedAt: { seconds: Date.now() / 1000, nanoseconds: 0 } as any
         }
       });
@@ -166,6 +171,14 @@ export default function VaultPage() {
             <Button variant="outline" className="btn-ghost border-white/[0.05]" onClick={handleHistory}>
               <History className="mr-2 h-4 w-4" />
               Histórico
+            </Button>
+            <Button
+              variant="outline"
+              className="btn-ghost border-white/[0.05]"
+              onClick={() => setShowDNAWizard(true)}
+            >
+              <Dna className="mr-2 h-4 w-4" />
+              Novo DNA
             </Button>
             <Button className="btn-accent" onClick={handleNewAsset}>
               <Plus className="mr-2 h-4 w-4" />
@@ -355,6 +368,14 @@ export default function VaultPage() {
 
         </div>
       </main>
+
+      {/* X-2.1: DNA Wizard Modal */}
+      {showDNAWizard && (
+        <DNAWizard
+          onClose={() => setShowDNAWizard(false)}
+          onSaved={() => loadVaultData()}
+        />
+      )}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Header } from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useBrandStore } from '@/lib/stores/brand-store';
+import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
@@ -79,7 +79,7 @@ const PROVIDERS: ProviderConfig[] = [
 ];
 
 export default function PaymentWebhooksPage() {
-  const { activeBrand } = useBrandStore();
+  const activeBrand = useActiveBrand();
   const brandId = activeBrand?.id;
   const [secrets, setSecrets] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);

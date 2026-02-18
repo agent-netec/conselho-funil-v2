@@ -22,11 +22,11 @@ function resolveError(error: unknown): { status: number; message: string } {
   return { status: 500, message: 'Internal server error' };
 }
 
-export async function GET(req: NextRequest, context: { params: { testId: string } }) {
+export async function GET(req: NextRequest, context: { params: Promise<{ testId: string }> }) {
   try {
     const { searchParams } = new URL(req.url);
     const brandId = searchParams.get('brandId');
-    const { testId } = context.params;
+    const { testId } = await context.params;
 
     if (!brandId) {
       return createApiError(400, 'brandId is required');
@@ -46,9 +46,9 @@ export async function GET(req: NextRequest, context: { params: { testId: string 
   }
 }
 
-export async function PUT(req: NextRequest, context: { params: { testId: string } }) {
+export async function PUT(req: NextRequest, context: { params: Promise<{ testId: string }> }) {
   try {
-    const { testId } = context.params;
+    const { testId } = await context.params;
     const body = await req.json();
     const parsed = UpdateABTestSchema.parse(body);
     const { brandId, action, ...updates } = parsed as {
@@ -88,9 +88,9 @@ export async function PUT(req: NextRequest, context: { params: { testId: string 
   }
 }
 
-export async function DELETE(req: NextRequest, context: { params: { testId: string } }) {
+export async function DELETE(req: NextRequest, context: { params: Promise<{ testId: string }> }) {
   try {
-    const { testId } = context.params;
+    const { testId } = await context.params;
     const { searchParams } = new URL(req.url);
     const brandId = searchParams.get('brandId');
 

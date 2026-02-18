@@ -119,6 +119,16 @@ export interface LogoAsset {
   svgRaw?: string;    // Conteúdo da SVG para manipulação em tempo real pela IA (opcional)
 }
 
+// X-3.1: Voice Profile expandido
+export interface VoiceProfile {
+  primaryTone: string;
+  secondaryTone?: string;
+  preferredVocabulary: string[];
+  forbiddenTerms: string[];
+  samplePhrases: string[];
+  language: string; // default 'pt-BR'
+}
+
 export interface Brand {
   id: string;
   userId: string;
@@ -143,7 +153,10 @@ export interface Brand {
   };
 
   brandKit?: BrandKit; // US-18.1 & US-18.2
-  
+
+  // X-3.1: Voice Profile expandido
+  voiceProfile?: VoiceProfile;
+
   // ST-12.2: Configuração de IA por Marca
   aiConfiguration?: {
     temperature: number;      // 0.1 a 1.0
@@ -191,6 +204,11 @@ export interface BrandAsset {
   description?: string;      // Descrição opcional do arquivo
   tags?: string[];           // Tags para organização e busca
   isApprovedForAI: boolean;  // Flag de governança (US-18.3)
+  // X-4.3: Versionamento de Assets
+  version?: number;
+  previousVersionId?: string;
+  changelog?: string;
+
   createdAt: Timestamp;
   processedAt?: Timestamp;   // Timestamp quando ficou 'ready'
   metadata?: {
@@ -200,6 +218,8 @@ export interface BrandAsset {
     isApprovedForAI: boolean;
     extractedAt: string;
     processingMethod: 'jina' | 'gemini-vision' | 'readability' | 'cheerio' | 'worker-v2' | 'text-direct';
+    // X-4.2: Auto-tag por tipo de criativo
+    creativeType?: 'carrossel' | 'video' | 'UGC' | 'depoimento' | 'produto' | 'lifestyle' | 'before-after';
   };
 }
 

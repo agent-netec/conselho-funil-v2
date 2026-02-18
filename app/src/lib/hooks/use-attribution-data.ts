@@ -33,6 +33,7 @@ export function useAttributionData(days: number = 30) {
   const [lastSyncAt, setLastSyncAt] = useState<Date | null>(null);
   const [syncing, setSyncing] = useState(false);
   const autoSyncTriggered = useRef(false);
+  const syncInFlightRef = useRef(false);
 
   // Sprint T-1.3: Determine data sufficiency
   const dataSufficiency: DataSufficiency =
@@ -44,7 +45,8 @@ export function useAttributionData(days: number = 30) {
 
   // Sprint T-1.4: Auto-sync when data >6h stale
   const triggerSync = useCallback(async () => {
-    if (!activeBrand?.id || syncing) return;
+    if (!activeBrand?.id || syncInFlightRef.current) return;
+    syncInFlightRef.current = true;
     setSyncing(true);
     try {
       const headers = await getAuthHeaders();
@@ -57,8 +59,9 @@ export function useAttributionData(days: number = 30) {
       console.warn('[Attribution] Auto-sync failed:', err instanceof Error ? err.message : err);
     } finally {
       setSyncing(false);
+      syncInFlightRef.current = false;
     }
-  }, [activeBrand?.id, days, syncing]);
+  }, [activeBrand?.id, days]);
 
   useEffect(() => {
     if (!activeBrand?.id) return;

@@ -37,36 +37,7 @@ export function SourcesTab() {
   const { selectedBrand } = useBrandStore();
   const { currentScope } = useContextStore();
   
-  // Mock de fontes para visualização inicial
-  const [sources, setSources] = React.useState<Partial<MonitoringSource>[]>([
-    {
-      id: '1',
-      displayName: 'Reddit - r/copywriting',
-      platform: 'reddit',
-      type: 'community',
-      status: 'active',
-      relevanceScore: 0.95,
-      scope: { level: 'brand', brandId: selectedBrand?.id }
-    },
-    {
-      id: '2',
-      displayName: 'Competidor: ClickFunnels Blog',
-      platform: 'website',
-      type: 'competitor_site',
-      status: 'active',
-      relevanceScore: 0.88,
-      scope: { level: 'funnel', brandId: selectedBrand?.id, funnelId: 'f1' }
-    },
-    {
-      id: '3',
-      displayName: 'Twitter - #MarketingTrends',
-      platform: 'twitter',
-      type: 'trend_topic',
-      status: 'error',
-      lastError: 'Rate limit exceeded',
-      scope: { level: 'brand', brandId: selectedBrand?.id }
-    }
-  ]);
+  const [sources, setSources] = React.useState<Partial<MonitoringSource>[]>([]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -100,6 +71,11 @@ export function SourcesTab() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {sources.length === 0 && (
+          <p className="text-sm text-zinc-500 text-center py-8 col-span-full">
+            Nenhuma fonte de monitoramento configurada. Configure fontes em Inteligência &rarr; Fontes.
+          </p>
+        )}
         {sources.map((source) => (
           <Card key={source.id} className="bg-zinc-900/50 border-white/[0.06] hover:border-white/[0.1] transition-all group">
             <CardHeader className="p-4 pb-2">

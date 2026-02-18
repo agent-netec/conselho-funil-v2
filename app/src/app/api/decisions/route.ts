@@ -6,12 +6,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  collection, 
-  getDocs, 
-  addDoc, 
-  query, 
-  orderBy, 
+import {
+  collection,
+  getDocs,
+  addDoc,
+  query,
+  orderBy,
   where,
   Timestamp,
   doc,
@@ -21,6 +21,8 @@ import {
 import { db } from '@/lib/firebase/config';
 import type { Funnel, Proposal } from '@/types/database';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -82,6 +84,19 @@ export async function GET(request: NextRequest) {
       return createApiError(400, 'funnelId is required');
     }
 
+    // Auth guard: derive brandId from funnel, then verify access
+    const funnelSnap = await getDoc(doc(db, 'funnels', funnelId));
+    if (funnelSnap.exists()) {
+      const funnelBrandId = (funnelSnap.data() as any).brandId;
+      if (funnelBrandId) {
+        try {
+          await requireBrandAccess(request, funnelBrandId);
+        } catch (err: any) {
+          return handleSecurityError(err);
+        }
+      }
+    }
+
     // ST-11.6: Simplified query to avoid composite index (INC-004)
     const q = query(
       collection(db, 'decisions'),
@@ -135,6 +150,15 @@ export async function POST(request: NextRequest) {
       return createApiError(404, 'Funnel not found');
     }
     const funnel = funnelDoc.data() as Funnel;
+
+    // Auth guard: derive brandId from funnel, then verify access
+    if ((funnel as any).brandId) {
+      try {
+        await requireBrandAccess(request, (funnel as any).brandId);
+      } catch (err: any) {
+        return handleSecurityError(err);
+      }
+    }
 
     // Get proposal data
     const proposalDoc = await getDoc(doc(db, 'funnels', funnelId, 'proposals', proposalId));

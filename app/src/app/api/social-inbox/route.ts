@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+import { NextRequest } from 'next/server';
 import { InboxAggregator } from '@/lib/agents/engagement/inbox-aggregator';
 import { generateSocialResponse } from '@/lib/agents/engagement/response-engine';
 import { db } from '@/lib/firebase/config';
@@ -6,6 +7,8 @@ import { doc, getDoc, collection, getDocs, query, orderBy, limit as firestoreLim
 import { Brand } from '@/types/database';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import type { SocialInteraction } from '@/types/social-inbox';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 
 /**
  * API Route para o Social Command Center.
@@ -25,6 +28,13 @@ export async function GET(request: Request) {
 
   if (!brandId) {
     return createApiError(400, 'brandId é obrigatório');
+  }
+
+  // Auth guard: verify user has access to this brand
+  try {
+    await requireBrandAccess(request as NextRequest, brandId);
+  } catch (err: any) {
+    return handleSecurityError(err);
   }
 
   try {
@@ -111,6 +121,13 @@ export async function POST(request: Request) {
 
     if (!interaction.id) {
       return createApiError(400, 'interaction.id é obrigatório');
+    }
+
+    // Auth guard: verify user has access to this brand
+    try {
+      await requireBrandAccess(request as NextRequest, brandId);
+    } catch (err: any) {
+      return handleSecurityError(err);
     }
 
     // Gerar sugestoes reais via Response Engine (S32-RE-02)

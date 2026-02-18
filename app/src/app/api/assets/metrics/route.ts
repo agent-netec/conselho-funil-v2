@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { queryPinecone, getPineconeIndex } from '@/lib/ai/pinecone';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { getBrandAssets } from '@/lib/firebase/assets';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -21,6 +23,13 @@ export async function GET(request: NextRequest) {
 
     if (!brandId) {
       return createApiError(400, 'brandId é obrigatório');
+    }
+
+    // Auth guard: verify user has access to this brand
+    try {
+      await requireBrandAccess(request, brandId);
+    } catch (err: any) {
+      return handleSecurityError(err);
     }
 
     // --- 1. Firestore: source of truth for all assets ---

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useBrandStore } from '@/lib/stores/brand-store';
+import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import Link from 'next/link';
 
@@ -31,7 +31,7 @@ interface HeatmapStage {
 export default function JourneyPage() {
   const [leadId, setLeadId] = useState('');
   const router = useRouter();
-  const { activeBrand } = useBrandStore();
+  const activeBrand = useActiveBrand();
   const { user } = useAuthStore();
   const brandId = activeBrand?.id;
 

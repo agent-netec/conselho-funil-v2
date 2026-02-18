@@ -5,6 +5,8 @@ import { db } from '@/lib/firebase/config';
 import { CampaignContext } from '@/types/campaign';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { updateUserUsage } from '@/lib/firebase/firestore';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 import { generateAds } from '@/lib/intelligence/creative-engine/ad-generator';
 import { buildAdsBrainContext } from '@/lib/ai/prompts/ads-brain-context';
 import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM } from '@/lib/ai/rag';
@@ -53,6 +55,15 @@ export async function POST(
 
     const campaign = { id: campaignSnap.id, ...campaignSnap.data() } as CampaignContext;
     const brandId = campaign.brandId;
+
+    // Auth guard: verify user has access to this brand
+    if (brandId) {
+      try {
+        await requireBrandAccess(request, brandId);
+      } catch (err: any) {
+        return handleSecurityError(err);
+      }
+    }
 
     // 2. Build synthetic elite assets from campaign data
     const eliteAssets = buildEliteAssetsFromCampaign(campaign);

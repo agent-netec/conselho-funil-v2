@@ -20,9 +20,9 @@ function resolveError(error: unknown): { status: number; message: string } {
   return { status: 500, message: 'Internal server error' };
 }
 
-export async function POST(req: NextRequest, context: { params: { testId: string } }) {
+export async function POST(req: NextRequest, context: { params: Promise<{ testId: string }> }) {
   try {
-    const { testId } = context.params;
+    const { testId } = await context.params;
     const body = await req.json();
     const parsed = AssignVariantSchema.parse(body);
 

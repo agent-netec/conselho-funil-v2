@@ -175,23 +175,9 @@ export default function PerformanceWarRoomPage() {
     fetchAdvisorInsight();
   }, [segmentDataForAdvisor, selectedSegment, metrics, anomalies, selectedBrand?.id, blendedMetrics.roas]);
 
-  // Sprint T-3.2: Sync button triggers ads-sync for the brand
+  // Sprint T-3.2: Refresh button re-fetches cached data (real sync runs via /api/cron/ads-sync)
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    try {
-      const headers = await getAuthHeaders();
-      // Trigger on-demand ads sync
-      await fetch('/api/performance/sync', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ brandId: selectedBrand?.id }),
-      }).catch(() => {
-        // If dedicated sync endpoint doesn't exist, just re-fetch
-      });
-    } catch {
-      // Ignore sync errors
-    }
-    // Re-fetch display data regardless
     await fetchData();
   };
 

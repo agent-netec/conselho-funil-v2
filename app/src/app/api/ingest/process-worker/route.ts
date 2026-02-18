@@ -7,7 +7,13 @@ export const dynamic = 'force-dynamic';
 /**
  * Endpoint de processamento de assets (Ingestão v2).
  * Orquestra Extração -> Chunking -> Embedding -> Pinecone via Worker.
- * 
+ *
+ * NOTE: No auth guard (requireBrandAccess) here because this is an internal-only
+ * endpoint called server-side by other API routes (e.g., ingest/url, assets/reanalyze).
+ * It only receives an assetId with no brandId, and adding auth would break the
+ * fire-and-forget pattern used by callers. Access control is enforced at the
+ * caller level (the routes that trigger this worker).
+ *
  * @param request - Body: { assetId: string, namespace?: string }
  */
 export async function POST(request: NextRequest) {

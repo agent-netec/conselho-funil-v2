@@ -207,6 +207,34 @@ export async function getBrandDNA(brandId: string): Promise<CopyDNA[]> {
   return snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as CopyDNA));
 }
 
+/**
+ * X-2.2: Update DNA performance metrics after a post using this DNA is published.
+ */
+export async function updateDNAPerformance(
+  brandId: string,
+  dnaId: string,
+  metrics: {
+    conversion_rate?: number;
+    engagement_rate?: number;
+    best_platform?: string;
+  }
+): Promise<void> {
+  const dnaRef = doc(db, 'brands', brandId, 'vault', 'dna', dnaId);
+  const snap = await getDoc(dnaRef);
+  if (!snap.exists()) return;
+
+  const current = snap.data()?.performance_metrics || {};
+  const postsUsing = (current.posts_using || 0) + 1;
+
+  await updateDoc(dnaRef, {
+    'performance_metrics.posts_using': postsUsing,
+    ...(metrics.conversion_rate !== undefined && { 'performance_metrics.conversion_rate': metrics.conversion_rate }),
+    ...(metrics.engagement_rate !== undefined && { 'performance_metrics.engagement_rate': metrics.engagement_rate }),
+    ...(metrics.best_platform !== undefined && { 'performance_metrics.best_platform': metrics.best_platform }),
+    updatedAt: Timestamp.now(),
+  });
+}
+
 // ============================================
 // ASSETS (brands/{brandId}/vault/assets)
 // ============================================

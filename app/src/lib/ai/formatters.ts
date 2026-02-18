@@ -21,9 +21,17 @@ export const PERSONALITY_INSTRUCTIONS: Record<string, string> = {
  * Returns the personality instruction for a brand's AI profile.
  * Falls back to empty string if no profile is set.
  */
-export function getPersonalityInstruction(profile?: string): string {
+export function getPersonalityInstruction(profile?: string, language?: string): string {
   if (!profile) return '';
-  return PERSONALITY_INSTRUCTIONS[profile] || '';
+  const base = PERSONALITY_INSTRUCTIONS[profile] || '';
+  if (language && language !== 'pt-BR') {
+    const langMap: Record<string, string> = {
+      en: 'Respond in English.',
+      es: 'Responde en Español.',
+    };
+    return `${base} ${langMap[language] || ''}`.trim();
+  }
+  return base;
 }
 
 /**

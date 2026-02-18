@@ -6,6 +6,8 @@ import { createAsset, updateAssetStatus } from '@/lib/firebase/assets';
 import { processAssetText } from '@/lib/firebase/assets-server';
 import type { BrandAsset } from '@/types/database';
 import { parseJsonBody } from '@/app/api/_utils/parse-json';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -128,6 +130,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<IngestRes
         { success: false, error: 'userId é obrigatório' },
         { status: 400 }
       );
+    }
+
+    // Auth guard: verify user has access to this brand
+    try {
+      await requireBrandAccess(request, brandId.trim());
+    } catch (err: any) {
+      return handleSecurityError(err) as NextResponse<IngestResponse>;
     }
 
     console.log(`[Ingest URL] Extraindo conteúdo para ${url}`);

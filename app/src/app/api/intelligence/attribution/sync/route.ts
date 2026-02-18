@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { AttributionBridgeService } from '@/lib/intelligence/attribution/bridge';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { db } from '@/lib/firebase/config';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
 import { JourneyEvent } from '@/types/journey';
 /**
@@ -21,6 +23,13 @@ export async function POST(request: NextRequest) {
 
     if (!brandId || typeof brandId !== 'string') {
       return createApiError(400, 'brandId is required', { code: 'VALIDATION_ERROR' });
+    }
+
+    // Auth guard: verify user has access to this brand
+    try {
+      await requireBrandAccess(request, brandId);
+    } catch (err: any) {
+      return handleSecurityError(err);
     }
 
     const now = Timestamp.now();

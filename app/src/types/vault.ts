@@ -15,9 +15,25 @@ export interface CopyDNA {
   performance_metrics?: {
     avg_engagement: number;
     usage_count: number;
+    conversion_rate?: number;
+    engagement_rate?: number;
+    best_platform?: SocialPlatform;
+    posts_using: number;
   };
   tags: string[];
   updatedAt: Timestamp;
+}
+
+export interface SocialCaseStudy {
+  id: string;
+  brandId: string;
+  content: string;
+  platform: SocialPlatform;
+  outcome: 'success' | 'failure';
+  metrics?: Record<string, number>;
+  analysis: string;
+  tags: string[];
+  createdAt: Timestamp;
 }
 
 export interface VaultAsset {

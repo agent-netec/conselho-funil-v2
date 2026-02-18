@@ -24,6 +24,59 @@ export function sanitizeBrandId(brandId: string): string {
   return brandId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 128);
 }
 
+/**
+ * Valida que o request tem um usuário autenticado (sem verificar brand).
+ * Útil para rotas user-level como api-keys, preferences, etc.
+ *
+ * @param req - NextRequest com header Authorization
+ * @returns userId do usuário autenticado
+ * @throws ApiError(401) se autenticação falhar
+ */
+export async function requireUser(req: NextRequest): Promise<string> {
+  const authHeader = req.headers.get('Authorization');
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new ApiError(401, 'Autenticação necessária (Bearer token ausente)');
+  }
+
+  const idToken = authHeader.split('Bearer ')[1];
+  if (!idToken) {
+    throw new ApiError(401, 'Token de autenticação vazio');
+  }
+
+  const apiKey = (process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? '').trim();
+  if (!apiKey) {
+    throw new ApiError(500, 'Configuração do Firebase ausente (API Key)');
+  }
+
+  try {
+    const response = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new ApiError(401, 'Token de autenticação inválido ou expirado');
+    }
+
+    const data = await response.json();
+    const userId = data.users?.[0]?.localId;
+
+    if (!userId) {
+      throw new ApiError(401, 'Usuário não encontrado no provedor de auth');
+    }
+
+    return userId;
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(401, 'Falha na validação do token de autenticação');
+  }
+}
+
 interface BrandAccessResult {
   userId: string;
   brandId: string;

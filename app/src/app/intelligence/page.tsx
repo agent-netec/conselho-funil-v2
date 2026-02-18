@@ -10,131 +10,14 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CompetitorList } from "@/components/intelligence/competitors/competitor-list"
 import { AssetGallery } from "@/components/intelligence/competitors/asset-gallery"
-import { CompetitorProfile, IntelligenceAsset, CompetitorDossier } from "@/types/competitors"
-import { Timestamp } from "firebase/firestore"
+import { CompetitorProfile } from "@/types/competitors"
 import { DossierView } from "@/components/intelligence/competitors/dossier-view"
 import { FileText, BrainCircuit, Search, Share2, Sparkles } from "lucide-react"
 import { PublicEmotion } from "@/components/intelligence/public-emotion"
 import { KeywordRanking } from "@/components/intelligence/keyword-ranking"
 import { SocialVolumeChart } from "@/components/intelligence/social-volume-chart"
-import { KeywordIntelligence } from "@/types/intelligence"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-
-// Mock data for initial UI development
-const MOCK_KEYWORDS: KeywordIntelligence[] = [
-  {
-    term: "como vender infoprodutos",
-    intent: "informational",
-    metrics: {
-      volume: 12500,
-      difficulty: 45,
-      opportunityScore: 82,
-      trend: 15
-    },
-    relatedTerms: ["vender cursos online", "plataformas de infoprodutos"],
-    suggestedBy: "scout"
-  },
-  {
-    term: "melhor plataforma de checkout",
-    intent: "commercial",
-    metrics: {
-      volume: 8400,
-      difficulty: 65,
-      opportunityScore: 58,
-      trend: 5
-    },
-    relatedTerms: ["checkout transparente", "taxas hotmart vs kiwify"],
-    suggestedBy: "analyst"
-  },
-  {
-    term: "conselho de funil login",
-    intent: "navigational",
-    metrics: {
-      volume: 2100,
-      difficulty: 10,
-      opportunityScore: 95,
-      trend: 40
-    },
-    relatedTerms: [],
-    suggestedBy: "manual"
-  },
-  {
-    term: "comprar curso de funil de vendas",
-    intent: "transactional",
-    metrics: {
-      volume: 3200,
-      difficulty: 80,
-      opportunityScore: 42,
-      trend: -10
-    },
-    relatedTerms: ["curso funil de vendas preço"],
-    suggestedBy: "scout"
-  }
-];
-
-const MOCK_SOCIAL_VOLUME = [
-  { date: "18 Jan", twitter: 45, reddit: 12, total: 57 },
-  { date: "19 Jan", twitter: 52, reddit: 15, total: 67 },
-  { date: "20 Jan", twitter: 38, reddit: 22, total: 60 },
-  { date: "21 Jan", twitter: 65, reddit: 28, total: 93 },
-  { date: "22 Jan", twitter: 88, reddit: 35, total: 123 },
-  { date: "23 Jan", twitter: 72, reddit: 31, total: 103 },
-  { date: "24 Jan", twitter: 95, reddit: 42, total: 137 },
-];
-
-const MOCK_EMOTIONS = {
-  joy: 45,
-  anger: 12,
-  sadness: 5,
-  surprise: 18,
-  fear: 8,
-  neutral: 12
-};
-const MOCK_COMPETITORS: CompetitorProfile[] = [
-// ... (previous mock competitors)
-];
-
-const MOCK_DOSSIER: CompetitorDossier = {
-  id: "dossier_1",
-  competitorId: "comp_1",
-  brandId: "brand_123",
-  title: "Análise Estratégica: Concorrente Alpha",
-  summary: "O Concorrente Alpha apresenta uma operação madura focada em tráfego direto para LPs de alta conversão. Sua principal vantagem reside na agressividade do copywriting e no uso extensivo de provas sociais dinâmicas. Detectamos um funil de 3 etapas com upsell imediato de ticket médio.",
-  analysis: {
-    swot: {
-      strengths: [
-        "Copywriting altamente persuasivo focado em dor",
-        "Velocidade de carregamento das LPs otimizada",
-        "Uso avançado de retargeting baseado em comportamento"
-      ],
-      weaknesses: [
-        "Design visual datado (estilo 2022)",
-        "Dependência excessiva de uma única fonte de tráfego (Meta Ads)",
-        "Checkout com fricção elevada em dispositivos móveis"
-      ],
-      opportunities: [
-        "Explorar canais de busca (SEO/Google Ads) onde eles são fracos",
-        "Adotar um design mais minimalista e moderno para atrair público premium",
-        "Implementar Order Bump que eles ainda não utilizam"
-      ],
-      threats: [
-        "Escala agressiva de orçamento que pode inflacionar o CPM do nicho",
-        "Lançamento iminente de uma nova linha de produtos detectada no código fonte"
-      ]
-    },
-    offerType: "Venda Direta com Upsell",
-    visualStyle: ["Agressivo", "Contraste Alto", "Focado em Texto"],
-    marketPositioning: "Líder em volume de vendas no segmento B2C, posicionando-se como a solução mais rápida e barata do mercado."
-  },
-  generatedAt: Timestamp.now(),
-  version: 1
-};
-
-const MOCK_ASSETS: IntelligenceAsset[] = [
-// ... (previous mock assets)
-];
-
 import { useKeywordIntelligence, useIntelligenceStats } from "@/lib/hooks/use-intelligence"
 
 export default function IntelligencePage() {
@@ -190,14 +73,14 @@ export default function IntelligencePage() {
               {loadingStats ? (
                 <Skeleton className="h-[350px] w-full rounded-xl" />
               ) : (
-                <SocialVolumeChart data={stats.socialVolume.length > 0 ? stats.socialVolume : MOCK_SOCIAL_VOLUME} />
+                <SocialVolumeChart data={stats.socialVolume} />
               )}
             </div>
             <div>
               {loadingStats ? (
                 <Skeleton className="h-[350px] w-full rounded-xl" />
               ) : (
-                <PublicEmotion emotions={Object.values(stats.emotions).some((v: number) => v > 0) ? stats.emotions as { joy: number; anger: number; sadness: number; surprise: number; fear: number; neutral: number } : MOCK_EMOTIONS} />
+                <PublicEmotion emotions={Object.values(stats.emotions).some((v: number) => v > 0) ? stats.emotions as { joy: number; anger: number; sadness: number; surprise: number; fear: number; neutral: number } : undefined} />
               )}
             </div>
           </div>
@@ -207,7 +90,7 @@ export default function IntelligencePage() {
               {loadingKeywords ? (
                 <Skeleton className="h-[400px] w-full rounded-xl" />
               ) : (
-                <KeywordRanking keywords={keywords.length > 0 ? keywords : MOCK_KEYWORDS} />
+                <KeywordRanking keywords={keywords} />
               )}
             </div>
             <div className="space-y-6">
@@ -247,13 +130,13 @@ export default function IntelligencePage() {
           {loadingKeywords ? (
             <Skeleton className="h-[600px] w-full rounded-xl" />
           ) : (
-            <KeywordRanking keywords={keywords.length > 0 ? keywords : MOCK_KEYWORDS} />
+            <KeywordRanking keywords={keywords} />
           )}
         </TabsContent>
 
         <TabsContent value="competitors" className="space-y-6">
           <CompetitorList 
-            competitors={MOCK_COMPETITORS}
+            competitors={[]}
             onSelect={(comp) => {
               setSelectedCompetitor(comp);
               // Em um app real, aqui mudaríamos para a aba de ativos ou dossiê filtrado
@@ -273,12 +156,12 @@ export default function IntelligencePage() {
               <p className="text-sm text-muted-foreground">Screenshots e evidências coletadas pelo Spy Agent.</p>
             </div>
           </div>
-          <AssetGallery assets={MOCK_ASSETS} />
+          <AssetGallery assets={[]} />
         </TabsContent>
 
         <TabsContent value="dossier" className="space-y-6">
           {viewingDossier ? (
-            <DossierView dossier={MOCK_DOSSIER} />
+            <DossierView dossier={undefined} />
           ) : (
             <div className="text-center py-20 border-2 border-dashed rounded-xl bg-muted/20">
               <FileText className="mx-auto h-12 w-12 opacity-20 mb-4" />

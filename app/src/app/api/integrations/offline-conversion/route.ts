@@ -27,9 +27,14 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Registrar a transação no Firestore (Histórico do Lead)
+    const resolvedBrandId = body.brandId || lead.brandId;
+    if (!resolvedBrandId) {
+      return createApiError(400, 'brandId é obrigatório (no body ou no lead).');
+    }
+
     await createTransaction({
       leadId,
-      brandId: 'default', // TODO: Obter do contexto se necessário
+      brandId: resolvedBrandId,
       amount: value,
       currency: currency || 'BRL',
       product: {
@@ -48,7 +53,7 @@ export async function POST(req: NextRequest) {
     });
 
     // 4. Disparar Sincronização CAPI (Meta/Google) — S30-CAPI-00: brandId multi-tenant
-    const brandId = body.brandId || 'default';
+    const brandId = resolvedBrandId;
     const capiEngine = new CAPISyncEngine(brandId);
     const syncResults = await capiEngine.syncOfflineConversion({
       leadId,

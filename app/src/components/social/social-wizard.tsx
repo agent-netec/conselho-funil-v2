@@ -21,7 +21,8 @@ import {
   Zap, Share2, Smartphone, Instagram, Twitter, Linkedin, Youtube,
   Loader2, Check, Copy, Lightbulb, FileText, ArrowLeft, ArrowRight,
   Trophy, Sparkles, MessageSquare, Target, Megaphone, Building2,
-  TrendingUp, CalendarPlus, LayoutGrid
+  TrendingUp, CalendarPlus, LayoutGrid, BookmarkPlus, FlaskConical,
+  ThumbsUp, ThumbsDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { notify } from '@/lib/stores/notification-store';
@@ -113,6 +114,13 @@ export function SocialWizard() {
 
   // Calendar integration
   const [isSendingToCalendar, setIsSendingToCalendar] = useState(false);
+
+  // X-1.1: Case study
+  const [isSavingCase, setIsSavingCase] = useState(false);
+
+  // X-1.2: A/B variations
+  const [abVariations, setAbVariations] = useState<any>(null);
+  const [isGeneratingAB, setIsGeneratingAB] = useState(false);
 
   // === Handlers ===
 
@@ -279,6 +287,67 @@ export function SocialWizard() {
     setCopiedIndex(index);
     notify.success('Copiado!');
     setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  // X-1.1: Save as case study
+  const handleSaveCase = async (outcome: 'success' | 'failure') => {
+    if (!activeBrand?.id || !result?.hooks) return;
+    setIsSavingCase(true);
+    try {
+      const headers = await getAuthHeaders();
+      const hookContent = selectedHookIdx !== null ? result.hooks[selectedHookIdx].content : result.hooks[0].content;
+      const res = await fetch('/api/social/cases', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          brandId: activeBrand.id,
+          content: hookContent,
+          platform,
+          outcome,
+          analysis: scorecard ? JSON.stringify(scorecard) : debate || 'Sem análise disponível',
+          tags: [campaignType, platform],
+        }),
+      });
+      if (res.ok) {
+        notify.success(`Conteúdo marcado como ${outcome === 'success' ? 'sucesso' : 'fracasso'}!`);
+      } else {
+        notify.error('Erro ao salvar case study');
+      }
+    } catch {
+      notify.error('Erro de conexão');
+    } finally {
+      setIsSavingCase(false);
+    }
+  };
+
+  // X-1.2: Generate A/B variations
+  const handleGenerateAB = async () => {
+    if (!activeBrand?.id || !result?.hooks) return;
+    setIsGeneratingAB(true);
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/social/ab-variations', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          brandId: activeBrand.id,
+          hooks: result.hooks,
+          platform,
+          campaignType,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.data) {
+        setAbVariations(data.data);
+        notify.success('Variações A/B geradas!');
+      } else {
+        notify.error(data.error || 'Erro ao gerar variações');
+      }
+    } catch {
+      notify.error('Erro de conexão');
+    } finally {
+      setIsGeneratingAB(false);
+    }
   };
 
   const toggleFormat = (formatId: string) => {
@@ -668,6 +737,70 @@ export function SocialWizard() {
         </div>
 
         <ScorecardViewer scorecard={scorecard} />
+
+        {/* X-1.1: Case Study Actions */}
+        <Card className="p-4 bg-zinc-900/50 border-white/[0.04]">
+          <div className="flex items-center gap-2 mb-3">
+            <BookmarkPlus className="h-4 w-4 text-emerald-400" />
+            <h3 className="text-sm font-semibold text-zinc-200">Marcar como Case Study</h3>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              size="sm"
+              onClick={() => handleSaveCase('success')}
+              disabled={isSavingCase}
+              className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20"
+            >
+              <ThumbsUp className="mr-1.5 h-3.5 w-3.5" /> Sucesso
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => handleSaveCase('failure')}
+              disabled={isSavingCase}
+              className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20"
+            >
+              <ThumbsDown className="mr-1.5 h-3.5 w-3.5" /> Fracasso
+            </Button>
+            {isSavingCase && <Loader2 className="h-4 w-4 animate-spin text-zinc-500" />}
+          </div>
+        </Card>
+
+        {/* X-1.2: A/B Variations */}
+        <Card className="p-4 bg-zinc-900/50 border-white/[0.04]">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <FlaskConical className="h-4 w-4 text-blue-400" />
+              <h3 className="text-sm font-semibold text-zinc-200">Variações A/B</h3>
+            </div>
+            <Button
+              size="sm"
+              onClick={handleGenerateAB}
+              disabled={isGeneratingAB}
+              className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20"
+            >
+              {isGeneratingAB ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <FlaskConical className="mr-1.5 h-3.5 w-3.5" />}
+              {isGeneratingAB ? 'Gerando...' : 'Gerar Variações'}
+            </Button>
+          </div>
+          {abVariations?.variations?.map((group: any, gi: number) => (
+            <div key={gi} className="mb-4">
+              <p className="text-[10px] text-zinc-500 uppercase font-medium mb-2">Hook {group.originalHookIndex + 1}</p>
+              <div className="space-y-2">
+                {group.variants?.map((v: any, vi: number) => (
+                  <div key={vi} className="p-3 rounded-lg bg-zinc-800/30 border border-white/[0.03]">
+                    <p className="text-xs text-zinc-200">&ldquo;{v.content}&rdquo;</p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <Badge variant="outline" className="text-[10px] border-blue-500/20 text-blue-400 bg-blue-500/5">
+                        {v.angle}
+                      </Badge>
+                      <span className="text-[10px] text-zinc-500">Score: {v.predictedScore}/100</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </Card>
 
         {/* Actions */}
         <div className="flex items-center justify-center gap-4 pt-6 border-t border-white/[0.05]">

@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { deleteAsset, getAsset } from '@/lib/firebase/assets';
 import { deleteFromPinecone } from '@/lib/ai/pinecone';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 
@@ -16,6 +18,15 @@ export async function POST(request: NextRequest) {
 
     if (!assetId) {
       return createApiError(400, 'assetId is required');
+    }
+
+    // Auth guard: verify user has access to this brand
+    if (brandId) {
+      try {
+        await requireBrandAccess(request, brandId);
+      } catch (err: any) {
+        return handleSecurityError(err);
+      }
     }
 
     // Fetch asset to get storageUrl

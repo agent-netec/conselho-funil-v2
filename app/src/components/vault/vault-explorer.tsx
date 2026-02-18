@@ -240,11 +240,25 @@ function DNACard({ item, viewMode, onUse }: { item: CopyDNA; viewMode: 'grid' | 
           "{item.content}"
         </p>
 
+        {/* X-2.2: Performance badges */}
+        {item.performance_metrics?.engagement_rate ? (
+          <div className="mb-3">
+            <Badge variant="outline" className="text-[9px] border-amber-500/20 text-amber-400 bg-amber-500/5">
+              {item.performance_metrics.engagement_rate.toFixed(1)}x engajamento
+            </Badge>
+            {item.performance_metrics.best_platform && (
+              <Badge variant="outline" className="ml-1 text-[9px] border-emerald-500/20 text-emerald-400 bg-emerald-500/5">
+                Melhor: {item.performance_metrics.best_platform}
+              </Badge>
+            )}
+          </div>
+        ) : null}
+
         <div className="flex items-center justify-between pt-4 border-t border-white/[0.03]">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1 text-[10px] text-zinc-500">
               <Clock className="h-3 w-3" />
-              {item.performance_metrics?.usage_count || 0} usos
+              {item.performance_metrics?.posts_using || item.performance_metrics?.usage_count || 0} usos
             </div>
           </div>
           <Button variant="ghost" size="sm" className="h-8 text-[10px] uppercase font-bold tracking-widest text-blue-400 hover:text-blue-300 hover:bg-blue-500/5" onClick={onUse}>
