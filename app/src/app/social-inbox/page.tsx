@@ -47,14 +47,18 @@ export default function SocialInboxPage() {
     setIsLoading(true);
     try {
       const brandId = activeBrand.id;
-      let url = `/api/social-inbox?brandId=${brandId}&keyword=${searchQuery}`;
+      let url = `/api/social-inbox?brandId=${brandId}`;
+      if (searchQuery) url += `&keyword=${encodeURIComponent(searchQuery)}`;
       if (platformFilter) url += `&platform=${platformFilter}`;
-      
+      if (statusFilter && statusFilter !== 'all') url += `&status=${statusFilter}`;
+
       const response = await fetch(url);
       const data = await response.json();
-      
-      if (data.sampleInteraction) {
-        setInteractions([data.sampleInteraction]);
+
+      if (data.data?.interactions?.length) {
+        setInteractions(data.data.interactions);
+      } else if (data.data?.sampleInteraction) {
+        setInteractions([data.data.sampleInteraction]);
       } else {
         setInteractions([]);
       }
@@ -70,10 +74,14 @@ export default function SocialInboxPage() {
     setIsLoadingSuggestions(true);
     try {
       const brandId = activeBrand.id;
-      const response = await fetch(`/api/social-inbox?brandId=${brandId}&keyword=${searchQuery}`);
+      const response = await fetch('/api/social-inbox', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brandId, interaction }),
+      });
       const data = await response.json();
-      if (data.sampleSuggestions) {
-        setSuggestions(data.sampleSuggestions);
+      if (data.data?.suggestions) {
+        setSuggestions(data.data.suggestions);
       }
     } catch (error) {
       console.error("Erro ao carregar sugestões:", error);
@@ -104,16 +112,35 @@ export default function SocialInboxPage() {
   };
 
   const handleSendResponse = async (text: string) => {
-    if (!selectedInteraction) return;
-    
+    if (!selectedInteraction || !activeBrand?.id) return;
+
     try {
       if (selectedInteraction.metadata.sentimentScore < 0.3) {
         notify.warning("Bloqueio de Segurança", "Interações com sentimento baixo exigem revisão manual ou escala.");
         return;
       }
 
-      notify.success("Resposta enviada!", "A mensagem foi publicada com sucesso.");
-      setInteractions(prev => prev.map(i => i.id === selectedInteraction.id ? { ...i, status: 'responded' } : i));
+      const response = await fetch('/api/social-inbox/respond', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          brandId: activeBrand.id,
+          interactionId: selectedInteraction.id,
+          externalId: selectedInteraction.externalId,
+          platform: selectedInteraction.platform,
+          type: selectedInteraction.type,
+          responseText: text,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.data?.sent) {
+        notify.success("Resposta enviada!", "A mensagem foi publicada com sucesso.");
+        setInteractions(prev => prev.map(i => i.id === selectedInteraction.id ? { ...i, status: 'responded' } : i));
+      } else {
+        notify.error("Erro ao enviar", data.error || "Falha na comunicação com a rede social.");
+      }
     } catch (error) {
       notify.error("Erro ao enviar", "Falha na comunicação com a rede social.");
     }

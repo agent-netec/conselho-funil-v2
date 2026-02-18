@@ -1,26 +1,30 @@
 export const dynamic = 'force-dynamic';
-import { NextResponse } from 'next/server';
 import { InboxAggregator } from '@/lib/agents/engagement/inbox-aggregator';
-import { BrandVoiceTranslator } from '@/lib/agents/engagement/brand-voice-translator';
 import { generateSocialResponse } from '@/lib/agents/engagement/response-engine';
 import { db } from '@/lib/firebase/config';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, orderBy, limit as firestoreLimit } from 'firebase/firestore';
 import { Brand } from '@/types/database';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import type { SocialInteraction } from '@/types/social-inbox';
 
 /**
  * API Route para o Social Command Center.
- * GET /api/social-inbox?brandId=...&keyword=...
+ * GET /api/social-inbox?brandId=...&keyword=...&platform=...&status=...
+ *   - First tries Firestore (synced by cron/social-sync — V-1.4)
+ *   - Falls back to InboxAggregator if no synced data
  * POST /api/social-inbox — Gera sugestoes reais via Response Engine (S32-RE-02)
+ *
+ * @story V-1.1 (upgraded from S32)
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const brandId = searchParams.get('brandId');
   const keyword = searchParams.get('keyword');
+  const platformFilter = searchParams.get('platform');
+  const statusFilter = searchParams.get('status');
 
-  if (!brandId || !keyword) {
-    return createApiError(400, 'brandId e keyword são obrigatórios');
+  if (!brandId) {
+    return createApiError(400, 'brandId é obrigatório');
   }
 
   try {
@@ -34,13 +38,44 @@ export async function GET(request: Request) {
 
     const brandData = brandSnap.data() as Brand;
 
-    // 2. Coletar Interações
-    const aggregator = new InboxAggregator();
-    const interactions = await aggregator.collectFromX(brandId, keyword);
+    // 2. Try Firestore first (synced by cron — V-1.4)
+    let interactions: SocialInteraction[] = [];
 
-    // 3. Gerar Sugestões para a primeira interação via Response Engine (S32-RE-02)
+    try {
+      const interactionsRef = collection(db, 'brands', brandId, 'social_interactions');
+      const q = query(interactionsRef, orderBy('syncedAt', 'desc'), firestoreLimit(50));
+
+      const snap = await getDocs(q);
+      interactions = snap.docs.map((d) => d.data() as SocialInteraction);
+
+      // Apply filters in-memory
+      if (platformFilter) {
+        interactions = interactions.filter((i) => i.platform === platformFilter);
+      }
+      if (statusFilter && statusFilter !== 'all') {
+        interactions = interactions.filter((i) => i.status === statusFilter);
+      }
+      if (keyword) {
+        const kw = keyword.toLowerCase();
+        interactions = interactions.filter(
+          (i) =>
+            i.content.text.toLowerCase().includes(kw) ||
+            i.author.handle.toLowerCase().includes(kw) ||
+            i.metadata.tags.some((t) => t.toLowerCase().includes(kw))
+        );
+      }
+    } catch (err) {
+      console.warn('[API Social Inbox] Firestore query failed, falling back to aggregator:', err);
+    }
+
+    // 3. Fallback to InboxAggregator if no synced data
+    if (interactions.length === 0 && keyword) {
+      const aggregator = new InboxAggregator();
+      interactions = await aggregator.collectFromX(brandId, keyword);
+    }
+
+    // 4. Generate suggestions for first interaction
     let suggestions = null;
-
     if (interactions.length > 0) {
       suggestions = await generateSocialResponse(interactions[0], brandId);
     }
@@ -48,10 +83,10 @@ export async function GET(request: Request) {
     return createApiSuccess({
       brand: brandData.name,
       interactionsCount: interactions.length,
+      interactions: interactions.slice(0, 50),
       sampleInteraction: interactions[0] || null,
-      sampleSuggestions: suggestions
+      sampleSuggestions: suggestions,
     });
-
   } catch (error: unknown) {
     console.error('[API Social Inbox] Error:', error);
     const message = error instanceof Error ? error.message : 'Erro interno';

@@ -922,34 +922,34 @@ Paralelos possíveis:
 #### V-1. Social Command Center
 **Origem:** `roadmap-social-v2.md` Fase 6
 
-- [ ] V-1.1 — Conectar Instagram Graph API real (comentários, menções, DMs)
-- [ ] V-1.2 — Análise de sentimento real via Gemini
-- [ ] V-1.3 — Envio real de respostas via APIs
-- [ ] V-1.4 — Cron `/api/cron/social-sync` a cada 15min
-- [ ] V-1.5 — Dashboard de métricas de interações
+- [x] V-1.1 — Conectar Instagram Graph API real (comentários, menções, DMs)
+- [x] V-1.2 — Análise de sentimento real via Gemini
+- [x] V-1.3 — Envio real de respostas via APIs
+- [x] V-1.4 — Cron `/api/cron/social-sync` a cada 15min
+- [x] V-1.5 — Dashboard de métricas de interações
 
 #### V-2. Calendar — Publicação Real
 **Origem:** `roadmap-calendar-v2.md` Fases 4-5
 
-- [ ] V-2.1 — Postar via Instagram Content Publishing API
-- [ ] V-2.2 — Postar via LinkedIn Share API
-- [ ] V-2.3 — Status sync (scheduled → published)
-- [ ] V-2.4 — Métricas por post (impressões, engajamento, cliques) via cron diário
-- [ ] V-2.5 — Dashboard de performance por formato/horário/plataforma
+- [x] V-2.1 — Postar via Instagram Content Publishing API
+- [x] V-2.2 — Postar via LinkedIn Share API
+- [x] V-2.3 — Status sync (scheduled → published)
+- [x] V-2.4 — Métricas por post (impressões, engajamento, cliques) via cron diário
+- [x] V-2.5 — Dashboard de performance por formato/horário/plataforma
 
 #### V-3. Creative Vault — Publicação Real
 **Origem:** `roadmap-vault-v2.md` Fase 4
 
-- [ ] V-3.1 — Publisher Jobs → API real das plataformas
-- [ ] V-3.2 — Métricas pós-publicação → atualizar DNA Template com performance
-- [ ] V-3.3 — A/B Testing automático (2 variantes, medir, aprender)
+- [x] V-3.1 — Publisher Jobs → API real das plataformas
+- [x] V-3.2 — Métricas pós-publicação → atualizar DNA Template com performance
+- [x] V-3.3 — A/B Testing automático (2 variantes, medir, aprender)
 
 #### V-4. Assets — Import de Criativos de Ads
 **Origem:** `roadmap-assets-v2.md` Fase 3
 
-- [ ] V-4.1 — Importar criativos do Meta Ads (listar campanhas → selecionar → importar com métricas reais)
-- [ ] V-4.2 — Importar do Google Ads
-- [ ] V-4.3 — Associar asset a campanha com métricas ao vivo
+- [x] V-4.1 — Importar criativos do Meta Ads (listar campanhas → selecionar → importar com métricas reais)
+- [x] V-4.2 — Importar do Google Ads
+- [x] V-4.3 — Associar asset a campanha com métricas ao vivo
 
 ---
 
