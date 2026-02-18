@@ -28,9 +28,11 @@ Cada OAuth callback route lê env vars específicas. Sem elas, o callback retorn
 |----------|-----------|------------|
 | `META_APP_ID` | Meta + Instagram | developers.facebook.com > App Dashboard |
 | `META_APP_SECRET` | Meta + Instagram | developers.facebook.com > App Dashboard > Settings > Basic |
-| `GOOGLE_CLIENT_ID` | Google | console.cloud.google.com > Credentials |
-| `GOOGLE_CLIENT_SECRET` | Google | console.cloud.google.com > Credentials |
-| `GOOGLE_DEVELOPER_TOKEN` | Google Ads | Google Ads API Center (dentro da conta MCC) |
+| `GOOGLE_ADS_SERVICE_ACCOUNT_KEY` | Google Ads | ✅ Já adicionado (base64 da chave JSON) |
+| `GOOGLE_ADS_SERVICE_ACCOUNT_EMAIL` | Google Ads | ✅ Já adicionado |
+| `GOOGLE_DEVELOPER_TOKEN` | Google Ads | Ver instruções abaixo — requer conta MCC |
+| `GOOGLE_CLIENT_ID` | Google OAuth (fallback) | console.cloud.google.com > Credentials |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth (fallback) | console.cloud.google.com > Credentials |
 | `LINKEDIN_CLIENT_ID` | LinkedIn | linkedin.com/developers > App > Auth |
 | `LINKEDIN_CLIENT_SECRET` | LinkedIn | linkedin.com/developers > App > Auth |
 | `TIKTOK_APP_ID` | TikTok | business-api.tiktok.com > App Management |
@@ -98,13 +100,52 @@ vercel env pull .env.local
 
 ---
 
-## 6. Fluxo Manual (sem OAuth popup)
+## 6. Google Developer Token — Como obter
 
-Se o usuário preferir inserir tokens manualmente (System User Token para Meta, por ex.),
-a página `/integrations` tem formulários completos com campos para:
-- Meta: adAccountId, accessToken, appId, appSecret
-- Google: customerId, developerToken, clientId, clientSecret, refreshToken, accessToken
-- LinkedIn: accountId, accessToken, clientId, clientSecret
-- TikTok: advertiserId, accessToken, appId, appSecret
+> **Este token é seu (da plataforma), não do cliente.**
 
-Esses formulários fazem dual storage: MonaraTokenVault (criptografado) + Firestore integrations doc (status UI).
+O Developer Token é necessário para a Service Account fazer chamadas à Google Ads API.
+
+### Passos:
+1. Acesse [ads.google.com](https://ads.google.com) e **crie uma conta Manager (MCC)** se não tiver
+   - Tipo de conta: "Gerenciar contas de clientes"
+   - Nome: "Conselho de Funil" (ou nome do seu negócio)
+2. Dentro do MCC, vá em **Ferramentas → Central da API do Google Ads**
+3. Clique em **"Solicitar acesso básico"**
+4. Preencha o formulário (nome da empresa, uso pretendido: "gerenciar campanhas de clientes")
+5. **Acesso básico é aprovado na hora** (sem review)
+6. O Developer Token aparece na mesma tela após aprovação
+7. Adicione no Vercel:
+   ```bash
+   printf 'SEU_DEVELOPER_TOKEN' | vercel env add GOOGLE_DEVELOPER_TOKEN production
+   ```
+
+> **Acesso padrão** (para uso em produção com +50 contas) requer submissão adicional, mas acesso básico funciona para desenvolvimento e clientes piloto.
+
+---
+
+## 7. Fluxo do Cliente — Google Ads (Service Account)
+
+> **Sem OAuth popup, sem token expirando.**
+
+Cada cliente conecta a conta Google Ads dele em 2 passos:
+
+1. **Adicionar o email da Service Account** na conta deles:
+   - Google Ads → Ferramentas → Acesso e segurança → Usuários → `+`
+   - Email: `conselho-funil-ads@conselho-de-funil.iam.gserviceaccount.com`
+   - Nível: **Somente leitura** (ou Padrão se precisar criar campanhas)
+
+2. **Informar o Customer ID** na página `/integrations` e clicar Conectar
+
+A plataforma valida automaticamente e salva a integração no Firestore.
+
+---
+
+## 8. Fluxo Manual — Meta/LinkedIn/TikTok
+
+Se o cliente preferir tokens manuais (ex: System User Token do Meta):
+- Meta: adAccountId, accessToken, appId
+- LinkedIn: accountId, accessToken
+- TikTok: advertiserId, accessToken
+
+Formulários disponíveis em `/integrations`. Dual storage: MonaraTokenVault + Firestore.

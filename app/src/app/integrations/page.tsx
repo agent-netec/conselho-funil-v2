@@ -44,6 +44,7 @@ interface IntegrationDef {
   category: IntegrationCategory;
   available: boolean;
   oauthFlow?: boolean;
+  setupInstructions?: string[];
   fields: FormField[];
 }
 
@@ -83,14 +84,16 @@ const INTEGRATIONS: IntegrationDef[] = [
     provider: 'google',
     category: 'ads',
     available: true,
-    oauthFlow: true,
+    oauthFlow: false,
+    setupInstructions: [
+      'Acesse sua conta Google Ads',
+      'Vá em Ferramentas e configurações → Acesso e segurança → Usuários',
+      'Clique em "+" e adicione o email: conselho-funil-ads@conselho-de-funil.iam.gserviceaccount.com',
+      'Selecione nível de acesso "Somente leitura" e salve',
+      'Informe seu Customer ID abaixo e clique em Conectar',
+    ],
     fields: [
-      { key: 'customerId', label: 'Customer ID', placeholder: '123-456-7890', type: 'text', required: true, helpText: 'ID da conta do Google Ads (sem hífens).' },
-      { key: 'developerToken', label: 'Developer Token', placeholder: 'AbCdEf...', type: 'password', required: true, helpText: 'Encontre no Google Ads API Center.' },
-      { key: 'clientId', label: 'OAuth Client ID', placeholder: '123456789.apps.googleusercontent.com', type: 'text', required: true, helpText: 'Console do Google Cloud > Credentials.' },
-      { key: 'clientSecret', label: 'OAuth Client Secret', placeholder: 'GOCSPX-...', type: 'password', required: true },
-      { key: 'refreshToken', label: 'Refresh Token', placeholder: '1//0abc...', type: 'password', required: true, helpText: 'Obtido via OAuth consent flow.' },
-      { key: 'accessToken', label: 'Access Token (temporário)', placeholder: 'ya29...', type: 'password', required: true },
+      { key: 'customerId', label: 'Customer ID', placeholder: '123-456-7890', type: 'text', required: true, helpText: 'ID da sua conta Google Ads. Encontre no canto superior direito do Google Ads.' },
     ],
   },
   {
@@ -611,6 +614,36 @@ function ConfigPanel({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <div className="space-y-5">
+          {/* Setup instructions (e.g. Google SA flow) */}
+          {def.setupInstructions && def.setupInstructions.length > 0 && (
+            <div className="rounded-xl bg-blue-500/10 border border-blue-500/20 p-4 space-y-2">
+              <p className="text-sm font-semibold text-blue-400 flex items-center gap-2">
+                <span>📋</span> Como conectar
+              </p>
+              <ol className="space-y-1.5">
+                {def.setupInstructions.map((step, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-xs flex items-center justify-center font-bold mt-0.5">
+                      {i + 1}
+                    </span>
+                    {/* Highlight SA email */}
+                    {step.includes('@') ? (
+                      <span>
+                        {step.split(/(conselho-funil-ads@conselho-de-funil\.iam\.gserviceaccount\.com)/g).map((part, j) =>
+                          part.includes('@') ? (
+                            <code key={j} className="text-xs bg-zinc-800 text-emerald-400 px-1.5 py-0.5 rounded font-mono break-all">
+                              {part}
+                            </code>
+                          ) : part
+                        )}
+                      </span>
+                    ) : step}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
           {def.fields.map(field => (
             <div key={field.key}>
               <label className="block text-sm font-medium text-zinc-300 mb-2">
