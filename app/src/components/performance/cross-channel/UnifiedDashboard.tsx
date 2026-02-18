@@ -51,28 +51,25 @@ export function UnifiedCrossChannelDashboard({ metrics, insights, loading }: Uni
 
   return (
     <div className="space-y-8 animate-in-up">
-      {/* KPI Row */}
+      {/* KPI Row — Sprint T-4: removed hardcoded trends, using real data only */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <MetricCard 
-          title="Blended ROAS" 
+        <MetricCard
+          title="Blended ROAS"
           value={`${metrics.totals.blendedRoas.toFixed(2)}x`}
           icon={<Target className="w-4 h-4 text-purple-500" />}
-          trend={+15.2}
         />
-        <MetricCard 
-          title="Total Spend" 
+        <MetricCard
+          title="Total Spend"
           value={metrics.totals.spend.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           icon={<DollarSign className="w-4 h-4 text-emerald-500" />}
         />
-        <MetricCard 
-          title="Blended CPA" 
+        <MetricCard
+          title="Blended CPA"
           value={metrics.totals.blendedCpa.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           icon={<Zap className="w-4 h-4 text-blue-500" />}
-          trend={-8.4}
-          inverseTrend
         />
-        <MetricCard 
-          title="Total Conversions" 
+        <MetricCard
+          title="Total Conversions"
           value={metrics.totals.conversions.toString()}
           icon={<TrendingUp className="w-4 h-4 text-orange-500" />}
         />
@@ -107,7 +104,7 @@ export function UnifiedCrossChannelDashboard({ metrics, insights, loading }: Uni
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', borderRadius: '8px' }}
                   itemStyle={{ color: '#fff' }}
-                  formatter={(value: number) => `${(value * 100).toFixed(1)}%`}
+                  formatter={(value: number) => `${value.toFixed(1)}%`}
                 />
                 <Legend verticalAlign="bottom" height={36}/>
               </PieChart>

@@ -27,30 +27,27 @@ interface WarRoomDashboardProps {
 export function WarRoomDashboard({ blended, platforms, loading }: WarRoomDashboardProps) {
   return (
     <div className="space-y-6">
-      {/* Blended Metrics Row */}
+      {/* Blended Metrics Row — Sprint T-3: removed hardcoded trends */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <MetricCard 
-          title="Blended ROAS" 
-          value={blended.roas.toFixed(2)} 
+        <MetricCard
+          title="Blended ROAS"
+          value={blended.roas.toFixed(2)}
           suffix="x"
           icon={<Target className="w-4 h-4 text-purple-500" />}
-          trend={+12.5}
         />
-        <MetricCard 
-          title="Total Spend" 
-          value={blended.spend.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} 
+        <MetricCard
+          title="Total Spend"
+          value={blended.spend.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           icon={<DollarSign className="w-4 h-4 text-green-500" />}
         />
-        <MetricCard 
-          title="Blended CAC" 
-          value={blended.cac.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} 
+        <MetricCard
+          title="Blended CAC"
+          value={blended.cac.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           icon={<BarChart3 className="w-4 h-4 text-blue-500" />}
-          trend={-5.2}
-          inverseTrend
         />
-        <MetricCard 
-          title="Total Revenue" 
-          value={blended.revenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} 
+        <MetricCard
+          title="Total Revenue"
+          value={blended.revenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           icon={<TrendingUp className="w-4 h-4 text-orange-500" />}
         />
       </div>

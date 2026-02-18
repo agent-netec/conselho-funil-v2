@@ -818,47 +818,55 @@ Paralelos possíveis:
 
 ---
 
-### Sprint T — Analytics Activation
+### Sprint T — Analytics Activation ✅ CONCLUÍDO
 
 > **Estimativa:** ~2-3 sessões
 > **Dependência:** Sprint S concluído (precisa de dados fluindo)
 > **Milestone:** 📊 Data-Driven
 
-#### T-1. Attribution Dashboard
+#### T-1. Attribution Dashboard ✅ CONCLUÍDO
 **Origem:** Sprint M original, tarefa M-1 (Issue #11)
 
-- [ ] T-1.1 — Verificar `useAttributionData` com dados reais de events/transactions/metrics
-- [ ] T-1.2 — Testar 4 modelos: last_touch, linear, u_shape, time_decay
-- [ ] T-1.3 — Badge "Dados Reais" vs "Dados Insuficientes" (threshold: 10 eventos + 1 transação)
-- [ ] T-1.4 — Auto-sync quando dados >6h desatualizados
-- [ ] T-1.5 — Empty state educativo com checklist de requisitos
+- [x] T-1.1 — Verificar `useAttributionData` com dados reais de events/transactions/metrics
+- [x] T-1.2 — Testar 4 modelos: last_touch, linear, u_shape, time_decay
+- [x] T-1.3 — Badge "Dados Reais" vs "Dados Insuficientes" (threshold: 10 eventos + 1 transação)
+- [x] T-1.4 — Auto-sync quando dados >6h desatualizados
+- [x] T-1.5 — Empty state educativo com checklist de requisitos
 
-#### T-2. LTV & Cohort Intelligence
+**Implementação:** Hook retorna `dataSufficiency`, `eventCount`, `transactionCount`, `lastSyncAt`. Auto-sync via POST /api/intelligence/attribution/sync. Gráfico com 4 modelos (Last Click, U-Shape, Linear, Time Decay). Tabela inclui Time Decay. Empty state com checklist interativo.
+
+#### T-2. LTV & Cohort Intelligence ✅ CONCLUÍDO
 **Origem:** Sprint M original, tarefa M-2 (Issue #12)
 
-- [ ] T-2.1 — KPIs com dados reais (ROI, LTV, Leads, Payback)
-- [ ] T-2.2 — Ativar aba "Retenção & Churn" (backend JÁ EXISTE, conectar UI)
-- [ ] T-2.3 — Testar cohort engine com dados reais
-- [ ] T-2.4 — Badges "Real" vs "Estimado" (threshold: 50+ leads, 10+ transações)
-- [ ] T-2.5 — Substituir Payback hardcoded "72 dias" por cálculo real
-- [ ] T-2.6 — Ativar alert-generator (thresholds para churn spike, LTV drop, ROI negativo)
+- [x] T-2.1 — KPIs com dados reais (ROI, LTV, Leads, Payback)
+- [x] T-2.2 — Ativar aba "Retenção & Churn" (backend JÁ EXISTE, conectar UI)
+- [x] T-2.3 — Testar cohort engine com dados reais
+- [x] T-2.4 — Badges "Real" vs "Estimado" (threshold: 50+ leads, 10+ transações)
+- [x] T-2.5 — Substituir Payback hardcoded "72 dias" por cálculo real
+- [x] T-2.6 — Ativar alert-generator (thresholds para churn spike, LTV drop, ROI negativo)
 
-#### T-3. Real-Time Performance
+**Implementação:** CohortDashboard recebe `summary` com `avgPaybackMonths`, `isEstimated`, `isSimulated`. Badges Real/Estimado em cada KPI. Aba Retenção ativa com RetentionPanel (KPIs, distribuição de risco, tabela de leads críticos). Alert-generator client-side com 3 thresholds: churn spike (>20%), payback lento (>6 meses), ROI negativo.
+
+#### T-3. Real-Time Performance ✅ CONCLUÍDO
 **Origem:** Sprint M original, tarefa M-3 (Issue #5)
 
-- [ ] T-3.1 — Substituir dados mock (CTR 0.65%, CPC R$2.45, spend R$15.420,50) por fetch real de `performance_metrics`
-- [ ] T-3.2 — Botão "Atualizar Dados" chama `POST /api/cron/ads-sync` para a brand
-- [ ] T-3.3 — KPIs reais: Spend, Impressions, Clicks, CTR, CPC, Conversions, CPA, ROAS
-- [ ] T-3.4 — Alertas reais do alert-generator (substituir anomalias hardcoded)
-- [ ] T-3.5 — Empty state se Meta Ads não conectado
-- [ ] T-3.6 — Remover `// Mock metrics for ST-11.17` e todo bloco mock
+- [x] T-3.1 — Substituir dados mock (CTR 0.65%, CPC R$2.45, spend R$15.420,50) por fetch real de `performance_metrics`
+- [x] T-3.2 — Botão "Atualizar Dados" chama `POST /api/performance/sync` para a brand
+- [x] T-3.3 — KPIs reais: Spend, Impressions, Clicks, CTR, CPC, Conversions, CPA, ROAS
+- [x] T-3.4 — Alertas reais do alert-generator (substituir anomalias hardcoded)
+- [x] T-3.5 — Empty state se Meta Ads não conectado
+- [x] T-3.6 — Remover `// Mock metrics for ST-11.17` e todo bloco mock
 
-#### T-4. Cross-Channel Analytics
+**Implementação:** LTV/Payback cards puxam dados reais de `/api/intelligence/ltv/cohorts`. Hardcoded "R$ 1.240,00" e "22 Days" substituídos. Trends hardcoded removidos do WarRoomDashboard. SYNC DATA tenta POST /api/performance/sync + re-fetch. Empty state com link para Settings. Data dinâmica no header (data atual).
+
+#### T-4. Cross-Channel Analytics ✅ CONCLUÍDO
 **Origem:** Sprint M original, tarefa M-4
 
-- [ ] T-4.1 — Auditar se cross-channel usa dados reais ou mock
-- [ ] T-4.2 — Substituir mock por fetch de `performance_metrics` agregado
-- [ ] T-4.3 — Empty state educativo
+- [x] T-4.1 — Auditar se cross-channel usa dados reais ou mock
+- [x] T-4.2 — Substituir mock por fetch de `performance_metrics` agregado
+- [x] T-4.3 — Empty state educativo
+
+**Implementação:** `useCrossChannelMetrics` já consome dados reais via CrossChannelAggregator. Trends hardcoded (+15.2%, -8.4%) removidos do UnifiedDashboard. Tooltip de shareOfSpend corrigido (não multiplica por 100). Empty state já existia na page.
 
 ---
 

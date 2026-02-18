@@ -2,40 +2,63 @@
 
 import * as React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select"
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
 } from "recharts"
-import { motion, AnimatePresence } from "framer-motion"
-import { TrendingUp, ArrowUpRight, ArrowDownRight, Calendar, BrainCircuit } from "lucide-react"
+import { motion } from "framer-motion"
+import {
+  TrendingUp,
+  ArrowUpRight,
+  ArrowDownRight,
+  Calendar,
+  BrainCircuit,
+  RefreshCw,
+  CheckCircle2,
+  AlertTriangle,
+  Wifi,
+  WifiOff
+} from "lucide-react"
 import { useAttributionData } from "@/lib/hooks/use-attribution-data"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 
 export default function AttributionPage() {
   const [window, setWindow] = React.useState("30")
-  const { stats, loading, hasSpendData } = useAttributionData(parseInt(window))
+  const {
+    stats,
+    loading,
+    hasSpendData,
+    dataSufficiency,
+    eventCount,
+    transactionCount,
+    lastSyncAt,
+    syncing,
+    triggerSync
+  } = useAttributionData(parseInt(window))
 
-  // Formatar dados para o gráfico
+  // Formatar dados para o gráfico — Sprint T: inclui time_decay
   const chartData = React.useMemo(() => {
     return stats.slice(0, 5).map(s => ({
       name: s.campaignName,
       lastClick: parseFloat(s.conversions.last_touch.toFixed(2)),
       uShape: parseFloat(s.conversions.u_shape.toFixed(2)),
-      linear: parseFloat(s.conversions.linear.toFixed(2))
+      linear: parseFloat(s.conversions.linear.toFixed(2)),
+      timeDecay: parseFloat(s.conversions.time_decay.toFixed(2)),
     }))
   }, [stats])
 
@@ -44,6 +67,12 @@ export default function AttributionPage() {
     if (stats.length === 0) return null
     return [...stats].sort((a, b) => b.variation - a.variation)[0]
   }, [stats])
+
+  // Sprint T-1.4: Staleness indicator
+  const isStale = React.useMemo(() => {
+    if (!lastSyncAt) return false
+    return Date.now() - lastSyncAt.getTime() > 6 * 60 * 60 * 1000
+  }, [lastSyncAt])
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -55,8 +84,42 @@ export default function AttributionPage() {
             Defesa estratégica de orçamento baseada em atribuição multicanal.
           </p>
         </div>
-        
+
         <div className="flex items-center gap-3">
+          {/* Sprint T-1.3: Data sufficiency badge */}
+          {!loading && (
+            <Badge
+              variant={dataSufficiency === 'real' ? 'default' : 'secondary'}
+              className={
+                dataSufficiency === 'real'
+                  ? 'bg-emerald-500/10 text-emerald-600 border-emerald-200'
+                  : 'bg-amber-500/10 text-amber-600 border-amber-200'
+              }
+            >
+              {dataSufficiency === 'real' ? (
+                <><CheckCircle2 className="w-3 h-3 mr-1" /> Dados Reais</>
+              ) : dataSufficiency === 'insufficient' ? (
+                <><AlertTriangle className="w-3 h-3 mr-1" /> Dados Insuficientes</>
+              ) : (
+                <><WifiOff className="w-3 h-3 mr-1" /> Sem Dados</>
+              )}
+            </Badge>
+          )}
+
+          {/* Sprint T-1.4: Sync indicator */}
+          {isStale && !loading && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={triggerSync}
+              disabled={syncing}
+              className="text-amber-600 border-amber-200"
+            >
+              <RefreshCw className={`w-3 h-3 mr-1 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'Sincronizando...' : 'Dados desatualizados'}
+            </Button>
+          )}
+
           <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg border">
             <Calendar className="w-4 h-4 ml-2 text-muted-foreground" />
             <Select value={window} onValueChange={setWindow}>
@@ -82,15 +145,63 @@ export default function AttributionPage() {
             <Skeleton className="h-[200px] rounded-xl" />
           </div>
         </div>
+      ) : dataSufficiency === 'empty' ? (
+        /* Sprint T-1.5: Empty state educativo */
+        <Card className="border-dashed border-2">
+          <CardContent className="py-16 text-center">
+            <Wifi className="w-16 h-16 mx-auto mb-6 text-muted-foreground/30" />
+            <h2 className="text-2xl font-bold mb-2">Configure o Tracking para Ativar Attribution</h2>
+            <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
+              O dashboard de atribuição precisa de dados de eventos e transações para funcionar.
+              Complete os requisitos abaixo:
+            </p>
+            <div className="max-w-md mx-auto text-left space-y-4">
+              <ChecklistItem
+                done={false}
+                label="Instalar tracking script no site"
+                hint="Vá em Configurações > Tracking e instale o pixel"
+              />
+              <ChecklistItem
+                done={false}
+                label="Receber pelo menos 10 eventos"
+                hint={`Atual: ${eventCount} eventos`}
+              />
+              <ChecklistItem
+                done={false}
+                label="Registrar pelo menos 1 transação"
+                hint={`Atual: ${transactionCount} transações`}
+              />
+              <ChecklistItem
+                done={hasSpendData}
+                label="Conectar integração de Ads (Meta/Google)"
+                hint="Opcional — habilita ROI por campanha"
+              />
+            </div>
+          </CardContent>
+        </Card>
       ) : (
         <>
+          {/* Sprint T-1.3: Insufficient data banner */}
+          {dataSufficiency === 'insufficient' && (
+            <Card className="border-amber-200 bg-amber-50/50">
+              <CardContent className="py-4 text-sm text-amber-700 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                <span>
+                  Dados insuficientes para atribuição completa
+                  ({eventCount} eventos, {transactionCount} transações).
+                  Mínimo recomendado: 10 eventos e 1 transação.
+                </span>
+              </CardContent>
+            </Card>
+          )}
+
           {/* 2. Seção: The ROI Shift */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="lg:col-span-2">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle>The ROI Shift</CardTitle>
-                  <p className="text-sm text-muted-foreground">Comparativo de Conversões por modelo de atribuição</p>
+                  <p className="text-sm text-muted-foreground">Comparativo de Conversões por modelo de atribuição (4 modelos)</p>
                 </div>
               </CardHeader>
               <CardContent className="h-[400px]">
@@ -99,25 +210,15 @@ export default function AttributionPage() {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
                     <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} />
                     <YAxis axisLine={false} tickLine={false} fontSize={12} />
-                    <Tooltip 
+                    <Tooltip
                       cursor={{ fill: 'rgba(0,0,0,0.05)' }}
                       contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
                     />
                     <Legend iconType="circle" />
-                    <Bar 
-                      dataKey="lastClick" 
-                      name="Last Click" 
-                      fill="#94a3b8" 
-                      radius={[4, 4, 0, 0]} 
-                      animationDuration={1500}
-                    />
-                    <Bar 
-                      dataKey="uShape" 
-                      name="U-Shape" 
-                      fill="#8b5cf6" 
-                      radius={[4, 4, 0, 0]} 
-                      animationDuration={1500}
-                    />
+                    <Bar dataKey="lastClick" name="Last Click" fill="#94a3b8" radius={[4, 4, 0, 0]} animationDuration={1500} />
+                    <Bar dataKey="uShape" name="U-Shape" fill="#8b5cf6" radius={[4, 4, 0, 0]} animationDuration={1500} />
+                    <Bar dataKey="linear" name="Linear" fill="#3b82f6" radius={[4, 4, 0, 0]} animationDuration={1500} />
+                    <Bar dataKey="timeDecay" name="Time Decay" fill="#f59e0b" radius={[4, 4, 0, 0]} animationDuration={1500} />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -163,7 +264,7 @@ export default function AttributionPage() {
                           <span className="font-bold">{item.value}%</span>
                         </div>
                         <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                          <motion.div 
+                          <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${item.value}%` }}
                             transition={{ duration: 1, delay: 0.5 }}
@@ -188,7 +289,7 @@ export default function AttributionPage() {
             </Card>
           )}
 
-          {/* 3. Tabela de Performance Multicanal */}
+          {/* 3. Tabela de Performance Multicanal — Sprint T: inclui Time Decay */}
           <Card>
             <CardHeader>
               <CardTitle>Performance Multicanal</CardTitle>
@@ -202,6 +303,7 @@ export default function AttributionPage() {
                       <th className="px-6 py-4 font-medium">Conv. (Last Click)</th>
                       <th className="px-6 py-4 font-medium text-primary">Conv. (U-Shape)</th>
                       <th className="px-6 py-4 font-medium text-purple-600">Conv. (Linear)</th>
+                      <th className="px-6 py-4 font-medium text-amber-600">Conv. (Time Decay)</th>
                       <th className="px-6 py-4 font-medium">Variação (%)</th>
                     </tr>
                   </thead>
@@ -212,6 +314,7 @@ export default function AttributionPage() {
                         <td className="px-6 py-4">{row.conversions.last_touch.toFixed(1)}</td>
                         <td className="px-6 py-4 font-bold text-primary">{row.conversions.u_shape.toFixed(1)}</td>
                         <td className="px-6 py-4 text-purple-600">{row.conversions.linear.toFixed(1)}</td>
+                        <td className="px-6 py-4 text-amber-600">{row.conversions.time_decay.toFixed(1)}</td>
                         <td className="px-6 py-4">
                           <div className={`flex items-center gap-1 ${row.variation >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                             {row.variation >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
@@ -222,7 +325,7 @@ export default function AttributionPage() {
                     ))}
                     {stats.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">
+                        <td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">
                           Nenhum dado de conversão encontrado para o período selecionado.
                         </td>
                       </tr>
@@ -234,6 +337,20 @@ export default function AttributionPage() {
           </Card>
         </>
       )}
+    </div>
+  )
+}
+
+function ChecklistItem({ done, label, hint }: { done: boolean; label: string; hint: string }) {
+  return (
+    <div className="flex items-start gap-3 p-3 rounded-lg border bg-background">
+      <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${done ? 'bg-emerald-100 text-emerald-600' : 'bg-muted text-muted-foreground'}`}>
+        {done ? <CheckCircle2 className="w-3 h-3" /> : <span className="text-xs font-bold">?</span>}
+      </div>
+      <div>
+        <p className={`text-sm font-medium ${done ? 'text-emerald-700 line-through' : ''}`}>{label}</p>
+        <p className="text-xs text-muted-foreground">{hint}</p>
+      </div>
     </div>
   )
 }

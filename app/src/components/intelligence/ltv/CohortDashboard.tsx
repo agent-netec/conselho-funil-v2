@@ -35,20 +35,31 @@ interface CohortData {
   totalLtv: number;
   adSpend: number;
   months: number[];
+  isEstimated?: boolean;
+  isSimulated?: boolean;
+}
+
+interface CohortSummary {
+  totalLeads: number;
+  totalLtv: number;
+  avgPaybackMonths: number;
+  isEstimated: boolean;
+  isSimulated: boolean;
 }
 
 interface CohortDashboardProps {
   data: CohortData[];
+  summary?: CohortSummary;
 }
 
 /**
  * @fileoverview Dashboard de Cohort e Payback Period.
  * @author Victor (UI) & Beto (UX)
  */
-export const CohortDashboard: React.FC<CohortDashboardProps> = ({ data }) => {
-  
+export const CohortDashboard: React.FC<CohortDashboardProps> = ({ data, summary }) => {
+
   // Formatação de Moeda
-  const formatCurrency = (value: number) => 
+  const formatCurrency = (value: number) =>
     (value / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
   // Cálculo de ROI Global
@@ -56,34 +67,71 @@ export const CohortDashboard: React.FC<CohortDashboardProps> = ({ data }) => {
   const totalLtv = data.reduce((acc, c) => acc + c.totalLtv, 0);
   const globalRoi = totalSpend > 0 ? (totalLtv / totalSpend) : 0;
 
+  // Sprint T-2.5: Real payback from API summary (replaces hardcoded "72 dias")
+  const paybackDays = summary?.avgPaybackMonths
+    ? Math.round(summary.avgPaybackMonths * 30)
+    : null;
+  const paybackLabel = paybackDays ? `${paybackDays} dias` : 'N/A';
+
+  // Sprint T-2.4: Data quality badges
+  const isEstimated = summary?.isEstimated ?? true;
+  const isSimulated = summary?.isSimulated ?? true;
+
   return (
     <div className="space-y-8">
+      {/* Sprint T-2.4: Data quality badges */}
+      {(isEstimated || isSimulated) && (
+        <div className="flex items-center gap-2 text-sm">
+          {!isEstimated && !isSimulated ? (
+            <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200">
+              <CheckCircle2 className="w-3 h-3 mr-1" /> Dados Reais
+            </Badge>
+          ) : (
+            <>
+              {isEstimated && (
+                <Badge variant="outline" className="bg-amber-50 text-amber-600 border-amber-200">
+                  Ad Spend: Estimado
+                </Badge>
+              )}
+              {isSimulated && (
+                <Badge variant="outline" className="bg-amber-50 text-amber-600 border-amber-200">
+                  LTV Distribution: Simulada
+                </Badge>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
       {/* Top Metrics Summary */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard 
-          title="ROI Global (LTV/CAC)" 
-          value={`${globalRoi.toFixed(2)}x`} 
+        <MetricCard
+          title="ROI Global (LTV/CAC)"
+          value={`${globalRoi.toFixed(2)}x`}
           icon={<TrendingUp className="w-4 h-4 text-emerald-500" />}
-          description="Retorno sobre investimento em Ads"
-          trend="+12%"
+          description={isEstimated ? "Estimado — conecte Ads para dados reais" : "Retorno sobre investimento em Ads"}
+          badge={!isEstimated ? "Real" : "Estimado"}
         />
-        <MetricCard 
-          title="LTV Total" 
-          value={formatCurrency(totalLtv)} 
+        <MetricCard
+          title="LTV Total"
+          value={formatCurrency(totalLtv)}
           icon={<DollarSign className="w-4 h-4 text-blue-500" />}
           description="Receita vitalícia acumulada"
+          badge={!isSimulated ? "Real" : "Estimado"}
         />
-        <MetricCard 
-          title="Total de Leads" 
-          value={data.reduce((acc, c) => acc + c.leadCount, 0).toLocaleString()} 
+        <MetricCard
+          title="Total de Leads"
+          value={(summary?.totalLeads ?? data.reduce((acc, c) => acc + c.leadCount, 0)).toLocaleString()}
           icon={<Users className="w-4 h-4 text-purple-500" />}
           description="Base total de contatos"
+          badge="Real"
         />
-        <MetricCard 
-          title="Payback Médio" 
-          value="72 dias" 
+        <MetricCard
+          title="Payback Médio"
+          value={paybackLabel}
           icon={<Calendar className="w-4 h-4 text-amber-500" />}
           description="Tempo para recuperar o CAC"
+          badge={!isEstimated && paybackDays ? "Real" : "Estimado"}
         />
       </div>
 
@@ -202,7 +250,7 @@ export const CohortDashboard: React.FC<CohortDashboardProps> = ({ data }) => {
   );
 };
 
-function MetricCard({ title, value, icon, description, trend }: any) {
+function MetricCard({ title, value, icon, description, trend, badge }: any) {
   return (
     <Card>
       <CardContent className="pt-6">
@@ -210,11 +258,23 @@ function MetricCard({ title, value, icon, description, trend }: any) {
           <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
             {icon}
           </div>
-          {trend && (
+          {badge ? (
+            <Badge
+              variant="outline"
+              className={`text-[10px] ${
+                badge === 'Real'
+                  ? 'text-emerald-500 border-emerald-100 bg-emerald-50'
+                  : 'text-amber-500 border-amber-100 bg-amber-50'
+              }`}
+            >
+              {badge === 'Real' && <CheckCircle2 className="w-3 h-3 mr-1" />}
+              {badge}
+            </Badge>
+          ) : trend ? (
             <Badge variant="outline" className="text-emerald-500 border-emerald-100 bg-emerald-50 text-[10px]">
               <ArrowUpRight className="w-3 h-3 mr-1" /> {trend}
             </Badge>
-          )}
+          ) : null}
         </div>
         <div className="space-y-1">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{title}</p>

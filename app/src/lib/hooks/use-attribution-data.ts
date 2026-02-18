@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useActiveBrand } from './use-active-brand';
 import { db } from '../firebase/config';
 import { collection, query, where, getDocs, Timestamp, orderBy } from 'firebase/firestore';
@@ -8,11 +8,19 @@ import { AttributionEngine } from '../intelligence/attribution/engine';
 import { JourneyEvent, JourneyTransaction } from '@/types/journey';
 import { CampaignAttributionStats, AttributionModel } from '@/types/attribution';
 import { PerformanceMetric } from '@/types/performance';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
+
+export type DataSufficiency = 'real' | 'insufficient' | 'empty';
+
+const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
+const MIN_EVENTS_THRESHOLD = 10;
+const MIN_TRANSACTIONS_THRESHOLD = 1;
 
 /**
  * Hook para processar e retornar dados de atribuição para o dashboard.
  * Integra o AttributionEngine com os dados reais do Firestore (events e transactions).
  * Sprint 27: Conecta spend real de performance_metrics (DT-02 Opção A — hook direto).
+ * Sprint T: Badges de suficiência, auto-sync >6h, contagem de eventos/transações.
  */
 export function useAttributionData(days: number = 30) {
   const activeBrand = useActiveBrand();
@@ -20,6 +28,37 @@ export function useAttributionData(days: number = 30) {
   const [stats, setStats] = useState<CampaignAttributionStats[]>([]);
   const [error, setError] = useState<Error | null>(null);
   const [hasSpendData, setHasSpendData] = useState(false);
+  const [eventCount, setEventCount] = useState(0);
+  const [transactionCount, setTransactionCount] = useState(0);
+  const [lastSyncAt, setLastSyncAt] = useState<Date | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const autoSyncTriggered = useRef(false);
+
+  // Sprint T-1.3: Determine data sufficiency
+  const dataSufficiency: DataSufficiency =
+    eventCount >= MIN_EVENTS_THRESHOLD && transactionCount >= MIN_TRANSACTIONS_THRESHOLD
+      ? 'real'
+      : eventCount === 0 && transactionCount === 0
+        ? 'empty'
+        : 'insufficient';
+
+  // Sprint T-1.4: Auto-sync when data >6h stale
+  const triggerSync = useCallback(async () => {
+    if (!activeBrand?.id || syncing) return;
+    setSyncing(true);
+    try {
+      const headers = await getAuthHeaders();
+      await fetch('/api/intelligence/attribution/sync', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ brandId: activeBrand.id, days }),
+      });
+    } catch (err) {
+      console.warn('[Attribution] Auto-sync failed:', err instanceof Error ? err.message : err);
+    } finally {
+      setSyncing(false);
+    }
+  }, [activeBrand?.id, days, syncing]);
 
   useEffect(() => {
     if (!activeBrand?.id) return;
@@ -46,9 +85,15 @@ export function useAttributionData(days: number = 30) {
           console.warn('[Attribution] Transactions query failed (index may be building):', err instanceof Error ? err.message : err);
         }
 
+        setTransactionCount(transactions.length);
+
+        // Sprint T-1: Count total events for sufficiency badge
+        let totalEventCount = 0;
+
         if (transactions.length === 0) {
           setStats([]);
           setHasSpendData(false);
+          setEventCount(0);
           setLoading(false);
           return;
         }
@@ -56,6 +101,7 @@ export function useAttributionData(days: number = 30) {
         // 2. Buscar spend de performance_metrics (Sprint 27 — DT-02 Opção A)
         // Collection: brands/{brandId}/performance_metrics
         let metrics: PerformanceMetric[] = [];
+        let latestMetricTimestamp: Date | null = null;
         try {
           const metricsRef = collection(db, 'brands', activeBrand!.id, 'performance_metrics');
           const qMetrics = query(
@@ -65,9 +111,17 @@ export function useAttributionData(days: number = 30) {
           );
           const metricsSnap = await getDocs(qMetrics);
           metrics = metricsSnap.docs.map(d => ({ id: d.id, ...d.data() } as PerformanceMetric));
+
+          // Track latest sync time
+          if (metrics.length > 0) {
+            const latestTs = metrics[0].timestamp;
+            latestMetricTimestamp = typeof latestTs.toDate === 'function' ? latestTs.toDate() : new Date();
+          }
         } catch (err) {
           console.warn('[Attribution] Metrics query failed:', err instanceof Error ? err.message : err);
         }
+
+        setLastSyncAt(latestMetricTimestamp);
 
         // Agregar spend total por source (platform)
         const spendBySource: Record<string, number> = {};
@@ -94,6 +148,7 @@ export function useAttributionData(days: number = 30) {
             );
             const eventSnap = await getDocs(qEvents);
             events = eventSnap.docs.map(d => ({ id: d.id, ...d.data() } as JourneyEvent));
+            totalEventCount += events.length;
           } catch (err) {
             console.warn('[Attribution] Events query failed (index may be building):', err instanceof Error ? err.message : err);
             continue;
@@ -101,7 +156,7 @@ export function useAttributionData(days: number = 30) {
 
           // 4. Aplicar modelos de atribuição
           const models: AttributionModel[] = ['last_touch', 'linear', 'u_shape', 'time_decay'];
-          
+
           models.forEach(model => {
             let result;
             switch(model) {
@@ -144,6 +199,8 @@ export function useAttributionData(days: number = 30) {
             });
           });
         }
+
+        setEventCount(totalEventCount);
 
         // 6. Distribuir spend proporcional por campanha (Sprint 27)
         if (spendDataAvailable) {
@@ -193,6 +250,16 @@ export function useAttributionData(days: number = 30) {
         }).sort((a, b) => b.conversions.u_shape - a.conversions.u_shape);
 
         setStats(finalStats);
+
+        // Sprint T-1.4: Auto-sync if data is stale (>6h)
+        if (latestMetricTimestamp && !autoSyncTriggered.current) {
+          const staleness = Date.now() - latestMetricTimestamp.getTime();
+          if (staleness > SIX_HOURS_MS) {
+            autoSyncTriggered.current = true;
+            // Fire and forget — will re-fetch on next mount
+            triggerSync();
+          }
+        }
       } catch (err: unknown) {
         console.error('Error in useAttributionData:', err);
         setError(err instanceof Error ? err : new Error(String(err)));
@@ -202,9 +269,20 @@ export function useAttributionData(days: number = 30) {
     }
 
     fetchAndProcess();
-  }, [activeBrand?.id, days]);
+  }, [activeBrand?.id, days, triggerSync]);
 
-  return { stats, loading, error, hasSpendData };
+  return {
+    stats,
+    loading,
+    error,
+    hasSpendData,
+    eventCount,
+    transactionCount,
+    dataSufficiency,
+    lastSyncAt,
+    syncing,
+    triggerSync,
+  };
 }
 
 /**

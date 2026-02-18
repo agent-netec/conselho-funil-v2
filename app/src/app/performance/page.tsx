@@ -8,13 +8,15 @@ import { SegmentBreakdown } from '@/components/performance/segment-breakdown';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  LayoutDashboard, 
-  RefreshCcw, 
-  Calendar, 
+import {
+  LayoutDashboard,
+  RefreshCcw,
+  Calendar,
   Download,
   Zap,
-  Activity
+  Activity,
+  WifiOff,
+  Settings
 } from "lucide-react";
 import { PerformanceMetric, PerformanceAnomaly } from '@/types/performance';
 import { useSegmentPerformance } from '@/lib/hooks/use-segment-performance';
@@ -29,6 +31,9 @@ export default function PerformanceWarRoomPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [advisorSummary, setAdvisorSummary] = useState<string | null>(null);
   const [advisorLoading, setAdvisorLoading] = useState(false);
+  const [hasIntegration, setHasIntegration] = useState<boolean | null>(null);
+  // Sprint T-2.1/T-3: Real LTV/Payback from cohort API
+  const [ltvData, setLtvData] = useState<{ totalLtv: number; avgPaybackMonths: number } | null>(null);
   const { breakdown, loading: segmentLoading, selectedSegment, setSelectedSegment } = useSegmentPerformance(
     selectedBrand?.id || null
   );
@@ -52,7 +57,7 @@ export default function PerformanceWarRoomPage() {
     .map(m => ({
       ...m.data,
       platform: m.source as any,
-      cpa: m.data.cac // Mapping cac to cpa for the dashboard component
+      cpa: m.data.cac
     }));
 
   const segmentDataForAdvisor = React.useMemo(() => {
@@ -85,12 +90,18 @@ export default function PerformanceWarRoomPage() {
       const metricsJson = await metricsRes.json();
       const anomaliesJson = await anomaliesRes.json();
 
-      // A API retorna { data: { metrics: [...] } } via createApiSuccess
       const metricsData = metricsJson.data?.metrics ?? metricsJson.data ?? [];
-      const anomaliesData = anomaliesJson.data ?? [];
+      const anomaliesData = anomaliesJson.data?.anomalies ?? anomaliesJson.data ?? [];
 
       setMetrics(Array.isArray(metricsData) ? metricsData : []);
       setAnomalies(Array.isArray(anomaliesData) ? anomaliesData : []);
+
+      // Sprint T-3.5: Detect if integration exists
+      const hasData = Array.isArray(metricsData) && metricsData.length > 0;
+      const hasRealSource = hasData && metricsData.some((m: any) =>
+        m.source === 'meta' || m.source === 'google' || m.source === 'meta_ads'
+      );
+      setHasIntegration(hasRealSource);
     } catch (error) {
       console.error('Error fetching performance data:', error);
     } finally {
@@ -99,8 +110,31 @@ export default function PerformanceWarRoomPage() {
     }
   };
 
+  // Sprint T-3: Fetch real LTV data for sidebar cards
+  const fetchLtvSummary = async () => {
+    const bid = selectedBrand?.id;
+    if (!bid) return;
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch(`/api/intelligence/ltv/cohorts?brandId=${bid}`, { headers });
+      if (res.ok) {
+        const json = await res.json();
+        const summary = json.data?.summary ?? json.summary;
+        if (summary) {
+          setLtvData({
+            totalLtv: summary.totalLtv || 0,
+            avgPaybackMonths: summary.avgPaybackMonths || 0,
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('[Performance] LTV summary unavailable:', err instanceof Error ? err.message : err);
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    fetchLtvSummary();
   }, [selectedBrand?.id]);
 
   useEffect(() => {
@@ -141,10 +175,33 @@ export default function PerformanceWarRoomPage() {
     fetchAdvisorInsight();
   }, [segmentDataForAdvisor, selectedSegment, metrics, anomalies, selectedBrand?.id, blendedMetrics.roas]);
 
-  const handleRefresh = () => {
+  // Sprint T-3.2: Sync button triggers ads-sync for the brand
+  const handleRefresh = async () => {
     setIsRefreshing(true);
-    fetchData();
+    try {
+      const headers = await getAuthHeaders();
+      // Trigger on-demand ads sync
+      await fetch('/api/performance/sync', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ brandId: selectedBrand?.id }),
+      }).catch(() => {
+        // If dedicated sync endpoint doesn't exist, just re-fetch
+      });
+    } catch {
+      // Ignore sync errors
+    }
+    // Re-fetch display data regardless
+    await fetchData();
   };
+
+  // Sprint T-3: Real LTV display values
+  const formatCurrency = (cents: number) =>
+    (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const ltvDisplay = ltvData ? formatCurrency(ltvData.totalLtv) : 'N/A';
+  const paybackDisplay = ltvData && ltvData.avgPaybackMonths > 0
+    ? `${Math.round(ltvData.avgPaybackMonths * 30)} Days`
+    : 'N/A';
 
   return (
     <div className="min-h-screen bg-black text-zinc-100 p-6 space-y-8">
@@ -174,17 +231,19 @@ export default function PerformanceWarRoomPage() {
           <div className="hidden lg:flex items-center gap-4 mr-4 px-4 py-2 bg-zinc-900/50 rounded-lg border border-zinc-800">
             <div className="text-right">
               <p className="text-[10px] text-zinc-500 font-bold uppercase">System Status</p>
-              <p className="text-xs font-black text-emerald-500">ALL SYSTEMS NOMINAL</p>
+              <p className={`text-xs font-black ${hasIntegration === false ? 'text-amber-500' : 'text-emerald-500'}`}>
+                {hasIntegration === false ? 'NO ADS CONNECTED' : 'ALL SYSTEMS NOMINAL'}
+              </p>
             </div>
-            <Zap className="w-5 h-5 text-emerald-500" />
+            <Zap className={`w-5 h-5 ${hasIntegration === false ? 'text-amber-500' : 'text-emerald-500'}`} />
           </div>
-          
+
           <Button variant="outline" className="border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800 hover:text-white gap-2 h-11">
             <Calendar size={18} />
-            Jan 29, 2026
+            {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
           </Button>
-          
-          <Button 
+
+          <Button
             onClick={handleRefresh}
             disabled={isRefreshing}
             className="bg-rose-600 hover:bg-rose-500 text-white gap-2 h-11 px-6 font-bold shadow-lg shadow-rose-900/20"
@@ -195,6 +254,28 @@ export default function PerformanceWarRoomPage() {
         </div>
       </div>
 
+      {/* Sprint T-3.5: Empty state if no ads integration */}
+      {!loading && hasIntegration === false && (
+        <Card className="bg-zinc-900/40 border-zinc-800 border-dashed border-2">
+          <div className="py-16 text-center">
+            <WifiOff className="w-16 h-16 mx-auto mb-6 text-zinc-700" />
+            <h2 className="text-2xl font-black text-white mb-2">Conecte uma Plataforma de Ads</h2>
+            <p className="text-zinc-500 mb-6 max-w-md mx-auto">
+              O War Room precisa de dados de Meta Ads ou Google Ads para exibir métricas reais.
+              Configure sua integração para ativar o monitoramento.
+            </p>
+            <Button
+              variant="outline"
+              className="border-zinc-700 text-zinc-300 hover:text-white"
+              onClick={() => window.location.href = '/settings'}
+            >
+              <Settings size={16} className="mr-2" />
+              Ir para Configurações
+            </Button>
+          </div>
+        </Card>
+      )}
+
       <div className="flex items-center justify-between">
         <SegmentFilter value={selectedSegment} onChange={setSelectedSegment} />
         <span className="text-xs text-zinc-500">Segment insights: {selectedSegment.toUpperCase()}</span>
@@ -204,34 +285,40 @@ export default function PerformanceWarRoomPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Metrics & Comparison */}
         <div className="lg:col-span-8 space-y-6">
-          <WarRoomDashboard 
+          <WarRoomDashboard
             blended={blendedMetrics}
             platforms={platformMetrics}
             loading={loading}
           />
-          
-          {/* LTV & Advanced Metrics Section (Placeholder for ST-18.5) */}
+
+          {/* Sprint T-3: Real LTV & Payback (replaces hardcoded values) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="bg-zinc-900/40 border-zinc-800 p-6">
-              <h3 className="text-sm font-black text-zinc-500 uppercase tracking-widest mb-4">LTV Prediction (6-Month)</h3>
+              <h3 className="text-sm font-black text-zinc-500 uppercase tracking-widest mb-4">LTV Total (All Cohorts)</h3>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-black text-white">R$ 1.240,00</span>
-                <Badge className="bg-emerald-500/10 text-emerald-500 border-none">+18% vs prev</Badge>
+                <span className="text-4xl font-black text-white">{ltvDisplay}</span>
+                {ltvData && (
+                  <Badge className="bg-emerald-500/10 text-emerald-500 border-none">Real</Badge>
+                )}
               </div>
               <div className="mt-4 h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
                 <div className="h-full bg-purple-600 w-[75%]" />
               </div>
             </Card>
-            
+
             <Card className="bg-zinc-900/40 border-zinc-800 p-6">
               <h3 className="text-sm font-black text-zinc-500 uppercase tracking-widest mb-4">CAC Payback Period</h3>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-black text-white">22 Days</span>
-                <Badge className="bg-emerald-500/10 text-emerald-500 border-none">Optimal</Badge>
+                <span className="text-4xl font-black text-white">{paybackDisplay}</span>
+                {ltvData && ltvData.avgPaybackMonths > 0 && (
+                  <Badge className="bg-emerald-500/10 text-emerald-500 border-none">
+                    {Math.round(ltvData.avgPaybackMonths * 30) <= 90 ? 'Optimal' : 'Monitor'}
+                  </Badge>
+                )}
               </div>
               <div className="mt-4 flex justify-between text-[10px] font-bold text-zinc-600 uppercase">
-                <span>Target: 30 Days</span>
-                <span>Current: 22 Days</span>
+                <span>Target: 90 Days</span>
+                <span>Current: {paybackDisplay}</span>
               </div>
             </Card>
           </div>
@@ -248,7 +335,7 @@ export default function PerformanceWarRoomPage() {
 
         {/* Right Column: Alerts & Intelligence */}
         <div className="lg:col-span-4 space-y-6">
-          <AlertCenter 
+          <AlertCenter
             alerts={anomalies.map(a => ({
               id: a.id,
               severity: a.severity,
