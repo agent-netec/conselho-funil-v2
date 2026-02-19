@@ -19,7 +19,7 @@ import { updateUserUsage } from '@/lib/firebase/firestore';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60; // PRO model scoring
+export const maxDuration = 90; // PRO (45s timeout) + Flash fallback + buffer
 
 export async function POST(request: NextRequest) {
   try {
@@ -81,13 +81,18 @@ Dores: ${brand.audience?.pain || 'N/A'}
       .replace('{{content}}', typeof content === 'string' ? content : JSON.stringify(content, null, 2))
       .replace('{{knowledgeContext}}', knowledgeContext || 'Use conhecimento geral sobre avaliação de performance em redes sociais.');
 
-    // 5. Generate with PRO model, fallback to Flash if PRO fails
+    // 5. Generate with PRO model (45s timeout), fallback to Flash if PRO fails/hangs
     let response: string;
     try {
-      response = await generateWithGemini(fullPrompt, {
-        model: PRO_GEMINI_MODEL,
-        temperature: 0.2,
-      });
+      response = await Promise.race([
+        generateWithGemini(fullPrompt, {
+          model: PRO_GEMINI_MODEL,
+          temperature: 0.2,
+        }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('PRO model timeout (45s)')), 45_000)
+        ),
+      ]);
     } catch (proErr: any) {
       console.warn(`[Social/Scorecard] PRO model failed: ${proErr?.message}. Falling back to Flash.`);
       response = await generateWithGemini(fullPrompt, {
