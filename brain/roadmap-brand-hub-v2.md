@@ -156,11 +156,24 @@ const PERSONALITY_INSTRUCTIONS = {
 - **Ideal:** Click-to-edit inline em cada campo. Salva automaticamente.
 - **Beneficio:** Editar positioning sem sair da pagina
 
-### 3.2 Color Palette Generator
-- **Novo:** Dado uma cor primaria, sugerir palette harmonizada automaticamente
-- **Usando:** Algoritmos de color harmony (complementary, analogous, triadic)
-- **Ou:** Gemini sugere palette baseado no vertical + visual style da marca
+### 3.2 Color Palette Generator (EXPANDIDO — feedback QA 2026-02-19)
+- **Problema:** Usuários não sabem como criar paletas de cores harmoniosas
+- **Solução 1: Paletas Pré-Prontas**
+  - Biblioteca de 20-30 paletas curadas por vertical (tech, saúde, educação, luxo, etc.)
+  - Preview ao vivo da paleta aplicada em mock de ad/post/email
+  - Tags: "Energética", "Sofisticada", "Minimalista", "Vibrante"
+- **Solução 2: Dicas e Teoria de Cores**
+  - Tooltips explicando: "Cores complementares criam contraste", "Análogas são harmônicas"
+  - Mini guia: "Como escolher cores para sua marca"
+- **Solução 3: IA Extrai de Referências**
+  - **Upload de screenshot** → Gemini Vision identifica paleta principal
+  - **URL de site** → Scrape + extração de CSS colors → sugere paleta
+  - **Inspiração de concorrente** → "Use a paleta do site X como base"
+- **Solução 4: Gerador Automático**
+  - Dado uma cor primária, sugerir palette harmonizada (complementary, analogous, triadic)
+  - Gemini sugere palette baseado no vertical + visual style da marca
 - **Arquivo:** `app/src/components/brands/color-palette-generator.tsx` (novo)
+- **API:** `app/src/app/api/brands/palette/extract/route.ts` — screenshot/URL → paleta
 
 ### 3.3 Brand Preview Card
 - **Novo:** Preview ao vivo de como a marca aparece em diferentes contextos
