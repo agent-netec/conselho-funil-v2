@@ -19,7 +19,7 @@ import { updateUserUsage } from '@/lib/firebase/firestore';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 90; // PRO (45s timeout) + Flash fallback + buffer
+export const maxDuration = 120; // PRO (60s timeout) + Flash fallback + buffer
 
 export async function POST(request: NextRequest) {
   try {
@@ -90,7 +90,7 @@ Dores: ${brand.audience?.pain || 'N/A'}
           temperature: 0.2,
         }),
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('PRO model timeout (45s)')), 45_000)
+          setTimeout(() => reject(new Error('PRO model timeout (60s)')), 60_000)
         ),
       ]);
     } catch (proErr: any) {

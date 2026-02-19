@@ -21,7 +21,7 @@ import { retrieveSocialKnowledge } from '@/lib/ai/rag';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 120; // PRO (60s timeout) + Flash fallback + buffer
+export const maxDuration = 150; // PRO (90s timeout) + Flash fallback + buffer
 
 export async function POST(request: NextRequest) {
   try {
@@ -125,7 +125,7 @@ O Veredito do Conselho deve consolidar as opiniões e recomendar o hook final co
           temperature: 0.7,
         }),
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('PRO model timeout (60s)')), 60_000)
+          setTimeout(() => reject(new Error('PRO model timeout (90s)')), 90_000)
         ),
       ]);
     } catch (proErr: any) {

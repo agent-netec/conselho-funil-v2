@@ -673,6 +673,23 @@ export function SocialWizard() {
           </Card>
         )}
 
+        {/* Debate Loading State */}
+        {isDebating && (
+          <Card className="p-6 bg-violet-500/5 border-violet-500/20 animate-pulse">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-violet-500/20 flex items-center justify-center shrink-0">
+                <Loader2 className="h-6 w-6 text-violet-400 animate-spin" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-violet-300">Conselheiros em debate...</h4>
+                <p className="text-xs text-zinc-400 mt-1">
+                  4 especialistas estão analisando seus hooks. Isso pode levar até 1 minuto e meio.
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
+
         {/* Actions */}
         <div className="flex items-center justify-between pt-4 border-t border-white/[0.05]">
           <Button variant="ghost" onClick={() => setCurrentStep(0)} className="text-zinc-400 hover:text-zinc-100">
@@ -703,6 +720,23 @@ export function SocialWizard() {
         </div>
 
         <DebateViewer debate={debate} />
+
+        {/* Evaluation Loading State */}
+        {isEvaluating && (
+          <Card className="p-6 bg-amber-500/5 border-amber-500/20 animate-pulse">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
+                <Loader2 className="h-6 w-6 text-amber-400 animate-spin" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-amber-300">Avaliação em andamento...</h4>
+                <p className="text-xs text-zinc-400 mt-1">
+                  O conselho está calibrando a nota do conteúdo. Isso pode levar até 1 minuto.
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Actions */}
         <div className="flex items-center justify-between pt-4 border-t border-white/[0.05]">
