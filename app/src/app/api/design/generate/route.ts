@@ -14,6 +14,39 @@ import { buildDesignBrainContext } from '@/lib/ai/prompts/design-brain-context';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+// HOTFIX BUG-004: Timeout + Retry para evitar 504 Gateway Timeout
+function fetchWithTimeout(url: string, options: RequestInit, timeoutMs: number): Promise<Response> {
+  return Promise.race([
+    fetch(url, options),
+    new Promise<Response>((_, reject) =>
+      setTimeout(() => reject(new Error(`Request timeout após ${timeoutMs}ms`)), timeoutMs)
+    ),
+  ]);
+}
+
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  timeoutMs: number,
+  maxRetries: number = 1
+): Promise<Response> {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetchWithTimeout(url, options, timeoutMs);
+      return response;
+    } catch (error) {
+      const isLastAttempt = attempt === maxRetries;
+      if (isLastAttempt) {
+        throw error;
+      }
+      console.warn(`⚠️ Tentativa ${attempt + 1} falhou, tentando novamente... (${error})`);
+      // Reduz timeout na segunda tentativa para economizar tempo
+      timeoutMs = Math.floor(timeoutMs * 0.8);
+    }
+  }
+  throw new Error('Todas as tentativas falharam');
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -59,7 +92,8 @@ export async function POST(request: NextRequest) {
 
     // ST-11.24 Optimization: Se o prompt já vem detalhado (do card), não precisamos gerar variantes
     // Isso economiza tempo (uma chamada a menos de LLM) e evita timeouts de 3 imagens.
-    const isSingleGeneration = !body.generateVariants;
+    // HOTFIX BUG-004: Força single generation para evitar 504 timeout (reduz de ~45s para ~20s)
+    const isSingleGeneration = true; // Sempre gera apenas 1 imagem
     
     // ... (keep brand/asset loading) ...
     let brandData = null;
@@ -288,17 +322,36 @@ Return ONLY the JSON array of strings.`;
           ],
         };
 
-        const response = await fetch(imageEndpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+        // HOTFIX BUG-004: Usa fetchWithRetry com timeout de 25s (tenta 2x se falhar)
+        const response = await fetchWithRetry(
+          imageEndpoint,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          },
+          25000, // 25 segundos de timeout
+          1 // 1 retry (2 tentativas total)
+        );
 
         if (!response.ok) {
           const errorText = await response.text();
           console.error(`❌ [Gemini 3 Image] Erro na variante ${index + 1}:`, errorText);
           return null;
         }
+      } catch (fetchError: any) {
+        // HOTFIX BUG-004: Mensagem de erro amigável para timeout
+        if (fetchError.message?.includes('timeout')) {
+          console.error(
+            `⏱️ [Gemini 3 Image] Timeout na variante ${index + 1} após ${25}s. A geração de imagem está demorando mais que o esperado.`
+          );
+        } else {
+          console.error(`❌ [Gemini 3 Image] Erro ao gerar variante ${index + 1}:`, fetchError);
+        }
+        return null;
+      }
+
+      try {
 
         const data = await response.json();
         const inlineData =
