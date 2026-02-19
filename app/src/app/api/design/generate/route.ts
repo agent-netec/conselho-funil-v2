@@ -244,9 +244,14 @@ Return ONLY the JSON array of strings.`;
       }
     }
 
-    // US-20.3: Geração de imagens com Gemini 3 Pro Image (Nano Banana Pro)
-    const imageModelId = 'gemini-3-pro-image-preview';
-    const imageEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${imageModelId}:generateContent`;
+    // US-20.3: Geração de imagens com fallback chain de modelos
+    // Tenta modelos em ordem de qualidade: Pro → Flash → Experimental
+    const IMAGE_MODELS = [
+      { id: 'gemini-2.0-flash-exp-image-generation', name: 'Gemini 2.0 Flash Exp' },
+      { id: 'gemini-2.5-flash-preview-05-20', name: 'Gemini 2.5 Flash' },
+      { id: 'gemini-3-pro-image-preview', name: 'Nano Banana Pro' },
+    ];
+    const BASE_IMAGE_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models';
 
     // Opcional: carregar a imagem-base para edição multi-turno
     const editImagePart = editOf
@@ -287,77 +292,105 @@ Return ONLY the JSON array of strings.`;
       }),
     );
 
-    console.log('🚀 Enviando variações em PARALELO para Gemini 3 Pro Image (NanoBanana Pro)...');
+    console.log(`🚀 Gerando imagem com fallback chain: ${IMAGE_MODELS.map(m => m.id).join(' → ')}`);
 
-    const generationErrors: string[] = []; // DEBUG: Captura erros para troubleshooting
+    const generationErrors: string[] = [];
+
+    // Helper: tenta gerar imagem com um modelo específico
+    async function tryGenerateWithModel(
+      modelId: string,
+      modelName: string,
+      prompt: string,
+      attempt: number
+    ): Promise<{ data: any; modelUsed: string } | null> {
+      const endpoint = `${BASE_IMAGE_ENDPOINT}/${modelId}:generateContent`;
+      const contents = [
+        {
+          role: 'user',
+          parts: [
+            { text: prompt },
+            ...referenceParts.filter(Boolean),
+            ...(editImagePart ? [editImagePart] : []),
+          ],
+        },
+      ];
+
+      const payload = {
+        contents,
+        generationConfig: {
+          responseModalities: ['TEXT', 'IMAGE'],
+          imageConfig: {
+            aspectRatio: aspectRatio,
+          },
+        },
+      };
+
+      console.log(`  🔄 [${attempt}] Tentando ${modelName} (${modelId})...`);
+
+      const response = await fetchWithTimeout(
+        endpoint,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey,
+          },
+          body: JSON.stringify(payload),
+        },
+        55000
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        const errMsg = `${modelName} HTTP ${response.status}: ${errorText.substring(0, 300)}`;
+        console.warn(`  ❌ ${errMsg}`);
+        generationErrors.push(errMsg);
+        return null;
+      }
+
+      const data = await response.json();
+      const inlineData =
+        data?.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData)?.inlineData ||
+        data?.content?.parts?.find((p: any) => p.inlineData)?.inlineData;
+
+      if (!inlineData?.data) {
+        const noDataMsg = `${modelName}: sem imagem na resposta. ${JSON.stringify(data).substring(0, 200)}`;
+        console.warn(`  ⚠️ ${noDataMsg}`);
+        generationErrors.push(noDataMsg);
+        return null;
+      }
+
+      console.log(`  ✅ ${modelName} gerou imagem com sucesso!`);
+      return { data, modelUsed: modelId };
+    }
 
     const generationPromises = promptVariants.map(async (promptVariant, index) => {
       try {
-        // Sprint I: textOverlayBlock (language + headline) prepended to ALL variants
         const finalPrompt = `${textOverlayBlock}\n${promptVariant}\n\n[LOGO_RULE]: ${logoInstruction}\n[REFERENCES]: ${imageReferences.join(', ')}`;
-        const contents = [
-          {
-            role: 'user',
-            parts: [
-              { text: finalPrompt },
-              ...referenceParts.filter(Boolean),
-              ...(editImagePart ? [editImagePart] : []),
-            ],
-          },
-        ];
 
-        const payload = {
-          contents,
-          generationConfig: {
-            responseModalities: ['IMAGE'],
-            imageConfig: {
-              aspectRatio: aspectRatio,
-            },
-          },
-        };
-
-        // HOTFIX BUG-004: Usa fetchWithRetry com timeout de 55s (tenta 2x se falhar)
-        // Gemini Image generation can take 20-40s, so we need a longer timeout
-        const response = await fetchWithRetry(
-          imageEndpoint,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-goog-api-key': apiKey,
-            },
-            body: JSON.stringify(payload),
-          },
-          55000, // 55 segundos de timeout (imagens demoram)
-          1 // 1 retry (2 tentativas total)
-        );
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          const errMsg = `Gemini API HTTP ${response.status}: ${errorText.substring(0, 500)}`;
-          console.error(`❌ [Gemini 3 Image] Variante ${index + 1}:`, errMsg);
-          generationErrors.push(`Variante ${index + 1}: ${errMsg}`);
-          return null;
+        // Fallback chain: tenta cada modelo em ordem
+        let result: { data: any; modelUsed: string } | null = null;
+        for (const model of IMAGE_MODELS) {
+          try {
+            result = await tryGenerateWithModel(model.id, model.name, finalPrompt, index + 1);
+            if (result) break; // Sucesso — não precisa tentar o próximo
+          } catch (modelErr: any) {
+            const errMsg = modelErr?.message || String(modelErr);
+            console.warn(`  ⚠️ ${model.name} falhou: ${errMsg}`);
+            generationErrors.push(`${model.name}: ${errMsg}`);
+          }
         }
 
-        // Parse response (same try block to keep `response` in scope)
-        const data = await response.json();
+        if (!result) return null;
+
+        const { data, modelUsed } = result;
         const inlineData =
           data?.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData)?.inlineData ||
           data?.content?.parts?.find((p: any) => p.inlineData)?.inlineData;
 
-        if (!inlineData?.data) {
-          const noDataMsg = `Gemini não retornou imagem. Response: ${JSON.stringify(data).substring(0, 300)}`;
-          console.warn(`⚠️ Variante ${index + 1}: ${noDataMsg}`);
-          generationErrors.push(`Variante ${index + 1}: ${noDataMsg}`);
-          return null;
-        }
-
         const mimeType = inlineData.mimeType || 'image/png';
         const generatedId: string =
-          data?.candidates?.[0]?.content?.role === 'model' && data?.candidates?.[0]?.content?.parts?.[0]?.id
-            ? data.candidates[0].content.parts[0].id
-            : `gmi_${Date.now()}_${index}`;
+          data?.candidates?.[0]?.content?.parts?.[0]?.id || `gmi_${Date.now()}_${index}`;
 
         // Upload server-side via REST API do Firebase Storage
         const ext = mimeType.split('/')[1] || 'png';
@@ -390,10 +423,10 @@ Return ONLY the JSON array of strings.`;
           const uploadData = await uploadRes.json();
           const downloadToken = uploadData.downloadTokens;
           imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodedPath}?alt=media&token=${downloadToken}`;
-          console.log(`✅ Upload server-side concluído para variante ${index + 1}`);
+          console.log(`✅ Upload concluído para variante ${index + 1}`);
         } catch (uploadErr: any) {
           const errMsg = uploadErr?.message || String(uploadErr);
-          console.error(`⚠️ Upload server-side falhou para variante ${index + 1}:`, errMsg);
+          console.error(`⚠️ Upload falhou para variante ${index + 1}:`, errMsg);
           imageUrl = `data:${mimeType};base64,${inlineData.data}`;
           (globalThis as any).__lastUploadError = errMsg;
         }
@@ -403,15 +436,11 @@ Return ONLY the JSON array of strings.`;
           processId: generatedId,
           promptUsed: promptVariant,
           checklist: { legibility200x112: 'pending', contrast: 'pending', ctaClear: 'pending' },
-          model: 'gemini-3-pro-image-preview',
+          model: modelUsed,
         };
       } catch (variantError: any) {
         const errorMsg = variantError?.message || String(variantError);
-        if (errorMsg.includes('timeout')) {
-          console.error(`⏱️ [Gemini 3 Image] Timeout na variante ${index + 1}`);
-        } else {
-          console.error(`❌ [Gemini 3 Image] Erro na variante ${index + 1}:`, errorMsg);
-        }
+        console.error(`❌ Erro fatal na variante ${index + 1}:`, errorMsg);
         generationErrors.push(`Variante ${index + 1}: ${errorMsg}`);
         return null;
       }
@@ -435,20 +464,23 @@ Return ONLY the JSON array of strings.`;
       console.error('[Design] Erro ao atualizar créditos:', creditError);
     }
 
+    const modelUsed = generationResponses[0]?.model || 'unknown';
+    console.log(`🎉 Geração concluída com modelo: ${modelUsed}`);
+
     return createApiSuccess({
       imageUrl: generationResponses[0]?.url,
       processId: generationResponses[0]?.processId,
       images: generationResponses,
-      version: '11.24.6-rest-upload',
+      version: '11.25.0-model-fallback',
       uploadDebug: (globalThis as any).__lastUploadError || null,
       metadata: {
         type,
         aspectRatio,
-        imageSize,
         promptVariants,
         imageReferences,
         usingBrandAssets: imageReferences.length > 0,
-        model: 'gemini-3-pro-image-preview',
+        model: modelUsed,
+        fallbackChain: IMAGE_MODELS.map(m => m.id),
       },
     });
   } catch (error) {
