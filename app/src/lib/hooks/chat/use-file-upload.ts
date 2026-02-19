@@ -4,7 +4,6 @@ import { useState, useCallback } from 'react';
 import { fileToBase64 } from '@/lib/utils';
 import { uploadBrandAsset, validateBrandAssetFile } from '@/lib/firebase/storage';
 import { createAsset } from '@/lib/firebase/assets';
-import { analyzeMultimodalWithGemini } from '@/lib/ai/gemini';
 import { Timestamp } from 'firebase/firestore';
 
 export interface Attachment {
@@ -112,11 +111,22 @@ export function useFileUpload(
             ? 'Analise esta imagem sob a perspectiva de um estrategista de funis. Identifique elementos de conversão, copy, design e pontos de melhoria. Seja conciso e direto.'
             : 'Analise este documento PDF. Extraia os pontos estratégicos mais relevantes para um conselho de marketing. Seja conciso.';
 
-          const insight = await analyzeMultimodalWithGemini(
-            prompt,
-            base64,
-            attachment.file.type
-          );
+          const analyzeRes = await fetch('/api/intelligence/analyze/image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt,
+              fileBase64: base64,
+              mimeType: attachment.file.type,
+              userId,
+              brandId,
+            }),
+          });
+          if (!analyzeRes.ok) {
+            const err = await analyzeRes.json().catch(() => ({ error: 'Analysis failed' }));
+            throw new Error(err.error || `Analysis HTTP ${analyzeRes.status}`);
+          }
+          const { insight } = await analyzeRes.json();
 
           setAttachments((prev) =>
             prev.map((a) =>

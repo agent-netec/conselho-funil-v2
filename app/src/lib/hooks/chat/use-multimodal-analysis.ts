@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { analyzeMultimodalWithGemini } from '@/lib/ai/gemini';
 
 export interface UseMultimodalAnalysisReturn {
   isAnalyzing: boolean;
@@ -15,12 +14,21 @@ export function useMultimodalAnalysis(): UseMultimodalAnalysisReturn {
     async (imageUrl: string, prompt: string): Promise<string> => {
       setIsAnalyzing(true);
       try {
-        const result = await analyzeMultimodalWithGemini(
-          prompt,
-          imageUrl,
-          'image/png'
-        );
-        return result;
+        const res = await fetch('/api/intelligence/analyze/image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt,
+            fileBase64: imageUrl,
+            mimeType: 'image/png',
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: 'Analysis failed' }));
+          throw new Error(err.error || `Analysis HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        return data.insight || '';
       } finally {
         setIsAnalyzing(false);
       }
