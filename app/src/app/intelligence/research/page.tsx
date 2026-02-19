@@ -223,20 +223,23 @@ export default function ResearchPage() {
   const handleAddToRag = async () => {
     if (!selected || !brandId || ragSections.size === 0) return;
     setRagSaving(true);
+    const payload = {
+      brandId,
+      dossierId: selected.id,
+      sections: Array.from(ragSections),
+    };
+    console.log('[Research/RAG] Sending payload:', payload);
     try {
       const headers = await getAuthHeaders();
       const res = await fetch('/api/intelligence/research/add-to-rag', {
         method: 'POST',
         headers,
-        body: JSON.stringify({
-          brandId,
-          dossierId: selected.id,
-          sections: Array.from(ragSections),
-        }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Erro ao salvar');
+        console.error('[Research/RAG] API error:', res.status, err);
+        throw new Error(err.error || err.details || `Erro ${res.status}`);
       }
       const data = await res.json();
       toast.success(`${data.data?.chunksAdded || 0} seções adicionadas ao Conselho!`);
