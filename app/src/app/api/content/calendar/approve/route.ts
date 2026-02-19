@@ -15,6 +15,7 @@ import { handleSecurityError } from '@/lib/utils/api-security';
 import { transitionStatus } from '@/lib/content/approval-engine';
 import type { ApprovalAction } from '@/types/content';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const VALID_ACTIONS: ApprovalAction[] = ['submit_review', 'approve', 'reject', 'schedule'];

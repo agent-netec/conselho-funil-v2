@@ -12,6 +12,7 @@ import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createCalendarItem } from '@/lib/firebase/content-calendar';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 /** Map social platform strings to calendar platform type */

@@ -14,6 +14,7 @@ import { handleSecurityError } from '@/lib/utils/api-security';
 import { reorderCalendarItems } from '@/lib/firebase/content-calendar';
 import type { ReorderUpdate } from '@/types/content';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {

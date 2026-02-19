@@ -21,6 +21,7 @@ import {
   deleteCalendarItem,
 } from '@/lib/firebase/content-calendar';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
