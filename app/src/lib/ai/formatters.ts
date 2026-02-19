@@ -97,9 +97,9 @@ ${brand.audience.objections.length > 0 ? `- **Objeções**: ${brand.audience.obj
 - **Estilo Visual**: ${kit.visualStyle}
 - **Cores**: Primária: ${kit.colors.primary}, Secundária: ${kit.colors.secondary}, Accent: ${kit.colors.accent}, Background: ${kit.colors.background}
 - **Tipografia**: Principal: ${kit.typography.primaryFont}, Secundária: ${kit.typography.secondaryFont} (Fallback: ${kit.typography.systemFallback})
-- **Logo**: ${kit.logoLock.locked ? 'USAR APENAS LOGO OFICIAL (LOCKED)' : 'Permite variações'}
-- **URL Logo Principal**: ${kit.logoLock.variants.primary.url}
-${kit.logoLock.variants.horizontal ? `- **URL Logo Horizontal**: ${kit.logoLock.variants.horizontal.url}\n` : ''}${kit.logoLock.variants.icon ? `- **URL Ícone**: ${kit.logoLock.variants.icon.url}\n` : ''}`;
+- **Logo**: ${kit.logoLock?.locked ? 'USAR APENAS LOGO OFICIAL (LOCKED)' : 'Permite variações'}
+${kit.logoLock?.variants?.primary?.url ? `- **URL Logo Principal**: ${kit.logoLock.variants.primary.url}` : '- **Logo**: Não configurado'}
+${kit.logoLock?.variants?.horizontal?.url ? `- **URL Logo Horizontal**: ${kit.logoLock.variants.horizontal.url}\n` : ''}${kit.logoLock?.variants?.icon?.url ? `- **URL Ícone**: ${kit.logoLock.variants.icon.url}\n` : ''}`;
   }
 
   context += `\n**⚠️ IMPORTANTE:** Todas as respostas devem respeitar o tom de voz, posicionamento e contexto desta marca.`;

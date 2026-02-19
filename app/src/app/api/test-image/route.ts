@@ -24,7 +24,6 @@ export async function GET(request: NextRequest) {
         responseModalities: ['IMAGE'],
         imageConfig: {
           aspectRatio: '1:1',
-          imageSize: '2K'
         }
       }
     };

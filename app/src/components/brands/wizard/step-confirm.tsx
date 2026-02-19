@@ -15,12 +15,12 @@ interface StepConfirmProps {
     ticket: string;
     type: string;
     differentiator: string;
-    colors: { primary: string; secondary: string; accent: string; background: string };
-    visualStyle: string;
-    typography: { primaryFont: string; secondaryFont: string };
-    logoFile: File | null;
-    logoLocked: boolean;
-    aiProfile: string;
+    colors?: { primary: string; secondary: string; accent: string; background: string };
+    visualStyle?: string;
+    typography?: { primaryFont: string; secondaryFont: string };
+    logoFile?: File | null;
+    logoLocked?: boolean;
+    aiProfile?: string;
   };
 }
 
@@ -72,8 +72,8 @@ function NotConfiguredBadge() {
 }
 
 export function StepConfirm({ formData }: StepConfirmProps) {
-  const hasColors = formData.colors.primary !== '#10b981' || formData.colors.secondary !== '#3b82f6';
-  const hasTypography = formData.typography.primaryFont !== 'Inter' || formData.typography.secondaryFont !== 'Inter';
+  const hasColors = (formData.colors?.primary ?? '#10b981') !== '#10b981' || (formData.colors?.secondary ?? '#3b82f6') !== '#3b82f6';
+  const hasTypography = (formData.typography?.primaryFont ?? 'Inter') !== 'Inter' || (formData.typography?.secondaryFont ?? 'Inter') !== 'Inter';
   const hasVisual = hasColors || hasTypography;
 
   return (
@@ -198,19 +198,23 @@ export function StepConfirm({ formData }: StepConfirmProps) {
         </div>
         {hasVisual ? (
           <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-zinc-500 text-xs">Cores:</span>
-              <div className="flex gap-1">
-                {Object.values(formData.colors).map((color, i) => (
-                  <div key={i} className="h-5 w-5 rounded border border-white/10" style={{ backgroundColor: color }} />
-                ))}
+            {formData.colors && (
+              <div className="flex items-center gap-2">
+                <span className="text-zinc-500 text-xs">Cores:</span>
+                <div className="flex gap-1">
+                  {Object.values(formData.colors).map((color, i) => (
+                    <div key={i} className="h-5 w-5 rounded border border-white/10" style={{ backgroundColor: color }} />
+                  ))}
+                </div>
               </div>
-            </div>
-            <div>
-              <span className="text-zinc-500 text-xs">Estilo:</span>
-              <span className="text-white ml-2">{STYLE_LABELS[formData.visualStyle] || formData.visualStyle}</span>
-            </div>
-            {hasTypography && (
+            )}
+            {formData.visualStyle && (
+              <div>
+                <span className="text-zinc-500 text-xs">Estilo:</span>
+                <span className="text-white ml-2">{STYLE_LABELS[formData.visualStyle] || formData.visualStyle}</span>
+              </div>
+            )}
+            {hasTypography && formData.typography && (
               <div>
                 <span className="text-zinc-500 text-xs">Fontes:</span>
                 <span className="text-white ml-2">{formData.typography.primaryFont} / {formData.typography.secondaryFont}</span>
@@ -236,7 +240,7 @@ export function StepConfirm({ formData }: StepConfirmProps) {
             <span className="text-[10px] text-zinc-600">
               ({(formData.logoFile.size / 1024).toFixed(0)}KB)
             </span>
-            {formData.logoLocked && (
+            {formData.logoLocked !== false && formData.logoLocked && (
               <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded">LOCKED</span>
             )}
           </div>
@@ -254,7 +258,7 @@ export function StepConfirm({ formData }: StepConfirmProps) {
           <h4 className="font-medium text-white text-sm">Personalidade da IA</h4>
         </div>
         <div className="text-sm">
-          <span className="text-white">{AI_PROFILE_LABELS[formData.aiProfile] || formData.aiProfile}</span>
+          <span className="text-white">{formData.aiProfile ? (AI_PROFILE_LABELS[formData.aiProfile] || formData.aiProfile) : 'Equilibrado'}</span>
         </div>
       </div>
 

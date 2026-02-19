@@ -294,7 +294,6 @@ Return ONLY the JSON array of strings.`;
     const generationPromises = promptVariants.map(async (promptVariant, index) => {
       try {
         // Sprint I: textOverlayBlock (language + headline) prepended to ALL variants
-        // Scene description in English + text overlay in target language = best results
         const finalPrompt = `${textOverlayBlock}\n${promptVariant}\n\n[LOGO_RULE]: ${logoInstruction}\n[REFERENCES]: ${imageReferences.join(', ')}`;
         const contents = [
           {
@@ -313,18 +312,12 @@ Return ONLY the JSON array of strings.`;
             responseModalities: ['IMAGE'],
             imageConfig: {
               aspectRatio: aspectRatio,
-              imageSize: imageSize,
             },
           },
-          safetySettings: [
-            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-          ],
         };
 
-        // HOTFIX BUG-004: Usa fetchWithRetry com timeout de 25s (tenta 2x se falhar)
+        // HOTFIX BUG-004: Usa fetchWithRetry com timeout de 55s (tenta 2x se falhar)
+        // Gemini Image generation can take 20-40s, so we need a longer timeout
         const response = await fetchWithRetry(
           imageEndpoint,
           {
@@ -335,38 +328,28 @@ Return ONLY the JSON array of strings.`;
             },
             body: JSON.stringify(payload),
           },
-          25000, // 25 segundos de timeout
+          55000, // 55 segundos de timeout (imagens demoram)
           1 // 1 retry (2 tentativas total)
         );
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error(`❌ [Gemini 3 Image] HTTP ${response.status} na variante ${index + 1}:`, errorText);
-          console.error(`❌ [Gemini 3 Image] Headers:`, Object.fromEntries(response.headers.entries()));
-          // DEBUG: Lançar erro com detalhes para troubleshooting
-          throw new Error(`Gemini API returned ${response.status}: ${errorText.substring(0, 500)}`);
+          const errMsg = `Gemini API HTTP ${response.status}: ${errorText.substring(0, 500)}`;
+          console.error(`❌ [Gemini 3 Image] Variante ${index + 1}:`, errMsg);
+          generationErrors.push(`Variante ${index + 1}: ${errMsg}`);
+          return null;
         }
-      } catch (fetchError: any) {
-        // HOTFIX BUG-004: Mensagem de erro amigável para timeout
-        if (fetchError.message?.includes('timeout')) {
-          console.error(
-            `⏱️ [Gemini 3 Image] Timeout na variante ${index + 1} após ${25}s. A geração de imagem está demorando mais que o esperado.`
-          );
-        } else {
-          console.error(`❌ [Gemini 3 Image] Erro ao gerar variante ${index + 1}:`, fetchError);
-        }
-        return null;
-      }
 
-      try {
-
+        // Parse response (same try block to keep `response` in scope)
         const data = await response.json();
         const inlineData =
           data?.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData)?.inlineData ||
           data?.content?.parts?.find((p: any) => p.inlineData)?.inlineData;
 
         if (!inlineData?.data) {
-          console.warn(`⚠️ Gemini Image API did not return inline image data for variant ${index + 1}`);
+          const noDataMsg = `Gemini não retornou imagem. Response: ${JSON.stringify(data).substring(0, 300)}`;
+          console.warn(`⚠️ Variante ${index + 1}: ${noDataMsg}`);
+          generationErrors.push(`Variante ${index + 1}: ${noDataMsg}`);
           return null;
         }
 
@@ -376,7 +359,7 @@ Return ONLY the JSON array of strings.`;
             ? data.candidates[0].content.parts[0].id
             : `gmi_${Date.now()}_${index}`;
 
-        // Upload server-side via REST API do Firebase Storage (usa token do usuário autenticado)
+        // Upload server-side via REST API do Firebase Storage
         const ext = mimeType.split('/')[1] || 'png';
         const storagePath = `brand-assets/${userId}/${brandId}/${Date.now()}_design_${generatedId}.${ext}`;
         let imageUrl: string;
@@ -412,7 +395,6 @@ Return ONLY the JSON array of strings.`;
           const errMsg = uploadErr?.message || String(uploadErr);
           console.error(`⚠️ Upload server-side falhou para variante ${index + 1}:`, errMsg);
           imageUrl = `data:${mimeType};base64,${inlineData.data}`;
-          // Surfar erro para debug no client
           (globalThis as any).__lastUploadError = errMsg;
         }
 
@@ -425,7 +407,11 @@ Return ONLY the JSON array of strings.`;
         };
       } catch (variantError: any) {
         const errorMsg = variantError?.message || String(variantError);
-        console.error(`❌ Erro em variante ${index + 1}:`, variantError);
+        if (errorMsg.includes('timeout')) {
+          console.error(`⏱️ [Gemini 3 Image] Timeout na variante ${index + 1}`);
+        } else {
+          console.error(`❌ [Gemini 3 Image] Erro na variante ${index + 1}:`, errorMsg);
+        }
         generationErrors.push(`Variante ${index + 1}: ${errorMsg}`);
         return null;
       }

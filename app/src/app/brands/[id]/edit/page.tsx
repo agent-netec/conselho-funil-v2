@@ -36,18 +36,26 @@ export default function EditBrandPage() {
     vertical: '',
     positioning: '',
     voiceTone: '',
-    
+
     // Step 2: Audience
     who: '',
     pain: '',
     awareness: 'problem_aware',
     objections: [] as string[],
-    
+
     // Step 3: Offer
     what: '',
     ticket: '',
     type: '',
     differentiator: '',
+
+    // Visual fields (loaded from brandKit if exists)
+    colors: { primary: '#10b981', secondary: '#3b82f6', accent: '#f59e0b', background: '#09090b' },
+    visualStyle: 'modern',
+    typography: { primaryFont: 'Inter', secondaryFont: 'Inter' },
+    logoFile: null as File | null,
+    logoLocked: false,
+    aiProfile: 'equilibrado',
   });
 
   // Carrega dados da marca existente
@@ -68,6 +76,15 @@ export default function EditBrandPage() {
         ticket: String(brand.offer.ticket),
         type: brand.offer.type,
         differentiator: brand.offer.differentiator,
+        colors: brand.brandKit?.colors || { primary: '#10b981', secondary: '#3b82f6', accent: '#f59e0b', background: '#09090b' },
+        visualStyle: brand.brandKit?.visualStyle || 'modern',
+        typography: {
+          primaryFont: brand.brandKit?.typography?.primaryFont || 'Inter',
+          secondaryFont: brand.brandKit?.typography?.secondaryFont || 'Inter',
+        },
+        logoFile: null,
+        logoLocked: brand.brandKit?.logoLock?.locked ?? false,
+        aiProfile: (brand as any).aiConfiguration?.profile || 'equilibrado',
       });
       setIsLoadingBrand(false);
     } else if (!isLoading) {
