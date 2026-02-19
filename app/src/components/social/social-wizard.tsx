@@ -282,6 +282,42 @@ export function SocialWizard() {
     }
   };
 
+  // Approve all hooks and send to calendar
+  const [scheduledCount, setScheduledCount] = useState(0);
+  const handleApproveAndSchedule = async () => {
+    if (!activeBrand?.id || !result?.hooks?.length) return;
+    setIsSendingToCalendar(true);
+
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch('/api/content/calendar/from-social', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          brandId: activeBrand.id,
+          hooks: result.hooks.map(h => ({
+            content: h.content,
+            style: h.style,
+            platform,
+            postType: h.postType || selectedFormats?.[0] || 'post',
+          })),
+          campaignType,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Falha ao agendar');
+      const data = await response.json();
+      const count = data.data?.count || result.hooks.length;
+      setScheduledCount(count);
+      notify.success(`${count} posts agendados no calendário!`);
+    } catch (error) {
+      console.error('Error:', error);
+      notify.error('Erro ao enviar ao calendário.');
+    } finally {
+      setIsSendingToCalendar(false);
+    }
+  };
+
   const copyToClipboard = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
     setCopiedIndex(index);
@@ -363,6 +399,7 @@ export function SocialWizard() {
     setScorecard(null);
     setDebate(null);
     setSelectedHookIdx(null);
+    setScheduledCount(0);
     setTopic('');
   };
 
@@ -836,13 +873,43 @@ export function SocialWizard() {
           ))}
         </Card>
 
+        {/* Scheduled Confirmation */}
+        {scheduledCount > 0 && (
+          <Card className="p-5 bg-emerald-500/5 border-emerald-500/20">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                <Check className="h-6 w-6 text-emerald-400" />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-bold text-emerald-300">{scheduledCount} posts agendados com sucesso!</h4>
+                <p className="text-xs text-zinc-400 mt-1">
+                  Os hooks foram adicionados ao calendário editorial como rascunhos para os próximos dias.
+                </p>
+              </div>
+              <a href="/content/calendar" className="text-xs text-emerald-400 hover:text-emerald-300 underline underline-offset-2 whitespace-nowrap">
+                Ver no Calendário
+              </a>
+            </div>
+          </Card>
+        )}
+
         {/* Actions */}
-        <div className="flex items-center justify-center gap-4 pt-6 border-t border-white/[0.05]">
-          <Button variant="ghost" onClick={() => setCurrentStep(2)} className="text-zinc-400 hover:text-zinc-100">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar ao Debate
-          </Button>
-          <Button variant="outline" onClick={resetWizard} className="border-white/[0.08] text-zinc-400 hover:text-zinc-100">
-            Nova Geração
+        <div className="flex items-center justify-between pt-6 border-t border-white/[0.05]">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" onClick={() => setCurrentStep(2)} className="text-zinc-400 hover:text-zinc-100">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Voltar ao Debate
+            </Button>
+            <Button variant="outline" onClick={resetWizard} className="border-white/[0.08] text-zinc-400 hover:text-zinc-100">
+              Nova Geração
+            </Button>
+          </div>
+          <Button
+            onClick={handleApproveAndSchedule}
+            disabled={isSendingToCalendar || scheduledCount > 0}
+            className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold gap-2"
+          >
+            {isSendingToCalendar ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalendarPlus className="h-4 w-4" />}
+            {isSendingToCalendar ? 'Agendando...' : scheduledCount > 0 ? 'Agendado!' : 'Aprovar e Agendar'}
           </Button>
         </div>
       </div>
