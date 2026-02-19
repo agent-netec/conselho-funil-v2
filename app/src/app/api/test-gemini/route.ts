@@ -12,70 +12,51 @@ export async function GET(request: NextRequest) {
     }, { status: 500 });
   }
 
-  // Test 1: Simple text generation
+  // List available models
   try {
-    const textEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
-    const textResponse = await fetch(textEndpoint, {
-      method: 'POST',
+    const listModelsEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models';
+    const listResponse = await fetch(listModelsEndpoint, {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         'x-goog-api-key': apiKey,
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{ text: 'Say hello' }]
-        }]
-      })
+      }
     });
 
-    const textData = await textResponse.json();
+    const modelsData = await listResponse.json();
 
-    if (!textResponse.ok) {
+    if (!listResponse.ok) {
       return NextResponse.json({
-        test: 'text_generation',
-        status: textResponse.status,
-        error: textData,
-        headers: Object.fromEntries(textResponse.headers.entries())
+        test: 'list_models',
+        status: listResponse.status,
+        error: modelsData
       }, { status: 200 });
     }
 
-    // Test 2: Image generation
-    const imageEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent';
-    const imageResponse = await fetch(imageEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey,
-      },
-      body: JSON.stringify({
-        contents: [{
-          role: 'user',
-          parts: [{ text: 'A simple red circle' }]
-        }],
-        generationConfig: {
-          responseModalities: ['IMAGE'],
-          imageConfig: {
-            aspectRatio: '1:1',
-            imageSize: '2K'
-          }
-        }
-      })
-    });
+    // Filter models that support generateContent
+    const generateContentModels = modelsData.models?.filter((m: any) =>
+      m.supportedGenerationMethods?.includes('generateContent')
+    ) || [];
 
-    const imageData = await imageResponse.json();
+    // Filter image generation models
+    const imageModels = generateContentModels.filter((m: any) =>
+      m.name?.toLowerCase().includes('image') ||
+      m.name?.toLowerCase().includes('nano') ||
+      m.displayName?.toLowerCase().includes('image')
+    );
 
     return NextResponse.json({
-      textTest: {
-        success: textResponse.ok,
-        status: textResponse.status,
-        response: textData
-      },
-      imageTest: {
-        success: imageResponse.ok,
-        status: imageResponse.status,
-        response: imageData,
-        headers: Object.fromEntries(imageResponse.headers.entries())
-      }
+      totalModels: modelsData.models?.length || 0,
+      generateContentModels: generateContentModels.map((m: any) => ({
+        name: m.name,
+        displayName: m.displayName,
+        description: m.description,
+        supportedMethods: m.supportedGenerationMethods
+      })),
+      imageModels: imageModels.map((m: any) => ({
+        name: m.name,
+        displayName: m.displayName,
+        description: m.description
+      }))
     });
 
   } catch (error: any) {
