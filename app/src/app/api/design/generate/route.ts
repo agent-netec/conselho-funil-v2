@@ -246,7 +246,7 @@ Return ONLY the JSON array of strings.`;
 
     // US-20.3: Geração de imagens com Gemini 3 Pro Image (Nano Banana Pro)
     const imageModelId = 'gemini-3-pro-image-preview';
-    const imageEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${imageModelId}:generateContent?key=${apiKey}`;
+    const imageEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${imageModelId}:generateContent`;
 
     // Opcional: carregar a imagem-base para edição multi-turno
     const editImagePart = editOf
@@ -327,7 +327,10 @@ Return ONLY the JSON array of strings.`;
           imageEndpoint,
           {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': apiKey,
+            },
             body: JSON.stringify(payload),
           },
           25000, // 25 segundos de timeout
