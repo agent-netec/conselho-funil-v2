@@ -76,17 +76,21 @@ export async function POST(req: NextRequest) {
 
     // 1. Load brand context
     let brandContext = 'Nenhuma marca selecionada.';
-    const brand = await getBrand(brandId);
-    if (brand) {
-      brandContext = `
+    try {
+      const brand = await getBrand(brandId);
+      if (brand) {
+        brandContext = `
 Marca: ${brand.name}
 Vertical: ${brand.vertical}
 Posicionamento: ${brand.positioning}
 Tom de Voz: ${brand.voiceTone}
-Audiência: ${brand.audience.who}
-Dores: ${brand.audience.pain}
-Oferta: ${brand.offer.what}
-      `.trim();
+Audiência: ${brand.audience?.who || 'N/A'}
+Dores: ${brand.audience?.pain || 'N/A'}
+Oferta: ${brand.offer?.what || 'N/A'}
+        `.trim();
+      }
+    } catch (brandErr) {
+      console.warn('[Content/Calendar] Brand load failed:', brandErr);
     }
 
     // 2. Build prompt

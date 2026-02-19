@@ -8,7 +8,7 @@
 
 import { NextRequest } from 'next/server';
 import { ragQuery } from '@/lib/ai/rag';
-import { generateWithGemini, isGeminiConfigured, PRO_GEMINI_MODEL } from '@/lib/ai/gemini';
+import { generateWithGemini, isGeminiConfigured, PRO_GEMINI_MODEL, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { getBrand } from '@/lib/firebase/brands';
 import { SOCIAL_SCORECARD_PROMPT } from '@/lib/ai/prompts';
 import { buildSocialBrainContext } from '@/lib/ai/prompts/social-brain-context';
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     // 1. Load brand context
     let brandContext = 'Nenhuma marca selecionada.';
-    if (brandId) {
+    try {
       const brand = await getBrand(brandId);
       if (brand) {
         brandContext = `
@@ -54,10 +54,12 @@ Marca: ${brand.name}
 Vertical: ${brand.vertical}
 Posicionamento: ${brand.positioning}
 Tom de Voz: ${brand.voiceTone}
-Audiência: ${brand.audience.who}
-Dores: ${brand.audience.pain}
+Audiência: ${brand.audience?.who || 'N/A'}
+Dores: ${brand.audience?.pain || 'N/A'}
         `.trim();
       }
+    } catch (brandErr) {
+      console.warn('[Social/Scorecard] Brand load failed:', brandErr);
     }
 
     // 2. Build brain context with real evaluation frameworks
@@ -79,11 +81,20 @@ Dores: ${brand.audience.pain}
       .replace('{{content}}', typeof content === 'string' ? content : JSON.stringify(content, null, 2))
       .replace('{{knowledgeContext}}', knowledgeContext || 'Use conhecimento geral sobre avaliação de performance em redes sociais.');
 
-    // 5. Generate with PRO model (calibrated evaluation)
-    const response = await generateWithGemini(fullPrompt, {
-      model: PRO_GEMINI_MODEL,
-      temperature: 0.2,
-    });
+    // 5. Generate with PRO model, fallback to Flash if PRO fails
+    let response: string;
+    try {
+      response = await generateWithGemini(fullPrompt, {
+        model: PRO_GEMINI_MODEL,
+        temperature: 0.2,
+      });
+    } catch (proErr: any) {
+      console.warn(`[Social/Scorecard] PRO model failed: ${proErr?.message}. Falling back to Flash.`);
+      response = await generateWithGemini(fullPrompt, {
+        model: DEFAULT_GEMINI_MODEL,
+        temperature: 0.2,
+      });
+    }
 
     // 6. Parse JSON
     let result;

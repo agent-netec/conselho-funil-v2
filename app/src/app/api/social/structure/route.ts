@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     // 1. Carregar contexto da marca
     let brandContext = 'Nenhuma marca selecionada. Use um tom de voz condizente com o hook.';
-    if (brandId) {
+    try {
       const brand = await getBrand(brandId);
       if (brand) {
         brandContext = `
@@ -45,12 +45,14 @@ Marca: ${brand.name}
 Vertical: ${brand.vertical}
 Posicionamento: ${brand.positioning}
 Tom de Voz: ${brand.voiceTone}
-Audiência: ${brand.audience.who}
-Dores: ${brand.audience.pain}
-Oferta: ${brand.offer.what}
-Diferencial: ${brand.offer.differentiator}
+Audiência: ${brand.audience?.who || 'N/A'}
+Dores: ${brand.audience?.pain || 'N/A'}
+Oferta: ${brand.offer?.what || 'N/A'}
+Diferencial: ${brand.offer?.differentiator || 'N/A'}
         `.trim();
       }
+    } catch (brandErr) {
+      console.warn('[Social/Structure] Brand load failed:', brandErr);
     }
 
     // 2. Buscar heurísticas via RAG
