@@ -1,4 +1,6 @@
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
 import { NextRequest } from 'next/server';
 import { parseJsonBody } from '@/app/api/_utils/parse-json';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';

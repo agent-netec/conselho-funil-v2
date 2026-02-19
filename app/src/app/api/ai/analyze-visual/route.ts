@@ -10,6 +10,7 @@ import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 interface VisionAnalysisRequest {
   imageUri: string;      // GS:// or HTTP link

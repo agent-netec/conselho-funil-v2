@@ -13,6 +13,7 @@ import { buildDesignBrainContext } from '@/lib/ai/prompts/design-brain-context';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 90; // Image generation can be slow (30-55s per model)
 
 // HOTFIX BUG-004: Timeout + Retry para evitar 504 Gateway Timeout
 function fetchWithTimeout(url: string, options: RequestInit, timeoutMs: number): Promise<Response> {

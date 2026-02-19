@@ -10,6 +10,7 @@ import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { buildDesignBrainContext } from '@/lib/ai/prompts/design-brain-context';
 
 export const runtime = 'nodejs';
+export const maxDuration = 60;
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
 
