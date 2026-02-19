@@ -37,55 +37,81 @@ function mapFormat(postType?: string): 'post' | 'story' | 'carousel' | 'reel' {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    // Step 1: Parse body
+    let body: any;
+    try {
+      body = await req.json();
+    } catch (parseErr: any) {
+      console.error('[Calendar/FromSocial] Body parse error:', parseErr);
+      return createApiError(400, 'Invalid JSON body', { details: parseErr?.message });
+    }
+
     const { brandId, hooks, campaignType } = body;
+    console.log(`[Calendar/FromSocial] brandId=${brandId}, hooks=${hooks?.length}, campaignType=${campaignType}`);
 
     if (!brandId || !hooks || !Array.isArray(hooks) || hooks.length === 0) {
       return createApiError(400, 'brandId and hooks array are required');
     }
 
+    // Step 2: Auth
     try {
       await requireBrandAccess(req, brandId);
     } catch (error) {
       return handleSecurityError(error);
     }
+    console.log('[Calendar/FromSocial] Auth OK');
 
+    // Step 3: Create calendar items
     const createdItems = [];
     const now = new Date();
 
     for (let i = 0; i < hooks.length; i++) {
       const hook = hooks[i];
+      const contentStr = typeof hook?.content === 'string' ? hook.content : String(hook?.content || '');
+
       // Schedule items across the next 7 days
       const scheduledDate = new Date(now);
       scheduledDate.setDate(now.getDate() + i + 1);
       scheduledDate.setHours(10, 0, 0, 0); // Default to 10:00 AM
 
-      const item = await createCalendarItem(brandId, {
-        title: `[${hook.style || campaignType || 'Social'}] ${hook.content.slice(0, 60)}${hook.content.length > 60 ? '...' : ''}`,
-        format: mapFormat(hook.postType),
-        platform: mapPlatform(hook.platform || ''),
-        scheduledDate: Timestamp.fromDate(scheduledDate),
-        content: hook.content,
-        metadata: {
-          generatedBy: 'ai',
-          promptParams: {
-            source: 'social_hooks',
-            campaignType: campaignType || 'organic',
-            style: hook.style || '',
-          },
-        },
-        order: i,
-      });
+      const titlePrefix = hook?.style || campaignType || 'Social';
+      const titleSnippet = contentStr.slice(0, 60);
 
-      createdItems.push(item);
+      console.log(`[Calendar/FromSocial] Creating item ${i + 1}/${hooks.length}: [${titlePrefix}] ${titleSnippet.slice(0, 30)}...`);
+
+      try {
+        const item = await createCalendarItem(brandId, {
+          title: `[${titlePrefix}] ${titleSnippet}${contentStr.length > 60 ? '...' : ''}`,
+          format: mapFormat(hook?.postType),
+          platform: mapPlatform(hook?.platform || ''),
+          scheduledDate: Timestamp.fromDate(scheduledDate),
+          content: contentStr,
+          metadata: {
+            generatedBy: 'ai',
+            promptParams: {
+              source: 'social_hooks',
+              campaignType: campaignType || 'organic',
+              style: hook?.style || '',
+            },
+          },
+          order: i,
+        });
+        createdItems.push(item);
+        console.log(`[Calendar/FromSocial] Item ${i + 1} created: ${item.id}`);
+      } catch (itemErr: any) {
+        console.error(`[Calendar/FromSocial] Failed to create item ${i + 1}:`, itemErr);
+        return createApiError(500, `Failed to create calendar item ${i + 1}/${hooks.length}`, {
+          details: `${itemErr?.message || String(itemErr)} | ${itemErr?.code || 'no-code'} | hook.content type: ${typeof hook?.content}`,
+        });
+      }
     }
 
+    console.log(`[Calendar/FromSocial] All ${createdItems.length} items created successfully`);
     return createApiSuccess({ items: createdItems, count: createdItems.length });
   } catch (error: any) {
-    console.error('[Calendar/FromSocial] POST error:', error);
+    console.error('[Calendar/FromSocial] Unexpected error:', error);
     return createApiError(500, 'Failed to create calendar items from social hooks', {
-      details: error?.message || String(error),
-      stack: error?.stack?.split('\n').slice(0, 3).join(' | '),
+      details: `${error?.message || String(error)} | stack: ${error?.stack?.split('\n').slice(0, 3).join(' > ')}`,
     });
   }
 }

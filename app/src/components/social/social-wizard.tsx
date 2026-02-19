@@ -274,8 +274,8 @@ export function SocialWizard() {
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        console.error('Calendar API error:', errData);
-        throw new Error(errData?.error?.details || 'Falha ao enviar ao calendário');
+        console.error('[Calendar/Single] API error:', errData);
+        throw new Error(errData?.details || errData?.error || 'Falha ao enviar ao calendário');
       }
       notify.success('Hook adicionado ao calendário!');
     } catch (error: any) {
@@ -311,8 +311,8 @@ export function SocialWizard() {
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        console.error('Calendar API error:', errData);
-        throw new Error(errData?.error?.details || 'Falha ao agendar');
+        console.error('[Calendar/Approve] API error:', errData);
+        throw new Error(errData?.details || errData?.error || 'Falha ao agendar');
       }
       const data = await response.json();
       const count = data.data?.count || result.hooks.length;
