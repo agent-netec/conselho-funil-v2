@@ -81,8 +81,11 @@ export async function POST(req: NextRequest) {
     }
 
     return createApiSuccess({ items: createdItems, count: createdItems.length });
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Calendar/FromSocial] POST error:', error);
-    return createApiError(500, 'Failed to create calendar items from social hooks');
+    return createApiError(500, 'Failed to create calendar items from social hooks', {
+      details: error?.message || String(error),
+      stack: error?.stack?.split('\n').slice(0, 3).join(' | '),
+    });
   }
 }

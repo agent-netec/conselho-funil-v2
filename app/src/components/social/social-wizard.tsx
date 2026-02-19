@@ -272,11 +272,15 @@ export function SocialWizard() {
         }),
       });
 
-      if (!response.ok) throw new Error('Falha ao enviar ao calendário');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        console.error('Calendar API error:', errData);
+        throw new Error(errData?.error?.details || 'Falha ao enviar ao calendário');
+      }
       notify.success('Hook adicionado ao calendário!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
-      notify.error('Erro ao enviar ao calendário.');
+      notify.error(error?.message || 'Erro ao enviar ao calendário.');
     } finally {
       setIsSendingToCalendar(false);
     }
@@ -305,14 +309,18 @@ export function SocialWizard() {
         }),
       });
 
-      if (!response.ok) throw new Error('Falha ao agendar');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        console.error('Calendar API error:', errData);
+        throw new Error(errData?.error?.details || 'Falha ao agendar');
+      }
       const data = await response.json();
       const count = data.data?.count || result.hooks.length;
       setScheduledCount(count);
       notify.success(`${count} posts agendados no calendário!`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
-      notify.error('Erro ao enviar ao calendário.');
+      notify.error(error?.message || 'Erro ao enviar ao calendário.');
     } finally {
       setIsSendingToCalendar(false);
     }
