@@ -11,6 +11,8 @@
  */
 
 import { useState } from 'react';
+import { doc, updateDoc, Timestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { Button } from '@/components/ui/button';
@@ -322,6 +324,23 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
       const count = data.data?.count || result.hooks.length;
       setScheduledCount(count);
       notify.success(`${count} posts agendados no calendário!`);
+
+      // Save social data to campaign document (Golden Thread)
+      if (campaignId) {
+        try {
+          await updateDoc(doc(db, 'campaigns', campaignId), {
+            social: {
+              hooks: result.hooks.map(h => ({ content: h.content, style: h.style })),
+              platforms: [platform],
+              campaignType,
+              scheduledCount: count,
+            },
+            updatedAt: Timestamp.now(),
+          });
+        } catch (campErr) {
+          console.warn('[SocialWizard] Failed to update campaign:', campErr);
+        }
+      }
     } catch (error: any) {
       console.error('Error:', error);
       notify.error(error?.message || 'Erro ao enviar ao calendário.');
