@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (chunks.length === 0) {
-      return createApiError(400, 'Nenhuma seção com conteúdo para salvar');
+      return createApiError(400, `Nenhuma seção com conteúdo para salvar. Seções solicitadas: ${sections.join(', ')}. Verifique se o dossiê possui dados nessas seções.`);
     }
 
     // Limit: max 20 research chunks per brand

@@ -40,7 +40,7 @@ export const VALID_TRANSITIONS: Record<CalendarItemStatus, CalendarItemStatus[]>
   approved: ['scheduled', 'rejected'],
   scheduled: ['published', 'rejected'],
   published: [],                // Terminal — ZERO transicao permitida
-  rejected: ['draft'],          // Re-edit: volta para draft
+  rejected: ['draft', 'pending_review'],  // Re-edit ou reenviar para revisão
 };
 
 /**
