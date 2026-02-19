@@ -12,6 +12,7 @@ import type { CounselorId } from '@/types';
 import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 
 export const runtime = 'nodejs';
+export const maxDuration = 60;
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
 

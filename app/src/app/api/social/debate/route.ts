@@ -21,6 +21,7 @@ import { retrieveSocialKnowledge } from '@/lib/ai/rag';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 90; // PRO model + 4 counselors debate = slow
 
 export async function POST(request: NextRequest) {
   try {
