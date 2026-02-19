@@ -54,7 +54,7 @@ export async function createCalendarItem(
     metadata: data.metadata || { generatedBy: 'manual' as const },
     order: data.order ?? 0,
     brandId,
-    createdBy: data.createdBy,
+    ...(data.createdBy ? { createdBy: data.createdBy } : {}),
     createdAt: now,
     updatedAt: now,
   };

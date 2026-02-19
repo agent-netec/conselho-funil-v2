@@ -54,8 +54,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 2: Auth
+    let userId: string;
     try {
-      await requireBrandAccess(req, brandId);
+      const access = await requireBrandAccess(req, brandId);
+      userId = access.userId;
     } catch (error) {
       return handleSecurityError(error);
     }
@@ -95,6 +97,7 @@ export async function POST(req: NextRequest) {
             },
           },
           order: i,
+          createdBy: userId,
         });
         createdItems.push(item);
         console.log(`[Calendar/FromSocial] Item ${i + 1} created: ${item.id}`);

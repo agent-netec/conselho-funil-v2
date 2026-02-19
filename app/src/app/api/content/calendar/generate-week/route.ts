@@ -145,6 +145,7 @@ Oferta: ${brand.offer?.what || 'N/A'}
           },
         },
         order: i,
+        createdBy: userId,
       });
 
       createdItems.push(item);
