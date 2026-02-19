@@ -289,6 +289,8 @@ Return ONLY the JSON array of strings.`;
 
     console.log('🚀 Enviando variações em PARALELO para Gemini 3 Pro Image (NanoBanana Pro)...');
 
+    const generationErrors: string[] = []; // DEBUG: Captura erros para troubleshooting
+
     const generationPromises = promptVariants.map(async (promptVariant, index) => {
       try {
         // Sprint I: textOverlayBlock (language + headline) prepended to ALL variants
@@ -339,8 +341,10 @@ Return ONLY the JSON array of strings.`;
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error(`❌ [Gemini 3 Image] Erro na variante ${index + 1}:`, errorText);
-          return null;
+          console.error(`❌ [Gemini 3 Image] HTTP ${response.status} na variante ${index + 1}:`, errorText);
+          console.error(`❌ [Gemini 3 Image] Headers:`, Object.fromEntries(response.headers.entries()));
+          // DEBUG: Lançar erro com detalhes para troubleshooting
+          throw new Error(`Gemini API returned ${response.status}: ${errorText.substring(0, 500)}`);
         }
       } catch (fetchError: any) {
         // HOTFIX BUG-004: Mensagem de erro amigável para timeout
@@ -419,8 +423,10 @@ Return ONLY the JSON array of strings.`;
           checklist: { legibility200x112: 'pending', contrast: 'pending', ctaClear: 'pending' },
           model: 'gemini-3-pro-image-preview',
         };
-      } catch (variantError) {
+      } catch (variantError: any) {
+        const errorMsg = variantError?.message || String(variantError);
         console.error(`❌ Erro em variante ${index + 1}:`, variantError);
+        generationErrors.push(`Variante ${index + 1}: ${errorMsg}`);
         return null;
       }
     });
@@ -429,7 +435,10 @@ Return ONLY the JSON array of strings.`;
     const generationResponses = results.filter((r): r is NonNullable<typeof r> => r !== null);
 
     if (generationResponses.length === 0) {
-      throw new Error('Todas as variações de geração de imagem falharam.');
+      const errorDetails = generationErrors.length > 0
+        ? `\n\nDetalhes dos erros:\n${generationErrors.join('\n')}`
+        : '';
+      throw new Error(`Todas as variações de geração de imagem falharam.${errorDetails}`);
     }
 
     // ST-11.19: Decrementar 5 créditos por geração de imagem (Gemini 2.0 Flash)
