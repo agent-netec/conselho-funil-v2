@@ -8,7 +8,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { generateWithGemini, isGeminiConfigured, PRO_GEMINI_MODEL } from '@/lib/ai/gemini';
+import { generateWithGemini, isGeminiConfigured, PRO_GEMINI_MODEL, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { getBrand } from '@/lib/firebase/brands';
 import { buildPartyPrompt } from '@/lib/ai/prompts/party-mode';
 import { buildPartyBrainContext } from '@/lib/ai/prompts/party-brain-context';
@@ -48,22 +48,31 @@ export async function POST(request: NextRequest) {
 
     // 1. Load brand context
     let brandContext = 'Nenhuma marca selecionada.';
-    const brand = await getBrand(brandId);
-    if (brand) {
-      brandContext = `
+    try {
+      const brand = await getBrand(brandId);
+      if (brand) {
+        brandContext = `
 Marca: ${brand.name}
 Vertical: ${brand.vertical}
 Posicionamento: ${brand.positioning}
 Tom de Voz: ${brand.voiceTone}
-Audiência: ${brand.audience.who}
-Dores: ${brand.audience.pain}
-Oferta: ${brand.offer.what}
-Diferencial: ${brand.offer.differentiator}
-      `.trim();
+Audiência: ${brand.audience?.who || 'N/A'}
+Dores: ${brand.audience?.pain || 'N/A'}
+Oferta: ${brand.offer?.what || 'N/A'}
+Diferencial: ${brand.offer?.differentiator || 'N/A'}
+        `.trim();
+      }
+    } catch (brandErr) {
+      console.warn('[Social/Debate] Brand load failed:', brandErr);
     }
 
     // 2. Build brain context for the 4 social counselors
-    const brainContext = buildPartyBrainContext(SOCIAL_COUNSELOR_IDS);
+    let brainContext = '';
+    try {
+      brainContext = buildPartyBrainContext(SOCIAL_COUNSELOR_IDS);
+    } catch (brainErr) {
+      console.warn('[Social/Debate] Brain context failed:', brainErr);
+    }
 
     // 3. Sprint O — O-5.4: Retrieve social knowledge base (policies & best practices)
     let socialKbContext = '';
@@ -106,25 +115,39 @@ O Veredito do Conselho deve consolidar as opiniões e recomendar o hook final co
       { intensity: 'debate', brainContext }
     );
 
-    // 6. Generate with PRO model (critical decision)
-    const response = await generateWithGemini(fullPrompt, {
-      model: PRO_GEMINI_MODEL,
-      temperature: 0.7,
-    });
+    // 6. Generate with PRO model, fallback to Flash if PRO fails
+    let response: string;
+    let modelUsed = PRO_GEMINI_MODEL;
+    try {
+      response = await generateWithGemini(fullPrompt, {
+        model: PRO_GEMINI_MODEL,
+        temperature: 0.7,
+      });
+    } catch (proErr: any) {
+      console.warn(`[Social/Debate] PRO model failed: ${proErr?.message}. Falling back to Flash.`);
+      modelUsed = DEFAULT_GEMINI_MODEL;
+      response = await generateWithGemini(fullPrompt, {
+        model: DEFAULT_GEMINI_MODEL,
+        temperature: 0.7,
+      });
+    }
 
     // 7. Debit 1 credit
     if (userId) {
       try {
         await updateUserUsage(userId, -1);
-        console.log(`[Social/Debate] 1 crédito decrementado para usuário: ${userId}`);
+        console.log(`[Social/Debate] 1 crédito decrementado para usuário: ${userId} (modelo: ${modelUsed})`);
       } catch (creditError) {
         console.error('[Social/Debate] Erro ao atualizar créditos:', creditError);
       }
     }
 
-    return createApiSuccess({ debate: response });
-  } catch (error) {
+    return createApiSuccess({ debate: response, model: modelUsed });
+  } catch (error: any) {
     console.error('Social debate error:', error);
-    return createApiError(500, 'Erro interno no servidor', { details: String(error) });
+    return createApiError(500, 'Erro interno no servidor', {
+      details: error?.message || String(error),
+      stage: 'debate_generation',
+    });
   }
 }
