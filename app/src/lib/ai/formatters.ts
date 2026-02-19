@@ -98,7 +98,7 @@ ${brand.audience.objections.length > 0 ? `- **Objeções**: ${brand.audience.obj
 - **Cores**: Primária: ${kit.colors.primary}, Secundária: ${kit.colors.secondary}, Accent: ${kit.colors.accent}, Background: ${kit.colors.background}
 - **Tipografia**: Principal: ${kit.typography.primaryFont}, Secundária: ${kit.typography.secondaryFont} (Fallback: ${kit.typography.systemFallback})
 - **Logo**: ${kit.logoLock?.locked ? 'USAR APENAS LOGO OFICIAL (LOCKED)' : 'Permite variações'}
-${kit.logoLock?.variants?.primary?.url ? `- **URL Logo Principal**: ${kit.logoLock.variants.primary.url}` : '- **Logo**: Não configurado'}
+${kit.logoLock?.variants?.primary?.url ? `- **URL Logo Principal**: ${kit.logoLock.variants.primary.url}` : '- **URL Logo Principal**: Não configurado'}
 ${kit.logoLock?.variants?.horizontal?.url ? `- **URL Logo Horizontal**: ${kit.logoLock.variants.horizontal.url}\n` : ''}${kit.logoLock?.variants?.icon?.url ? `- **URL Ícone**: ${kit.logoLock.variants.icon.url}\n` : ''}`;
   }
 
