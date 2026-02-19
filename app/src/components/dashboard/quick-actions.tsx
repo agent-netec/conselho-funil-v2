@@ -68,7 +68,7 @@ export function QuickActions() {
       
       <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <ActionCard
-          href="/campaigns/new"
+          href="/funnels/new"
           icon={Zap}
           title="Nova Campanha"
           description="Inicie a Golden Thread: Funil ao Ads"

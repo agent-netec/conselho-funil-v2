@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2, Share2 } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 
 interface PageProps {
@@ -19,6 +20,8 @@ interface PageProps {
 
 export default function FunnelSocialPage({ params }: PageProps) {
   const { id: funnelId } = use(params);
+  const searchParams = useSearchParams();
+  const campaignId = searchParams.get('campaignId') || undefined;
   const activeBrand = useActiveBrand();
   const [funnelName, setFunnelName] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -83,7 +86,7 @@ export default function FunnelSocialPage({ params }: PageProps) {
             </div>
           </Card>
 
-          <SocialWizard />
+          <SocialWizard campaignId={campaignId} />
         </div>
       </main>
     </div>

@@ -84,7 +84,11 @@ interface GenerationResult {
   };
 }
 
-export function SocialWizard() {
+interface SocialWizardProps {
+  campaignId?: string;
+}
+
+export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
   const activeBrand = useActiveBrand();
 
   // Step management
@@ -883,8 +887,8 @@ export function SocialWizard() {
 
         {/* Scheduled Confirmation */}
         {scheduledCount > 0 && (
-          <Card className="p-5 bg-emerald-500/5 border-emerald-500/20">
-            <div className="flex items-center gap-4">
+          <Card className="p-6 bg-emerald-500/5 border-emerald-500/20">
+            <div className="flex items-center gap-4 mb-4">
               <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
                 <Check className="h-6 w-6 text-emerald-400" />
               </div>
@@ -894,9 +898,27 @@ export function SocialWizard() {
                   Os hooks foram adicionados ao calendário editorial como rascunhos para os próximos dias.
                 </p>
               </div>
-              <a href="/content/calendar" className="text-xs text-emerald-400 hover:text-emerald-300 underline underline-offset-2 whitespace-nowrap">
-                Ver no Calendário
+            </div>
+            <div className="flex items-center gap-3">
+              {campaignId && (
+                <a href={`/campaigns/${campaignId}`}>
+                  <Button className="bg-amber-500 hover:bg-amber-600 text-white font-semibold gap-2">
+                    <ArrowRight className="h-4 w-4" />
+                    Prosseguir na Linha de Ouro
+                  </Button>
+                </a>
+              )}
+              <a href="/content/calendar">
+                <Button variant="outline" className="border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10 gap-2">
+                  <CalendarPlus className="h-4 w-4" />
+                  Ver no Calendário
+                </Button>
               </a>
+              {!campaignId && (
+                <Button variant="outline" onClick={resetWizard} className="border-white/[0.08] text-zinc-400 hover:text-zinc-100">
+                  Nova Geração
+                </Button>
+              )}
             </div>
           </Card>
         )}
@@ -911,14 +933,16 @@ export function SocialWizard() {
               Nova Geração
             </Button>
           </div>
-          <Button
-            onClick={handleApproveAndSchedule}
-            disabled={isSendingToCalendar || scheduledCount > 0}
-            className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold gap-2"
-          >
-            {isSendingToCalendar ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalendarPlus className="h-4 w-4" />}
-            {isSendingToCalendar ? 'Agendando...' : scheduledCount > 0 ? 'Agendado!' : 'Aprovar e Agendar'}
-          </Button>
+          {scheduledCount === 0 && (
+            <Button
+              onClick={handleApproveAndSchedule}
+              disabled={isSendingToCalendar}
+              className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold gap-2"
+            >
+              {isSendingToCalendar ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalendarPlus className="h-4 w-4" />}
+              {isSendingToCalendar ? 'Agendando...' : 'Aprovar e Agendar'}
+            </Button>
+          )}
         </div>
       </div>
     );
