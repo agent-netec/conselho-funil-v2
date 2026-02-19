@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
+// Contract 22-2: gemini-2.0-flash-exp is DEPRECATED
 const IMAGE_MODELS = [
-  'gemini-2.0-flash-exp-image-generation',
-  'gemini-2.5-flash-preview-05-20',
   'gemini-3-pro-image-preview',
+  'gemini-2.5-flash-image',
 ];
 
 export async function GET(request: NextRequest) {

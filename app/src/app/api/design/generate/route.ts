@@ -245,11 +245,11 @@ Return ONLY the JSON array of strings.`;
     }
 
     // US-20.3: Geração de imagens com fallback chain de modelos
-    // Tenta modelos em ordem de qualidade: Pro → Flash → Experimental
+    // Tenta modelos em ordem de qualidade: Pro (3.0) → Flash (2.5)
+    // Ref: contract 22-2, gemini-2.0-flash-exp is DEPRECATED
     const IMAGE_MODELS = [
-      { id: 'gemini-2.0-flash-exp-image-generation', name: 'Gemini 2.0 Flash Exp' },
-      { id: 'gemini-2.5-flash-preview-05-20', name: 'Gemini 2.5 Flash' },
       { id: 'gemini-3-pro-image-preview', name: 'Nano Banana Pro' },
+      { id: 'gemini-2.5-flash-image', name: 'Nano Banana (Flash 2.5)' },
     ];
     const BASE_IMAGE_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models';
 
@@ -292,7 +292,7 @@ Return ONLY the JSON array of strings.`;
       }),
     );
 
-    console.log(`🚀 Gerando imagem com fallback chain: ${IMAGE_MODELS.map(m => m.id).join(' → ')}`);
+    console.log(`🚀 Gerando imagem com fallback chain: ${IMAGE_MODELS.map(m => m.name).join(' → ')}`);
 
     const generationErrors: string[] = [];
 
