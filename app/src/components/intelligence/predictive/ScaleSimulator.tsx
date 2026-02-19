@@ -8,8 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Target, Info } from 'lucide-react';
-import { PredictionEngine } from '@/lib/intelligence/predictive/engine';
-import { SimulationInput, SimulationOutput } from '@/types/predictive';
+import { simulateScale } from '@/lib/intelligence/predictive/scale-math';
+import { SimulationOutput } from '@/types/predictive';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChurnOverview } from './ChurnOverview';
@@ -25,7 +25,7 @@ import { usePredictiveData } from '@/lib/hooks/use-predictive-data';
  */
 
 export const ScaleSimulator = () => {
-  const engine = useMemo(() => new PredictionEngine(), []);
+  // simulateScale is a pure math function — no Gemini/server deps
   const { selectedBrand } = useBrandStore();
   const brandId = selectedBrand?.id ?? null;
   const { churn, ltv, forecast, isLoading } = usePredictiveData(brandId);
@@ -38,13 +38,13 @@ export const ScaleSimulator = () => {
 
   // Resultado da Simulação
   const simulation = useMemo<SimulationOutput>(() => {
-    return engine.simulateScale({
+    return simulateScale({
       baseAdSpend: baseSpend,
       proposedAdSpend: targetSpend,
       targetCPA: currentCPA,
       historicalWindowDays: windowDays
     });
-  }, [baseSpend, targetSpend, currentCPA, windowDays, engine]);
+  }, [baseSpend, targetSpend, currentCPA, windowDays]);
 
   const chartData = useMemo(() => {
     const data = [];
