@@ -173,6 +173,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
     }
   });
   const [result, setResult] = useState<{ total: number; analysis: string[] }>({ total: 0, analysis: [] });
+  const [saved, setSaved] = useState(false);
 
   // Lógica de Score (Offer Lab Engine)
   useEffect(() => {
@@ -181,6 +182,10 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
   }, [offer]);
 
   const handleSave = async () => {
+    if (!brandId) {
+      toast.error('Selecione uma marca antes de salvar a oferta.');
+      return;
+    }
     setIsSaving(true);
     try {
       const headers = await getAuthHeaders();
@@ -189,12 +194,16 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
         headers,
         body: JSON.stringify({ brandId, state: offer })
       });
-      
-      if (!response.ok) throw new Error('Falha ao salvar');
-      
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || 'Falha ao salvar');
+      }
+
+      setSaved(true);
       toast.success('Oferta salva com sucesso no Laboratório!');
-    } catch (error) {
-      toast.error('Erro ao salvar oferta.');
+    } catch (error: any) {
+      toast.error(error?.message || 'Erro ao salvar oferta.');
     } finally {
       setIsSaving(false);
     }
@@ -215,6 +224,40 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
     { id: 3, name: 'Bônus', icon: Gift },
     { id: 4, name: 'Escassez', icon: Zap },
   ];
+
+  if (saved) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-6">
+        <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center">
+          <CheckCircle2 className="w-10 h-10 text-green-500" />
+        </div>
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-bold text-white">Oferta Salva!</h2>
+          <p className="text-zinc-400 max-w-md">
+            Sua oferta foi salva com score de irresistibilidade <span className="font-bold text-white">{result.total}</span>.
+            Você pode encontrá-la no histórico do Offer Lab.
+          </p>
+        </div>
+        <div className="flex gap-3 pt-4">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSaved(false);
+              setStep(1);
+              setOffer({
+                promise: '', corePrice: 0, perceivedValue: 0, stacking: [], bonuses: [],
+                scarcity: '', riskReversal: '',
+                scoringFactors: { dreamOutcome: 8, perceivedLikelihood: 8, timeDelay: 2, effortSacrifice: 2 },
+              });
+            }}
+            className="text-zinc-300 border-zinc-700"
+          >
+            Criar Nova Oferta
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
