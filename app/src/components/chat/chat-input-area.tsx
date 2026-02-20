@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Sparkles, Paperclip, X, FileText, Loader2 } from 'lucide-react';
+import { Send, Sparkles, Paperclip, X, FileText, Loader2, ChevronUp, Settings2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChatModeSelector, ChatMode } from './chat-mode-selector';
 import { CHAT_MODES, COUNSELORS_REGISTRY } from '@/lib/constants';
@@ -26,6 +26,7 @@ interface ChatInputAreaProps {
 export function ChatInputArea({ onSend, isLoading, disabled = false, disabledMessage, mode, onModeChange }: ChatInputAreaProps) {
   const [value, setValue] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [selectorExpanded, setSelectorExpanded] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -36,6 +37,32 @@ export function ChatInputArea({ onSend, isLoading, disabled = false, disabledMes
   const { buildMessage } = useChatMessage();
 
   useEffect(() => { setMounted(true); }, []);
+
+  // Auto-expand selector when party mode activates, collapse when deactivated
+  useEffect(() => {
+    if (isPartyMode) setSelectorExpanded(true);
+    else setSelectorExpanded(false);
+  }, [isPartyMode]);
+
+  const handleToggleParty = () => {
+    if (!isPartyMode) {
+      // Activate party mode (hook will set mode='party', effect above expands)
+      togglePartyMode();
+    } else {
+      // Toggle selector visibility (keep party mode active)
+      setSelectorExpanded(prev => !prev);
+    }
+  };
+
+  const handleDeactivateParty = () => {
+    togglePartyMode(); // back to 'general'
+  };
+
+  const handleConfirmMesa = () => {
+    setSelectorExpanded(false);
+    // Focus the textarea after collapse
+    setTimeout(() => textareaRef.current?.focus(), 150);
+  };
 
   const modeConfig = CHAT_MODES[mode];
   const accentColor = modeConfig.accentColor;
@@ -105,17 +132,92 @@ export function ChatInputArea({ onSend, isLoading, disabled = false, disabledMes
           )}
         </AnimatePresence>
 
-        {/* Party Mode Selector */}
+        {/* Party Mode Selector (expandable) */}
         <AnimatePresence>
-          {isPartyMode && <CounselorSelector selectedIds={selectedAgents} onChange={setSelectedAgents} intensity={intensity} onIntensityChange={setIntensity} />}
+          {isPartyMode && selectorExpanded && (
+            <CounselorSelector
+              selectedIds={selectedAgents}
+              onChange={setSelectedAgents}
+              intensity={intensity}
+              onIntensityChange={setIntensity}
+              onConfirm={handleConfirmMesa}
+              onClose={handleDeactivateParty}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Compact bar when party mode active but selector collapsed */}
+        <AnimatePresence>
+          {isPartyMode && !selectorExpanded && selectedAgents.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl border border-fuchsia-500/20 bg-fuchsia-500/[0.04]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-2">
+                  {selectedAgents.map((id) => {
+                    const c = COUNSELORS_REGISTRY[id as CounselorId];
+                    if (!c) return null;
+                    return (
+                      <div
+                        key={id}
+                        className="h-7 w-7 rounded-full border-2 border-zinc-950 flex items-center justify-center text-xs shadow-md"
+                        style={{ backgroundColor: c.color, boxShadow: `0 0 10px ${c.color}30` }}
+                      >
+                        {c.icon}
+                      </div>
+                    );
+                  })}
+                </div>
+                <span className="text-[10px] font-bold text-fuchsia-300 uppercase tracking-wider">
+                  {intensity === 'debate' ? 'Debate' : 'Consenso'} — {selectedAgents.length} estrategistas
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setSelectorExpanded(true)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[9px] font-bold text-zinc-400 uppercase tracking-wider hover:text-white hover:border-white/10 transition-all"
+                >
+                  <Settings2 className="h-3 w-3" />
+                  Alterar
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleDeactivateParty}
+                  className="flex h-6 w-6 items-center justify-center rounded-lg text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Mode Selector */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-3">
             <ChatModeSelector mode={mode} onModeChange={onModeChange} />
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={togglePartyMode} className={cn('inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition-all border', isPartyMode ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-200 shadow-[0_0_24px_rgba(16,185,129,0.35)]' : 'bg-zinc-900/60 border-white/5 text-zinc-200 hover:border-white/10')}>
-              <Sparkles className="h-4 w-4" />
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleToggleParty}
+              className={cn(
+                'inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition-all border',
+                isPartyMode
+                  ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-200 shadow-[0_0_24px_rgba(16,185,129,0.35)]'
+                  : 'bg-zinc-900/60 border-white/5 text-zinc-200 hover:border-white/10'
+              )}
+            >
+              {isPartyMode && !selectorExpanded ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
               {isPartyMode ? 'Alto Conselho Ativo' : 'Invocar Alto Conselho'}
             </motion.button>
           </div>

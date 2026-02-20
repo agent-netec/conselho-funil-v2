@@ -5,13 +5,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { COUNSELORS_REGISTRY } from '@/lib/constants';
 import { CounselorId } from '@/types';
 import { cn } from '@/lib/utils';
-import { Check, Users, X, Sword, Handshake } from 'lucide-react';
+import { Check, Users, X, Sword, Handshake, MessageSquare, ChevronDown } from 'lucide-react';
 
 interface CounselorSelectorProps {
   selectedIds: string[];
   onChange: (ids: string[]) => void;
   intensity: 'debate' | 'consensus';
   onIntensityChange: (intensity: 'debate' | 'consensus') => void;
+  onConfirm?: () => void;
+  onClose?: () => void;
 }
 
 const SPECIALIST_COMBOS = [
@@ -40,6 +42,8 @@ export function CounselorSelector({
   onChange,
   intensity,
   onIntensityChange,
+  onConfirm,
+  onClose,
 }: CounselorSelectorProps) {
   const isMaxSelected = selectedIds.length >= 3;
 
@@ -76,21 +80,34 @@ export function CounselorSelector({
   }, []);
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 10 }}
+      transition={{ duration: 0.2 }}
       className="w-full bg-zinc-950 border border-white/[0.08] rounded-2xl overflow-hidden shadow-2xl mb-4"
     >
       {/* Header */}
       <div className="p-4 border-b border-white/[0.04] flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/[0.02]">
-        <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-fuchsia-500/20 text-fuchsia-400">
-            <Users className="h-4 w-4" />
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-fuchsia-500/20 text-fuchsia-400">
+              <Users className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-white leading-none uppercase tracking-tighter">Alto Conselho</h3>
+              <p className="text-[9px] text-zinc-500 mt-1 font-mono uppercase tracking-wider">Selecione até 3 especialistas</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-sm font-black text-white leading-none uppercase tracking-tighter">Alto Conselho</h3>
-            <p className="text-[9px] text-zinc-500 mt-1 font-mono uppercase tracking-wider">Selecione até 3 especialistas</p>
-          </div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-all"
+              title="Desativar Alto Conselho"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
@@ -288,19 +305,34 @@ export function CounselorSelector({
           </div>
         </div>
         
-        {selectedIds.length > 0 && (
-          <motion.button 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            whileHover={{ scale: 1.05, color: '#f87171' }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => onChange([])}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.02] border border-white/5 text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] transition-all"
-          >
-            <X className="h-3 w-3" />
-            Limpar
-          </motion.button>
-        )}
+        <div className="flex items-center gap-2">
+          {selectedIds.length > 0 && (
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              whileHover={{ scale: 1.05, color: '#f87171' }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => onChange([])}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.02] border border-white/5 text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] transition-all"
+            >
+              <X className="h-3 w-3" />
+              Limpar
+            </motion.button>
+          )}
+          {selectedIds.length >= 3 && onConfirm && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onConfirm}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:bg-emerald-400 transition-all"
+            >
+              <MessageSquare className="h-3.5 w-3.5" />
+              Iniciar {intensity === 'debate' ? 'Debate' : 'Consenso'}
+            </motion.button>
+          )}
+        </div>
       </div>
     </motion.div>
   );
