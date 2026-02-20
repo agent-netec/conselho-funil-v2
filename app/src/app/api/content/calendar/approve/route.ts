@@ -18,7 +18,7 @@ import type { ApprovalAction } from '@/types/content';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const VALID_ACTIONS: ApprovalAction[] = ['submit_review', 'approve', 'reject', 'schedule'];
+const VALID_ACTIONS: ApprovalAction[] = ['submit_review', 'approve', 'reject', 'schedule', 're_edit'];
 
 export async function POST(req: NextRequest) {
   try {

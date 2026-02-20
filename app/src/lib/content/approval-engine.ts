@@ -52,6 +52,7 @@ const ACTION_TO_STATUS: Record<ApprovalAction, CalendarItemStatus> = {
   approve: 'approved',
   reject: 'rejected',
   schedule: 'scheduled',
+  re_edit: 'draft',
 };
 
 /**

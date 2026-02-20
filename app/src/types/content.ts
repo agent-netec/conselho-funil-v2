@@ -126,7 +126,7 @@ export interface ApprovalHistoryEntry {
   userId?: string;
 }
 
-export type ApprovalAction = 'submit_review' | 'approve' | 'reject' | 'schedule';
+export type ApprovalAction = 'submit_review' | 'approve' | 'reject' | 'schedule' | 're_edit';
 
 // === Reorder Types ===
 

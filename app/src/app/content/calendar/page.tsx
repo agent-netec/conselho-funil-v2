@@ -12,7 +12,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { CalendarView } from '@/components/content/calendar-view';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Columns, Grid, X, Clock, Eye, CheckCircle, XCircle, Send, Shield, Sparkles, Loader2, BookmarkPlus, Repeat, Tag } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Columns, Grid, X, Clock, Eye, CheckCircle, XCircle, Send, Shield, Sparkles, Loader2, BookmarkPlus, Repeat, Tag, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import type { CalendarItem, CalendarItemStatus, ContentTemplate } from '@/types/content';
 
@@ -128,7 +128,7 @@ export default function ContentCalendarPage() {
   }, []);
 
   // === Approval actions ===
-  const handleApproval = async (action: 'submit_review' | 'approve' | 'reject' | 'schedule') => {
+  const handleApproval = async (action: 'submit_review' | 'approve' | 'reject' | 'schedule' | 're_edit') => {
     if (!selectedItem || !selectedBrand?.id) return;
     setApproving(true);
     try {
@@ -148,6 +148,7 @@ export default function ContentCalendarPage() {
           approve: 'Aprovado',
           reject: 'Rejeitado',
           schedule: 'Agendado',
+          re_edit: 'Voltou para rascunho',
         };
         toast.success(actionLabels[action] || 'Ação concluída');
         setSelectedItem(null);
@@ -172,7 +173,7 @@ export default function ContentCalendarPage() {
         { action: 'reject' as const, label: 'Rejeitar', icon: XCircle, color: 'bg-red-600 hover:bg-red-500' },
       ];
       case 'approved': return [{ action: 'schedule' as const, label: 'Agendar Publicação', icon: Clock, color: 'bg-purple-600 hover:bg-purple-500' }];
-      case 'rejected': return [{ action: 'submit_review' as const, label: 'Reenviar para Revisão', icon: Send, color: 'bg-amber-600 hover:bg-amber-500' }];
+      case 'rejected': return [{ action: 're_edit' as const, label: 'Voltar para Rascunho', icon: ArrowLeft, color: 'bg-amber-600 hover:bg-amber-500' }];
       default: return [];
     }
   };
