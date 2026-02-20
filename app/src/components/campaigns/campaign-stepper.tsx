@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Check, LucideIcon, Target, PenTool, Share2, Palette, BarChart3 } from 'lucide-react';
+import { Check, LucideIcon, Target, Sparkles, PenTool, Share2, Palette, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface CampaignStep {
@@ -11,6 +11,7 @@ export interface CampaignStep {
 
 export const CAMPAIGN_STAGES: CampaignStep[] = [
   { id: 'funnel', title: 'Funil', icon: Target, status: 'pending' },
+  { id: 'offer', title: 'Oferta', icon: Sparkles, status: 'pending' },
   { id: 'copy', title: 'Copy', icon: PenTool, status: 'pending' },
   { id: 'social', title: 'Social', icon: Share2, status: 'pending' },
   { id: 'design', title: 'Design', icon: Palette, status: 'pending' },

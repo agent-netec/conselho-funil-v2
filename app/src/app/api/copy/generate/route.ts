@@ -48,6 +48,36 @@ import { handleSecurityError } from '@/lib/utils/api-security';
 export const runtime = 'nodejs';
 export const maxDuration = 90; // Aumentado para lidar com RAG
 
+/** Format Offer Lab data as rich prompt context */
+function formatOfferForPrompt(offer: any): string {
+  const c = offer.components;
+  if (!c?.coreProduct) return '';
+
+  const parts: string[] = [];
+  parts.push(`**Promessa Principal:** ${c.coreProduct.promise}`);
+  parts.push(`**Preco:** R$ ${c.coreProduct.price} | **Valor Percebido:** R$ ${c.coreProduct.perceivedValue}`);
+
+  if (c.stacking?.length > 0) {
+    parts.push(`**Value Stack (${c.stacking.length} itens):**`);
+    c.stacking.forEach((s: any) => {
+      parts.push(`  - ${s.name} (R$ ${s.value})${s.description ? ` — ${s.description}` : ''}`);
+    });
+  }
+
+  if (c.bonuses?.length > 0) {
+    parts.push(`**Bonus (${c.bonuses.length}):**`);
+    c.bonuses.forEach((b: any) => {
+      parts.push(`  - ${b.name} (R$ ${b.value})${b.description ? ` — resolve: ${b.description}` : ''}`);
+    });
+  }
+
+  if (c.riskReversal) parts.push(`**Garantia:** ${c.riskReversal}`);
+  if (c.scarcity) parts.push(`**Escassez:** ${c.scarcity}`);
+  if (offer.scoring?.total) parts.push(`**Score de Irresistibilidade:** ${offer.scoring.total}/100`);
+
+  return parts.join('\n');
+}
+
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
 
@@ -133,7 +163,36 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 4. Sprint O — O-3.5: Research context from Deep Research RAG
+    // 4. Offer Lab context — load active offer from brand
+    let offerContext = '';
+    if (funnel.brandId) {
+      try {
+        const offersRef = collection(db, 'brands', funnel.brandId, 'offers');
+        const offersSnap = await getDocs(
+          query(offersRef, where('status', '==', 'active'), orderBy('updatedAt', 'desc'), limit(1))
+        );
+        if (offersSnap.empty) {
+          // Fallback: most recent draft
+          const draftSnap = await getDocs(
+            query(offersRef, orderBy('updatedAt', 'desc'), limit(1))
+          );
+          if (!draftSnap.empty) {
+            const offer = draftSnap.docs[0].data();
+            offerContext = formatOfferForPrompt(offer);
+          }
+        } else {
+          const offer = offersSnap.docs[0].data();
+          offerContext = formatOfferForPrompt(offer);
+        }
+        if (offerContext) {
+          console.log(`[Copy] Offer Lab context injected for copy generation`);
+        }
+      } catch (err) {
+        console.warn('[Copy] Erro ao buscar offer context:', err);
+      }
+    }
+
+    // 5. Sprint O — O-3.5: Research context from Deep Research RAG
     let researchContext = '';
     if (funnel.brandId) {
       try {
@@ -194,6 +253,7 @@ export async function POST(request: NextRequest) {
         keywordContext,
         attachmentsContext,
         brainContext,
+        offerContext,
       }
     );
 
@@ -242,6 +302,34 @@ export async function POST(request: NextRequest) {
       proof: 7,
       overall: 7,
     };
+
+    // F2-2: Boost offer score using real Offer Lab data
+    if (offerContext) {
+      try {
+        const offersRef = collection(db, 'brands', funnel.brandId!, 'offers');
+        const activeSnap = await getDocs(
+          query(offersRef, where('status', '==', 'active'), orderBy('updatedAt', 'desc'), limit(1))
+        );
+        const offerSnap = activeSnap.empty
+          ? (await getDocs(query(offersRef, orderBy('updatedAt', 'desc'), limit(1)))).docs[0]
+          : activeSnap.docs[0];
+
+        if (offerSnap) {
+          const offerLabScore = offerSnap.data().scoring?.total ?? 0;
+          // Map Offer Lab score (0-100) to copy offer dimension (1-10)
+          const offerDimensionFromLab = Math.max(1, Math.min(10, Math.round(offerLabScore / 10)));
+          // Use the higher of AI estimate vs real data
+          scorecard.offer = Math.max(scorecard.offer, offerDimensionFromLab);
+          // Recalculate overall as average of all 5 dimensions
+          scorecard.overall = Math.round(
+            (scorecard.headlines + scorecard.structure + scorecard.benefits + scorecard.offer + scorecard.proof) / 5
+          );
+          console.log(`[Copy] Offer scorecard boosted: lab=${offerLabScore} → dim=${offerDimensionFromLab}, overall=${scorecard.overall}`);
+        }
+      } catch (err) {
+        console.warn('[Copy] Erro ao ajustar offer score com dados reais:', err);
+      }
+    }
 
     // Create CopyProposal - filter out undefined values
     const copyProposalData: Record<string, unknown> = {

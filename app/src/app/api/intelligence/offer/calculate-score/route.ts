@@ -1,13 +1,16 @@
 export const dynamic = 'force-dynamic';
-import { NextRequest, NextResponse } from 'next/server';
-import { OfferScoringEngine } from '@/lib/intelligence/offer-lab/scoring';
+import { NextRequest } from 'next/server';
+import { evaluateOfferQuality } from '@/lib/intelligence/offer/evaluator';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
- * Handler para cálculo do Irresistibility Score da oferta.
+ * AI-powered offer evaluation with Brain Council (Kennedy + Brunson).
  * POST /api/intelligence/offer/calculate-score
+ *
+ * Body: { brandId, offerData: { components, scoring } }
+ * Returns: { aiEvaluation }
  */
 export async function POST(req: NextRequest) {
   try {
@@ -20,10 +23,13 @@ export async function POST(req: NextRequest) {
 
     const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
 
-    // Executar o motor de scoring
-    const scoringResult = OfferScoringEngine.calculateScore(offerData);
+    // AI evaluation with Brain Council (Pro model)
+    const aiEvaluation = await evaluateOfferQuality(offerData);
 
-    return createApiSuccess({ scoring: scoringResult, brandId: safeBrandId });
+    return createApiSuccess({
+      brandId: safeBrandId,
+      aiEvaluation,
+    });
   } catch (error: unknown) {
     console.error('[OFFER_SCORING_API_ERROR]:', error);
     if (error instanceof ApiError) {

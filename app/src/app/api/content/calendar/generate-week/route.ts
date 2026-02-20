@@ -10,6 +10,8 @@ import { NextRequest } from 'next/server';
 import { Timestamp } from 'firebase/firestore';
 import { generateWithGemini, isGeminiConfigured, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { getBrand } from '@/lib/firebase/brands';
+import { db } from '@/lib/firebase/config';
+import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
 import { createCalendarItem } from '@/lib/firebase/content-calendar';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
@@ -74,20 +76,49 @@ export async function POST(req: NextRequest) {
       return createApiError(500, 'Gemini API not configured');
     }
 
-    // 1. Load brand context
+    // 1. Load brand context + Offer Lab data
     let brandContext = 'Nenhuma marca selecionada.';
     try {
       const brand = await getBrand(brandId);
       if (brand) {
-        brandContext = `
-Marca: ${brand.name}
-Vertical: ${brand.vertical}
-Posicionamento: ${brand.positioning}
-Tom de Voz: ${brand.voiceTone}
-Audiência: ${brand.audience?.who || 'N/A'}
-Dores: ${brand.audience?.pain || 'N/A'}
-Oferta: ${brand.offer?.what || 'N/A'}
-        `.trim();
+        const lines = [
+          `Marca: ${brand.name}`,
+          `Vertical: ${brand.vertical}`,
+          `Posicionamento: ${brand.positioning}`,
+          `Tom de Voz: ${brand.voiceTone}`,
+          `Audiência: ${brand.audience?.who || 'N/A'}`,
+          `Dores: ${brand.audience?.pain || 'N/A'}`,
+          `Oferta: ${brand.offer?.what || 'N/A'}`,
+        ];
+
+        // Enrich with Offer Lab structured data
+        try {
+          const offersRef = collection(db, 'brands', brandId, 'offers');
+          const activeSnap = await getDocs(
+            query(offersRef, where('status', '==', 'active'), orderBy('updatedAt', 'desc'), limit(1))
+          );
+          const offerSnap = activeSnap.empty
+            ? await getDocs(query(offersRef, orderBy('updatedAt', 'desc'), limit(1)))
+            : activeSnap;
+          if (!offerSnap.empty) {
+            const o = offerSnap.docs[0].data();
+            const c = o.components;
+            if (c?.coreProduct) {
+              lines.push('');
+              lines.push('--- Oferta Estruturada (Offer Lab) ---');
+              lines.push(`Promessa: ${c.coreProduct.promise}`);
+              lines.push(`Preco: R$ ${c.coreProduct.price} | Valor Percebido: R$ ${c.coreProduct.perceivedValue}`);
+              if (c.bonuses?.length > 0) lines.push(`Bonus: ${c.bonuses.map((b: any) => b.name).join(', ')}`);
+              if (c.riskReversal) lines.push(`Garantia: ${c.riskReversal}`);
+              if (c.scarcity) lines.push(`Escassez: ${c.scarcity}`);
+              console.log(`[Calendar/GenerateWeek] Offer Lab context injected`);
+            }
+          }
+        } catch (offerErr) {
+          console.warn('[Content/Calendar] Offer Lab load failed:', offerErr);
+        }
+
+        brandContext = lines.join('\n');
       }
     } catch (brandErr) {
       console.warn('[Content/Calendar] Brand load failed:', brandErr);

@@ -18,6 +18,8 @@ import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { updateUserUsage } from '@/lib/firebase/firestore';
 import { SOCIAL_COUNSELOR_IDS } from '@/lib/ai/prompts/social-brain-context';
 import { retrieveSocialKnowledge } from '@/lib/ai/rag';
+import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -64,6 +66,38 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
       }
     } catch (brandErr) {
       console.warn('[Social/Debate] Brand load failed:', brandErr);
+    }
+
+    // 1b. OL-5.4: Enrich with Offer Lab structured data
+    try {
+      const offersRef = collection(db, 'brands', brandId, 'offers');
+      const activeSnap = await getDocs(
+        query(offersRef, where('status', '==', 'active'), orderBy('updatedAt', 'desc'), limit(1))
+      );
+      const offerSnap = activeSnap.empty
+        ? await getDocs(query(offersRef, orderBy('updatedAt', 'desc'), limit(1)))
+        : activeSnap;
+      if (!offerSnap.empty) {
+        const o = offerSnap.docs[0].data();
+        const c = o.components;
+        if (c?.coreProduct) {
+          const lines = [
+            '',
+            '--- Oferta Estruturada (Offer Lab) ---',
+            `Promessa: ${c.coreProduct.promise}`,
+            `Preco: R$ ${c.coreProduct.price} | Valor Percebido: R$ ${c.coreProduct.perceivedValue}`,
+          ];
+          if (c.stacking?.length) lines.push(`Stack: ${c.stacking.map((s: any) => `${s.name} (R$${s.value})`).join(', ')}`);
+          if (c.bonuses?.length) lines.push(`Bonus: ${c.bonuses.map((b: any) => `${b.name}${b.description ? ` — resolve: ${b.description}` : ''}`).join('; ')}`);
+          if (c.riskReversal) lines.push(`Garantia: ${c.riskReversal}`);
+          if (c.scarcity) lines.push(`Escassez: ${c.scarcity}`);
+          if (o.scoring?.total) lines.push(`Score: ${o.scoring.total}/100`);
+          brandContext += '\n' + lines.join('\n');
+          console.log(`[Social/Debate] Offer Lab context injected`);
+        }
+      }
+    } catch (offerErr) {
+      console.warn('[Social/Debate] Offer Lab load failed:', offerErr);
     }
 
     // 2. Build brain context for the 4 social counselors

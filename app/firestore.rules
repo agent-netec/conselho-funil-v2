@@ -97,6 +97,28 @@ service cloud.firestore {
         (resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId)) ||
         (resource.data.userId == request.auth.uid)
       );
+
+      // Offer Lab — subcollection de ofertas da brand
+      match /offers/{offerId} {
+        allow read: if isAuthenticated() && (
+          get(/databases/$(database)/documents/brands/$(brandId)).data.agencyId != null
+            ? canAccessClient(
+                get(/databases/$(database)/documents/brands/$(brandId)).data.agencyId,
+                get(/databases/$(database)/documents/brands/$(brandId)).data.clientId
+              )
+            : get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid
+        );
+        allow write: if isAuthenticated() && (
+          get(/databases/$(database)/documents/brands/$(brandId)).data.agencyId != null
+            ? (isAgencyAdmin(get(/databases/$(database)/documents/brands/$(brandId)).data.agencyId) ||
+               (isAgencyManager(get(/databases/$(database)/documents/brands/$(brandId)).data.agencyId) &&
+                canAccessClient(
+                  get(/databases/$(database)/documents/brands/$(brandId)).data.agencyId,
+                  get(/databases/$(database)/documents/brands/$(brandId)).data.clientId
+                )))
+            : get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid
+        );
+      }
     }
 
     // Knowledge base (Public Read, Admin Write via custom claims)

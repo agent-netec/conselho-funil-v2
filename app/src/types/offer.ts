@@ -6,7 +6,23 @@ export interface OfferComponent {
   value: number;
   price?: number;
   description?: string;
-  complementarityScore?: number; // 0-100
+}
+
+export interface OfferQualityInsight {
+  counselorId: string;
+  counselorName: string;
+  frameworkUsed: string;
+  score: number;
+  opinion: string;
+  redFlagsTriggered: string[];
+  goldStandardsHit: string[];
+}
+
+export interface OfferAIEvaluation {
+  overallQuality: number;
+  insights: OfferQualityInsight[];
+  summary: string;
+  evaluatedAt: Timestamp;
 }
 
 export interface OfferDocument {
@@ -14,6 +30,7 @@ export interface OfferDocument {
   brandId: string;
   name: string;
   status: 'draft' | 'active' | 'archived';
+  scoringVersion: 'v1' | 'v2';
   components: {
     coreProduct: {
       name: string;
@@ -38,6 +55,7 @@ export interface OfferDocument {
     };
     analysis: string[];
   };
+  aiEvaluation?: OfferAIEvaluation;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

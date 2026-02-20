@@ -22,6 +22,14 @@ export interface CampaignContext {
     counselor_reference?: string;
   };
 
+  // Passo 1.5: A Oferta (Offer Lab) — opcional, presente se brand tem oferta salva
+  offer?: {
+    offerId: string;
+    name: string;
+    score: number;
+    promise: string;
+  };
+
   // Passo 2: A Voz (Copy)
   copywriting?: {
     bigIdea: string;

@@ -188,6 +188,7 @@ export function buildCopyPrompt(
     keywordContext?: string;
     attachmentsContext?: string;
     brainContext?: string;
+    offerContext?: string;
   }
 ): string {
   const copywriters = Object.values(COPY_COUNSELORS);
@@ -228,6 +229,8 @@ ${proposal.architecture?.stages?.map((s, i) => `${i + 1}. ${s.name} — ${s.obje
 ${context?.ragContext ? `## CONHECIMENTO ESTRATÉGICO (PLAYBOOKS)\n${context.ragContext}\n` : ''}
 
 ${context?.brandContext ? `## CONHECIMENTO DA MARCA\n${context.brandContext}\n` : ''}
+
+${context?.offerContext ? `## OFERTA ESTRUTURADA (Offer Lab)\n${context.offerContext}\n` : ''}
 
 ${context?.keywordContext ? `${context.keywordContext}\n` : ''}
 

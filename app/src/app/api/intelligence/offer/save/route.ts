@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
 import { OfferLabEngine } from '@/lib/intelligence/offer/calculator';
-import { OfferDocument, OfferWizardState } from '@/types/offer';
+import { OfferDocument, OfferWizardState, OfferAIEvaluation } from '@/types/offer';
 import { v4 as uuidv4 } from 'uuid';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
@@ -16,7 +16,7 @@ import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { brandId, state, name = 'Nova Oferta' } = body;
+    const { brandId, state, name = 'Nova Oferta', aiEvaluation } = body;
 
     if (!brandId || !state) {
       return createApiError(400, 'brandId e state são obrigatórios.');
@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
       brandId: safeBrandId,
       name,
       status: 'draft',
+      scoringVersion: 'v2',
       components: {
         coreProduct: {
           name: wizardState.promise.substring(0, 50),
@@ -51,6 +52,16 @@ export async function POST(req: NextRequest) {
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     };
+
+    // OL-3.8: Persist AI evaluation if provided
+    if (aiEvaluation && aiEvaluation.overallQuality > 0) {
+      offerDoc.aiEvaluation = {
+        overallQuality: aiEvaluation.overallQuality,
+        insights: Array.isArray(aiEvaluation.insights) ? aiEvaluation.insights : [],
+        summary: aiEvaluation.summary ?? '',
+        evaluatedAt: Timestamp.now(),
+      };
+    }
 
     // S29-FT-02: Persistir no Firestore — await porque semântica é de "save" (DT-12)
     const offerRef = doc(db, 'brands', safeBrandId, 'offers', offerDoc.id);

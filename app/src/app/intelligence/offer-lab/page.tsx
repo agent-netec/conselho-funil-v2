@@ -1,13 +1,30 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { OfferLabWizard } from '@/components/intelligence/offer-lab/offer-lab-wizard';
+import { OfferList } from '@/components/intelligence/offer-lab/offer-list';
+import { OfferCompare } from '@/components/intelligence/offer-lab/offer-compare';
 import { Sparkles, Beaker, BrainCircuit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useBrandStore } from '@/lib/stores/brand-store';
+import type { OfferDocument } from '@/types/offer';
 
 export default function OfferLabPage() {
   const { selectedBrand } = useBrandStore();
+  const [compareOffers, setCompareOffers] = useState<[OfferDocument, OfferDocument] | null>(null);
+
+  if (compareOffers) {
+    return (
+      <div className="container mx-auto p-6 space-y-8 max-w-7xl">
+        <OfferCompare
+          offerA={compareOffers[0]}
+          offerB={compareOffers[1]}
+          onBack={() => setCompareOffers(null)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-8 max-w-7xl">
       {/* Header */}
@@ -44,6 +61,16 @@ export default function OfferLabPage() {
       <main className="mt-8">
         <OfferLabWizard brandId={selectedBrand?.id || ''} />
       </main>
+
+      {/* F4-1: Offer History + F4-2: Compare */}
+      {selectedBrand?.id && (
+        <section className="mt-12">
+          <OfferList
+            brandId={selectedBrand.id}
+            onCompare={(a, b) => setCompareOffers([a, b])}
+          />
+        </section>
+      )}
 
       {/* Footer Info */}
       <footer className="mt-20 pt-8 border-t border-zinc-800 text-center">

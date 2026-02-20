@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { doc, onSnapshot, getDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { doc, onSnapshot, getDoc, collection, query, where, getDocs, limit, orderBy, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Header } from '@/components/layout/header';
 import { CampaignStepper } from '@/components/campaigns/campaign-stepper';
@@ -139,14 +139,16 @@ export default function CampaignCommandCenter() {
       // Calculate completed stages
       const completed = [];
       if (data.funnel) completed.push('funnel');
+      if (data.offer) completed.push('offer');
       if (data.copywriting) completed.push('copy');
       if (data.social) completed.push('social');
       if (data.design) completed.push('design');
       if (data.ads) completed.push('ads');
       setCompletedStages(completed);
 
-      // Determine current stage
-      if (!data.copywriting) setCurrentStageId('copy');
+      // Determine current stage (offer is optional — skip if not present)
+      if (!data.offer && !data.copywriting) setCurrentStageId('offer');
+      else if (!data.copywriting) setCurrentStageId('copy');
       else if (!data.social) setCurrentStageId('social');
       else if (!data.design) setCurrentStageId('design');
       else if (!data.ads) setCurrentStageId('ads');
@@ -160,6 +162,7 @@ export default function CampaignCommandCenter() {
 
   const [generatingAds, setGeneratingAds] = useState(false);
   const [briefText, setBriefText] = useState<string | null>(null);
+  const [loadingOffer, setLoadingOffer] = useState(false);
 
   // K-2.1: Detect campaign complete
   const isCampaignComplete = !!(campaign?.funnel && campaign?.copywriting && campaign?.social && campaign?.design && campaign?.ads);
@@ -176,6 +179,10 @@ export default function CampaignCommandCenter() {
       `Objetivo: ${campaign.funnel?.mainGoal || '—'}`,
       `Público: ${campaign.funnel?.targetAudience || '—'}`,
       `Resumo: ${campaign.funnel?.summary || '—'}`,
+      '',
+      '--- OFERTA ---',
+      `Promessa: ${campaign.offer?.promise || '—'}`,
+      `Score: ${campaign.offer?.score || '—'}`,
       '',
       '--- COPYWRITING ---',
       `Big Idea: ${campaign.copywriting?.bigIdea || '—'}`,
@@ -223,6 +230,39 @@ export default function CampaignCommandCenter() {
 
     if (stageId === 'funnel') {
       router.push(`/funnels/${campaign.funnelId}?campaignId=${campaign.id}`);
+    } else if (stageId === 'offer') {
+      // OL-5.5: Load active offer from brand or redirect to Offer Lab
+      if (campaign.offer) {
+        router.push('/intelligence/offer-lab');
+      } else if (campaign.brandId) {
+        setLoadingOffer(true);
+        try {
+          const offersRef = collection(db, 'brands', campaign.brandId, 'offers');
+          const activeSnap = await getDocs(
+            query(offersRef, where('status', '==', 'active'), orderBy('updatedAt', 'desc'), limit(1))
+          );
+          const offerSnap = activeSnap.empty
+            ? await getDocs(query(offersRef, orderBy('updatedAt', 'desc'), limit(1)))
+            : activeSnap;
+
+          if (!offerSnap.empty) {
+            const o = offerSnap.docs[0].data();
+            const offerRef = { offerId: o.id, name: o.name || o.components?.coreProduct?.promise?.substring(0, 50) || 'Oferta', score: o.scoring?.total ?? 0, promise: o.components?.coreProduct?.promise || '' };
+            await updateDoc(doc(db, 'campaigns', campaign.id), { offer: offerRef, updatedAt: new Date() });
+            toast.success('Oferta vinculada à campanha!');
+          } else {
+            toast.info('Nenhuma oferta encontrada. Crie uma no Offer Lab.');
+            router.push('/intelligence/offer-lab');
+          }
+        } catch (err) {
+          console.warn('[Campaign] Offer load failed:', err);
+          router.push('/intelligence/offer-lab');
+        } finally {
+          setLoadingOffer(false);
+        }
+      } else {
+        router.push('/intelligence/offer-lab');
+      }
     } else if (stageId === 'copy') {
       router.push(`/funnels/${campaign.funnelId}/copy?campaignId=${campaign.id}`);
     } else if (stageId === 'social') {
@@ -335,11 +375,17 @@ export default function CampaignCommandCenter() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
                   <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/50">
                     <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Funil</p>
                     <p className="text-xs text-zinc-300 mt-1 truncate">{campaign?.funnel?.type} — {campaign?.funnel?.mainGoal?.slice(0, 30)}</p>
                   </div>
+                  {campaign?.offer && (
+                    <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/50">
+                      <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Oferta</p>
+                      <p className="text-xs text-zinc-300 mt-1 truncate">{campaign.offer.promise?.slice(0, 40)} — Score {campaign.offer.score}</p>
+                    </div>
+                  )}
                   <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/50">
                     <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Copy</p>
                     <p className="text-xs text-zinc-300 mt-1 truncate">{campaign?.copywriting?.bigIdea?.slice(0, 40)}...</p>
@@ -437,6 +483,20 @@ export default function CampaignCommandCenter() {
             onAction={() => handleAction('funnel')}
             actionLabel={campaign.funnel ? "Ver Estratégia" : "Definir Funil"}
             isActive={currentStageId === 'funnel'}
+          />
+
+          <StageCard
+            title="A Oferta"
+            description="Engenharia de Oferta Irresistível"
+            icon={Sparkles}
+            status={campaign.offer ? 'approved' : campaign.funnel ? 'empty' : 'empty'}
+            summary={campaign.offer ? [
+              `Promessa: ${campaign.offer.promise?.slice(0, 50)}...`,
+              `Score: ${campaign.offer.score}/100`,
+            ] : []}
+            onAction={() => handleAction('offer')}
+            actionLabel={campaign.offer ? "Ver Oferta" : loadingOffer ? "Vinculando..." : "Vincular Oferta"}
+            isActive={currentStageId === 'offer'}
           />
 
           <StageCard

@@ -6,6 +6,8 @@ import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { updateUserUsage } from '@/lib/firebase/firestore';
+import { db } from '@/lib/firebase/config';
+import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
 import { loadBrain } from '@/lib/intelligence/brains/loader';
 import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
 import type { CounselorId } from '@/types';
@@ -102,6 +104,37 @@ export async function POST(request: NextRequest) {
     // Sprint C: Build brain context with real identity cards
     const brainContext = buildSocialBrainContext();
 
+    // Load Offer Lab context if available
+    let offerSection = '';
+    try {
+      const offersRef = collection(db, 'brands', brandId, 'offers');
+      const activeSnap = await getDocs(
+        query(offersRef, where('status', '==', 'active'), orderBy('updatedAt', 'desc'), limit(1))
+      );
+      const offerSnap = activeSnap.empty
+        ? await getDocs(query(offersRef, orderBy('updatedAt', 'desc'), limit(1)))
+        : activeSnap;
+      if (!offerSnap.empty) {
+        const o = offerSnap.docs[0].data();
+        const c = o.components;
+        if (c?.coreProduct) {
+          const lines = [
+            `## OFERTA ESTRUTURADA (Offer Lab)`,
+            `**Promessa:** ${c.coreProduct.promise}`,
+            `**Preco:** R$ ${c.coreProduct.price} | **Valor Percebido:** R$ ${c.coreProduct.perceivedValue}`,
+          ];
+          if (c.bonuses?.length > 0) lines.push(`**Bonus:** ${c.bonuses.map((b: any) => b.name).join(', ')}`);
+          if (c.riskReversal) lines.push(`**Garantia:** ${c.riskReversal}`);
+          if (c.scarcity) lines.push(`**Escassez:** ${c.scarcity}`);
+          if (o.scoring?.total) lines.push(`**Score:** ${o.scoring.total}/100`);
+          offerSection = lines.join('\n');
+          console.log(`[Social/Generate] Offer Lab context injected`);
+        }
+      }
+    } catch (err) {
+      console.warn('[Social/Generate] Erro ao buscar offer context:', err);
+    }
+
     const prompt = `
       Você é o Conselho de Social Media do "Conselho de Funil", composto por 4 especialistas com frameworks reais de avaliação.
       Sua missão é extrair HOOKS (ganchos de atenção) magnéticos de uma copy aprovada.
@@ -113,6 +146,8 @@ export async function POST(request: NextRequest) {
       ## CONTEXTO ESTRATÉGICO
       Objetivo: ${context.objective}
       Público-alvo: ${context.targetAudience}
+
+      ${offerSection}
 
       ## COPY DE REFERÊNCIA
       ${context.copy}

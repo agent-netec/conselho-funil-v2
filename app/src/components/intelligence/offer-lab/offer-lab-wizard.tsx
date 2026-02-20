@@ -24,14 +24,84 @@ import {
   Info
 } from 'lucide-react';
 
-import { 
-  OfferComponent, 
-  OfferWizardState, 
-  OfferDocument 
+import {
+  OfferWizardState,
 } from '@/types/offer';
 import { OfferLabEngine } from '@/lib/intelligence/offer/calculator';
 import { toast } from 'sonner';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
+
+// AI evaluation result shape (matches evaluator.ts output)
+interface AIInsight {
+  counselorId: string;
+  counselorName: string;
+  frameworkUsed: string;
+  score: number;
+  opinion: string;
+  redFlagsTriggered: string[];
+  goldStandardsHit: string[];
+}
+
+interface OfferQualityResult {
+  overallQuality: number;
+  insights: AIInsight[];
+  summary: string;
+}
+
+// --- Step Feedback ---
+
+function StepFeedback({ step, offer }: { step: number; offer: OfferWizardState }) {
+  const tips: string[] = [];
+
+  if (step === 1) {
+    if (offer.promise.length > 0 && offer.promise.length <= 20)
+      tips.push('Sua promessa esta muito curta. Seja mais especifico sobre o resultado.');
+    if (offer.promise.length > 20 && !/\d/.test(offer.promise))
+      tips.push('Adicione um numero a promessa (ex: "R$10k em 30 dias"). Promessas mensuraveis convertem mais.');
+    if (offer.promise.length > 20 && !/dia|semana|mes|mês|hora/i.test(offer.promise))
+      tips.push('Inclua um prazo (ex: "em 30 dias"). Urgencia aumenta o desejo.');
+    if (offer.corePrice > 0 && offer.perceivedValue > 0 && offer.perceivedValue / offer.corePrice < 5)
+      tips.push('Valor percebido esta baixo. O ideal e pelo menos 10x o preco.');
+  }
+
+  if (step === 2) {
+    if (offer.stacking.length > 0 && offer.stacking.length < 3)
+      tips.push(`Voce tem ${offer.stacking.length} item(ns). Adicione pelo menos 3 para maximizar ancoragem.`);
+    if (offer.stacking.some(s => s.name.length === 0 || s.value === 0))
+      tips.push('Preencha nome E valor de todos os itens do stack para pontuar mais.');
+  }
+
+  if (step === 3) {
+    if (offer.bonuses.length === 0)
+      tips.push('Adicione pelo menos 2 bonus. Cada bonus deve resolver uma objecao especifica do cliente.');
+    if (offer.bonuses.length === 1)
+      tips.push('Adicione mais 1 bonus. O ideal e pelo menos 2 para quebrar objecoes diferentes.');
+    if (offer.bonuses.some(b => !b.description || b.description.length === 0))
+      tips.push('Descreva qual objecao cada bonus resolve. Bonus sem objecao valem menos no score.');
+  }
+
+  if (step === 4) {
+    if (offer.riskReversal.length > 0 && offer.riskReversal.length <= 50)
+      tips.push('Sua garantia esta curta. Detalhe: tipo, prazo, e o que acontece se pedir reembolso.');
+    if (offer.riskReversal.length > 0 && !/dia|garantia|devolv|reembols/i.test(offer.riskReversal))
+      tips.push('Mencione "garantia", prazo em dias ou politica de devolucao para mais credibilidade.');
+    if (offer.scarcity.length === 0)
+      tips.push('Sem escassez nao ha urgencia. Adicione limite de vagas, prazo ou edicao limitada.');
+  }
+
+  if (tips.length === 0) return null;
+
+  return (
+    <div className="mt-4 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg space-y-1.5">
+      {tips.map((tip, i) => (
+        <div key={i} className="flex gap-2 text-[11px] text-amber-400/90 leading-tight">
+          <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
+          <span>{tip}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 // --- Components ---
 
@@ -174,12 +244,68 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
   });
   const [result, setResult] = useState<{ total: number; analysis: string[] }>({ total: 0, analysis: [] });
   const [saved, setSaved] = useState(false);
+  const [isEvaluating, setIsEvaluating] = useState(false);
+  const [aiEvaluation, setAiEvaluation] = useState<OfferQualityResult | null>(null);
+  const [showAiResult, setShowAiResult] = useState(false);
 
   // Lógica de Score (Offer Lab Engine)
   useEffect(() => {
     const calculation = OfferLabEngine.calculateScore(offer);
     setResult(calculation);
   }, [offer]);
+
+  const handleAiEvaluation = async () => {
+    if (!brandId) {
+      toast.error('Selecione uma marca antes de avaliar a oferta.');
+      return;
+    }
+    setIsEvaluating(true);
+    try {
+      const headers = await getAuthHeaders();
+
+      // Build offerData in the format the API expects
+      const offerData = {
+        components: {
+          coreProduct: {
+            name: offer.promise.substring(0, 50),
+            promise: offer.promise,
+            price: offer.corePrice,
+            perceivedValue: offer.perceivedValue,
+          },
+          stacking: offer.stacking,
+          bonuses: offer.bonuses,
+          riskReversal: offer.riskReversal,
+          scarcity: offer.scarcity,
+        },
+        scoring: {
+          total: result.total,
+          factors: offer.scoringFactors,
+          analysis: result.analysis,
+        },
+      };
+
+      const response = await fetch('/api/intelligence/offer/calculate-score', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ brandId, offerData }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha na avaliacao AI');
+      }
+
+      const data = await response.json();
+      setAiEvaluation(data.data?.aiEvaluation ?? null);
+      setShowAiResult(true);
+    } catch {
+      // Fallback: pular AI eval e permitir salvar normalmente
+      toast.error('Avaliacao AI indisponivel. Voce pode salvar a oferta mesmo assim.');
+      setShowAiResult(true);
+      setAiEvaluation(null);
+    } finally {
+      setIsEvaluating(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!brandId) {
@@ -192,7 +318,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
       const response = await fetch('/api/intelligence/offer/save', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ brandId, state: offer })
+        body: JSON.stringify({ brandId, state: offer, aiEvaluation: aiEvaluation ?? undefined })
       });
 
       if (!response.ok) {
@@ -211,7 +337,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
 
   const nextStep = () => {
     if (step === 4) {
-      handleSave();
+      handleAiEvaluation();
     } else {
       setStep(s => Math.min(s + 1, 4));
     }
@@ -225,6 +351,123 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
     { id: 4, name: 'Escassez', icon: Zap },
   ];
 
+  // --- AI Evaluation Result Screen ---
+  if (showAiResult && !saved) {
+    return (
+      <div className="max-w-3xl mx-auto space-y-8 py-8">
+        {/* Score Header */}
+        <div className="text-center space-y-4">
+          <h2 className="text-2xl font-bold text-white">Avaliacao do Conselho</h2>
+          <div className="flex items-center justify-center gap-6">
+            <div className="text-center">
+              <div className="text-5xl font-black text-white">{result.total}</div>
+              <p className="text-xs text-zinc-500 mt-1">Score Formula</p>
+            </div>
+            {aiEvaluation && aiEvaluation.overallQuality > 0 && (
+              <div className="text-center">
+                <div className="text-5xl font-black text-purple-400">{aiEvaluation.overallQuality}</div>
+                <p className="text-xs text-zinc-500 mt-1">Score AI</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* AI Insights (Kennedy + Brunson) */}
+        {aiEvaluation && aiEvaluation.insights.length > 0 ? (
+          <div className="space-y-4">
+            {aiEvaluation.insights.map((insight, i) => (
+              <Card key={i} className="bg-zinc-900/50 border-zinc-800">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-bold flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-purple-400" />
+                    {insight.counselorName}
+                    <Badge variant="outline" className="ml-auto text-[10px]">{insight.score}/100</Badge>
+                  </CardTitle>
+                  <CardDescription className="text-[10px] text-zinc-600">{insight.frameworkUsed}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-zinc-300 italic leading-relaxed">&ldquo;{insight.opinion}&rdquo;</p>
+                  {insight.redFlagsTriggered.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] text-red-400/80 uppercase tracking-wider font-bold">Alertas:</p>
+                      {insight.redFlagsTriggered.map((flag, j) => (
+                        <div key={j} className="flex gap-1.5 text-[11px] text-red-400/70">
+                          <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                          <span>{flag}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {insight.goldStandardsHit.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] text-green-400/80 uppercase tracking-wider font-bold">Pontos fortes:</p>
+                      {insight.goldStandardsHit.map((gs, j) => (
+                        <div key={j} className="flex gap-1.5 text-[11px] text-green-400/70">
+                          <CheckCircle2 className="w-3 h-3 shrink-0 mt-0.5" />
+                          <span>{gs}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+
+            {/* Summary */}
+            {aiEvaluation.summary && (
+              <div className="p-4 bg-purple-500/5 border border-purple-500/20 rounded-lg">
+                <p className="text-[10px] text-purple-400/80 uppercase tracking-wider font-bold mb-2">Resumo Executivo</p>
+                <p className="text-sm text-zinc-300 leading-relaxed">{aiEvaluation.summary}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-lg text-center">
+            <p className="text-sm text-zinc-400">
+              {isEvaluating ? 'Avaliando com o Conselho...' : 'Avaliacao AI indisponivel. Voce pode salvar a oferta normalmente.'}
+            </p>
+          </div>
+        )}
+
+        {/* Formula Insights */}
+        {result.analysis.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Insights da Formula:</p>
+            {result.analysis.map((insight, i) => (
+              <div key={i} className="flex gap-2 text-[11px] text-zinc-400 leading-tight">
+                <Info className="w-3 h-3 text-blue-400 shrink-0 mt-0.5" />
+                <span>{insight}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex justify-center gap-4 pt-4">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setShowAiResult(false);
+              setStep(1);
+            }}
+            className="text-zinc-300 border-zinc-700"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Ajustar Oferta
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="bg-white text-black hover:bg-zinc-200 px-8"
+          >
+            {isSaving ? 'Salvando...' : 'Salvar Oferta'}
+            <CheckCircle2 className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (saved) {
     return (
       <div className="flex flex-col items-center justify-center py-20 space-y-6">
@@ -235,7 +478,10 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
           <h2 className="text-2xl font-bold text-white">Oferta Salva!</h2>
           <p className="text-zinc-400 max-w-md">
             Sua oferta foi salva com score de irresistibilidade <span className="font-bold text-white">{result.total}</span>.
-            Você pode encontrá-la no histórico do Offer Lab.
+            {aiEvaluation && aiEvaluation.overallQuality > 0 && (
+              <> Score AI: <span className="font-bold text-purple-400">{aiEvaluation.overallQuality}</span>.</>
+            )}
+            {' '}Você pode encontrá-la no histórico do Offer Lab.
           </p>
         </div>
         <div className="flex gap-3 pt-4">
@@ -243,6 +489,8 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
             variant="outline"
             onClick={() => {
               setSaved(false);
+              setShowAiResult(false);
+              setAiEvaluation(null);
               setStep(1);
               setOffer({
                 promise: '', corePrice: 0, perceivedValue: 0, stacking: [], bonuses: [],
@@ -299,7 +547,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-zinc-300">Sua Headline / Promessa Principal</label>
-                    <Textarea 
+                    <Textarea
                       placeholder="Ex: Como faturar R$ 10k em 30 dias sem precisar de anúncios pagos..."
                       className="bg-zinc-900 border-zinc-800 min-h-[120px] focus:ring-purple-500"
                       value={offer.promise}
@@ -309,7 +557,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-zinc-300">Preço da Oferta (R$)</label>
-                      <Input 
+                      <Input
                         type="number"
                         placeholder="497"
                         className="bg-zinc-900 border-zinc-800"
@@ -319,7 +567,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-zinc-300">Valor Percebido (R$)</label>
-                      <Input 
+                      <Input
                         type="number"
                         placeholder="2997"
                         className="bg-zinc-900 border-zinc-800"
@@ -329,6 +577,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
                     </div>
                   </div>
                 </div>
+                <StepFeedback step={1} offer={offer} />
               </div>
             )}
 
@@ -421,6 +670,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
                     Adicionar Item ao Stack
                   </Button>
                 </div>
+                <StepFeedback step={2} offer={offer} />
               </div>
             )}
 
@@ -517,6 +767,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
                   <Gift className="w-4 h-4 mr-2" />
                   Criar Novo Bonus
                 </Button>
+                <StepFeedback step={3} offer={offer} />
               </div>
             )}
 
@@ -538,7 +789,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-zinc-300">Reversão de Risco (Garantia)</label>
-                    <Textarea 
+                    <Textarea
                       placeholder="Ex: 30 dias de garantia incondicional + Desafio de 90 dias..."
                       className="bg-zinc-900 border-zinc-800 min-h-[100px]"
                       value={offer.riskReversal}
@@ -546,6 +797,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
                     />
                   </div>
                 </div>
+                <StepFeedback step={4} offer={offer} />
               </div>
             )}
           </motion.div>
@@ -561,13 +813,13 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar
           </Button>
-          <Button 
+          <Button
             onClick={nextStep}
-            disabled={isSaving}
+            disabled={isSaving || isEvaluating}
             className="bg-white text-black hover:bg-zinc-200 px-8"
           >
-            {isSaving ? 'Salvando...' : step === 4 ? 'Finalizar Oferta' : 'Próximo Passo'}
-            <ArrowRight className="w-4 h-4 ml-2" />
+            {isEvaluating ? 'Avaliando com o Conselho...' : step === 4 ? 'Avaliar e Finalizar' : 'Próximo Passo'}
+            {step === 4 ? <Sparkles className="w-4 h-4 ml-2" /> : <ArrowRight className="w-4 h-4 ml-2" />}
           </Button>
         </div>
       </div>
@@ -587,7 +839,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
             <div className="flex gap-2 p-2.5 bg-purple-500/10 border border-purple-500/20 rounded-lg">
               <Info className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
               <p className="text-[11px] text-purple-300/80 leading-relaxed">
-                Estes sliders controlam ~80% do score de irresistibilidade. Ajuste-os com cuidado.
+                Estes sliders controlam ~40% do score. Os outros 60% vem do conteudo que voce escreve nos steps.
               </p>
             </div>
             {[
@@ -642,11 +894,13 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
           </CardHeader>
           <CardContent className="space-y-3">
             {[
-              { label: 'Promessa Clara e Específica', met: offer.promise.length > 20 },
-              { label: 'Valor Percebido > 10x Preço', met: (offer.perceivedValue + offer.stacking.reduce((a,b)=>a+b.value,0)) >= offer.corePrice * 10 },
-              { label: 'Bônus que Resolve Objeção', met: offer.bonuses.length > 0 },
-              { label: 'Garantia de Risco Zero', met: offer.riskReversal.length > 20 },
-              { label: 'Escassez Real', met: offer.scarcity.length > 5 },
+              { label: 'Promessa com resultado mensuravel', met: offer.promise.length > 20 && /\d/.test(offer.promise) },
+              { label: 'Promessa com prazo definido', met: /dia|semana|mes|mês|hora/i.test(offer.promise) },
+              { label: 'Ancoragem 10x (valor vs preco)', met: offer.corePrice > 0 && (offer.perceivedValue + offer.stacking.reduce((a,b)=>a+b.value,0) + offer.bonuses.reduce((a,b)=>a+b.value,0)) / offer.corePrice >= 10 },
+              { label: 'Stack com 3+ itens completos', met: offer.stacking.length >= 3 && offer.stacking.every(s => s.name.length > 0 && s.value > 0) },
+              { label: '2+ bonus com objecao descrita', met: offer.bonuses.length >= 2 && offer.bonuses.every(b => b.description && b.description.length > 0) },
+              { label: 'Garantia detalhada (tipo + prazo)', met: offer.riskReversal.length > 50 && /dia|garantia|devolv|reembols/i.test(offer.riskReversal) },
+              { label: 'Gatilho de escassez', met: offer.scarcity.length > 10 },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-2 text-xs">
                 <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
