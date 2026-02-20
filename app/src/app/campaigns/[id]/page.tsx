@@ -549,7 +549,7 @@ export default function CampaignCommandCenter() {
             icon={BarChart3}
             status={campaign.ads ? 'approved' : generatingAds ? 'generating' : campaign.design ? 'ready' : 'empty'}
             summary={campaign.ads ? [
-              `Canais: ${campaign.ads.channels.join(', ')}`,
+              `Canais: ${campaign.ads.channels?.join(', ') || 'A definir'}`,
               `Budget Sugerido: ${campaign.ads.suggestedBudget || 'A definir'}`,
               ...(campaign.ads.audiences?.length ? [`${campaign.ads.audiences.length} audiência(s) segmentada(s)`] : [])
             ] : generatingAds ? [
