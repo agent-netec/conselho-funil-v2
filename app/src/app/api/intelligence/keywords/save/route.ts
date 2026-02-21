@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         intent: keyword.intent,
         opportunityScore: keyword.opportunityScore,
         source: 'miner',
-        suggestion: keyword.suggestion,
+        ...(keyword.suggestion != null && { suggestion: keyword.suggestion }),
       });
       return createApiSuccess({ saved: 1, id });
     }
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
         intent: kw.intent,
         opportunityScore: kw.opportunityScore,
         source: 'miner' as const,
-        suggestion: kw.suggestion,
+        ...(kw.suggestion != null && { suggestion: kw.suggestion }),
       }));
 
       const saved = await saveBrandKeywordsBatch(brandId, batch);
