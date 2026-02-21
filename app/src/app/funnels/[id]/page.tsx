@@ -28,7 +28,7 @@ import {
   FileText,
   Share2,
 } from 'lucide-react';
-import { doc, onSnapshot, collection, getDocs, orderBy, query, setDoc, Timestamp } from 'firebase/firestore';
+import { doc, onSnapshot, collection, getDocs, orderBy, query, setDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Funnel, Proposal, ProposalScorecard } from '@/types/database';
 import { useFunnels } from '@/lib/hooks/use-funnels';
@@ -367,7 +367,7 @@ function ProposalCard({ proposal, index, onSelect }: { proposal: Proposal; index
 import { AutopsyReportView } from '@/components/funnel-autopsy/AutopsyReportView';
 import { AutopsyRunResponse } from '@/types/autopsy';
 
-const GeneratingState = () => {
+const GeneratingState = ({ isStuck, onReset }: { isStuck?: boolean; onReset?: () => void }) => {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -386,25 +386,38 @@ const GeneratingState = () => {
             <Zap className="h-8 w-8 text-purple-400 animate-pulse" />
           </div>
         </div>
-        
+
         <h3 className="text-xl font-black text-white mb-3 uppercase tracking-widest">
-          Iniciando Autópsia Forense...
+          {isStuck ? 'Geração travou...' : 'Iniciando Autópsia Forense...'}
         </h3>
-        
+
         <p className="text-zinc-400 mb-6 max-w-md mx-auto text-sm italic">
-          "O Agente Monara está escaneando a estrutura do funil enquanto o Conselho de Estrategistas prepara o diagnóstico."
+          {isStuck
+            ? 'A geração demorou mais que o esperado. Pode ter ocorrido um erro no servidor. Você pode resetar e tentar novamente.'
+            : '"O Agente Monara está escaneando a estrutura do funil enquanto o Conselho de Estrategistas prepara o diagnóstico."'
+          }
         </p>
-        
-        <div className="flex flex-col items-center gap-4 text-xs font-mono text-zinc-500">
-          <div className="flex items-center gap-2">
-            <div className="h-1 w-1 rounded-full bg-purple-500 animate-ping" />
-            <span>[SCRAPING_ENGINE]: ACTIVE</span>
+
+        {isStuck && onReset ? (
+          <Button
+            onClick={onReset}
+            className="bg-amber-500 hover:bg-amber-600 text-black font-bold mt-2"
+          >
+            <AlertCircle className="mr-2 h-4 w-4" />
+            Resetar e Tentar Novamente
+          </Button>
+        ) : (
+          <div className="flex flex-col items-center gap-4 text-xs font-mono text-zinc-500">
+            <div className="flex items-center gap-2">
+              <div className="h-1 w-1 rounded-full bg-purple-500 animate-ping" />
+              <span>[SCRAPING_ENGINE]: ACTIVE</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-1 w-1 rounded-full bg-purple-500 animate-ping delay-75" />
+              <span>[HEURISTIC_ANALYSIS]: GEMINI_1.5_PRO_READY</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="h-1 w-1 rounded-full bg-purple-500 animate-ping delay-75" />
-            <span>[HEURISTIC_ANALYSIS]: GEMINI_1.5_PRO_READY</span>
-          </div>
-        </div>
+        )}
       </div>
     </motion.div>
   );
@@ -425,6 +438,42 @@ export default function FunnelDetailPage() {
   const [prevStatus, setPrevStatus] = useState<string | null>(null);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [isStuck, setIsStuck] = useState(false);
+
+  // Detect stuck generating state (> 3 minutes)
+  useEffect(() => {
+    if (!funnel || funnel.status !== 'generating') {
+      setIsStuck(false);
+      return;
+    }
+
+    const checkStuck = () => {
+      const updatedAt = funnel.updatedAt?.toDate?.() || funnel.updatedAt;
+      if (!updatedAt) return;
+      const elapsed = Date.now() - new Date(updatedAt).getTime();
+      const STUCK_THRESHOLD_MS = 3 * 60 * 1000; // 3 minutes
+      setIsStuck(elapsed > STUCK_THRESHOLD_MS);
+    };
+
+    checkStuck();
+    const interval = setInterval(checkStuck, 10_000); // re-check every 10s
+    return () => clearInterval(interval);
+  }, [funnel?.status, funnel?.updatedAt]);
+
+  // Reset stuck funnel back to draft
+  const handleResetStuck = async () => {
+    if (!funnel) return;
+    try {
+      const funnelRef = doc(db, 'funnels', funnel.id);
+      await updateDoc(funnelRef, { status: 'draft', updatedAt: Timestamp.now() });
+      setIsGenerating(false);
+      setIsStuck(false);
+      notify.success('Funil resetado', 'Você pode tentar gerar as propostas novamente.');
+    } catch (error) {
+      console.error('Error resetting funnel:', error);
+      notify.error('Erro', 'Não foi possível resetar o funil.');
+    }
+  };
 
   // Subscribe to funnel updates
   useEffect(() => {
@@ -529,7 +578,7 @@ export default function FunnelDetailPage() {
       // Status will be updated via onSnapshot
     } catch (error) {
       console.error('Error generating proposals:', error);
-      alert('Erro ao gerar propostas. Tente novamente.');
+      notify.error('Erro ao gerar', 'Falha ao gerar propostas. Tente novamente.');
       setIsGenerating(false);
     }
   };
@@ -852,7 +901,7 @@ export default function FunnelDetailPage() {
 
           {/* Generating State */}
           <AnimatePresence>
-            {isStatusGenerating && <GeneratingState />}
+            {isStatusGenerating && <GeneratingState isStuck={isStuck} onReset={handleResetStuck} />}
           </AnimatePresence>
 
           {/* Autopsy Report Section */}
