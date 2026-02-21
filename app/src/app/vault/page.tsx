@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Library,
@@ -14,11 +15,18 @@ import {
   Play,
   Clock,
   Zap,
+  Dna,
+  Upload,
+  FileText,
+  PenLine,
+  Bell,
 } from 'lucide-react';
 import { Header } from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ApprovalWorkspace } from '@/components/vault/approval-workspace';
 import { VaultExplorer } from '@/components/vault/vault-explorer';
 import { toast } from 'sonner';
@@ -32,13 +40,21 @@ import {
   getVaultAssets,
   saveVaultContent
 } from '@/lib/firebase/vault';
+import { collection, query, where, orderBy, limit, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 import type { VaultContent, CopyDNA, VaultAsset } from '@/types/vault';
 import { DNAWizard } from '@/components/vault/dna-wizard';
-import { Dna } from 'lucide-react';
+
+interface VaultSettings {
+  autoApproveThreshold?: number;
+  notifyOnNewContent?: boolean;
+  autopilotEnabled?: boolean;
+}
 
 export default function VaultPage() {
   const activeBrand = useActiveBrand();
   const { user } = useAuthStore();
+  const router = useRouter();
   const brandId = activeBrand?.id;
   const [activeTab, setActiveTab] = useState('review');
   const [reviewItems, setReviewItems] = useState<VaultContent[]>([]);
@@ -48,6 +64,15 @@ export default function VaultPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [runningAutopilot, setRunningAutopilot] = useState(false);
   const [showDNAWizard, setShowDNAWizard] = useState(false);
+  // V2: New Asset popover
+  const [showNewAssetMenu, setShowNewAssetMenu] = useState(false);
+  // V3: History
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyItems, setHistoryItems] = useState<VaultContent[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  // V5: Settings
+  const [vaultSettings, setVaultSettings] = useState<VaultSettings>({});
+  const [savingSettings, setSavingSettings] = useState(false);
 
   const loadVaultData = useCallback(async () => {
     if (!brandId) return;
@@ -139,13 +164,66 @@ export default function VaultPage() {
     }
   };
 
-  // N-5.3: Stub button handlers
-  const handleNewAsset = () => {
-    toast.info('Em breve: Upload de novos ativos de marca (imagens, logos, vídeos).');
-  };
+  // V3: Load history items from vault library
+  const loadHistory = useCallback(async () => {
+    if (!brandId) return;
+    setLoadingHistory(true);
+    try {
+      const libraryRef = collection(db, 'brands', brandId, 'vault', 'library');
+      const q = query(
+        libraryRef,
+        where('status', 'in', ['approved', 'rejected']),
+        orderBy('createdAt', 'desc'),
+        limit(50)
+      );
+      const snap = await getDocs(q);
+      setHistoryItems(snap.docs.map((d) => ({ id: d.id, ...d.data() } as VaultContent)));
+    } catch (error) {
+      console.error('[Vault] Error loading history:', error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, [brandId]);
 
   const handleHistory = () => {
-    toast.info('Em breve: Histórico de aprovações e versões de conteúdo.');
+    setShowHistory(true);
+    loadHistory();
+  };
+
+  // V5: Load vault settings from brand doc
+  useEffect(() => {
+    if (!brandId) return;
+    const loadSettings = async () => {
+      try {
+        const brandDoc = await getDoc(doc(db, 'brands', brandId));
+        if (brandDoc.exists()) {
+          setVaultSettings(brandDoc.data()?.vaultSettings || {});
+        }
+      } catch (err) {
+        console.error('[Vault] Error loading settings:', err);
+      }
+    };
+    loadSettings();
+  }, [brandId]);
+
+  const saveVaultSettings = async (updated: VaultSettings) => {
+    if (!brandId) return;
+    setSavingSettings(true);
+    try {
+      await updateDoc(doc(db, 'brands', brandId), { vaultSettings: updated });
+      setVaultSettings(updated);
+      toast.success('Configurações salvas!');
+    } catch (err) {
+      toast.error('Erro ao salvar configurações.');
+      console.error('[Vault] Error saving settings:', err);
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
+  const toggleSetting = (key: keyof VaultSettings, value: boolean) => {
+    const updated = { ...vaultSettings, [key]: value };
+    saveVaultSettings(updated);
   };
 
   return (
@@ -180,10 +258,53 @@ export default function VaultPage() {
               <Dna className="mr-2 h-4 w-4" />
               Novo DNA
             </Button>
-            <Button className="btn-accent" onClick={handleNewAsset}>
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Ativo
-            </Button>
+            <Popover open={showNewAssetMenu} onOpenChange={setShowNewAssetMenu}>
+              <PopoverTrigger asChild>
+                <Button className="btn-accent">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Novo Ativo
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-56 bg-zinc-900 border-white/[0.05] p-1">
+                <button
+                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
+                  onClick={() => { setShowNewAssetMenu(false); setShowDNAWizard(true); }}
+                >
+                  <Dna className="h-4 w-4 text-blue-400" />
+                  DNA Template
+                </button>
+                <button
+                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
+                  onClick={() => { setShowNewAssetMenu(false); router.push('/assets'); }}
+                >
+                  <Upload className="h-4 w-4 text-emerald-400" />
+                  Upload de Mídia
+                </button>
+                <button
+                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
+                  onClick={async () => {
+                    setShowNewAssetMenu(false);
+                    if (!brandId) { toast.error('Selecione uma marca ativa.'); return; }
+                    try {
+                      await saveVaultContent(brandId, {
+                        id: '',
+                        sourceInsightId: '',
+                        status: 'draft' as const,
+                        variants: [{ platform: 'instagram' as any, copy: '', mediaRefs: [], metadata: {} }],
+                        approvalChain: {},
+                      });
+                      toast.success('Rascunho criado na Review Queue.');
+                      loadVaultData();
+                    } catch {
+                      toast.error('Erro ao criar rascunho.');
+                    }
+                  }}
+                >
+                  <PenLine className="h-4 w-4 text-amber-400" />
+                  Post Manual
+                </button>
+              </PopoverContent>
+            </Popover>
           </div>
         }
       />
@@ -320,16 +441,25 @@ export default function VaultPage() {
                             </div>
                             <Badge variant="outline" className="text-emerald-400 border-emerald-500/30">Ativo</Badge>
                           </div>
-                          <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-950 border border-zinc-800">
+                          <button
+                            onClick={() => toggleSetting('autopilotEnabled', !vaultSettings.autopilotEnabled)}
+                            disabled={savingSettings}
+                            className="flex items-center justify-between w-full p-3 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-zinc-700 transition-colors text-left"
+                          >
                             <div className="flex items-center gap-2">
                               <Clock className="w-4 h-4 text-zinc-500" />
-                              <span className="text-sm text-zinc-300">CRON Automático</span>
+                              <span className="text-sm text-zinc-300">CRON Automático (6h)</span>
                             </div>
-                            <Badge variant="outline" className="text-zinc-500 border-zinc-700">Em breve</Badge>
-                          </div>
+                            <Badge variant="outline" className={vaultSettings.autopilotEnabled
+                              ? 'text-emerald-400 border-emerald-500/30'
+                              : 'text-zinc-500 border-zinc-700'
+                            }>
+                              {vaultSettings.autopilotEnabled ? 'Ativo' : 'Desativado'}
+                            </Badge>
+                          </button>
                         </div>
                         <p className="text-[11px] text-zinc-600">
-                          CRON automático será habilitado via vercel.json com CRON_SECRET. Cada execução consome 2 créditos por conteúdo adaptado.
+                          Cada execução do Autopilot consome 2 créditos por conteúdo adaptado.
                         </p>
                       </CardContent>
                     </Card>
@@ -346,11 +476,36 @@ export default function VaultPage() {
                           Configurações de aprovação automática e integração com redes sociais.
                         </p>
                         <div className="space-y-3">
-                          <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-950 border border-zinc-800">
-                            <span className="text-sm text-zinc-300">Aprovação automática</span>
-                            <Badge variant="outline" className="text-zinc-500 border-zinc-700">Desativada</Badge>
-                          </div>
-                          <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-950 border border-zinc-800">
+                          <button
+                            onClick={() => toggleSetting('autoApproveThreshold', !vaultSettings.autoApproveThreshold ? 80 as any : 0 as any)}
+                            disabled={savingSettings}
+                            className="flex items-center justify-between w-full p-3 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-zinc-700 transition-colors text-left"
+                          >
+                            <span className="text-sm text-zinc-300">Aprovação automática {vaultSettings.autoApproveThreshold ? `(≥${vaultSettings.autoApproveThreshold}%)` : ''}</span>
+                            <Badge variant="outline" className={Number(vaultSettings.autoApproveThreshold) > 0
+                              ? 'text-emerald-400 border-emerald-500/30'
+                              : 'text-zinc-500 border-zinc-700'
+                            }>
+                              {Number(vaultSettings.autoApproveThreshold) > 0 ? 'Ativa' : 'Desativada'}
+                            </Badge>
+                          </button>
+                          <button
+                            onClick={() => toggleSetting('notifyOnNewContent', !vaultSettings.notifyOnNewContent)}
+                            disabled={savingSettings}
+                            className="flex items-center justify-between w-full p-3 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-zinc-700 transition-colors text-left"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Bell className="w-4 h-4 text-zinc-500" />
+                              <span className="text-sm text-zinc-300">Notificar novo conteúdo</span>
+                            </div>
+                            <Badge variant="outline" className={vaultSettings.notifyOnNewContent
+                              ? 'text-emerald-400 border-emerald-500/30'
+                              : 'text-zinc-500 border-zinc-700'
+                            }>
+                              {vaultSettings.notifyOnNewContent ? 'Ativa' : 'Desativada'}
+                            </Badge>
+                          </button>
+                          <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-950 border border-zinc-800 opacity-50 cursor-not-allowed" title="Requer OAuth (Sprint L)">
                             <span className="text-sm text-zinc-300">Publicação direta</span>
                             <Badge variant="outline" className="text-zinc-500 border-zinc-700">Requer OAuth</Badge>
                           </div>
@@ -376,6 +531,57 @@ export default function VaultPage() {
           onSaved={() => loadVaultData()}
         />
       )}
+
+      {/* V3: History Sheet */}
+      <Sheet open={showHistory} onOpenChange={setShowHistory}>
+        <SheetContent className="bg-zinc-950 border-zinc-800 w-full sm:max-w-lg">
+          <SheetHeader>
+            <SheetTitle className="text-white flex items-center gap-2">
+              <History className="h-5 w-5 text-zinc-400" />
+              Histórico de Aprovações
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-6 space-y-3 overflow-y-auto max-h-[calc(100vh-120px)] pr-2">
+            {loadingHistory ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+              </div>
+            ) : historyItems.length === 0 ? (
+              <p className="text-sm text-zinc-500 text-center py-12">Nenhum item no histórico.</p>
+            ) : (
+              historyItems.map((item) => (
+                <div key={item.id} className="p-3 rounded-lg bg-zinc-900/50 border border-zinc-800">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-sm font-medium text-white truncate max-w-[200px]">
+                      {item.variants?.[0]?.copy?.slice(0, 60) || 'Conteúdo sem texto'}
+                      {(item.variants?.[0]?.copy?.length || 0) > 60 ? '...' : ''}
+                    </span>
+                    <Badge variant="outline" className={
+                      item.status === 'approved'
+                        ? 'text-emerald-400 border-emerald-500/30'
+                        : 'text-red-400 border-red-500/30'
+                    }>
+                      {item.status === 'approved' ? 'Aprovado' : 'Rejeitado'}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-3 text-[10px] text-zinc-500">
+                    <span>{item.createdAt?.seconds
+                      ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('pt-BR')
+                      : '-'}</span>
+                    <div className="flex gap-1">
+                      {item.variants?.map((v) => (
+                        <Badge key={v.platform} variant="outline" className="text-[8px] h-4 border-zinc-700 text-zinc-400">
+                          {v.platform}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

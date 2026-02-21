@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Search, 
-  Filter, 
-  Plus, 
-  LayoutGrid, 
-  List, 
-  Dna, 
+import {
+  Search,
+  Filter,
+  Plus,
+  LayoutGrid,
+  List,
+  Dna,
   Library as LibraryIcon,
   Image as ImageIcon,
   MoreVertical,
@@ -17,7 +17,8 @@ import {
   Trash2,
   Clock,
   Linkedin,
-  Instagram
+  Instagram,
+  X as XIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,11 +26,12 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import type { CopyDNA, VaultContent, VaultAsset } from '@/types/vault';
@@ -44,6 +46,7 @@ interface VaultExplorerProps {
 export function VaultExplorer({ dnaItems, libraryItems, assets, onUseItem }: VaultExplorerProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
+  const [detailItem, setDetailItem] = useState<VaultContent | null>(null);
 
   return (
     <div className="flex flex-col gap-6 h-full">
@@ -117,7 +120,7 @@ export function VaultExplorer({ dnaItems, libraryItems, assets, onUseItem }: Vau
                 viewMode === 'grid' ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
               )}>
                 {libraryItems.map((item) => (
-                  <ContentCard key={item.id} item={item} viewMode={viewMode} onUse={() => onUseItem(item)} />
+                  <ContentCard key={item.id} item={item} viewMode={viewMode} onUse={() => onUseItem(item)} onViewDetails={() => setDetailItem(item)} />
                 ))}
               </div>
             </ScrollArea>
@@ -147,11 +150,70 @@ export function VaultExplorer({ dnaItems, libraryItems, assets, onUseItem }: Vau
           </TabsContent>
         </div>
       </Tabs>
+
+      {/* V4: Details Dialog */}
+      <Dialog open={!!detailItem} onOpenChange={(open) => { if (!open) setDetailItem(null); }}>
+        <DialogContent className="bg-zinc-900 border-zinc-800 max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white">Detalhes do Conteúdo</DialogTitle>
+          </DialogHeader>
+          {detailItem && (
+            <div className="space-y-4 mt-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className={
+                  detailItem.status === 'approved' ? 'text-emerald-400 border-emerald-500/30' :
+                  detailItem.status === 'review' ? 'text-amber-400 border-amber-500/30' :
+                  detailItem.status === 'published' ? 'text-blue-400 border-blue-500/30' :
+                  'text-zinc-400 border-zinc-700'
+                }>
+                  {detailItem.status}
+                </Badge>
+                <span className="text-xs text-zinc-500">
+                  {detailItem.createdAt?.seconds
+                    ? new Date(detailItem.createdAt.seconds * 1000).toLocaleDateString('pt-BR')
+                    : ''}
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Variantes por Plataforma</h4>
+                {detailItem.variants?.map((v, i) => (
+                  <div key={i} className="p-3 rounded-lg bg-zinc-950 border border-zinc-800">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="outline" className="text-[10px] border-zinc-700 text-zinc-300 capitalize">
+                        {v.platform}
+                      </Badge>
+                      {v.copy.length > 0 && (
+                        <span className="text-[10px] text-zinc-600">{v.copy.length} chars</span>
+                      )}
+                    </div>
+                    <p className="text-sm text-zinc-300 whitespace-pre-wrap leading-relaxed">
+                      {v.copy || '(vazio)'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {detailItem.sourceInsightId && (
+                <div className="text-xs text-zinc-600">
+                  Insight: <span className="text-zinc-500">{detailItem.sourceInsightId}</span>
+                </div>
+              )}
+
+              {detailItem.approvalChain?.approvedBy && (
+                <div className="text-xs text-zinc-600">
+                  Aprovado por: <span className="text-zinc-500">{detailItem.approvalChain.approvedBy}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
-function ContentCard({ item, viewMode, onUse }: { item: VaultContent; viewMode: 'grid' | 'list'; onUse: () => void }) {
+function ContentCard({ item, viewMode, onUse, onViewDetails }: { item: VaultContent; viewMode: 'grid' | 'list'; onUse: () => void; onViewDetails: () => void }) {
   return (
     <Card className="group bg-zinc-900/40 border-white/[0.03] hover:border-emerald-500/30 transition-all overflow-hidden">
       <div className="p-5">
@@ -179,7 +241,7 @@ function ContentCard({ item, viewMode, onUse }: { item: VaultContent; viewMode: 
               <DropdownMenuItem className="text-zinc-400 focus:text-white">
                 <Copy className="h-4 w-4 mr-2" /> Duplicar
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-zinc-400 focus:text-white">
+              <DropdownMenuItem className="text-zinc-400 focus:text-white" onClick={onViewDetails}>
                 <ExternalLink className="h-4 w-4 mr-2" /> Ver Detalhes
               </DropdownMenuItem>
               <DropdownMenuItem className="text-red-400 focus:text-red-400 focus:bg-red-400/10">
