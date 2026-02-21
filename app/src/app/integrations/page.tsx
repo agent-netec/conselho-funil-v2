@@ -558,15 +558,24 @@ function ConfigPanel({
     }
   };
 
-  // OAuth button
-  const handleOAuth = (provider: string) => {
+  // OAuth button — uses the central Conselho de Funil Meta app (META_APP_ID env var)
+  const handleOAuth = async (provider: string) => {
     const callbackUrl = `${window.location.origin}/api/auth/${provider}/callback`;
     let authUrl = '';
 
     switch (provider) {
-      case 'meta':
-        authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${formData.appId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=ads_read,read_insights,ads_management&state=${brandId}`;
+      case 'meta': {
+        // Fetch central app ID from server to avoid exposing in client bundle
+        const res = await fetch('/api/auth/meta/app-id');
+        const data = await res.json();
+        const centralAppId = data?.data?.appId;
+        if (!centralAppId) {
+          toast.error('META_APP_ID não configurado no servidor. Contate o suporte.');
+          return;
+        }
+        authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${centralAppId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=ads_read,read_insights,ads_management&state=${brandId}`;
         break;
+      }
       case 'google':
         authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${formData.clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&response_type=code&scope=https://www.googleapis.com/auth/adwords&access_type=offline&prompt=consent&state=${brandId}`;
         break;
@@ -576,9 +585,17 @@ function ConfigPanel({
       case 'tiktok':
         authUrl = `https://business-api.tiktok.com/portal/auth?app_id=${formData.appId}&redirect_uri=${encodeURIComponent(callbackUrl)}&state=${brandId}`;
         break;
-      case 'instagram':
-        authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${formData.appId || formData.accessToken?.slice(0,15)}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=instagram_basic,instagram_manage_insights,pages_show_list&state=${brandId}`;
+      case 'instagram': {
+        const igRes = await fetch('/api/auth/meta/app-id');
+        const igData = await igRes.json();
+        const igAppId = igData?.data?.appId;
+        if (!igAppId) {
+          toast.error('META_APP_ID não configurado no servidor. Contate o suporte.');
+          return;
+        }
+        authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${igAppId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=instagram_basic,instagram_manage_insights,pages_show_list&state=${brandId}`;
         break;
+      }
     }
 
     if (authUrl) {
