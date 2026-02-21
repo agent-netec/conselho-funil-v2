@@ -24,12 +24,12 @@ const FORMAT_ICONS: Record<string, typeof FileText> = {
 // === Status Colors ===
 
 const STATUS_COLORS: Record<CalendarItemStatus, string> = {
-  draft: 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30',
-  pending_review: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-  approved: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-  scheduled: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  published: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  rejected: 'bg-red-500/20 text-red-400 border-red-500/30',
+  draft: 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30 border-l-4 border-l-zinc-600',
+  pending_review: 'bg-amber-500/20 text-amber-400 border-amber-500/30 border-l-4 border-l-amber-500',
+  approved: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30 border-l-4 border-l-green-500',
+  scheduled: 'bg-purple-500/20 text-purple-400 border-purple-500/30 border-l-4 border-l-purple-500',
+  published: 'bg-blue-500/20 text-blue-400 border-blue-500/30 border-l-4 border-l-blue-500',
+  rejected: 'bg-red-500/20 text-red-400 border-red-500/30 border-l-4 border-l-red-500',
 };
 
 const STATUS_LABELS: Record<CalendarItemStatus, string> = {

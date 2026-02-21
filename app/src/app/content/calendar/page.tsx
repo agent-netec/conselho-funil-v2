@@ -12,7 +12,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { CalendarView } from '@/components/content/calendar-view';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Columns, Grid, X, Clock, Eye, CheckCircle, XCircle, Send, Shield, Sparkles, Loader2, BookmarkPlus, Repeat, Tag, ArrowLeft } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Columns, Grid, X, Clock, Eye, CheckCircle, XCircle, Send, Shield, Sparkles, Loader2, BookmarkPlus, Repeat, Tag, ArrowLeft, User } from 'lucide-react';
 import { toast } from 'sonner';
 import type { CalendarItem, CalendarItemStatus, ContentTemplate } from '@/types/content';
 
@@ -31,6 +31,12 @@ export default function ContentCalendarPage() {
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [templates, setTemplates] = useState<ContentTemplate[]>([]);
   const [showTemplates, setShowTemplates] = useState(false);
+  // C1: Live preview state
+  const [previewTitle, setPreviewTitle] = useState('');
+  const [previewContent, setPreviewContent] = useState('');
+  const [previewPlatform, setPreviewPlatform] = useState('instagram');
+  const [previewDate, setPreviewDate] = useState('');
+  const [previewTime, setPreviewTime] = useState('');
 
   // === Fetch items ===
   const fetchItems = useCallback(async () => {
@@ -452,11 +458,11 @@ export default function ContentCalendarPage() {
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
                 <label className="block text-sm text-zinc-400 mb-1">Titulo</label>
-                <input name="title" required className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                <input name="title" required value={previewTitle} onChange={(e) => setPreviewTitle(e.target.value)} className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
               </div>
               <div>
                 <label className="block text-sm text-zinc-400 mb-1">Conteudo / Descrição</label>
-                <textarea name="content" rows={4} placeholder="Texto do post, legenda, roteiro..." className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none" />
+                <textarea name="content" rows={4} placeholder="Texto do post, legenda, roteiro..." value={previewContent} onChange={(e) => setPreviewContent(e.target.value)} className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -470,7 +476,7 @@ export default function ContentCalendarPage() {
                 </div>
                 <div>
                   <label className="block text-sm text-zinc-400 mb-1">Plataforma</label>
-                  <select name="platform" required className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm">
+                  <select name="platform" required value={previewPlatform} onChange={(e) => setPreviewPlatform(e.target.value)} className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm">
                     <option value="instagram">Instagram</option>
                     <option value="linkedin">LinkedIn</option>
                     <option value="x">X (Twitter)</option>
@@ -481,17 +487,55 @@ export default function ContentCalendarPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm text-zinc-400 mb-1">Data Agendada</label>
-                  <input name="scheduledDate" type="date" required className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                  <input name="scheduledDate" type="date" required value={previewDate} onChange={(e) => setPreviewDate(e.target.value)} className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
                 </div>
                 <div>
                   <label className="flex items-center gap-1.5 text-sm text-zinc-400 mb-1">
                     <Clock className="h-3.5 w-3.5" /> Horário
                   </label>
-                  <input name="scheduledTime" type="time" className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                  <input name="scheduledTime" type="time" value={previewTime} onChange={(e) => setPreviewTime(e.target.value)} className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
                 </div>
               </div>
+
+              {/* C1: Live Preview */}
+              {(previewTitle || previewContent) && (
+                <div className="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Eye className="h-3.5 w-3.5 text-zinc-500" />
+                    <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Preview</span>
+                  </div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="h-8 w-8 rounded-full bg-zinc-700 flex items-center justify-center">
+                      <User className="h-4 w-4 text-zinc-400" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-semibold text-white">{selectedBrand?.name || 'Marca'}</span>
+                      <span className="text-[10px] text-zinc-500 block capitalize">{previewPlatform}</span>
+                    </div>
+                  </div>
+                  {previewTitle && <p className="text-sm font-bold text-white mb-1">{previewTitle}</p>}
+                  {previewContent && <p className="text-sm text-zinc-300 whitespace-pre-wrap leading-relaxed">{previewContent}</p>}
+                  <div className="flex items-center gap-2 mt-3 pt-2 border-t border-zinc-800">
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                      previewPlatform === 'instagram' ? 'bg-pink-500/20 text-pink-400' :
+                      previewPlatform === 'linkedin' ? 'bg-blue-500/20 text-blue-400' :
+                      previewPlatform === 'x' ? 'bg-zinc-500/20 text-zinc-300' :
+                      'bg-purple-500/20 text-purple-400'
+                    }`}>
+                      {previewPlatform === 'x' ? 'X (Twitter)' : previewPlatform.charAt(0).toUpperCase() + previewPlatform.slice(1)}
+                    </span>
+                    {previewDate && (
+                      <span className="text-[10px] text-zinc-500">
+                        {new Date(previewDate + 'T00:00:00').toLocaleDateString('pt-BR')}
+                        {previewTime && ` ${previewTime}`}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">
+                <button type="button" onClick={() => { setShowCreate(false); setPreviewTitle(''); setPreviewContent(''); setPreviewDate(''); setPreviewTime(''); }} className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">
                   Cancelar
                 </button>
                 <button type="submit" className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors">
