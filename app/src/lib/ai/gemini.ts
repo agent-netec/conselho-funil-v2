@@ -22,15 +22,15 @@ export const PRO_GEMINI_MODEL = process.env.GEMINI_PRO_MODEL || 'gemini-3-pro-pr
  */
 function getGeminiApiKey(): string | undefined {
   // Acesso direto para garantir injeção no bundle cliente do Next.js
-  const public_key = process.env.NEXT_PUBLIC_GOOGLE_AI_API_KEY;
-  const private_key = process.env.GOOGLE_AI_API_KEY;
-  
+  const public_key = (process.env.NEXT_PUBLIC_GOOGLE_AI_API_KEY ?? '').trim();
+  const private_key = (process.env.GOOGLE_AI_API_KEY ?? '').trim();
+
   const key = public_key || private_key;
-  
+
   if (!key && typeof window !== 'undefined') {
     console.error('❌ [Gemini] NEXT_PUBLIC_GOOGLE_AI_API_KEY não encontrada no bundle do navegador.');
   }
-  
+
   return key;
 }
 
