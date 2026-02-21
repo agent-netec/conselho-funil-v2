@@ -6,10 +6,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { DynamicContentRule, AudienceScan } from "@/types/personalization"
-import { Zap, Save, Trash2, Layout, Video, Tag, XCircle, Pencil } from "lucide-react"
+import { Zap, Save, Trash2, Layout, Video, Tag, XCircle, Pencil, Loader2 } from "lucide-react"
+import { getAuthHeaders } from "@/lib/utils/auth-headers"
+import type { OfferDocument } from "@/types/offer"
 
 interface PersonalizationRuleEditorProps {
   scan: AudienceScan;
+  brandId?: string;
   existingRule?: DynamicContentRule;
   onSave: (rule: Partial<DynamicContentRule>) => void;
   onCancel?: () => void;
@@ -18,6 +21,7 @@ interface PersonalizationRuleEditorProps {
 
 export function PersonalizationRuleEditor({
   scan,
+  brandId,
   existingRule,
   onSave,
   onCancel,
@@ -29,6 +33,27 @@ export function PersonalizationRuleEditor({
   const [vslId, setVslId] = React.useState(existingRule?.contentVariations.vslId || "");
   const [offerId, setOfferId] = React.useState(existingRule?.contentVariations.offerId || "");
   const [confirmDelete, setConfirmDelete] = React.useState(false);
+  const [offers, setOffers] = React.useState<OfferDocument[]>([]);
+  const [offersLoading, setOffersLoading] = React.useState(false);
+
+  // F4-3: Load available offers for the brand
+  React.useEffect(() => {
+    if (!brandId) return;
+    let cancelled = false;
+    setOffersLoading(true);
+    (async () => {
+      try {
+        const headers = await getAuthHeaders();
+        const res = await fetch(`/api/intelligence/offer/list?brandId=${brandId}`, { headers });
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          setOffers(data.data?.offers ?? []);
+        }
+      } catch { /* silent */ }
+      finally { if (!cancelled) setOffersLoading(false); }
+    })();
+    return () => { cancelled = true; };
+  }, [brandId]);
 
   // Sincronizar campos quando existingRule muda (ex: seleção de outra rule)
   React.useEffect(() => {
@@ -129,13 +154,33 @@ export function PersonalizationRuleEditor({
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               <Tag className="w-4 h-4" />
-              ID da Oferta
+              Oferta do Offer Lab
             </Label>
-            <Input 
-              placeholder="offer_abc..." 
-              value={offerId}
-              onChange={(e) => setOfferId(e.target.value)}
-            />
+            {offersLoading ? (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
+                <Loader2 className="w-3 h-3 animate-spin" /> Carregando ofertas...
+              </div>
+            ) : offers.length > 0 ? (
+              <select
+                value={offerId}
+                onChange={(e) => setOfferId(e.target.value)}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="">Nenhuma oferta selecionada</option>
+                {offers.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.name || o.components?.coreProduct?.promise?.substring(0, 40) || o.id}
+                    {` (Score: ${o.scoring?.total ?? '?'})${o.status === 'active' ? ' ★' : ''}`}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <Input
+                placeholder="off_abc... (crie ofertas no Offer Lab)"
+                value={offerId}
+                onChange={(e) => setOfferId(e.target.value)}
+              />
+            )}
           </div>
         </div>
 

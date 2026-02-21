@@ -6,12 +6,17 @@ export const dynamic = 'force-dynamic';
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  doc, 
-  getDoc, 
+import {
+  doc,
+  getDoc,
   updateDoc,
-  collection, 
-  addDoc, 
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  limit,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
@@ -124,12 +129,38 @@ export async function POST(request: NextRequest) {
         const funnelSnap = await getDoc(funnelRef);
         const funnelData = funnelSnap.exists() ? funnelSnap.data() : {};
 
+        // Load active offer from Offer Lab (if any)
+        let offerData: CampaignContext['offer'] | undefined;
+        if (funnelData.brandId) {
+          try {
+            const offersRef = collection(db, 'brands', funnelData.brandId, 'offers');
+            const activeSnap = await getDocs(
+              query(offersRef, where('status', '==', 'active'), orderBy('updatedAt', 'desc'), limit(1))
+            );
+            const offerSnap = activeSnap.empty
+              ? await getDocs(query(offersRef, orderBy('updatedAt', 'desc'), limit(1)))
+              : activeSnap;
+            if (!offerSnap.empty) {
+              const o = offerSnap.docs[0].data();
+              offerData = {
+                offerId: offerSnap.docs[0].id,
+                name: o.name || 'Oferta',
+                score: o.scoring?.total || 0,
+                promise: o.components?.coreProduct?.promise || '',
+              };
+            }
+          } catch (err) {
+            console.warn('[Golden Thread] Offer Lab load failed:', err);
+          }
+        }
+
         const campaignData: Partial<CampaignContext> = {
           funnelId, // ST-11.21: Vínculo obrigatório com funil de origem
           brandId: funnelData.brandId || '',
           userId: funnelData.userId || userId,
           name: funnelData.name || 'Nova Campanha',
           status: 'active',
+          ...(offerData ? { offer: offerData } : {}),
           funnel: {
             type: funnelData.type || '',
             architecture: funnelData.architecture || '',
