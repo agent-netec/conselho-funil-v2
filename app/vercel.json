@@ -17,6 +17,10 @@
     {
       "path": "/api/cron/content-metrics",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/content-autopilot",
+      "schedule": "0 */6 * * *"
     }
   ],
   "functions": {
