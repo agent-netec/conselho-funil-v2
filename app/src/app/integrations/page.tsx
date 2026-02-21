@@ -23,6 +23,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   Search,
+  Copy,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/lib/hooks/use-user';
@@ -605,6 +606,34 @@ function ConfigPanel({
     }
   };
 
+  // Copy OAuth link to clipboard
+  const handleCopyOAuthLink = async (provider: string) => {
+    const callbackUrl = `${window.location.origin}/api/auth/${provider}/callback`;
+    let authUrl = '';
+
+    if (provider === 'meta' || provider === 'instagram') {
+      const res = await fetch('/api/auth/meta/app-id');
+      const data = await res.json();
+      const appId = data?.data?.appId;
+      if (!appId) { toast.error('META_APP_ID não configurado.'); return; }
+      const scope = provider === 'meta'
+        ? 'ads_read,read_insights,ads_management'
+        : 'instagram_basic,instagram_manage_insights,pages_show_list';
+      authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=${scope}&state=${brandId}`;
+    } else if (provider === 'google') {
+      authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${formData.clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&response_type=code&scope=https://www.googleapis.com/auth/adwords&access_type=offline&prompt=consent&state=${brandId}`;
+    } else if (provider === 'linkedin') {
+      authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${formData.clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=r_ads,r_ads_reporting&state=${brandId}`;
+    } else if (provider === 'tiktok') {
+      authUrl = `https://business-api.tiktok.com/portal/auth?app_id=${formData.appId}&redirect_uri=${encodeURIComponent(callbackUrl)}&state=${brandId}`;
+    }
+
+    if (authUrl) {
+      await navigator.clipboard.writeText(authUrl);
+      toast.success('Link copiado! Cole em qualquer navegador para autorizar.');
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -717,16 +746,26 @@ function ConfigPanel({
               Validar
             </Button>
 
-            {/* OAuth button (if applicable) */}
+            {/* OAuth buttons (if applicable) */}
             {def.oauthFlow && (
-              <Button
-                onClick={() => handleOAuth(def.provider)}
-                variant="ghost"
-                className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400"
-              >
-                <ExternalLink className="mr-2 h-4 w-4" />
-                OAuth
-              </Button>
+              <>
+                <Button
+                  onClick={() => handleOAuth(def.provider)}
+                  variant="ghost"
+                  className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400"
+                >
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  OAuth
+                </Button>
+                <Button
+                  onClick={() => handleCopyOAuthLink(def.provider)}
+                  variant="ghost"
+                  className="bg-gray-500/10 hover:bg-gray-500/20 text-gray-400"
+                  title="Copiar link OAuth para colar em outro navegador"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </>
             )}
 
             {/* Save button */}
