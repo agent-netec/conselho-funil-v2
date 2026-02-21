@@ -16,6 +16,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import type { Decision } from '@/types/database';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 interface DecisionTimelineProps {
   funnelId: string;
@@ -210,7 +211,13 @@ export function DecisionTimeline({ funnelId, className }: DecisionTimelineProps)
   const loadDecisions = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/decisions?funnelId=${funnelId}`);
+      const headers = await getAuthHeaders();
+      const response = await fetch(`/api/decisions?funnelId=${funnelId}`, { headers });
+      if (!response.ok) {
+        console.warn(`[DecisionTimeline] GET /api/decisions returned ${response.status}`);
+        setDecisions([]);
+        return;
+      }
       const data = await response.json();
       setDecisions(data.decisions || []);
     } catch (error) {
