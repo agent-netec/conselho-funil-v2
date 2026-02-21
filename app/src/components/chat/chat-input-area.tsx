@@ -8,6 +8,7 @@ import { ChatModeSelector, ChatMode } from './chat-mode-selector';
 import { CHAT_MODES, COUNSELORS_REGISTRY } from '@/lib/constants';
 import { CounselorId } from '@/types';
 import { CounselorSelector } from './party-mode/counselor-selector';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import { useUser } from '@/lib/hooks/use-user';
 import { useFileUpload } from '@/lib/hooks/chat/use-file-upload';
@@ -132,19 +133,24 @@ export function ChatInputArea({ onSend, isLoading, disabled = false, disabledMes
           )}
         </AnimatePresence>
 
-        {/* Party Mode Selector (expandable) */}
-        <AnimatePresence>
-          {isPartyMode && selectorExpanded && (
+        {/* Party Mode Selector (Sheet) */}
+        <Sheet
+          open={isPartyMode && selectorExpanded}
+          onOpenChange={(open) => { if (!open) setSelectorExpanded(false); }}
+        >
+          <SheetContent side="right" className="sm:max-w-md w-full p-0 bg-zinc-950 border-white/[0.08]">
+            <SheetHeader className="sr-only">
+              <SheetTitle>Alto Conselho</SheetTitle>
+            </SheetHeader>
             <CounselorSelector
               selectedIds={selectedAgents}
               onChange={setSelectedAgents}
               intensity={intensity}
               onIntensityChange={setIntensity}
               onConfirm={handleConfirmMesa}
-              onClose={handleDeactivateParty}
             />
-          )}
-        </AnimatePresence>
+          </SheetContent>
+        </Sheet>
 
         {/* Compact bar when party mode active but selector collapsed */}
         <AnimatePresence>
