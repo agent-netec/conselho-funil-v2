@@ -3,16 +3,16 @@ export const maxDuration = 60;
 
 import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { collection, getDocs, doc, setDoc, updateDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { fetchMetaAdsInsights, type MetaAdInsight } from '@/lib/ads/meta-client';
-import { MonaraTokenVault } from '@/lib/firebase/vault';
+import { decrypt } from '@/lib/utils/encryption';
 import { logger } from '@/lib/utils/logger';
 
 /**
  * GET /api/cron/ads-sync
  * Vercel Cron: syncs Meta Ads insights for all brands with Meta integration.
  * Runs every 6 hours. Auth: CRON_SECRET.
+ * Uses Firebase Admin SDK to bypass security rules (server-to-server).
  */
 export async function GET(req: NextRequest) {
   try {
@@ -55,7 +55,6 @@ export async function GET(req: NextRequest) {
         });
 
         if (result.tokenExpired) {
-          // Mark token as expired in Firestore
           await markTokenExpired(brand.brandId);
           results.push({
             brandId: brand.brandId,
@@ -129,7 +128,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// --- Helpers ---
+// --- Helpers (all using Admin SDK) ---
 
 interface BrandMetaConfig {
   brandId: string;
@@ -138,32 +137,39 @@ interface BrandMetaConfig {
 }
 
 async function getBrandsWithMetaAds(): Promise<BrandMetaConfig[]> {
-  // Scan all brands, check if each has a token_meta secret in the vault
-  const brandsSnap = await getDocs(collection(db, 'brands'));
+  const db = getAdminFirestore();
+  const brandsSnap = await db.collection('brands').get();
   const configs: BrandMetaConfig[] = [];
 
   for (const brandDoc of brandsSnap.docs) {
     try {
-      const token = await MonaraTokenVault.getToken(brandDoc.id, 'meta');
-      if (!token) continue;
+      const tokenSnap = await db.doc(`brands/${brandDoc.id}/secrets/token_meta`).get();
+      if (!tokenSnap.exists) continue;
 
-      // Skip expired tokens (will be handled separately)
-      if (MonaraTokenVault.isTokenExpiring(token, 'meta')) {
-        logger.warn('[Cron Ads Sync] Token expiring/expired for brand', {
+      const data = tokenSnap.data();
+      if (!data) continue;
+
+      const accessToken = data.accessToken ? decrypt(data.accessToken) : '';
+      const metadata = data.metadata || {};
+      const adAccountId = metadata.adAccountId || '';
+
+      // Check if token is expired
+      const expiresAt = data.expiresAt?.toMillis?.() || data.expiresAt?._seconds * 1000 || 0;
+      if (expiresAt && expiresAt < Date.now()) {
+        logger.warn('[Cron Ads Sync] Token expired for brand', {
           meta: { brandId: brandDoc.id },
         });
+        continue;
       }
 
-      const metadata = token.metadata as { adAccountId?: string };
-      if (metadata.adAccountId && token.accessToken) {
+      if (adAccountId && accessToken) {
         configs.push({
           brandId: brandDoc.id,
-          adAccountId: metadata.adAccountId,
-          accessToken: token.accessToken,
+          adAccountId: String(adAccountId),
+          accessToken,
         });
       }
     } catch (err) {
-      // Skip brands without valid meta tokens
       logger.warn('[Cron Ads Sync] Could not read token for brand', {
         meta: { brandId: brandDoc.id, error: err instanceof Error ? err.message : 'Unknown' },
       });
@@ -175,10 +181,10 @@ async function getBrandsWithMetaAds(): Promise<BrandMetaConfig[]> {
 
 async function markTokenExpired(brandId: string) {
   try {
-    const tokenRef = doc(db, 'brands', brandId, 'secrets', 'token_meta');
-    await updateDoc(tokenRef, {
-      'status': 'expired',
-      'expiredAt': Timestamp.now(),
+    const db = getAdminFirestore();
+    await db.doc(`brands/${brandId}/secrets/token_meta`).update({
+      status: 'expired',
+      expiredAt: new Date(),
     });
   } catch (err) {
     logger.error('[Cron Ads Sync] Failed to mark token expired', {
@@ -189,14 +195,12 @@ async function markTokenExpired(brandId: string) {
 }
 
 async function saveInsights(brandId: string, insights: MetaAdInsight[]) {
-  const now = Timestamp.now();
+  const db = getAdminFirestore();
+  const now = new Date();
 
   for (const insight of insights) {
-    // Use campaign_id + date as document ID for idempotency
     const docId = `${insight.campaignId}_${insight.dateStart}`;
-    const metricsRef = doc(db, 'brands', brandId, 'performance_metrics', docId);
-
-    await setDoc(metricsRef, {
+    await db.doc(`brands/${brandId}/performance_metrics/${docId}`).set({
       source: 'meta_ads',
       campaignId: insight.campaignId,
       campaignName: insight.campaignName,
