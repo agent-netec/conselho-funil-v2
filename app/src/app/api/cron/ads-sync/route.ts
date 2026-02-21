@@ -3,10 +3,10 @@ export const maxDuration = 60;
 
 import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { collection, getDocs, doc, setDoc, updateDoc, query, where, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { fetchMetaAdsInsights, type MetaAdInsight } from '@/lib/ads/meta-client';
-import { decryptSensitiveFields } from '@/lib/utils/encryption';
+import { MonaraTokenVault } from '@/lib/firebase/vault';
 import { logger } from '@/lib/utils/logger';
 
 /**
@@ -138,24 +138,34 @@ interface BrandMetaConfig {
 }
 
 async function getBrandsWithMetaAds(): Promise<BrandMetaConfig[]> {
-  // We look for integrations with provider='meta' across all tenants
-  // The settings page saves to the 'integrations' collection via saveIntegration()
-  const integrationsRef = collection(db, 'integrations');
-  const q = query(integrationsRef, where('provider', '==', 'meta'));
-  const snap = await getDocs(q);
-
+  // Scan all brands, check if each has a token_meta secret in the vault
+  const brandsSnap = await getDocs(collection(db, 'brands'));
   const configs: BrandMetaConfig[] = [];
 
-  for (const d of snap.docs) {
-    const data = d.data();
-    const decrypted = decryptSensitiveFields(data.config || {});
+  for (const brandDoc of brandsSnap.docs) {
+    try {
+      const token = await MonaraTokenVault.getToken(brandDoc.id, 'meta');
+      if (!token) continue;
 
-    if (decrypted.adAccountId && decrypted.accessToken) {
-      // tenantId in integrations maps to brandId
-      configs.push({
-        brandId: data.tenantId || d.id,
-        adAccountId: decrypted.adAccountId,
-        accessToken: decrypted.accessToken,
+      // Skip expired tokens (will be handled separately)
+      if (MonaraTokenVault.isTokenExpiring(token, 'meta')) {
+        logger.warn('[Cron Ads Sync] Token expiring/expired for brand', {
+          meta: { brandId: brandDoc.id },
+        });
+      }
+
+      const metadata = token.metadata as { adAccountId?: string };
+      if (metadata.adAccountId && token.accessToken) {
+        configs.push({
+          brandId: brandDoc.id,
+          adAccountId: metadata.adAccountId,
+          accessToken: token.accessToken,
+        });
+      }
+    } catch (err) {
+      // Skip brands without valid meta tokens
+      logger.warn('[Cron Ads Sync] Could not read token for brand', {
+        meta: { brandId: brandDoc.id, error: err instanceof Error ? err.message : 'Unknown' },
       });
     }
   }
@@ -165,20 +175,11 @@ async function getBrandsWithMetaAds(): Promise<BrandMetaConfig[]> {
 
 async function markTokenExpired(brandId: string) {
   try {
-    const integrationsRef = collection(db, 'integrations');
-    const q = query(
-      integrationsRef,
-      where('tenantId', '==', brandId),
-      where('provider', '==', 'meta')
-    );
-    const snap = await getDocs(q);
-
-    for (const d of snap.docs) {
-      await updateDoc(d.ref, {
-        'status': 'expired',
-        'expiredAt': Timestamp.now(),
-      });
-    }
+    const tokenRef = doc(db, 'brands', brandId, 'secrets', 'token_meta');
+    await updateDoc(tokenRef, {
+      'status': 'expired',
+      'expiredAt': Timestamp.now(),
+    });
   } catch (err) {
     logger.error('[Cron Ads Sync] Failed to mark token expired', {
       error: err instanceof Error ? err.message : 'Unknown',
