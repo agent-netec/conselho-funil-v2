@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { ragQuery, retrieveForFunnelCreation } from '@/lib/ai/rag';
-import { generateWithGemini, isGeminiConfigured } from '@/lib/ai/gemini';
+import { generateWithGemini, isGeminiConfigured, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { updateFunnel, createProposal, getFunnel } from '@/lib/firebase/firestore';
 import { getBrand } from '@/lib/firebase/brands';
 import type { FunnelContext, Proposal, Brand } from '@/types/database';
@@ -34,9 +34,11 @@ interface GenerateRequest {
 }
 
 export async function POST(request: NextRequest) {
+  let _funnelId: string | undefined;
   try {
     const body: GenerateRequest = await request.json();
     const { funnelId, context, adjustments, originalProposalId, baseVersion } = body;
+    _funnelId = funnelId;
 
     if (!funnelId || !context) {
       return NextResponse.json(
@@ -110,32 +112,53 @@ export async function POST(request: NextRequest) {
     console.log('🤖 Gerando propostas com Gemini...');
     
     const response = await generateWithGemini(fullPrompt, {
-      model: 'gemini-2.0-flash-exp',
+      model: DEFAULT_GEMINI_MODEL,
       temperature: 0.8,
-      maxOutputTokens: 8192,
+      maxOutputTokens: 16384,
+      responseMimeType: 'application/json',
     });
 
-    // 5. Parse JSON response
+    // 5. Validate Gemini response is not empty
+    if (!response || response.trim().length === 0) {
+      console.error('❌ Gemini returned empty response');
+      await updateFunnel(funnelId, { status: 'draft' });
+      return NextResponse.json(
+        { error: 'AI returned empty response. Please try again.' },
+        { status: 500 }
+      );
+    }
+
+    // 6. Parse JSON response
     let proposalsData;
     try {
       proposalsData = parseAIJSON(response);
     } catch (parseError) {
       console.error('Error parsing Gemini response:', parseError);
-      console.log('Raw response:', response.substring(0, 500));
-      
+      console.log('Raw response (first 500):', response.substring(0, 500));
+
       // Update status to error
       await updateFunnel(funnelId, { status: 'draft' });
-      
+
       return NextResponse.json(
         { error: 'Failed to parse AI response. Please try again.' },
         { status: 500 }
       );
     }
 
-    // 6. Save proposals to Firestore
+    // 7. Validate proposals array
+    if (!proposalsData?.proposals || !Array.isArray(proposalsData.proposals) || proposalsData.proposals.length === 0) {
+      console.error('❌ Parsed response missing proposals array:', JSON.stringify(proposalsData).substring(0, 300));
+      await updateFunnel(funnelId, { status: 'draft' });
+      return NextResponse.json(
+        { error: 'AI response missing proposals. Please try again.' },
+        { status: 500 }
+      );
+    }
+
+    // 8. Save proposals to Firestore
     const savedProposals: string[] = [];
     const startVersion = baseVersion ? baseVersion + 1 : 1;
-    
+
     for (let i = 0; i < proposalsData.proposals.length; i++) {
       const proposal = proposalsData.proposals[i];
       const version = isAdjustment ? startVersion : i + 1;
@@ -160,7 +183,7 @@ export async function POST(request: NextRequest) {
       console.log(`💾 Proposta ${isAdjustment ? 'ajustada' : ''} v${version} salva: ${proposalId}`);
     }
 
-    // 7. Update funnel status to review
+    // 9. Update funnel status to review
     await updateFunnel(funnelId, { status: 'review' });
 
     console.log(`✅ ${savedProposals.length} propostas geradas com sucesso!`);
@@ -174,6 +197,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('❌ Erro ao gerar propostas:', error);
+
+    // Reset funnel status to draft so it doesn't get stuck in 'generating'
+    if (_funnelId) {
+      try { await updateFunnel(_funnelId, { status: 'draft' }); } catch { /* best effort */ }
+    }
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Erro interno ao gerar propostas' },
       { status: 500 }
