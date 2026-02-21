@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 
   const brandId = state;
   const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const clientSecret = (process.env.GOOGLE_CLIENT_SECRET || '').trim();
   const redirectUri = `${new URL(req.url).origin}/api/auth/google/callback`;
 
   if (!clientId || !clientSecret) {

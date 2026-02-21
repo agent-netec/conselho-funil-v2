@@ -19,7 +19,7 @@ function getAdminApp(): App {
     return adminApp;
   }
 
-  const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+  const serviceAccountKey = (process.env.FIREBASE_SERVICE_ACCOUNT_KEY || '').trim();
 
   if (serviceAccountKey) {
     const serviceAccount = JSON.parse(serviceAccountKey);

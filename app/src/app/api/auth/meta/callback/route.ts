@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 
   const brandId = state;
   const appId = process.env.META_APP_ID;
-  const appSecret = process.env.META_APP_SECRET;
+  const appSecret = (process.env.META_APP_SECRET || '').trim();
   const redirectUri = `${new URL(req.url).origin}/api/auth/meta/callback`;
 
   if (!appId || !appSecret) {

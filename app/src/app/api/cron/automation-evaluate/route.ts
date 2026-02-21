@@ -14,7 +14,7 @@ import { evaluateBrandRules, EvaluationResult } from '@/lib/automation/evaluate'
 export async function GET(req: NextRequest) {
   try {
     const authHeader = req.headers.get('Authorization');
-    const cronSecret = process.env.CRON_SECRET;
+    const cronSecret = (process.env.CRON_SECRET || '').trim();
 
     if (!cronSecret) {
       console.error('[Cron] CRON_SECRET env var not configured');

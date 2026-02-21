@@ -9,7 +9,7 @@ const IMAGE_MODELS = [
 ];
 
 export async function GET(request: NextRequest) {
-  const apiKey = process.env.GOOGLE_AI_API_KEY;
+  const apiKey = (process.env.GOOGLE_AI_API_KEY || '').trim();
 
   if (!apiKey) {
     return NextResponse.json({ error: 'GOOGLE_AI_API_KEY not configured' }, { status: 500 });

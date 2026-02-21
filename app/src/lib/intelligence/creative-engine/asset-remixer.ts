@@ -202,7 +202,7 @@ function isPineconeConfigured(): boolean {
 async function queryPineconeEliteAssets(
   brandId: string
 ): Promise<EliteAsset[]> {
-  const apiKey = process.env.PINECONE_API_KEY;
+  const apiKey = (process.env.PINECONE_API_KEY || '').trim();
   const indexHost = process.env.PINECONE_INDEX;
 
   if (!apiKey || !indexHost) {

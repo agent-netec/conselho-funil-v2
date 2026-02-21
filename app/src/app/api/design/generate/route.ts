@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
       return handleSecurityError(error);
     }
 
-    const apiKey = process.env.GOOGLE_AI_API_KEY;
+    const apiKey = (process.env.GOOGLE_AI_API_KEY || '').trim();
     if (!apiKey) {
       return createApiError(500, 'GOOGLE_AI_API_KEY não configurada');
     }

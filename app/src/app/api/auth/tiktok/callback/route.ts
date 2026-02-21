@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
 
   const brandId = state;
   const appId = process.env.TIKTOK_APP_ID;
-  const appSecret = process.env.TIKTOK_APP_SECRET;
+  const appSecret = (process.env.TIKTOK_APP_SECRET || '').trim();
 
   if (!appId || !appSecret) {
     console.error('[TikTok OAuth] Missing TIKTOK_APP_ID or TIKTOK_APP_SECRET env vars');

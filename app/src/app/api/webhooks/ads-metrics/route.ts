@@ -22,8 +22,8 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.text();
     const signature = request.headers.get('x-hub-signature-256');
     
-    const primarySecret = process.env.CAMPAIGN_WEBHOOK_SECRET;
-    const secondarySecret = process.env.CAMPAIGN_WEBHOOK_SECRET_SECONDARY;
+    const primarySecret = (process.env.CAMPAIGN_WEBHOOK_SECRET || '').trim();
+    const secondarySecret = (process.env.CAMPAIGN_WEBHOOK_SECRET_SECONDARY || '').trim();
 
     if (!primarySecret) {
       console.error('[Webhook] CAMPAIGN_WEBHOOK_SECRET não configurada no ambiente');

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" fill="none">
+  <defs>
+    <linearGradient id="gv" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5D060"/>
+      <stop offset="45%" stop-color="#E6B447"/>
+      <stop offset="100%" stop-color="#C99A30"/>
+    </linearGradient>
+    <linearGradient id="gh" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#C99A30"/>
+      <stop offset="35%" stop-color="#E6B447"/>
+      <stop offset="70%" stop-color="#F5D060"/>
+      <stop offset="100%" stop-color="#E6B447"/>
+    </linearGradient>
+    <linearGradient id="gd" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5D060"/>
+      <stop offset="40%" stop-color="#E6B447"/>
+      <stop offset="100%" stop-color="#C48B1A"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Funnel icon -->
+  <g transform="translate(0, 2)">
+    <path d="M6 4 L50 4 L31 44 L25 44 Z" stroke="url(#gv)" stroke-width="3" fill="none" stroke-linejoin="round"/>
+    <path d="M13 12 L43 12 L31 44 L25 44 Z" stroke="url(#gv)" stroke-width="2.5" fill="none" stroke-linejoin="round" opacity="0.85"/>
+    <path d="M19 19 L37 19 L31 44 L25 44 Z" stroke="url(#gv)" stroke-width="2" fill="none" stroke-linejoin="round" opacity="0.65"/>
+    <line x1="15" y1="22" x2="41" y2="22" stroke="url(#gh)" stroke-width="1.5" opacity="0.55"/>
+    <line x1="19" y1="29" x2="37" y2="29" stroke="url(#gh)" stroke-width="1.3" opacity="0.45"/>
+    <line x1="22" y1="36" x2="34" y2="36" stroke="url(#gh)" stroke-width="1.2" opacity="0.35"/>
+    <line x1="28" y1="44" x2="28" y2="54" stroke="url(#gv)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M28 52 C28 52 22 62 22 67 C22 71 24.7 74 28 74 C31.3 74 34 71 34 67 C34 62 28 52 28 52Z" fill="url(#gd)"/>
+    <ellipse cx="26" cy="65" rx="2" ry="3" fill="#F5D060" opacity="0.4"/>
+  </g>
+
+  <!-- Text -->
+  <text x="62" y="46" font-family="Satoshi, system-ui, -apple-system, sans-serif" font-weight="900" font-size="40" letter-spacing="-0.5" fill="url(#gh)">mkthoney</text>
+  <text x="64" y="65" font-family="Satoshi, system-ui, -apple-system, sans-serif" font-weight="500" font-size="11.5" letter-spacing="4.5" fill="#C99A30">MARKETING AGENCY</text>
+</svg>

@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
     // Validate webhook secret
     const webhookSecret = req.headers.get('x-webhook-secret');
-    const expectedSecret = process.env.WEBHOOK_SECRET;
+    const expectedSecret = (process.env.WEBHOOK_SECRET || '').trim();
     if (expectedSecret && webhookSecret !== expectedSecret) {
       return createApiError(401, 'Invalid webhook secret');
     }

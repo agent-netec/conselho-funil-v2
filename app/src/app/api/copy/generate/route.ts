@@ -79,7 +79,7 @@ function formatOfferForPrompt(offer: any): string {
 }
 
 // Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
+const genAI = new GoogleGenerativeAI((process.env.GOOGLE_AI_API_KEY || '').trim());
 
 // Map awareness from funnel context to copy awareness
 function mapAwareness(funnelAwareness: string): AwarenessStage {

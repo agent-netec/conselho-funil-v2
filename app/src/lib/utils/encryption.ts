@@ -5,7 +5,7 @@ import CryptoJS from 'crypto-js';
  * Prioridade: ENCRYPTION_KEY > NEXT_PUBLIC_ENCRYPTION_KEY (migration).
  * Sem fallback hardcoded — falha se não configurada.
  */
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
+const ENCRYPTION_KEY = (process.env.ENCRYPTION_KEY || process.env.NEXT_PUBLIC_ENCRYPTION_KEY || '').trim();
 if (!ENCRYPTION_KEY) {
   throw new Error('[Security] ENCRYPTION_KEY env var is required. Set it in Vercel/environment.');
 }

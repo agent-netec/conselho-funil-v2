@@ -5,7 +5,7 @@ import CryptoJS from 'crypto-js';
  * Prioridade: PERFORMANCE_ENCRYPTION_KEY > ENCRYPTION_KEY > NEXT_PUBLIC_ENCRYPTION_KEY (migration).
  * Sem fallback hardcoded.
  */
-const PERFORMANCE_ENCRYPTION_KEY = process.env.PERFORMANCE_ENCRYPTION_KEY || process.env.ENCRYPTION_KEY || process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
+const PERFORMANCE_ENCRYPTION_KEY = (process.env.PERFORMANCE_ENCRYPTION_KEY || process.env.ENCRYPTION_KEY || process.env.NEXT_PUBLIC_ENCRYPTION_KEY || '').trim();
 if (!PERFORMANCE_ENCRYPTION_KEY) {
   throw new Error('[Security] PERFORMANCE_ENCRYPTION_KEY or ENCRYPTION_KEY env var is required.');
 }

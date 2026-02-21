@@ -25,7 +25,7 @@ import { logger } from '@/lib/utils/logger';
 export async function GET(req: NextRequest) {
   try {
     const authHeader = req.headers.get('Authorization');
-    const cronSecret = process.env.CRON_SECRET;
+    const cronSecret = (process.env.CRON_SECRET || '').trim();
 
     if (!cronSecret) {
       return createApiError(500, 'Cron configuration error');

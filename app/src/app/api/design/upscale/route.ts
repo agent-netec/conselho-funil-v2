@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     console.log(`🖼️ Imagem: ${imageUrl.substring(0, 50)}...`);
 
     // US-20.3.3: O "Nanobanana" é o Gemini 3 Pro Image. Usamos a GOOGLE_AI_API_KEY.
-    const apiKey = process.env.GOOGLE_AI_API_KEY;
+    const apiKey = (process.env.GOOGLE_AI_API_KEY || '').trim();
     
     if (!apiKey) {
       console.warn('⚠️ GOOGLE_AI_API_KEY não configurada. Usando mock de upscale.');

@@ -6,7 +6,7 @@ const EXPECTED_DIMENSION = 768; // text-embedding-004
  * Pinecone SDK v6 não aceita mais a propriedade `environment`.
  */
 function getEnv() {
-  const apiKey = process.env.PINECONE_API_KEY;
+  const apiKey = (process.env.PINECONE_API_KEY || '').trim();
   const indexName = process.env.PINECONE_INDEX || process.env.PINECONE_INDEX_NAME || 'cf-dev-assets';
   const host = process.env.PINECONE_HOST || process.env.PINECONE_HOST_URL;
 
