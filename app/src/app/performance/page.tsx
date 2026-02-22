@@ -253,10 +253,10 @@ export default function PerformanceWarRoomPage() {
             <Button
               variant="outline"
               className="border-zinc-700 text-zinc-300 hover:text-white"
-              onClick={() => window.location.href = '/settings'}
+              onClick={() => window.location.href = '/integrations'}
             >
               <Settings size={16} className="mr-2" />
-              Ir para Configurações
+              Ir para Integrações
             </Button>
           </div>
         </Card>

@@ -521,7 +521,7 @@ function ConfigPanel({
             Date.now() + (provider === 'meta' ? 60 * 24 * 60 * 60 * 1000 : 3600 * 1000)
           ),
           scopes: provider === 'meta'
-            ? ['ads_read', 'read_insights', 'ads_management']
+            ? ['ads_read', 'read_insights', 'ads_management', 'leads_retrieval', 'pages_read_engagement']
             : ['https://www.googleapis.com/auth/adwords'],
           metadata: provider === 'meta'
             ? {
@@ -574,7 +574,7 @@ function ConfigPanel({
           toast.error('META_APP_ID não configurado no servidor. Contate o suporte.');
           return;
         }
-        authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${centralAppId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=ads_read,read_insights,ads_management&state=${brandId}`;
+        authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${centralAppId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=ads_read,read_insights,ads_management,leads_retrieval,pages_read_engagement&state=${brandId}`;
         break;
       }
       case 'google':
@@ -617,7 +617,7 @@ function ConfigPanel({
       const appId = data?.data?.appId;
       if (!appId) { toast.error('META_APP_ID não configurado.'); return; }
       const scope = provider === 'meta'
-        ? 'ads_read,read_insights,ads_management'
+        ? 'ads_read,read_insights,ads_management,leads_retrieval,pages_read_engagement'
         : 'instagram_basic,instagram_manage_insights,pages_show_list';
       authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=${scope}&state=${brandId}`;
     } else if (provider === 'google') {

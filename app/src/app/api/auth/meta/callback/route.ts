@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
       provider: 'meta',
       accessToken: longLivedData.access_token,
       expiresAt: Timestamp.fromMillis(Date.now() + (longLivedData.expires_in || 5184000) * 1000),
-      scopes: ['ads_read', 'read_insights', 'ads_management'],
+      scopes: ['ads_read', 'read_insights', 'ads_management', 'leads_retrieval', 'pages_read_engagement'],
       metadata: {
         adAccountId: firstAdAccount ? `act_${firstAdAccount}` : '',
         appId,

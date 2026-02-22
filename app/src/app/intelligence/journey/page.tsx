@@ -2,7 +2,7 @@
 
 import { Header } from '@/components/layout/header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Map, Search, Users, Code2, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import { Map, Search, Users, Code2, ArrowRight, Loader2, AlertCircle, Download } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
@@ -40,6 +40,8 @@ export default function JourneyPage() {
   const [loadingLeads, setLoadingLeads] = useState(false);
   const [loadingHeatmap, setLoadingHeatmap] = useState(false);
   const [hasData, setHasData] = useState<boolean | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importResult, setImportResult] = useState<{ formsFound: number; leadsImported: number; errors: string[] } | null>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,29 +50,58 @@ export default function JourneyPage() {
     }
   };
 
+  const fetchRecentLeads = async () => {
+    const token = await (user as any).getIdToken?.();
+    if (!token || !brandId) return;
+    const headers = { Authorization: `Bearer ${token}` };
+    setLoadingLeads(true);
+    try {
+      const res = await fetch(`/api/intelligence/journey/recent?brandId=${brandId}&limit=10`, { headers });
+      if (res.ok) {
+        const json = await res.json();
+        setRecentLeads(json.data?.leads || []);
+        setHasData((json.data?.leads?.length || 0) > 0);
+      }
+    } catch (err) {
+      console.error('Error fetching recent leads:', err);
+    } finally {
+      setLoadingLeads(false);
+    }
+  };
+
+  const handleMetaImport = async () => {
+    if (!brandId || !user) return;
+    setIsImporting(true);
+    setImportResult(null);
+    try {
+      const token = await (user as any).getIdToken?.();
+      if (!token) return;
+      const res = await fetch('/api/intelligence/audience/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ brandId }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setImportResult(json.data);
+        if ((json.data?.leadsImported || 0) > 0) {
+          await fetchRecentLeads();
+        }
+      } else {
+        setImportResult({ formsFound: 0, leadsImported: 0, errors: [json.error || 'Erro ao importar.'] });
+      }
+    } catch (err) {
+      setImportResult({ formsFound: 0, leadsImported: 0, errors: [err instanceof Error ? err.message : 'Erro de conexão.'] });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   useEffect(() => {
     if (!brandId || !user) return;
 
     const fetchData = async () => {
-      const token = await (user as any).getIdToken?.();
-      if (!token) return;
-
-      const headers = { Authorization: `Bearer ${token}` };
-
-      // Fetch recent leads
-      setLoadingLeads(true);
-      try {
-        const res = await fetch(`/api/intelligence/journey/recent?brandId=${brandId}&limit=10`, { headers });
-        if (res.ok) {
-          const json = await res.json();
-          setRecentLeads(json.data?.leads || []);
-          setHasData((json.data?.leads?.length || 0) > 0);
-        }
-      } catch (err) {
-        console.error('Error fetching recent leads:', err);
-      } finally {
-        setLoadingLeads(false);
-      }
+      await fetchRecentLeads();
 
       // Fetch heatmap
       setLoadingHeatmap(true);
@@ -213,7 +244,29 @@ export default function JourneyPage() {
                 ) : (
                   <div className="flex flex-col items-center justify-center py-8 text-center">
                     <Users className="h-10 w-10 text-zinc-700 mb-3" />
-                    <p className="text-sm text-zinc-500">Nenhum lead registrado ainda.</p>
+                    <p className="text-sm text-zinc-500 mb-3">Nenhum lead registrado ainda.</p>
+                    <Button
+                      onClick={handleMetaImport}
+                      disabled={isImporting}
+                      size="sm"
+                      className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                    >
+                      {isImporting ? (
+                        <><Loader2 className="mr-2 h-3 w-3 animate-spin" />Importando...</>
+                      ) : (
+                        <><Download className="mr-2 h-3 w-3" />Importar do Meta Ads</>
+                      )}
+                    </Button>
+                    {importResult && importResult.leadsImported > 0 && (
+                      <p className="text-xs text-emerald-400 mt-2">
+                        {importResult.leadsImported} leads importados de {importResult.formsFound} formulários.
+                      </p>
+                    )}
+                    {importResult && importResult.errors.length > 0 && (
+                      <p className="text-xs text-red-400 mt-2 max-w-xs">
+                        {importResult.errors[0]}
+                      </p>
+                    )}
                   </div>
                 )}
               </CardContent>

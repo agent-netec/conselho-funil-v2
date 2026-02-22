@@ -253,6 +253,8 @@ export const NAV_GROUPS: NavGroup[] = [
       { id: 'deep-research', label: 'Deep Research', href: '/intelligence/research', icon: 'Telescope' },
       { id: 'journey', label: 'Jornada do Lead', href: '/intelligence/journey', icon: 'Map' },
       { id: 'ab-testing', label: 'A/B Testing', href: '/intelligence/ab-testing', icon: 'FlaskConical' },
+      { id: 'performance', label: 'Performance', href: '/performance', icon: 'Activity' },
+      { id: 'cross-channel', label: 'Cross-Channel', href: '/performance/cross-channel', icon: 'BarChart3' },
     ],
   },
   {
