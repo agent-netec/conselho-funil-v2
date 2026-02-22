@@ -69,13 +69,13 @@ Sua tarefa é gerar um resumo executivo e insights estratégicos para um cliente
 - Agência: ${context.agencyName}
 - Cliente: ${context.clientName}
 - Oferta: ${context.offerDetails || 'Não especificada'}
-- Período: ${metrics.period.start} até ${metrics.period.end}
+- Período: ${metrics.period?.start ?? 'N/A'} até ${metrics.period?.end ?? 'N/A'}
 
 ## Métricas de Performance
-- Investimento (Ad Spend): R$ ${metrics.adSpend.toFixed(2)}
-- Receita (Revenue): R$ ${metrics.revenue.toFixed(2)}
-- ROI: ${metrics.roi.toFixed(2)}x
-- Maturação de LTV (LTV Maturation): ${metrics.ltvMaturation.toFixed(2)}%
+- Investimento (Ad Spend): R$ ${(metrics.adSpend ?? 0).toFixed(2)}
+- Receita (Revenue): R$ ${(metrics.revenue ?? 0).toFixed(2)}
+- ROI: ${(metrics.roi ?? 0).toFixed(2)}x
+- Maturação de LTV (LTV Maturation): ${(metrics.ltvMaturation ?? 0).toFixed(2)}%
 
 ## Instruções de Saída
 Gere a resposta EXCLUSIVAMENTE em formato JSON com a seguinte estrutura:
