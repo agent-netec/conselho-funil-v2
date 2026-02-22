@@ -88,14 +88,19 @@ export class AICostGuard {
           ? FIRECRAWL_COST_PER_REQ
           : JINA_COST_PER_REQ;
 
-      // 1. Persistir no usage_logs
-      await addDoc(collection(db, 'usage_logs'), {
-        ...params,
+      // 1. Persistir no usage_logs (filter undefined to avoid Firestore rejection)
+      const logData: Record<string, unknown> = {
+        userId: params.userId,
+        model: params.model,
+        feature: params.feature,
         ...usage,
         provider,
         costEstimate,
         timestamp: Timestamp.now(),
-      });
+      };
+      if (params.brandId) logData.brandId = params.brandId;
+
+      await addDoc(collection(db, 'usage_logs'), logData);
 
       // 2. Atualizar acumuladores na Brand (se houver)
       if (params.brandId) {
