@@ -16,10 +16,21 @@ import { ensureFreshToken, tokenToCredentials } from '@/lib/integrations/ads/tok
 import { CACHE_TTL_MS } from '@/lib/integrations/ads/constants';
 import type { PerformanceMetric, UnifiedAdsMetrics } from '@/types/performance';
 
+export interface SyncDiagnostic {
+  metaTokenFound: boolean;
+  googleTokenFound: boolean;
+  metaAdAccountId?: string;
+  metaCampaigns: number;
+  googleCampaigns: number;
+  dateRange: { start: string; end: string };
+  errors: string[];
+}
+
 export interface CacheResult {
   metrics: PerformanceMetric[];
   cached: boolean;
   warning?: string;
+  diagnostic?: SyncDiagnostic;
 }
 
 /**
@@ -52,14 +63,14 @@ export async function fetchMetricsWithCache(
 
   // 2. Try real fetch
   try {
-    const metrics = await fetchRealMetrics(brandId, period);
+    const { metrics, diagnostic } = await fetchRealMetrics(brandId, period);
 
     // Persist (fire-and-forget)
     persistCache(cacheRef, metrics).catch(err =>
       console.warn(`[FetchAndCache] Cache persist failed:`, err.message)
     );
 
-    return { metrics, cached: false };
+    return { metrics, cached: false, diagnostic };
   } catch (fetchError: unknown) {
     const errMsg = fetchError instanceof Error ? fetchError.message : 'Unknown error';
     console.error(`[FetchAndCache] Real fetch failed for brand=${brandId}:`, errMsg);
@@ -97,20 +108,31 @@ export async function fetchMetricsWithCache(
 /**
  * Busca métricas reais de Meta + Google em paralelo.
  * Reutiliza adapters existentes + token refresh.
+ * Retorna métricas + diagnóstico de conexão.
  */
 export async function fetchRealMetrics(
   brandId: string,
   period: 'hourly' | 'daily' | 'weekly' = 'daily'
-): Promise<PerformanceMetric[]> {
+): Promise<{ metrics: PerformanceMetric[]; diagnostic: SyncDiagnostic }> {
   const metaAdapter = new MetaMetricsAdapter();
   const googleAdapter = new GoogleMetricsAdapter();
   const now = Timestamp.now();
   const startDate = getDefaultStartDate();
   const endDate = new Date().toISOString().split('T')[0];
 
+  const diagnostic: SyncDiagnostic = {
+    metaTokenFound: false,
+    googleTokenFound: false,
+    metaCampaigns: 0,
+    googleCampaigns: 0,
+    dateRange: { start: startDate, end: endDate },
+    errors: [],
+  };
+
   const [metaToken, googleToken] = await Promise.all([
     ensureFreshToken(brandId, 'meta').catch(err => {
       console.warn(`[FetchAndCache] Meta token unavailable:`, err.message);
+      diagnostic.errors.push(`Meta token: ${err.message}`);
       return null;
     }),
     ensureFreshToken(brandId, 'google').catch(err => {
@@ -119,15 +141,29 @@ export async function fetchRealMetrics(
     }),
   ]);
 
+  diagnostic.metaTokenFound = !!metaToken;
+  diagnostic.googleTokenFound = !!googleToken;
+
+  if (metaToken) {
+    const metaCreds = tokenToCredentials(metaToken);
+    diagnostic.metaAdAccountId = (metaCreds as any).adAccountId || 'unknown';
+    console.log(`[FetchAndCache] Meta creds: adAccountId=${diagnostic.metaAdAccountId}`);
+  }
+
   const fetchPromises: Promise<{ source: 'meta' | 'google'; data: import('@/lib/performance/adapters/base-adapter').RawAdsData[] }>[] = [];
 
   if (metaToken) {
     const metaCreds = tokenToCredentials(metaToken);
     fetchPromises.push(
       metaAdapter.fetchMetrics(metaCreds, { start: new Date(startDate), end: new Date(endDate) })
-        .then(data => ({ source: 'meta' as const, data }))
+        .then(data => {
+          diagnostic.metaCampaigns = data.length;
+          console.log(`[FetchAndCache] Meta returned ${data.length} campaigns`);
+          return { source: 'meta' as const, data };
+        })
         .catch(err => {
           console.warn(`[FetchAndCache] Meta fetch failed:`, err.message);
+          diagnostic.errors.push(`Meta API: ${err.message}`);
           return { source: 'meta' as const, data: [] };
         })
     );
@@ -137,9 +173,13 @@ export async function fetchRealMetrics(
     const googleCreds = tokenToCredentials(googleToken);
     fetchPromises.push(
       googleAdapter.fetchMetrics(googleCreds, { start: new Date(startDate), end: new Date(endDate) })
-        .then(data => ({ source: 'google' as const, data }))
+        .then(data => {
+          diagnostic.googleCampaigns = data.length;
+          return { source: 'google' as const, data };
+        })
         .catch(err => {
           console.warn(`[FetchAndCache] Google fetch failed:`, err.message);
+          diagnostic.errors.push(`Google API: ${err.message}`);
           return { source: 'google' as const, data: [] };
         })
     );
@@ -195,7 +235,7 @@ export async function fetchRealMetrics(
     data: aggregated,
   });
 
-  return metrics;
+  return { metrics, diagnostic };
 }
 
 async function persistCache(cacheRef: ReturnType<typeof doc>, metrics: PerformanceMetric[]): Promise<void> {
@@ -207,6 +247,6 @@ async function persistCache(cacheRef: ReturnType<typeof doc>, metrics: Performan
 
 function getDefaultStartDate(): string {
   const d = new Date();
-  d.setDate(d.getDate() - 7);
+  d.setDate(d.getDate() - 90);
   return d.toISOString().split('T')[0];
 }

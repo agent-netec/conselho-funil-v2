@@ -62,6 +62,7 @@ async function handleGET(req: NextRequest) {
       metrics: result.metrics,
       cached: result.cached,
       ...(result.warning ? { warning: result.warning } : {}),
+      ...(result.diagnostic ? { diagnostic: result.diagnostic } : {}),
     });
 
   } catch (error) {

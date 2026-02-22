@@ -32,6 +32,7 @@ export default function PerformanceWarRoomPage() {
   const [advisorSummary, setAdvisorSummary] = useState<string | null>(null);
   const [advisorLoading, setAdvisorLoading] = useState(false);
   const [hasIntegration, setHasIntegration] = useState<boolean | null>(null);
+  const [diagnostic, setDiagnostic] = useState<any>(null);
   // Sprint T-2.1/T-3: Real LTV/Payback from cohort API
   const [ltvData, setLtvData] = useState<{ totalLtv: number; avgPaybackMonths: number } | null>(null);
   const { breakdown, loading: segmentLoading, selectedSegment, setSelectedSegment } = useSegmentPerformance(
@@ -102,6 +103,7 @@ export default function PerformanceWarRoomPage() {
       // API returns 200 when tokens found (even if no campaign data yet)
       // API returns 502 when no tokens available and no cache
       setHasIntegration(metricsRes.ok);
+      setDiagnostic(metricsJson.data?.diagnostic || null);
     } catch (error) {
       console.error('Error fetching performance data:', error);
     } finally {
@@ -259,6 +261,48 @@ export default function PerformanceWarRoomPage() {
               Ir para Integrações
             </Button>
           </div>
+        </Card>
+      )}
+
+      {/* Diagnostic panel: shows when integration found but no real spend */}
+      {!loading && hasIntegration && diagnostic && blendedMetrics.spend === 0 && (
+        <Card className="bg-amber-950/20 border-amber-500/20 p-6">
+          <h3 className="text-sm font-black text-amber-400 uppercase tracking-widest mb-3">
+            Diagnóstico da Conexão
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <p className="text-zinc-500 text-xs">Meta Token</p>
+              <p className={diagnostic.metaTokenFound ? 'text-emerald-400' : 'text-red-400'}>
+                {diagnostic.metaTokenFound ? 'Encontrado' : 'Não encontrado'}
+              </p>
+            </div>
+            <div>
+              <p className="text-zinc-500 text-xs">Ad Account</p>
+              <p className="text-zinc-300 font-mono text-xs">{diagnostic.metaAdAccountId || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-zinc-500 text-xs">Campanhas (90 dias)</p>
+              <p className="text-zinc-300">{diagnostic.metaCampaigns ?? 0}</p>
+            </div>
+            <div>
+              <p className="text-zinc-500 text-xs">Período</p>
+              <p className="text-zinc-300 text-xs">{diagnostic.dateRange?.start} → {diagnostic.dateRange?.end}</p>
+            </div>
+          </div>
+          {diagnostic.errors?.length > 0 && (
+            <div className="mt-3 p-3 bg-red-950/30 rounded border border-red-500/20">
+              <p className="text-xs text-red-400 font-bold mb-1">Erros:</p>
+              {diagnostic.errors.map((err: string, i: number) => (
+                <p key={i} className="text-xs text-red-300 font-mono">{err}</p>
+              ))}
+            </div>
+          )}
+          {diagnostic.metaTokenFound && diagnostic.metaCampaigns === 0 && diagnostic.errors?.length === 0 && (
+            <p className="mt-3 text-xs text-amber-400/70">
+              Token válido mas nenhuma campanha encontrada nos últimos 90 dias. Verifique se a conta de anúncios (Ad Account) está correta.
+            </p>
+          )}
         </Card>
       )}
 
