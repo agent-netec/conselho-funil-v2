@@ -22,6 +22,7 @@ async function handleGET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const brandId = searchParams.get('brandId');
     const mock = searchParams.get('mock') === 'true';
+    const forceFresh = searchParams.get('fresh') === 'true';
     const period = (searchParams.get('period') || 'daily') as 'hourly' | 'daily' | 'weekly';
     const startDate = searchParams.get('startDate') || undefined;
     const endDate = searchParams.get('endDate') || undefined;
@@ -51,7 +52,7 @@ async function handleGET(req: NextRequest) {
     }
 
     // S30-PERF-01: Fetch real com hybrid cache (shared module)
-    const result = await fetchMetricsWithCache(brandId, { period, startDate, endDate });
+    const result = await fetchMetricsWithCache(brandId, { forceFresh, period, startDate, endDate });
 
     if (!result) {
       return createApiError(502, 'APIs externas indisponíveis e sem cache disponível.');

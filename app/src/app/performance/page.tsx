@@ -79,13 +79,14 @@ export default function PerformanceWarRoomPage() {
     return null;
   };
 
-  const fetchData = async () => {
+  const fetchData = async (forceFresh = false) => {
     const bid = selectedBrand?.id;
     if (!bid) return;
     setLoading(true);
     try {
       const authHeaders = await getAuthHeaders();
-      const metricsRes = await fetch(`/api/performance/metrics?brandId=${bid}`, { headers: authHeaders });
+      const freshParam = forceFresh ? '&fresh=true' : '';
+      const metricsRes = await fetch(`/api/performance/metrics?brandId=${bid}${freshParam}`, { headers: authHeaders });
       const anomaliesRes = await fetch(`/api/performance/anomalies?brandId=${bid}`, { headers: authHeaders });
 
       const metricsJson = await metricsRes.json();
@@ -174,10 +175,10 @@ export default function PerformanceWarRoomPage() {
     fetchAdvisorInsight();
   }, [segmentDataForAdvisor, selectedSegment, metrics, anomalies, selectedBrand?.id, blendedMetrics.roas]);
 
-  // Sprint T-3.2: Refresh button re-fetches cached data (real sync runs via /api/cron/ads-sync)
+  // Sprint T-3.2: SYNC DATA forces fresh fetch bypassing 15min cache
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await fetchData();
+    await fetchData(true);
   };
 
   // Sprint T-3: Real LTV display values
