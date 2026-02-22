@@ -199,11 +199,16 @@ export default function ResearchPage() {
           chatHistory: chatMessages,
         }),
       });
-      if (!res.ok) throw new Error('Chat error');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        console.error('[Research/Chat] API error:', res.status, errData);
+        throw new Error(errData?.details || errData?.error || `Erro ${res.status}`);
+      }
       const data = await res.json();
       setChatMessages(data.data?.chatHistory || tempHistory);
-    } catch {
-      toast.error('Erro no chat de refinamento.');
+    } catch (err: any) {
+      console.error('[Research/Chat] Client error:', err);
+      toast.error(err?.message || 'Erro no chat de refinamento.');
     } finally {
       setChatLoading(false);
     }

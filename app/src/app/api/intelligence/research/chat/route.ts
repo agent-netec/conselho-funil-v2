@@ -32,8 +32,13 @@ export async function POST(req: NextRequest) {
       chatHistory?: ResearchChatMessage[];
     };
 
+    console.log('[Research/Chat] Received:', { brandId: !!brandId, dossierId: !!dossierId, message: !!message });
+
     if (!brandId || !dossierId || !message) {
-      return createApiError(400, 'brandId, dossierId e message são obrigatórios');
+      console.error('[Research/Chat] 400 — missing:', { brandId: !!brandId, dossierId: !!dossierId, message: !!message });
+      return createApiError(400, 'brandId, dossierId e message são obrigatórios', {
+        details: `brandId=${!!brandId}, dossierId=${!!dossierId}, message=${!!message}`
+      });
     }
 
     let userId = '';
@@ -116,6 +121,8 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     if (error instanceof ApiError) return handleSecurityError(error);
     console.error('[Research/Chat] Error:', error);
-    return createApiError(500, 'Erro interno no chat de refinamento.');
+    return createApiError(500, 'Erro interno no chat de refinamento.', {
+      details: error instanceof Error ? error.message : String(error)
+    });
   }
 }
