@@ -84,8 +84,9 @@ export default function PerformanceWarRoomPage() {
     if (!bid) return;
     setLoading(true);
     try {
-      const metricsRes = await fetch(`/api/performance/metrics?brandId=${bid}`);
-      const anomaliesRes = await fetch(`/api/performance/anomalies?brandId=${bid}`);
+      const authHeaders = await getAuthHeaders();
+      const metricsRes = await fetch(`/api/performance/metrics?brandId=${bid}`, { headers: authHeaders });
+      const anomaliesRes = await fetch(`/api/performance/anomalies?brandId=${bid}`, { headers: authHeaders });
 
       const metricsJson = await metricsRes.json();
       const anomaliesJson = await anomaliesRes.json();
@@ -97,11 +98,9 @@ export default function PerformanceWarRoomPage() {
       setAnomalies(Array.isArray(anomaliesData) ? anomaliesData : []);
 
       // Sprint T-3.5: Detect if integration exists
-      const hasData = Array.isArray(metricsData) && metricsData.length > 0;
-      const hasRealSource = hasData && metricsData.some((m: any) =>
-        m.source === 'meta' || m.source === 'google' || m.source === 'meta_ads'
-      );
-      setHasIntegration(hasRealSource);
+      // API returns 200 when tokens found (even if no campaign data yet)
+      // API returns 502 when no tokens available and no cache
+      setHasIntegration(metricsRes.ok);
     } catch (error) {
       console.error('Error fetching performance data:', error);
     } finally {
