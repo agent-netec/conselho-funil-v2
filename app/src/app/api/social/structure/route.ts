@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { ragQuery } from '@/lib/ai/rag';
 import { generateWithGemini, isGeminiConfigured, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { getBrand } from '@/lib/firebase/brands';
@@ -63,22 +63,27 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
       filters: { docType: 'heuristics' }
     });
 
-    // 3. Montar Prompt
+    // 3. Montar Prompt (replaceAll para placeholders que aparecem mais de uma vez)
     const fullPrompt = SOCIAL_STRUCTURE_PROMPT
-      .replace('{{brandContext}}', brandContext)
-      .replace('{{platform}}', platform)
-      .replace('{{hook}}', hook)
-      .replace('{{knowledgeContext}}', knowledgeContext || 'Use conhecimento geral sobre estruturação de vídeos curtos e posts sociais.');
+      .replaceAll('{{brandContext}}', brandContext)
+      .replaceAll('{{platform}}', platform)
+      .replaceAll('{{hook}}', hook)
+      .replaceAll('{{knowledgeContext}}', knowledgeContext || 'Use conhecimento geral sobre estruturação de vídeos curtos e posts sociais.');
 
-    // 4. Gerar com Gemini
+    // 4. Gerar com Gemini (maxOutputTokens maior para JSONs de estrutura completa)
     const response = await generateWithGemini(fullPrompt, {
       model: DEFAULT_GEMINI_MODEL,
       temperature: 0.75,
+      maxOutputTokens: 8192,
     });
 
     // 5. Parse JSON
     let result;
     try {
+      if (!response || !response.trim()) {
+        console.error('[Social/Structure] Gemini returned empty response');
+        return createApiError(500, 'A IA retornou uma resposta vazia. Tente novamente.');
+      }
       let jsonStr = response.trim();
       if (jsonStr.startsWith('```json')) {
         jsonStr = jsonStr.slice(7);
@@ -91,7 +96,8 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
       }
       result = JSON.parse(jsonStr.trim());
     } catch (parseError) {
-      console.error('Error parsing AI response:', parseError);
+      console.error('[Social/Structure] Error parsing AI response:', parseError);
+      console.error('[Social/Structure] Raw response (first 500 chars):', response?.substring(0, 500));
       return createApiError(500, 'Erro ao processar estrutura do conteúdo. Tente novamente.');
     }
 
@@ -107,7 +113,7 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
 
     return createApiSuccess(result);
   } catch (error) {
-    console.error('Content structure generation error:', error);
+    console.error('[Social/Structure] Content structure generation error:', error);
     return createApiError(500, 'Erro interno no servidor', { details: String(error) });
   }
 }
