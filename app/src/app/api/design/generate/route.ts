@@ -15,6 +15,23 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 90; // Image generation can be slow (30-55s per model)
 
+/**
+ * Maps app-side aspect ratios to Gemini Image API valid values.
+ * Gemini Image models accept: 1:1, 5:4, 3:4, 4:3, 9:16, 16:9, 21:9
+ * App uses: 1:1, 16:9, 4:5, 9:16, 1.91:1
+ */
+function normalizeAspectRatio(ratio: string): string {
+  const mapping: Record<string, string> = {
+    '4:5': '3:4',      // portrait → closest supported portrait
+    '1.91:1': '16:9',  // Facebook/Instagram wide → standard wide
+  };
+  const mapped = mapping[ratio];
+  if (mapped) {
+    console.log(`[Design] Aspect ratio mapped: ${ratio} → ${mapped}`);
+  }
+  return mapped || ratio;
+}
+
 // HOTFIX BUG-004: Timeout + Retry para evitar 504 Gateway Timeout
 function fetchWithTimeout(url: string, options: RequestInit, timeoutMs: number): Promise<Response> {
   return Promise.race([
@@ -59,13 +76,15 @@ export async function POST(request: NextRequest) {
       safeZone,
       brandId,
       userId,
-      aspectRatio = '16:9',
+      aspectRatio: rawAspectRatio = '16:9',
       imageSize = '2K',
       adjustPrompt,
       editOf,
       copyHeadline,
       copyLanguage,
     } = body;
+
+    const aspectRatio = normalizeAspectRatio(rawAspectRatio);
 
     const basePrompt = adjustPrompt || prompt;
     if (!basePrompt) {

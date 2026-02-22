@@ -24,7 +24,14 @@ import type { ResearchChatMessage } from '@/types/research';
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    let body: any;
+    try {
+      body = await req.json();
+    } catch (parseErr) {
+      console.error('[Research/Chat] Body parse failed:', parseErr);
+      return createApiError(400, 'Request body inválido (JSON mal formado)');
+    }
+
     const { brandId, dossierId, message, chatHistory } = body as {
       brandId?: string;
       dossierId?: string;
@@ -32,10 +39,19 @@ export async function POST(req: NextRequest) {
       chatHistory?: ResearchChatMessage[];
     };
 
-    console.log('[Research/Chat] Received:', { brandId: !!brandId, dossierId: !!dossierId, message: !!message });
+    console.log('[Research/Chat] Received:', {
+      brandId: brandId ? `${brandId.substring(0, 8)}...` : '(empty)',
+      dossierId: dossierId ? `${dossierId.substring(0, 8)}...` : '(empty)',
+      messageLen: message?.length ?? 0,
+      bodyKeys: Object.keys(body || {}),
+    });
 
     if (!brandId || !dossierId || !message) {
-      console.error('[Research/Chat] 400 — missing:', { brandId: !!brandId, dossierId: !!dossierId, message: !!message });
+      console.error('[Research/Chat] 400 — missing fields:', {
+        brandId: typeof brandId === 'string' ? `"${brandId.substring(0, 20)}"` : String(brandId),
+        dossierId: typeof dossierId === 'string' ? `"${dossierId.substring(0, 20)}"` : String(dossierId),
+        message: typeof message === 'string' ? `"${message.substring(0, 30)}"` : String(message),
+      });
       return createApiError(400, 'brandId, dossierId e message são obrigatórios', {
         details: `brandId=${!!brandId}, dossierId=${!!dossierId}, message=${!!message}`
       });
