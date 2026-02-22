@@ -49,17 +49,20 @@ export async function POST(req: NextRequest) {
       return createApiError(404, 'Dossiê não encontrado');
     }
 
-    // Build context from dossier sections
+    // Build context from dossier sections (null-safe)
+    const s = dossier.sections || {} as any;
     const dossierContext = [
       `# Dossiê: ${dossier.topic}`,
-      `## Visão Geral: ${dossier.sections.marketOverview}`,
-      `## Tamanho: ${dossier.sections.marketSize}`,
-      `## Tendências: ${dossier.sections.trends.join('; ')}`,
-      `## Oportunidades: ${dossier.sections.opportunities.join('; ')}`,
-      `## Ameaças: ${dossier.sections.threats.join('; ')}`,
-      `## Recomendações: ${dossier.sections.recommendations.join('; ')}`,
-      `## Competidores: ${dossier.sections.competitors.map(c => `${c.name}: forças=${c.strengths.join(',')} fraquezas=${c.weaknesses.join(',')}`).join('; ')}`,
-    ].join('\n');
+      s.marketOverview ? `## Visão Geral: ${s.marketOverview}` : '',
+      s.marketSize ? `## Tamanho: ${s.marketSize}` : '',
+      Array.isArray(s.trends) && s.trends.length > 0 ? `## Tendências: ${s.trends.join('; ')}` : '',
+      Array.isArray(s.opportunities) && s.opportunities.length > 0 ? `## Oportunidades: ${s.opportunities.join('; ')}` : '',
+      Array.isArray(s.threats) && s.threats.length > 0 ? `## Ameaças: ${s.threats.join('; ')}` : '',
+      Array.isArray(s.recommendations) && s.recommendations.length > 0 ? `## Recomendações: ${s.recommendations.join('; ')}` : '',
+      Array.isArray(s.competitors) && s.competitors.length > 0
+        ? `## Competidores: ${s.competitors.map((c: any) => `${c.name || '?'}: forças=${(c.strengths || []).join(',')} fraquezas=${(c.weaknesses || []).join(',')}`).join('; ')}`
+        : '',
+    ].filter(Boolean).join('\n');
 
     // Build chat prompt with history
     const history = (chatHistory || []).slice(-10);
