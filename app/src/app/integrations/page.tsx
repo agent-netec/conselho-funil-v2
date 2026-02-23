@@ -574,7 +574,7 @@ function ConfigPanel({
           toast.error('META_APP_ID não configurado no servidor. Contate o suporte.');
           return;
         }
-        authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${centralAppId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=ads_read,read_insights,ads_management,leads_retrieval,pages_read_engagement&state=${brandId}`;
+        authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${centralAppId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=ads_read,read_insights,ads_management,leads_retrieval,pages_read_engagement&auth_type=rerequest&state=${brandId}`;
         break;
       }
       case 'google':
