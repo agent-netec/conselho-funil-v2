@@ -8,6 +8,7 @@ import { SegmentBreakdown } from '@/components/performance/segment-breakdown';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   LayoutDashboard,
   RefreshCcw,
@@ -30,7 +31,10 @@ export default function PerformanceWarRoomPage() {
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [advisorSummary, setAdvisorSummary] = useState<string | null>(null);
+  const [advisorInsights, setAdvisorInsights] = useState<string[]>([]);
+  const [advisorRecommendations, setAdvisorRecommendations] = useState<string[]>([]);
   const [advisorLoading, setAdvisorLoading] = useState(false);
+  const [showFullAnalysis, setShowFullAnalysis] = useState(false);
   const [hasIntegration, setHasIntegration] = useState<boolean | null>(null);
   const [diagnostic, setDiagnostic] = useState<any>(null);
   // Sprint T-2.1/T-3: Real LTV/Payback from cohort API
@@ -166,6 +170,10 @@ export default function PerformanceWarRoomPage() {
         } else if (!response.ok) {
           setAdvisorSummary('Insight indisponível no momento.');
         }
+        // Store full analysis data (insights + recommendations)
+        const d = payload?.data || payload;
+        setAdvisorInsights(Array.isArray(d?.insights) ? d.insights : []);
+        setAdvisorRecommendations(Array.isArray(d?.recommendations) ? d.recommendations : []);
       } catch (error) {
         console.error('Error fetching advisor insight:', error);
         setAdvisorSummary('Insight indisponível no momento.');
@@ -282,7 +290,7 @@ export default function PerformanceWarRoomPage() {
               <p className="text-zinc-300 font-mono text-xs">{diagnostic.metaAdAccountId || 'N/A'}</p>
             </div>
             <div>
-              <p className="text-zinc-500 text-xs">Campanhas (90 dias)</p>
+              <p className="text-zinc-500 text-xs">Campanhas (365 dias)</p>
               <p className="text-zinc-300">{diagnostic.metaCampaigns ?? 0}</p>
             </div>
             <div>
@@ -327,7 +335,7 @@ export default function PerformanceWarRoomPage() {
           )}
           {diagnostic.metaTokenFound && diagnostic.metaCampaigns === 0 && diagnostic.errors?.length === 0 && (
             <p className="mt-3 text-xs text-amber-400/70">
-              Token válido mas nenhuma campanha encontrada nos últimos 90 dias. Verifique se a conta de anúncios (Ad Account) está correta.
+              Token válido mas nenhuma campanha encontrada nos últimos 365 dias. Verifique se a conta de anúncios (Ad Account) está correta.
             </p>
           )}
         </Card>
@@ -419,12 +427,76 @@ export default function PerformanceWarRoomPage() {
                 ? 'Gerando insight com base no segmento selecionado...'
                 : advisorSummary || 'Insight indisponível no momento.'}
             </p>
-            <Button variant="link" className="text-purple-500 p-0 h-auto mt-4 text-xs font-bold uppercase tracking-tighter">
+            <Button
+              variant="link"
+              className="text-purple-500 p-0 h-auto mt-4 text-xs font-bold uppercase tracking-tighter"
+              onClick={() => setShowFullAnalysis(true)}
+              disabled={advisorLoading || (!advisorSummary && advisorInsights.length === 0)}
+            >
               Ver análise completa →
             </Button>
           </Card>
         </div>
       </div>
+
+      {/* Full Analysis Dialog */}
+      <Dialog open={showFullAnalysis} onOpenChange={setShowFullAnalysis}>
+        <DialogContent className="bg-zinc-900 border-zinc-700 text-zinc-100 max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <Zap className="w-5 h-5 text-purple-500" />
+              AI Strategic Insight — Análise Completa
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6 mt-4">
+            {/* Summary */}
+            {advisorSummary && (
+              <div>
+                <h4 className="text-xs font-black text-purple-400 uppercase tracking-widest mb-2">Resumo</h4>
+                <p className="text-sm text-zinc-300 leading-relaxed">{advisorSummary}</p>
+              </div>
+            )}
+
+            {/* Insights */}
+            {advisorInsights.length > 0 && (
+              <div>
+                <h4 className="text-xs font-black text-emerald-400 uppercase tracking-widest mb-2">Insights</h4>
+                <ul className="space-y-2">
+                  {advisorInsights.map((insight, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
+                      <span className="text-emerald-500 mt-0.5">•</span>
+                      <span>{insight}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Recommendations */}
+            {advisorRecommendations.length > 0 && (
+              <div>
+                <h4 className="text-xs font-black text-amber-400 uppercase tracking-widest mb-2">Recomendações</h4>
+                <ul className="space-y-2">
+                  {advisorRecommendations.map((rec, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
+                      <span className="text-amber-500 mt-0.5">{i + 1}.</span>
+                      <span>{rec}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Empty state */}
+            {!advisorSummary && advisorInsights.length === 0 && advisorRecommendations.length === 0 && (
+              <p className="text-sm text-zinc-500 text-center py-4">
+                Análise não disponível. Aguarde os dados de performance.
+              </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
