@@ -268,6 +268,6 @@ async function persistCache(cacheRef: ReturnType<typeof doc>, metrics: Performan
 
 function getDefaultStartDate(): string {
   const d = new Date();
-  d.setDate(d.getDate() - 90);
+  d.setDate(d.getDate() - 365);
   return d.toISOString().split('T')[0];
 }
