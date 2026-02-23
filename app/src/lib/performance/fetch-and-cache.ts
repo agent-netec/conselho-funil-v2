@@ -16,10 +16,16 @@ import { ensureFreshToken, tokenToCredentials } from '@/lib/integrations/ads/tok
 import { CACHE_TTL_MS } from '@/lib/integrations/ads/constants';
 import type { PerformanceMetric, UnifiedAdsMetrics } from '@/types/performance';
 
+export interface TokenPermission {
+  permission: string;
+  status: 'granted' | 'declined' | 'expired';
+}
+
 export interface SyncDiagnostic {
   metaTokenFound: boolean;
   googleTokenFound: boolean;
   metaAdAccountId?: string;
+  metaPermissions?: TokenPermission[];
   metaCampaigns: number;
   googleCampaigns: number;
   dateRange: { start: string; end: string };
@@ -148,6 +154,21 @@ export async function fetchRealMetrics(
     const metaCreds = tokenToCredentials(metaToken);
     diagnostic.metaAdAccountId = (metaCreds as any).adAccountId || 'unknown';
     console.log(`[FetchAndCache] Meta creds: adAccountId=${diagnostic.metaAdAccountId}`);
+
+    // Check actual token permissions via Graph API
+    try {
+      const permRes = await fetch(`https://graph.facebook.com/v21.0/me/permissions?access_token=${metaToken.accessToken}`);
+      const permData = await permRes.json();
+      if (permData.data) {
+        diagnostic.metaPermissions = permData.data.map((p: any) => ({
+          permission: p.permission,
+          status: p.status,
+        }));
+        console.log(`[FetchAndCache] Meta permissions:`, JSON.stringify(diagnostic.metaPermissions));
+      }
+    } catch (err) {
+      console.warn(`[FetchAndCache] Failed to check Meta permissions:`, err);
+    }
   }
 
   const fetchPromises: Promise<{ source: 'meta' | 'google'; data: import('@/lib/performance/adapters/base-adapter').RawAdsData[] }>[] = [];

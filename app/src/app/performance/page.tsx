@@ -290,6 +290,33 @@ export default function PerformanceWarRoomPage() {
               <p className="text-zinc-300 text-xs">{diagnostic.dateRange?.start} → {diagnostic.dateRange?.end}</p>
             </div>
           </div>
+          {/* Token permissions diagnostic */}
+          {diagnostic.metaPermissions && diagnostic.metaPermissions.length > 0 && (
+            <div className="mt-3 p-3 bg-zinc-900/50 rounded border border-zinc-700/30">
+              <p className="text-xs text-zinc-400 font-bold mb-2">Permissões do Token:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {diagnostic.metaPermissions.map((p: { permission: string; status: string }, i: number) => (
+                  <span
+                    key={i}
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
+                      p.status === 'granted'
+                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'
+                        : p.status === 'declined'
+                        ? 'bg-red-500/15 text-red-400 border border-red-500/20'
+                        : 'bg-zinc-700/30 text-zinc-500 border border-zinc-600/20'
+                    }`}
+                  >
+                    {p.permission}: {p.status}
+                  </span>
+                ))}
+              </div>
+              {!diagnostic.metaPermissions.some((p: { permission: string; status: string }) => p.permission === 'ads_read' && p.status === 'granted') && (
+                <p className="mt-2 text-xs text-red-400">
+                  ads_read NÃO concedido! Use &quot;Token Manual&quot; em Integrações para resolver.
+                </p>
+              )}
+            </div>
+          )}
           {diagnostic.errors?.length > 0 && (
             <div className="mt-3 p-3 bg-red-950/30 rounded border border-red-500/20">
               <p className="text-xs text-red-400 font-bold mb-1">Erros:</p>

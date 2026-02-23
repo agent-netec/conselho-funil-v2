@@ -443,6 +443,13 @@ function ConfigPanel({
   const [isValidating, setIsValidating] = useState(false);
   const [validationResult, setValidationResult] = useState<{ ok: boolean; message: string } | null>(null);
 
+  // Manual token state (Meta workaround for permission issues)
+  const [showManualToken, setShowManualToken] = useState(false);
+  const [manualToken, setManualToken] = useState('');
+  const [manualAdAccount, setManualAdAccount] = useState('');
+  const [isSavingManual, setIsSavingManual] = useState(false);
+  const [manualResult, setManualResult] = useState<{ ok: boolean; message: string } | null>(null);
+
   const updateField = useCallback((key: string, value: string) => {
     setFormData(prev => ({ ...prev, [key]: value }));
     setValidationResult(null);
@@ -603,6 +610,40 @@ function ConfigPanel({
       window.open(authUrl, '_blank', 'width=600,height=700');
     } else {
       toast.error('Configure o App ID/Client ID primeiro para usar OAuth.');
+    }
+  };
+
+  // Save manual token (Meta workaround)
+  const handleSaveManualToken = async () => {
+    if (!manualToken.trim() || !manualAdAccount.trim()) {
+      toast.error('Preencha o Token e o Ad Account ID.');
+      return;
+    }
+    setIsSavingManual(true);
+    setManualResult(null);
+    try {
+      const { getAuthHeaders } = await import('@/lib/utils/auth-headers');
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch('/api/integrations/meta/save-token', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({
+          brandId,
+          accessToken: manualToken.trim(),
+          adAccountId: manualAdAccount.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setManualResult({ ok: true, message: `Token salvo! Conta: ${data.data?.adAccountName || manualAdAccount}. Permissões: ${(data.data?.permissions || []).join(', ')}` });
+        toast.success('Token Meta salvo com sucesso! Vá em Performance > SYNC DATA para testar.');
+      } else {
+        setManualResult({ ok: false, message: data.error || 'Erro ao salvar token.' });
+      }
+    } catch (err) {
+      setManualResult({ ok: false, message: 'Erro de rede ao salvar token.' });
+    } finally {
+      setIsSavingManual(false);
     }
   };
 
@@ -782,6 +823,85 @@ function ConfigPanel({
               Salvar Integração
             </Button>
           </div>
+
+          {/* Manual Token Section — Meta workaround for permission issues */}
+          {def.provider === 'meta' && (
+            <div className="mt-6 border-t border-white/[0.06] pt-5">
+              <button
+                onClick={() => setShowManualToken(!showManualToken)}
+                className="text-xs text-amber-400/80 hover:text-amber-400 flex items-center gap-2 transition-colors"
+              >
+                <AlertTriangle className="h-3 w-3" />
+                {showManualToken ? 'Fechar token manual' : 'Problemas com OAuth? Insira um token manualmente'}
+              </button>
+
+              {showManualToken && (
+                <div className="mt-4 space-y-3 p-4 rounded-xl bg-amber-500/5 border border-amber-500/15">
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Se o OAuth não está concedendo permissões de Ads, gere um token no{' '}
+                    <a
+                      href="https://developers.facebook.com/tools/explorer/"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-amber-400 hover:underline"
+                    >
+                      Graph API Explorer
+                    </a>
+                    {' '}com as permissões <code className="text-xs bg-zinc-800 px-1 py-0.5 rounded">ads_read</code> e{' '}
+                    <code className="text-xs bg-zinc-800 px-1 py-0.5 rounded">ads_management</code>.
+                  </p>
+
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-400 mb-1.5">Access Token</label>
+                    <Input
+                      type="password"
+                      placeholder="EAAx..."
+                      value={manualToken}
+                      onChange={(e) => { setManualToken(e.target.value); setManualResult(null); }}
+                      className="input-premium text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-400 mb-1.5">Ad Account ID</label>
+                    <Input
+                      type="text"
+                      placeholder="act_123456789 ou apenas 123456789"
+                      value={manualAdAccount}
+                      onChange={(e) => { setManualAdAccount(e.target.value); setManualResult(null); }}
+                      className="input-premium text-xs"
+                    />
+                  </div>
+
+                  {manualResult && (
+                    <div className={cn(
+                      'flex items-start gap-2 p-3 rounded-lg text-xs',
+                      manualResult.ok
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                    )}>
+                      {manualResult.ok ? <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" /> : <AlertCircle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />}
+                      <span className="break-all">{manualResult.message}</span>
+                    </div>
+                  )}
+
+                  <Button
+                    onClick={handleSaveManualToken}
+                    disabled={!manualToken.trim() || !manualAdAccount.trim() || isSavingManual}
+                    className="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 text-xs"
+                    variant="ghost"
+                  >
+                    {isSavingManual ? (
+                      <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Save className="mr-2 h-3.5 w-3.5" />
+                    )}
+                    Validar e Salvar Token Manual
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="space-y-6">
