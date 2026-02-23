@@ -28,6 +28,7 @@ Cada OAuth callback route lê env vars específicas. Sem elas, o callback retorn
 |----------|-----------|------------|
 | `META_APP_ID` | Meta + Instagram | developers.facebook.com > App Dashboard |
 | `META_APP_SECRET` | Meta + Instagram | developers.facebook.com > App Dashboard > Settings > Basic |
+| `META_LOGIN_CONFIG_ID` | Meta OAuth (Login for Business) | developers.facebook.com > App > Facebook Login for Business > Configurations |
 | `GOOGLE_ADS_SERVICE_ACCOUNT_KEY` | Google Ads | ✅ Já adicionado (base64 da chave JSON) |
 | `GOOGLE_ADS_SERVICE_ACCOUNT_EMAIL` | Google Ads | ✅ Já adicionado |
 | `GOOGLE_DEVELOPER_TOKEN` | Google Ads | Ver instruções abaixo — requer conta MCC |
@@ -52,14 +53,27 @@ vercel env pull .env.local
 ## 3. Escopos (Scopes) Requeridos por Provider
 
 ### Meta (Facebook + Instagram)
-- `ads_read` — leitura de campanhas e métricas
-- `read_insights` — insights de performance
+
+> **IMPORTANTE:** Para permissões de ads funcionar via OAuth, o app Meta DEVE ter:
+> 1. Produto **"Marketing API"** adicionado no dashboard
+> 2. Produto **"Facebook Login for Business"** (NÃO o "Facebook Login" clássico)
+> 3. Um `config_id` criado com as permissões abaixo
+> 4. OAuth URL usando `config_id` em vez de `scope`
+>
+> Sem isso, o Meta **silenciosamente descarta** scopes de ads no token.
+> Ver: [troubleshooting/meta-ads-oauth-permissions.md](../_netecmt/docs/troubleshooting/meta-ads-oauth-permissions.md)
+
+**Permissões necessárias (definidas no config_id):**
+- `ads_read` — leitura de campanhas e métricas (já cobre `read_insights`)
 - `ads_management` — gestão de campanhas (opcional, para automação)
+- `business_management` — acessar ativos do Business Manager
 - `instagram_basic` — perfil e mídia do Instagram
 - `instagram_manage_insights` — métricas do Instagram
 - `pages_show_list` — listar páginas vinculadas
 - `instagram_manage_comments` — responder comentários (Sprint V)
 - `instagram_content_publish` — publicar no Instagram (Sprint V)
+
+> **NÃO** incluir `read_insights` como scope separado — `ads_read` já cobre. Incluir ambos pode quebrar o login dialog.
 
 ### Google
 - `https://www.googleapis.com/auth/adwords` — Google Ads completo
@@ -80,7 +94,8 @@ vercel env pull .env.local
 
 | Provider | Access Token | Refresh Token | Auto-refresh implementado? |
 |----------|-------------|---------------|---------------------------|
-| Meta | 60 dias (long-lived) | N/A (usa fb_exchange_token) | Sim (`token-refresh.ts`) |
+| Meta (User Token) | 60 dias (long-lived) | N/A (usa fb_exchange_token) | Sim (`token-refresh.ts`) |
+| Meta (System User) | **Nunca expira** | N/A | Recomendado para produção |
 | Google | 1 hora | Permanente (até revogado) | Sim (`token-refresh.ts`) |
 | Instagram | 60 dias (via Meta) | N/A | Sim (compartilha Meta) |
 | LinkedIn | 60 dias | 365 dias | Não (pendente Sprint V+) |
@@ -93,6 +108,11 @@ vercel env pull .env.local
 - [ ] Domínio de produção definido e propagado
 - [ ] Redirect URIs cadastrados em TODOS os providers (tabela acima)
 - [ ] Env vars adicionadas no Vercel (tabela acima)
+- [ ] App Meta tem produto **"Marketing API"** adicionado
+- [ ] App Meta usa **"Facebook Login for Business"** (não "Facebook Login" clássico)
+- [ ] `config_id` criado no dashboard com permissões de ads
+- [ ] `META_LOGIN_CONFIG_ID` adicionada no Vercel
+- [ ] OAuth URL usa `config_id` em vez de `scope`
 - [ ] App Meta em modo "Live" (não "Development") — requer App Review para escopos especiais
 - [ ] Google OAuth consent screen publicado (não "Testing") — limite de 100 users em teste
 - [ ] LinkedIn App verificada (se necessário para escopos ads)

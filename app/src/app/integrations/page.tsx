@@ -573,15 +573,22 @@ function ConfigPanel({
 
     switch (provider) {
       case 'meta': {
-        // Fetch central app ID from server to avoid exposing in client bundle
+        // Fetch central app ID + config_id from server
         const res = await fetch('/api/auth/meta/app-id');
         const data = await res.json();
         const centralAppId = data?.data?.appId;
+        const metaConfigId = data?.data?.configId;
         if (!centralAppId) {
           toast.error('META_APP_ID não configurado no servidor. Contate o suporte.');
           return;
         }
-        authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${centralAppId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=ads_read,read_insights,ads_management,leads_retrieval,pages_read_engagement&auth_type=rerequest&state=${brandId}`;
+        // Use config_id (Facebook Login for Business) when available — ensures ads permissions are granted
+        // Fallback to scope param if config_id not set (legacy)
+        if (metaConfigId) {
+          authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${centralAppId}&redirect_uri=${encodeURIComponent(callbackUrl)}&config_id=${metaConfigId}&response_type=code&state=${brandId}`;
+        } else {
+          authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${centralAppId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=ads_read,ads_management,business_management,pages_read_engagement&state=${brandId}`;
+        }
         break;
       }
       case 'google':
@@ -656,11 +663,16 @@ function ConfigPanel({
       const res = await fetch('/api/auth/meta/app-id');
       const data = await res.json();
       const appId = data?.data?.appId;
+      const cfgId = data?.data?.configId;
       if (!appId) { toast.error('META_APP_ID não configurado.'); return; }
-      const scope = provider === 'meta'
-        ? 'ads_read,read_insights,ads_management,leads_retrieval,pages_read_engagement'
-        : 'instagram_basic,instagram_manage_insights,pages_show_list';
-      authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=${scope}&state=${brandId}`;
+      if (provider === 'meta' && cfgId) {
+        authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(callbackUrl)}&config_id=${cfgId}&response_type=code&state=${brandId}`;
+      } else {
+        const scope = provider === 'meta'
+          ? 'ads_read,ads_management,business_management,pages_read_engagement'
+          : 'instagram_basic,instagram_manage_insights,pages_show_list';
+        authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=${scope}&state=${brandId}`;
+      }
     } else if (provider === 'google') {
       authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${formData.clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&response_type=code&scope=https://www.googleapis.com/auth/adwords&access_type=offline&prompt=consent&state=${brandId}`;
     } else if (provider === 'linkedin') {

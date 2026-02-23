@@ -9,10 +9,11 @@ import { createApiSuccess, createApiError } from '@/lib/utils/api-response';
  */
 export async function GET() {
   const appId = process.env.META_APP_ID;
+  const configId = process.env.META_LOGIN_CONFIG_ID;
 
   if (!appId) {
     return createApiError(500, 'META_APP_ID not configured');
   }
 
-  return createApiSuccess({ appId });
+  return createApiSuccess({ appId, configId: configId || null });
 }
