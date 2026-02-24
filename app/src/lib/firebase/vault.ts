@@ -146,7 +146,7 @@ export class MonaraTokenVault {
 }
 
 // ============================================
-// COPY DNA (brands/{brandId}/vault/dna)
+// COPY DNA (brands/{brandId}/vault_dna)
 // ============================================
 
 /**
@@ -155,8 +155,8 @@ export class MonaraTokenVault {
  */
 export async function saveCopyDNA(brandId: string, dna: Omit<CopyDNA, 'brandId' | 'updatedAt'>): Promise<string> {
   const now = Timestamp.now();
-  const dnaId = dna.id || doc(collection(db, 'brands', brandId, 'vault', 'dna')).id;
-  const dnaRef = doc(db, 'brands', brandId, 'vault', 'dna', dnaId);
+  const dnaId = dna.id || doc(collection(db, 'brands', brandId, 'vault_dna')).id;
+  const dnaRef = doc(db, 'brands', brandId, 'vault_dna', dnaId);
 
   const dnaData = {
     ...dna,
@@ -191,7 +191,7 @@ export async function saveCopyDNA(brandId: string, dna: Omit<CopyDNA, 'brandId' 
  * Exclui um Copy DNA do Firestore e (idealmente) do Pinecone.
  */
 export async function deleteCopyDNA(brandId: string, dnaId: string) {
-  const dnaRef = doc(db, 'brands', brandId, 'vault', 'dna', dnaId);
+  const dnaRef = doc(db, 'brands', brandId, 'vault_dna', dnaId);
   await deleteDoc(dnaRef);
   // Nota: A exclusão no Pinecone pode ser implementada via index.delete1({ ids: [...] }) se necessário
 }
@@ -200,7 +200,7 @@ export async function deleteCopyDNA(brandId: string, dnaId: string) {
  * Busca todos os Copy DNAs de uma marca.
  */
 export async function getBrandDNA(brandId: string): Promise<CopyDNA[]> {
-  const dnaRef = collection(db, 'brands', brandId, 'vault', 'dna');
+  const dnaRef = collection(db, 'brands', brandId, 'vault_dna');
   const q = query(dnaRef, orderBy('updatedAt', 'desc'));
   const snap = await getDocs(q);
   
@@ -219,7 +219,7 @@ export async function updateDNAPerformance(
     best_platform?: string;
   }
 ): Promise<void> {
-  const dnaRef = doc(db, 'brands', brandId, 'vault', 'dna', dnaId);
+  const dnaRef = doc(db, 'brands', brandId, 'vault_dna', dnaId);
   const snap = await getDoc(dnaRef);
   if (!snap.exists()) return;
 
@@ -236,7 +236,7 @@ export async function updateDNAPerformance(
 }
 
 // ============================================
-// ASSETS (brands/{brandId}/vault/assets)
+// ASSETS (brands/{brandId}/vault_assets)
 // ============================================
 
 /**
@@ -244,7 +244,7 @@ export async function updateDNAPerformance(
  */
 export async function createVaultAsset(brandId: string, asset: Omit<VaultAsset, 'id' | 'brandId' | 'createdAt'>): Promise<string> {
   const now = Timestamp.now();
-  const assetsRef = collection(db, 'brands', brandId, 'vault', 'assets');
+  const assetsRef = collection(db, 'brands', brandId, 'vault_assets');
   
   const docRef = await addDoc(assetsRef, {
     ...asset,
@@ -259,7 +259,7 @@ export async function createVaultAsset(brandId: string, asset: Omit<VaultAsset, 
  * Busca assets do Vault por marca.
  */
 export async function getVaultAssets(brandId: string): Promise<VaultAsset[]> {
-  const assetsRef = collection(db, 'brands', brandId, 'vault', 'assets');
+  const assetsRef = collection(db, 'brands', brandId, 'vault_assets');
   const q = query(assetsRef, orderBy('updatedAt', 'desc'));
   const snap = await getDocs(q);
   
@@ -267,7 +267,7 @@ export async function getVaultAssets(brandId: string): Promise<VaultAsset[]> {
 }
 
 // ============================================
-// LIBRARY (brands/{brandId}/vault/library)
+// LIBRARY (brands/{brandId}/vault_library)
 // ============================================
 
 /**
@@ -275,8 +275,8 @@ export async function getVaultAssets(brandId: string): Promise<VaultAsset[]> {
  */
 export async function saveVaultContent(brandId: string, content: Omit<VaultContent, 'brandId' | 'createdAt'>): Promise<string> {
   const now = Timestamp.now();
-  const contentId = content.id || doc(collection(db, 'brands', brandId, 'vault', 'library')).id;
-  const contentRef = doc(db, 'brands', brandId, 'vault', 'library', contentId);
+  const contentId = content.id || doc(collection(db, 'brands', brandId, 'vault_library')).id;
+  const contentRef = doc(db, 'brands', brandId, 'vault_library', contentId);
 
   const contentData = {
     ...content,
@@ -293,7 +293,7 @@ export async function saveVaultContent(brandId: string, content: Omit<VaultConte
  * Busca conteúdos da biblioteca por status.
  */
 export async function queryVaultLibrary(brandId: string, status?: VaultContent['status']): Promise<VaultContent[]> {
-  const libraryRef = collection(db, 'brands', brandId, 'vault', 'library');
+  const libraryRef = collection(db, 'brands', brandId, 'vault_library');
   let q = query(libraryRef, orderBy('createdAt', 'desc'));
 
   if (status) {
@@ -305,7 +305,7 @@ export async function queryVaultLibrary(brandId: string, status?: VaultContent['
 }
 
 // ============================================
-// PUBLISHER JOBS (brands/{brandId}/publisher/jobs)
+// PUBLISHER JOBS (brands/{brandId}/publisher_jobs)
 // ============================================
 
 /**
@@ -313,7 +313,7 @@ export async function queryVaultLibrary(brandId: string, status?: VaultContent['
  */
 export async function createPublisherJob(brandId: string, job: Omit<PublisherJob, 'id' | 'brandId' | 'startedAt'>): Promise<string> {
   const now = Timestamp.now();
-  const jobsRef = collection(db, 'brands', brandId, 'publisher', 'jobs');
+  const jobsRef = collection(db, 'brands', brandId, 'publisher_jobs');
   
   const docRef = await addDoc(jobsRef, {
     ...job,
@@ -328,7 +328,7 @@ export async function createPublisherJob(brandId: string, job: Omit<PublisherJob
  * Atualiza o status de um job de publicação.
  */
 export async function updatePublisherJob(brandId: string, jobId: string, data: Partial<PublisherJob>) {
-  const jobRef = doc(db, 'brands', brandId, 'publisher', 'jobs', jobId);
+  const jobRef = doc(db, 'brands', brandId, 'publisher_jobs', jobId);
   const updateData: Record<string, any> = { ...data };
   if (data.status === 'completed' || data.status === 'failed') {
     updateData.completedAt = Timestamp.now();

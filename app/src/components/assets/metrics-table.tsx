@@ -114,12 +114,16 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-red-400 bg-red-500/10 flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" /> Erro
                   </span>
-                ) : (
+                ) : asset.score > 0 ? (
                   <span className={cn(
                     "text-xs font-bold px-2 py-0.5 rounded-full",
                     asset.score >= 80 ? "text-emerald-400 bg-emerald-500/10" : asset.score >= 50 ? "text-amber-400 bg-amber-500/10" : "text-red-400 bg-red-500/10"
                   )}>
                     {asset.score}
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-zinc-500 bg-zinc-800">
+                    N/A
                   </span>
                 )}
               </div>
@@ -197,12 +201,18 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
                   )}
                 </div>
                 <div className="flex flex-col items-end">
-                  <span className={cn(
-                    "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider",
-                    asset.score >= 80 ? "text-emerald-400 bg-emerald-500/10" : asset.score >= 50 ? "text-amber-400 bg-amber-500/10" : "text-red-400 bg-red-500/10"
-                  )}>
-                    Score {asset.score}
-                  </span>
+                  {asset.score > 0 ? (
+                    <span className={cn(
+                      "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider",
+                      asset.score >= 80 ? "text-emerald-400 bg-emerald-500/10" : asset.score >= 50 ? "text-amber-400 bg-amber-500/10" : "text-red-400 bg-red-500/10"
+                    )}>
+                      Score {asset.score}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider text-zinc-500 bg-zinc-800">
+                      Sem score
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -327,18 +337,22 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
                   )}
                 </td>
                 <td className="px-4 py-4 text-center">
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="h-1.5 w-12 rounded-full bg-zinc-800 overflow-hidden">
-                      <div
-                        className={cn(
-                          "h-full rounded-full",
-                          asset.score >= 80 ? "bg-emerald-500" : asset.score >= 50 ? "bg-amber-500" : "bg-red-500"
-                        )}
-                        style={{ width: `${asset.score}%` }}
-                      />
+                  {asset.score > 0 ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="h-1.5 w-12 rounded-full bg-zinc-800 overflow-hidden">
+                        <div
+                          className={cn(
+                            "h-full rounded-full",
+                            asset.score >= 80 ? "bg-emerald-500" : asset.score >= 50 ? "bg-amber-500" : "bg-red-500"
+                          )}
+                          style={{ width: `${asset.score}%` }}
+                        />
+                      </div>
+                      <span className="text-xs font-bold text-white">{asset.score}</span>
                     </div>
-                    <span className="text-xs font-bold text-white">{asset.score}</span>
-                  </div>
+                  ) : (
+                    <span className="text-xs font-medium text-zinc-500">N/A</span>
+                  )}
                 </td>
                 <td className="px-4 py-4 text-center">
                   <div className="flex items-center justify-center gap-1">

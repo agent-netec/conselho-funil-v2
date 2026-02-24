@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Fetch content from vault library
-    const contentRef = doc(db, 'brands', brandId, 'vault', 'library', contentId);
+    const contentRef = doc(db, 'brands', brandId, 'vault_library', contentId);
     const contentSnap = await getDoc(contentRef);
 
     if (!contentSnap.exists()) {
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
           // Fetch asset URL if we have a media reference
           let imageUrl: string | undefined;
           if (mediaRef) {
-            const assetRef = doc(db, 'brands', brandId, 'vault', 'assets', mediaRef);
+            const assetRef = doc(db, 'brands', brandId, 'vault_assets', mediaRef);
             const assetSnap = await getDoc(assetRef);
             if (assetSnap.exists()) {
               imageUrl = assetSnap.data().url;

@@ -112,7 +112,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete }: Asse
                     {asset.name || asset.assetType}
                   </h2>
                   <p className="text-sm text-zinc-400 mt-1 font-medium">
-                    {asset.assetType} • Score de Performance: <span className="text-emerald-400">{asset.score}</span>
+                    {asset.assetType} • Score de Performance: <span className={asset.score > 0 ? "text-emerald-400" : "text-zinc-500"}>{asset.score > 0 ? asset.score : 'N/A'}</span>
                   </p>
                 </div>
 

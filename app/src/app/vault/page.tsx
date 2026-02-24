@@ -169,7 +169,7 @@ export default function VaultPage() {
     if (!brandId) return;
     setLoadingHistory(true);
     try {
-      const libraryRef = collection(db, 'brands', brandId, 'vault', 'library');
+      const libraryRef = collection(db, 'brands', brandId, 'vault_library');
       const q = query(
         libraryRef,
         where('status', 'in', ['approved', 'rejected']),

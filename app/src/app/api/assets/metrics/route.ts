@@ -130,7 +130,7 @@ export async function GET(request: NextRequest) {
           uniqueAssetsMap.set(assetId, {
             id: assetId,
             namespace: 'knowledge',
-            score: meta.relevanceScore || 100,
+            score: meta.relevanceScore || 0,
             assetType: meta.sourceType || meta.type || 'knowledge_base',
             name: meta.originalName || meta.assetName || meta.name || 'Documento',
             createdAt: meta.extractedAt || meta.processedAt || meta.createdAt || new Date().toISOString(),
@@ -139,6 +139,41 @@ export async function GET(request: NextRequest) {
           });
         }
       });
+
+      // Fallback: legacy brand namespace with hyphen (brand-{id} instead of brand_{id})
+      const legacyBrandNamespace = `brand-${brandId}`;
+      if (availableNamespaces.includes(legacyBrandNamespace) || availableNamespaces.length === 0) {
+        try {
+          console.log(`[Metrics] Querying legacy namespace '${legacyBrandNamespace}'`);
+          const legacyRes = await queryPinecone({
+            vector: dummyVector,
+            topK: 250,
+            namespace: legacyBrandNamespace,
+            filter: brandFilter
+          });
+
+          (legacyRes.matches || []).forEach(m => {
+            const meta = m.metadata as any;
+            const assetId = meta.assetId || m.id.split('-chunk-')[0];
+
+            if (assetId && !uniqueAssetsMap.has(assetId)) {
+              uniqueAssetsMap.set(assetId, {
+                id: assetId,
+                namespace: 'knowledge',
+                score: meta.relevanceScore || 0,
+                assetType: meta.sourceType || meta.type || 'knowledge_base',
+                name: meta.originalName || meta.assetName || meta.name || 'Documento',
+                createdAt: meta.extractedAt || meta.processedAt || meta.createdAt || new Date().toISOString(),
+                status: 'ready',
+                metadata: meta
+              });
+            }
+          });
+          console.log(`[Metrics] Legacy namespace matches: ${legacyRes.matches?.length || 0}, total unique: ${uniqueAssetsMap.size}`);
+        } catch (err: any) {
+          console.warn(`[Metrics] Legacy namespace '${legacyBrandNamespace}' unavailable:`, err.message);
+        }
+      }
 
       // Fallback: legacy 'knowledge' namespace
       if (uniqueAssetsMap.size < 10 && (availableNamespaces.includes('knowledge') || availableNamespaces.length === 0)) {
@@ -158,7 +193,7 @@ export async function GET(request: NextRequest) {
             uniqueAssetsMap.set(assetId, {
               id: assetId,
               namespace: 'knowledge',
-              score: meta.relevanceScore || 100,
+              score: meta.relevanceScore || 0,
               assetType: meta.sourceType || meta.type || 'knowledge_base',
               name: meta.originalName || meta.assetName || meta.name || 'Documento',
               createdAt: meta.extractedAt || meta.processedAt || meta.createdAt || new Date().toISOString(),

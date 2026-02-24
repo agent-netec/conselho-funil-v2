@@ -106,7 +106,7 @@ export async function deleteFromPinecone(
   const index = await getPineconeIndex();
   if (!index) return { deleted: false };
 
-  const namespacesToClean = [`brand_${brandId}`, 'knowledge', 'visual'];
+  const namespacesToClean = [`brand_${brandId}`, `brand-${brandId}`, 'knowledge', 'visual'];
 
   for (const ns of namespacesToClean) {
     try {

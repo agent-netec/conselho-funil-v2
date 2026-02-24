@@ -101,6 +101,54 @@
 
 ---
 
+## Fase 1.5 — Scoring & Pinecone Data Integrity
+
+**Status:** DIAGNOSTICADO — verificado via API REST em 2026-02-24.
+
+### Estado Real do Pinecone (cf-dev-assets, 768 dims)
+
+| Namespace | Vetores | Formato | Status |
+|-----------|---------|---------|--------|
+| knowledge | 2.052 | legado v1 | Ativo |
+| brand-hBbPFR... | 234 | ANTIGO (brand-{id} com hifen) | Invisivel ao codigo |
+| brand_zlX007... | 49 | NOVO (brand_{id} com underscore) | Ativo |
+| brand-Ws5z6n... | 42 | ANTIGO | Invisivel ao codigo |
+| brand-test | 19 | ANTIGO | Invisivel ao codigo |
+| brand_SxzW5y... | 11 | NOVO (marca ativa) | Ativo |
+| brand-test_seed | 3 | ANTIGO | Invisivel ao codigo |
+| social_sXcND... | 1 | — | Ativo |
+| visual | 0 | — | Nunca populado |
+| intelligence_{id} | 0 | — | Nunca executado |
+| context_{id}_* | 0 | — | Nunca executado |
+| templates | 0 | — | Nunca executado |
+| universal | 0 | — | Nunca executado |
+
+**Total: 2.411 vetores**
+
+### 1.5.1 Fix Scoring Falso (relevanceScore fallback)
+- **Problema:** `meta.relevanceScore || 100` — campo `relevanceScore` NUNCA existe no metadata do Pinecone
+- **Consequencia:** TODOS os assets mostram score 100 (falso positivo)
+- **Arquivo:** `app/src/app/api/assets/metrics/route.ts:133,161`
+- **Fix:** Mudar para `meta.relevanceScore || 0`
+- **UI:** Mostrar "N/A" quando score === 0 em vez de "0%"
+
+### 1.5.2 Fix Namespace Inconsistency (brand- vs brand_)
+- **Problema:** Codigo busca `brand_{id}` (underscore), mas dados de 3 marcas estao em `brand-{id}` (hifen)
+- **Consequencia:** 295 vetores (234+42+19) sao INVISIVEIS para o dashboard de assets
+- **Arquivo:** `app/src/app/api/assets/metrics/route.ts:109`
+- **Fix:** Apos buscar `brand_${brandId}`, buscar tambem `brand-${brandId}` como fallback
+- **Futuro:** Migration script para renomear namespaces antigos (nao urgente, leitura dual resolve)
+
+### 1.5.3 Investigar Pipeline Visual (namespace `visual` vazio)
+- **Pipeline existe:** `app/src/app/api/ai/analyze-visual/route.ts` — Gemini Vision → embedding → Pinecone `visual`
+- **Trigger:** Endpoint POST `/api/ai/analyze-visual` requer `imageUri`, `brandId`, `userId`
+- **Hipotese:** Nunca foi trigado em producao (UI pode nao estar conectada ou nunca foi usada)
+- **Acao:** Verificar se botao "Analisar Visual" esta wired na UI do assets, ou se precisa ativar
+
+### Creditos: 0
+
+---
+
 ## Fase 2 — Visibilidade e Status Real
 
 ### 2.1 Asset Status Dashboard
