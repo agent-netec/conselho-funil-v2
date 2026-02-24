@@ -130,12 +130,12 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
                 <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">CTR</p>
                 <div className="flex items-center gap-1.5">
                   <TrendingUp className="h-3 w-3 text-emerald-400" />
-                  <span className="text-sm font-semibold text-zinc-200">{asset.metrics.ctr}%</span>
+                  <span className="text-sm font-semibold text-zinc-200">{asset.metrics?.ctr ?? '0'}%</span>
                 </div>
               </div>
               <div>
                 <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">Conversão</p>
-                <span className="text-sm font-semibold text-zinc-200">{asset.metrics.conversion}%</span>
+                <span className="text-sm font-semibold text-zinc-200">{asset.metrics?.conversion ?? '0'}%</span>
               </div>
             </div>
 
@@ -222,12 +222,12 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
                   <p className="text-[9px] text-zinc-500 uppercase font-bold mb-1">CTR</p>
                   <div className="flex items-center justify-center gap-1">
                     <TrendingUp className="h-3 w-3 text-emerald-400" />
-                    <span className="text-xs font-bold text-zinc-200">{asset.metrics.ctr}%</span>
+                    <span className="text-xs font-bold text-zinc-200">{asset.metrics?.ctr ?? '0'}%</span>
                   </div>
                 </div>
                 <div className="p-3 text-center">
                   <p className="text-[9px] text-zinc-500 uppercase font-bold mb-1">Conv.</p>
-                  <span className="text-xs font-bold text-zinc-200">{asset.metrics.conversion}%</span>
+                  <span className="text-xs font-bold text-zinc-200">{asset.metrics?.conversion ?? '0'}%</span>
                 </div>
               </div>
 
@@ -343,11 +343,11 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
                 <td className="px-4 py-4 text-center">
                   <div className="flex items-center justify-center gap-1">
                     <TrendingUp className="h-3 w-3 text-emerald-400" />
-                    <span className="font-medium text-zinc-300">{asset.metrics.ctr}%</span>
+                    <span className="font-medium text-zinc-300">{asset.metrics?.ctr ?? '0'}%</span>
                   </div>
                 </td>
                 <td className="px-4 py-4 text-center font-medium text-zinc-300">
-                  {asset.metrics.conversion}%
+                  {asset.metrics?.conversion ?? '0'}%
                 </td>
                 <td className="px-4 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">

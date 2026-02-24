@@ -144,15 +144,15 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete }: Asse
                   <div className="flex justify-between">
                     <div>
                       <p className="text-[9px] text-zinc-500 uppercase font-bold">CTR</p>
-                      <p className="text-lg font-black text-white">{asset.metrics.ctr}%</p>
+                      <p className="text-lg font-black text-white">{asset.metrics?.ctr ?? '0'}%</p>
                     </div>
                     <div className="text-center">
                       <p className="text-[9px] text-zinc-500 uppercase font-bold">Conversão</p>
-                      <p className="text-lg font-black text-white">{asset.metrics.conversion}%</p>
+                      <p className="text-lg font-black text-white">{asset.metrics?.conversion ?? '0'}%</p>
                     </div>
                     <div className="text-right">
                       <p className="text-[9px] text-zinc-500 uppercase font-bold">ROI</p>
-                      <p className="text-lg font-black text-white">{asset.metrics.roi}x</p>
+                      <p className="text-lg font-black text-white">{asset.metrics?.roi ?? '0'}x</p>
                     </div>
                   </div>
                 </div>

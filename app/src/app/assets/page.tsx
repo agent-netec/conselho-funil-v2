@@ -177,8 +177,8 @@ export default function AssetsPage() {
       asset.name || asset.assetType,
       asset.assetType,
       asset.score,
-      asset.metrics.ctr,
-      asset.metrics.conversion,
+      asset.metrics?.ctr ?? '0',
+      asset.metrics?.conversion ?? '0',
       asset.namespace,
       new Date(asset.createdAt).toLocaleDateString('pt-BR')
     ]);
