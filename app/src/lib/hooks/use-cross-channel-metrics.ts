@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useActiveBrand } from './use-active-brand';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { CrossChannelMetricDoc } from '@/types/cross-channel';
 import { OptimizationInsight } from '@/types/automation';
 import { Timestamp } from 'firebase/firestore';
@@ -48,7 +49,8 @@ export function useCrossChannelMetrics(days: number = 30): UseCrossChannelMetric
       setError(null);
 
       try {
-        const res = await fetch(`/api/intelligence/attribution/stats?brandId=${brandId}&days=${days}`);
+        const headers = await getAuthHeaders();
+        const res = await fetch(`/api/intelligence/attribution/stats?brandId=${brandId}&days=${days}`, { headers });
         if (!res.ok) {
           throw new Error(`Erro ao buscar métricas cross-channel (${res.status})`);
         }

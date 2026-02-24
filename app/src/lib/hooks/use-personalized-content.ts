@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 interface PersonalizedContentResult {
   variations: Record<string, unknown>[];
@@ -41,9 +42,10 @@ export function usePersonalizedContent(
     setIsLoading(true);
     setError(null);
 
+    getAuthHeaders().then(authHeaders => {
     fetch('/api/personalization/resolve', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...authHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify({ brandId, leadId }),
     })
       .then(res => res.json())
@@ -58,6 +60,7 @@ export function usePersonalizedContent(
       })
       .catch(err => setError(err.message))
       .finally(() => setIsLoading(false));
+    });
   }, [brandId, leadId]);
 
   return { variations, segment, fallback, isLoading, error };

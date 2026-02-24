@@ -5,6 +5,7 @@ import { fileToBase64 } from '@/lib/utils';
 import { uploadBrandAsset, validateBrandAssetFile } from '@/lib/firebase/storage';
 import { createAsset } from '@/lib/firebase/assets';
 import { Timestamp } from 'firebase/firestore';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 export interface Attachment {
   file: File;
@@ -111,9 +112,10 @@ export function useFileUpload(
             ? 'Analise esta imagem sob a perspectiva de um estrategista de funis. Identifique elementos de conversão, copy, design e pontos de melhoria. Seja conciso e direto.'
             : 'Analise este documento PDF. Extraia os pontos estratégicos mais relevantes para um conselho de marketing. Seja conciso.';
 
+          const authHeaders = await getAuthHeaders();
           const analyzeRes = await fetch('/api/intelligence/analyze/image', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { ...authHeaders, 'Content-Type': 'application/json' },
             body: JSON.stringify({
               prompt,
               fileBase64: base64,

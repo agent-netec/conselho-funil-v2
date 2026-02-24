@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 export interface UseMultimodalAnalysisReturn {
   isAnalyzing: boolean;
@@ -14,9 +15,10 @@ export function useMultimodalAnalysis(): UseMultimodalAnalysisReturn {
     async (imageUrl: string, prompt: string): Promise<string> => {
       setIsAnalyzing(true);
       try {
+        const authHeaders = await getAuthHeaders();
         const res = await fetch('/api/intelligence/analyze/image', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { ...authHeaders, 'Content-Type': 'application/json' },
           body: JSON.stringify({
             prompt,
             fileBase64: imageUrl,

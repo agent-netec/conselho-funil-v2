@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { CreativePerformance } from '@/types/creative';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 /**
  * Hook para buscar o ranking de criativos.
@@ -18,7 +19,8 @@ export function useCreativeRanking(brandId: string | undefined) {
     const fetchRanking = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/intelligence/creative/ranking?brandId=${brandId}`);
+        const headers = await getAuthHeaders();
+        const response = await fetch(`/api/intelligence/creative/ranking?brandId=${brandId}`, { headers });
         if (!response.ok) throw new Error('Falha ao carregar ranking');
         const data = await response.json();
         setRanking(data.ranking);

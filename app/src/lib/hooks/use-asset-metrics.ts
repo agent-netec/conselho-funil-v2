@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useActiveBrand } from './use-active-brand';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 export interface AssetMetric {
   id: string;
@@ -48,7 +49,8 @@ export function useAssetMetrics() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/assets/metrics?brandId=${activeBrand.id}`);
+      const headers = await getAuthHeaders();
+      const response = await fetch(`/api/assets/metrics?brandId=${activeBrand.id}`, { headers });
       
       if (!response.ok) {
         throw new Error('Falha ao carregar métricas do dashboard');
