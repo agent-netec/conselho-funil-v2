@@ -58,6 +58,14 @@ import type {
   CopyScorecard,
 } from '@/types/database';
 
+/** Safely convert any value to a renderable string — prevents React Error #31 */
+function safeStr(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  try { return JSON.stringify(value); } catch { return ''; }
+}
+
 // Icon mapping for copy types
 const COPY_TYPE_ICONS: Record<CopyType, any> = {
   headline: FileText,
@@ -84,10 +92,16 @@ function CopyScoreDisplay({ scorecard }: { scorecard: CopyScorecard }) {
     return 'text-red-400';
   };
 
+  const safeScore = (val: unknown): number => {
+    if (typeof val === 'number' && !isNaN(val)) return val;
+    const n = Number(val);
+    return isNaN(n) ? 0 : n;
+  };
+
   return (
     <div className="space-y-2">
       {dimensions.map(dim => {
-        const score = scorecard[dim.key as keyof CopyScorecard] as number;
+        const score = safeScore(scorecard[dim.key as keyof CopyScorecard]);
         return (
           <div key={dim.key} className="flex items-center justify-between text-sm">
             <span className="text-zinc-400">{dim.label}</span>
@@ -111,8 +125,8 @@ function CopyScoreDisplay({ scorecard }: { scorecard: CopyScorecard }) {
       })}
       <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
         <span className="font-medium text-white">Score Geral</span>
-        <span className={cn('text-lg font-bold', getScoreColor(scorecard.overall))}>
-          {scorecard.overall.toFixed(1)}
+        <span className={cn('text-lg font-bold', getScoreColor(safeScore(scorecard.overall)))}>
+          {safeScore(scorecard.overall).toFixed(1)}
         </span>
       </div>
     </div>
@@ -139,7 +153,7 @@ function CopyProposalCard({
   const typeInfo = COPY_TYPES[copyProposal.type];
 
   const handleCopy = async () => {
-    const textToCopy = copyProposal.content.primary;
+    const textToCopy = safeStr(copyProposal.content.primary);
     await navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -208,11 +222,11 @@ function CopyProposalCard({
             {copyProposal.scorecard && (
               <div className={cn(
                 'text-lg font-bold',
-                copyProposal.scorecard.overall >= 8 ? 'text-emerald-400' :
-                copyProposal.scorecard.overall >= 6 ? 'text-amber-400' :
+                (Number(copyProposal.scorecard.overall) || 0) >= 8 ? 'text-emerald-400' :
+                (Number(copyProposal.scorecard.overall) || 0) >= 6 ? 'text-amber-400' :
                 'text-red-400'
               )}>
-                {copyProposal.scorecard.overall.toFixed(1)}
+                {(Number(copyProposal.scorecard.overall) || 0).toFixed(1)}
               </div>
             )}
 
@@ -247,7 +261,7 @@ function CopyProposalCard({
                     </Button>
                   </div>
                   <div className="text-sm text-white max-h-80 overflow-y-auto custom-scrollbar pr-2">
-                    <MarkdownRenderer content={copyProposal.content.primary} />
+                    <MarkdownRenderer content={safeStr(copyProposal.content.primary)} />
                   </div>
                   
                   {/* Emails Sequence */}
@@ -262,19 +276,19 @@ function CopyProposalCard({
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-xs text-emerald-400 font-medium">Email {i + 1}</span>
                               {email.delay && (
-                                <span className="text-xs text-zinc-500">⏱️ {email.delay}</span>
+                                <span className="text-xs text-zinc-500">⏱️ {safeStr(email.delay)}</span>
                               )}
                             </div>
                             {email.subject && (
                               <div className="mb-2">
                                 <span className="text-xs text-zinc-500">Assunto:</span>
-                                <p className="text-sm font-medium text-white">{email.subject}</p>
+                                <p className="text-sm font-medium text-white">{safeStr(email.subject)}</p>
                               </div>
                             )}
                             {email.body && (
                               <div>
                                 <span className="text-xs text-zinc-500">Corpo:</span>
-                                <p className="text-sm text-zinc-300 whitespace-pre-wrap mt-1">{email.body}</p>
+                                <p className="text-sm text-zinc-300 whitespace-pre-wrap mt-1">{safeStr(email.body)}</p>
                               </div>
                             )}
                           </div>
@@ -293,12 +307,12 @@ function CopyProposalCard({
                         {copyProposal.content.vslSections.map((section: { name?: string; content?: string; duration?: string }, i: number) => (
                           <div key={i} className="bg-zinc-800/50 rounded-lg p-3 border border-zinc-700/50">
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs text-violet-400 font-medium">{section.name || `Seção ${i + 1}`}</span>
+                              <span className="text-xs text-violet-400 font-medium">{safeStr(section.name) || `Seção ${i + 1}`}</span>
                               {section.duration && (
-                                <span className="text-xs text-zinc-500">⏱️ {section.duration}</span>
+                                <span className="text-xs text-zinc-500">⏱️ {safeStr(section.duration)}</span>
                               )}
                             </div>
-                            <p className="text-sm text-zinc-300 whitespace-pre-wrap">{section.content}</p>
+                            <p className="text-sm text-zinc-300 whitespace-pre-wrap">{safeStr(section.content)}</p>
                           </div>
                         ))}
                       </div>
@@ -314,7 +328,7 @@ function CopyProposalCard({
                       <div className="space-y-2">
                         {copyProposal.content.variations.map((v: string, i: number) => (
                           <div key={i} className="text-sm text-zinc-300 bg-zinc-800/50 p-2 rounded">
-                            {v}
+                            {safeStr(v)}
                           </div>
                         ))}
                       </div>
@@ -334,7 +348,7 @@ function CopyProposalCard({
                 {copyProposal.reasoning && (
                   <div>
                     <span className="text-sm font-medium text-zinc-400 block mb-2">Raciocínio</span>
-                    <p className="text-sm text-zinc-300">{copyProposal.reasoning}</p>
+                    <p className="text-sm text-zinc-300">{safeStr(copyProposal.reasoning)}</p>
                   </div>
                 )}
 
@@ -351,9 +365,9 @@ function CopyProposalCard({
                             {COPY_COUNSELORS[insight.copywriterId as keyof typeof COPY_COUNSELORS]?.icon || '✍️'}
                           </span>
                           <div>
-                            <span className="font-medium text-white">{insight.copywriterName}</span>
-                            <span className="text-zinc-500"> ({insight.expertise})</span>
-                            <p className="text-zinc-400 mt-0.5">{insight.insight}</p>
+                            <span className="font-medium text-white">{safeStr(insight.copywriterName)}</span>
+                            <span className="text-zinc-500"> ({safeStr(insight.expertise)})</span>
+                            <p className="text-zinc-400 mt-0.5">{safeStr(insight.insight)}</p>
                           </div>
                         </div>
                       ))}
