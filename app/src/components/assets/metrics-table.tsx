@@ -23,9 +23,10 @@ interface AssetMetricsTableProps {
   isLoading: boolean;
   viewMode?: 'list' | 'grid';
   onDelete?: (assetId: string) => Promise<void>;
+  onAnalyzeVisual?: (assetId: string, imageUri: string) => Promise<void>;
 }
 
-export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDelete }: AssetMetricsTableProps) {
+export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDelete, onAnalyzeVisual }: AssetMetricsTableProps) {
   const [selectedAsset, setSelectedAsset] = useState<AssetMetric | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -406,6 +407,9 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
         onDelete={onDelete ? async (id) => {
           await onDelete(id);
           setIsModalOpen(false);
+        } : undefined}
+        onAnalyzeVisual={onAnalyzeVisual ? async (id, uri) => {
+          await onAnalyzeVisual(id, uri);
         } : undefined}
       />
     </div>

@@ -1,9 +1,9 @@
 'use client';
 
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
@@ -20,40 +20,85 @@ import {
   Eye,
   ArrowUpRight,
   Trash2,
-  Loader2
+  Loader2,
+  Palette,
+  ScanEye
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 interface AssetDetailModalProps {
   asset: AssetMetric | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onDelete?: (assetId: string) => Promise<void>;
+  onAnalyzeVisual?: (assetId: string, imageUri: string) => Promise<void>;
 }
 
-export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete }: AssetDetailModalProps) {
+/** Parse heuristics_summary JSON from Pinecone metadata */
+function parseHeuristics(metadata: any): {
+  legibility: number | null;
+  colorPsychology: number | null;
+  visualHooks: string | null;
+  hasData: boolean;
+} {
+  try {
+    const raw = metadata?.heuristics_summary;
+    if (!raw) return { legibility: null, colorPsychology: null, visualHooks: null, hasData: false };
+    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    return {
+      legibility: parsed?.legibility?.score ?? null,
+      colorPsychology: parsed?.colorPsychology?.score ?? null,
+      visualHooks: parsed?.visualHooks?.effectiveness ?? (parsed?.visualHooks?.presence ? 'Presente' : null),
+      hasData: true,
+    };
+  } catch {
+    return { legibility: null, colorPsychology: null, visualHooks: null, hasData: false };
+  }
+}
+
+export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnalyzeVisual }: AssetDetailModalProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const heuristics = useMemo(() => {
+    if (!asset) return { legibility: null, colorPsychology: null, visualHooks: null, hasData: false };
+    return parseHeuristics(asset.metadata);
+  }, [asset]);
 
   if (!asset) return null;
 
+  const isVisualAsset = asset.namespace === 'visual';
+  const isImageAsset = !!(asset.imageUri || asset.url);
+  const canAnalyze = isImageAsset && !isVisualAsset && onAnalyzeVisual;
+
   const handleConsultCouncil = () => {
-    // Redirecionar para o chat com contexto do ativo
-    // Usamos o ID do ativo ou nome para o contexto
     const contextParam = encodeURIComponent(`Gostaria de um conselho sobre o ativo: ${asset.name || asset.assetType}. Ele tem um score de ${asset.score}.`);
     router.push(`/chat?mode=general&initialMessage=${contextParam}`);
     onOpenChange(false);
   };
 
-  // Heurísticas extraídas do metadado (fallback para valores mockados se não existirem)
-  const heuristics = [
-    { label: 'Contraste', value: asset.metadata?.contrast || '85%', icon: Layout, color: 'text-purple-400' },
-    { label: 'Legibilidade', value: asset.metadata?.readability || '92%', icon: Eye, color: 'text-blue-400' },
-    { label: 'Hook Strength', value: asset.metadata?.hookStrength || '78%', icon: Zap, color: 'text-amber-400' },
-    { label: 'Congruência', value: asset.metadata?.congruence || 'High', icon: Target, color: 'text-emerald-400' },
-  ];
+  const handleAnalyze = async () => {
+    if (!onAnalyzeVisual) return;
+    const uri = asset.imageUri || asset.url;
+    if (!uri) return;
+    setIsAnalyzing(true);
+    try {
+      await onAnalyzeVisual(asset.id, uri);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  // Build heuristics display items for visual assets
+  const heuristicItems = isVisualAsset ? [
+    { label: 'Psicologia de Cores', value: heuristics.colorPsychology !== null ? `${heuristics.colorPsychology}%` : 'Sem dados', icon: Palette, color: 'text-purple-400' },
+    { label: 'Legibilidade', value: heuristics.legibility !== null ? `${heuristics.legibility}%` : 'Sem dados', icon: Eye, color: 'text-blue-400' },
+    { label: 'Hook Visual', value: heuristics.visualHooks || 'Sem dados', icon: Zap, color: 'text-amber-400' },
+    { label: 'Score Geral', value: asset.score > 0 ? `${asset.score}/100` : 'N/A', icon: Target, color: 'text-emerald-400' },
+  ] : [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -64,21 +109,21 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete }: Asse
         <div className="relative">
           {/* Header Visual */}
           <div className="h-32 w-full bg-gradient-to-br from-purple-500/20 via-emerald-500/10 to-zinc-950 border-b border-white/[0.05]" />
-          
+
           <div className="px-6 pb-6 -mt-12 relative z-10">
             <div className="flex flex-col md:flex-row gap-6">
               {/* Preview do Ativo */}
               <div className="w-full md:w-1/2">
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className="aspect-square rounded-2xl overflow-hidden bg-zinc-900 border border-white/[0.1] shadow-2xl flex items-center justify-center group relative"
                 >
                   {asset.imageUri ? (
-                    <img 
-                      src={asset.imageUri} 
-                      alt={asset.name} 
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                    <img
+                      src={asset.imageUri}
+                      alt={asset.name}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   ) : (
                     <div className="flex flex-col items-center gap-3 text-zinc-500">
@@ -86,7 +131,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete }: Asse
                       <span className="text-xs font-mono uppercase tracking-widest">Documento de Texto</span>
                     </div>
                   )}
-                  
+
                   {/* Overlay Glass */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
                     <span className="text-[10px] font-black uppercase tracking-widest text-white/80">Preview em Alta Fidelidade</span>
@@ -100,7 +145,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete }: Asse
                   <div className="flex items-center gap-2 mb-2">
                     <span className={cn(
                       "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border",
-                      asset.namespace === 'visual' ? "bg-purple-500/10 border-purple-500/20 text-purple-400" : "bg-blue-500/10 border-blue-500/20 text-blue-400"
+                      isVisualAsset ? "bg-purple-500/10 border-purple-500/20 text-purple-400" : "bg-blue-500/10 border-blue-500/20 text-blue-400"
                     )}>
                       {asset.namespace}
                     </span>
@@ -116,24 +161,46 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete }: Asse
                   </p>
                 </div>
 
-                {/* Heurísticas Grid */}
-                <div className="grid grid-cols-2 gap-3">
-                  {heuristics.map((h, i) => (
-                    <motion.div 
-                      key={h.label}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] transition-colors"
-                    >
+                {/* Heurísticas Grid — only for visual namespace assets (1.6.4) */}
+                {isVisualAsset && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {heuristicItems.map((h, i) => (
+                      <motion.div
+                        key={h.label}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                        className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] transition-colors"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <h.icon className={cn("h-3.5 w-3.5", h.color)} />
+                          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{h.label}</span>
+                        </div>
+                        <span className="text-sm font-bold text-white">{h.value}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Knowledge asset info (1.6.4) */}
+                {!isVisualAsset && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
                       <div className="flex items-center gap-2 mb-1">
-                        <h.icon className={cn("h-3.5 w-3.5", h.color)} />
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{h.label}</span>
+                        <FileText className="h-3.5 w-3.5 text-blue-400" />
+                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Tipo</span>
                       </div>
-                      <span className="text-sm font-bold text-white">{h.value}</span>
-                    </motion.div>
-                  ))}
-                </div>
+                      <span className="text-sm font-bold text-white">{asset.assetType}</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Layout className="h-3.5 w-3.5 text-blue-400" />
+                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Status</span>
+                      </div>
+                      <span className="text-sm font-bold text-white capitalize">{asset.status || 'ready'}</span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Métricas de Conversão */}
                 <div className="p-4 rounded-xl bg-emerald-500/[0.03] border border-emerald-500/10">
@@ -159,9 +226,26 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete }: Asse
 
                 {/* Action Buttons */}
                 <div className="flex gap-3">
+                  {/* Analyze Visual button — for image assets not yet analyzed (1.6.2) */}
+                  {canAnalyze && (
+                    <button
+                      onClick={handleAnalyze}
+                      disabled={isAnalyzing}
+                      className="flex-1 group relative flex items-center justify-center gap-3 h-12 rounded-xl bg-purple-600 text-white font-black text-xs uppercase tracking-widest overflow-hidden transition-all hover:bg-purple-500 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                    >
+                      {isAnalyzing ? (
+                        <><Loader2 className="h-4 w-4 animate-spin" /> Analisando...</>
+                      ) : (
+                        <><ScanEye className="h-4 w-4" /> Analisar Visual</>
+                      )}
+                    </button>
+                  )}
                   <button
                     onClick={handleConsultCouncil}
-                    className="flex-1 group relative flex items-center justify-center gap-3 h-12 rounded-xl bg-white text-black font-black text-xs uppercase tracking-widest overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    className={cn(
+                      "group relative flex items-center justify-center gap-3 h-12 rounded-xl bg-white text-black font-black text-xs uppercase tracking-widest overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98]",
+                      canAnalyze ? "flex-1" : "flex-1"
+                    )}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity" />
                     <MessageSquare className="h-4 w-4" />

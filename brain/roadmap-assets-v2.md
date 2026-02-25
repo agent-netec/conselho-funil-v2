@@ -142,10 +142,66 @@
 ### 1.5.3 Investigar Pipeline Visual (namespace `visual` vazio)
 - **Pipeline existe:** `app/src/app/api/ai/analyze-visual/route.ts` — Gemini Vision → embedding → Pinecone `visual`
 - **Trigger:** Endpoint POST `/api/ai/analyze-visual` requer `imageUri`, `brandId`, `userId`
-- **Hipotese:** Nunca foi trigado em producao (UI pode nao estar conectada ou nunca foi usada)
-- **Acao:** Verificar se botao "Analisar Visual" esta wired na UI do assets, ou se precisa ativar
+- **Confirmado (2026-02-24):** NENHUM componente .tsx chama este endpoint. Pipeline nunca foi trigado.
+- **Resultado:** Aba VISUAL sempre vazia (0 items). Imagens aparecem em CONHECIMENTO via pipeline de texto/OCR.
 
 ### Creditos: 0
+
+---
+
+## Fase 1.6 — Ativar Pipeline Visual ("Olho do Conselho")
+
+**Status:** PLANEJADO — diagnosticado 2026-02-24/25, auditoria de infra completa.
+**Prerequisitos de infra:** TODOS OK (env vars, Pinecone, Firestore, creditos). Zero config adicional necessaria.
+**Custo:** 2 creditos por analise visual.
+
+### 1.6.1 Fix Seguranca: Auth Guard no endpoint
+- **Arquivo:** `app/src/app/api/ai/analyze-visual/route.ts`
+- **Problema:** Endpoint aceita `userId` no body sem validar token Bearer. Qualquer request pode gastar creditos de qualquer usuario.
+- **Fix:** Adicionar `requireBrandAccess(request, brandId)` + extrair userId do token (nao do body)
+- **Imports:** `requireBrandAccess` de `@/lib/auth/brand-guard`, `handleSecurityError` de `@/lib/utils/api-security`
+
+### 1.6.2 Conectar Trigger na UI (assets page)
+- **Opcao A (recomendada):** Botao "Analisar Visual" no `AssetDetailModal` para assets tipo IMAGE
+  - Aparece apenas quando `asset.assetType` inclui 'image' ou asset.url termina em .jpg/.png/.webp
+  - Estado: idle → loading (spinner) → success (reload metrics) | error (toast)
+  - Chama POST `/api/ai/analyze-visual` com `{ imageUri: asset.url || asset.imageUri, brandId, userId }`
+- **Opcao B (futura):** Auto-trigger apos upload de imagem no pipeline de ingestao
+  - Mais complexo, pode ser Fase 2
+- **Arquivos:**
+  - `app/src/components/assets/asset-detail-modal.tsx` — adicionar botao + handler
+  - `app/src/app/assets/page.tsx` — passar brandId/userId como props
+
+### 1.6.3 Fix Heuristicas Mockadas no Modal
+- **Arquivo:** `app/src/components/assets/asset-detail-modal.tsx:51-56`
+- **Problema:** Heuristicas mostram valores fixos (85%, 92%, 78%, "High") em vez dos dados reais
+- **O Pinecone salva:** `metadata.heuristics_summary` como JSON string com:
+  - `legibility.score` (0-100)
+  - `colorPsychology.score` (0-100)
+  - `visualHooks.presence` (bool) + `visualHooks.effectiveness` (string)
+- **Fix:** Parsear `asset.metadata?.heuristics_summary` (JSON.parse) e mapear:
+  - Contraste → nao existe, remover ou substituir por colorPsychology
+  - Legibilidade → `heuristics.legibility.score`
+  - Hook Strength → `heuristics.visualHooks.effectiveness`
+  - Congruencia → pode derivar do score geral ou remover
+- **Fallback:** Para assets sem analise visual (knowledge), manter "Sem dados" em vez de valores fake
+
+### 1.6.4 Exibir heuristicas apenas para assets visuais
+- **Logica:** Grid de heuristicas so aparece quando `asset.namespace === 'visual'`
+- **Para knowledge:** Mostrar secao diferente (ex: "Chunks vetorizados", "Tipo de documento")
+
+### Creditos: 2 por analise
+
+### Checklist pre-deploy
+- [x] Env vars configuradas no Vercel (GOOGLE_AI_API_KEY, PINECONE_*, etc)
+- [x] Pinecone index cf-dev-assets com 768 dims — namespace `visual` cria automaticamente
+- [x] Firestore indexes deployados (22 indices compostos, 2026-02-25)
+- [x] Sistema de creditos funcional (-2 por analise)
+- [x] Dashboard de metricas ja busca namespace `visual`
+- [ ] Auth guard no endpoint (1.6.1)
+- [ ] Botao trigger na UI (1.6.2)
+- [ ] Heuristicas reais no modal (1.6.3)
+- [ ] Condicional visual vs knowledge no modal (1.6.4)
 
 ---
 

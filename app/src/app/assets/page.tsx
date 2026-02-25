@@ -166,6 +166,28 @@ export default function AssetsPage() {
     }
   };
 
+  const handleAnalyzeVisual = async (assetId: string, imageUri: string) => {
+    if (!user || !activeBrand) return;
+    const toastId = toast.loading('Analisando visual com IA...');
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch('/api/ai/analyze-visual', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ imageUri, brandId: activeBrand.id }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || data.message || 'Erro na análise visual');
+      }
+      await refresh();
+      toast.success('Análise visual concluída! (-2 créditos)', { id: toastId });
+    } catch (err: any) {
+      console.error('[Visual] Erro:', err);
+      toast.error(err.message || 'Falha na análise visual', { id: toastId });
+    }
+  };
+
   const handleExport = () => {
     if (filteredAssets.length === 0) {
       toast.error('Nenhum ativo para exportar');
@@ -371,6 +393,7 @@ export default function AssetsPage() {
               isLoading={isLoading}
               viewMode={viewMode}
               onDelete={handleDeleteAsset}
+              onAnalyzeVisual={handleAnalyzeVisual}
             />
           </div>
         </div>

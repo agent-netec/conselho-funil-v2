@@ -95,9 +95,91 @@
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "collectedAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "vault_library",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "predictions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "targetId", "order": "ASCENDING" },
+        { "fieldPath": "model", "order": "ASCENDING" },
+        { "fieldPath": "calculatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "research",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "topic", "order": "ASCENDING" },
+        { "fieldPath": "expiresAt", "order": "ASCENDING" },
+        { "fieldPath": "generatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "automation_logs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ruleId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "alerts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "clientId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "journey_events",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "leadId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "icp_insights",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "scope.level", "order": "ASCENDING" },
+        { "fieldPath": "isApprovedForAI", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "icp_insights",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "scope.level", "order": "ASCENDING" },
+        { "fieldPath": "scope.funnelId", "order": "ASCENDING" },
+        { "fieldPath": "isApprovedForAI", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "voice_profiles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "scope.level", "order": "ASCENDING" },
+        { "fieldPath": "scope.funnelId", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "voice_profiles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "scope.level", "order": "ASCENDING" },
+        { "fieldPath": "isDefault", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
 }
-
-

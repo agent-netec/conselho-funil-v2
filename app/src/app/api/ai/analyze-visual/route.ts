@@ -7,6 +7,8 @@ import { generateEmbedding } from '@/lib/ai/embeddings';
 import { upsertToPinecone } from '@/lib/ai/pinecone';
 import { v4 as uuidv4 } from 'uuid';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -26,10 +28,19 @@ interface VisionAnalysisRequest {
 export async function POST(request: NextRequest) {
   try {
     const body: VisionAnalysisRequest = await request.json();
-    const { imageUri, brandId, userId, context: additionalContext } = body;
+    const { imageUri, brandId, context: additionalContext } = body;
 
-    if (!imageUri || !brandId || !userId) {
-      return createApiError(400, 'imageUri, brandId and userId are required');
+    if (!imageUri || !brandId) {
+      return createApiError(400, 'imageUri and brandId are required');
+    }
+
+    // Auth guard: validate token and extract userId (1.6.1)
+    let userId: string;
+    try {
+      const auth = await requireBrandAccess(request, brandId);
+      userId = auth.userId;
+    } catch (err: any) {
+      return handleSecurityError(err);
     }
 
     // 1. Carregar Contexto da Marca
