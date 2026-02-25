@@ -71,7 +71,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
   if (!asset) return null;
 
   const isVisualAsset = asset.namespace === 'visual';
-  const isImageAsset = !!(asset.imageUri || asset.url);
+  const isImageAsset = !!asset.imageUri || asset.assetType?.toLowerCase().includes('image');
   const canAnalyze = isImageAsset && !isVisualAsset && onAnalyzeVisual;
 
   const handleConsultCouncil = () => {
@@ -103,6 +103,9 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl bg-zinc-950/90 backdrop-blur-2xl border-white/[0.08] text-white p-0 overflow-hidden shadow-2xl">
+        <DialogTitle className="sr-only">
+          {asset.name || asset.assetType}
+        </DialogTitle>
         <DialogDescription className="sr-only">
           Detalhes do ativo {asset.name || asset.assetType}
         </DialogDescription>
