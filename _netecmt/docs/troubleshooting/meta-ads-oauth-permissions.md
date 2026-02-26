@@ -252,5 +252,27 @@ Antes de reportar "Meta Ads não funciona", verificar:
 
 ---
 
-*Conselho de Funil — Documentação de Troubleshooting*
-*Atualizado: 2026-02-23*
+---
+
+## 11. BLOQUEIO: Convite de Testador Nao Funciona (2026-02-24)
+
+O fluxo de adicionar Testador no app Meta **nao esta funcionando de forma confiavel**:
+- Admin adiciona usuario → status "Pendente"
+- Usuario NAO recebe notificacao em lugar nenhum
+- `developers.facebook.com/requests/` nao existe mais
+- Nenhuma das alternativas (notificacoes FB, settings, URL direta) mostra o convite
+
+### Implicacao
+Enquanto o app estiver em **Standard Access**, usuarios terceiros nao conseguem completar OAuth.
+O caminho para resolver e um dos seguintes:
+
+1. **Advanced Access (App Review)** — permite qualquer usuario, sem convite de testador
+2. **Token Manual via UI** — usuario gera token no Graph API Explorer e cola na pagina de integracoes
+3. **System User Token** — token permanente gerado no Business Manager (melhor para producao)
+
+> **Status:** Pendente investigacao. Ver roadmap.
+
+---
+
+*Conselho de Funil — Documentacao de Troubleshooting*
+*Atualizado: 2026-02-24*

@@ -336,21 +336,27 @@ export async function* generateWithGeminiStream(
 /**
  * Gera uma resposta formatada para o Conselho de Estrategistas.
  * Utiliza um builder de prompt para combinar a consulta, o contexto RAG e as instruções do sistema.
- * 
+ *
  * @param query - A pergunta do usuário.
  * @param context - O contexto recuperado via RAG.
  * @param systemPrompt - Instruções específicas do sistema ou do conselheiro.
  * @param model - Modelo opcional a ser usado. Padrão: DEFAULT_GEMINI_MODEL (2.5-flash).
+ * @param options - Configuração opcional de temperatura/topP (lida da brand.aiConfiguration).
  * @returns Uma promessa com a resposta gerada.
  */
 export async function generateCouncilResponseWithGemini(
   query: string,
   context: string,
   systemPrompt?: string,
-  model?: string
+  model?: string,
+  options?: { temperature?: number; topP?: number }
 ): Promise<string> {
   const fullPrompt = buildChatPrompt(query, context, systemPrompt);
-  const response = await generateWithGemini(fullPrompt, { model });
+  const response = await generateWithGemini(fullPrompt, {
+    model,
+    temperature: options?.temperature,
+    topP: options?.topP,
+  });
   
   // US-1.5.3: Post-processing para garantir a tag [COUNCIL_OUTPUT]
   if (response.includes('{') && response.includes('}') && !response.includes('[COUNCIL_OUTPUT]:')) {
@@ -409,6 +415,10 @@ export async function generateStructuredCouncilResponseWithGemini(
 
 /**
  * Gera uma resposta para o modo Party (Múltiplos Agentes).
+ *
+ * NOTA INTENCIONAL (R1.5): Party Mode usa temperatura fixa de 0.8 para
+ * incentivar debate/criatividade entre agentes. NÃO deve usar brand.aiConfiguration,
+ * pois a dinâmica de "brainstorm" depende de outputs mais variados.
  */
 export async function generatePartyResponseWithGemini(
   query: string,
@@ -421,7 +431,7 @@ export async function generatePartyResponseWithGemini(
   return generateWithGemini(fullPrompt, {
     model,
     maxOutputTokens: 8192, // Mais tokens para debate longo
-    temperature: 0.8, // Mais criatividade/debate
+    temperature: 0.8, // Fixa: mais criatividade/debate (intencional, não é bug)
   });
 }
 

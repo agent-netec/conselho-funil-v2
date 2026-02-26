@@ -305,7 +305,7 @@ Step 7: Checklist de proximos passos
 | Firebase Auth | CRITICA | ✅ Funcional | Sim — auth |
 | Firebase Firestore | CRITICA | ✅ Funcional | Sim — data |
 | Firebase Storage | CRITICA | ✅ Funcional | Sim — uploads |
-| Meta Ads | ALTA | ⚠️ Parcial (manual token) | Depende do publico-alvo |
+| Meta Ads | ALTA | ⚠️ OAuth funcional mas Standard Access (so testers) — convite de tester NAO funciona | Requer App Review para Advanced Access |
 | Exa | ALTA | ✅ Funcional | Sim — research |
 | Firecrawl | ALTA | ✅ Funcional | Sim — research |
 | Slack | MEDIA | ✅ Funcional | Nao — nice to have |
@@ -362,6 +362,14 @@ Step 7: Checklist de proximos passos
 2. Stripe — se for SaaS pago
 3. Meta Ads — validacao de token ao salvar
 4. Health dashboard na Central de Integracoes
+5. **Meta Advanced Access (App Review)** — necessario para usuarios terceiros conectarem via OAuth
+   - Preparar descricao de casos de uso para cada permissao (ads_read, ads_management, etc.)
+   - Gravar screencast mostrando o app usando as permissoes
+   - Configurar Privacy Policy URL (obrigatorio)
+   - Completar Business Verification (documentos da empresa)
+   - Submeter para App Review (~3-5 dias uteis)
+   - **BLOQUEIO ATUAL:** Convite de Testador nao funciona de forma confiavel — Advanced Access elimina essa dependencia
+   - **Workaround temporario:** Token manual via UI (usuario gera no Graph API Explorer e cola em /integrations)
 
 ---
 

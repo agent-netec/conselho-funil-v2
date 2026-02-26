@@ -191,24 +191,24 @@ async function handlePOST(request: NextRequest) {
     }
 
     // 4. Brand Context and Brand Assets RAG
-    let brandContextPromise = Promise.resolve({ context: '', brandChunks: [] as any[] });
+    let brandContextPromise = Promise.resolve({ context: '', brandChunks: [] as any[], brand: null as Brand | null });
     if (conversation?.brandId) {
       brandContextPromise = (async () => {
         try {
           // ST-12.5: RAG Caching via sessionStorage (simulated in API for consistency)
           // Em um ambiente real de API, o cache seria Redis, mas aqui vamos simular
           // o comportamento de evitar chamadas repetitivas ao Pinecone se os dados forem idênticos.
-          
+
           const brand = await getBrand(conversation.brandId!);
           if (brand) {
             const bContext = formatBrandContextForChat(brand);
             const bChunks = await retrieveBrandChunks(conversation.brandId!, message, 5);
-            return { context: bContext, brandChunks: bChunks };
+            return { context: bContext, brandChunks: bChunks, brand };
           }
         } catch (err) {
           console.error('Error loading brand:', err);
         }
-        return { context: '', brandChunks: [] };
+        return { context: '', brandChunks: [], brand: null };
       })();
     }
 
@@ -296,7 +296,7 @@ async function handlePOST(request: NextRequest) {
     ]);
     console.log('[Chat API] Context retrieval completed.');
 
-    const { context: brandContext, brandChunks } = brandResult;
+    const { context: brandContext, brandChunks, brand } = brandResult;
     const brandFilesContext = brandChunks.length > 0 ? formatBrandContextForLLM(brandChunks) : '';
 
     // Build context from retrieved chunks + brand + funnel data
@@ -383,7 +383,11 @@ async function handlePOST(request: NextRequest) {
         console.log(`Generating council response for mode: ${effectiveMode}`);
         // ST-11.6: Design usa Flash preview; demais usam Pro para máxima qualidade
         const model = effectiveMode === 'design' ? 'gemini-3-flash-preview' : PRO_GEMINI_MODEL;
-        assistantResponse = await generateCouncilResponseWithGemini(message, enrichedContext, systemPrompt, model);
+        // R1.5: Ler temperatura/topP da brand.aiConfiguration (se disponível)
+        assistantResponse = await generateCouncilResponseWithGemini(message, enrichedContext, systemPrompt, model, {
+          temperature: brand?.aiConfiguration?.temperature,
+          topP: brand?.aiConfiguration?.topP,
+        });
       }
     } catch (aiError) {
       console.error('AI generation error:', aiError);

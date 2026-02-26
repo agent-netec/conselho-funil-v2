@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
 
     // Return confirmation URL as required by Meta
     const confirmationCode = `deletion_${metaUserId}_${Date.now()}`;
-    const statusUrl = `https://app-rho-flax-25.vercel.app/data-deletion?code=${confirmationCode}`;
+    const origin = new URL(req.url).origin;
+    const statusUrl = `${origin}/data-deletion?code=${confirmationCode}`;
 
     return NextResponse.json({
       url: statusUrl,
