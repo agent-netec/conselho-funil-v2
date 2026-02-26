@@ -36,7 +36,7 @@ const EXPORT_OPTIONS: { format: ExportFormat; label: string; icon: any; descript
 
 function generateMarkdown(funnel: Funnel, proposals: Proposal[]): string {
   let md = `# ${funnel.name}\n\n`;
-  md += `> ${funnel.context?.objective ? `Objetivo: ${funnel.context.objective}` : 'Funil criado com Conselho de Funil'}\n\n`;
+  md += `> ${funnel.context?.objective ? `Objetivo: ${funnel.context.objective}` : 'Funil criado com MKTHONEY'}\n\n`;
   
   md += `## 📋 Contexto\n\n`;
   md += `| Campo | Valor |\n`;
@@ -77,7 +77,7 @@ function generateMarkdown(funnel: Funnel, proposals: Proposal[]): string {
     });
   }
 
-  md += `\n*Gerado por [Conselho de Funil](https://conselho-de-funil.vercel.app) em ${new Date().toLocaleDateString('pt-BR')}*\n`;
+  md += `\n*Gerado por [MKTHONEY](https://mkthoney.com) em ${new Date().toLocaleDateString('pt-BR')}*\n`;
   
   return md;
 }
@@ -107,7 +107,7 @@ function generateHTML(funnel: Funnel, proposals: Proposal[]): string {
 </head>
 <body>
   <h1>🎯 ${funnel.name}</h1>
-  <blockquote>${funnel.context?.objective ? `Objetivo: ${funnel.context.objective}` : 'Funil criado com Conselho de Funil'}</blockquote>
+  <blockquote>${funnel.context?.objective ? `Objetivo: ${funnel.context.objective}` : 'Funil criado com MKTHONEY'}</blockquote>
   
   <h2>📋 Contexto</h2>
   <table>
@@ -157,7 +157,7 @@ function generateHTML(funnel: Funnel, proposals: Proposal[]): string {
 
   html += `
   <div class="footer">
-    <p>Gerado por <strong>Conselho de Funil</strong> em ${new Date().toLocaleDateString('pt-BR')}</p>
+    <p>Gerado por <strong>MKTHONEY</strong> em ${new Date().toLocaleDateString('pt-BR')}</p>
   </div>
 </body>
 </html>`;
@@ -186,7 +186,7 @@ function generateJSON(funnel: Funnel, proposals: Proposal[]): string {
       strategy: p.strategy,
     })),
     exportedAt: new Date().toISOString(),
-    source: 'Conselho de Funil',
+    source: 'MKTHONEY',
   };
   
   return JSON.stringify(data, null, 2);

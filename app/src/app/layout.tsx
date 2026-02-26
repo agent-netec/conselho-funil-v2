@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/providers/auth-provider";
 import { PostHogProvider } from "@/components/providers/posthog-provider";
 import { AppShell } from "@/components/layout/app-shell";
 import { BrandingProvider } from "@/components/providers/branding-provider";
+import { CookieBanner } from "@/components/legal";
 import { Toaster } from "sonner";
 
 // const inter = Inter({
@@ -18,8 +19,8 @@ import { Toaster } from "sonner";
 // });
 
 export const metadata: Metadata = {
-  title: "Conselho de Funil",
-  description: "Plataforma de Criação, Avaliação e Governança de Funis",
+  title: "MKTHONEY",
+  description: "Plataforma de inteligência estratégica de marketing com IA",
 };
 
 export default function RootLayout({
@@ -36,6 +37,7 @@ export default function RootLayout({
           <PostHogProvider>
             <BrandingProvider>
               <AppShell>{children}</AppShell>
+              <CookieBanner />
             </BrandingProvider>
           </PostHogProvider>
         </AuthProvider>

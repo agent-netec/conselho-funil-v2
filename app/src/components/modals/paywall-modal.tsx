@@ -70,7 +70,7 @@ export function PaywallModal({ isOpen, onOpenChange }: PaywallModalProps) {
         <DialogFooter className="p-6 bg-white/[0.02] border-t border-white/[0.04] flex-col sm:flex-col gap-3">
           <Button 
             className="w-full h-12 bg-violet-600 hover:bg-violet-500 text-white font-bold text-lg rounded-xl shadow-lg shadow-violet-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-            onClick={() => window.open('https://conselho-de-funil.vercel.app/pricing', '_blank')}
+            onClick={() => window.open('https://mkthoney.com/pricing', '_blank')}
           >
             Ver Planos de Upgrade
           </Button>

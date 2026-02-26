@@ -139,7 +139,7 @@ export default function SharedFunnelPage() {
         >
           <div className="flex items-center gap-2 text-emerald-400 text-sm mb-2">
             <Zap className="h-4 w-4" />
-            Conselho de Funil
+            MKTHONEY
           </div>
           <h1 className="text-3xl font-bold text-white">{funnel.name}</h1>
           {funnel.context?.objective && (
@@ -267,7 +267,7 @@ export default function SharedFunnelPage() {
           className="mt-12 pt-6 border-t border-zinc-800 text-center text-zinc-500 text-sm"
         >
           <p>
-            Compartilhado via <span className="text-emerald-400">Conselho de Funil</span>
+            Compartilhado via <span className="text-emerald-400">MKTHONEY</span>
           </p>
         </motion.div>
       </div>

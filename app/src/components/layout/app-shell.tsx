@@ -13,7 +13,18 @@ interface AppShellProps {
 }
 
 // Pages that don't require authentication
-const PUBLIC_PATHS = ['/login', '/signup'];
+// R5.2: Extended to include legal pages and landing
+const PUBLIC_PATHS = [
+  '/login',
+  '/signup',
+  '/landing',
+  '/terms',
+  '/privacy',
+  '/cookies',
+  '/refund',
+  '/pricing',
+  '/shared', // shared funnel pages
+];
 
 function LoadingScreen() {
   return (
@@ -93,7 +104,8 @@ export function AppShell({ children }: AppShellProps) {
   // US-28.01: Check if Firebase is properly configured
   const isFirebaseAvailable = !((auth as any)?._isMock);
 
-  const isPublicPage = PUBLIC_PATHS.includes(pathname);
+  // R5.2: Check if path starts with any public path (for dynamic routes like /shared/[token])
+  const isPublicPage = PUBLIC_PATHS.some(path => pathname === path || pathname?.startsWith(`${path}/`));
   const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/signup');
   const isWelcomePage = pathname === '/welcome';
 

@@ -1,4 +1,4 @@
-# Conselho de Funil — Instruções do Projeto
+# MKTHONEY — Instruções do Projeto
 
 ## Stack
 - Next.js 16, React 19, TypeScript, Firebase, Pinecone, Gemini AI

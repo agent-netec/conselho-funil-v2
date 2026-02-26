@@ -2,6 +2,29 @@ import { create } from 'zustand';
 import type { User } from 'firebase/auth';
 import { onAuthChange, signOut as authSignOut } from '@/lib/firebase/auth';
 
+// R5.2: Cookie name for auth presence detection (matches middleware.ts)
+const AUTH_COOKIE = 'mkthoney_auth';
+
+/**
+ * Set auth presence cookie (client-side).
+ * Used by middleware to detect if user might be authenticated.
+ */
+function setAuthCookie() {
+  if (typeof document !== 'undefined') {
+    // Set cookie with 30-day expiry, SameSite=Lax for security
+    document.cookie = `${AUTH_COOKIE}=1; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
+  }
+}
+
+/**
+ * Remove auth presence cookie (client-side).
+ */
+function removeAuthCookie() {
+  if (typeof document !== 'undefined') {
+    document.cookie = `${AUTH_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+  }
+}
+
 interface AuthState {
   user: User | null;
   isLoading: boolean;
@@ -35,6 +58,12 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     try {
       const unsubscribe = onAuthChange((user) => {
+        // R5.2: Sync auth cookie with Firebase auth state
+        if (user) {
+          setAuthCookie();
+        } else {
+          removeAuthCookie();
+        }
         set({ user, isLoading: false, isInitialized: true });
       });
 
@@ -56,6 +85,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   signOut: async () => {
     set({ isLoading: true });
     await authSignOut();
+    // R5.2: Remove auth cookie on logout
+    removeAuthCookie();
     set({ user: null, isLoading: false });
   },
 }));

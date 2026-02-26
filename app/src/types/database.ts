@@ -22,6 +22,20 @@ export interface UserPreferences {
   onboardingPhase1AComplete?: boolean;
 }
 
+/** R4.4: Subscription tier for feature gating */
+export type UserTier = 'free' | 'trial' | 'starter' | 'pro' | 'agency';
+
+/** R4.4: Usage tracking for tier limits */
+export interface UserTierUsage {
+  brands: number;
+  activeFunnels: number;
+  totalAssets: number;
+  ragDocs: number;
+  monthlyQueries: number;
+  monthlyPageForensics: number;
+  lastResetAt?: Timestamp; // Monthly reset timestamp
+}
+
 export interface User {
   id: string;
   email: string;
@@ -31,7 +45,16 @@ export interface User {
   agencyId?: string; // ST-23.1: Referência à agência (opcional para usuários solo)
   role: 'admin' | 'member' | 'viewer' | 'agency_admin' | 'agency_manager' | 'agency_viewer';
   credits: number;     // US-16.1
-  usage: number;       // US-16.1
+  usage: number;       // US-16.1 (legacy - queries consumed)
+  // R4.4: Tier system
+  tier?: UserTier;                  // Default: 'trial' for new users
+  trialExpiresAt?: Timestamp;       // Trial expiration date (14 days from signup)
+  tierUsage?: UserTierUsage;        // Usage stats for tier limits
+  // R6: Stripe billing
+  stripeCustomerId?: string;        // Stripe customer ID
+  stripeSubscriptionId?: string;    // Active Stripe subscription ID
+  subscriptionStatus?: 'active' | 'past_due' | 'canceled' | 'trialing';
+  subscriptionCurrentPeriodEnd?: Timestamp;  // End of current billing period
   preferences?: UserPreferences;
   onboardingCompleted?: boolean; // L-4: Post-signup onboarding
   createdAt: Timestamp;

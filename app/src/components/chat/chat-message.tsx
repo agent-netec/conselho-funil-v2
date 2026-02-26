@@ -38,7 +38,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
         {/* Role label */}
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-zinc-300">
-            {isUser ? 'Você' : 'Conselho de Funil'}
+            {isUser ? 'Você' : 'MKTHONEY'}
           </span>
           <span className="text-xs text-zinc-500">
             {(message.timestamp?.toDate?.() ?? new Date()).toLocaleTimeString('pt-BR', {

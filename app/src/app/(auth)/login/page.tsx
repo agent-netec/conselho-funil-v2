@@ -235,7 +235,7 @@ export default function LoginPage() {
   };
 
   const formFields = {
-    header: 'Bem-vindo ao Conselho',
+    header: 'Bem-vindo ao MKTHONEY',
     subHeader: 'Acesse sua central estratégica',
     fields: [
       {
@@ -268,7 +268,7 @@ export default function LoginPage() {
       {/* Left Side */}
       <div className='flex flex-col justify-center w-1/2 max-lg:hidden relative overflow-hidden bg-zinc-950 border-r border-white/[0.05]'>
         <Ripple mainCircleSize={100} />
-        <TechOrbitDisplay iconsArray={iconsArray} text="Conselho de Funil" />
+        <TechOrbitDisplay iconsArray={iconsArray} text="MKTHONEY" />
       </div>
 
       {/* Right Side */}

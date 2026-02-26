@@ -12,6 +12,8 @@ import {
   Menu,
   X,
   ChevronDown,
+  Lock,
+  Clock,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -33,6 +35,10 @@ import { RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { useBranding } from '@/components/providers/branding-provider';
+import { useTier } from '@/lib/hooks/use-tier';
+import { meetsMinimumTier, getTierDisplayName } from '@/lib/tier-system';
+import type { Tier } from '@/lib/tier-system';
+import { toast } from 'sonner';
 
 if (process.env.NODE_ENV !== 'production') {
   NAV_GROUPS.forEach((group) => {
@@ -50,7 +56,7 @@ if (process.env.NODE_ENV !== 'production') {
 export function Sidebar() {
   const brandingContext = useBranding();
   const branding = brandingContext?.branding || { colors: { primary: '#10b981', secondary: '#8b5cf6' } };
-  
+
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuthStore();
@@ -58,6 +64,9 @@ export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isReloading, setIsReloading] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<string[]>(['intelligence', 'strategy', 'execution', 'management']);
+
+  // R4.1: Tier system for progressive sidebar
+  const { effectiveTier, isTrial, trialDaysRemaining } = useTier();
 
   // S31-KS-04: Notification badge
   const { selectedBrand } = useBrandStore();
@@ -268,55 +277,142 @@ export function Sidebar() {
                     >
                       {group.items.map((item) => {
                         const Icon = resolveIcon(SIDEBAR_ICONS, item.icon, SIDEBAR_ICONS.Home, 'Sidebar NAV_ITEMS');
-                        const isActive = pathname === item.href || 
+                        const isActive = pathname === item.href ||
                           (item.href !== '/' && pathname.startsWith(item.href));
 
                         const isAutomationItem = item.href === '/automation';
+
+                        // R4.1: Check if user has access to this item
+                        const minTier: Tier = item.minTier || 'starter';
+                        const hasAccess = meetsMinimumTier(effectiveTier, minTier);
+                        const isLocked = !hasAccess;
+                        const isComingSoon = item.comingSoon || false;
+
+                        // Handler for locked items
+                        const handleLockedClick = (e: React.MouseEvent) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (isComingSoon) {
+                            toast.info('Em Breve', {
+                              description: `${item.label} estara disponivel em breve.`,
+                            });
+                          } else {
+                            toast.info(`Disponivel no ${getTierDisplayName(minTier)}`, {
+                              description: `Faca upgrade para acessar ${item.label}.`,
+                              action: {
+                                label: 'Ver planos',
+                                onClick: () => router.push('/settings?tab=billing'),
+                              },
+                            });
+                          }
+                        };
 
                         const NavContent = (
                           <motion.div
                             initial={false}
                             animate={{
-                              backgroundColor: isActive ? 'rgba(16, 185, 129, 0.08)' : 'rgba(255, 255, 255, 0)',
-                              scale: isActive ? 1 : 0.98,
+                              backgroundColor: isActive && !isLocked ? 'rgba(16, 185, 129, 0.08)' : 'rgba(255, 255, 255, 0)',
+                              scale: isActive && !isLocked ? 1 : 0.98,
                             }}
-                            whileTap={{ scale: 0.95 }}
+                            whileTap={{ scale: isLocked ? 0.98 : 0.95 }}
                             className={cn(
                               'relative flex items-center rounded-xl transition-all duration-300',
                               isMobile ? 'h-11 px-4 gap-4' : 'h-10 justify-center',
-                              isActive && 'sidebar-icon-active'
+                              isActive && !isLocked && 'sidebar-icon-active',
+                              isLocked && 'opacity-50 cursor-not-allowed'
                             )}
                           >
-                            <Icon 
+                            <Icon
                               className={cn(
                                 'transition-all duration-300',
                                 isMobile ? 'h-4.5 w-4.5' : 'h-[20px] w-[20px]',
-                                isActive ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-500'
-                              )} 
-                              strokeWidth={isActive ? 2 : 1.5}
+                                isActive && !isLocked ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-500',
+                                isLocked && 'text-zinc-600'
+                              )}
+                              strokeWidth={isActive && !isLocked ? 2 : 1.5}
                             />
                             {isMobile && (
                               <span className={cn(
-                                "text-sm font-medium transition-colors",
-                                isActive ? "text-emerald-400" : "text-zinc-400"
+                                "text-sm font-medium transition-colors flex-1",
+                                isActive && !isLocked ? "text-emerald-400" : "text-zinc-400",
+                                isLocked && "text-zinc-600"
                               )}>
                                 {item.label}
                               </span>
                             )}
+                            {/* R4.1: Lock icon for locked items */}
+                            {isLocked && !isMobile && (
+                              <div className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700">
+                                {isComingSoon ? (
+                                  <Clock className="h-2.5 w-2.5 text-zinc-500" />
+                                ) : (
+                                  <Lock className="h-2.5 w-2.5 text-zinc-500" />
+                                )}
+                              </div>
+                            )}
+                            {isLocked && isMobile && (
+                              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700">
+                                {isComingSoon ? (
+                                  <Clock className="h-3 w-3 text-zinc-500" />
+                                ) : (
+                                  <Lock className="h-3 w-3 text-zinc-500" />
+                                )}
+                              </div>
+                            )}
                             {/* S31-KS-04: Notification badge — Desktop: dot, Mobile: pill */}
-                            {isAutomationItem && unreadCount > 0 && !isMobile && (
+                            {isAutomationItem && unreadCount > 0 && !isMobile && !isLocked && (
                               <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-background" />
                             )}
-                            {isAutomationItem && unreadCount > 0 && isMobile && (
+                            {isAutomationItem && unreadCount > 0 && isMobile && !isLocked && (
                               <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[1.25rem] text-center">
                                 {unreadCount > 99 ? '99+' : unreadCount}
                               </span>
                             )}
-                            {isActive && !isMobile && (
+                            {isActive && !isMobile && !isLocked && (
                               <div className="absolute left-0 w-1 h-5 bg-emerald-500 rounded-r-full" />
                             )}
                           </motion.div>
                         );
+
+                        // R4.1: If locked, don't wrap in Link - use button with click handler
+                        if (isLocked) {
+                          if (isMobile) {
+                            return (
+                              <button key={item.id} onClick={handleLockedClick} className="w-full text-left">
+                                {NavContent}
+                              </button>
+                            );
+                          }
+
+                          return (
+                            <Tooltip key={item.id}>
+                              <TooltipTrigger asChild>
+                                <button onClick={handleLockedClick} className="w-full">
+                                  {NavContent}
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="right"
+                                sideOffset={12}
+                                className="bg-zinc-900 border-zinc-800/80 text-zinc-100 text-sm font-medium px-3 py-1.5"
+                              >
+                                <div className="flex items-center gap-2">
+                                  {isComingSoon ? (
+                                    <>
+                                      <Clock className="h-3 w-3 text-zinc-400" />
+                                      <span>{item.label} - Em Breve</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Lock className="h-3 w-3 text-zinc-400" />
+                                      <span>Disponivel no {getTierDisplayName(minTier)}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        }
 
                         if (isMobile) {
                           return (
@@ -333,8 +429,8 @@ export function Sidebar() {
                                 {NavContent}
                               </Link>
                             </TooltipTrigger>
-                            <TooltipContent 
-                              side="right" 
+                            <TooltipContent
+                              side="right"
                               sideOffset={12}
                               className="bg-zinc-900 border-zinc-800/80 text-zinc-100 text-sm font-medium px-3 py-1.5"
                             >

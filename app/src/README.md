@@ -1,6 +1,6 @@
 # 🗺️ Mapa da Mina: src/
 
-Bem-vindo ao coração técnico do **Conselho de Funil**. Este diretório contém toda a lógica de aplicação, componentes de interface e integrações que fazem o sistema funcionar.
+Bem-vindo ao coração técnico do **MKTHONEY**. Este diretório contém toda a lógica de aplicação, componentes de interface e integrações que fazem o sistema funcionar.
 
 ## 🏗️ Estrutura de Pastas
 
@@ -24,7 +24,7 @@ src/
 
 ## 🚀 Arquitetura & Fluxo de Dados
 
-O Conselho de Funil utiliza uma arquitetura moderna baseada em **Next.js**, **Firebase** e **Google AI**.
+O MKTHONEY utiliza uma arquitetura moderna baseada em **Next.js**, **Firebase** e **Google AI**.
 
 ### Fluxo de Requisição (Chat/RAG)
 

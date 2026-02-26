@@ -246,7 +246,7 @@ export default function SignupPage() {
 
   const formFields = {
     header: 'Criar conta',
-    subHeader: 'Comece sua jornada estratégica agora',
+    subHeader: 'Trial PRO gratuito por 14 dias. Sem cartão de crédito.',
     fields: [
       {
         label: 'Nome',
@@ -283,7 +283,7 @@ export default function SignupPage() {
       {/* Left Side */}
       <div className='flex flex-col justify-center w-1/2 max-lg:hidden relative overflow-hidden bg-zinc-950 border-r border-white/[0.05]'>
         <Ripple mainCircleSize={100} />
-        <TechOrbitDisplay iconsArray={iconsArray} text="Conselho de Funil" />
+        <TechOrbitDisplay iconsArray={iconsArray} text="MKTHONEY" />
       </div>
 
       {/* Right Side */}

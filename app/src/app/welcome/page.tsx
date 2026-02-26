@@ -93,7 +93,7 @@ export default function WelcomePage() {
 
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">
-              Bem-vindo ao <span className="text-emerald-400">Conselho de Funil</span>
+              Bem-vindo ao <span className="text-emerald-400">MKTHONEY</span>
             </h1>
             <p className="text-zinc-400 max-w-md mx-auto">
               Sua plataforma de marketing com IA. 23 especialistas prontos para criar estrategias

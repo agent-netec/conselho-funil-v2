@@ -222,6 +222,8 @@ export const COUNSELORS = COUNSELORS_REGISTRY;
 export const COPY_COUNSELORS = COUNSELORS_REGISTRY;
 
 // Navigation groups and items
+import type { Tier } from '@/lib/tier-system';
+
 export interface NavItem {
   id: string;
   label: string;
@@ -229,6 +231,10 @@ export interface NavItem {
   icon: string;
   aliases?: string[];
   sub_items?: string[];
+  /** R4.1: Minimum tier required to access this item. Default: 'starter' */
+  minTier?: Tier;
+  /** R4.2: Is this a Coming Soon feature? */
+  comingSoon?: boolean;
 }
 
 export interface NavGroup {
@@ -246,15 +252,15 @@ export const NAV_GROUPS: NavGroup[] = [
     description: 'Dados e insights que alimentam a estratégia',
     icon: 'Brain',
     items: [
-      { id: 'intelligence-dashboard', label: 'Dashboard', href: '/intelligence', icon: 'LayoutDashboard' },
-      { id: 'discovery', label: 'Discovery', href: '/intelligence/discovery', icon: 'Search', sub_items: ['Keywords', 'Spy Agent'] },
-      { id: 'attribution', label: 'Atribuição', href: '/intelligence/attribution', icon: 'GitBranch' },
-      { id: 'ltv', label: 'LTV & Retenção', href: '/intelligence/ltv', icon: 'TrendingUp' },
-      { id: 'deep-research', label: 'Deep Research', href: '/intelligence/research', icon: 'Telescope' },
-      { id: 'journey', label: 'Jornada do Lead', href: '/intelligence/journey', icon: 'Map' },
-      { id: 'ab-testing', label: 'A/B Testing', href: '/intelligence/ab-testing', icon: 'FlaskConical' },
-      { id: 'performance', label: 'Performance', href: '/performance', icon: 'Activity' },
-      { id: 'cross-channel', label: 'Cross-Channel', href: '/performance/cross-channel', icon: 'BarChart3' },
+      { id: 'intelligence-dashboard', label: 'Dashboard', href: '/intelligence', icon: 'LayoutDashboard', minTier: 'starter' },
+      { id: 'discovery', label: 'Discovery', href: '/intelligence/discovery', icon: 'Search', sub_items: ['Keywords', 'Spy Agent'], minTier: 'pro' },
+      { id: 'attribution', label: 'Atribuição', href: '/intelligence/attribution', icon: 'GitBranch', minTier: 'pro', comingSoon: true },
+      { id: 'ltv', label: 'LTV & Retenção', href: '/intelligence/ltv', icon: 'TrendingUp', minTier: 'pro', comingSoon: true },
+      { id: 'deep-research', label: 'Deep Research', href: '/intelligence/research', icon: 'Telescope', minTier: 'pro', comingSoon: true },
+      { id: 'journey', label: 'Jornada do Lead', href: '/intelligence/journey', icon: 'Map', minTier: 'pro', comingSoon: true },
+      { id: 'ab-testing', label: 'A/B Testing', href: '/intelligence/ab-testing', icon: 'FlaskConical', minTier: 'pro', comingSoon: true },
+      { id: 'performance', label: 'Performance', href: '/performance', icon: 'Activity', minTier: 'pro' },
+      { id: 'cross-channel', label: 'Cross-Channel', href: '/performance/cross-channel', icon: 'BarChart3', minTier: 'pro' },
     ],
   },
   {
@@ -263,10 +269,10 @@ export const NAV_GROUPS: NavGroup[] = [
     description: 'Planejamento e arquitetura de conversão',
     icon: 'Compass',
     items: [
-      { id: 'funnels', label: 'Funis', href: '/funnels', icon: 'Target' },
-      { id: 'offer-lab', label: 'Offer Lab', href: '/intelligence/offer-lab', icon: 'Beaker' },
-      { id: 'page-forensics', label: 'Page Forensics', href: '/strategy/autopsy', icon: 'Stethoscope' },
-      { id: 'copy-chat', label: 'Copywriting', href: '/chat?mode=copy', icon: 'PencilLine' },
+      { id: 'funnels', label: 'Funis', href: '/funnels', icon: 'Target', minTier: 'starter' },
+      { id: 'offer-lab', label: 'Offer Lab', href: '/intelligence/offer-lab', icon: 'Beaker', minTier: 'pro' },
+      { id: 'page-forensics', label: 'Page Forensics', href: '/strategy/autopsy', icon: 'Stethoscope', minTier: 'starter' },
+      { id: 'copy-chat', label: 'Copywriting', href: '/chat?mode=copy', icon: 'PencilLine', minTier: 'starter' },
     ],
   },
   {
@@ -275,13 +281,13 @@ export const NAV_GROUPS: NavGroup[] = [
     description: 'Operação e implementação de ativos',
     icon: 'Zap',
     items: [
-      { id: 'campaigns', label: 'Campanhas', href: '/campaigns', icon: 'Rocket', aliases: ['/campaign'] },
-      { id: 'ads-chat', label: 'Ads & Tráfego', href: '/chat?mode=ads', icon: 'Megaphone' },
-      { id: 'social', label: 'Social', href: '/social', icon: 'Share2' },
-      { id: 'social-inbox', label: 'Social Inbox', href: '/social-inbox', icon: 'Inbox' },
-      { id: 'automation', label: 'Automação', href: '/automation', icon: 'Cpu' },
-      { id: 'content-calendar', label: 'Calendario', href: '/content/calendar', icon: 'Calendar' },
-      { id: 'content-review', label: 'Aprovacoes', href: '/content/review', icon: 'ClipboardCheck' },
+      { id: 'campaigns', label: 'Campanhas', href: '/campaigns', icon: 'Rocket', aliases: ['/campaign'], minTier: 'pro' },
+      { id: 'ads-chat', label: 'Ads & Tráfego', href: '/chat?mode=ads', icon: 'Megaphone', minTier: 'pro' },
+      { id: 'social', label: 'Social', href: '/social', icon: 'Share2', minTier: 'pro' },
+      { id: 'social-inbox', label: 'Social Inbox', href: '/social-inbox', icon: 'Inbox', minTier: 'pro', comingSoon: true },
+      { id: 'automation', label: 'Automação', href: '/automation', icon: 'Cpu', minTier: 'pro' },
+      { id: 'content-calendar', label: 'Calendario', href: '/content/calendar', icon: 'Calendar', minTier: 'pro' },
+      { id: 'content-review', label: 'Aprovacoes', href: '/content/review', icon: 'ClipboardCheck', minTier: 'pro' },
     ],
   },
   {
@@ -290,10 +296,10 @@ export const NAV_GROUPS: NavGroup[] = [
     description: 'Governança de marca e ativos',
     icon: 'ShieldCheck',
     items: [
-      { id: 'brands', label: 'Marcas', href: '/brands', icon: 'Building' },
-      { id: 'brand-hub', label: 'Brand Hub', href: '/brand-hub', icon: 'Palette' },
-      { id: 'assets', label: 'Biblioteca de Ativos', href: '/assets', icon: 'FolderKanban' },
-      { id: 'vault', label: 'Vault', href: '/vault', icon: 'Database' },
+      { id: 'brands', label: 'Marcas', href: '/brands', icon: 'Building', minTier: 'starter' },
+      { id: 'brand-hub', label: 'Brand Hub', href: '/brand-hub', icon: 'Palette', minTier: 'starter' },
+      { id: 'assets', label: 'Biblioteca de Ativos', href: '/assets', icon: 'FolderKanban', minTier: 'starter' },
+      { id: 'vault', label: 'Vault', href: '/vault', icon: 'Database', minTier: 'pro' },
     ],
   },
   {
@@ -301,8 +307,8 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Sistema',
     icon: 'Settings',
     items: [
-      { id: 'settings', label: 'Configurações', href: '/settings', icon: 'Settings' },
-      { id: 'integrations', label: 'Integrações', href: '/integrations', icon: 'PlugZap' },
+      { id: 'settings', label: 'Configurações', href: '/settings', icon: 'Settings', minTier: 'starter' },
+      { id: 'integrations', label: 'Integrações', href: '/integrations', icon: 'PlugZap', minTier: 'pro' },
     ],
   },
 ];

@@ -213,7 +213,7 @@ const INTEGRATIONS: IntegrationDef[] = [
       { key: 'emailProvider', label: 'Provedor', placeholder: 'sendgrid ou resend', type: 'text', required: true },
       { key: 'apiKey', label: 'API Key', placeholder: 'SG.xxx... ou re_xxx...', type: 'password', required: true },
       { key: 'fromAddress', label: 'Email de Envio (From)', placeholder: 'alerts@suaempresa.com', type: 'text', required: true },
-      { key: 'fromName', label: 'Nome do Remetente (opcional)', placeholder: 'Conselho de Funil', type: 'text', required: false },
+      { key: 'fromName', label: 'Nome do Remetente (opcional)', placeholder: 'MKTHONEY', type: 'text', required: false },
     ],
   },
   // ─── Pesquisa & Dados ───
@@ -1061,7 +1061,7 @@ export default function IntegrationsPage() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-white mb-3">Conecte seu Ecossistema</h1>
             <p className="text-zinc-500 max-w-2xl leading-relaxed">
-              Integre o Conselho de Funil com suas ferramentas de anúncios, redes sociais,
+              Integre o MKTHONEY com suas ferramentas de anúncios, redes sociais,
               comunicação e dados para análises em tempo real e ativos precisos.
             </p>
           </div>

@@ -42,7 +42,8 @@ import type { CampaignContext } from '@/types/campaign';
 
 /**
  * Cria um novo documento de usuário no Firestore.
- * 
+ * R6.3: Inicializa com tier 'trial' e trialExpiresAt (14 dias).
+ *
  * @param userId - O UID do usuário vindo do Firebase Auth.
  * @param data - Dados básicos do usuário (nome, e-mail, etc.).
  * @returns O ID do usuário criado.
@@ -50,16 +51,23 @@ import type { CampaignContext } from '@/types/campaign';
 export async function createUser(userId: string, data: Omit<User, 'id' | 'createdAt' | 'lastLogin' | 'credits' | 'usage'>) {
   const userRef = doc(db, 'users', userId);
   const now = Timestamp.now();
-  
+
+  // R6.3: Calculate trial expiration (14 days from now)
+  const trialExpiresAt = new Date();
+  trialExpiresAt.setDate(trialExpiresAt.getDate() + 14);
+
   await setDoc(userRef, {
     ...data,
     credits: 10, // Default: 10 credits (US-16.1)
     usage: 0,
     onboardingCompleted: false, // L-4: Post-signup onboarding
+    // R6.3: Initialize trial tier
+    tier: 'trial',
+    trialExpiresAt: Timestamp.fromDate(trialExpiresAt),
     createdAt: now,
     lastLogin: now,
   });
-  
+
   return userId;
 }
 
@@ -796,3 +804,104 @@ export async function updateCampaignManifesto(
 }
 
 
+// ============================================
+// USER TIER (R6 - Payment & Subscription)
+// ============================================
+
+/**
+ * Atualiza o tier de um usuário após pagamento/subscription.
+ * R6.1: Chamado pelo webhook do Stripe.
+ *
+ * @param userId - O ID do usuário.
+ * @param tier - O novo tier do usuário.
+ * @param stripeCustomerId - O ID do customer no Stripe (opcional).
+ * @param stripeSubscriptionId - O ID da subscription no Stripe (opcional).
+ */
+export async function updateUserTier(
+  userId: string,
+  tier: 'free' | 'trial' | 'starter' | 'pro' | 'agency',
+  stripeCustomerId?: string,
+  stripeSubscriptionId?: string
+) {
+  const userRef = doc(db, 'users', userId);
+
+  const updates: Record<string, any> = {
+    tier,
+    updatedAt: Timestamp.now(),
+  };
+
+  // Clear trial expiration if upgrading to paid tier
+  if (['starter', 'pro', 'agency'].includes(tier)) {
+    updates.trialExpiresAt = null;
+  }
+
+  // Store Stripe IDs for reference
+  if (stripeCustomerId) {
+    updates.stripeCustomerId = stripeCustomerId;
+  }
+  if (stripeSubscriptionId) {
+    updates.stripeSubscriptionId = stripeSubscriptionId;
+  }
+
+  await updateDoc(userRef, updates);
+}
+
+/**
+ * Busca usuários com trial expirado para downgrade.
+ * R6.3: Usado pelo cron /api/cron/trial-check.
+ *
+ * @returns Array de userIds com trial expirado.
+ */
+export async function getExpiredTrialUsers(): Promise<string[]> {
+  const now = Timestamp.now();
+
+  const q = query(
+    collection(db, 'users'),
+    where('tier', '==', 'trial'),
+    where('trialExpiresAt', '<=', now)
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((doc) => doc.id);
+}
+
+/**
+ * Faz downgrade de múltiplos usuários para tier 'free'.
+ * R6.3: Usado pelo cron quando trial expira.
+ *
+ * @param userIds - Array de IDs de usuários.
+ * @returns Número de usuários atualizados.
+ */
+export async function downgradeUsersToFree(userIds: string[]): Promise<number> {
+  let count = 0;
+
+  for (const userId of userIds) {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        tier: 'free',
+        trialExpiresAt: null,
+        updatedAt: Timestamp.now(),
+      });
+      count++;
+    } catch (err) {
+      console.error(`[downgradeUsersToFree] Failed for user ${userId}:`, err);
+    }
+  }
+
+  return count;
+}
+
+/**
+ * Busca o stripeCustomerId de um usuário.
+ * R6: Usado para operações de billing.
+ */
+export async function getUserStripeCustomerId(userId: string): Promise<string | null> {
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) return null;
+
+  const userData = userSnap.data();
+  return userData.stripeCustomerId ?? null;
+}
