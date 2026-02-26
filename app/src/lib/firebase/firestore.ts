@@ -158,6 +158,10 @@ export async function updateUserPreferences(userId: string, prefs: Partial<UserP
   if (prefs.branding !== undefined) {
     updates['preferences.branding'] = prefs.branding;
   }
+  // Sprint R2.1: Onboarding wizard completion flag
+  if (prefs.onboardingPhase1AComplete !== undefined) {
+    updates['preferences.onboardingPhase1AComplete'] = prefs.onboardingPhase1AComplete;
+  }
   await updateDoc(userRef, updates);
 }
 

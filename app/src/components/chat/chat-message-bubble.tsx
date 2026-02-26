@@ -7,10 +7,12 @@ import { MarkdownRenderer } from './markdown-renderer';
 import { CounselorBadges, SourcesList } from './counselor-badges';
 import { DesignGenerationCard } from './design-generation-card';
 import { AdsStrategyCard, AdsStrategyData } from './ads-strategy-card';
+import { VerdictCard } from './verdict-card';
 import { AssetPreview } from '../council/asset-preview';
 import { cn } from '@/lib/utils';
 import { parsePartyResponse, PartySection, getInteractionSummary } from '@/lib/utils/party-parser';
 import { COUNSELORS_REGISTRY } from '@/lib/constants';
+import { parseVerdictOutput, VerdictOutput } from '@/lib/ai/prompts/verdict-prompt';
 
 export interface MessageData {
   id: string;
@@ -22,6 +24,9 @@ export interface MessageData {
   metadata?: {
     sources?: Array<{ file: string; section?: string; counselor?: string; similarity?: number }>;
     counselors?: string[];
+    // Sprint R2.2: Verdict card support
+    type?: 'verdict' | string;
+    parsedVerdict?: VerdictOutput;
   };
 }
 
@@ -225,6 +230,12 @@ export function ChatMessageBubble({
   const partySections = !isUser ? parsePartyResponse(message.content) : [];
   const interactions = !isUser ? getInteractionSummary(partySections) : [];
 
+  // Sprint R2.2: Detect verdict message
+  const isVerdict = message.metadata?.type === 'verdict';
+  const verdictData: VerdictOutput | null = isVerdict
+    ? (message.metadata?.parsedVerdict || parseVerdictOutput(message.content))
+    : null;
+
   const handleCopy = () => {
     navigator.clipboard.writeText(message.content);
     setCopied(true);
@@ -273,6 +284,9 @@ export function ChatMessageBubble({
         <div className="text-[15px] sm:text-base leading-relaxed text-zinc-200">
           {isUser ? (
             <p className="whitespace-pre-wrap">{message.content}</p>
+          ) : isVerdict && verdictData ? (
+            // Sprint R2.2: Render VerdictCard for verdict messages
+            <VerdictCard data={verdictData} />
           ) : (
             <div className="space-y-4">
               {/* Interaction Map Summary (ST-6.4) */}

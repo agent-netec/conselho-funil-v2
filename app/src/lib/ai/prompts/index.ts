@@ -4,6 +4,8 @@ import { FUNNEL_GENERATION_PROMPT, FUNNEL_ADJUSTMENT_PROMPT, buildFunnelContextP
 import { SOCIAL_HOOKS_PROMPT, SOCIAL_STRUCTURE_PROMPT, SOCIAL_SCORECARD_PROMPT } from './social-generation';
 import { buildCopyPrompt } from './copy-generation';
 import { buildAdsGenerationPrompt } from './ads-generation';
+import { PROACTIVE_VERDICT_SYSTEM_PROMPT, buildVerdictPrompt, parseVerdictOutput } from './verdict-prompt';
+import type { VerdictOutput } from './verdict-prompt';
 
 /**
  * Funções auxiliares para construção de prompts
@@ -58,5 +60,11 @@ export {
   SOCIAL_STRUCTURE_PROMPT,
   SOCIAL_SCORECARD_PROMPT,
   buildCopyPrompt,
-  buildAdsGenerationPrompt
+  buildAdsGenerationPrompt,
+  // Sprint R2.2: Proactive Verdict
+  PROACTIVE_VERDICT_SYSTEM_PROMPT,
+  buildVerdictPrompt,
+  parseVerdictOutput,
 };
+
+export type { VerdictOutput };

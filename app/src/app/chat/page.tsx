@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Header } from '@/components/layout/header';
@@ -17,6 +17,7 @@ import { ActiveContextIndicator } from '@/components/chat/active-context-indicat
 import { CHAT_MODES } from '@/lib/constants';
 import { PaywallModal } from '@/components/modals/paywall-modal';
 import { CONFIG } from '@/lib/config';
+import { toast } from 'sonner';
 
 export default function ChatPage() {
   const router = useRouter();
@@ -24,14 +25,21 @@ export default function ChatPage() {
   const conversationId = searchParams.get('id');
   const funnelId = searchParams.get('funnelId');
   const rawCampaignId = searchParams.get('campaignId');
-  
+
+  // Sprint R2.2: Detect if coming from onboarding
+  const fromOnboarding = searchParams.get('from') === 'onboarding';
+
   // Limpeza de campaignId "undefined" vindo da URL (ST-11.6)
   const campaignId = (rawCampaignId === 'undefined' || !rawCampaignId) ? null : rawCampaignId;
   const urlMode = searchParams.get('mode') as ChatMode | null;
   const activeBrand = useActiveBrand(); // Marca ativa para vincular conversas
   const { user } = useUser();
-  
+
   const [chatMode, setChatMode] = useState<ChatMode>('general');
+
+  // Sprint R2.2: Verdict generation state
+  const [isGeneratingVerdict, setIsGeneratingVerdict] = useState(false);
+  const verdictGeneratedRef = useRef(false);
 
   // US-20.2: Sincronizar modo da URL
   useEffect(() => {
@@ -75,6 +83,56 @@ export default function ChatPage() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isSending]);
+
+  // Sprint R2.2: Generate proactive verdict after onboarding
+  useEffect(() => {
+    async function generateVerdict() {
+      // Only run if coming from onboarding, have a brand, and haven't generated yet
+      if (!fromOnboarding || !activeBrand?.id || verdictGeneratedRef.current || isGeneratingVerdict) {
+        return;
+      }
+
+      verdictGeneratedRef.current = true;
+      setIsGeneratingVerdict(true);
+
+      try {
+        // 1. Create a new conversation for the verdict
+        const newConversationId = await createConversation(
+          `Veredito - ${activeBrand.name}`,
+          activeBrand.id
+        );
+
+        // 2. Navigate to the new conversation (remove ?from=onboarding)
+        router.replace(`/chat?id=${newConversationId}`);
+
+        // 3. Call the verdict API
+        const response = await fetch('/api/chat/verdict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            conversationId: newConversationId,
+            brandId: activeBrand.id,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Erro ao gerar veredito');
+        }
+
+        // The verdict is saved as a message, it will appear via real-time listener
+        console.log('[Chat] Verdict generated successfully');
+      } catch (error) {
+        console.error('[Chat] Error generating verdict:', error);
+        toast.error('Erro ao gerar veredito. Tente novamente.');
+        verdictGeneratedRef.current = false; // Allow retry
+      } finally {
+        setIsGeneratingVerdict(false);
+      }
+    }
+
+    generateVerdict();
+  }, [fromOnboarding, activeBrand?.id, activeBrand?.name, createConversation, router, isGeneratingVerdict]);
 
   const handleNewConversation = async () => {
     setIsCreating(true);

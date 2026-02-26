@@ -6,9 +6,11 @@ import { Header } from '@/components/layout/header';
 import { useStats } from '@/lib/hooks/use-stats';
 import { useFunnels } from '@/lib/hooks/use-funnels';
 import { useBrands } from '@/lib/hooks/use-brands';
+import { useUser } from '@/lib/hooks/use-user';
 import { StatsCards } from '@/components/dashboard/stats-cards';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { RecentActivity } from '@/components/dashboard/recent-activity';
+import { OnboardingModal } from '@/components/onboarding';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -102,10 +104,21 @@ export default function HomePage() {
 
   const brandsData = useBrands();
   const brands = brandsData?.brands;
+  const brandsLoading = brandsData?.isLoading;
   const isNewUser = !brands || brands.length === 0;
+
+  // Sprint R2.1: Onboarding wizard check
+  const { user: firestoreUser, isLoading: userLoading } = useUser();
+  const onboardingComplete = firestoreUser?.preferences?.onboardingPhase1AComplete === true;
+
+  // Show onboarding modal if user has no brands AND hasn't completed onboarding
+  const showOnboarding = !brandsLoading && !userLoading && isNewUser && !onboardingComplete;
 
   return (
     <div className="flex min-h-screen flex-col">
+      {/* Sprint R2.1: Onboarding Wizard Modal */}
+      {showOnboarding && <OnboardingModal />}
+
       <Header title="Dashboard" />
 
       <div className="flex-1 p-4 sm:p-8">

@@ -18,6 +18,8 @@ export interface UserPreferences {
       secondary: string;
     };
   };
+  // Sprint R2.1: Onboarding wizard completion flag
+  onboardingPhase1AComplete?: boolean;
 }
 
 export interface User {
