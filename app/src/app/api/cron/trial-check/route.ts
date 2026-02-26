@@ -12,7 +12,8 @@ export const maxDuration = 60;
 
 import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { getExpiredTrialUsers, downgradeUsersToFree } from '@/lib/firebase/firestore';
+import { getExpiredTrialUsers, downgradeUsersToFree, getUser } from '@/lib/firebase/firestore';
+import { sendTrialExpiringEmail } from '@/lib/email/resend';
 
 export async function GET(req: NextRequest) {
   try {
@@ -48,7 +49,18 @@ export async function GET(req: NextRequest) {
 
     console.log(`[Cron trial-check] Downgraded ${downgradedCount} users to free tier`);
 
-    // TODO (R6.5): Send trial expired emails to these users
+    // R6.5: Send trial expired emails (non-blocking per user)
+    for (const uid of expiredUserIds) {
+      try {
+        const user = await getUser(uid);
+        if (user?.email) {
+          const name = user.displayName || 'Usuario';
+          await sendTrialExpiringEmail(user.email, name, 0);
+        }
+      } catch (emailErr) {
+        console.error(`[Cron trial-check] Email failed for user ${uid}:`, emailErr);
+      }
+    }
 
     return createApiSuccess({
       checked: true,

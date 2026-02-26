@@ -11,6 +11,9 @@ import type { NextRequest } from 'next/server';
  * - Protected routes: handled by client-side AppShell
  *
  * Auth detection uses a cookie set by the client on login.
+ *
+ * NOTE: middleware.ts is still the standard pattern in Next.js 16.x.
+ * No migration needed. Re-evaluate if Next.js introduces a replacement API.
  */
 
 // Routes that are always public (no auth needed)

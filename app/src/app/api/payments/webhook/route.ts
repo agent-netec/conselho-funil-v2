@@ -23,6 +23,12 @@ import { getStripeClient, getTierFromPriceId } from '@/lib/stripe';
 import { updateUserTier, getUser } from '@/lib/firebase/firestore';
 import { doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import {
+  sendWelcomeEmail,
+  sendReceiptEmail,
+  sendPaymentFailedEmail,
+  sendCancellationEmail,
+} from '@/lib/email/resend';
 
 /**
  * Extracts userId from Stripe metadata.
@@ -88,7 +94,20 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   console.log(`[Webhook] checkout.session.completed: User ${userId} upgraded to ${tier}`);
 
-  // TODO (R6.5): Send welcome/receipt email
+  // R6.5: Send welcome + receipt emails (non-blocking)
+  try {
+    const user = await getUser(userId);
+    if (user?.email) {
+      const name = user.displayName || 'Usuario';
+      await sendWelcomeEmail(user.email, name);
+
+      const amountTotal = session.amount_total;
+      const amount = amountTotal ? `R$ ${(amountTotal / 100).toFixed(2)}` : 'N/A';
+      await sendReceiptEmail(user.email, name, tier, amount);
+    }
+  } catch (emailErr) {
+    console.error('[Webhook] Email dispatch failed (checkout):', emailErr);
+  }
 
   return { success: true, userId, tier };
 }
@@ -144,7 +163,19 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
   console.log(`[Webhook] subscription.deleted: User ${userId} downgraded to free`);
 
-  // TODO (R6.5): Send cancellation confirmation email
+  // R6.5: Send cancellation email (non-blocking)
+  try {
+    const user = await getUser(userId);
+    if (user?.email) {
+      const name = user.displayName || 'Usuario';
+      const endDate = subscription.current_period_end
+        ? new Date(subscription.current_period_end * 1000).toLocaleDateString('pt-BR')
+        : new Date().toLocaleDateString('pt-BR');
+      await sendCancellationEmail(user.email, name, endDate);
+    }
+  } catch (emailErr) {
+    console.error('[Webhook] Email dispatch failed (cancellation):', emailErr);
+  }
 
   return { success: true, userId };
 }
@@ -175,7 +206,18 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
 
   console.log(`[Webhook] invoice.payment_failed: User ${userId} marked as past_due`);
 
-  // TODO (R6.5): Send payment failed email with retry link
+  // R6.5: Send payment failed email (non-blocking)
+  try {
+    const user = await getUser(userId);
+    if (user?.email) {
+      const name = user.displayName || 'Usuario';
+      const hostedInvoiceUrl = invoice.hosted_invoice_url;
+      const retryUrl = hostedInvoiceUrl || `${process.env.NEXT_PUBLIC_APP_URL || 'https://mkthoney.com'}/settings/billing`;
+      await sendPaymentFailedEmail(user.email, name, retryUrl);
+    }
+  } catch (emailErr) {
+    console.error('[Webhook] Email dispatch failed (payment_failed):', emailErr);
+  }
 
   return { success: true, userId, status: 'past_due' };
 }

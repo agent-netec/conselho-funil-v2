@@ -11,11 +11,18 @@ import { Resend } from 'resend';
 // RESEND CLIENT
 // ============================================
 
-if (!process.env.RESEND_API_KEY) {
-  console.warn('[Email] RESEND_API_KEY not configured');
-}
+let _resend: Resend | null = null;
 
-export const resend = new Resend(process.env.RESEND_API_KEY || '');
+function getResendClient(): Resend | null {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[Email] RESEND_API_KEY not configured — emails will be skipped');
+    return null;
+  }
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}
 
 // ============================================
 // CONSTANTS
@@ -164,6 +171,8 @@ export async function sendVerificationEmail(
   name: string,
   verificationLink: string
 ): Promise<SendEmailResult> {
+  const client = getResendClient();
+  if (!client) return { success: false, error: 'RESEND_API_KEY not configured' };
   try {
     const html = baseTemplate(`
       <div class="card">
@@ -180,7 +189,7 @@ export async function sendVerificationEmail(
       </div>
     `);
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await client.emails.send({
       from: FROM_EMAIL,
       to,
       subject: 'Verifique seu email - MktHoney',
@@ -207,6 +216,8 @@ export async function sendWelcomeEmail(
   to: string,
   name: string
 ): Promise<SendEmailResult> {
+  const client = getResendClient();
+  if (!client) return { success: false, error: 'RESEND_API_KEY not configured' };
   try {
     const html = baseTemplate(`
       <div class="card">
@@ -236,7 +247,7 @@ export async function sendWelcomeEmail(
       </div>
     `);
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await client.emails.send({
       from: FROM_EMAIL,
       to,
       subject: 'Bem-vindo ao MktHoney - Seu Trial PRO comecou!',
@@ -266,6 +277,8 @@ export async function sendReceiptEmail(
   amount: string,
   invoiceUrl?: string
 ): Promise<SendEmailResult> {
+  const client = getResendClient();
+  if (!client) return { success: false, error: 'RESEND_API_KEY not configured' };
   try {
     const tierNames: Record<string, string> = {
       starter: 'Starter',
@@ -303,7 +316,7 @@ export async function sendReceiptEmail(
       </div>
     `);
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await client.emails.send({
       from: FROM_EMAIL,
       to,
       subject: `Recibo - MktHoney ${tierNames[tier] || tier}`,
@@ -331,6 +344,8 @@ export async function sendTrialExpiringEmail(
   name: string,
   daysRemaining: number
 ): Promise<SendEmailResult> {
+  const client = getResendClient();
+  if (!client) return { success: false, error: 'RESEND_API_KEY not configured' };
   try {
     const isLastDay = daysRemaining <= 1;
 
@@ -363,7 +378,7 @@ export async function sendTrialExpiringEmail(
       </div>
     `);
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await client.emails.send({
       from: FROM_EMAIL,
       to,
       subject: isLastDay
@@ -393,6 +408,8 @@ export async function sendCancellationEmail(
   name: string,
   accessUntilDate: string
 ): Promise<SendEmailResult> {
+  const client = getResendClient();
+  if (!client) return { success: false, error: 'RESEND_API_KEY not configured' };
   try {
     const html = baseTemplate(`
       <div class="card">
@@ -418,7 +435,7 @@ export async function sendCancellationEmail(
       </div>
     `);
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await client.emails.send({
       from: FROM_EMAIL,
       to,
       subject: 'Confirmacao de Cancelamento - MktHoney',
@@ -446,6 +463,8 @@ export async function sendPaymentFailedEmail(
   name: string,
   retryUrl: string
 ): Promise<SendEmailResult> {
+  const client = getResendClient();
+  if (!client) return { success: false, error: 'RESEND_API_KEY not configured' };
   try {
     const html = baseTemplate(`
       <div class="card">
@@ -463,7 +482,7 @@ export async function sendPaymentFailedEmail(
       </div>
     `);
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await client.emails.send({
       from: FROM_EMAIL,
       to,
       subject: 'Acao necessaria: Falha no pagamento - MktHoney',

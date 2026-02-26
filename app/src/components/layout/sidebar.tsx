@@ -209,8 +209,8 @@ export function Sidebar() {
 
           {isMobile && (
             <div className="flex flex-col ml-3 mr-auto">
-              <span className="text-sm font-bold text-white leading-tight">Conselho</span>
-              <span className="text-[10px] text-zinc-500 uppercase tracking-widest">de Funil</span>
+              <span className="text-sm font-bold text-white leading-tight">MKTHONEY</span>
+              <span className="text-[10px] text-zinc-500 uppercase tracking-widest">by Netec</span>
             </div>
           )}
 
