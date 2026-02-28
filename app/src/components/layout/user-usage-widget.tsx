@@ -65,7 +65,7 @@ export function UserUsageWidget() {
             <div 
               className={cn(
                 "h-0.5 transition-all duration-500",
-                brandPercentage > 90 ? "bg-red-500" : brandPercentage > 70 ? "bg-amber-500" : "bg-emerald-500"
+                brandPercentage > 90 ? "bg-red-500" : brandPercentage > 70 ? "bg-amber-500" : "bg-[#E6B447]"
               )}
               style={{ width: `${brandPercentage}%` }}
             />
@@ -99,7 +99,7 @@ export function UserUsageWidget() {
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Budget: {activeBrand.name}</span>
                 <span className={cn(
                   "text-xs font-bold",
-                  brandPercentage >= 100 ? "text-red-500" : brandPercentage > 80 ? "text-amber-500" : "text-emerald-400"
+                  brandPercentage >= 100 ? "text-red-500" : brandPercentage > 80 ? "text-amber-500" : "text-[#E6B447]"
                 )}>
                   ${brandUsage.toFixed(2)} / ${brandLimit.toFixed(0)}
                 </span>
@@ -108,7 +108,7 @@ export function UserUsageWidget() {
                 value={brandPercentage} 
                 className="h-1" 
                 indicatorClassName={cn(
-                  brandPercentage > 90 ? "bg-red-500" : brandPercentage > 70 ? "bg-amber-500" : "bg-emerald-500"
+                  brandPercentage > 90 ? "bg-red-500" : brandPercentage > 70 ? "bg-amber-500" : "bg-[#E6B447]"
                 )} 
               />
             </div>

@@ -32,11 +32,11 @@ export function OnboardingChecklist({ isMobile = false }: OnboardingChecklistPro
       <div className="px-4 py-3 border-t border-white/[0.04]">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Rocket className="h-4 w-4 text-emerald-400" />
+            <Rocket className="h-4 w-4 text-[#E6B447]" />
             <span className="text-xs font-bold text-white">Primeiros Passos</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-emerald-400 font-bold">{progress}%</span>
+            <span className="text-[10px] text-[#E6B447] font-bold">{progress}%</span>
             <button onClick={dismiss} className="p-1 text-zinc-600 hover:text-zinc-400">
               <X className="h-3 w-3" />
             </button>
@@ -45,7 +45,7 @@ export function OnboardingChecklist({ isMobile = false }: OnboardingChecklistPro
 
         <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden mb-3">
           <div
-            className="h-full bg-emerald-500 rounded-full transition-all"
+            className="h-full bg-[#E6B447] rounded-full transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -59,11 +59,11 @@ export function OnboardingChecklist({ isMobile = false }: OnboardingChecklistPro
                 href={step.href}
                 className={cn(
                   'flex items-center gap-2 text-xs py-1 transition-colors',
-                  isComplete ? 'text-zinc-600 line-through' : 'text-zinc-400 hover:text-emerald-400'
+                  isComplete ? 'text-zinc-600 line-through' : 'text-zinc-400 hover:text-[#E6B447]'
                 )}
               >
                 {isComplete ? (
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-[#E6B447] shrink-0" />
                 ) : (
                   <Circle className="h-3.5 w-3.5 text-zinc-600 shrink-0" />
                 )}
@@ -80,17 +80,17 @@ export function OnboardingChecklist({ isMobile = false }: OnboardingChecklistPro
   return (
     <div className="w-full px-3 py-2">
       <div
-        className="relative flex flex-col items-center gap-1.5 p-2 rounded-xl bg-emerald-500/5 border border-emerald-500/10 cursor-pointer group"
+        className="relative flex flex-col items-center gap-1.5 p-2 rounded-xl bg-[#E6B447]/5 border border-[#E6B447]/10 cursor-pointer group"
         title={`Primeiros Passos: ${progress}% completo`}
       >
-        <Rocket className="h-4 w-4 text-emerald-400" />
+        <Rocket className="h-4 w-4 text-[#E6B447]" />
         <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
           <div
-            className="h-full bg-emerald-500 rounded-full transition-all"
+            className="h-full bg-[#E6B447] rounded-full transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <span className="text-[9px] text-emerald-400/70 font-bold">{progress}%</span>
+        <span className="text-[9px] text-[#E6B447]/70 font-bold">{progress}%</span>
         <button
           onClick={(e) => { e.stopPropagation(); dismiss(); }}
           className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"

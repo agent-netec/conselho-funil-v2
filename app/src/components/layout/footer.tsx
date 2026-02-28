@@ -17,8 +17,8 @@ export function Footer() {
           {/* Company Info */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10">
-                <span className="text-sm font-bold text-emerald-400">M</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E6B447]/10">
+                <span className="text-sm font-bold text-[#E6B447]">M</span>
               </div>
               <span className="text-sm font-bold text-white">MKTHONEY</span>
             </div>
@@ -39,7 +39,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/terms"
-                  className="text-sm text-zinc-500 hover:text-emerald-400 transition-colors"
+                  className="text-sm text-zinc-500 hover:text-[#F0C35C] transition-colors"
                 >
                   Termos de Uso
                 </Link>
@@ -47,7 +47,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/privacy"
-                  className="text-sm text-zinc-500 hover:text-emerald-400 transition-colors"
+                  className="text-sm text-zinc-500 hover:text-[#F0C35C] transition-colors"
                 >
                   Politica de Privacidade
                 </Link>
@@ -55,7 +55,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/cookies"
-                  className="text-sm text-zinc-500 hover:text-emerald-400 transition-colors"
+                  className="text-sm text-zinc-500 hover:text-[#F0C35C] transition-colors"
                 >
                   Politica de Cookies
                 </Link>
@@ -63,7 +63,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/refund"
-                  className="text-sm text-zinc-500 hover:text-emerald-400 transition-colors"
+                  className="text-sm text-zinc-500 hover:text-[#F0C35C] transition-colors"
                 >
                   Politica de Reembolso
                 </Link>
@@ -81,7 +81,7 @@ export function Footer() {
                 <span className="text-zinc-400">Suporte:</span>{' '}
                 <a
                   href="mailto:support@mkthoney.com"
-                  className="hover:text-emerald-400 transition-colors"
+                  className="hover:text-[#F0C35C] transition-colors"
                 >
                   support@mkthoney.com
                 </a>
@@ -90,7 +90,7 @@ export function Footer() {
                 <span className="text-zinc-400">DPO (Privacidade):</span>{' '}
                 <a
                   href="mailto:support@mkthoney.com"
-                  className="hover:text-emerald-400 transition-colors"
+                  className="hover:text-[#F0C35C] transition-colors"
                 >
                   support@mkthoney.com
                 </a>

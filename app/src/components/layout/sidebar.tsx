@@ -55,7 +55,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 export function Sidebar() {
   const brandingContext = useBranding();
-  const branding = brandingContext?.branding || { colors: { primary: '#10b981', secondary: '#8b5cf6' } };
+  const branding = brandingContext?.branding || { colors: { primary: '#E6B447', secondary: '#8b5cf6' } };
 
   const pathname = usePathname();
   const router = useRouter();
@@ -184,10 +184,10 @@ export function Sidebar() {
           <Link href="/" className="group relative flex items-center justify-center">
             <div className="relative flex h-11 w-11 items-center justify-center">
               {/* Glow effect */}
-              <div className="absolute inset-0 rounded-xl bg-emerald-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 rounded-xl bg-[#E6B447]/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
               {/* Logo container */}
-              <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/20">
+              <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-lg shadow-[#E6B447]/20">
                 {branding.logoUrl ? (
                   <img src={branding.logoUrl} alt="Agency Logo" className="h-7 w-7 object-contain" />
                 ) : (
@@ -255,7 +255,7 @@ export function Sidebar() {
                     <TooltipTrigger asChild>
                       <div className={cn(
                         "flex items-center justify-center w-full py-1 mb-1",
-                        hasActiveItem ? "text-emerald-500/50" : "text-zinc-600"
+                        hasActiveItem ? "text-[#E6B447]/50" : "text-zinc-600"
                       )}>
                         <GroupIcon className="h-4 w-4" />
                       </div>
@@ -311,7 +311,7 @@ export function Sidebar() {
                           <motion.div
                             initial={false}
                             animate={{
-                              backgroundColor: isActive && !isLocked ? 'rgba(16, 185, 129, 0.08)' : 'rgba(255, 255, 255, 0)',
+                              backgroundColor: isActive && !isLocked ? 'rgba(230, 180, 71, 0.08)' : 'rgba(255, 255, 255, 0)',
                               scale: isActive && !isLocked ? 1 : 0.98,
                             }}
                             whileTap={{ scale: isLocked ? 0.98 : 0.95 }}
@@ -326,7 +326,7 @@ export function Sidebar() {
                               className={cn(
                                 'transition-all duration-300',
                                 isMobile ? 'h-4.5 w-4.5' : 'h-[20px] w-[20px]',
-                                isActive && !isLocked ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-500',
+                                isActive && !isLocked ? 'text-[#E6B447] drop-shadow-[0_0_8px_rgba(230,180,71,0.5)]' : 'text-zinc-500',
                                 isLocked && 'text-zinc-600'
                               )}
                               strokeWidth={isActive && !isLocked ? 2 : 1.5}
@@ -334,7 +334,7 @@ export function Sidebar() {
                             {isMobile && (
                               <span className={cn(
                                 "text-sm font-medium transition-colors flex-1",
-                                isActive && !isLocked ? "text-emerald-400" : "text-zinc-400",
+                                isActive && !isLocked ? "text-[#E6B447]" : "text-zinc-400",
                                 isLocked && "text-zinc-600"
                               )}>
                                 {item.label}
@@ -369,7 +369,7 @@ export function Sidebar() {
                               </span>
                             )}
                             {isActive && !isMobile && !isLocked && (
-                              <div className="absolute left-0 w-1 h-5 bg-emerald-500 rounded-r-full" />
+                              <div className="absolute left-0 w-1 h-5 bg-[#E6B447] rounded-r-full" />
                             )}
                           </motion.div>
                         );

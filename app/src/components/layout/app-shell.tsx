@@ -33,7 +33,7 @@ function LoadingScreen() {
       <div className="absolute inset-0 bg-dot-pattern opacity-30" />
       
       {/* Radial gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(16,185,129,0.1),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(230,180,71,0.1),transparent)]" />
       
       <motion.div 
         className="flex flex-col items-center gap-6"
@@ -44,15 +44,15 @@ function LoadingScreen() {
         {/* Logo */}
         <div className="relative">
           {/* Glow */}
-          <div className="absolute inset-0 rounded-2xl bg-emerald-500/20 blur-2xl animate-pulse" />
+          <div className="absolute inset-0 rounded-2xl bg-[#E6B447]/20 blur-2xl animate-pulse" />
           
           <motion.div 
-            className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-xl shadow-emerald-500/20"
+            className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-xl shadow-[#E6B447]/20"
             animate={{ 
               boxShadow: [
-                '0 20px 25px -5px rgba(16, 185, 129, 0.2)',
-                '0 20px 25px -5px rgba(16, 185, 129, 0.4)',
-                '0 20px 25px -5px rgba(16, 185, 129, 0.2)',
+                '0 20px 25px -5px rgba(230, 180, 71, 0.2)',
+                '0 20px 25px -5px rgba(230, 180, 71, 0.4)',
+                '0 20px 25px -5px rgba(230, 180, 71, 0.2)',
               ]
             }}
             transition={{ duration: 2, repeat: Infinity }}
@@ -74,7 +74,7 @@ function LoadingScreen() {
         {/* Loading bar */}
         <div className="w-32 h-1 rounded-full bg-zinc-800 overflow-hidden">
           <motion.div 
-            className="h-full bg-emerald-500 rounded-full"
+            className="h-full bg-[#E6B447] rounded-full"
             initial={{ x: '-100%' }}
             animate={{ x: '100%' }}
             transition={{ 
@@ -157,7 +157,7 @@ export function AppShell({ children }: AppShellProps) {
       <div className="min-h-screen bg-[#09090b]">
         {/* Background effects */}
         <div className="fixed inset-0 bg-dot-pattern opacity-30 pointer-events-none" />
-        <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(16,185,129,0.08),transparent)] pointer-events-none" />
+        <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(230,180,71,0.08),transparent)] pointer-events-none" />
         
         <AnimatePresence mode="wait">
           <motion.div
@@ -189,10 +189,10 @@ export function AppShell({ children }: AppShellProps) {
 
   // Protected pages - with sidebar
   return (
-    <div className="min-h-screen bg-background selection:bg-emerald-500/20 selection:text-emerald-200">
+    <div className="min-h-screen bg-background selection:bg-[#E6B447]/20 selection:text-[#F5E8CE]">
       {/* Background effects */}
       <div className="fixed inset-0 bg-dot-pattern opacity-[0.15] pointer-events-none" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(16,185,129,0.08),transparent)] pointer-events-none" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(230,180,71,0.08),transparent)] pointer-events-none" />
 
       <Sidebar />
 

@@ -29,16 +29,16 @@ export default function PrivacyPage() {
       <nav className="mb-12 p-4 rounded-xl bg-zinc-900/50 border border-white/[0.06]">
         <p className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Navegacao rapida</p>
         <ul className="grid grid-cols-2 gap-2 list-none pl-0">
-          <li><a href="#controlador" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">1. Controlador</a></li>
-          <li><a href="#dados" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">2. Dados Coletados</a></li>
-          <li><a href="#finalidades" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">3. Finalidades</a></li>
-          <li><a href="#base-legal" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">4. Base Legal</a></li>
-          <li><a href="#compartilhamento" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">5. Compartilhamento</a></li>
-          <li><a href="#processadores" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">6. Processadores de Dados</a></li>
-          <li><a href="#retencao" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">7. Retencao</a></li>
-          <li><a href="#seguranca" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">8. Seguranca</a></li>
-          <li><a href="#direitos" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">9. Seus Direitos</a></li>
-          <li><a href="#contato" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">10. Contato</a></li>
+          <li><a href="#controlador" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">1. Controlador</a></li>
+          <li><a href="#dados" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">2. Dados Coletados</a></li>
+          <li><a href="#finalidades" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">3. Finalidades</a></li>
+          <li><a href="#base-legal" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">4. Base Legal</a></li>
+          <li><a href="#compartilhamento" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">5. Compartilhamento</a></li>
+          <li><a href="#processadores" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">6. Processadores de Dados</a></li>
+          <li><a href="#retencao" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">7. Retencao</a></li>
+          <li><a href="#seguranca" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">8. Seguranca</a></li>
+          <li><a href="#direitos" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">9. Seus Direitos</a></li>
+          <li><a href="#contato" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">10. Contato</a></li>
         </ul>
       </nav>
 
@@ -260,8 +260,8 @@ export default function PrivacyPage() {
           <li><strong>Revogacao:</strong> retirar consentimento a qualquer momento</li>
           <li><strong>Oposicao:</strong> opor-se a tratamento em desconformidade com a lei</li>
         </ul>
-        <div className="mt-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-          <h4 className="text-emerald-400 font-medium mb-2">Como exercer seus direitos</h4>
+        <div className="mt-6 p-4 rounded-xl bg-[#E6B447]/10 border border-[#E6B447]/20">
+          <h4 className="text-[#E6B447] font-medium mb-2">Como exercer seus direitos</h4>
           <p className="text-sm text-zinc-300">
             Voce pode exportar seus dados ou solicitar exclusao da conta diretamente nas
             configuracoes da plataforma, ou entrar em contato pelo e-mail do DPO.
@@ -285,7 +285,7 @@ export default function PrivacyPage() {
             href="https://www.gov.br/anpd/pt-br"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-emerald-400 hover:text-emerald-300"
+            className="text-[#E6B447] hover:text-[#F0C35C]"
           >
             www.gov.br/anpd
           </a>

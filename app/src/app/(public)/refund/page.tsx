@@ -25,8 +25,8 @@ export default function RefundPage() {
       </div>
 
       {/* Highlight box */}
-      <div className="p-6 rounded-xl bg-emerald-500/10 border border-emerald-500/20 mb-10">
-        <h2 className="text-lg font-semibold text-emerald-400 mt-0">
+      <div className="p-6 rounded-xl bg-[#E6B447]/10 border border-[#E6B447]/20 mb-10">
+        <h2 className="text-lg font-semibold text-[#E6B447] mt-0">
           Garantia de 7 dias (CDC Art. 49)
         </h2>
         <p className="text-zinc-300 mb-0">
@@ -134,7 +134,7 @@ export default function RefundPage() {
 
         <div className="space-y-4 mt-6">
           <div className="flex gap-4 p-4 rounded-xl bg-zinc-900/50 border border-white/[0.06]">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 font-bold flex-shrink-0">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E6B447]/10 text-[#E6B447] font-bold flex-shrink-0">
               1
             </div>
             <div>
@@ -146,7 +146,7 @@ export default function RefundPage() {
           </div>
 
           <div className="flex gap-4 p-4 rounded-xl bg-zinc-900/50 border border-white/[0.06]">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 font-bold flex-shrink-0">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E6B447]/10 text-[#E6B447] font-bold flex-shrink-0">
               2
             </div>
             <div>
@@ -158,7 +158,7 @@ export default function RefundPage() {
           </div>
 
           <div className="flex gap-4 p-4 rounded-xl bg-zinc-900/50 border border-white/[0.06]">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 font-bold flex-shrink-0">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E6B447]/10 text-[#E6B447] font-bold flex-shrink-0">
               3
             </div>
             <div>
@@ -170,7 +170,7 @@ export default function RefundPage() {
           </div>
 
           <div className="flex gap-4 p-4 rounded-xl bg-zinc-900/50 border border-white/[0.06]">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 font-bold flex-shrink-0">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E6B447]/10 text-[#E6B447] font-bold flex-shrink-0">
               4
             </div>
             <div>

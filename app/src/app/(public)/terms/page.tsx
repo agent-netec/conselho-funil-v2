@@ -28,16 +28,16 @@ export default function TermsPage() {
       <nav className="mb-12 p-4 rounded-xl bg-zinc-900/50 border border-white/[0.06]">
         <p className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Navegacao rapida</p>
         <ul className="grid grid-cols-2 gap-2 list-none pl-0">
-          <li><a href="#definicoes" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">1. Definicoes</a></li>
-          <li><a href="#objeto" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">2. Objeto</a></li>
-          <li><a href="#cadastro" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">3. Cadastro</a></li>
-          <li><a href="#licenca" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">4. Licenca de Uso</a></li>
-          <li><a href="#obrigacoes" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">5. Obrigacoes</a></li>
-          <li><a href="#pagamento" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">6. Pagamento</a></li>
-          <li><a href="#propriedade" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">7. Propriedade Intelectual</a></li>
-          <li><a href="#limitacao" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">8. Limitacao de Responsabilidade</a></li>
-          <li><a href="#suspensao" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">9. Suspensao e Cancelamento</a></li>
-          <li><a href="#disposicoes" className="text-emerald-400 hover:text-emerald-300 text-sm no-underline">10. Disposicoes Gerais</a></li>
+          <li><a href="#definicoes" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">1. Definicoes</a></li>
+          <li><a href="#objeto" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">2. Objeto</a></li>
+          <li><a href="#cadastro" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">3. Cadastro</a></li>
+          <li><a href="#licenca" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">4. Licenca de Uso</a></li>
+          <li><a href="#obrigacoes" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">5. Obrigacoes</a></li>
+          <li><a href="#pagamento" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">6. Pagamento</a></li>
+          <li><a href="#propriedade" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">7. Propriedade Intelectual</a></li>
+          <li><a href="#limitacao" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">8. Limitacao de Responsabilidade</a></li>
+          <li><a href="#suspensao" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">9. Suspensao e Cancelamento</a></li>
+          <li><a href="#disposicoes" className="text-[#E6B447] hover:text-[#F0C35C] text-sm no-underline">10. Disposicoes Gerais</a></li>
         </ul>
       </nav>
 
@@ -206,7 +206,7 @@ export default function TermsPage() {
         <p className="text-zinc-400 mb-4">
           Entre em contato com nosso suporte juridico:
         </p>
-        <p className="text-emerald-400">support@mkthoney.com</p>
+        <p className="text-[#E6B447]">support@mkthoney.com</p>
       </section>
     </article>
   );

@@ -100,10 +100,10 @@ export default function CookiesPage() {
         </div>
 
         {/* Analytics */}
-        <div className="mt-6 p-6 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+        <div className="mt-6 p-6 rounded-xl bg-[#E6B447]/5 border border-[#E6B447]/20">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
-              <span className="text-emerald-400 text-lg">📊</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6B447]/10">
+              <span className="text-[#E6B447] text-lg">📊</span>
             </div>
             <div>
               <h3 className="text-lg font-semibold text-white m-0">Cookies Analiticos</h3>
@@ -216,10 +216,10 @@ export default function CookiesPage() {
           receber alertas quando um cookie esta sendo definido.
         </p>
         <ul>
-          <li><a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener noreferrer" className="text-emerald-400">Google Chrome</a></li>
-          <li><a href="https://support.mozilla.org/pt-BR/kb/cookies-informacoes-sites-armazenam-no-computador" target="_blank" rel="noopener noreferrer" className="text-emerald-400">Mozilla Firefox</a></li>
-          <li><a href="https://support.apple.com/pt-br/guide/safari/sfri11471/mac" target="_blank" rel="noopener noreferrer" className="text-emerald-400">Apple Safari</a></li>
-          <li><a href="https://support.microsoft.com/pt-br/microsoft-edge/excluir-cookies-no-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank" rel="noopener noreferrer" className="text-emerald-400">Microsoft Edge</a></li>
+          <li><a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener noreferrer" className="text-[#E6B447]">Google Chrome</a></li>
+          <li><a href="https://support.mozilla.org/pt-BR/kb/cookies-informacoes-sites-armazenam-no-computador" target="_blank" rel="noopener noreferrer" className="text-[#E6B447]">Mozilla Firefox</a></li>
+          <li><a href="https://support.apple.com/pt-br/guide/safari/sfri11471/mac" target="_blank" rel="noopener noreferrer" className="text-[#E6B447]">Apple Safari</a></li>
+          <li><a href="https://support.microsoft.com/pt-br/microsoft-edge/excluir-cookies-no-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank" rel="noopener noreferrer" className="text-[#E6B447]">Microsoft Edge</a></li>
         </ul>
 
         <div className="mt-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
@@ -248,7 +248,7 @@ export default function CookiesPage() {
         <p className="text-zinc-400 mb-4">
           Entre em contato com nosso time de privacidade:
         </p>
-        <p className="text-emerald-400">support@mkthoney.com</p>
+        <p className="text-[#E6B447]">support@mkthoney.com</p>
       </section>
     </article>
   );
