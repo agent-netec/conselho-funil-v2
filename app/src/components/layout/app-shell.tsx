@@ -13,11 +13,9 @@ interface AppShellProps {
 }
 
 // Pages that don't require authentication
-// R5.2: Extended to include legal pages and landing
 const PUBLIC_PATHS = [
   '/login',
   '/signup',
-  '/landing',
   '/terms',
   '/privacy',
   '/cookies',
@@ -116,7 +114,9 @@ export function AppShell({ children }: AppShellProps) {
     if (!isInitialized) return;
 
     // Redirect to login if not authenticated and trying to access protected page
-    if (!user && !isPublicPage) {
+    // "/" is handled by middleware (rewrite to landing for non-auth)
+    const isRootPath = pathname === '/';
+    if (!user && !isPublicPage && !isRootPath) {
       router.push('/login');
     }
 
