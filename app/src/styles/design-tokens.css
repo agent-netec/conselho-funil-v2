@@ -1,57 +1,55 @@
-/* 
- * CONSELHO DE FUNIL - Design System
- * Inspiração: Bloomberg Terminal + Linear + Raycast
- * Estética: Precisão financeira, não IA genérica
+/*
+ * MKTHONEY - Design System
+ * Aesthetic: War Room data-dense (dashboard) + Clean dark (utility)
+ * Palette: Honey Gold dark-only
  */
 
 @layer base {
   :root {
-    /* ===== CORES PRIMÁRIAS ===== */
-    /* Verde neon/menta para o visual "High-Tech" da inspiração */
-    --accent: 160 84% 45%;
-    --accent-glow: 160 84% 45% / 0.15;
+    /* ===== ACCENT / CTA ===== */
+    --accent: 43 78% 59%;
+    --accent-glow: 43 78% 59% / 0.15;
     --accent-foreground: 0 0% 100%;
-    
-    /* Âmbar para alertas/destaque */
-    --highlight: 38 92% 50%;
+
+    /* Gold hover */
+    --highlight: 43 82% 66%;
     --highlight-foreground: 0 0% 0%;
 
-    /* ===== SUPERFÍCIES ===== */
-    /* Tons mais profundos e "inky" como na imagem */
-    --surface-0: 240 10% 3.5%;    /* Fundo principal ultra dark */
-    --surface-1: 240 6% 6%;       /* Cards e Sidebar */
-    --surface-2: 240 5% 9%;       /* Hover states */
-    --surface-3: 240 5% 12%;      /* Elementos destacados */
-    
-    /* ===== BORDAS ===== */
-    --border-subtle: 240 4% 14%;
-    --border-default: 240 4% 18%;
-    --border-strong: 240 4% 24%;
+    /* ===== SURFACES ===== */
+    --surface-0: 30 18% 4%;       /* --bg #0D0B09 */
+    --surface-1: 30 18% 8%;       /* Cards, sidebar #1A1612 */
+    --surface-2: 30 16% 12%;      /* Hover, inputs #241F19 */
+    --surface-3: 30 14% 15%;      /* Highlighted elements #2E2820 */
 
-    /* ===== TEXTO ===== */
-    --text-primary: 0 0% 98%;
-    --text-secondary: 240 5% 64%;
-    --text-tertiary: 240 5% 45%;
-    --text-muted: 240 5% 35%;
+    /* ===== BORDERS ===== */
+    --border-subtle: 30 20% 13%;
+    --border-default: 30 18% 17%;
+    --border-strong: 30 54% 35%;
 
-    /* ===== ESTADOS ===== */
-    --success: 160 84% 39%;
+    /* ===== TEXT ===== */
+    --text-primary: 36 50% 89%;    /* Cream #F5E8CE */
+    --text-secondary: 38 26% 67%; /* Sand #CAB792 */
+    --text-tertiary: 36 28% 47%;  /* Honey muted #AB8648 */
+    --text-muted: 30 18% 35%;     /* Disabled #6B5D4A */
+
+    /* ===== STATUS ===== */
+    --success: 100 26% 48%;       /* Olive green #7A9B5A */
     --warning: 38 92% 50%;
-    --error: 0 72% 51%;
-    --info: 200 98% 39%;
+    --error: 14 56% 50%;          /* Terracotta #C45B3A */
+    --info: 210 42% 56%;          /* Steel blue #5B8EC4 */
 
-    /* ===== GRADIENTES ===== */
-    --gradient-accent: linear-gradient(135deg, hsl(160, 84%, 39%) 0%, hsl(170, 77%, 31%) 100%);
-    --gradient-surface: linear-gradient(180deg, hsl(240, 6%, 8%) 0%, hsl(240, 6%, 6%) 100%);
-    --gradient-glow: radial-gradient(ellipse 80% 50% at 50% -20%, hsla(160, 84%, 39%, 0.15), transparent);
+    /* ===== GRADIENTS ===== */
+    --gradient-accent: linear-gradient(135deg, hsl(43, 78%, 59%) 0%, hsl(30, 54%, 35%) 100%);
+    --gradient-surface: linear-gradient(180deg, hsl(30, 18%, 8%) 0%, hsl(30, 18%, 4%) 100%);
+    --gradient-glow: radial-gradient(ellipse 80% 50% at 50% -20%, hsla(43, 78%, 59%, 0.15), transparent);
 
-    /* ===== SOMBRAS ===== */
+    /* ===== SHADOWS ===== */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
-    --shadow-glow: 0 0 40px -10px hsla(160, 84%, 39%, 0.3);
+    --shadow-glow: 0 0 40px -10px hsla(43, 78%, 59%, 0.3);
 
-    /* ===== ESPAÇAMENTO ===== */
+    /* ===== SPACING ===== */
     --space-1: 0.25rem;
     --space-2: 0.5rem;
     --space-3: 0.75rem;
@@ -69,7 +67,7 @@
     --radius-xl: 1rem;
     --radius-2xl: 1.25rem;
 
-    /* ===== TRANSIÇÕES ===== */
+    /* ===== TRANSITIONS ===== */
     --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-default: 200ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -93,7 +91,7 @@
 
 /* ===== GLOW EFFECTS ===== */
 .glow-accent {
-  box-shadow: 0 0 30px -5px hsla(160, 84%, 39%, 0.25);
+  box-shadow: 0 0 30px -5px hsla(43, 78%, 59%, 0.25);
 }
 
 .glow-border {
@@ -106,9 +104,9 @@
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, hsla(160, 84%, 39%, 0.3), transparent 50%);
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
+  background: linear-gradient(135deg, hsla(43, 78%, 59%, 0.3), transparent 50%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -117,18 +115,18 @@
 
 /* ===== GLASSMORPHISM ===== */
 .glass {
-  background: hsla(240, 5%, 8%, 0.8);
+  background: hsla(30, 18%, 6%, 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
-/* ===== NÚMERO MONO ===== */
+/* ===== MONO NUMBERS ===== */
 .font-mono-numbers {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
 
-/* ===== SCROLLBAR CUSTOMIZADA ===== */
+/* ===== CUSTOM SCROLLBAR ===== */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -147,7 +145,7 @@
   background: hsl(var(--border-default));
 }
 
-/* ===== ANIMAÇÃO DE ENTRADA ===== */
+/* ===== ENTRY ANIMATION ===== */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -180,9 +178,8 @@
 
 /* ===== GRID PATTERN ===== */
 .bg-grid {
-  background-image: 
-    linear-gradient(hsla(240, 5%, 20%, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, hsla(240, 5%, 20%, 0.03) 1px, transparent 1px);
+  background-image:
+    linear-gradient(hsla(30, 18%, 20%, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, hsla(30, 18%, 20%, 0.03) 1px, transparent 1px);
   background-size: 32px 32px;
 }
-

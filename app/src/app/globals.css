@@ -12,7 +12,7 @@
   --font-mono: var(--font-geist-mono);
   
   /* Custom accent colors */
-  --color-emerald: 160 84% 45%;
+  --color-gold: 43 78% 59%;
   --color-amber: 38 92% 50%;
   
   --color-primary: var(--color-brand-primary);
@@ -147,31 +147,31 @@
   --card-foreground: #fafafa;
   --popover: hsl(var(--surface-1));
   --popover-foreground: #fafafa;
-  --primary: hsl(160, 84%, 45%);
-  --primary-foreground: #022c22;
+  --primary: hsl(43, 78%, 59%);
+  --primary-foreground: #0D0B09;
   --secondary: hsl(var(--surface-2));
   --secondary-foreground: #fafafa;
   --muted: hsl(var(--surface-2));
   --muted-foreground: #71717a;
   --accent: hsl(var(--surface-2));
   --accent-foreground: #fafafa;
-  --destructive: #ef4444;
+  --destructive: #C45B3A;
   --border: rgba(255, 255, 255, 0.04);
   --input: rgba(255, 255, 255, 0.06);
-  --ring: hsl(160, 84%, 45%);
-  --chart-1: hsl(160, 84%, 45%);
+  --ring: hsl(43, 78%, 59%);
+  --chart-1: hsl(43, 78%, 59%);
   --chart-2: #f59e0b;
   --chart-3: #3b82f6;
   --chart-4: #8b5cf6;
   --chart-5: #ec4899;
   --sidebar: hsl(var(--surface-1));
   --sidebar-foreground: #fafafa;
-  --sidebar-primary: hsl(160, 84%, 45%);
+  --sidebar-primary: hsl(43, 78%, 59%);
   --sidebar-primary-foreground: #fafafa;
   --sidebar-accent: hsl(var(--surface-2));
   --sidebar-accent-foreground: #fafafa;
   --sidebar-border: rgba(255, 255, 255, 0.04);
-  --sidebar-ring: hsl(160, 84%, 45%);
+  --sidebar-ring: hsl(43, 78%, 59%);
 
   /* Modern Login Tokens Dark */
   --skeleton: hsl(218, 36%, 16%);
@@ -196,12 +196,12 @@
 
   /* Focus visible states */
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-emerald-500/50;
+    @apply outline-2 outline-offset-2 outline-[#E6B447]/50;
   }
   
   /* Selection */
   ::selection {
-    @apply bg-emerald-500/20 text-emerald-50;
+    @apply bg-[#E6B447]/20 text-[#F5E8CE];
   }
 }
 
@@ -243,7 +243,7 @@
       rgba(255, 255, 255, 0.08) 0%,
       rgba(255, 255, 255, 0) 40%,
       rgba(255, 255, 255, 0) 60%,
-      rgba(16, 185, 129, 0.05) 100%
+      rgba(230, 180, 71, 0.05) 100%
     );
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
@@ -257,7 +257,7 @@
   }
   
   .sidebar-icon-active {
-    @apply bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_15px_-3px_rgba(16,185,129,0.2)];
+    @apply bg-[#E6B447]/10 text-[#E6B447] border border-[#E6B447]/20 shadow-[0_0_15px_-3px_rgba(230,180,71,0.2)];
   }
 
   /* Hover card effect */
@@ -266,15 +266,15 @@
   }
   
   .card-hover:hover {
-    @apply border-white/[0.06] bg-zinc-900/50;
-    box-shadow: 0 0 40px -12px rgba(16, 185, 129, 0.12);
+    @apply border-white/[0.06] bg-[#1A1612]/50;
+    box-shadow: 0 0 40px -12px rgba(230, 180, 71, 0.12);
   }
 
   /* Accent button */
   .btn-accent {
     @apply relative px-4 py-2.5 rounded-lg font-medium text-sm;
-    @apply bg-emerald-600 text-white;
-    @apply hover:bg-emerald-500 active:bg-emerald-700;
+    @apply bg-[#E6B447] text-[#0D0B09];
+    @apply hover:bg-[#F0C35C] active:bg-[#AB8648];
     @apply transition-all duration-200;
     box-shadow: 
       0 1px 3px 0 rgba(0, 0, 0, 0.3),
@@ -283,7 +283,7 @@
   
   .btn-accent:hover {
     box-shadow: 
-      0 4px 12px -2px rgba(16, 185, 129, 0.4),
+      0 4px 12px -2px rgba(230, 180, 71, 0.4),
       inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
   }
 
@@ -300,14 +300,14 @@
     @apply w-full px-4 py-2.5 rounded-lg text-sm;
     @apply bg-zinc-900/60 border border-white/[0.06];
     @apply text-white placeholder:text-zinc-500;
-    @apply focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20;
+    @apply focus:border-[#E6B447]/50 focus:ring-1 focus:ring-[#E6B447]/20;
     @apply transition-all duration-200;
   }
 
   /* Badge styles */
   .badge-success {
     @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
-    @apply bg-emerald-500/10 text-emerald-400 border border-emerald-500/20;
+    @apply bg-[#7A9B5A]/10 text-[#7A9B5A] border border-[#7A9B5A]/20;
   }
   
   .badge-warning {
@@ -338,12 +338,12 @@
 
   /* Glow dot (online indicator) */
   .glow-dot {
-    @apply relative w-2 h-2 rounded-full bg-emerald-500;
+    @apply relative w-2 h-2 rounded-full bg-[#E6B447];
   }
   
   .glow-dot::after {
     content: '';
-    @apply absolute inset-0 rounded-full bg-emerald-500 animate-ping;
+    @apply absolute inset-0 rounded-full bg-[#E6B447] animate-ping;
     animation-duration: 2s;
   }
 }
@@ -443,4 +443,34 @@
     transparent 1px
   );
   background-size: 24px 24px;
+}
+
+/* Typography scale — MKTHONEY Design System */
+.text-display {
+  font-weight: 700;
+  font-size: clamp(2.5rem, 5vw + 1rem, 3rem);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.text-heading {
+  font-weight: 700;
+  font-size: clamp(1.75rem, 3vw + 0.5rem, 2.25rem);
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+.text-subheading {
+  font-weight: 600;
+  font-size: clamp(1.25rem, 2vw + 0.25rem, 1.5rem);
+  line-height: 1.3;
+}
+.text-body-lg {
+  font-weight: 400;
+  font-size: clamp(1rem, 1vw + 0.25rem, 1.125rem);
+  line-height: 1.7;
+}
+.text-overline {
+  font-weight: 500;
+  font-size: clamp(0.7rem, 0.5vw + 0.25rem, 0.8rem);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
 }
