@@ -319,7 +319,7 @@ export default function AutomationPage() {
           <TabsList className="bg-transparent border-none gap-8 h-12 p-0">
             <TabsTrigger 
               value="v2" 
-              className="data-[state=active]:bg-transparent data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-400 rounded-none h-full px-2 font-bold text-xs uppercase tracking-widest transition-all"
+              className="data-[state=active]:bg-transparent data-[state=active]:text-[#E6B447] data-[state=active]:border-b-2 data-[state=active]:border-[#E6B447] rounded-none h-full px-2 font-bold text-xs uppercase tracking-widest transition-all"
             >
               <Zap className="mr-2 h-4 w-4" />
               Automation V2
@@ -333,7 +333,7 @@ export default function AutomationPage() {
             </TabsTrigger>
             <TabsTrigger 
               value="refactor" 
-              className="data-[state=active]:bg-transparent data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-400 rounded-none h-full px-2 font-bold text-xs uppercase tracking-widest transition-all"
+              className="data-[state=active]:bg-transparent data-[state=active]:text-[#E6B447] data-[state=active]:border-b-2 data-[state=active]:border-[#E6B447] rounded-none h-full px-2 font-bold text-xs uppercase tracking-widest transition-all"
             >
               <BrainCircuit className="mr-2 h-4 w-4" />
               Refatoração
@@ -456,7 +456,7 @@ export default function AutomationPage() {
                       size="sm"
                       disabled={item.retryCount >= 3 || item.status === 'abandoned' || retryingId === item.id}
                       onClick={() => handleRetry(item.id)}
-                      className="shrink-0 border-white/[0.05] hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/20"
+                      className="shrink-0 border-white/[0.05] hover:bg-[#E6B447]/10 hover:text-[#E6B447] hover:border-[#E6B447]/20"
                     >
                       <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${retryingId === item.id ? 'animate-spin' : ''}`} />
                       Retry
@@ -707,7 +707,7 @@ export default function AutomationPage() {
               <Label className="text-xs font-bold uppercase tracking-widest text-zinc-400">Guardrails</Label>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex items-center gap-2 p-3 bg-zinc-900/50 rounded-lg border border-white/5">
-                  <div className="h-3 w-3 rounded-full bg-emerald-500" />
+                  <div className="h-3 w-3 rounded-full bg-[#E6B447]" />
                   <span className="text-xs text-zinc-400">Aprovação obrigatória</span>
                 </div>
                 <div>
@@ -730,7 +730,7 @@ export default function AutomationPage() {
             <Button
               onClick={handleCreateRule}
               disabled={saving}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold"
+              className="bg-[#AB8648] hover:bg-[#E6B447] text-white font-bold"
             >
               {saving ? 'Salvando...' : 'Criar Regra'}
             </Button>

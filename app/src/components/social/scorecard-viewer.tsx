@@ -57,32 +57,32 @@ const COUNSELOR_COLORS: Record<string, string> = {
   'Rachel Karten': 'text-rose-400',
   'Lia Haberman': 'text-violet-400',
   'Nikita Beer': 'text-amber-400',
-  'Justin Welsh': 'text-emerald-400',
+  'Justin Welsh': 'text-[#E6B447]',
 };
 
 export function ScorecardViewer({ scorecard }: ScorecardViewerProps) {
   const getScoreColor = (score: number) => {
-    if (score >= 8) return 'text-emerald-400';
+    if (score >= 8) return 'text-[#E6B447]';
     if (score >= 6) return 'text-amber-400';
     return 'text-red-400';
   };
 
   const getScoreBarColor = (score: number) => {
-    if (score >= 8) return 'bg-emerald-500';
+    if (score >= 8) return 'bg-[#E6B447]';
     if (score >= 6) return 'bg-amber-500';
     return 'bg-red-500';
   };
 
   const getVerdictIcon = (verdict: string) => {
     if (verdict.includes('Escalar')) return <Trophy className="h-5 w-5 text-amber-400" />;
-    if (verdict.includes('Publicar')) return <CheckCircle2 className="h-5 w-5 text-emerald-400" />;
+    if (verdict.includes('Publicar')) return <CheckCircle2 className="h-5 w-5 text-[#E6B447]" />;
     if (verdict.includes('Ajustar')) return <AlertCircle className="h-5 w-5 text-amber-400" />;
     return <ShieldAlert className="h-5 w-5 text-red-400" />;
   };
 
   const getVerdictColor = (verdict: string) => {
     if (verdict.includes('Escalar')) return 'border-amber-500/30 bg-amber-500/5 text-amber-400';
-    if (verdict.includes('Publicar')) return 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400';
+    if (verdict.includes('Publicar')) return 'border-[#E6B447]/30 bg-[#E6B447]/5 text-[#E6B447]';
     if (verdict.includes('Ajustar')) return 'border-amber-500/30 bg-amber-500/5 text-amber-400';
     return 'border-red-500/30 bg-red-500/5 text-red-400';
   };
@@ -196,14 +196,14 @@ export function ScorecardViewer({ scorecard }: ScorecardViewerProps) {
       {/* Recommendations */}
       <Card className="p-6 bg-zinc-900/60 border-white/[0.04] space-y-4">
         <h4 className="text-sm font-bold text-zinc-100 flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-emerald-400" />
+          <TrendingUp className="h-4 w-4 text-[#E6B447]" />
           Recomendações de Melhoria
         </h4>
         <div className="space-y-3">
           {scorecard.recommendations.map((rec, idx) => (
-            <div key={idx} className="flex items-start gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/[0.02] group hover:border-emerald-500/20 transition-all">
-              <div className="h-5 w-5 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                <ArrowRight className="h-3 w-3 text-emerald-400" />
+            <div key={idx} className="flex items-start gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/[0.02] group hover:border-[#E6B447]/20 transition-all">
+              <div className="h-5 w-5 rounded-full bg-[#E6B447]/10 flex items-center justify-center shrink-0 mt-0.5">
+                <ArrowRight className="h-3 w-3 text-[#E6B447]" />
               </div>
               <p className="text-sm text-zinc-300">
                 {rec}

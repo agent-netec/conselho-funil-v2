@@ -25,7 +25,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
           className={cn(
             'text-white',
             isUser
-              ? 'bg-gradient-to-br from-emerald-500 to-teal-600'
+              ? 'bg-gradient-to-br from-[#E6B447] to-teal-600'
               : 'bg-gradient-to-br from-violet-600 to-indigo-600'
           )}
         >

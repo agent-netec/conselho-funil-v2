@@ -127,7 +127,7 @@ export const AutopsyReportView: React.FC<AutopsyReportViewProps> = ({ report }) 
               </div>
               <div className="space-y-1">
                 <span className="text-[10px] text-zinc-500 uppercase font-bold">Status</span>
-                <div className="flex items-center gap-1 text-emerald-400 text-sm font-bold">
+                <div className="flex items-center gap-1 text-[#E6B447] text-sm font-bold">
                   <CheckCircle2 className="w-4 h-4" /> COMPLETO
                 </div>
               </div>

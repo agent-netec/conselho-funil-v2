@@ -46,7 +46,7 @@ export function StepLogo({ logoFile, logoLocked, onUpdate }: StepLogoProps) {
         className={cn(
           'relative aspect-[16/9] max-w-md mx-auto rounded-2xl border-2 border-dashed flex flex-col items-center justify-center transition-all overflow-hidden',
           logoFile
-            ? 'border-emerald-500/30 bg-black'
+            ? 'border-[#E6B447]/30 bg-black'
             : 'border-white/[0.08] hover:border-white/[0.15] hover:bg-white/[0.01] bg-white/[0.02]'
         )}
       >
@@ -86,7 +86,7 @@ export function StepLogo({ logoFile, logoLocked, onUpdate }: StepLogoProps) {
       <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] max-w-md mx-auto">
         <div className="flex items-center gap-3">
           {logoLocked ? (
-            <Lock className="h-5 w-5 text-emerald-500" />
+            <Lock className="h-5 w-5 text-[#E6B447]" />
           ) : (
             <Unlock className="h-5 w-5 text-zinc-500" />
           )}
@@ -100,7 +100,7 @@ export function StepLogo({ logoFile, logoLocked, onUpdate }: StepLogoProps) {
           onClick={() => onUpdate('logoLocked', !logoLocked)}
           className={cn(
             'relative h-6 w-11 rounded-full transition-colors',
-            logoLocked ? 'bg-emerald-500' : 'bg-zinc-700'
+            logoLocked ? 'bg-[#E6B447]' : 'bg-zinc-700'
           )}
         >
           <span

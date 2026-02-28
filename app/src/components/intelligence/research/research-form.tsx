@@ -94,11 +94,11 @@ export function ResearchForm({ onSubmit, loading = false }: Props) {
               className={cn(
                 'flex flex-col items-center gap-2 p-3 rounded-xl text-xs transition-all border text-center',
                 isActive
-                  ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_-3px_rgba(16,185,129,0.2)]'
+                  ? 'bg-[#E6B447]/10 border-[#E6B447]/50 text-[#E6B447] shadow-[0_0_15px_-3px_rgba(230,180,71,0.2)]'
                   : 'bg-zinc-900/40 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/60'
               )}
             >
-              <Icon className={cn('h-5 w-5', isActive ? 'text-emerald-400' : 'text-zinc-500')} />
+              <Icon className={cn('h-5 w-5', isActive ? 'text-[#E6B447]' : 'text-zinc-500')} />
               <span className="font-medium text-[11px]">{tpl.label}</span>
             </button>
           );
@@ -109,9 +109,9 @@ export function ResearchForm({ onSubmit, loading = false }: Props) {
       <Card className="p-4 bg-zinc-900/30 border-zinc-800 space-y-3">
         {activeTemplate && (
           <div className="flex items-center gap-2 pb-2 border-b border-zinc-800/50">
-            <Sparkles className="h-4 w-4 text-emerald-400" />
+            <Sparkles className="h-4 w-4 text-[#E6B447]" />
             <span className="text-xs text-zinc-400">{activeTemplate.description}</span>
-            <Badge variant="outline" className="text-[10px] border-emerald-500/20 text-emerald-400 ml-auto">
+            <Badge variant="outline" className="text-[10px] border-[#E6B447]/20 text-[#E6B447] ml-auto">
               {activeTemplate.defaultDepth}
             </Badge>
           </div>
@@ -195,7 +195,7 @@ export function ResearchForm({ onSubmit, loading = false }: Props) {
             })
           }
           disabled={loading || !topic.trim()}
-          className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium"
+          className="w-full bg-[#AB8648] hover:bg-[#E6B447] text-white font-medium"
         >
           {loading ? (
             <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Gerando Dossiê...</>

@@ -64,7 +64,7 @@ export function OnboardingStepIdentity({
           value={name}
           onChange={(e) => onUpdate('name', e.target.value)}
           placeholder="Ex: MKTHONEY"
-          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors"
+          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors"
         />
       </div>
 
@@ -78,7 +78,7 @@ export function OnboardingStepIdentity({
           onChange={(e) => onUpdate('positioning', e.target.value)}
           placeholder="O que sua marca faz em 1 frase"
           rows={2}
-          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors resize-none"
+          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors resize-none"
         />
       </div>
 
@@ -90,7 +90,7 @@ export function OnboardingStepIdentity({
         <select
           value={vertical}
           onChange={(e) => onUpdate('vertical', e.target.value)}
-          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none transition-colors appearance-none cursor-pointer"
+          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white focus:border-[#E6B447] focus:outline-none transition-colors appearance-none cursor-pointer"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2371717a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
             backgroundRepeat: 'no-repeat',
@@ -122,7 +122,7 @@ export function OnboardingStepIdentity({
               onClick={() => onUpdate('voiceTone', option.value)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-full border transition-all ${
                 voiceTone === option.value
-                  ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400'
+                  ? 'border-[#E6B447] bg-[#E6B447]/20 text-[#E6B447]'
                   : 'border-white/[0.06] bg-zinc-800/50 text-zinc-400 hover:border-white/[0.1] hover:text-white'
               }`}
             >

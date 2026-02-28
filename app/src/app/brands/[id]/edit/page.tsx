@@ -50,7 +50,7 @@ export default function EditBrandPage() {
     differentiator: '',
 
     // Visual fields (loaded from brandKit if exists)
-    colors: { primary: '#10b981', secondary: '#3b82f6', accent: '#f59e0b', background: '#09090b' },
+    colors: { primary: '#E6B447', secondary: '#3b82f6', accent: '#f59e0b', background: '#09090b' },
     visualStyle: 'modern',
     typography: { primaryFont: 'Inter', secondaryFont: 'Inter' },
     logoFile: null as File | null,
@@ -76,7 +76,7 @@ export default function EditBrandPage() {
         ticket: String(brand.offer.ticket),
         type: brand.offer.type,
         differentiator: brand.offer.differentiator,
-        colors: brand.brandKit?.colors || { primary: '#10b981', secondary: '#3b82f6', accent: '#f59e0b', background: '#09090b' },
+        colors: brand.brandKit?.colors || { primary: '#E6B447', secondary: '#3b82f6', accent: '#f59e0b', background: '#09090b' },
         visualStyle: brand.brandKit?.visualStyle || 'modern',
         typography: {
           primaryFont: brand.brandKit?.typography?.primaryFont || 'Inter',
@@ -189,7 +189,7 @@ export default function EditBrandPage() {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 text-emerald-500 animate-spin mx-auto mb-4" />
+          <Loader2 className="h-8 w-8 text-[#E6B447] animate-spin mx-auto mb-4" />
           <p className="text-zinc-500">Carregando marca...</p>
         </div>
       </div>
@@ -251,7 +251,7 @@ export default function EditBrandPage() {
               <Button
                 onClick={() => setCurrentStep((prev) => prev + 1)}
                 disabled={!canProceed()}
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-[#AB8648] hover:bg-[#895F29]"
               >
                 Próximo
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -260,7 +260,7 @@ export default function EditBrandPage() {
               <Button
                 onClick={handleSubmit}
                 disabled={isSubmitting || !canProceed()}
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-[#AB8648] hover:bg-[#895F29]"
               >
                 {isSubmitting ? (
                   <>

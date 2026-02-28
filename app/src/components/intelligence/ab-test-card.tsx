@@ -12,7 +12,7 @@ interface ABTestCardProps {
 
 const STATUS_STYLES: Record<ABTest['status'], string> = {
   draft: 'bg-zinc-700 text-zinc-200',
-  running: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+  running: 'bg-[#E6B447]/20 text-[#E6B447] border-[#E6B447]/30',
   paused: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
   completed: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
 };

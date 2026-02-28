@@ -95,8 +95,8 @@ export function AutomationControlCenter({
         </div>
         <div className="flex items-center gap-3">
           <div className="flex -space-x-2">
-            <div className="h-8 w-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-              <Activity className="h-4 w-4 text-emerald-500" />
+            <div className="h-8 w-8 rounded-full bg-[#E6B447]/10 border border-[#E6B447]/20 flex items-center justify-center">
+              <Activity className="h-4 w-4 text-[#E6B447]" />
             </div>
             <div className="h-8 w-8 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
               <ShieldCheck className="h-4 w-4 text-blue-500" />
@@ -113,7 +113,7 @@ export function AutomationControlCenter({
               {isEvaluating ? 'Avaliando...' : 'Rodar Avaliação'}
             </Button>
           )}
-          <Button onClick={onCreateRule} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold">
+          <Button onClick={onCreateRule} className="bg-[#AB8648] hover:bg-[#E6B447] text-white font-bold">
             <Plus className="mr-2 h-4 w-4" /> Nova Regra
           </Button>
         </div>
@@ -149,7 +149,7 @@ export function AutomationControlCenter({
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs font-bold text-zinc-500 uppercase">Ações Executadas (24h)</p>
-                  <TrendingUp className="h-4 w-4 text-emerald-500" />
+                  <TrendingUp className="h-4 w-4 text-[#E6B447]" />
                 </div>
                 <div className="text-3xl font-black text-white">{executedLast24h.length}</div>
                 <p className="text-[10px] text-zinc-500 mt-1">Últimas 24 horas</p>
@@ -205,7 +205,7 @@ export function AutomationControlCenter({
                     <div className="flex items-center gap-3">
                       <div className={cn(
                         "h-8 w-8 rounded-full flex items-center justify-center",
-                        log.status === 'executed' ? "bg-emerald-500/10 text-emerald-500" :
+                        log.status === 'executed' ? "bg-[#E6B447]/10 text-[#E6B447]" :
                         log.status === 'failed' ? "bg-rose-500/10 text-rose-500" :
                         "bg-amber-500/10 text-amber-500"
                       )}>
@@ -247,7 +247,7 @@ export function AutomationControlCenter({
                         <h3 className="text-lg font-bold text-white">{rule.name}</h3>
                         <Badge variant={rule.isEnabled ? "default" : "secondary"} className={cn(
                           "text-[10px] uppercase",
-                          rule.isEnabled ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-zinc-800 text-zinc-500"
+                          rule.isEnabled ? "bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/20" : "bg-zinc-800 text-zinc-500"
                         )}>
                           {rule.isEnabled ? "Ativa" : "Pausada"}
                         </Badge>
@@ -262,12 +262,12 @@ export function AutomationControlCenter({
                           rule.conditions.map((c, i) => (
                             <span key={i}>
                               {i > 0 && <span className="text-zinc-600"> {rule.logicOperator || 'AND'} </span>}
-                              <span className="text-emerald-400 font-mono">{c.metric || c.type}</span> {c.operator} {c.value}
+                              <span className="text-[#E6B447] font-mono">{c.metric || c.type}</span> {c.operator} {c.value}
                             </span>
                           ))
                         ) : (
                           <>
-                            Se <span className="text-emerald-400 font-mono">{rule.trigger.metric}</span> {rule.trigger.operator} {rule.trigger.value}
+                            Se <span className="text-[#E6B447] font-mono">{rule.trigger.metric}</span> {rule.trigger.operator} {rule.trigger.value}
                           </>
                         )}
                         , então <span className="text-blue-400 font-bold">{rule.action.type.replace('_', ' ')}</span>
@@ -280,7 +280,7 @@ export function AutomationControlCenter({
                         onClick={() => onToggleRule(rule.id, !rule.isEnabled)}
                         className={cn(
                           "h-9 px-3",
-                          rule.isEnabled ? "text-rose-400 hover:text-rose-300 hover:bg-rose-400/10" : "text-emerald-400 hover:text-emerald-300 hover:bg-emerald-400/10"
+                          rule.isEnabled ? "text-rose-400 hover:text-rose-300 hover:bg-rose-400/10" : "text-[#E6B447] hover:text-[#E6B447]/60 hover:bg-[#E6B447]/10"
                         )}
                       >
                         {rule.isEnabled ? <Pause className="h-4 w-4 mr-2" /> : <Play className="h-4 w-4 mr-2" />}
@@ -357,7 +357,7 @@ export function AutomationControlCenter({
                         <td className="py-4 text-right">
                           <Badge className={cn(
                             "text-[10px] uppercase",
-                            log.status === 'executed' ? "bg-emerald-500/10 text-emerald-500" :
+                            log.status === 'executed' ? "bg-[#E6B447]/10 text-[#E6B447]" :
                             log.status === 'failed' ? "bg-rose-500/10 text-rose-500" :
                             log.status === 'rejected' ? "bg-zinc-800 text-zinc-500" :
                             "bg-amber-500/10 text-amber-500"
@@ -405,7 +405,7 @@ export function AutomationControlCenter({
                                   <Badge className={cn(
                                     "text-[10px]",
                                     approveCount > totalVotes / 2
-                                      ? "bg-emerald-500/20 text-emerald-500 border-emerald-500/30"
+                                      ? "bg-[#E6B447]/20 text-[#E6B447] border-[#E6B447]/30"
                                       : "bg-rose-500/20 text-rose-500 border-rose-500/30"
                                   )}>
                                     {approveCount}/{totalVotes} aprovam
@@ -432,7 +432,7 @@ export function AutomationControlCenter({
                             </Button>
                             <Button
                               onClick={() => onApproveAction(action.id)}
-                              className="bg-emerald-600 hover:bg-emerald-500 text-white font-black shadow-lg shadow-emerald-500/20"
+                              className="bg-[#AB8648] hover:bg-[#E6B447] text-white font-black shadow-lg shadow-[#E6B447]/20"
                             >
                               <CheckCircle2 className="mr-2 h-4 w-4" /> Aprovar Ação
                             </Button>
@@ -460,12 +460,12 @@ export function AutomationControlCenter({
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs font-bold text-zinc-500 uppercase">Revenue Delta</p>
                   {totalRevenueDelta >= 0 ? (
-                    <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    <TrendingUp className="h-4 w-4 text-[#E6B447]" />
                   ) : (
                     <TrendingDown className="h-4 w-4 text-rose-500" />
                   )}
                 </div>
-                <div className={cn("text-3xl font-black", totalRevenueDelta >= 0 ? "text-emerald-400" : "text-rose-400")}>
+                <div className={cn("text-3xl font-black", totalRevenueDelta >= 0 ? "text-[#E6B447]" : "text-rose-400")}>
                   {totalRevenueDelta >= 0 ? '+' : ''}R$ {totalRevenueDelta.toFixed(2)}
                 </div>
                 <p className="text-[10px] text-zinc-500 mt-1">Impacto acumulado das automações</p>
@@ -532,7 +532,7 @@ export function AutomationControlCenter({
                           .map(([key, val]) => (
                             <span key={key} className={cn(
                               "font-mono",
-                              (val as number) > 0 ? "text-emerald-400" : "text-rose-400"
+                              (val as number) > 0 ? "text-[#E6B447]" : "text-rose-400"
                             )}>
                               {key}: {(val as number) > 0 ? '+' : ''}{(val as number).toFixed(2)}
                             </span>
@@ -558,7 +558,7 @@ function CouncilBadge({ debate }: { debate: CouncilDebateResult }) {
   return (
     <Badge variant="outline" className={cn(
       "text-[10px]",
-      approves > total / 2 ? "border-emerald-500/20 text-emerald-400" : "border-rose-500/20 text-rose-400"
+      approves > total / 2 ? "border-[#E6B447]/20 text-[#E6B447]" : "border-rose-500/20 text-rose-400"
     )}>
       {approves}/{total}
     </Badge>
@@ -586,13 +586,13 @@ function CouncilVerdictPanel({ debate }: { debate: CouncilDebateResult }) {
           <div key={vote.agentId} className={cn(
             "p-2.5 rounded-lg border text-xs",
             vote.recommendation === 'approve'
-              ? "bg-emerald-500/5 border-emerald-500/20"
+              ? "bg-[#E6B447]/5 border-[#E6B447]/20"
               : "bg-rose-500/5 border-rose-500/20"
           )}>
             <div className="flex items-center gap-1.5 mb-1">
               <div className={cn(
                 "h-2 w-2 rounded-full",
-                vote.recommendation === 'approve' ? "bg-emerald-500" : "bg-rose-500"
+                vote.recommendation === 'approve' ? "bg-[#E6B447]" : "bg-rose-500"
               )} />
               <span className="font-bold text-white text-[11px]">{vote.name.split(' ')[0]}</span>
             </div>

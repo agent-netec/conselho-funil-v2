@@ -113,7 +113,7 @@ export const ScaleSimulator = () => {
               <YAxis stroke="#3f3f46" />
               <Tooltip />
               <Area type="monotone" dataKey="atual" stroke="#52525b" fill="#52525b44" />
-              <Area type="monotone" dataKey="projetado" stroke="#10b981" fill="#10b98144" />
+              <Area type="monotone" dataKey="projetado" stroke="#E6B447" fill="#E6B44744" />
             </AreaChart>
           </ResponsiveContainer>
         </Card>

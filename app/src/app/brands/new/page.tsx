@@ -56,7 +56,7 @@ export default function NewBrandPage() {
     differentiator: '',
 
     // Step 4: Visual Identity
-    colors: { primary: '#10b981', secondary: '#3b82f6', accent: '#f59e0b', background: '#09090b' },
+    colors: { primary: '#E6B447', secondary: '#3b82f6', accent: '#f59e0b', background: '#09090b' },
     visualStyle: 'modern',
     typography: { primaryFont: 'Inter', secondaryFont: 'Inter' },
 
@@ -117,7 +117,7 @@ export default function NewBrandPage() {
       });
 
       // 2. Build brandKit if any visual data was customized
-      const hasVisualData = formData.colors.primary !== '#10b981' ||
+      const hasVisualData = formData.colors.primary !== '#E6B447' ||
         formData.colors.secondary !== '#3b82f6' ||
         formData.typography.primaryFont !== 'Inter' ||
         formData.logoFile;
@@ -265,7 +265,7 @@ export default function NewBrandPage() {
 
         <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8">
           <div className="mb-8 text-center">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-blue-600 mb-4">
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#E6B447] to-blue-600 mb-4">
               <Sparkles className="h-7 w-7 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">
@@ -308,7 +308,7 @@ export default function NewBrandPage() {
                 <Button
                   onClick={() => setCurrentStep((prev) => prev + 1)}
                   disabled={!canProceed()}
-                  className="bg-emerald-600 hover:bg-emerald-700"
+                  className="bg-[#AB8648] hover:bg-[#895F29]"
                 >
                   Próximo
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -317,7 +317,7 @@ export default function NewBrandPage() {
                 <Button
                   onClick={handleSubmit}
                   disabled={isSubmitting || !canProceed()}
-                  className="bg-emerald-600 hover:bg-emerald-700"
+                  className="bg-[#AB8648] hover:bg-[#895F29]"
                 >
                   {isSubmitting ? (
                     <>

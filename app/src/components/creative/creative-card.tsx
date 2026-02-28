@@ -24,7 +24,7 @@ export function CreativeCard({ creative, onGenerateCopy }: CreativeCardProps) {
   const isFatigued = creative.fatigueIndex > 0.7;
   
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-emerald-400';
+    if (score >= 80) return 'text-[#E6B447]';
     if (score >= 50) return 'text-amber-400';
     return 'text-rose-400';
   };
@@ -102,7 +102,7 @@ export function CreativeCard({ creative, onGenerateCopy }: CreativeCardProps) {
                 <TrendingUp className="h-3 w-3" />
                 <span className="text-[10px] font-medium uppercase">LTV Atrib.</span>
               </div>
-              <p className="text-sm font-semibold text-emerald-400">
+              <p className="text-sm font-semibold text-[#E6B447]">
                 ${creative.metrics.ltvAttributed.toLocaleString()}
               </p>
             </div>

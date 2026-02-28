@@ -75,7 +75,7 @@ export function StepAudience({ formData, onUpdate }: StepAudienceProps) {
                 className={cn(
                   'rounded-lg border px-3 py-2.5 text-center text-sm transition-all',
                   formData.awareness === level.id
-                    ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400'
+                    ? 'border-[#E6B447]/50 bg-[#E6B447]/10 text-[#E6B447]'
                     : 'border-white/[0.06] text-zinc-400 hover:border-white/[0.1] hover:text-zinc-300'
                 )}
               >

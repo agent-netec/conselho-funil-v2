@@ -13,7 +13,7 @@ interface BrandingContextType {
 const DEFAULT_BRANDING: AgencyBranding = {
   logoUrl: '',
   colors: {
-    primary: '#10b981', // emerald-500
+    primary: '#E6B447', // [#E6B447]
     secondary: '#8b5cf6', // violet-500
   }
 };
@@ -113,6 +113,6 @@ export function useBranding() {
 // Helper para converter HEX para RGB (usado para opacidade em Tailwind)
 function hexToRgb(hex: string): string {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!result) return '16, 185, 129'; // fallback emerald
+  if (!result) return '230, 180, 71'; // fallback gold
   return `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`;
 }

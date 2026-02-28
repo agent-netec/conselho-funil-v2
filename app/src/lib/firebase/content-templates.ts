@@ -126,7 +126,7 @@ export async function deleteRecurrenceRule(brandId: string, ruleId: string): Pro
 // CONTENT PILLARS
 // ═══════════════════════════════════════════
 
-const DEFAULT_PILLAR_COLORS = ['#f43f5e', '#8b5cf6', '#f59e0b', '#10b981', '#3b82f6'];
+const DEFAULT_PILLAR_COLORS = ['#f43f5e', '#8b5cf6', '#f59e0b', '#E6B447', '#3b82f6'];
 
 export async function saveContentPillars(
   brandId: string,

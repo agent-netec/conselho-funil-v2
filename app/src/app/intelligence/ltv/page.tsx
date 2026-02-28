@@ -135,7 +135,7 @@ export default function LTVDashboardPage() {
               variant="outline"
               className={
                 !summary.isEstimated && !summary.isSimulated
-                  ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                  ? 'bg-[#F5E8CE] text-[#AB8648] border-[#E6B447]/30'
                   : 'bg-amber-50 text-amber-600 border-amber-200'
               }
             >
@@ -265,7 +265,7 @@ function RetentionPanel({ data }: { data: any }) {
         <Card>
           <CardContent className="pt-6">
             <p className="text-xs font-medium text-muted-foreground uppercase">Taxa de Retenção</p>
-            <p className="text-2xl font-bold text-emerald-600">{safeRate}%</p>
+            <p className="text-2xl font-bold text-[#AB8648]">{safeRate}%</p>
           </CardContent>
         </Card>
         <Card>
@@ -287,7 +287,7 @@ function RetentionPanel({ data }: { data: any }) {
             {[
               { label: 'Crítico (>70% risco)', count: riskBuckets.critical, color: 'bg-red-500', textColor: 'text-red-600' },
               { label: 'Atenção (30-70% risco)', count: riskBuckets.warning, color: 'bg-amber-500', textColor: 'text-amber-600' },
-              { label: 'Seguro (<30% risco)', count: riskBuckets.safe, color: 'bg-emerald-500', textColor: 'text-emerald-600' },
+              { label: 'Seguro (<30% risco)', count: riskBuckets.safe, color: 'bg-[#E6B447]', textColor: 'text-[#AB8648]' },
             ].map(bucket => {
               const pct = totalLeads > 0 ? (bucket.count / totalLeads * 100) : 0;
               return (

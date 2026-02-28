@@ -252,7 +252,7 @@ export default function ChatPage() {
             <div className="border-t border-white/[0.06] bg-zinc-950/80 backdrop-blur-sm px-4 py-2.5">
               <Link
                 href={`/campaigns/${campaignId}`}
-                className="flex items-center justify-between gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-2.5 transition-all hover:bg-emerald-500/10 hover:border-emerald-500/40 group"
+                className="flex items-center justify-between gap-3 rounded-lg border border-[#E6B447]/20 bg-[#E6B447]/5 px-4 py-2.5 transition-all hover:bg-[#E6B447]/10 hover:border-[#E6B447]/40 group"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-lg">{'\u2705'}</span>
@@ -265,7 +265,7 @@ export default function ChatPage() {
                     </p>
                   </div>
                 </div>
-                <span className="text-zinc-500 group-hover:text-emerald-400 transition-colors text-lg">{'\u2192'}</span>
+                <span className="text-zinc-500 group-hover:text-[#E6B447] transition-colors text-lg">{'\u2192'}</span>
               </Link>
             </div>
           )}

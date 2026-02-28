@@ -140,10 +140,10 @@ export default function NewFunnelPage() {
     <div className="flex min-h-screen flex-col">
       <Header title={template ? 'Criar a partir de Template' : 'Novo Funil'} subtitle={template?.name} showBack />
       {template && (
-        <div className="border-b border-emerald-500/20 bg-emerald-500/5 px-8 py-3">
+        <div className="border-b border-[#E6B447]/20 bg-[#E6B447]/5 px-8 py-3">
           <div className="mx-auto max-w-2xl flex items-center gap-3">
-            <Library className="h-5 w-5 text-emerald-400" />
-            <span className="text-sm text-emerald-300">Usando template: <span className="font-medium">{template.name}</span></span>
+            <Library className="h-5 w-5 text-[#E6B447]" />
+            <span className="text-sm text-[#E6B447]/60">Usando template: <span className="font-medium">{template.name}</span></span>
           </div>
         </div>
       )}

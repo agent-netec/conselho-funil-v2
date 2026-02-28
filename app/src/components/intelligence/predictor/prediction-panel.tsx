@@ -106,7 +106,7 @@ function CounselorOpinionCard({ opinion }: { opinion: CounselorOpinion }) {
           {opinion.goldStandardsHit.map((gs) => (
             <span
               key={gs}
-              className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-emerald-950/50 text-emerald-400 border border-emerald-900/50"
+              className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-[#0D0B09]/50 text-[#E6B447] border border-[#1A1612]/50"
             >
               <Award className="h-2.5 w-2.5" />
               {gs.replace(/_/g, ' ')}

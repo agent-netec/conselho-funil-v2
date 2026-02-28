@@ -192,7 +192,7 @@ export function VoiceProfileEditor({ brandId, currentProfile, onSaved }: VoicePr
           </div>
           <div className="flex flex-wrap gap-1.5">
             {profile.preferredVocabulary.map((term, i) => (
-              <Badge key={i} variant="outline" className="border-emerald-500/20 text-emerald-400 bg-emerald-500/5 gap-1">
+              <Badge key={i} variant="outline" className="border-[#E6B447]/20 text-[#E6B447] bg-[#E6B447]/5 gap-1">
                 {term}
                 <button onClick={() => removeItem('preferredVocabulary', i)}><X className="h-3 w-3" /></button>
               </Badge>
@@ -274,7 +274,7 @@ export function VoiceProfileEditor({ brandId, currentProfile, onSaved }: VoicePr
             {voiceSamples.map((sample, i) => (
               <div key={i} className={cn(
                 'p-3 rounded-lg border',
-                sample.approved ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-zinc-800/30 border-white/[0.03]'
+                sample.approved ? 'bg-[#E6B447]/5 border-[#E6B447]/20' : 'bg-zinc-800/30 border-white/[0.03]'
               )}>
                 <p className="text-[10px] text-zinc-500 uppercase font-medium mb-1">{sample.context}</p>
                 <p className="text-xs text-zinc-300 italic">"{sample.sample}"</p>
@@ -282,7 +282,7 @@ export function VoiceProfileEditor({ brandId, currentProfile, onSaved }: VoicePr
                   <Button
                     size="sm"
                     variant={sample.approved ? 'default' : 'outline'}
-                    className={cn('h-7 text-[10px]', sample.approved && 'bg-emerald-500')}
+                    className={cn('h-7 text-[10px]', sample.approved && 'bg-[#E6B447]')}
                     onClick={() => {
                       setVoiceSamples(prev => prev.map((s, idx) => idx === i ? { ...s, approved: !s.approved } : s));
                     }}
@@ -310,7 +310,7 @@ export function VoiceProfileEditor({ brandId, currentProfile, onSaved }: VoicePr
         <Button
           onClick={handleSave}
           disabled={isSaving}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white"
+          className="bg-[#E6B447] hover:bg-[#AB8648] text-white"
         >
           {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
           Salvar Perfil de Voz

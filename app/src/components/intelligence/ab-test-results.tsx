@@ -29,7 +29,7 @@ function getCtr(variant: ABTestVariant): number {
 function getSignificanceBadge(significanceLevel: number | null): { label: string; className: string } {
   const significance = (significanceLevel ?? 0) * 100;
   if (significance >= 95) {
-    return { label: `${significance.toFixed(1)}%`, className: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' };
+    return { label: `${significance.toFixed(1)}%`, className: 'bg-[#E6B447]/20 text-[#E6B447] border-[#E6B447]/30' };
   }
   if (significance >= 80) {
     return { label: `${significance.toFixed(1)}%`, className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' };
@@ -124,14 +124,14 @@ export function ABTestResults({
             const isLeader = variant.id === leader.id;
 
             return (
-              <div key={variant.id} className={`border rounded-lg p-4 ${isLeader ? 'border-emerald-500/60 bg-emerald-500/5' : 'border-zinc-800 bg-zinc-900/30'}`}>
+              <div key={variant.id} className={`border rounded-lg p-4 ${isLeader ? 'border-[#E6B447]/60 bg-[#E6B447]/5' : 'border-zinc-800 bg-zinc-900/30'}`}>
                 <div className="flex items-center justify-between mb-2">
                   <div>
                     <h3 className="text-sm font-semibold text-white">{variant.name}</h3>
                     <p className="text-xs text-zinc-500">ID: {variant.id}</p>
                   </div>
                   {isLeader && (
-                    <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">Leader</Badge>
+                    <Badge className="bg-[#E6B447]/20 text-[#E6B447] border-[#E6B447]/30">Leader</Badge>
                   )}
                 </div>
 

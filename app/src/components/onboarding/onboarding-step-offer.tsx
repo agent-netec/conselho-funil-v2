@@ -63,7 +63,7 @@ export function OnboardingStepOffer({
           onChange={(e) => onUpdate('what', e.target.value)}
           placeholder="Ex: Mentoria de 12 semanas para donos de e-commerce"
           rows={2}
-          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors resize-none"
+          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors resize-none"
         />
       </div>
 
@@ -82,7 +82,7 @@ export function OnboardingStepOffer({
             value={formatTicket(ticket)}
             onChange={handleTicketChange}
             placeholder="0"
-            className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 pl-11 pr-4 py-3 text-white placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors"
+            className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 pl-11 pr-4 py-3 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors"
           />
         </div>
       </div>
@@ -100,7 +100,7 @@ export function OnboardingStepOffer({
               onClick={() => onUpdate('type', option.value)}
               className={`flex flex-col items-center gap-1.5 px-3 py-3 rounded-lg border transition-all ${
                 type === option.value
-                  ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400'
+                  ? 'border-[#E6B447] bg-[#E6B447]/20 text-[#E6B447]'
                   : 'border-white/[0.06] bg-zinc-800/50 text-zinc-400 hover:border-white/[0.1] hover:text-white'
               }`}
             >
@@ -121,7 +121,7 @@ export function OnboardingStepOffer({
           onChange={(e) => onUpdate('differentiator', e.target.value)}
           placeholder="O que torna sua oferta única vs concorrentes?"
           rows={2}
-          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors resize-none"
+          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors resize-none"
         />
       </div>
     </motion.div>

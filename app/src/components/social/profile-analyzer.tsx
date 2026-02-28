@@ -105,13 +105,13 @@ export function ProfileAnalyzer() {
           {report.strengths.length > 0 && (
             <div>
               <div className="flex items-center gap-1.5 mb-1.5">
-                <ThumbsUp className="h-3.5 w-3.5 text-emerald-400" />
-                <span className="text-[11px] font-medium text-emerald-400">Pontos Fortes</span>
+                <ThumbsUp className="h-3.5 w-3.5 text-[#E6B447]" />
+                <span className="text-[11px] font-medium text-[#E6B447]">Pontos Fortes</span>
               </div>
               <ul className="space-y-1">
                 {report.strengths.map((s, i) => (
                   <li key={i} className="text-xs text-zinc-400 flex items-start gap-1.5">
-                    <span className="h-1 w-1 rounded-full bg-emerald-500/50 mt-1.5 shrink-0" />
+                    <span className="h-1 w-1 rounded-full bg-[#E6B447]/50 mt-1.5 shrink-0" />
                     {s}
                   </li>
                 ))}

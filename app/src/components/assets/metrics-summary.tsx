@@ -32,8 +32,8 @@ export function AssetMetricsSummary({ summary, isLoading, recentAssets, onReproc
       value: isLoading ? '—' : (summary?.total || 0),
       subtitle: "Vetorizados no Pinecone",
       icon: Target,
-      color: "text-emerald-400",
-      bg: "bg-emerald-500/10",
+      color: "text-[#E6B447]",
+      bg: "bg-[#E6B447]/10",
       delay: 0.1
     },
     {
@@ -107,13 +107,13 @@ export function AssetMetricsSummary({ summary, isLoading, recentAssets, onReproc
                   {asset.status === 'processing' && (
                     <div className="flex items-center gap-2">
                       <div className="w-20 h-1.5 bg-zinc-700 rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-500 rounded-full animate-pulse" style={{ width: '60%' }} />
+                        <div className="h-full bg-[#E6B447] rounded-full animate-pulse" style={{ width: '60%' }} />
                       </div>
                       <span className="text-[10px] text-zinc-500">Processando</span>
                     </div>
                   )}
                   {asset.status === 'ready' && (
-                    <span className="text-[10px] font-bold text-emerald-500 uppercase">Pronto</span>
+                    <span className="text-[10px] font-bold text-[#E6B447] uppercase">Pronto</span>
                   )}
                   {asset.status === 'error' && (
                     <div className="flex items-center gap-2">

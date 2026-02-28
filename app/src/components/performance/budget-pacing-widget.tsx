@@ -60,7 +60,7 @@ export function BudgetPacingWidget({ data, monthlyBudget, currentSpend, daysRema
           </div>
           <Progress value={percentUsed} className="h-2" />
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-            <Zap className={`w-3 h-3 ${isOverPacing ? 'text-amber-500' : 'text-emerald-500'}`} />
+            <Zap className={`w-3 h-3 ${isOverPacing ? 'text-amber-500' : 'text-[#E6B447]'}`} />
             {isOverPacing 
               ? "Atenção: Gasto acima da projeção linear." 
               : "Gasto saudável dentro da projeção."}

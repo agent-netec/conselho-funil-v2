@@ -155,7 +155,7 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
                 <Label className="flex items-center gap-2">
                   Governança de Logo (Logo Lock)
                   {kit.logoLock.locked ? (
-                    <Lock className="w-4 h-4 text-emerald-400" />
+                    <Lock className="w-4 h-4 text-[#E6B447]" />
                   ) : (
                     <Unlock className="w-4 h-4 text-muted-foreground" />
                   )}
@@ -167,7 +167,7 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
               <Button 
                 variant={kit.logoLock.locked ? "default" : "outline"}
                 size="sm"
-                className={kit.logoLock.locked ? "bg-emerald-600 hover:bg-emerald-700" : ""}
+                className={kit.logoLock.locked ? "bg-[#AB8648] hover:bg-[#895F29]" : ""}
                 onClick={() => setKit({ ...kit, logoLock: { ...kit.logoLock, locked: !kit.logoLock.locked } })}
               >
                 {kit.logoLock.locked ? "Ativado" : "Desativado"}
@@ -229,7 +229,7 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
                       alt="Preview Logo" 
                       className="max-h-24 object-contain mb-2"
                     />
-                    <span className="text-xs text-emerald-400 flex items-center gap-1">
+                    <span className="text-xs text-[#E6B447] flex items-center gap-1">
                       <Check className="w-3 h-3" /> Logo Oficial Ativa
                     </span>
                   </>
@@ -246,8 +246,8 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
           {/* CONFIGURAÇÃO DE IA (ST-12.3) */}
           <div className="pt-8 border-t border-white/[0.05]">
             <div className="flex items-center gap-2 mb-6">
-              <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                <BrainCircuit className="w-5 h-5 text-emerald-400" />
+              <div className="p-2 rounded-lg bg-[#E6B447]/10 border border-[#E6B447]/20">
+                <BrainCircuit className="w-5 h-5 text-[#E6B447]" />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider">Configuração de IA (Deep Intelligence)</h3>
@@ -260,7 +260,7 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <Label className="text-xs font-bold uppercase text-zinc-400">Personalidade da Marca</Label>
-                    <Sparkles className="w-3 h-3 text-emerald-400" />
+                    <Sparkles className="w-3 h-3 text-[#E6B447]" />
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {Object.keys(AI_PRESETS).map((p) => (
@@ -270,7 +270,7 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
                         size="sm"
                         className={cn(
                           "justify-start gap-2 border-white/[0.05] hover:bg-white/[0.05]",
-                          aiConfig.profile === p && "border-emerald-500/50 bg-emerald-500/5 text-emerald-400"
+                          aiConfig.profile === p && "border-[#E6B447]/50 bg-[#E6B447]/5 text-[#E6B447]"
                         )}
                         onClick={() => applyPreset(p as keyof typeof AI_PRESETS)}
                       >
@@ -285,7 +285,7 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <Label className="text-xs font-bold uppercase text-zinc-400">Temperatura</Label>
-                    <span className="text-xs font-mono text-emerald-400">{aiConfig.temperature}</span>
+                    <span className="text-xs font-mono text-[#E6B447]">{aiConfig.temperature}</span>
                   </div>
                   <input 
                     type="range" 
@@ -294,7 +294,7 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
                     step="0.1" 
                     value={aiConfig.temperature}
                     onChange={(e) => setAiConfig({ ...aiConfig, temperature: parseFloat(e.target.value), profile: 'equilibrado' })}
-                    className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                    className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-[#E6B447]"
                   />
                   <div className="flex justify-between text-[10px] text-zinc-600 font-bold uppercase">
                     <span>Preciso (0.1)</span>
@@ -319,9 +319,9 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
                 </div>
               </div>
 
-              <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500/5 to-blue-500/5 border border-white/[0.05] flex flex-col justify-center">
+              <div className="p-6 rounded-2xl bg-gradient-to-br from-[#E6B447]/5 to-blue-500/5 border border-white/[0.05] flex flex-col justify-center">
                 <h4 className="text-xs font-bold text-white uppercase tracking-widest mb-2 flex items-center gap-2">
-                  <Activity className="w-3 h-3 text-emerald-400" />
+                  <Activity className="w-3 h-3 text-[#E6B447]" />
                   Impacto na Geração
                 </h4>
                 <p className="text-xs text-zinc-400 leading-relaxed">
@@ -346,7 +346,7 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
           </div>
 
           <div className="flex justify-end pt-4">
-            <Button onClick={handleSave} disabled={loading || uploadingLogo} className="bg-emerald-600 hover:bg-emerald-700">
+            <Button onClick={handleSave} disabled={loading || uploadingLogo} className="bg-[#AB8648] hover:bg-[#895F29]">
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Salvar BrandKit
             </Button>

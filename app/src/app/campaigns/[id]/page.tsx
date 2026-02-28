@@ -309,7 +309,7 @@ export default function CampaignCommandCenter() {
             animate={{ scale: [1, 1.1, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <Sparkles className="h-12 w-12 text-emerald-500 opacity-20" />
+            <Sparkles className="h-12 w-12 text-[#E6B447] opacity-20" />
           </motion.div>
         </div>
       </div>
@@ -364,10 +364,10 @@ export default function CampaignCommandCenter() {
               animate={{ opacity: 1, y: 0 }}
               className="mb-8"
             >
-              <div className="relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-emerald-600/5 to-zinc-900/50 p-6 sm:p-8">
+              <div className="relative overflow-hidden rounded-2xl border border-[#E6B447]/20 bg-gradient-to-br from-[#E6B447]/10 via-[#AB8648]/5 to-zinc-900/50 p-6 sm:p-8">
                 <div className="flex items-start gap-4 mb-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/20">
-                    <Trophy className="h-6 w-6 text-emerald-400" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E6B447]/20">
+                    <Trophy className="h-6 w-6 text-[#E6B447]" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">Campanha Completa!</h2>
@@ -407,7 +407,7 @@ export default function CampaignCommandCenter() {
                 <div className="flex flex-wrap gap-3">
                   <button
                     onClick={generateBrief}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-[#AB8648] hover:bg-[#E6B447] text-white rounded-lg text-sm font-medium transition-colors"
                   >
                     <FileText className="h-4 w-4" />
                     Gerar Campaign Brief
@@ -452,7 +452,7 @@ export default function CampaignCommandCenter() {
                           <span className="text-[10px] text-zinc-500">{i + 1}</span>
                         </div>
                         {step.href ? (
-                          <a href={step.href} className="text-zinc-400 hover:text-emerald-400 transition-colors flex items-center gap-1">
+                          <a href={step.href} className="text-zinc-400 hover:text-[#E6B447] transition-colors flex items-center gap-1">
                             {step.label}
                             <ExternalLink className="h-3 w-3" />
                           </a>

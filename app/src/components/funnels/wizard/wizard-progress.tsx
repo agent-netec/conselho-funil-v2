@@ -31,7 +31,7 @@ export function WizardProgress({ currentStep }: WizardProgressProps) {
               initial={false}
               animate={{
                 backgroundColor: currentStep >= step.id 
-                  ? 'rgb(16, 185, 129)' 
+                  ? 'rgb(230, 180, 71)' 
                   : 'rgba(255, 255, 255, 0.04)',
                 scale: currentStep === step.id ? 1.1 : 1,
               }}
@@ -50,7 +50,7 @@ export function WizardProgress({ currentStep }: WizardProgressProps) {
               <div
                 className={cn(
                   'h-0.5 w-8 mx-1 rounded-full transition-colors',
-                  currentStep > step.id ? 'bg-emerald-500' : 'bg-white/[0.06]'
+                  currentStep > step.id ? 'bg-[#E6B447]' : 'bg-white/[0.06]'
                 )}
               />
             )}

@@ -29,7 +29,7 @@ const STATUS_CONFIG: Record<CalendarItemStatus, { label: string; className: stri
   },
   published: {
     label: 'Publicado',
-    className: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+    className: 'bg-[#E6B447]/20 text-[#E6B447]/60 border-[#E6B447]/30',
   },
   rejected: {
     label: 'Rejeitado',

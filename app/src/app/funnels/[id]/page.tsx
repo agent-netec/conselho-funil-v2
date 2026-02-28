@@ -204,10 +204,10 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
   },
   approved: { 
     label: 'Aprovado', 
-    color: 'text-emerald-400', 
-    bg: 'bg-emerald-500/10',
+    color: 'text-[#E6B447]', 
+    bg: 'bg-[#E6B447]/10',
     description: 'Pronto para execução estratégica',
-    glow: 'from-emerald-500/5 to-transparent'
+    glow: 'from-[#E6B447]/5 to-transparent'
   },
   adjusting: { 
     label: 'Ajustando', 
@@ -225,10 +225,10 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
   },
   completed: { 
     label: 'Concluído', 
-    color: 'text-emerald-400', 
-    bg: 'bg-emerald-500/10',
+    color: 'text-[#E6B447]', 
+    bg: 'bg-[#E6B447]/10',
     description: 'Ciclo estratégico finalizado com sucesso',
-    glow: 'from-emerald-500/5 to-transparent'
+    glow: 'from-[#E6B447]/5 to-transparent'
   },
   killed: { 
     label: 'Cancelado', 
@@ -258,7 +258,7 @@ function ProposalCard({ proposal, index, onSelect }: { proposal: Proposal; index
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className="card-premium p-6 hover:border-emerald-500/30 transition-all cursor-pointer group"
+      className="card-premium p-6 hover:border-[#E6B447]/30 transition-all cursor-pointer group"
       onClick={onSelect}
     >
       <div className="flex items-start justify-between mb-4">
@@ -266,7 +266,7 @@ function ProposalCard({ proposal, index, onSelect }: { proposal: Proposal; index
           <div className="flex items-center gap-3 mb-2">
             <div className={cn(
               'flex h-8 w-8 items-center justify-center rounded-lg font-bold text-sm',
-              index === 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-zinc-700/50 text-zinc-400'
+              index === 0 ? 'bg-[#E6B447]/20 text-[#E6B447]' : 'bg-zinc-700/50 text-zinc-400'
             )}>
               {index + 1}
             </div>
@@ -285,7 +285,7 @@ function ProposalCard({ proposal, index, onSelect }: { proposal: Proposal; index
           <div className="text-right ml-4">
             <div className={cn(
               'text-3xl font-bold',
-              overallScore >= 7.5 ? 'text-emerald-400' :
+              overallScore >= 7.5 ? 'text-[#E6B447]' :
               overallScore >= 6 ? 'text-amber-400' : 'text-red-400'
             )}>
               {overallScore.toFixed(1)}
@@ -322,7 +322,7 @@ function ProposalCard({ proposal, index, onSelect }: { proposal: Proposal; index
             <div className="flex items-center gap-1">
               <div className="h-1.5 flex-1 bg-zinc-800 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-emerald-500 rounded-full" 
+                  className="h-full bg-[#E6B447] rounded-full" 
                   style={{ width: `${(scorecard.clarity / 10) * 100}%` }}
                 />
               </div>
@@ -357,7 +357,7 @@ function ProposalCard({ proposal, index, onSelect }: { proposal: Proposal; index
       )}
 
       {/* Hover indicator */}
-      <div className="flex items-center justify-end mt-4 text-sm text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center justify-end mt-4 text-sm text-[#E6B447] opacity-0 group-hover:opacity-100 transition-opacity">
         Ver detalhes <ChevronRight className="h-4 w-4 ml-1" />
       </div>
     </motion.div>
@@ -618,20 +618,20 @@ export default function FunnelDetailPage() {
   <title>${funnel.name} - Export</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; line-height: 1.6; color: #1a1a1a; }
-    h1 { color: #10b981; border-bottom: 2px solid #10b981; padding-bottom: 10px; }
+    h1 { color: #E6B447; border-bottom: 2px solid #E6B447; padding-bottom: 10px; }
     h2 { color: #374151; margin-top: 30px; }
     h3 { color: #4b5563; }
     h4 { color: #6b7280; }
     table { border-collapse: collapse; width: 100%; margin: 15px 0; }
     th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
     th { background: #f9fafb; }
-    blockquote { border-left: 3px solid #10b981; padding-left: 15px; color: #6b7280; margin: 15px 0; }
+    blockquote { border-left: 3px solid #E6B447; padding-left: 15px; color: #6b7280; margin: 15px 0; }
     hr { border: none; border-top: 1px solid #e5e7eb; margin: 30px 0; }
     ul, ol { padding-left: 25px; }
     li { margin: 5px 0; }
     strong { color: #111; }
-    .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; z-index: 1000; }
-    .print-btn:hover { background: #059669; }
+    .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #E6B447; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; z-index: 1000; }
+    .print-btn:hover { background: #AB8648; }
     @media print { .print-btn { display: none; } body { padding: 20px; } }
   </style>
 </head>
@@ -807,7 +807,7 @@ export default function FunnelDetailPage() {
                 variant="outline"
                 className={cn(
                   'btn-ghost',
-                  savedToLibrary && 'text-emerald-400 border-emerald-500/50'
+                  savedToLibrary && 'text-[#E6B447] border-[#E6B447]/50'
                 )}
                 onClick={handleSaveToLibrary}
                 disabled={isSavingToLibrary || savedToLibrary}
@@ -891,7 +891,7 @@ export default function FunnelDetailPage() {
               </div>
               
               {funnel.status === 'draft' && !isGenerating && (
-                <Button className="btn-accent w-full md:w-auto shadow-lg shadow-emerald-500/20" onClick={handleGenerate}>
+                <Button className="btn-accent w-full md:w-auto shadow-lg shadow-[#E6B447]/20" onClick={handleGenerate}>
                   <Sparkles className="mr-2 h-4 w-4" />
                   Gerar Propostas
                 </Button>
@@ -944,7 +944,7 @@ export default function FunnelDetailPage() {
             >
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-emerald-400" />
+                  <Zap className="h-5 w-5 text-[#E6B447]" />
                   Propostas do Conselho
                   <span className="text-sm font-normal text-zinc-500">
                     ({proposals.length} {proposals.length === 1 ? 'proposta' : 'propostas'})
@@ -970,8 +970,8 @@ export default function FunnelDetailPage() {
                 className="card-premium p-5"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10">
-                    <Target className="h-5 w-5 text-emerald-400" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E6B447]/10">
+                    <Target className="h-5 w-5 text-[#E6B447]" />
                   </div>
                   <h3 className="text-lg font-semibold text-white">Contexto</h3>
                 </div>
@@ -1047,7 +1047,7 @@ export default function FunnelDetailPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <span className="text-sm text-zinc-500">Ticket</span>
-                      <p className="text-emerald-400 font-semibold text-lg">
+                      <p className="text-[#E6B447] font-semibold text-lg">
                         {funnel.context.offer?.ticket}
                       </p>
                     </div>
@@ -1099,8 +1099,8 @@ export default function FunnelDetailPage() {
               className="mt-8 card-premium p-8 text-center"
             >
               <div className="relative mx-auto mb-6">
-                <div className="absolute inset-0 rounded-2xl bg-emerald-500/20 blur-2xl" />
-                <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 mx-auto">
+                <div className="absolute inset-0 rounded-2xl bg-[#E6B447]/20 blur-2xl" />
+                <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#E6B447] to-[#AB8648] mx-auto">
                   <Sparkles className="h-8 w-8 text-white" />
                 </div>
               </div>

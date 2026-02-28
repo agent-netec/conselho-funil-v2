@@ -95,7 +95,7 @@ export default function BrandDetailPage() {
       <div className="flex min-h-screen flex-col">
         <Header title="Carregando..." showBrandSelector={false} />
         <div className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500" />
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E6B447]" />
         </div>
       </div>
     );
@@ -133,7 +133,7 @@ export default function BrandDetailPage() {
                 onClick={handleActivate}
                 variant="outline"
                 size="sm"
-                className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+                className="border-[#E6B447]/30 text-[#E6B447] hover:bg-[#E6B447]/10"
               >
                 <TrendingUp className="mr-2 h-4 w-4" />
                 Ativar Marca
@@ -142,7 +142,7 @@ export default function BrandDetailPage() {
             <Button
               onClick={() => router.push(`/brands/${brandId}/edit`)}
               size="sm"
-              className="bg-emerald-600 hover:bg-emerald-700"
+              className="bg-[#AB8648] hover:bg-[#895F29]"
             >
               <Edit className="mr-2 h-4 w-4" />
               Editar
@@ -166,10 +166,10 @@ export default function BrandDetailPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30"
+              className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[#E6B447]/10 border border-[#E6B447]/30"
             >
-              <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-sm font-medium text-emerald-400">
+              <div className="h-2 w-2 rounded-full bg-[#E6B447] animate-pulse" />
+              <span className="text-sm font-medium text-[#E6B447]">
                 Esta é a marca ativa no momento
               </span>
             </motion.div>
@@ -193,7 +193,7 @@ export default function BrandDetailPage() {
               {/* Identidade */}
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6">
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-blue-600">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#E6B447] to-blue-600">
                 <Building2 className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -253,7 +253,7 @@ export default function BrandDetailPage() {
                   <ul className="mt-2 space-y-1">
                     {brand.audience.objections.map((obj, i) => (
                       <li key={i} className="text-white flex items-start gap-2">
-                        <span className="text-emerald-400">•</span>
+                        <span className="text-[#E6B447]">•</span>
                         {obj}
                       </li>
                     ))}
@@ -301,14 +301,14 @@ export default function BrandDetailPage() {
           </div>
 
           {/* Info Box */}
-          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+          <div className="rounded-xl border border-[#E6B447]/20 bg-[#E6B447]/5 p-4">
             <div className="flex gap-3">
-              <Sparkles className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+              <Sparkles className="h-5 w-5 text-[#E6B447] shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm text-emerald-200/90 mb-1">
+                <p className="text-sm text-[#E6B447]/30/90 mb-1">
                   <strong className="font-semibold">Contexto Compartilhado</strong>
                 </p>
-                <p className="text-sm text-emerald-200/70">
+                <p className="text-sm text-[#E6B447]/30/70">
                   Todas estas informações são usadas automaticamente pelos Conselhos de Funil, Copy e Social 
                   para gerar estratégias personalizadas para esta marca.
                 </p>

@@ -72,7 +72,7 @@ function NotConfiguredBadge() {
 }
 
 export function StepConfirm({ formData }: StepConfirmProps) {
-  const hasColors = (formData.colors?.primary ?? '#10b981') !== '#10b981' || (formData.colors?.secondary ?? '#3b82f6') !== '#3b82f6';
+  const hasColors = (formData.colors?.primary ?? '#E6B447') !== '#E6B447' || (formData.colors?.secondary ?? '#3b82f6') !== '#3b82f6';
   const hasTypography = (formData.typography?.primaryFont ?? 'Inter') !== 'Inter' || (formData.typography?.secondaryFont ?? 'Inter') !== 'Inter';
   const hasVisual = hasColors || hasTypography;
 
@@ -85,8 +85,8 @@ export function StepConfirm({ formData }: StepConfirmProps) {
       className="space-y-4"
     >
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-500/10 mb-3">
-          <Sparkles className="w-7 h-7 text-emerald-500" />
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#E6B447]/10 mb-3">
+          <Sparkles className="w-7 h-7 text-[#E6B447]" />
         </div>
         <h3 className="text-lg font-medium text-white mb-1">
           Revise sua Marca
@@ -99,8 +99,8 @@ export function StepConfirm({ formData }: StepConfirmProps) {
       {/* Identidade */}
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 space-y-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10">
-            <Building2 className="h-4 w-4 text-emerald-500" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E6B447]/10">
+            <Building2 className="h-4 w-4 text-[#E6B447]" />
           </div>
           <h4 className="font-medium text-white text-sm">Identidade</h4>
         </div>
@@ -241,7 +241,7 @@ export function StepConfirm({ formData }: StepConfirmProps) {
               ({(formData.logoFile.size / 1024).toFixed(0)}KB)
             </span>
             {formData.logoLocked !== false && formData.logoLocked && (
-              <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded">LOCKED</span>
+              <span className="text-[10px] bg-[#E6B447]/10 text-[#E6B447] px-2 py-0.5 rounded">LOCKED</span>
             )}
           </div>
         ) : (
@@ -262,8 +262,8 @@ export function StepConfirm({ formData }: StepConfirmProps) {
         </div>
       </div>
 
-      <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3">
-        <p className="text-xs text-emerald-200/80 text-center">
+      <div className="rounded-lg border border-[#E6B447]/20 bg-[#E6B447]/5 p-3">
+        <p className="text-xs text-[#E6B447]/30/80 text-center">
           Este contexto sera usado por todos os conselhos (Funil, Copy e Social)
           para gerar estrategias alinhadas com sua marca.
         </p>

@@ -81,7 +81,7 @@ export default function AgencyDashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 px-2">
+            <Badge variant="outline" className="bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/20 px-2">
               Agency Mode
             </Badge>
             <span className="text-xs text-zinc-500 font-medium uppercase tracking-widest">Macro Overview</span>
@@ -91,7 +91,7 @@ export default function AgencyDashboardPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Button className="bg-emerald-600 hover:bg-emerald-500 text-white gap-2">
+          <Button className="bg-[#AB8648] hover:bg-[#E6B447] text-white gap-2">
             <Plus size={18} />
             Novo Cliente
           </Button>
@@ -102,7 +102,7 @@ export default function AgencyDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="p-6 card-premium border-white/[0.05]">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400">
+            <div className="p-3 rounded-xl bg-[#E6B447]/10 text-[#E6B447]">
               <DollarSign size={24} />
             </div>
             <div>
@@ -149,7 +149,7 @@ export default function AgencyDashboardPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
           <Input 
             placeholder="Buscar cliente por nome ou ID..." 
-            className="pl-10 bg-zinc-900/50 border-white/5 focus:border-emerald-500/50"
+            className="pl-10 bg-zinc-900/50 border-white/5 focus:border-[#E6B447]/50"
           />
         </div>
         
@@ -177,14 +177,14 @@ export default function AgencyDashboardPage() {
       </div>
 
       {/* Footer Insight */}
-      <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 flex items-center justify-between">
+      <div className="p-4 rounded-xl bg-[#E6B447]/5 border border-[#E6B447]/10 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <p className="text-xs text-emerald-400/80">
+          <div className="w-2 h-2 rounded-full bg-[#E6B447] animate-pulse" />
+          <p className="text-xs text-[#E6B447]/80">
             <span className="font-bold">Insight Macro:</span> O ROI médio da agência subiu 12% após a implementação das otimizações preditivas da Sprint 22.
           </p>
         </div>
-        <Button variant="ghost" size="sm" className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 text-xs">
+        <Button variant="ghost" size="sm" className="text-[#E6B447] hover:text-[#E6B447]/60 hover:bg-[#E6B447]/10 text-xs">
           Ver Relatório Completo
         </Button>
       </div>

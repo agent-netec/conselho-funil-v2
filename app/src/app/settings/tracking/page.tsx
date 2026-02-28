@@ -59,7 +59,7 @@ export default function TrackingSettingsPage() {
             <p className="text-zinc-400 mt-2 text-sm leading-relaxed max-w-2xl">
               Adicione o script abaixo no seu site ou página de vendas para rastrear a jornada
               dos seus leads automaticamente. Dados coletados aparecem na{' '}
-              <Link href="/intelligence/journey" className="text-emerald-400 hover:underline">
+              <Link href="/intelligence/journey" className="text-[#E6B447] hover:underline">
                 Jornada do Lead
               </Link>.
             </p>
@@ -69,7 +69,7 @@ export default function TrackingSettingsPage() {
           <div className="card-premium p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Code2 className="h-5 w-5 text-emerald-500" />
+                <Code2 className="h-5 w-5 text-[#E6B447]" />
                 Snippet de Instalação
               </h3>
               <Button
@@ -79,7 +79,7 @@ export default function TrackingSettingsPage() {
                 disabled={!brandId}
               >
                 {copied ? (
-                  <Check className="mr-1.5 h-3 w-3 text-emerald-400" />
+                  <Check className="mr-1.5 h-3 w-3 text-[#E6B447]" />
                 ) : (
                   <Copy className="mr-1.5 h-3 w-3" />
                 )}
@@ -89,7 +89,7 @@ export default function TrackingSettingsPage() {
 
             {brandId ? (
               <div className="relative">
-                <pre className="bg-zinc-950 border border-white/[0.06] rounded-xl p-4 text-xs text-emerald-300 font-mono overflow-x-auto whitespace-pre-wrap break-all">
+                <pre className="bg-zinc-950 border border-white/[0.06] rounded-xl p-4 text-xs text-[#E6B447]/60 font-mono overflow-x-auto whitespace-pre-wrap break-all">
                   {snippet}
                 </pre>
               </div>
@@ -114,7 +114,7 @@ export default function TrackingSettingsPage() {
             </h3>
             <ol className="space-y-4 text-sm text-zinc-400">
               <li className="flex gap-3">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold flex-shrink-0">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#E6B447]/10 text-[#E6B447] text-xs font-bold flex-shrink-0">
                   1
                 </span>
                 <span>
@@ -123,7 +123,7 @@ export default function TrackingSettingsPage() {
                 </span>
               </li>
               <li className="flex gap-3">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold flex-shrink-0">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#E6B447]/10 text-[#E6B447] text-xs font-bold flex-shrink-0">
                   2
                 </span>
                 <span>
@@ -131,12 +131,12 @@ export default function TrackingSettingsPage() {
                 </span>
               </li>
               <li className="flex gap-3">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold flex-shrink-0">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#E6B447]/10 text-[#E6B447] text-xs font-bold flex-shrink-0">
                   3
                 </span>
                 <span>
                   Os eventos começam a ser coletados imediatamente. Visualize-os na{' '}
-                  <Link href="/intelligence/journey" className="text-emerald-400 hover:underline">
+                  <Link href="/intelligence/journey" className="text-[#E6B447] hover:underline">
                     Jornada do Lead
                   </Link>.
                 </span>
@@ -165,13 +165,13 @@ export default function TrackingSettingsPage() {
             ].map((card) => (
               <div key={card.title} className="card-premium p-5">
                 <div className="flex items-center gap-2 mb-3">
-                  <card.icon className="h-4 w-4 text-emerald-500" />
+                  <card.icon className="h-4 w-4 text-[#E6B447]" />
                   <h4 className="text-sm font-semibold text-white">{card.title}</h4>
                 </div>
                 <ul className="space-y-1.5">
                   {card.items.map((item) => (
                     <li key={item} className="flex items-center gap-2 text-xs text-zinc-500">
-                      <div className="h-1 w-1 rounded-full bg-emerald-500/50" />
+                      <div className="h-1 w-1 rounded-full bg-[#E6B447]/50" />
                       {item}
                     </li>
                   ))}
@@ -183,7 +183,7 @@ export default function TrackingSettingsPage() {
           {/* Custom events */}
           <div className="card-premium p-6">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <ExternalLink className="h-5 w-5 text-emerald-500" />
+              <ExternalLink className="h-5 w-5 text-[#E6B447]" />
               Eventos Customizados (Opcional)
             </h3>
             <p className="text-sm text-zinc-400 mb-4">

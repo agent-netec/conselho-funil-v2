@@ -72,11 +72,11 @@ export function AdsStrategyCard({ strategyData, campaignId }: AdsStrategyCardPro
   const benchmarks = strategyData.performanceBenchmarks;
 
   return (
-    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] overflow-hidden">
+    <div className="rounded-xl border border-[#E6B447]/20 bg-[#E6B447]/[0.03] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-emerald-500/10 bg-emerald-500/[0.05]">
-        <Megaphone className="h-4 w-4 text-emerald-400" />
-        <span className="text-sm font-bold text-emerald-300 uppercase tracking-wider">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-[#E6B447]/10 bg-[#E6B447]/[0.05]">
+        <Megaphone className="h-4 w-4 text-[#E6B447]" />
+        <span className="text-sm font-bold text-[#E6B447]/60 uppercase tracking-wider">
           Estratégia de Ads
         </span>
       </div>
@@ -172,7 +172,7 @@ export function AdsStrategyCard({ strategyData, campaignId }: AdsStrategyCardPro
             </div>
             {strategyData.counselorInsights.map((item, i) => (
               <div key={i} className="flex gap-2 p-2 rounded-lg bg-zinc-800/30 border border-zinc-700/30">
-                <span className="text-[11px] font-bold text-emerald-400 whitespace-nowrap">{item.counselor}:</span>
+                <span className="text-[11px] font-bold text-[#E6B447] whitespace-nowrap">{item.counselor}:</span>
                 <span className="text-[11px] text-zinc-400">{item.insight}</span>
               </div>
             ))}
@@ -188,10 +188,10 @@ export function AdsStrategyCard({ strategyData, campaignId }: AdsStrategyCardPro
 
         {/* Action Buttons */}
         {campaignId && (
-          <div className="border-t border-emerald-500/10 pt-3 space-y-2">
+          <div className="border-t border-[#E6B447]/10 pt-3 space-y-2">
             {isSelected ? (
               <>
-                <div className="flex items-center gap-2 justify-center text-emerald-400 py-2">
+                <div className="flex items-center gap-2 justify-center text-[#E6B447] py-2">
                   <CheckCircle2 className="h-4 w-4" />
                   <span className="text-sm font-semibold">Estratégia salva na Linha de Ouro!</span>
                 </div>
@@ -199,8 +199,8 @@ export function AdsStrategyCard({ strategyData, campaignId }: AdsStrategyCardPro
                   href={`/campaigns/${campaignId}`}
                   className={cn(
                     'flex items-center justify-center gap-2 w-full rounded-lg px-4 py-2.5',
-                    'bg-emerald-500/20 border border-emerald-500/30 text-emerald-300',
-                    'hover:bg-emerald-500/30 transition-colors text-sm font-semibold'
+                    'bg-[#E6B447]/20 border border-[#E6B447]/30 text-[#E6B447]/60',
+                    'hover:bg-[#E6B447]/30 transition-colors text-sm font-semibold'
                   )}
                 >
                   Ver Command Center
@@ -211,7 +211,7 @@ export function AdsStrategyCard({ strategyData, campaignId }: AdsStrategyCardPro
               <Button
                 onClick={handleSelectForCampaign}
                 disabled={isSelecting}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold"
+                className="w-full bg-[#AB8648] hover:bg-[#E6B447] text-white font-semibold"
               >
                 {isSelecting ? (
                   <>

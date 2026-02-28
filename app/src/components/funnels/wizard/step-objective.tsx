@@ -42,13 +42,13 @@ export function StepObjective({ objective, onUpdate }: StepObjectiveProps) {
             className={cn(
               'relative rounded-xl border p-5 text-left transition-all',
               objective === obj.id
-                ? 'border-emerald-500/50 bg-emerald-500/5'
+                ? 'border-[#E6B447]/50 bg-[#E6B447]/5'
                 : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1] hover:bg-white/[0.04]'
             )}
           >
             {objective === obj.id && (
               <div className="absolute top-3 right-3">
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500">
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E6B447]">
                   <Check className="h-3 w-3 text-white" />
                 </div>
               </div>

@@ -104,7 +104,7 @@ export function ShareDialog({
       <DialogContent className="bg-zinc-900 border-zinc-800 max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-white">
-            <Share2 className="h-5 w-5 text-emerald-400" />
+            <Share2 className="h-5 w-5 text-[#E6B447]" />
             Compartilhar Funil
           </DialogTitle>
         </DialogHeader>
@@ -134,7 +134,7 @@ export function ShareDialog({
                       className={cn(
                         'flex-1 py-2 px-3 rounded-lg text-sm transition-all',
                         expiresIn === option.value
-                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                          ? 'bg-[#E6B447]/20 text-[#E6B447] border border-[#E6B447]/30'
                           : 'bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600'
                       )}
                     >
@@ -169,7 +169,7 @@ export function ShareDialog({
                     className="flex-shrink-0"
                   >
                     {copied ? (
-                      <Check className="h-4 w-4 text-emerald-400" />
+                      <Check className="h-4 w-4 text-[#E6B447]" />
                     ) : (
                       <Copy className="h-4 w-4" />
                     )}

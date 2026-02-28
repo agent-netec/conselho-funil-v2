@@ -42,9 +42,9 @@ const DIMENSIONS = [
     label: 'Benefícios',
     description: 'Benefícios vs features, especificidade, voz',
     icon: Gift,
-    color: 'from-emerald-500 to-green-500',
-    bgColor: 'bg-emerald-500/10',
-    textColor: 'text-emerald-400',
+    color: 'from-[#E6B447] to-green-500',
+    bgColor: 'bg-[#E6B447]/10',
+    textColor: 'text-[#E6B447]',
   },
   {
     key: 'offer' as const,
@@ -76,7 +76,7 @@ function getScoreLabel(score: number): { label: string; emoji: string } {
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 8) return 'text-emerald-400';
+  if (score >= 8) return 'text-[#E6B447]';
   if (score >= 6) return 'text-amber-400';
   return 'text-red-400';
 }
@@ -129,7 +129,7 @@ function RadialScore({
         />
         <defs>
           <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#10b981" />
+            <stop offset="0%" stopColor="#E6B447" />
             <stop offset="50%" stopColor="#22d3ee" />
             <stop offset="100%" stopColor="#8b5cf6" />
           </linearGradient>
@@ -206,7 +206,7 @@ export function CopyScorecardFull({ scorecard }: { scorecard: CopyScorecard }) {
   return (
     <div className="card-premium p-6">
       <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-6">
-        <TrendingUp className="h-5 w-5 text-emerald-400" />
+        <TrendingUp className="h-5 w-5 text-[#E6B447]" />
         Scorecard de Copy
       </h3>
       
@@ -277,7 +277,7 @@ export function CopyScorecardMini({ score }: { score: number }) {
   return (
     <div className={cn(
       'flex items-center gap-1.5 px-2 py-1 rounded-lg text-sm font-medium',
-      score >= 8 ? 'bg-emerald-500/10 text-emerald-400' :
+      score >= 8 ? 'bg-[#E6B447]/10 text-[#E6B447]' :
       score >= 6 ? 'bg-amber-500/10 text-amber-400' :
       'bg-red-500/10 text-red-400'
     )}>

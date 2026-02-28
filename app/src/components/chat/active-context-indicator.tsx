@@ -70,7 +70,7 @@ export function ActiveContextIndicator({ brandId, className }: ActiveContextIndi
             className={cn(
               "group flex items-center gap-2 px-3 h-9 sm:h-8 rounded-full transition-all duration-300",
               activeCount > 0 
-                ? "bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20" 
+                ? "bg-[#E6B447]/10 hover:bg-[#E6B447]/20 border border-[#E6B447]/20" 
                 : "bg-zinc-500/10 hover:bg-zinc-500/20 border border-zinc-500/10",
               className
             )}
@@ -79,26 +79,26 @@ export function ActiveContextIndicator({ brandId, className }: ActiveContextIndi
               <Sparkles 
                 className={cn(
                   "h-4 w-4 sm:h-3.5 sm:w-3.5 transition-transform duration-500 group-hover:rotate-12",
-                  activeCount > 0 ? "text-emerald-400" : "text-zinc-500"
+                  activeCount > 0 ? "text-[#E6B447]" : "text-zinc-500"
                 )} 
               />
               {activeCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E6B447] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E6B447]"></span>
                 </span>
               )}
             </div>
             
             <span className={cn(
               "text-xs font-medium tracking-tight transition-colors",
-              activeCount > 0 ? "text-emerald-400" : "text-zinc-500"
+              activeCount > 0 ? "text-[#E6B447]" : "text-zinc-500"
             )}>
               {activeCount > 0 ? `${activeCount} Ativos` : "Sem contexto"}
             </span>
             
             {activeCount > 0 && (
-              <ChevronRight className="h-3 w-3 text-emerald-500/50 group-hover:text-emerald-400 transition-colors" />
+              <ChevronRight className="h-3 w-3 text-[#E6B447]/50 group-hover:text-[#E6B447] transition-colors" />
             )}
           </button>
         </DialogTrigger>
@@ -106,7 +106,7 @@ export function ActiveContextIndicator({ brandId, className }: ActiveContextIndi
         <DialogContent className="sm:max-w-[425px] bg-zinc-950 border-white/[0.04] p-0 overflow-hidden shadow-2xl">
           <DialogHeader className="p-6 pb-2">
             <DialogTitle className="flex items-center gap-2 text-white">
-              <Sparkles className="h-4 w-4 text-emerald-400" />
+              <Sparkles className="h-4 w-4 text-[#E6B447]" />
               Contexto Ativo da Marca
             </DialogTitle>
             <p className="text-sm text-zinc-500">
@@ -145,7 +145,7 @@ export function ActiveContextIndicator({ brandId, className }: ActiveContextIndi
                           {hasText && (
                             <button
                               onClick={() => setPreviewAsset(asset)}
-                              className="shrink-0 p-1.5 rounded-lg text-zinc-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all"
+                              className="shrink-0 p-1.5 rounded-lg text-zinc-500 hover:text-[#E6B447] hover:bg-[#E6B447]/10 transition-all"
                               title="Ver texto extraído"
                             >
                               <Eye className="h-4 w-4" />
@@ -159,8 +159,8 @@ export function ActiveContextIndicator({ brandId, className }: ActiveContextIndi
                           <div className="flex items-center gap-1">
                             {asset.status === 'ready' ? (
                               <>
-                                <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                                <span className="text-[10px] text-emerald-500/80">Pronto</span>
+                                <CheckCircle2 className="h-3 w-3 text-[#E6B447]" />
+                                <span className="text-[10px] text-[#E6B447]/80">Pronto</span>
                               </>
                             ) : asset.status === 'processing' ? (
                               <>
@@ -191,7 +191,7 @@ export function ActiveContextIndicator({ brandId, className }: ActiveContextIndi
           <DialogHeader className="p-6 border-b border-white/[0.04]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                <div className="h-10 w-10 rounded-lg bg-[#E6B447]/10 flex items-center justify-center text-[#E6B447]">
                   <FileText className="h-5 w-5" />
                 </div>
                 <div>

@@ -11,10 +11,10 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
   draft: { label: 'Rascunho', color: 'text-zinc-400', bg: 'bg-zinc-500/10' },
   generating: { label: 'Gerando', color: 'text-blue-400', bg: 'bg-blue-500/10' },
   review: { label: 'Avaliar', color: 'text-amber-400', bg: 'bg-amber-500/10' },
-  approved: { label: 'Aprovado', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+  approved: { label: 'Aprovado', color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10' },
   adjusting: { label: 'Ajustando', color: 'text-violet-400', bg: 'bg-violet-500/10' },
   executing: { label: 'Executando', color: 'text-blue-400', bg: 'bg-blue-500/10' },
-  completed: { label: 'Concluído', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+  completed: { label: 'Concluído', color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10' },
   killed: { label: 'Cancelado', color: 'text-red-400', bg: 'bg-red-500/10' },
 };
 
@@ -31,10 +31,10 @@ export function RecentActivity({ funnels, isLoading }: { funnels: Funnel[]; isLo
       >
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-emerald-500" />
+            <div className="h-2 w-2 rounded-full bg-[#E6B447]" />
             <h3 className="text-sm font-bold uppercase tracking-widest text-white">Funis em Operação</h3>
           </div>
-          <Link href="/funnels" className="group flex items-center gap-2 text-xs font-medium text-zinc-500 hover:text-emerald-400 transition-colors">
+          <Link href="/funnels" className="group flex items-center gap-2 text-xs font-medium text-zinc-500 hover:text-[#E6B447] transition-colors">
             Ver pipeline completo
             <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
           </Link>
@@ -87,8 +87,8 @@ export function RecentActivity({ funnels, isLoading }: { funnels: Funnel[]; isLo
                     <div className="card-premium card-hover p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10">
-                            <Target className="h-5 w-5 text-emerald-400" />
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E6B447]/10">
+                            <Target className="h-5 w-5 text-[#E6B447]" />
                           </div>
                           <div>
                             <h4 className="font-medium text-white">{funnel.name}</h4>
@@ -151,7 +151,7 @@ export function RecentActivity({ funnels, isLoading }: { funnels: Funnel[]; isLo
           
           <div className="mt-5 pt-4 border-t border-white/[0.04]">
             <Link href="/chat">
-              <Button variant="ghost" className="w-full justify-center text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10">
+              <Button variant="ghost" className="w-full justify-center text-[#E6B447] hover:text-[#E6B447]/60 hover:bg-[#E6B447]/10">
                 <MessageSquare className="mr-2 h-4 w-4" />
                 Consultar Agora
               </Button>

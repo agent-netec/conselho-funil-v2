@@ -89,7 +89,7 @@ export function LogoUploadModal({ isOpen, onClose, brand }: LogoUploadModalProps
       const updatedBrandKit: BrandKit = {
         ...brand.brandKit,
         colors: brand.brandKit?.colors || {
-          primary: '#10b981',
+          primary: '#E6B447',
           secondary: '#3b82f6',
           accent: '#f59e0b',
           background: '#09090b',
@@ -171,7 +171,7 @@ export function LogoUploadModal({ isOpen, onClose, brand }: LogoUploadModalProps
             className={cn(
               'relative aspect-[16/9] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center transition-all overflow-hidden mb-6',
               previewUrl
-                ? 'border-emerald-500/30 bg-black'
+                ? 'border-[#E6B447]/30 bg-black'
                 : 'border-white/[0.08] hover:border-white/[0.15] hover:bg-white/[0.01] bg-white/[0.02]'
             )}
           >
@@ -211,7 +211,7 @@ export function LogoUploadModal({ isOpen, onClose, brand }: LogoUploadModalProps
           <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] mb-6">
             <div className="flex items-center gap-3">
               {logoLocked ? (
-                <Lock className="h-5 w-5 text-emerald-500" />
+                <Lock className="h-5 w-5 text-[#E6B447]" />
               ) : (
                 <Unlock className="h-5 w-5 text-zinc-500" />
               )}
@@ -225,7 +225,7 @@ export function LogoUploadModal({ isOpen, onClose, brand }: LogoUploadModalProps
               onClick={() => setLogoLocked(!logoLocked)}
               className={cn(
                 'relative h-6 w-11 rounded-full transition-colors',
-                logoLocked ? 'bg-emerald-500' : 'bg-zinc-700'
+                logoLocked ? 'bg-[#E6B447]' : 'bg-zinc-700'
               )}
             >
               <span
@@ -249,7 +249,7 @@ export function LogoUploadModal({ isOpen, onClose, brand }: LogoUploadModalProps
             <button
               onClick={handleSave}
               disabled={isUploading || (!logoFile && !previewUrl)}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#E6B447] text-white font-medium hover:bg-[#E6B447] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isUploading ? (
                 <>

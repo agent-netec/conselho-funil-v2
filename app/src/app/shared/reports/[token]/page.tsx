@@ -120,8 +120,8 @@ export default function ClientReportPage() {
     return (
       <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center gap-4">
         <div className="relative">
-          <div className="h-16 w-16 rounded-full border-t-2 border-emerald-500 animate-spin" />
-          <Zap className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 text-emerald-500 animate-pulse" />
+          <div className="h-16 w-16 rounded-full border-t-2 border-[#E6B447] animate-spin" />
+          <Zap className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 text-[#E6B447] animate-pulse" />
         </div>
         <p className="text-zinc-500 font-medium animate-pulse">Sintonizando com o Conselho...</p>
       </div>
@@ -160,13 +160,13 @@ export default function ClientReportPage() {
   };
 
   // Cores dinâmicas (White-Label)
-  const primaryBrand = agency?.branding.colors.primary || '#10b981'; // Default emerald-500
+  const primaryBrand = agency?.branding.colors.primary || '#E6B447'; // Default [#E6B447]
   const secondaryBrand = agency?.branding.colors.secondary || '#3b82f6'; // Default blue-500
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-300 selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-[#09090b] text-zinc-300 selection:bg-[#E6B447]/30">
       {/* Background Effects */}
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(16,185,129,0.08),transparent_50%)] pointer-events-none" />
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(230,180,71,0.08),transparent_50%)] pointer-events-none" />
       <div className="fixed inset-0 bg-grid-white/[0.02] pointer-events-none" />
 
       <main className="relative max-w-3xl mx-auto px-5 py-8 md:py-12 space-y-10">
@@ -186,7 +186,7 @@ export default function ClientReportPage() {
               />
             ) : (
               <div className="flex items-center gap-2 text-white font-bold text-xl">
-                <div className="h-8 w-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+                <div className="h-8 w-8 bg-[#E6B447] rounded-lg flex items-center justify-center">
                   <Zap className="h-5 w-5 fill-white" />
                 </div>
                 {agency?.name || 'Conselho de Funil'}
@@ -200,10 +200,10 @@ export default function ClientReportPage() {
               </div>
               
               {/* Status de Saúde (Glow Dot) */}
-              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/5 border border-emerald-500/20 text-xs font-medium text-emerald-400">
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#E6B447]/5 border border-[#E6B447]/20 text-xs font-medium text-[#E6B447]">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E6B447] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E6B447]"></span>
                 </span>
                 ROI Saudável
               </div>
@@ -231,11 +231,11 @@ export default function ClientReportPage() {
           {/* 2. Seção: "A Voz do Conselho" (AI Narrative) */}
           <motion.section variants={itemVariants} className="space-y-4">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
-              <MessageSquare className="h-4 w-4 text-emerald-500" />
+              <MessageSquare className="h-4 w-4 text-[#E6B447]" />
               A Voz do Conselho
             </div>
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#E6B447]/20 to-blue-500/20 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
               <div className="relative bg-zinc-900/50 border border-zinc-800 p-6 md:p-8 rounded-2xl backdrop-blur-sm">
                 <p className="text-lg md:text-xl text-white leading-relaxed font-serif italic">
                   "{report.aiAnalysis.summary}"
@@ -247,7 +247,7 @@ export default function ClientReportPage() {
                   <div className="flex -space-x-2">
                     {[1, 2, 3].map((i) => (
                       <div key={i} className="h-6 w-6 rounded-full border-2 border-zinc-900 bg-zinc-800 flex items-center justify-center overflow-hidden">
-                        <div className="h-full w-full bg-gradient-to-br from-emerald-500 to-blue-600 opacity-50" />
+                        <div className="h-full w-full bg-gradient-to-br from-[#E6B447] to-blue-600 opacity-50" />
                       </div>
                     ))}
                   </div>
@@ -283,14 +283,14 @@ export default function ClientReportPage() {
 
             <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 space-y-4">
               <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                <CheckSquare className="h-4 w-4 text-emerald-500" />
+                <CheckSquare className="h-4 w-4 text-[#E6B447]" />
                 Plano de Ação (Agência)
               </h4>
               <div className="space-y-3">
                 {report.aiAnalysis.actionPlan.map((step, idx) => (
                   <div key={idx} className="flex items-center gap-3 group">
-                    <div className="h-5 w-5 rounded border border-emerald-500/30 bg-emerald-500/5 flex items-center justify-center">
-                      <CheckSquare className="h-3 w-3 text-emerald-500 opacity-40 group-hover:opacity-100 transition-opacity" />
+                    <div className="h-5 w-5 rounded border border-[#E6B447]/30 bg-[#E6B447]/5 flex items-center justify-center">
+                      <CheckSquare className="h-3 w-3 text-[#E6B447] opacity-40 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <span className="text-sm text-zinc-400 group-hover:text-zinc-200 transition-colors">{step}</span>
                   </div>
@@ -318,8 +318,8 @@ export default function ClientReportPage() {
               <div className="p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800">
                 <p className="text-[10px] text-zinc-500 uppercase font-bold mb-1">ROI Atual</p>
                 <div className="flex items-baseline gap-1">
-                  <p className="text-lg font-bold text-emerald-400">{report.metrics.roi.toFixed(2)}x</p>
-                  <TrendingUp className="h-3 w-3 text-emerald-500" />
+                  <p className="text-lg font-bold text-[#E6B447]">{report.metrics.roi.toFixed(2)}x</p>
+                  <TrendingUp className="h-3 w-3 text-[#E6B447]" />
                 </div>
               </div>
               <div className="p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800">
@@ -345,7 +345,7 @@ export default function ClientReportPage() {
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${Math.min((report.metrics.roi / 5) * 100, 100)}%` }}
-                        className="h-full bg-emerald-500"
+                        className="h-full bg-[#E6B447]"
                       />
                     </div>
                   </div>
@@ -421,7 +421,7 @@ export default function ClientReportPage() {
                 href={`https://wa.me/${client?.contactInfo.phone?.replace(/\D/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-emerald-500/20"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#E6B447] hover:bg-[#AB8648] text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[#E6B447]/20"
               >
                 <MessageSquare className="h-5 w-5" />
                 Falar com meu Gestor

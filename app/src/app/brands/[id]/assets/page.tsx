@@ -213,7 +213,7 @@ export default function BrandAssetsPage() {
         );
       case 'ready':
         return (
-          <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
+          <Badge variant="outline" className="border-[#E6B447]/30 bg-[#E6B447]/10 text-[#E6B447]">
             <CheckCircle className="h-3 w-3 mr-1" />
             Pronto
           </Badge>
@@ -242,7 +242,7 @@ export default function BrandAssetsPage() {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 text-emerald-500 animate-spin mx-auto mb-4" />
+          <Loader2 className="h-8 w-8 text-[#E6B447] animate-spin mx-auto mb-4" />
           <p className="text-zinc-500">Carregando arquivos...</p>
         </div>
       </div>
@@ -335,7 +335,7 @@ export default function BrandAssetsPage() {
               >
                 <div className="flex items-start gap-4">
                   {/* Icon */}
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/[0.04] text-emerald-500 overflow-hidden relative group/img">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/[0.04] text-[#E6B447] overflow-hidden relative group/img">
                     {asset.type === 'image' || asset.mimeType.startsWith('image/') ? (
                       <>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -371,7 +371,7 @@ export default function BrandAssetsPage() {
                             href={asset.sourceUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-emerald-500 hover:text-emerald-400 truncate block"
+                            className="text-sm text-[#E6B447] hover:text-[#E6B447] truncate block"
                           >
                             {asset.sourceUrl}
                           </a>
@@ -394,7 +394,7 @@ export default function BrandAssetsPage() {
                       {asset.chunkCount !== undefined && (
                         <>
                           <span>•</span>
-                          <span className="text-emerald-500/80 font-medium">
+                          <span className="text-[#E6B447]/80 font-medium">
                             {asset.chunkCount} chunks
                           </span>
                         </>
@@ -446,12 +446,12 @@ export default function BrandAssetsPage() {
                             onClick={() => handleToggleApproval(asset)}
                             className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-all ${
                               asset.isApprovedForAI 
-                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500' 
+                                ? 'bg-[#E6B447]/10 border-[#E6B447]/30 text-[#E6B447]' 
                                 : 'bg-white/[0.02] border-white/[0.06] text-zinc-500 hover:text-white'
                             }`}
                             aria-label={asset.isApprovedForAI ? "Remover da IA" : "Aprovar para IA"}
                           >
-                            <CheckCircle className={`h-4 w-4 ${asset.isApprovedForAI ? 'fill-emerald-500/20' : ''}`} />
+                            <CheckCircle className={`h-4 w-4 ${asset.isApprovedForAI ? 'fill-[#E6B447]/20' : ''}`} />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -463,7 +463,7 @@ export default function BrandAssetsPage() {
                     {asset.extractedText && (
                       <button
                         onClick={() => setPreviewAsset(asset)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.02] text-zinc-400 hover:text-emerald-400 hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.02] text-zinc-400 hover:text-[#E6B447] hover:border-[#E6B447]/30 hover:bg-[#E6B447]/5 transition-all"
                         aria-label="Ver preview"
                         title="Ver texto extraído"
                       >
@@ -497,7 +497,7 @@ export default function BrandAssetsPage() {
           <DialogHeader className="p-6 border-b border-white/[0.04]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                <div className="h-10 w-10 rounded-lg bg-[#E6B447]/10 flex items-center justify-center text-[#E6B447]">
                   <FileText className="h-5 w-5" />
                 </div>
                 <div>

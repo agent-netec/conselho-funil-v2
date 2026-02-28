@@ -45,7 +45,7 @@ const TYPE_COLORS: Record<IntelligenceAsset['type'], string> = {
 };
 
 const STATUS_BADGES: Record<IntelligenceAsset['status'], { label: string; className: string }> = {
-  ready: { label: 'Pronto', className: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
+  ready: { label: 'Pronto', className: 'bg-[#E6B447]/20 text-[#E6B447] border-[#E6B447]/30' },
   processing: { label: 'Processando', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
   error: { label: 'Erro', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
 };

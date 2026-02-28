@@ -38,13 +38,13 @@ function ActionCard({
           </div>
           
           <div className="mt-4">
-            <h3 className="font-semibold text-white group-hover:text-emerald-400 transition-colors">
+            <h3 className="font-semibold text-white group-hover:text-[#E6B447] transition-colors">
               {title}
             </h3>
             <p className="mt-1 text-sm text-zinc-500">{description}</p>
           </div>
           
-          <div className="mt-4 flex items-center gap-1 text-sm font-medium text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="mt-4 flex items-center gap-1 text-sm font-medium text-[#E6B447] opacity-0 group-hover:opacity-100 transition-opacity">
             Acessar
             <ArrowUpRight className="h-4 w-4" />
           </div>
@@ -80,7 +80,7 @@ export function QuickActions() {
           icon={Plus}
           title="Novo Funil"
           description="Crie um funil do zero com ajuda do Conselho"
-          gradient="bg-gradient-to-br from-emerald-500/20 to-emerald-600/20"
+          gradient="bg-gradient-to-br from-[#E6B447]/20 to-[#AB8648]/20"
           delay={0.3}
         />
         <ActionCard

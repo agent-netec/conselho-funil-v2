@@ -69,7 +69,7 @@ export function NewProjectModal({ brandId, isOpen, onClose, onSuccess }: NewProj
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ex: Lançamento Março 2026"
-              className="bg-white/5 border-white/10 text-white focus:border-emerald-500/50 transition-colors"
+              className="bg-white/5 border-white/10 text-white focus:border-[#E6B447]/50 transition-colors"
               required
             />
           </div>
@@ -80,7 +80,7 @@ export function NewProjectModal({ brandId, isOpen, onClose, onSuccess }: NewProj
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Descreva o objetivo deste projeto..."
-              className="bg-white/5 border-white/10 text-white focus:border-emerald-500/50 min-h-[100px] transition-colors"
+              className="bg-white/5 border-white/10 text-white focus:border-[#E6B447]/50 min-h-[100px] transition-colors"
             />
           </div>
 
@@ -96,7 +96,7 @@ export function NewProjectModal({ brandId, isOpen, onClose, onSuccess }: NewProj
             <Button 
               type="submit" 
               disabled={isSubmitting || !name.trim()}
-              className="bg-emerald-600 hover:bg-emerald-700 min-w-[120px]"
+              className="bg-[#AB8648] hover:bg-[#895F29] min-w-[120px]"
             >
               {isSubmitting ? (
                 <>

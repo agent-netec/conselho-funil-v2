@@ -404,7 +404,7 @@ export default function SettingsPage() {
                     className={cn(
                       'w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all',
                       activeTab === tab.id
-                        ? 'bg-emerald-500/10 text-emerald-400'
+                        ? 'bg-[#E6B447]/10 text-[#E6B447]'
                         : 'text-zinc-400 hover:text-white hover:bg-white/[0.04]'
                     )}
                   >
@@ -540,7 +540,7 @@ export default function SettingsPage() {
                     </p>
                     <Link
                       href="/brand-hub"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 text-sm font-medium hover:bg-emerald-500/20 transition-colors"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#E6B447]/10 text-[#E6B447] text-sm font-medium hover:bg-[#E6B447]/20 transition-colors"
                     >
                       Configurar no Brand Hub
                       <ArrowRight className="h-4 w-4" />
@@ -560,7 +560,7 @@ export default function SettingsPage() {
                     </p>
                     <Link
                       href="/integrations"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 text-sm font-medium hover:bg-emerald-500/20 transition-colors"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#E6B447]/10 text-[#E6B447] text-sm font-medium hover:bg-[#E6B447]/20 transition-colors"
                     >
                       Abrir Central de Integrações
                       <ArrowRight className="h-4 w-4" />
@@ -592,7 +592,7 @@ export default function SettingsPage() {
                                 checked={notifPrefs[item.key]}
                                 onChange={(e) => updateNotifPref(item.key, e.target.checked)}
                               />
-                              <div className="w-11 h-6 bg-zinc-700 peer-checked:bg-emerald-500 rounded-full peer-focus:ring-2 peer-focus:ring-emerald-500/20 transition-colors"></div>
+                              <div className="w-11 h-6 bg-zinc-700 peer-checked:bg-[#E6B447] rounded-full peer-focus:ring-2 peer-focus:ring-[#E6B447]/20 transition-colors"></div>
                               <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
                             </label>
                           </div>
@@ -642,7 +642,7 @@ export default function SettingsPage() {
                               className={cn(
                                 'px-4 py-3 rounded-xl border text-sm font-medium transition-all',
                                 theme === opt.value
-                                  ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400'
+                                  ? 'border-[#E6B447]/50 bg-[#E6B447]/10 text-[#E6B447]'
                                   : 'border-white/[0.06] text-zinc-400 hover:border-white/[0.1] hover:text-zinc-300'
                               )}
                             >

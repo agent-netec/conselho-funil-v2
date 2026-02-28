@@ -67,8 +67,8 @@ export function CopyRefactorWizard({
       <div className="p-6 border-b border-white/[0.03] bg-zinc-900/80">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-emerald-500/10 rounded-lg">
-              <BrainCircuit className="h-5 w-5 text-emerald-400" />
+            <div className="p-2 bg-[#E6B447]/10 rounded-lg">
+              <BrainCircuit className="h-5 w-5 text-[#E6B447]" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-white">AI Copy Refactor Wizard</h2>
@@ -108,14 +108,14 @@ export function CopyRefactorWizard({
                   className={cn(
                     "w-full text-left p-4 rounded-xl border transition-all relative overflow-hidden group",
                     selectedId === v.id 
-                      ? "bg-emerald-500/10 border-emerald-500/30 ring-1 ring-emerald-500/20" 
+                      ? "bg-[#E6B447]/10 border-[#E6B447]/30 ring-1 ring-[#E6B447]/20" 
                       : "bg-zinc-900/50 border-white/[0.03] hover:border-white/[0.1]"
                   )}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <Badge variant="outline" className={cn(
                       "text-[10px] uppercase",
-                      selectedId === v.id ? "border-emerald-500/30 text-emerald-400" : "text-zinc-500"
+                      selectedId === v.id ? "border-[#E6B447]/30 text-[#E6B447]" : "text-zinc-500"
                     )}>
                       Variação {idx + 1}
                     </Badge>
@@ -135,7 +135,7 @@ export function CopyRefactorWizard({
                   {selectedId === v.id && (
                     <motion.div 
                       layoutId="active-indicator"
-                      className="absolute left-0 top-0 w-1 h-full bg-emerald-500" 
+                      className="absolute left-0 top-0 w-1 h-full bg-[#E6B447]" 
                     />
                   )}
                 </button>
@@ -160,7 +160,7 @@ export function CopyRefactorWizard({
                     <section>
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-emerald-400" />
+                          <FileText className="h-4 w-4 text-[#E6B447]" />
                           <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-500">Headline Sugerida</h3>
                         </div>
                         <Button variant="ghost" size="sm" onClick={() => handleCopy(selectedVariation.headline)}>
@@ -187,10 +187,10 @@ export function CopyRefactorWizard({
                       </div>
                     </section>
 
-                    <section className="p-6 bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
+                    <section className="p-6 bg-[#E6B447]/5 rounded-2xl border border-[#E6B447]/10">
                       <div className="flex items-center gap-2 mb-3">
-                        <Sparkles className="h-4 w-4 text-emerald-400" />
-                        <h3 className="text-sm font-bold text-emerald-400">Justificativa Técnica (IA)</h3>
+                        <Sparkles className="h-4 w-4 text-[#E6B447]" />
+                        <h3 className="text-sm font-bold text-[#E6B447]">Justificativa Técnica (IA)</h3>
                       </div>
                       <p className="text-sm text-zinc-400 leading-relaxed">
                         {selectedVariation.justification}
@@ -203,11 +203,11 @@ export function CopyRefactorWizard({
                   <div className="flex items-center gap-4">
                     <div className="flex flex-col">
                       <span className="text-[10px] uppercase font-bold text-zinc-500">Estimated CVR Lift</span>
-                      <span className="text-lg font-bold text-emerald-400">+{selectedVariation.impactScore}%</span>
+                      <span className="text-lg font-bold text-[#E6B447]">+{selectedVariation.impactScore}%</span>
                     </div>
                   </div>
                   <Button 
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 shadow-lg shadow-emerald-900/20"
+                    className="bg-[#AB8648] hover:bg-[#895F29] text-white px-8 shadow-lg shadow-[#1A1612]/20"
                     onClick={() => onApply(selectedVariation)}
                   >
                     Aplicar Refatoração

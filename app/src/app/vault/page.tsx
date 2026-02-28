@@ -277,7 +277,7 @@ export default function VaultPage() {
                   className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
                   onClick={() => { setShowNewAssetMenu(false); router.push('/assets'); }}
                 >
-                  <Upload className="h-4 w-4 text-emerald-400" />
+                  <Upload className="h-4 w-4 text-[#E6B447]" />
                   Upload de Mídia
                 </button>
                 <button
@@ -316,11 +316,11 @@ export default function VaultPage() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex items-center justify-between mb-8 border-b border-white/[0.03] pb-4">
               <TabsList className="bg-zinc-900/50 border border-white/[0.05]">
-                <TabsTrigger value="review" className="data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-400">
+                <TabsTrigger value="review" className="data-[state=active]:bg-[#E6B447]/10 data-[state=active]:text-[#E6B447]">
                   <Sparkles className="h-4 w-4 mr-2" />
                   Review Queue
                   {reviewItems.length > 0 && (
-                    <Badge className="ml-2 bg-emerald-500 text-white border-none h-5 w-5 p-0 flex items-center justify-center text-[10px]">
+                    <Badge className="ml-2 bg-[#E6B447] text-white border-none h-5 w-5 p-0 flex items-center justify-center text-[10px]">
                       {reviewItems.length}
                     </Badge>
                   )}
@@ -337,7 +337,7 @@ export default function VaultPage() {
 
               <div className="hidden md:flex items-center gap-6 text-xs font-medium text-zinc-500 uppercase tracking-widest">
                 <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                  <div className="h-2 w-2 rounded-full bg-[#E6B447]" />
                   {libraryItems.length} Aprovados
                 </div>
                 <div className="flex items-center gap-2">
@@ -364,8 +364,8 @@ export default function VaultPage() {
                     />
                   ) : (
                     <div className="flex flex-col items-center justify-center py-20 bg-zinc-900/20 rounded-3xl border border-dashed border-white/[0.05]">
-                      <div className="h-16 w-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4">
-                        <CheckCircle2 className="h-8 w-8 text-emerald-400" />
+                      <div className="h-16 w-16 rounded-2xl bg-[#E6B447]/10 flex items-center justify-center mb-4">
+                        <CheckCircle2 className="h-8 w-8 text-[#E6B447]" />
                       </div>
                       <h3 className="text-xl font-bold text-white mb-2">Tudo em ordem!</h3>
                       <p className="text-zinc-500 text-center max-w-md">
@@ -380,7 +380,7 @@ export default function VaultPage() {
                           Explorar Biblioteca
                         </Button>
                         <Button
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                          className="bg-[#AB8648] hover:bg-[#895F29] text-white"
                           onClick={handleRunAutopilot}
                           disabled={runningAutopilot}
                         >
@@ -425,7 +425,7 @@ export default function VaultPage() {
                     <Card className="bg-zinc-900/50 border-zinc-800">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base">
-                          <Zap className="w-4 h-4 text-emerald-400" />
+                          <Zap className="w-4 h-4 text-[#E6B447]" />
                           Content Autopilot
                         </CardTitle>
                       </CardHeader>
@@ -439,7 +439,7 @@ export default function VaultPage() {
                               <Play className="w-4 h-4 text-zinc-500" />
                               <span className="text-sm text-zinc-300">Execução Manual</span>
                             </div>
-                            <Badge variant="outline" className="text-emerald-400 border-emerald-500/30">Ativo</Badge>
+                            <Badge variant="outline" className="text-[#E6B447] border-[#E6B447]/30">Ativo</Badge>
                           </div>
                           <button
                             onClick={() => toggleSetting('autopilotEnabled', !vaultSettings.autopilotEnabled)}
@@ -451,7 +451,7 @@ export default function VaultPage() {
                               <span className="text-sm text-zinc-300">CRON Automático (6h)</span>
                             </div>
                             <Badge variant="outline" className={vaultSettings.autopilotEnabled
-                              ? 'text-emerald-400 border-emerald-500/30'
+                              ? 'text-[#E6B447] border-[#E6B447]/30'
                               : 'text-zinc-500 border-zinc-700'
                             }>
                               {vaultSettings.autopilotEnabled ? 'Ativo' : 'Desativado'}
@@ -483,7 +483,7 @@ export default function VaultPage() {
                           >
                             <span className="text-sm text-zinc-300">Aprovação automática {vaultSettings.autoApproveThreshold ? `(≥${vaultSettings.autoApproveThreshold}%)` : ''}</span>
                             <Badge variant="outline" className={Number(vaultSettings.autoApproveThreshold) > 0
-                              ? 'text-emerald-400 border-emerald-500/30'
+                              ? 'text-[#E6B447] border-[#E6B447]/30'
                               : 'text-zinc-500 border-zinc-700'
                             }>
                               {Number(vaultSettings.autoApproveThreshold) > 0 ? 'Ativa' : 'Desativada'}
@@ -499,7 +499,7 @@ export default function VaultPage() {
                               <span className="text-sm text-zinc-300">Notificar novo conteúdo</span>
                             </div>
                             <Badge variant="outline" className={vaultSettings.notifyOnNewContent
-                              ? 'text-emerald-400 border-emerald-500/30'
+                              ? 'text-[#E6B447] border-[#E6B447]/30'
                               : 'text-zinc-500 border-zinc-700'
                             }>
                               {vaultSettings.notifyOnNewContent ? 'Ativa' : 'Desativada'}
@@ -558,7 +558,7 @@ export default function VaultPage() {
                     </span>
                     <Badge variant="outline" className={
                       item.status === 'approved'
-                        ? 'text-emerald-400 border-emerald-500/30'
+                        ? 'text-[#E6B447] border-[#E6B447]/30'
                         : 'text-red-400 border-red-500/30'
                     }>
                       {item.status === 'approved' ? 'Aprovado' : 'Rejeitado'}

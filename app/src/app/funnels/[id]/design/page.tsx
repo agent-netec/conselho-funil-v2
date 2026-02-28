@@ -157,7 +157,7 @@ export default function DesignCouncilPage() {
       await updateCampaignManifesto(docId, {
         design: {
           visualStyle: 'Modern Premium',
-          preferredColors: ['#10b981', '#000000'],
+          preferredColors: ['#E6B447', '#000000'],
           visualPrompts: prompts,
           aspectRatios: ['1:1', '9:16'],
         }
@@ -206,7 +206,7 @@ export default function DesignCouncilPage() {
 
           <div className="grid gap-6 md:grid-cols-3 mb-8">
             <div className="card-premium p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+              <div className="p-2 rounded-lg bg-[#E6B447]/10 text-[#E6B447]">
                 <Target className="h-5 w-5" />
               </div>
               <div>

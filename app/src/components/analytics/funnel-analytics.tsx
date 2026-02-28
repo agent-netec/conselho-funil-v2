@@ -34,10 +34,10 @@ const STATUS_COLORS: Record<string, { color: string; label: string }> = {
   draft: { color: '#71717a', label: 'Rascunho' },
   generating: { color: '#3b82f6', label: 'Gerando' },
   review: { color: '#f59e0b', label: 'Avaliar' },
-  approved: { color: '#10b981', label: 'Aprovado' },
+  approved: { color: '#E6B447', label: 'Aprovado' },
   adjusting: { color: '#8b5cf6', label: 'Ajustando' },
   executing: { color: '#06b6d4', label: 'Executando' },
-  completed: { color: '#10b981', label: 'Concluído' },
+  completed: { color: '#E6B447', label: 'Concluído' },
   killed: { color: '#ef4444', label: 'Cancelado' },
 };
 
@@ -117,16 +117,16 @@ function MetricCard({
   label, 
   value, 
   trend,
-  color = 'emerald',
+  color = 'gold',
 }: { 
   icon: any; 
   label: string; 
   value: number | string;
   trend?: { value: number; positive: boolean };
-  color?: 'emerald' | 'amber' | 'red' | 'blue';
+  color?: 'gold' | 'amber' | 'red' | 'blue';
 }) {
   const colorClasses = {
-    emerald: 'bg-emerald-500/10 text-emerald-400',
+    gold: 'bg-[#E6B447]/10 text-[#E6B447]',
     amber: 'bg-amber-500/10 text-amber-400',
     red: 'bg-red-500/10 text-red-400',
     blue: 'bg-blue-500/10 text-blue-400',
@@ -144,7 +144,7 @@ function MetricCard({
           {trend && (
             <span className={cn(
               'flex items-center text-xs',
-              trend.positive ? 'text-emerald-400' : 'text-red-400'
+              trend.positive ? 'text-[#E6B447]' : 'text-red-400'
             )}>
               {trend.positive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
               {Math.abs(trend.value)}%
@@ -221,7 +221,7 @@ export function FunnelAnalytics({ funnels, decisions, className }: FunnelAnalyti
     <div className={cn('space-y-6', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Activity className="h-5 w-5 text-emerald-400" />
+        <Activity className="h-5 w-5 text-[#E6B447]" />
         <h3 className="text-lg font-semibold text-white">Analytics</h3>
       </div>
 
@@ -236,7 +236,7 @@ export function FunnelAnalytics({ funnels, decisions, className }: FunnelAnalyti
             icon={Target}
             label="Total de Funis"
             value={analytics.total}
-            color="emerald"
+            color="gold"
           />
         </motion.div>
 
@@ -265,7 +265,7 @@ export function FunnelAnalytics({ funnels, decisions, className }: FunnelAnalyti
             label="Taxa de Aprovação"
             value={`${analytics.approvalRate}%`}
             trend={{ value: analytics.approvalRate, positive: analytics.approvalRate >= 50 }}
-            color="emerald"
+            color="gold"
           />
         </motion.div>
 
@@ -386,7 +386,7 @@ export function FunnelAnalytics({ funnels, decisions, className }: FunnelAnalyti
                     initial={{ width: 0 }}
                     animate={{ width: `${percent}%` }}
                     transition={{ delay: 0.8 + i * 0.1, duration: 0.5 }}
-                    className="h-full bg-emerald-500 rounded-full"
+                    className="h-full bg-[#E6B447] rounded-full"
                   />
                 </div>
               </motion.div>

@@ -259,7 +259,7 @@ export function ChatMessageBubble({
             <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </div>
         ) : (
-          <div className="flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/10">
+          <div className="flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-lg shadow-[#E6B447]/10">
             <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
           </div>
         )}
@@ -331,7 +331,7 @@ export function ChatMessageBubble({
 
                   if (section.type === 'agent') {
                     const agent = section.agentId ? COUNSELORS_REGISTRY[section.agentId] : null;
-                    const color = agent?.color || '#10b981'; // Fallback to emerald
+                    const color = agent?.color || '#E6B447'; // Fallback to gold
                     const icon = agent?.icon || '💬';
 
                     return (
@@ -406,13 +406,13 @@ export function ChatMessageBubble({
 
                   if (section.type === 'verdict') {
                     return (
-                      <div key={idx} className="mt-6 relative overflow-hidden p-0.5 rounded-xl bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 animate-gradient-x shadow-lg shadow-emerald-500/10">
+                      <div key={idx} className="mt-6 relative overflow-hidden p-0.5 rounded-xl bg-gradient-to-r from-[#E6B447] via-blue-500 to-purple-500 animate-gradient-x shadow-lg shadow-[#E6B447]/10">
                         <div className="bg-zinc-900/95 backdrop-blur-sm p-4 rounded-[10px] h-full w-full">
                           <div className="flex items-center gap-2 mb-3">
-                            <div className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400">
+                            <div className="p-1.5 rounded-lg bg-[#E6B447]/20 text-[#E6B447]">
                               <Gavel className="h-4 w-4" />
                             </div>
-                            <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-400 uppercase tracking-wider text-sm">
+                            <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#E6B447] to-blue-400 uppercase tracking-wider text-sm">
                               Veredito do Conselho
                             </span>
                           </div>
@@ -451,7 +451,7 @@ export function ChatMessageBubble({
               )}
 
               {adsStrategy && (
-                <div className="mt-4 border-t border-emerald-500/10 pt-4">
+                <div className="mt-4 border-t border-[#E6B447]/10 pt-4">
                   <AdsStrategyCard
                     strategyData={adsStrategy}
                     campaignId={campaignId}

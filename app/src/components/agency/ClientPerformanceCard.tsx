@@ -36,11 +36,11 @@ export const ClientPerformanceCard = ({ client }: ClientPerformanceCardProps) =>
 
   return (
     <Link href={`/campaigns?clientId=${client.id}`}>
-      <Card className="group p-5 card-premium border-white/[0.05] hover:border-emerald-500/20 transition-all duration-300 cursor-pointer overflow-hidden">
+      <Card className="group p-5 card-premium border-white/[0.05] hover:border-[#E6B447]/20 transition-all duration-300 cursor-pointer overflow-hidden">
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div className="space-y-1">
-            <h3 className="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors">
+            <h3 className="text-lg font-bold text-white group-hover:text-[#E6B447] transition-colors">
               {client.name}
             </h3>
             <div className="flex items-center gap-2">
@@ -56,7 +56,7 @@ export const ClientPerformanceCard = ({ client }: ClientPerformanceCardProps) =>
             </div>
           </div>
           <div className={cn(
-            "p-2 rounded-lg bg-zinc-900 border border-white/5 group-hover:bg-emerald-500/10 group-hover:text-emerald-400 transition-all",
+            "p-2 rounded-lg bg-zinc-900 border border-white/5 group-hover:bg-[#E6B447]/10 group-hover:text-[#E6B447] transition-all",
             "text-zinc-500"
           )}>
             <ArrowUpRight size={18} />
@@ -76,7 +76,7 @@ export const ClientPerformanceCard = ({ client }: ClientPerformanceCardProps) =>
             <div className="flex items-center gap-1.5">
               <p className="text-lg font-mono font-bold text-white">{client.roi.toFixed(2)}x</p>
               {client.trend === 'up' ? (
-                <TrendingUp size={14} className="text-emerald-500" />
+                <TrendingUp size={14} className="text-[#E6B447]" />
               ) : (
                 <TrendingDown size={14} className="text-red-500" />
               )}
@@ -101,7 +101,7 @@ export const ClientPerformanceCard = ({ client }: ClientPerformanceCardProps) =>
               <span className="text-zinc-500 uppercase tracking-wider">Health Score</span>
               <span className={cn(
                 "font-bold",
-                isHealthy ? "text-emerald-500" : isWarning ? "text-amber-500" : "text-red-500"
+                isHealthy ? "text-[#E6B447]" : isWarning ? "text-amber-500" : "text-red-500"
               )}>
                 {client.healthScore}%
               </span>
@@ -110,7 +110,7 @@ export const ClientPerformanceCard = ({ client }: ClientPerformanceCardProps) =>
               <div 
                 className={cn(
                   "h-full transition-all duration-500",
-                  isHealthy ? "bg-emerald-500" : isWarning ? "bg-amber-500" : "bg-red-500"
+                  isHealthy ? "bg-[#E6B447]" : isWarning ? "bg-amber-500" : "bg-red-500"
                 )}
                 style={{ width: `${client.healthScore}%` }}
               />

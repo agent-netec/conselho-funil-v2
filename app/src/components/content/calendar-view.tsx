@@ -26,7 +26,7 @@ const FORMAT_ICONS: Record<string, typeof FileText> = {
 const STATUS_COLORS: Record<CalendarItemStatus, string> = {
   draft: 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30 border-l-4 border-l-zinc-600',
   pending_review: 'bg-amber-500/20 text-amber-400 border-amber-500/30 border-l-4 border-l-amber-500',
-  approved: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30 border-l-4 border-l-green-500',
+  approved: 'bg-[#E6B447]/20 text-[#E6B447] border-[#E6B447]/30 border-l-4 border-l-green-500',
   scheduled: 'bg-purple-500/20 text-purple-400 border-purple-500/30 border-l-4 border-l-purple-500',
   published: 'bg-blue-500/20 text-blue-400 border-blue-500/30 border-l-4 border-l-blue-500',
   rejected: 'bg-red-500/20 text-red-400 border-red-500/30 border-l-4 border-l-red-500',
@@ -165,12 +165,12 @@ export function CalendarView({
                 ${view === 'week' ? 'min-h-[180px]' : 'min-h-[100px]'}
                 p-1.5 bg-zinc-900/40 transition-colors
                 hover:bg-zinc-800/50
-                ${isToday(date) ? 'ring-1 ring-emerald-500/40 bg-emerald-500/5' : ''}
+                ${isToday(date) ? 'ring-1 ring-[#E6B447]/40 bg-[#E6B447]/5' : ''}
                 ${!isCurrentMonth(date) && view === 'month' ? 'opacity-40' : ''}
               `}
             >
               {/* Date label */}
-              <div className={`text-xs mb-1 px-1 ${isToday(date) ? 'text-emerald-400 font-bold' : 'text-zinc-500'}`}>
+              <div className={`text-xs mb-1 px-1 ${isToday(date) ? 'text-[#E6B447] font-bold' : 'text-zinc-500'}`}>
                 {date.getDate()}
               </div>
 

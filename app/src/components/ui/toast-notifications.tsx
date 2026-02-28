@@ -23,9 +23,9 @@ const ICONS: Record<NotificationType, typeof CheckCircle2> = {
 
 const COLORS: Record<NotificationType, { bg: string; border: string; icon: string }> = {
   success: {
-    bg: 'bg-emerald-500/10',
-    border: 'border-emerald-500/30',
-    icon: 'text-emerald-400',
+    bg: 'bg-[#E6B447]/10',
+    border: 'border-[#E6B447]/30',
+    icon: 'text-[#E6B447]',
   },
   error: {
     bg: 'bg-red-500/10',

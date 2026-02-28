@@ -128,7 +128,7 @@ export default function SharedFunnelPage() {
     <div className="min-h-screen bg-[#09090b]">
       {/* Background */}
       <div className="fixed inset-0 bg-dot-pattern opacity-20 pointer-events-none" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_-10%,rgba(16,185,129,0.06),transparent)] pointer-events-none" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_-10%,rgba(230,180,71,0.06),transparent)] pointer-events-none" />
       
       <div className="relative max-w-4xl mx-auto px-6 py-12">
         {/* Header */}
@@ -137,7 +137,7 @@ export default function SharedFunnelPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div className="flex items-center gap-2 text-emerald-400 text-sm mb-2">
+          <div className="flex items-center gap-2 text-[#E6B447] text-sm mb-2">
             <Zap className="h-4 w-4" />
             MKTHONEY
           </div>
@@ -186,7 +186,7 @@ export default function SharedFunnelPage() {
           transition={{ delay: 0.2 }}
         >
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <FileText className="h-5 w-5 text-emerald-400" />
+            <FileText className="h-5 w-5 text-[#E6B447]" />
             Propostas do Conselho
           </h2>
           
@@ -206,12 +206,12 @@ export default function SharedFunnelPage() {
                   <div className="flex items-start gap-4">
                     <div className={cn(
                       'flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl',
-                      score >= 7.5 ? 'bg-emerald-500/10' :
+                      score >= 7.5 ? 'bg-[#E6B447]/10' :
                       score >= 6 ? 'bg-amber-500/10' : 'bg-red-500/10'
                     )}>
                       <span className={cn(
                         'text-lg font-bold',
-                        score >= 7.5 ? 'text-emerald-400' :
+                        score >= 7.5 ? 'text-[#E6B447]' :
                         score >= 6 ? 'text-amber-400' : 'text-red-400'
                       )}>
                         {score.toFixed(1)}
@@ -225,7 +225,7 @@ export default function SharedFunnelPage() {
                           v{proposal.version || 1}
                         </span>
                         {proposal.status === 'selected' && (
-                          <span className="flex items-center gap-1 text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+                          <span className="flex items-center gap-1 text-xs text-[#E6B447] bg-[#E6B447]/10 px-2 py-0.5 rounded">
                             <CheckCircle2 className="h-3 w-3" />
                             Aprovada
                           </span>
@@ -267,7 +267,7 @@ export default function SharedFunnelPage() {
           className="mt-12 pt-6 border-t border-zinc-800 text-center text-zinc-500 text-sm"
         >
           <p>
-            Compartilhado via <span className="text-emerald-400">MKTHONEY</span>
+            Compartilhado via <span className="text-[#E6B447]">MKTHONEY</span>
           </p>
         </motion.div>
       </div>

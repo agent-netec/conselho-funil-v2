@@ -227,7 +227,7 @@ function StageCard({ stage, index }: { stage: FunnelStage; index: number }) {
         {stage.metrics && (
           <div className="flex items-center gap-4 mt-2 text-xs">
             {stage.metrics.expectedConversion && (
-              <span className="text-emerald-400">
+              <span className="text-[#E6B447]">
                 Conv: {stage.metrics.expectedConversion}
               </span>
             )}
@@ -384,18 +384,18 @@ export default function ProposalDetailPage() {
   <title>${proposal.name} - Export</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; line-height: 1.6; color: #1a1a1a; }
-    h1 { color: #10b981; border-bottom: 2px solid #10b981; padding-bottom: 10px; }
+    h1 { color: #E6B447; border-bottom: 2px solid #E6B447; padding-bottom: 10px; }
     h2 { color: #374151; margin-top: 30px; }
     h3 { color: #4b5563; }
     h4 { color: #6b7280; }
     table { border-collapse: collapse; width: 100%; margin: 15px 0; }
     th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
     th { background: #f9fafb; }
-    blockquote { border-left: 3px solid #10b981; padding-left: 15px; color: #6b7280; }
+    blockquote { border-left: 3px solid #E6B447; padding-left: 15px; color: #6b7280; }
     hr { border: none; border-top: 1px solid #e5e7eb; margin: 30px 0; }
     ul { padding-left: 25px; }
     li { margin: 5px 0; }
-    .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; z-index: 1000; }
+    .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #E6B447; color: white; border: none; border-radius: 8px; cursor: pointer; z-index: 1000; }
     @media print { .print-btn { display: none; } }
   </style>
 </head>
@@ -542,7 +542,7 @@ export default function ProposalDetailPage() {
                   <div className="text-center mb-4">
                     <div className={cn(
                       'text-5xl font-bold',
-                      overallScore >= 7.5 ? 'text-emerald-400' :
+                      overallScore >= 7.5 ? 'text-[#E6B447]' :
                       overallScore >= 6 ? 'text-amber-400' : 'text-red-400'
                     )}>
                       {overallScore.toFixed(1)}
@@ -556,7 +556,7 @@ export default function ProposalDetailPage() {
                     <ScoreBar label="Qualificação" value={scorecard.qualification} color="text-green-400" />
                     <ScoreBar label="Fricção" value={10 - scorecard.friction} color="text-purple-400" />
                     <ScoreBar label="Potencial LTV" value={scorecard.ltvPotential} color="text-rose-400" />
-                    <ScoreBar label="ROI Esperado" value={scorecard.expectedRoi} color="text-emerald-400" />
+                    <ScoreBar label="ROI Esperado" value={scorecard.expectedRoi} color="text-[#E6B447]" />
                   </div>
                 </div>
               )}
@@ -572,7 +572,7 @@ export default function ProposalDetailPage() {
               className="card-premium p-6"
             >
               <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-6">
-                <Target className="h-5 w-5 text-emerald-400" />
+                <Target className="h-5 w-5 text-[#E6B447]" />
                 Arquitetura do Funil
               </h3>
               
@@ -653,14 +653,14 @@ export default function ProposalDetailPage() {
 
                   {proposal.strategy?.recommendations && proposal.strategy.recommendations.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-medium text-emerald-400 flex items-center gap-2 mb-3">
+                      <h4 className="text-sm font-medium text-[#E6B447] flex items-center gap-2 mb-3">
                         <TrendingUp className="h-4 w-4" />
                         Recomendações
                       </h4>
                       <ul className="space-y-2">
                         {proposal.strategy.recommendations.map((rec, index) => (
                           <li key={index} className="flex items-start gap-2 text-sm text-zinc-400">
-                            <span className="text-emerald-400/50">•</span>
+                            <span className="text-[#E6B447]/50">•</span>
                             {rec}
                           </li>
                         ))}
@@ -778,7 +778,7 @@ export default function ProposalDetailPage() {
                 <Button
                   onClick={() => handleDecision('execute')}
                   disabled={isActioning}
-                  className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-500 text-white"
+                  className="flex-1 h-12 bg-[#AB8648] hover:bg-[#E6B447] text-white"
                 >
                   <CheckCircle2 className="mr-2 h-5 w-5" />
                   EXECUTAR
@@ -816,7 +816,7 @@ export default function ProposalDetailPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-1 flex items-center gap-2">
-                    <Library className="h-5 w-5 text-emerald-400" />
+                    <Library className="h-5 w-5 text-[#E6B447]" />
                     Salvar na Biblioteca
                   </h3>
                   <p className="text-zinc-400 text-sm">
@@ -829,7 +829,7 @@ export default function ProposalDetailPage() {
                   className={cn(
                     "h-11",
                     savedToLibrary 
-                      ? "bg-emerald-600 text-white" 
+                      ? "bg-[#AB8648] text-white" 
                       : "btn-accent"
                   )}
                 >

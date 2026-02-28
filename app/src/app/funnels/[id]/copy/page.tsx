@@ -87,7 +87,7 @@ function CopyScoreDisplay({ scorecard }: { scorecard: CopyScorecard }) {
   ];
 
   const getScoreColor = (score: number) => {
-    if (score >= 8) return 'text-emerald-400';
+    if (score >= 8) return 'text-[#E6B447]';
     if (score >= 6) return 'text-amber-400';
     return 'text-red-400';
   };
@@ -112,7 +112,7 @@ function CopyScoreDisplay({ scorecard }: { scorecard: CopyScorecard }) {
                   animate={{ width: `${score * 10}%` }}
                   className={cn(
                     'h-full rounded-full',
-                    score >= 8 ? 'bg-emerald-500' : score >= 6 ? 'bg-amber-500' : 'bg-red-500'
+                    score >= 8 ? 'bg-[#E6B447]' : score >= 6 ? 'bg-amber-500' : 'bg-red-500'
                   )}
                 />
               </div>
@@ -184,13 +184,13 @@ function CopyProposalCard({
             {/* Icon */}
             <div className={cn(
               'flex h-12 w-12 items-center justify-center rounded-xl',
-              copyProposal.status === 'approved' ? 'bg-emerald-500/10' :
+              copyProposal.status === 'approved' ? 'bg-[#E6B447]/10' :
               copyProposal.status === 'rejected' ? 'bg-red-500/10' :
               'bg-blue-500/10'
             )}>
               <TypeIcon className={cn(
                 'h-6 w-6',
-                copyProposal.status === 'approved' ? 'text-emerald-400' :
+                copyProposal.status === 'approved' ? 'text-[#E6B447]' :
                 copyProposal.status === 'rejected' ? 'text-red-400' :
                 'text-blue-400'
               )} />
@@ -201,7 +201,7 @@ function CopyProposalCard({
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-white truncate">{copyProposal.name}</h3>
                 {copyProposal.status === 'approved' && (
-                  <span className="flex items-center gap-1 text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+                  <span className="flex items-center gap-1 text-xs text-[#E6B447] bg-[#E6B447]/10 px-2 py-0.5 rounded">
                     <CheckCircle2 className="h-3 w-3" />
                     Aprovado
                   </span>
@@ -222,7 +222,7 @@ function CopyProposalCard({
             {copyProposal.scorecard && (
               <div className={cn(
                 'text-lg font-bold',
-                (Number(copyProposal.scorecard.overall) || 0) >= 8 ? 'text-emerald-400' :
+                (Number(copyProposal.scorecard.overall) || 0) >= 8 ? 'text-[#E6B447]' :
                 (Number(copyProposal.scorecard.overall) || 0) >= 6 ? 'text-amber-400' :
                 'text-red-400'
               )}>
@@ -274,7 +274,7 @@ function CopyProposalCard({
                         {copyProposal.content.emails.map((email: { subject?: string; body?: string; delay?: string }, i: number) => (
                           <div key={i} className="bg-zinc-800/50 rounded-lg p-4 border border-zinc-700/50">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs text-emerald-400 font-medium">Email {i + 1}</span>
+                              <span className="text-xs text-[#E6B447] font-medium">Email {i + 1}</span>
                               {email.delay && (
                                 <span className="text-xs text-zinc-500">⏱️ {safeStr(email.delay)}</span>
                               )}
@@ -380,7 +380,7 @@ function CopyProposalCard({
                   <div className="flex gap-2 pt-2">
                     <Button
                       onClick={() => onDecision('approve')}
-                      className="flex-1 bg-emerald-500 hover:bg-emerald-600"
+                      className="flex-1 bg-[#E6B447] hover:bg-[#AB8648]"
                     >
                       <ThumbsUp className="mr-2 h-4 w-4" />
                       Aprovar
@@ -407,7 +407,7 @@ function CopyProposalCard({
                     <Button
                       onClick={() => onDecision('approve')}
                       variant="outline"
-                      className="flex-1 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+                      className="flex-1 border-[#E6B447]/30 text-[#E6B447] hover:bg-[#E6B447]/10"
                     >
                       <RefreshCw className="mr-2 h-4 w-4" />
                       Re-aprovar na Linha de Ouro
@@ -434,7 +434,7 @@ function CopyProposalCard({
               value={adjustmentText}
               onChange={(e) => setAdjustmentText(e.target.value)}
               placeholder="Ex: Usar tom mais informal, incluir mais urgência, focar mais na dor..."
-              className="w-full h-32 bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+              className="w-full h-32 bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#E6B447]/50"
             />
             <div className="flex gap-2">
               <Button
@@ -694,7 +694,7 @@ export default function CopyCouncilPage() {
           className="mb-8"
         >
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <Target className="h-5 w-5 text-emerald-400" />
+            <Target className="h-5 w-5 text-[#E6B447]" />
             Gerar Copy
           </h2>
           <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-6">
@@ -713,7 +713,7 @@ export default function CopyCouncilPage() {
                   className={cn(
                     'p-4 rounded-xl border text-left transition-all relative overflow-hidden',
                     hasApproved 
-                      ? 'bg-emerald-500/10 border-emerald-500/30' 
+                      ? 'bg-[#E6B447]/10 border-[#E6B447]/30' 
                       : 'bg-zinc-900/50 border-zinc-800 hover:border-zinc-700',
                     (isGenerating !== null || !activeProposalId) && 'opacity-50 cursor-not-allowed'
                   )}
@@ -725,7 +725,7 @@ export default function CopyCouncilPage() {
                   )}
                   <Icon className={cn(
                     'h-6 w-6 mb-2',
-                    hasApproved ? 'text-emerald-400' : 'text-zinc-500'
+                    hasApproved ? 'text-[#E6B447]' : 'text-zinc-500'
                   )} />
                   <p className="font-medium text-white text-sm">{info.label}</p>
                   <p className="text-xs text-zinc-500 mt-1">{info.description}</p>
@@ -745,12 +745,12 @@ export default function CopyCouncilPage() {
           )}
           {activeProposalId && (
             <div className="mt-4 flex items-center gap-2 text-xs text-zinc-500 bg-white/[0.02] border border-white/[0.04] w-fit px-3 py-1.5 rounded-full">
-              <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+              <CheckCircle2 className="h-3 w-3 text-[#E6B447]" />
               Baseado na Estratégia: <span className="text-zinc-300 font-bold">{proposal?.name}</span>
               {allProposals.length > 1 && (
                 <button 
                   onClick={() => setProposal(null)} // Força re-seleção se houver outras
-                  className="ml-2 text-emerald-400 hover:underline"
+                  className="ml-2 text-[#E6B447] hover:underline"
                 >
                   Trocar base
                 </button>
@@ -779,7 +779,7 @@ export default function CopyCouncilPage() {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-zinc-500">v{p.version}</span>
-                    {p.status === 'selected' && <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded uppercase font-bold">Aprovada</span>}
+                    {p.status === 'selected' && <span className="text-[10px] bg-[#E6B447]/10 text-[#E6B447] px-1.5 py-0.5 rounded uppercase font-bold">Aprovada</span>}
                   </div>
                   <h4 className="font-bold text-white group-hover:text-amber-400 transition-colors truncate">{p.name}</h4>
                   <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{p.summary}</p>
@@ -798,7 +798,7 @@ export default function CopyCouncilPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                <FileText className="h-5 w-5 text-emerald-400" />
+                <FileText className="h-5 w-5 text-[#E6B447]" />
                 Propostas de Copy ({copyProposals.length})
               </h2>
             </div>

@@ -83,7 +83,7 @@ export const CohortDashboard: React.FC<CohortDashboardProps> = ({ data, summary 
       {(isEstimated || isSimulated) && (
         <div className="flex items-center gap-2 text-sm">
           {!isEstimated && !isSimulated ? (
-            <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200">
+            <Badge variant="outline" className="bg-[#F5E8CE] text-[#AB8648] border-[#E6B447]/30">
               <CheckCircle2 className="w-3 h-3 mr-1" /> Dados Reais
             </Badge>
           ) : (
@@ -108,7 +108,7 @@ export const CohortDashboard: React.FC<CohortDashboardProps> = ({ data, summary 
         <MetricCard
           title="ROI Global (LTV/CAC)"
           value={`${globalRoi.toFixed(2)}x`}
-          icon={<TrendingUp className="w-4 h-4 text-emerald-500" />}
+          icon={<TrendingUp className="w-4 h-4 text-[#E6B447]" />}
           description={isEstimated ? "Estimado — conecte Ads para dados reais" : "Retorno sobre investimento em Ads"}
           badge={!isEstimated ? "Real" : "Estimado"}
         />
@@ -184,13 +184,13 @@ export const CohortDashboard: React.FC<CohortDashboardProps> = ({ data, summary 
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium">{cohort.id}</span>
-                      {isPaid && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />}
+                      {isPaid && <CheckCircle2 className="w-3.5 h-3.5 text-[#E6B447]" />}
                     </div>
                     <span className="text-xs font-mono text-muted-foreground">
                       {progress.toFixed(1)}%
                     </span>
                   </div>
-                  <Progress value={progress} className={isPaid ? "bg-emerald-100 h-2" : "h-2"} />
+                  <Progress value={progress} className={isPaid ? "bg-[#F0C35C]/20 h-2" : "h-2"} />
                   <div className="flex justify-between text-[10px] text-muted-foreground uppercase tracking-tighter">
                     <span>Spend: {formatCurrency(cohort.adSpend)}</span>
                     <span>LTV: {formatCurrency(cohort.totalLtv)}</span>
@@ -263,7 +263,7 @@ function MetricCard({ title, value, icon, description, trend, badge }: any) {
               variant="outline"
               className={`text-[10px] ${
                 badge === 'Real'
-                  ? 'text-emerald-500 border-emerald-100 bg-emerald-50'
+                  ? 'text-[#E6B447] border-[#F0C35C]/20 bg-[#F5E8CE]'
                   : 'text-amber-500 border-amber-100 bg-amber-50'
               }`}
             >
@@ -271,7 +271,7 @@ function MetricCard({ title, value, icon, description, trend, badge }: any) {
               {badge}
             </Badge>
           ) : trend ? (
-            <Badge variant="outline" className="text-emerald-500 border-emerald-100 bg-emerald-50 text-[10px]">
+            <Badge variant="outline" className="text-[#E6B447] border-[#F0C35C]/20 bg-[#F5E8CE] text-[10px]">
               <ArrowUpRight className="w-3 h-3 mr-1" /> {trend}
             </Badge>
           ) : null}

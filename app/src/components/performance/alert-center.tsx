@@ -47,7 +47,7 @@ export function AlertCenter({ alerts, onAcknowledge, loading }: AlertCenterProps
           <div className="divide-y divide-zinc-800/50">
             {alerts.length === 0 ? (
               <div className="p-8 text-center text-zinc-500">
-                <CheckCircle2 className="w-12 h-12 mx-auto mb-3 text-emerald-500/20" />
+                <CheckCircle2 className="w-12 h-12 mx-auto mb-3 text-[#E6B447]/20" />
                 <p className="text-sm font-bold uppercase tracking-widest">All Nominal</p>
                 <p className="text-xs">Tudo operando dentro dos parâmetros.</p>
               </div>

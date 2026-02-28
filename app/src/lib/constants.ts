@@ -84,7 +84,7 @@ export const COUNSELORS_REGISTRY: Record<CounselorId, Counselor> = {
     id: 'justin_welsh',
     name: 'Justin Welsh',
     expertise: 'Funil Social',
-    color: '#10b981',
+    color: '#E6B447',
     icon: '⛓️',
     domain: 'social',
   },
@@ -131,7 +131,7 @@ export const COUNSELORS_REGISTRY: Record<CounselorId, Counselor> = {
     name: 'Dan Kennedy',
     expertise: 'Oferta & Urgência',
     specialty: 'Ofertas irresistíveis, garantia, urgência real',
-    color: '#10b981',
+    color: '#E6B447',
     icon: '💰',
     domain: 'copy',
   },
@@ -324,7 +324,7 @@ export const STATUS_COLORS: Record<string, string> = {
   approved: 'bg-green-500',
   adjusting: 'bg-orange-500',
   executing: 'bg-purple-500',
-  completed: 'bg-emerald-500',
+  completed: 'bg-[#E6B447]',
   killed: 'bg-red-500',
 };
 
@@ -363,7 +363,7 @@ export const CHAT_MODES = {
     subtitle: '23 especialistas',
     placeholder: 'Pergunte ao Conselho...',
     footer: 'Pressione Enter para enviar, Shift+Enter para nova linha',
-    accentColor: 'emerald',
+    accentColor: 'gold',
     counselors: [
       'russell_brunson', 'dan_kennedy', 'frank_kern', 'sam_ovens', 'ryan_deiss', 'perry_belcher',
       'eugene_schwartz', 'claude_hopkins', 'gary_halbert', 'joseph_sugarman', 'david_ogilvy', 

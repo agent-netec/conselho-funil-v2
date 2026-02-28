@@ -40,7 +40,7 @@ export const BrandingSettings = () => {
 
   const resetBranding = () => {
     const defaultColors = {
-      primary: '#10b981',
+      primary: '#E6B447',
       secondary: '#8b5cf6'
     };
     updateBranding({ logoUrl: '', colors: defaultColors });

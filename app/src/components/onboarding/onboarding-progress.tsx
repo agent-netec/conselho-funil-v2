@@ -29,13 +29,13 @@ export function OnboardingProgress({ currentStep }: OnboardingProgressProps) {
                 initial={false}
                 animate={{
                   backgroundColor: isActive || isCompleted
-                    ? 'rgb(16, 185, 129)'
+                    ? 'rgb(230, 180, 71)'
                     : 'rgba(255, 255, 255, 0.04)',
                   scale: isActive ? 1.1 : 1,
                   borderColor: isActive
                     ? 'rgb(52, 211, 153)'
                     : isCompleted
-                      ? 'rgb(16, 185, 129)'
+                      ? 'rgb(230, 180, 71)'
                       : 'rgba(255, 255, 255, 0.06)',
                 }}
                 transition={{ duration: 0.3 }}
@@ -49,7 +49,7 @@ export function OnboardingProgress({ currentStep }: OnboardingProgressProps) {
               </motion.div>
               <span
                 className={`mt-2 text-xs font-medium tracking-wider uppercase transition-colors ${
-                  isActive ? 'text-emerald-400' : isCompleted ? 'text-zinc-400' : 'text-zinc-600'
+                  isActive ? 'text-[#E6B447]' : isCompleted ? 'text-zinc-400' : 'text-zinc-600'
                 }`}
               >
                 {step.label}
@@ -63,7 +63,7 @@ export function OnboardingProgress({ currentStep }: OnboardingProgressProps) {
                   initial={{ width: 0 }}
                   animate={{ width: isCompleted ? '100%' : '0%' }}
                   transition={{ duration: 0.4, ease: 'easeInOut' }}
-                  className="absolute left-0 top-0 h-full bg-emerald-500"
+                  className="absolute left-0 top-0 h-full bg-[#E6B447]"
                 />
               </div>
             )}

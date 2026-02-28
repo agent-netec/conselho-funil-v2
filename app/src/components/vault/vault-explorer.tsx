@@ -91,21 +91,21 @@ export function VaultExplorer({ dnaItems, libraryItems, assets, onUseItem }: Vau
         <TabsList className="bg-transparent border-b border-white/[0.03] rounded-none h-12 p-0 gap-8">
           <TabsTrigger 
             value="library" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent px-2 text-zinc-400 data-[state=active]:text-white"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#E6B447] data-[state=active]:bg-transparent px-2 text-zinc-400 data-[state=active]:text-white"
           >
             <LibraryIcon className="h-4 w-4 mr-2" />
             Library
           </TabsTrigger>
           <TabsTrigger 
             value="dna" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent px-2 text-zinc-400 data-[state=active]:text-white"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#E6B447] data-[state=active]:bg-transparent px-2 text-zinc-400 data-[state=active]:text-white"
           >
             <Dna className="h-4 w-4 mr-2" />
             Copy DNA
           </TabsTrigger>
           <TabsTrigger 
             value="assets" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent px-2 text-zinc-400 data-[state=active]:text-white"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#E6B447] data-[state=active]:bg-transparent px-2 text-zinc-400 data-[state=active]:text-white"
           >
             <ImageIcon className="h-4 w-4 mr-2" />
             Media Assets
@@ -161,7 +161,7 @@ export function VaultExplorer({ dnaItems, libraryItems, assets, onUseItem }: Vau
             <div className="space-y-4 mt-2">
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className={
-                  detailItem.status === 'approved' ? 'text-emerald-400 border-emerald-500/30' :
+                  detailItem.status === 'approved' ? 'text-[#E6B447] border-[#E6B447]/30' :
                   detailItem.status === 'review' ? 'text-amber-400 border-amber-500/30' :
                   detailItem.status === 'published' ? 'text-blue-400 border-blue-500/30' :
                   'text-zinc-400 border-zinc-700'
@@ -215,15 +215,15 @@ export function VaultExplorer({ dnaItems, libraryItems, assets, onUseItem }: Vau
 
 function ContentCard({ item, viewMode, onUse, onViewDetails }: { item: VaultContent; viewMode: 'grid' | 'list'; onUse: () => void; onViewDetails: () => void }) {
   return (
-    <Card className="group bg-zinc-900/40 border-white/[0.03] hover:border-emerald-500/30 transition-all overflow-hidden">
+    <Card className="group bg-zinc-900/40 border-white/[0.03] hover:border-[#E6B447]/30 transition-all overflow-hidden">
       <div className="p-5">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-              <LibraryIcon className="h-4 w-4 text-emerald-400" />
+            <div className="h-8 w-8 rounded-lg bg-[#E6B447]/10 flex items-center justify-center">
+              <LibraryIcon className="h-4 w-4 text-[#E6B447]" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">
+              <h4 className="text-sm font-bold text-white group-hover:text-[#E6B447] transition-colors">
                 Post Multi-Plataforma
               </h4>
               <p className="text-[10px] text-zinc-500 uppercase font-medium">
@@ -269,7 +269,7 @@ function ContentCard({ item, viewMode, onUse, onViewDetails }: { item: VaultCont
               </div>
             ))}
           </div>
-          <Button variant="ghost" size="sm" className="h-8 text-[10px] uppercase font-bold tracking-widest text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/5" onClick={onUse}>
+          <Button variant="ghost" size="sm" className="h-8 text-[10px] uppercase font-bold tracking-widest text-[#E6B447] hover:text-[#E6B447]/60 hover:bg-[#E6B447]/5" onClick={onUse}>
             Usar Conteúdo
           </Button>
         </div>
@@ -280,7 +280,7 @@ function ContentCard({ item, viewMode, onUse, onViewDetails }: { item: VaultCont
 
 function DNACard({ item, viewMode, onUse }: { item: CopyDNA; viewMode: 'grid' | 'list'; onUse: () => void }) {
   return (
-    <Card className="group bg-zinc-900/40 border-white/[0.03] hover:border-emerald-500/30 transition-all">
+    <Card className="group bg-zinc-900/40 border-white/[0.03] hover:border-[#E6B447]/30 transition-all">
       <div className="p-5">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -309,7 +309,7 @@ function DNACard({ item, viewMode, onUse }: { item: CopyDNA; viewMode: 'grid' | 
               {item.performance_metrics.engagement_rate.toFixed(1)}x engajamento
             </Badge>
             {item.performance_metrics.best_platform && (
-              <Badge variant="outline" className="ml-1 text-[9px] border-emerald-500/20 text-emerald-400 bg-emerald-500/5">
+              <Badge variant="outline" className="ml-1 text-[9px] border-[#E6B447]/20 text-[#E6B447] bg-[#E6B447]/5">
                 Melhor: {item.performance_metrics.best_platform}
               </Badge>
             )}
@@ -334,7 +334,7 @@ function DNACard({ item, viewMode, onUse }: { item: CopyDNA; viewMode: 'grid' | 
 
 function AssetCard({ asset }: { asset: VaultAsset }) {
   return (
-    <div className="group relative aspect-square rounded-xl overflow-hidden bg-zinc-900 border border-white/[0.03] hover:border-emerald-500/30 transition-all cursor-pointer">
+    <div className="group relative aspect-square rounded-xl overflow-hidden bg-zinc-900 border border-white/[0.03] hover:border-[#E6B447]/30 transition-all cursor-pointer">
       <img 
         src={asset.url} 
         alt={asset.name} 

@@ -26,13 +26,13 @@ export function BrandCompleteness({ brand, assetCount = 0, mode = 'compact', bra
 
 function CompactView({ result }: { result: CompletenessResult }) {
   const color = result.score >= 80
-    ? 'emerald'
+    ? 'gold'
     : result.score >= 50
       ? 'amber'
       : 'red';
 
   const colorMap = {
-    emerald: { bar: 'bg-emerald-500', text: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+    gold: { bar: 'bg-[#E6B447]', text: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10' },
     amber: { bar: 'bg-amber-500', text: 'text-amber-400', bg: 'bg-amber-500/10' },
     red: { bar: 'bg-red-500', text: 'text-red-400', bg: 'bg-red-500/10' },
   };
@@ -103,7 +103,7 @@ function DetailedView({ result, brandId }: { result: CompletenessResult; brandId
               </div>
             ))}
             {result.completedFields.length > 0 && (
-              <div className="flex items-center gap-2 text-xs text-emerald-400/60">
+              <div className="flex items-center gap-2 text-xs text-[#E6B447]/60">
                 <CheckCircle2 className="h-3 w-3" />
                 <span>{result.completedFields.length} itens completos</span>
               </div>

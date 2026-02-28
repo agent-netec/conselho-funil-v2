@@ -175,7 +175,7 @@ export default function ContentCalendarPage() {
     switch (status) {
       case 'draft': return [{ action: 'submit_review' as const, label: 'Enviar para Revisão', icon: Send, color: 'bg-amber-600 hover:bg-amber-500' }];
       case 'pending_review': return [
-        { action: 'approve' as const, label: 'Aprovar', icon: CheckCircle, color: 'bg-emerald-600 hover:bg-emerald-500' },
+        { action: 'approve' as const, label: 'Aprovar', icon: CheckCircle, color: 'bg-[#AB8648] hover:bg-[#E6B447]' },
         { action: 'reject' as const, label: 'Rejeitar', icon: XCircle, color: 'bg-red-600 hover:bg-red-500' },
       ];
       case 'approved': return [{ action: 'schedule' as const, label: 'Agendar Publicação', icon: Clock, color: 'bg-purple-600 hover:bg-purple-500' }];
@@ -319,7 +319,7 @@ export default function ContentCalendarPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Calendar className="h-6 w-6 text-emerald-400" />
+          <Calendar className="h-6 w-6 text-[#E6B447]" />
           <div>
             <h1 className="text-xl font-bold text-white">Calendario Editorial</h1>
             <p className="text-sm text-zinc-400">Gerencie e agende seu conteudo</p>
@@ -344,7 +344,7 @@ export default function ContentCalendarPage() {
           </button>
           <button
             onClick={() => setShowCreate(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-[#AB8648] hover:bg-[#E6B447] text-white rounded-lg text-sm font-medium transition-colors"
           >
             <Plus className="h-4 w-4" />
             Novo Conteudo
@@ -370,14 +370,14 @@ export default function ContentCalendarPage() {
         <div className="flex items-center gap-1 bg-zinc-800/80 rounded-md p-0.5">
           <button
             onClick={() => setView('week')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${view === 'week' ? 'bg-emerald-600 text-white' : 'text-zinc-400 hover:text-white'}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${view === 'week' ? 'bg-[#AB8648] text-white' : 'text-zinc-400 hover:text-white'}`}
           >
             <Columns className="h-3.5 w-3.5" />
             Semanal
           </button>
           <button
             onClick={() => setView('month')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${view === 'month' ? 'bg-emerald-600 text-white' : 'text-zinc-400 hover:text-white'}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${view === 'month' ? 'bg-[#AB8648] text-white' : 'text-zinc-400 hover:text-white'}`}
           >
             <Grid className="h-3.5 w-3.5" />
             Mensal
@@ -458,11 +458,11 @@ export default function ContentCalendarPage() {
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
                 <label className="block text-sm text-zinc-400 mb-1">Titulo</label>
-                <input name="title" required value={previewTitle} onChange={(e) => setPreviewTitle(e.target.value)} className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                <input name="title" required value={previewTitle} onChange={(e) => setPreviewTitle(e.target.value)} className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-[#E6B447] focus:border-transparent" />
               </div>
               <div>
                 <label className="block text-sm text-zinc-400 mb-1">Conteudo / Descrição</label>
-                <textarea name="content" rows={4} placeholder="Texto do post, legenda, roteiro..." value={previewContent} onChange={(e) => setPreviewContent(e.target.value)} className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none" />
+                <textarea name="content" rows={4} placeholder="Texto do post, legenda, roteiro..." value={previewContent} onChange={(e) => setPreviewContent(e.target.value)} className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-[#E6B447] focus:border-transparent resize-none" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -487,13 +487,13 @@ export default function ContentCalendarPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm text-zinc-400 mb-1">Data Agendada</label>
-                  <input name="scheduledDate" type="date" required value={previewDate} onChange={(e) => setPreviewDate(e.target.value)} className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                  <input name="scheduledDate" type="date" required value={previewDate} onChange={(e) => setPreviewDate(e.target.value)} className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-[#E6B447] focus:border-transparent" />
                 </div>
                 <div>
                   <label className="flex items-center gap-1.5 text-sm text-zinc-400 mb-1">
                     <Clock className="h-3.5 w-3.5" /> Horário
                   </label>
-                  <input name="scheduledTime" type="time" value={previewTime} onChange={(e) => setPreviewTime(e.target.value)} className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                  <input name="scheduledTime" type="time" value={previewTime} onChange={(e) => setPreviewTime(e.target.value)} className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-[#E6B447] focus:border-transparent" />
                 </div>
               </div>
 
@@ -538,7 +538,7 @@ export default function ContentCalendarPage() {
                 <button type="button" onClick={() => { setShowCreate(false); setPreviewTitle(''); setPreviewContent(''); setPreviewDate(''); setPreviewTime(''); }} className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">
                   Cancelar
                 </button>
-                <button type="submit" className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors">
+                <button type="submit" className="px-4 py-2 bg-[#AB8648] hover:bg-[#E6B447] text-white rounded-lg text-sm font-medium transition-colors">
                   Criar
                 </button>
               </div>
@@ -573,7 +573,7 @@ export default function ContentCalendarPage() {
               <div className="p-3 bg-zinc-800/50 rounded-lg">
                 <span className="text-zinc-500 text-xs block mb-1">Status</span>
                 <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded ${
-                  selectedItem.status === 'approved' ? 'bg-emerald-500/20 text-emerald-400' :
+                  selectedItem.status === 'approved' ? 'bg-[#E6B447]/20 text-[#E6B447]' :
                   selectedItem.status === 'published' ? 'bg-blue-500/20 text-blue-400' :
                   selectedItem.status === 'pending_review' ? 'bg-amber-500/20 text-amber-400' :
                   selectedItem.status === 'scheduled' ? 'bg-purple-500/20 text-purple-400' :

@@ -132,13 +132,13 @@ export default function PaymentWebhooksPage() {
         <div className="space-y-6">
           <div>
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Webhook className="h-6 w-6 text-emerald-500" />
+              <Webhook className="h-6 w-6 text-[#E6B447]" />
               Webhooks de Pagamento
             </h2>
             <p className="text-zinc-400 mt-2 text-sm leading-relaxed max-w-2xl">
               Configure webhooks para receber automaticamente dados de vendas das suas plataformas de
               pagamento. As transações serão vinculadas aos leads na{' '}
-              <Link href="/intelligence/journey" className="text-emerald-400 hover:underline">
+              <Link href="/intelligence/journey" className="text-[#E6B447] hover:underline">
                 Jornada do Lead
               </Link>.
             </p>
@@ -183,7 +183,7 @@ export default function PaymentWebhooksPage() {
                     disabled={!brandId}
                   >
                     {copiedProvider === provider.id ? (
-                      <Check className="h-4 w-4 text-emerald-400" />
+                      <Check className="h-4 w-4 text-[#E6B447]" />
                     ) : (
                       <Copy className="h-4 w-4" />
                     )}
@@ -214,7 +214,7 @@ export default function PaymentWebhooksPage() {
                 <ol className="space-y-1.5">
                   {provider.instructions.map((step, i) => (
                     <li key={i} className="flex gap-2 text-xs text-zinc-500">
-                      <span className="text-emerald-400 font-mono flex-shrink-0">{i + 1}.</span>
+                      <span className="text-[#E6B447] font-mono flex-shrink-0">{i + 1}.</span>
                       {step}
                     </li>
                   ))}
@@ -223,7 +223,7 @@ export default function PaymentWebhooksPage() {
                   href={provider.docsUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 mt-2 text-xs text-emerald-500 hover:underline"
+                  className="inline-flex items-center gap-1 mt-2 text-xs text-[#E6B447] hover:underline"
                 >
                   Documentação oficial →
                 </a>

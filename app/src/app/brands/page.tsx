@@ -51,7 +51,7 @@ export default function BrandsPage() {
           
           <Button
             onClick={() => router.push('/brands/new')}
-            className="bg-emerald-600 hover:bg-emerald-700"
+            className="bg-[#AB8648] hover:bg-[#895F29]"
           >
             <Plus className="mr-2 h-4 w-4" />
             Nova Marca
@@ -77,7 +77,7 @@ export default function BrandsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center justify-center py-20 text-center"
           >
-            <div className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-blue-600 mb-6">
+            <div className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#E6B447] to-blue-600 mb-6">
               <Sparkles className="h-10 w-10 text-white" />
             </div>
             
@@ -92,7 +92,7 @@ export default function BrandsPage() {
             
             <Button
               onClick={() => router.push('/brands/new')}
-              className="bg-emerald-600 hover:bg-emerald-700"
+              className="bg-[#AB8648] hover:bg-[#895F29]"
             >
               <Sparkles className="mr-2 h-4 w-4" />
               Criar Primeira Marca

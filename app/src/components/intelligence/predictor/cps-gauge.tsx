@@ -14,7 +14,7 @@ interface CPSGaugeProps {
 /** Retorna cor do gradiente baseada no score (0-100) */
 function getScoreColor(score: number): string {
   if (score >= 90) return '#facc15'; // yellow-400 (S)
-  if (score >= 75) return '#34d399'; // emerald-400 (A)
+  if (score >= 75) return '#E6B447'; // [#E6B447] (A)
   if (score >= 60) return '#60a5fa'; // blue-400 (B)
   if (score >= 45) return '#fb923c'; // orange-400 (C)
   if (score >= 30) return '#f87171'; // red-400 (D)
@@ -68,7 +68,7 @@ export function CPSGauge({ score, grade, className }: CPSGaugeProps) {
             <stop offset="0%" stopColor="#71717a" />
             <stop offset="25%" stopColor="#f87171" />
             <stop offset="50%" stopColor="#fb923c" />
-            <stop offset="75%" stopColor="#34d399" />
+            <stop offset="75%" stopColor="#E6B447" />
             <stop offset="100%" stopColor="#facc15" />
           </linearGradient>
         </defs>

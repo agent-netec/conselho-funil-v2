@@ -74,7 +74,7 @@ export function RagAssetsModal({ isOpen, onClose, brand, assetCount }: RagAssets
               </p>
 
               {assetCount > 0 ? (
-                <p className="text-xs text-emerald-400">
+                <p className="text-xs text-[#E6B447]">
                   Voce ja tem {assetCount} asset{assetCount > 1 ? 's' : ''} cadastrado{assetCount > 1 ? 's' : ''}
                 </p>
               ) : (
@@ -104,8 +104,8 @@ export function RagAssetsModal({ isOpen, onClose, brand, assetCount }: RagAssets
             {/* Benefits */}
             <div className="space-y-2">
               <div className="flex items-start gap-3 p-3 rounded-lg bg-white/[0.01]">
-                <div className="h-5 w-5 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-[10px] text-emerald-400">1</span>
+                <div className="h-5 w-5 rounded-full bg-[#E6B447]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-[10px] text-[#E6B447]">1</span>
                 </div>
                 <div>
                   <p className="text-xs font-medium text-white">Brand Guidelines</p>
@@ -113,8 +113,8 @@ export function RagAssetsModal({ isOpen, onClose, brand, assetCount }: RagAssets
                 </div>
               </div>
               <div className="flex items-start gap-3 p-3 rounded-lg bg-white/[0.01]">
-                <div className="h-5 w-5 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-[10px] text-emerald-400">2</span>
+                <div className="h-5 w-5 rounded-full bg-[#E6B447]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-[10px] text-[#E6B447]">2</span>
                 </div>
                 <div>
                   <p className="text-xs font-medium text-white">Pesquisas de Mercado</p>
@@ -122,8 +122,8 @@ export function RagAssetsModal({ isOpen, onClose, brand, assetCount }: RagAssets
                 </div>
               </div>
               <div className="flex items-start gap-3 p-3 rounded-lg bg-white/[0.01]">
-                <div className="h-5 w-5 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-[10px] text-emerald-400">3</span>
+                <div className="h-5 w-5 rounded-full bg-[#E6B447]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-[10px] text-[#E6B447]">3</span>
                 </div>
                 <div>
                   <p className="text-xs font-medium text-white">Copies Aprovadas</p>
@@ -143,7 +143,7 @@ export function RagAssetsModal({ isOpen, onClose, brand, assetCount }: RagAssets
             </button>
             <button
               onClick={handleGoToAssets}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#E6B447] text-white font-medium hover:bg-[#E6B447] transition-colors"
             >
               <Upload className="h-4 w-4" />
               Ir para Assets

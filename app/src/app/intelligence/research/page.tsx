@@ -302,7 +302,7 @@ export default function ResearchPage() {
                   key={item.id}
                   className={cn(
                     'w-full text-left p-3 border rounded-lg transition-colors',
-                    selectedId === item.id ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-zinc-800 bg-zinc-900/20 hover:bg-zinc-900/40'
+                    selectedId === item.id ? 'border-[#E6B447]/30 bg-[#E6B447]/5' : 'border-zinc-800 bg-zinc-900/20 hover:bg-zinc-900/40'
                   )}
                   onClick={() => setSelectedId(item.id)}
                 >
@@ -310,7 +310,7 @@ export default function ResearchPage() {
                   <div className="flex items-center justify-between mt-1">
                     <div className="flex items-center gap-1.5">
                       <span className={cn('text-[10px] font-medium uppercase',
-                        item.status === 'completed' ? 'text-emerald-400' : item.status === 'failed' ? 'text-red-400' : 'text-zinc-500'
+                        item.status === 'completed' ? 'text-[#E6B447]' : item.status === 'failed' ? 'text-red-400' : 'text-zinc-500'
                       )}>{item.status}</span>
                       {item.templateId && (
                         <Badge variant="outline" className="text-[8px] border-zinc-700 text-zinc-500">{item.templateId}</Badge>
@@ -336,7 +336,7 @@ export default function ResearchPage() {
           )}
 
           <div className="flex items-center gap-2 px-2 py-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500/50" />
+            <ShieldCheck className="w-3.5 h-3.5 text-[#E6B447]/50" />
             <span className="text-[10px] text-zinc-600">Dossiês são salvos permanentemente na sua marca.</span>
           </div>
         </div>
@@ -360,7 +360,7 @@ export default function ResearchPage() {
                       className={cn(
                         'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border',
                         activeTab === tab.id
-                          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                          ? 'bg-[#E6B447]/10 border-[#E6B447]/30 text-[#E6B447]'
                           : 'bg-zinc-900/40 border-zinc-800 text-zinc-500 hover:text-zinc-300'
                       )}
                     >
@@ -443,7 +443,7 @@ export default function ResearchPage() {
                       onClick={handleSaveInsights}
                       disabled={savingInsights}
                       size="sm"
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs"
+                      className="bg-[#AB8648] hover:bg-[#E6B447] text-white text-xs"
                     >
                       <Save className="mr-1.5 h-3 w-3" />
                       {savingInsights ? 'Salvando...' : 'Salvar Insights na Marca'}
@@ -472,7 +472,7 @@ export default function ResearchPage() {
                       <Button
                         onClick={handleAudienceAnalysis}
                         disabled={audienceLoading}
-                        className="bg-emerald-600 hover:bg-emerald-500 text-white"
+                        className="bg-[#AB8648] hover:bg-[#E6B447] text-white"
                       >
                         {audienceLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Users className="mr-2 h-4 w-4" />}
                         Gerar Análise de Audiência
@@ -496,7 +496,7 @@ export default function ResearchPage() {
                             )}
                             {voiceAnalysis.desires?.length > 0 && (
                               <div>
-                                <span className="text-emerald-400 font-medium">Desejos:</span>
+                                <span className="text-[#E6B447] font-medium">Desejos:</span>
                                 <ul className="list-disc ml-5 mt-1 space-y-0.5">
                                   {voiceAnalysis.desires.map((d: string, i: number) => <li key={i}>{d}</li>)}
                                 </ul>
@@ -524,7 +524,7 @@ export default function ResearchPage() {
 
                       {/* O-2.3: Persona Card */}
                       {persona && (
-                        <Card className="p-4 bg-gradient-to-br from-violet-500/5 to-emerald-500/5 border-violet-500/20 space-y-3">
+                        <Card className="p-4 bg-gradient-to-br from-violet-500/5 to-[#E6B447]/5 border-violet-500/20 space-y-3">
                           <h3 className="text-sm font-bold text-zinc-200 flex items-center gap-2">
                             <Users className="h-4 w-4 text-violet-400" />
                             Persona: {persona.name}
@@ -539,7 +539,7 @@ export default function ResearchPage() {
                               <ul className="list-disc ml-4 mt-1 space-y-0.5">{persona.pains.map((p, i) => <li key={i}>{p}</li>)}</ul>
                             </div>
                             <div>
-                              <span className="text-emerald-400 font-medium text-[10px] uppercase">Desejos</span>
+                              <span className="text-[#E6B447] font-medium text-[10px] uppercase">Desejos</span>
                               <ul className="list-disc ml-4 mt-1 space-y-0.5">{persona.desires.map((d, i) => <li key={i}>{d}</li>)}</ul>
                             </div>
                             <div>
@@ -574,7 +574,7 @@ export default function ResearchPage() {
                           <div className={cn(
                             'max-w-[80%] rounded-xl px-3 py-2 text-xs',
                             msg.role === 'user'
-                              ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-100'
+                              ? 'bg-[#E6B447]/10 border border-[#E6B447]/20 text-[#F0C35C]/20'
                               : 'bg-zinc-800/60 border border-zinc-700 text-zinc-300'
                           )}>
                             <div className="whitespace-pre-wrap">{msg.content}</div>
@@ -599,7 +599,7 @@ export default function ResearchPage() {
                       onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendChat(); } }}
                       className="bg-zinc-800/50 border-zinc-700"
                     />
-                    <Button onClick={handleSendChat} disabled={chatLoading || !chatInput.trim()} className="bg-emerald-600 hover:bg-emerald-500">
+                    <Button onClick={handleSendChat} disabled={chatLoading || !chatInput.trim()} className="bg-[#AB8648] hover:bg-[#E6B447]">
                       <Send className="h-4 w-4" />
                     </Button>
                   </div>

@@ -30,8 +30,8 @@ export function GuidedEmptyState({
       animate={{ opacity: 1, y: 0 }}
       className="card-premium p-10 text-center"
     >
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 mb-5">
-        <Icon className="h-8 w-8 text-emerald-400" />
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#E6B447]/10 mb-5">
+        <Icon className="h-8 w-8 text-[#E6B447]" />
       </div>
 
       <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
@@ -47,7 +47,7 @@ export function GuidedEmptyState({
               transition={{ delay: 0.2 + i * 0.1 }}
               className="flex items-start gap-2 text-left"
             >
-              <span className="text-emerald-500 mt-0.5 text-xs">•</span>
+              <span className="text-[#E6B447] mt-0.5 text-xs">•</span>
               <span className="text-xs text-zinc-500">{tip}</span>
             </motion.div>
           ))}
@@ -56,7 +56,7 @@ export function GuidedEmptyState({
 
       <div className="flex items-center justify-center gap-3">
         <Link href={ctaHref}>
-          <Button className="bg-emerald-600 hover:bg-emerald-700">
+          <Button className="bg-[#AB8648] hover:bg-[#895F29]">
             <Icon className="mr-2 h-4 w-4" />
             {ctaLabel}
           </Button>

@@ -80,7 +80,7 @@ export function WarRoomDashboard({ blended, platforms, loading }: WarRoomDashboa
                     <td className="p-4 align-middle text-right font-black text-white">{p.roas.toFixed(2)}x</td>
                     <td className="p-4 align-middle text-right text-zinc-300">{p.cac.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                     <td className="p-4 align-middle text-right">
-                      <Badge variant={p.roas >= blended.roas ? "default" : "secondary"} className={`text-[10px] font-bold uppercase ${p.roas >= blended.roas ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-zinc-800 text-zinc-500 border-zinc-700'}`}>
+                      <Badge variant={p.roas >= blended.roas ? "default" : "secondary"} className={`text-[10px] font-bold uppercase ${p.roas >= blended.roas ? 'bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/20' : 'bg-zinc-800 text-zinc-500 border-zinc-700'}`}>
                         {p.roas >= blended.roas ? "Outperforming" : "Under"}
                       </Badge>
                     </td>
@@ -128,7 +128,7 @@ function MetricCard({
         <div className="flex items-baseline justify-between mt-2">
           <div className="text-3xl font-black text-white tracking-tighter">{value}{suffix}</div>
           {showTrend && (
-            <div className={`flex items-center text-[10px] font-black px-2 py-0.5 rounded-full ${isGoodTrend ? 'text-emerald-500 bg-emerald-500/10' : 'text-rose-500 bg-rose-500/10'}`}>
+            <div className={`flex items-center text-[10px] font-black px-2 py-0.5 rounded-full ${isGoodTrend ? 'text-[#E6B447] bg-[#E6B447]/10' : 'text-rose-500 bg-rose-500/10'}`}>
               {isPositive ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
               {Math.abs(trend)}%
             </div>

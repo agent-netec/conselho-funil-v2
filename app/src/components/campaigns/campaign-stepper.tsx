@@ -38,15 +38,15 @@ export function CampaignStepper({ currentStageId, completedStages }: CampaignSte
                   initial={false}
                   animate={{
                     backgroundColor: isCompleted 
-                      ? 'rgb(16, 185, 129)' 
+                      ? 'rgb(230, 180, 71)' 
                       : isActive 
-                        ? 'rgba(16, 185, 129, 0.2)' 
+                        ? 'rgba(230, 180, 71, 0.2)' 
                         : 'rgba(255, 255, 255, 0.04)',
-                    borderColor: isCompleted || isActive ? 'rgb(16, 185, 129)' : 'rgba(255, 255, 255, 0.1)',
+                    borderColor: isCompleted || isActive ? 'rgb(230, 180, 71)' : 'rgba(255, 255, 255, 0.1)',
                   }}
                   className={cn(
                     'flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl border-2 transition-all shadow-lg',
-                    isCompleted ? 'text-white' : isActive ? 'text-emerald-400' : 'text-zinc-600'
+                    isCompleted ? 'text-white' : isActive ? 'text-[#E6B447]' : 'text-zinc-600'
                   )}
                 >
                   {isCompleted ? (
@@ -63,7 +63,7 @@ export function CampaignStepper({ currentStageId, completedStages }: CampaignSte
                 )}>
                   <span className={cn(
                     "text-[8px] sm:text-xs font-bold uppercase tracking-wider whitespace-nowrap",
-                    isActive ? "text-emerald-400" : "text-zinc-500"
+                    isActive ? "text-[#E6B447]" : "text-zinc-500"
                   )}>
                     {stage.title}
                   </span>
@@ -75,7 +75,7 @@ export function CampaignStepper({ currentStageId, completedStages }: CampaignSte
                   <motion.div
                     initial={{ width: '0%' }}
                     animate={{ width: isCompleted ? '100%' : '0%' }}
-                    className="absolute inset-0 bg-emerald-500"
+                    className="absolute inset-0 bg-[#E6B447]"
                     transition={{ duration: 0.5 }}
                   />
                 </div>

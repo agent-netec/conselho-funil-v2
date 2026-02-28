@@ -82,7 +82,7 @@ export function ContextIndicator() {
               className="flex items-center gap-2 text-xs py-2.5"
               onClick={() => setScope({ level: 'brand', brandId: currentScope.brandId }, { brand: names.brand })}
             >
-              <Building2 className="h-3.5 w-3.5 text-emerald-400" />
+              <Building2 className="h-3.5 w-3.5 text-[#E6B447]" />
               <span>Focar na Marca: {names.brand}</span>
             </DropdownMenuItem>
           )}

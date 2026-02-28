@@ -61,7 +61,7 @@ export function UnifiedCrossChannelDashboard({ metrics, insights, loading }: Uni
         <MetricCard
           title="Total Spend"
           value={metrics.totals.spend.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-          icon={<DollarSign className="w-4 h-4 text-emerald-500" />}
+          icon={<DollarSign className="w-4 h-4 text-[#E6B447]" />}
         />
         <MetricCard
           title="Blended CPA"
@@ -80,7 +80,7 @@ export function UnifiedCrossChannelDashboard({ metrics, insights, loading }: Uni
         <Card className="card-premium border-white/5">
           <CardHeader>
             <CardTitle className="text-lg font-bold flex items-center gap-2">
-              <PieChart className="w-5 h-5 text-emerald-400" />
+              <PieChart className="w-5 h-5 text-[#E6B447]" />
               Mix de Canais (Spend Share)
             </CardTitle>
             <CardDescription>Distribuição de investimento por plataforma</CardDescription>
@@ -144,19 +144,19 @@ export function UnifiedCrossChannelDashboard({ metrics, insights, loading }: Uni
 
       {/* Optimization Insights Feed */}
       <Card className="card-premium border-white/5 overflow-hidden">
-        <CardHeader className="bg-emerald-500/5 border-b border-white/5">
-          <CardTitle className="text-lg font-bold flex items-center gap-2 text-emerald-400">
+        <CardHeader className="bg-[#E6B447]/5 border-b border-white/5">
+          <CardTitle className="text-lg font-bold flex items-center gap-2 text-[#E6B447]">
             <Zap className="w-5 h-5" />
             Insights de Otimização (AI)
           </CardTitle>
-          <CardDescription className="text-emerald-400/60">Recomendações baseadas em ROI marginal e performance cross-channel</CardDescription>
+          <CardDescription className="text-[#E6B447]/60">Recomendações baseadas em ROI marginal e performance cross-channel</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="divide-y divide-white/5">
             {insights.map((insight) => (
               <div key={insight.id} className="p-4 hover:bg-white/[0.02] transition-colors flex items-start gap-4">
                 <div className={`p-2 rounded-lg ${
-                  insight.type === 'channel_scale' ? 'bg-emerald-500/10 text-emerald-400' : 
+                  insight.type === 'channel_scale' ? 'bg-[#E6B447]/10 text-[#E6B447]' : 
                   insight.type === 'budget_reallocation' ? 'bg-blue-500/10 text-blue-400' : 
                   'bg-orange-500/10 text-orange-400'
                 }`}>
@@ -173,7 +173,7 @@ export function UnifiedCrossChannelDashboard({ metrics, insights, loading }: Uni
                   </div>
                   <p className="text-sm text-zinc-400 leading-relaxed">{insight.reasoning}</p>
                   <div className="flex items-center gap-4 pt-2">
-                    <div className="text-xs font-medium text-emerald-400">
+                    <div className="text-xs font-medium text-[#E6B447]">
                       Impacto: +{(insight.impact.suggestedChange * 100).toFixed(0)}% Budget
                     </div>
                     <div className="text-xs font-medium text-blue-400">
@@ -218,7 +218,7 @@ function MetricCard({
         <div className="flex items-baseline justify-between">
           <div className="text-2xl font-black text-white font-mono">{value}</div>
           {trend !== undefined && (
-            <div className={`flex items-center text-xs font-bold ${isGoodTrend ? 'text-emerald-400' : 'text-rose-400'}`}>
+            <div className={`flex items-center text-xs font-bold ${isGoodTrend ? 'text-[#E6B447]' : 'text-rose-400'}`}>
               {isPositive ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
               {Math.abs(trend)}%
             </div>

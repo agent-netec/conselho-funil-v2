@@ -75,13 +75,13 @@ function VersionCard({
       className={cn(
         'flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all',
         'hover:bg-white/[0.04]',
-        isLatest ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-white/[0.02]'
+        isLatest ? 'bg-[#E6B447]/10 border border-[#E6B447]/30' : 'bg-white/[0.02]'
       )}
       onClick={onSelect}
     >
       <div className={cn(
         'flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold',
-        isLatest ? 'bg-emerald-500 text-white' : 'bg-zinc-700 text-zinc-300'
+        isLatest ? 'bg-[#E6B447] text-white' : 'bg-zinc-700 text-zinc-300'
       )}>
         v{proposal.version || 1}
       </div>
@@ -92,7 +92,7 @@ function VersionCard({
             {proposal.name}
           </span>
           {isLatest && (
-            <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded">
+            <span className="text-[10px] px-1.5 py-0.5 bg-[#E6B447]/20 text-[#E6B447] rounded">
               ATUAL
             </span>
           )}
@@ -113,7 +113,7 @@ function VersionCard({
       
       <div className={cn(
         'text-sm font-semibold',
-        score >= 7.5 ? 'text-emerald-400' :
+        score >= 7.5 ? 'text-[#E6B447]' :
         score >= 6 ? 'text-amber-400' : 'text-red-400'
       )}>
         {score.toFixed(1)}
@@ -153,13 +153,13 @@ function ProposalGroupCard({
           {/* Score Circle */}
           <div className={cn(
             'flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl',
-            score >= 7.5 ? 'bg-emerald-500/10' :
+            score >= 7.5 ? 'bg-[#E6B447]/10' :
             score >= 6 ? 'bg-amber-500/10' : 'bg-red-500/10'
           )}>
             <div className="text-center">
               <div className={cn(
                 'text-xl font-bold',
-                score >= 7.5 ? 'text-emerald-400' :
+                score >= 7.5 ? 'text-[#E6B447]' :
                 score >= 6 ? 'text-amber-400' : 'text-red-400'
               )}>
                 {score.toFixed(1)}
@@ -189,7 +189,7 @@ function ProposalGroupCard({
             {/* Status badges */}
             <div className="flex items-center gap-2 mt-2">
               {latestVersion.status === 'selected' && (
-                <span className="flex items-center gap-1 text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+                <span className="flex items-center gap-1 text-xs text-[#E6B447] bg-[#E6B447]/10 px-2 py-0.5 rounded">
                   <CheckCircle2 className="h-3 w-3" />
                   Selecionada
                 </span>

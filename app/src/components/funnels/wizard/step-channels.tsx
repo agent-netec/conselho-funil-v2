@@ -50,7 +50,7 @@ export function StepChannels({ formData, onUpdate }: StepChannelsProps) {
               className={cn(
                 'flex flex-col items-center gap-2 rounded-xl border p-4 transition-all',
                 formData.primaryChannel === channel.id
-                  ? 'border-emerald-500/50 bg-emerald-500/5'
+                  ? 'border-[#E6B447]/50 bg-[#E6B447]/5'
                   : 'border-white/[0.06] hover:border-white/[0.1] hover:bg-white/[0.02]'
               )}
             >
@@ -85,7 +85,7 @@ export function StepChannels({ formData, onUpdate }: StepChannelsProps) {
               className={cn(
                 'flex flex-col items-center gap-2 rounded-xl border p-4 transition-all',
                 formData.secondaryChannel === channel.id
-                  ? 'border-emerald-500/50 bg-emerald-500/5'
+                  ? 'border-[#E6B447]/50 bg-[#E6B447]/5'
                   : 'border-white/[0.06] hover:border-white/[0.1] hover:bg-white/[0.02]'
               )}
             >

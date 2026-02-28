@@ -13,8 +13,8 @@ const ACTIONS = [
     title: 'Criar sua marca',
     desc: 'Configure o contexto da sua marca para personalizar todos os conselhos.',
     href: '/brands/new',
-    color: 'emerald',
-    gradient: 'from-emerald-500/20 to-emerald-600/10',
+    color: 'gold',
+    gradient: 'from-[#E6B447]/20 to-[#AB8648]/10',
   },
   {
     icon: MessageSquare,
@@ -35,7 +35,7 @@ const ACTIONS = [
 ];
 
 const COLOR_MAP: Record<string, string> = {
-  emerald: 'text-emerald-400',
+  gold: 'text-[#E6B447]',
   blue: 'text-blue-400',
   purple: 'text-purple-400',
 };
@@ -62,7 +62,7 @@ export default function WelcomePage() {
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
       {/* Background effects */}
       <div className="fixed inset-0 bg-dot-pattern opacity-20 pointer-events-none" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(16,185,129,0.12),transparent)] pointer-events-none" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(230,180,71,0.12),transparent)] pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -76,7 +76,7 @@ export default function WelcomePage() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-xl shadow-emerald-500/20"
+            className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-xl shadow-[#E6B447]/20"
           >
             <svg
               viewBox="0 0 24 24"
@@ -93,7 +93,7 @@ export default function WelcomePage() {
 
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">
-              Bem-vindo ao <span className="text-emerald-400">MKTHONEY</span>
+              Bem-vindo ao <span className="text-[#E6B447]">MKTHONEY</span>
             </h1>
             <p className="text-zinc-400 max-w-md mx-auto">
               Sua plataforma de marketing com IA. 23 especialistas prontos para criar estrategias
@@ -122,12 +122,12 @@ export default function WelcomePage() {
                   <action.icon className={`h-6 w-6 ${COLOR_MAP[action.color]}`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">
+                  <h3 className="text-sm font-semibold text-white group-hover:text-[#E6B447] transition-colors">
                     {action.title}
                   </h3>
                   <p className="text-xs text-zinc-500 mt-0.5">{action.desc}</p>
                 </div>
-                <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-emerald-400 transition-all group-hover:translate-x-1" />
+                <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-[#E6B447] transition-all group-hover:translate-x-1" />
               </motion.button>
             ))}
           </div>

@@ -18,7 +18,7 @@ const DIMENSION_LABELS: Record<string, string> = {
 /** Retorna classes Tailwind para cor da barra baseada no score */
 function getBarColor(score: number): string {
   if (score >= 90) return 'bg-yellow-400';
-  if (score >= 75) return 'bg-emerald-400';
+  if (score >= 75) return 'bg-[#E6B447]';
   if (score >= 60) return 'bg-blue-400';
   if (score >= 45) return 'bg-orange-400';
   if (score >= 30) return 'bg-red-400';

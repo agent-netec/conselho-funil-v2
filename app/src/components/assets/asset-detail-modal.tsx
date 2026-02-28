@@ -97,7 +97,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
     { label: 'Psicologia de Cores', value: heuristics.colorPsychology !== null ? `${heuristics.colorPsychology}%` : 'Sem dados', icon: Palette, color: 'text-purple-400' },
     { label: 'Legibilidade', value: heuristics.legibility !== null ? `${heuristics.legibility}%` : 'Sem dados', icon: Eye, color: 'text-blue-400' },
     { label: 'Hook Visual', value: heuristics.visualHooks || 'Sem dados', icon: Zap, color: 'text-amber-400' },
-    { label: 'Score Geral', value: asset.score > 0 ? `${asset.score}/100` : 'N/A', icon: Target, color: 'text-emerald-400' },
+    { label: 'Score Geral', value: asset.score > 0 ? `${asset.score}/100` : 'N/A', icon: Target, color: 'text-[#E6B447]' },
   ] : [];
 
   return (
@@ -111,7 +111,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
         </DialogDescription>
         <div className="relative">
           {/* Header Visual */}
-          <div className="h-32 w-full bg-gradient-to-br from-purple-500/20 via-emerald-500/10 to-zinc-950 border-b border-white/[0.05]" />
+          <div className="h-32 w-full bg-gradient-to-br from-purple-500/20 via-[#E6B447]/10 to-zinc-950 border-b border-white/[0.05]" />
 
           <div className="px-6 pb-6 -mt-12 relative z-10">
             <div className="flex flex-col md:flex-row gap-6">
@@ -160,7 +160,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
                     {asset.name || asset.assetType}
                   </h2>
                   <p className="text-sm text-zinc-400 mt-1 font-medium">
-                    {asset.assetType} • Score de Performance: <span className={asset.score > 0 ? "text-emerald-400" : "text-zinc-500"}>{asset.score > 0 ? asset.score : 'N/A'}</span>
+                    {asset.assetType} • Score de Performance: <span className={asset.score > 0 ? "text-[#E6B447]" : "text-zinc-500"}>{asset.score > 0 ? asset.score : 'N/A'}</span>
                   </p>
                 </div>
 
@@ -206,10 +206,10 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
                 )}
 
                 {/* Métricas de Conversão */}
-                <div className="p-4 rounded-xl bg-emerald-500/[0.03] border border-emerald-500/10">
+                <div className="p-4 rounded-xl bg-[#E6B447]/[0.03] border border-[#E6B447]/10">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Métricas de Campanha</span>
-                    <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    <span className="text-[10px] font-black text-[#E6B447] uppercase tracking-widest">Métricas de Campanha</span>
+                    <TrendingUp className="h-4 w-4 text-[#E6B447]" />
                   </div>
                   <div className="flex justify-between">
                     <div>
@@ -250,7 +250,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
                       canAnalyze ? "flex-1" : "flex-1"
                     )}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#E6B447] to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity" />
                     <MessageSquare className="h-4 w-4" />
                     Consultar Conselho
                     <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

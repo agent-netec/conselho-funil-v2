@@ -56,7 +56,7 @@ const ALL_COUNSELORS: Record<string, Counselor> = {
   // Heuristics mapping
   copy_consciencia: { name: 'Eugene Schwartz', icon: '🎯', color: '#6366f1', expertise: 'Consciência de Mercado', council: 'copy' },
   copy_headline: { name: 'Gary Halbert', icon: '⚡', color: '#f59e0b', expertise: 'Headlines', council: 'copy' },
-  copy_oferta: { name: 'Dan Kennedy', icon: '💰', color: '#10b981', expertise: 'Oferta & Urgência', council: 'copy' },
+  copy_oferta: { name: 'Dan Kennedy', icon: '💰', color: '#E6B447', expertise: 'Oferta & Urgência', council: 'copy' },
   copy_fluxo: { name: 'John Carlton', icon: '🎤', color: '#ec4899', expertise: 'Fluxo Natural', council: 'copy' },
   copy_premium: { name: 'David Ogilvy', icon: '👔', color: '#64748b', expertise: 'Brand Premium', council: 'copy' },
 };
@@ -178,13 +178,13 @@ function SourcePopover({ source }: { source: Source }) {
             "inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] transition-all",
             "bg-zinc-800/50 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200",
             "border border-transparent",
-            isBrandAsset && "border-emerald-500/30 bg-emerald-500/5 text-emerald-400/90 hover:bg-emerald-500/10"
+            isBrandAsset && "border-[#E6B447]/30 bg-[#E6B447]/5 text-[#E6B447]/90 hover:bg-[#E6B447]/10"
           )}
         >
           <FileText className="size-3" />
           {fileName}
           {score > 0 && (
-            <span className={cn("text-[9px] opacity-60 ml-0.5", isBrandAsset ? "text-emerald-500" : "text-zinc-500")}>
+            <span className={cn("text-[9px] opacity-60 ml-0.5", isBrandAsset ? "text-[#E6B447]" : "text-zinc-500")}>
               {scorePercentage}%
             </span>
           )}
@@ -199,7 +199,7 @@ function SourcePopover({ source }: { source: Source }) {
           <div className="flex items-center gap-2">
             <div className={cn(
               "p-1.5 rounded",
-              isBrandAsset ? "bg-emerald-500/10 text-emerald-500" : "bg-zinc-800 text-zinc-400"
+              isBrandAsset ? "bg-[#E6B447]/10 text-[#E6B447]" : "bg-zinc-800 text-zinc-400"
             )}>
               <FileText className="size-3.5" />
             </div>
@@ -244,7 +244,7 @@ function SourcePopover({ source }: { source: Source }) {
               </div>
               <span className={cn(
                 "font-mono font-medium",
-                score > 0.8 ? "text-emerald-500" : "text-zinc-400"
+                score > 0.8 ? "text-[#E6B447]" : "text-zinc-400"
               )}>
                 {scorePercentage}%
               </span>
@@ -253,7 +253,7 @@ function SourcePopover({ source }: { source: Source }) {
               value={scorePercentage} 
               className="h-1 bg-zinc-800"
               indicatorClassName={cn(
-                score > 0.8 ? "bg-emerald-500" : "bg-zinc-500"
+                score > 0.8 ? "bg-[#E6B447]" : "bg-zinc-500"
               )}
             />
           </div>

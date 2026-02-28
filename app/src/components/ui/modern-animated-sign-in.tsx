@@ -50,7 +50,7 @@ const Input = memo(
           background: useMotionTemplate`
         radial-gradient(
           ${visible ? radius + 'px' : '0px'} circle at ${mouseX}px ${mouseY}px,
-          rgba(16, 185, 129, 0.4),
+          rgba(230, 180, 71, 0.4),
           transparent 80%
         )
       `,
@@ -150,7 +150,7 @@ const BoxReveal = memo(function BoxReveal({
           left: 0,
           right: 0,
           zIndex: 20,
-          background: boxColor ?? 'rgb(16, 185, 129)',
+          background: boxColor ?? 'rgb(230, 180, 71)',
           borderRadius: 4,
         }}
       />
@@ -522,7 +522,7 @@ const AnimatedForm = memo(function AnimatedForm({
             <p className='text-red-500 text-sm mb-4'>{errorField}</p>
           )}
           {successField && (
-            <p className='text-emerald-400 text-sm mb-4'>{successField}</p>
+            <p className='text-[#E6B447] text-sm mb-4'>{successField}</p>
           )}
         </BoxReveal>
 
@@ -531,7 +531,7 @@ const AnimatedForm = memo(function AnimatedForm({
           <div className='mb-3 text-right'>
             <button
               type='button'
-              className='text-xs text-zinc-400 hover:text-emerald-400 transition-colors outline-none'
+              className='text-xs text-zinc-400 hover:text-[#E6B447] transition-colors outline-none'
               onClick={onSecondaryLink}
             >
               {secondaryLinkText}
@@ -561,7 +561,7 @@ const AnimatedForm = memo(function AnimatedForm({
           <BoxReveal boxColor='var(--skeleton)' duration={0.3}>
             <section className='mt-4 text-center hover:cursor-pointer'>
               <button
-                className='text-sm text-emerald-400 hover:text-emerald-300 font-medium hover:cursor-pointer outline-none transition-colors'
+                className='text-sm text-[#E6B447] hover:text-[#E6B447]/60 font-medium hover:cursor-pointer outline-none transition-colors'
                 onClick={goTo as any}
               >
                 {textVariantButton}
@@ -577,8 +577,8 @@ const AnimatedForm = memo(function AnimatedForm({
 const BottomGradient = () => {
   return (
     <>
-      <span className='group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-emerald-500 to-transparent' />
-      <span className='group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-emerald-400 to-transparent' />
+      <span className='group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-[#E6B447] to-transparent' />
+      <span className='group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-[#E6B447] to-transparent' />
     </>
   );
 };

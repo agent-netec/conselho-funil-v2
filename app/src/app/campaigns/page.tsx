@@ -198,14 +198,14 @@ export default function CampaignsPage() {
                           <div className={cn(
                             "flex h-10 w-10 items-center justify-center rounded-xl border transition-colors",
                             isComplete
-                              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                              ? "bg-[#E6B447]/10 border-[#E6B447]/20 text-[#E6B447]"
                               : "bg-amber-500/10 border-amber-500/20 text-amber-400 group-hover:bg-amber-500/20"
                           )}>
                             {isComplete ? <CheckCircle2 className="h-5 w-5" /> : <Zap className="h-5 w-5" />}
                           </div>
                           <div className={cn(
                             "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/[0.02]",
-                            isComplete ? "bg-emerald-500/10 text-emerald-400" :
+                            isComplete ? "bg-[#E6B447]/10 text-[#E6B447]" :
                             campaign.status === 'active' ? "bg-amber-500/10 text-amber-400" :
                             "bg-zinc-800 text-zinc-500"
                           )}>
@@ -227,7 +227,7 @@ export default function CampaignsPage() {
                           <div className="flex items-center justify-between text-[10px] uppercase font-bold tracking-wider">
                             <span className="text-zinc-500">Congruência Estratégica</span>
                             <span className={cn(
-                              isComplete ? "text-emerald-400" : congruence >= 60 ? "text-amber-400" : "text-orange-400"
+                              isComplete ? "text-[#E6B447]" : congruence >= 60 ? "text-amber-400" : "text-orange-400"
                             )}>{congruence}%</span>
                           </div>
                           <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden">
@@ -235,7 +235,7 @@ export default function CampaignsPage() {
                               className={cn(
                                 "h-full rounded-full transition-all duration-500",
                                 isComplete
-                                  ? "bg-gradient-to-r from-emerald-600 to-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                                  ? "bg-gradient-to-r from-[#AB8648] to-[#E6B447] shadow-[0_0_10px_rgba(230,180,71,0.3)]"
                                   : "bg-gradient-to-r from-amber-600 to-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.3)]"
                               )}
                               style={{ width: `${congruence}%` }}
@@ -251,13 +251,13 @@ export default function CampaignsPage() {
                                     title={`${stage.label}: ${stage.done ? 'Completo' : 'Pendente'}`}
                                     className={cn(
                                       "h-6 w-6 rounded-full border-2 border-zinc-950 flex items-center justify-center",
-                                      stage.done ? "bg-emerald-500/20" : "bg-zinc-800"
+                                      stage.done ? "bg-[#E6B447]/20" : "bg-zinc-800"
                                     )}
                                   >
                                     <div className={cn(
                                       "h-1.5 w-1.5 rounded-full",
                                       stage.done
-                                        ? "bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]"
+                                        ? "bg-[#E6B447] shadow-[0_0_5px_rgba(230,180,71,0.5)]"
                                         : "bg-zinc-600"
                                     )} />
                                   </div>

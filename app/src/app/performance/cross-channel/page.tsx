@@ -104,15 +104,15 @@ export default function CrossChannelWarRoomPage() {
       <div className="flex items-center justify-between p-4 rounded-xl bg-zinc-900/50 border border-white/5">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${error ? 'bg-red-500' : 'bg-emerald-500'}`} />
+            <div className={`w-2 h-2 rounded-full ${error ? 'bg-red-500' : 'bg-[#E6B447]'}`} />
             <span className="text-xs text-zinc-500">Data Sync: {error ? 'Error' : 'OK'}</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500" />
+            <div className="w-2 h-2 rounded-full bg-[#E6B447]" />
             <span className="text-xs text-zinc-500">Attribution Bridge: Active</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${loading ? 'bg-purple-500 animate-pulse' : 'bg-emerald-500'}`} />
+            <div className={`w-2 h-2 rounded-full ${loading ? 'bg-purple-500 animate-pulse' : 'bg-[#E6B447]'}`} />
             <span className="text-xs text-zinc-500">AI Optimizer: {loading ? 'Processing' : 'Ready'}</span>
           </div>
         </div>

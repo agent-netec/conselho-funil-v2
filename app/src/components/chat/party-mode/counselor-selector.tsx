@@ -116,7 +116,7 @@ export function CounselorSelector({
             className={cn(
               "flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black transition-all",
               intensity === 'consensus'
-                ? "bg-emerald-500 text-white shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                ? "bg-[#E6B447] text-white shadow-[0_0_10px_rgba(230,180,71,0.3)]"
                 : "text-zinc-500 hover:text-zinc-300"
             )}
           >
@@ -266,7 +266,7 @@ export function CounselorSelector({
                       }}
                     >
                       <span>{counselor.icon}</span>
-                      <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-zinc-950" />
+                      <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[#E6B447] border-2 border-zinc-950" />
                     </motion.div>
                   );
                 })}
@@ -280,7 +280,7 @@ export function CounselorSelector({
             <div className="flex flex-col">
               <span className={cn(
                 "text-[10px] font-black uppercase tracking-[0.2em] transition-colors",
-                selectedIds.length === 3 ? "text-emerald-400" : "text-zinc-500"
+                selectedIds.length === 3 ? "text-[#E6B447]" : "text-zinc-500"
               )}>
                 {selectedIds.length === 3 ? "Mesa Pronta" : "Convocando..."}
               </span>
@@ -313,7 +313,7 @@ export function CounselorSelector({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onConfirm}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:bg-emerald-400 transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#E6B447] text-white text-[10px] font-black uppercase tracking-wider shadow-[0_0_20px_rgba(230,180,71,0.4)] hover:bg-[#E6B447] transition-all"
               >
                 <MessageSquare className="h-3.5 w-3.5" />
                 Iniciar {intensity === 'debate' ? 'Debate' : 'Consenso'}

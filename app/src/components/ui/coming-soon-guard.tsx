@@ -57,11 +57,11 @@ export function ComingSoonGuard({
           {/* Icon */}
           <div className="relative mb-6">
             <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-zinc-900 border border-white/[0.06]">
-              <Lock className="h-8 w-8 text-emerald-500" />
+              <Lock className="h-8 w-8 text-[#E6B447]" />
             </div>
             {/* Sparkle decoration */}
-            <div className="absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              <Sparkles className="h-4 w-4 text-emerald-400" />
+            <div className="absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#E6B447]/10 border border-[#E6B447]/20">
+              <Sparkles className="h-4 w-4 text-[#E6B447]" />
             </div>
           </div>
 
@@ -69,7 +69,7 @@ export function ComingSoonGuard({
           <h2 className="text-2xl font-bold text-white mb-2">Em Breve</h2>
 
           {/* Feature name */}
-          <p className="text-lg text-emerald-400 font-semibold mb-3">{feature}</p>
+          <p className="text-lg text-[#E6B447] font-semibold mb-3">{feature}</p>
 
           {/* Description */}
           {description && (
@@ -90,7 +90,7 @@ export function ComingSoonGuard({
           <div className="mt-6 w-48">
             <div className="h-1 rounded-full bg-zinc-800 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full animate-pulse"
+                className="h-full bg-gradient-to-r from-[#E6B447] to-[#E6B447] rounded-full animate-pulse"
                 style={{ width: '30%' }}
               />
             </div>
@@ -132,10 +132,10 @@ export function ComingSoonPage({
         {/* Icon */}
         <div className="relative mb-8">
           <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-zinc-900 border border-white/[0.06]">
-            <Lock className="h-10 w-10 text-emerald-500" />
+            <Lock className="h-10 w-10 text-[#E6B447]" />
           </div>
-          <div className="absolute -top-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20">
-            <Sparkles className="h-5 w-5 text-emerald-400" />
+          <div className="absolute -top-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full bg-[#E6B447]/10 border border-[#E6B447]/20">
+            <Sparkles className="h-5 w-5 text-[#E6B447]" />
           </div>
         </div>
 
@@ -143,7 +143,7 @@ export function ComingSoonPage({
         <h1 className="text-3xl font-bold text-white mb-3">Em Breve</h1>
 
         {/* Feature name */}
-        <p className="text-xl text-emerald-400 font-semibold mb-4">{feature}</p>
+        <p className="text-xl text-[#E6B447] font-semibold mb-4">{feature}</p>
 
         {/* Description */}
         {description && (
@@ -166,7 +166,7 @@ export function ComingSoonPage({
         <div className="mt-8 w-64">
           <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full animate-pulse"
+              className="h-full bg-gradient-to-r from-[#E6B447] to-[#E6B447] rounded-full animate-pulse"
               style={{ width: '30%' }}
             />
           </div>

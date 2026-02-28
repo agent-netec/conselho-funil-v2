@@ -48,8 +48,8 @@ export function CookieBanner() {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                   {/* Icon & Text */}
                   <div className="flex items-start gap-4 flex-1">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 flex-shrink-0">
-                      <Cookie className="h-6 w-6 text-emerald-400" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E6B447]/10 flex-shrink-0">
+                      <Cookie className="h-6 w-6 text-[#E6B447]" />
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-white mb-1">
@@ -59,7 +59,7 @@ export function CookieBanner() {
                         Usamos cookies para melhorar sua experiencia. Cookies essenciais sao
                         necessarios para o funcionamento do site. Voce pode personalizar suas
                         preferencias ou aceitar todos.{' '}
-                        <Link href="/cookies" className="text-emerald-400 hover:underline">
+                        <Link href="/cookies" className="text-[#E6B447] hover:underline">
                           Saiba mais
                         </Link>
                       </p>
@@ -83,7 +83,7 @@ export function CookieBanner() {
                     </button>
                     <button
                       onClick={acceptAll}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors text-sm"
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#E6B447] text-white font-medium hover:bg-[#E6B447] transition-colors text-sm"
                     >
                       <Check className="h-4 w-4" />
                       Aceitar todos
@@ -104,8 +104,8 @@ export function CookieBanner() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
-                      <Settings className="h-5 w-5 text-emerald-400" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6B447]/10">
+                      <Settings className="h-5 w-5 text-[#E6B447]" />
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-white">Preferencias de Cookies</h3>
@@ -136,8 +136,8 @@ export function CookieBanner() {
                   {/* Analytics */}
                   <CookieCategory
                     icon={<ChartBar className="h-4 w-4" />}
-                    iconColor="text-emerald-400"
-                    iconBg="bg-emerald-500/10"
+                    iconColor="text-[#E6B447]"
+                    iconBg="bg-[#E6B447]/10"
                     title="Analiticos"
                     description="Nos ajudam a entender como voce usa o site para melhorar a experiencia."
                     checked={analyticsEnabled}
@@ -160,7 +160,7 @@ export function CookieBanner() {
                 <div className="flex items-center justify-between pt-4 border-t border-white/[0.06]">
                   <Link
                     href="/cookies"
-                    className="text-xs text-zinc-500 hover:text-emerald-400 transition-colors"
+                    className="text-xs text-zinc-500 hover:text-[#E6B447] transition-colors"
                   >
                     Ver politica completa
                   </Link>
@@ -173,7 +173,7 @@ export function CookieBanner() {
                     </button>
                     <button
                       onClick={handleSaveCustom}
-                      className="flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors text-sm"
+                      className="flex items-center gap-2 px-5 py-2 rounded-lg bg-[#E6B447] text-white font-medium hover:bg-[#E6B447] transition-colors text-sm"
                     >
                       <Check className="h-4 w-4" />
                       Salvar preferencias
@@ -244,7 +244,7 @@ function CookieCategory({
             disabled
               ? 'bg-zinc-700 cursor-not-allowed'
               : checked
-                ? 'bg-emerald-500 cursor-pointer'
+                ? 'bg-[#E6B447] cursor-pointer'
                 : 'bg-zinc-700 cursor-pointer'
           )}
         />

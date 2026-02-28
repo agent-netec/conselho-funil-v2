@@ -12,7 +12,7 @@ interface VerdictCardProps {
 function ScoreBar({ value, label }: { value: number; label: string }) {
   // Color based on score
   const getColor = (score: number) => {
-    if (score >= 8) return { bar: 'bg-emerald-500', text: 'text-emerald-400' };
+    if (score >= 8) return { bar: 'bg-[#E6B447]', text: 'text-[#E6B447]' };
     if (score >= 5) return { bar: 'bg-yellow-500', text: 'text-yellow-400' };
     return { bar: 'bg-red-500', text: 'text-red-400' };
   };
@@ -44,12 +44,12 @@ export function VerdictCard({ data, onFollowUpClick }: VerdictCardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="w-full rounded-2xl bg-zinc-900 border border-emerald-500/20 border-l-4 border-l-emerald-500 p-6 shadow-lg"
+      className="w-full rounded-2xl bg-zinc-900 border border-[#E6B447]/20 border-l-4 border-l-[#E6B447] p-6 shadow-lg"
     >
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20">
-          <Target className="h-5 w-5 text-emerald-400" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E6B447]/20">
+          <Target className="h-5 w-5 text-[#E6B447]" />
         </div>
         <div>
           <h3 className="text-lg font-bold text-white">
@@ -84,7 +84,7 @@ export function VerdictCard({ data, onFollowUpClick }: VerdictCardProps) {
       {/* Analysis */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-3">
-          <TrendingUp className="h-4 w-4 text-emerald-400" />
+          <TrendingUp className="h-4 w-4 text-[#E6B447]" />
           <h4 className="text-sm font-semibold text-white">Pontos Fortes</h4>
         </div>
         <ul className="space-y-2 pl-1">
@@ -96,7 +96,7 @@ export function VerdictCard({ data, onFollowUpClick }: VerdictCardProps) {
               transition={{ delay: 0.5 + index * 0.1 }}
               className="flex items-start gap-2 text-sm text-zinc-300"
             >
-              <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+              <CheckCircle2 className="h-4 w-4 text-[#E6B447] mt-0.5 flex-shrink-0" />
               <span>{strength}</span>
             </motion.li>
           ))}
@@ -153,11 +153,11 @@ export function VerdictCard({ data, onFollowUpClick }: VerdictCardProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2 }}
-        className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-emerald-500/20"
+        className="p-4 rounded-xl bg-gradient-to-r from-[#E6B447]/10 to-blue-500/10 border border-[#E6B447]/20"
       >
         <div className="flex items-center gap-2 mb-2">
-          <MessageCircle className="h-4 w-4 text-emerald-400" />
-          <span className="text-xs font-medium text-emerald-400 uppercase tracking-wider">
+          <MessageCircle className="h-4 w-4 text-[#E6B447]" />
+          <span className="text-xs font-medium text-[#E6B447] uppercase tracking-wider">
             Continue a conversa
           </span>
         </div>
@@ -167,7 +167,7 @@ export function VerdictCard({ data, onFollowUpClick }: VerdictCardProps) {
         {onFollowUpClick && (
           <button
             onClick={() => onFollowUpClick(data.followUpQuestion)}
-            className="text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors"
+            className="text-xs font-medium text-[#E6B447] hover:text-[#E6B447]/60 transition-colors"
           >
             Responder esta pergunta &rarr;
           </button>

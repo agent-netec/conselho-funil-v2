@@ -46,8 +46,8 @@ export function StepVisualIdentity({ colors, visualStyle, typography, onUpdate }
       {/* Colors Section */}
       <div className="space-y-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
-            <Palette className="h-5 w-5 text-emerald-500" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6B447]/10">
+            <Palette className="h-5 w-5 text-[#E6B447]" />
           </div>
           <div>
             <h3 className="text-base font-medium text-white">Paleta de Cores</h3>
@@ -93,7 +93,7 @@ export function StepVisualIdentity({ colors, visualStyle, typography, onUpdate }
               className={cn(
                 'px-3 py-2.5 rounded-xl text-left border transition-all',
                 visualStyle === style.id
-                  ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400'
+                  ? 'bg-[#E6B447]/20 border-[#E6B447]/50 text-[#E6B447]'
                   : 'bg-white/[0.03] border-white/[0.08] text-zinc-500 hover:text-white hover:bg-white/[0.05]'
               )}
             >

@@ -239,7 +239,7 @@ export function SpyAgent({ brandId }: SpyAgentProps) {
                   <TabsTrigger value="tech" className="flex-1 text-xs data-[state=active]:bg-amber-500/10 data-[state=active]:text-amber-400">
                     <Cpu className="w-3 h-3 mr-1" /> Tech
                   </TabsTrigger>
-                  <TabsTrigger value="strategy" className="flex-1 text-xs data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-400" disabled={!result.strategicAnalysis}>
+                  <TabsTrigger value="strategy" className="flex-1 text-xs data-[state=active]:bg-[#E6B447]/10 data-[state=active]:text-[#E6B447]" disabled={!result.strategicAnalysis}>
                     <Lightbulb className="w-3 h-3 mr-1" /> Estratégia
                   </TabsTrigger>
                   <TabsTrigger value="design" className="flex-1 text-xs data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-400" disabled={!result.strategicAnalysis}>
@@ -295,15 +295,15 @@ export function SpyAgent({ brandId }: SpyAgentProps) {
                     <>
                       {/* Strengths & Weaknesses */}
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
+                        <div className="p-3 rounded-lg bg-[#E6B447]/5 border border-[#E6B447]/10">
                           <div className="flex items-center gap-1 mb-2">
-                            <ThumbsUp className="w-3 h-3 text-emerald-400" />
-                            <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-400">Pontos Fortes</span>
+                            <ThumbsUp className="w-3 h-3 text-[#E6B447]" />
+                            <span className="text-[10px] uppercase tracking-wider font-bold text-[#E6B447]">Pontos Fortes</span>
                           </div>
                           <ul className="space-y-1">
                             {result.strategicAnalysis.qualitative.strengths.map((s, i) => (
                               <li key={i} className="text-[11px] text-zinc-400 flex gap-1.5">
-                                <span className="text-emerald-500 shrink-0">+</span>{s}
+                                <span className="text-[#E6B447] shrink-0">+</span>{s}
                               </li>
                             ))}
                           </ul>

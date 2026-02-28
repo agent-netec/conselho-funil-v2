@@ -451,7 +451,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
               disabled={idx > currentStep}
               className={cn(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border',
-                isCompleted ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
+                isCompleted ? 'bg-[#E6B447]/10 border-[#E6B447]/30 text-[#E6B447]' :
                 isActive ? 'bg-rose-500/10 border-rose-500/30 text-rose-400' :
                 'bg-zinc-800/50 border-white/[0.04] text-zinc-600'
               )}
@@ -460,7 +460,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
               <span className="hidden sm:inline">{step.label}</span>
             </button>
             {idx < STEPS.length - 1 && (
-              <div className={cn('w-6 h-[2px] mx-1', isCompleted ? 'bg-emerald-500/50' : 'bg-zinc-800')} />
+              <div className={cn('w-6 h-[2px] mx-1', isCompleted ? 'bg-[#E6B447]/50' : 'bg-zinc-800')} />
             )}
           </div>
         );
@@ -584,7 +584,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
             </div>
             {activeBrand && (
               <p className="text-xs text-zinc-500 flex items-center gap-1.5 px-1">
-                <Check className="h-3 w-3 text-emerald-500" />
+                <Check className="h-3 w-3 text-[#E6B447]" />
                 Marca: <span className="text-zinc-300 font-medium">{activeBrand.name}</span>
               </p>
             )}
@@ -670,7 +670,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
                     <button
                       onClick={() => handleSendToCalendar(hook)}
                       disabled={isSendingToCalendar}
-                      className="text-zinc-500 hover:text-emerald-400 transition-colors p-1"
+                      className="text-zinc-500 hover:text-[#E6B447] transition-colors p-1"
                       title="Enviar ao Calendário"
                     >
                       <CalendarPlus className="h-4 w-4" />
@@ -679,7 +679,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
                       onClick={() => copyToClipboard(hook.content, index)}
                       className="text-zinc-500 hover:text-rose-400 transition-colors p-1"
                     >
-                      {copiedIndex === index ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                      {copiedIndex === index ? <Check className="h-4 w-4 text-[#E6B447]" /> : <Copy className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
@@ -843,7 +843,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
         {/* X-1.1: Case Study Actions */}
         <Card className="p-4 bg-zinc-900/50 border-white/[0.04]">
           <div className="flex items-center gap-2 mb-3">
-            <BookmarkPlus className="h-4 w-4 text-emerald-400" />
+            <BookmarkPlus className="h-4 w-4 text-[#E6B447]" />
             <h3 className="text-sm font-semibold text-zinc-200">Marcar como Case Study</h3>
           </div>
           <div className="flex items-center gap-3">
@@ -851,7 +851,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
               size="sm"
               onClick={() => handleSaveCase('success')}
               disabled={isSavingCase}
-              className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20"
+              className="bg-[#E6B447]/10 hover:bg-[#E6B447]/20 text-[#E6B447] border border-[#E6B447]/20"
             >
               <ThumbsUp className="mr-1.5 h-3.5 w-3.5" /> Sucesso
             </Button>
@@ -906,13 +906,13 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
 
         {/* Scheduled Confirmation */}
         {scheduledCount > 0 && (
-          <Card className="p-6 bg-emerald-500/5 border-emerald-500/20">
+          <Card className="p-6 bg-[#E6B447]/5 border-[#E6B447]/20">
             <div className="flex items-center gap-4 mb-4">
-              <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
-                <Check className="h-6 w-6 text-emerald-400" />
+              <div className="h-12 w-12 rounded-full bg-[#E6B447]/20 flex items-center justify-center shrink-0">
+                <Check className="h-6 w-6 text-[#E6B447]" />
               </div>
               <div className="flex-1">
-                <h4 className="text-sm font-bold text-emerald-300">{scheduledCount} posts agendados com sucesso!</h4>
+                <h4 className="text-sm font-bold text-[#E6B447]/60">{scheduledCount} posts agendados com sucesso!</h4>
                 <p className="text-xs text-zinc-400 mt-1">
                   Os hooks foram adicionados ao calendário editorial como rascunhos para os próximos dias.
                 </p>
@@ -928,7 +928,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
                 </a>
               )}
               <a href="/content/calendar">
-                <Button variant="outline" className="border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10 gap-2">
+                <Button variant="outline" className="border-[#E6B447]/20 text-[#E6B447] hover:bg-[#E6B447]/10 gap-2">
                   <CalendarPlus className="h-4 w-4" />
                   Ver no Calendário
                 </Button>
@@ -956,7 +956,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
             <Button
               onClick={handleApproveAndSchedule}
               disabled={isSendingToCalendar}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold gap-2"
+              className="bg-[#E6B447] hover:bg-[#AB8648] text-white font-semibold gap-2"
             >
               {isSendingToCalendar ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalendarPlus className="h-4 w-4" />}
               {isSendingToCalendar ? 'Agendando...' : 'Aprovar e Agendar'}

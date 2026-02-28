@@ -227,11 +227,11 @@ export default function PerformanceWarRoomPage() {
           <div className="hidden lg:flex items-center gap-4 mr-4 px-4 py-2 bg-zinc-900/50 rounded-lg border border-zinc-800">
             <div className="text-right">
               <p className="text-[10px] text-zinc-500 font-bold uppercase">System Status</p>
-              <p className={`text-xs font-black ${hasIntegration === false ? 'text-amber-500' : 'text-emerald-500'}`}>
+              <p className={`text-xs font-black ${hasIntegration === false ? 'text-amber-500' : 'text-[#E6B447]'}`}>
                 {hasIntegration === false ? 'NO ADS CONNECTED' : 'ALL SYSTEMS NOMINAL'}
               </p>
             </div>
-            <Zap className={`w-5 h-5 ${hasIntegration === false ? 'text-amber-500' : 'text-emerald-500'}`} />
+            <Zap className={`w-5 h-5 ${hasIntegration === false ? 'text-amber-500' : 'text-[#E6B447]'}`} />
           </div>
 
           <Button variant="outline" className="border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800 hover:text-white gap-2 h-11">
@@ -281,7 +281,7 @@ export default function PerformanceWarRoomPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <p className="text-zinc-500 text-xs">Meta Token</p>
-              <p className={diagnostic.metaTokenFound ? 'text-emerald-400' : 'text-red-400'}>
+              <p className={diagnostic.metaTokenFound ? 'text-[#E6B447]' : 'text-red-400'}>
                 {diagnostic.metaTokenFound ? 'Encontrado' : 'Não encontrado'}
               </p>
             </div>
@@ -308,7 +308,7 @@ export default function PerformanceWarRoomPage() {
                     key={i}
                     className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
                       p.status === 'granted'
-                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'
+                        ? 'bg-[#E6B447]/15 text-[#E6B447] border border-[#E6B447]/20'
                         : p.status === 'declined'
                         ? 'bg-red-500/15 text-red-400 border border-red-500/20'
                         : 'bg-zinc-700/30 text-zinc-500 border border-zinc-600/20'
@@ -363,7 +363,7 @@ export default function PerformanceWarRoomPage() {
               <div className="flex items-baseline gap-2">
                 <span className="text-4xl font-black text-white">{ltvDisplay}</span>
                 {ltvData && (
-                  <Badge className="bg-emerald-500/10 text-emerald-500 border-none">Real</Badge>
+                  <Badge className="bg-[#E6B447]/10 text-[#E6B447] border-none">Real</Badge>
                 )}
               </div>
               <div className="mt-4 h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
@@ -376,7 +376,7 @@ export default function PerformanceWarRoomPage() {
               <div className="flex items-baseline gap-2">
                 <span className="text-4xl font-black text-white">{paybackDisplay}</span>
                 {ltvData && ltvData.avgPaybackMonths > 0 && (
-                  <Badge className="bg-emerald-500/10 text-emerald-500 border-none">
+                  <Badge className="bg-[#E6B447]/10 text-[#E6B447] border-none">
                     {Math.round(ltvData.avgPaybackMonths * 30) <= 90 ? 'Optimal' : 'Monitor'}
                   </Badge>
                 )}
@@ -461,11 +461,11 @@ export default function PerformanceWarRoomPage() {
             {/* Insights */}
             {advisorInsights.length > 0 && (
               <div>
-                <h4 className="text-xs font-black text-emerald-400 uppercase tracking-widest mb-2">Insights</h4>
+                <h4 className="text-xs font-black text-[#E6B447] uppercase tracking-widest mb-2">Insights</h4>
                 <ul className="space-y-2">
                   {advisorInsights.map((insight, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
-                      <span className="text-emerald-500 mt-0.5">•</span>
+                      <span className="text-[#E6B447] mt-0.5">•</span>
                       <span>{insight}</span>
                     </li>
                   ))}

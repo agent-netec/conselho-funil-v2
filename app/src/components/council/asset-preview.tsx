@@ -114,7 +114,7 @@ export function AssetPreview({ data }: AssetPreviewProps) {
     <div className="mt-6 space-y-8 animate-in-up">
       {/* Strategy Section */}
       <div className="space-y-4">
-        <div className="flex items-center gap-2 text-emerald-400 font-semibold uppercase tracking-wider text-xs">
+        <div className="flex items-center gap-2 text-[#E6B447] font-semibold uppercase tracking-wider text-xs">
           <Lightbulb className="h-4 w-4" />
           Estratégia Recomendada
         </div>
@@ -126,7 +126,7 @@ export function AssetPreview({ data }: AssetPreviewProps) {
           <div className="space-y-2">
             {normalizedData.strategy.steps?.map((step, idx) => (
               <div key={idx} className="flex items-start gap-3 text-zinc-300 text-sm">
-                <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-[10px] font-bold text-emerald-400">
+                <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-[#E6B447]/10 border border-[#E6B447]/20 flex items-center justify-center text-[10px] font-bold text-[#E6B447]">
                   {idx + 1}
                 </div>
                 <span>{typeof step === 'string' ? step : JSON.stringify(step)}</span>
@@ -139,7 +139,7 @@ export function AssetPreview({ data }: AssetPreviewProps) {
       {/* Market Data Grid */}
       {normalizedData.market_data && normalizedData.market_data.length > 0 && (
         <div className="space-y-4">
-          <div className="flex items-center gap-2 text-emerald-400 font-semibold uppercase tracking-wider text-xs">
+          <div className="flex items-center gap-2 text-[#E6B447] font-semibold uppercase tracking-wider text-xs">
             <BarChart3 className="h-4 w-4" />
             Benchmarks de 2026
           </div>
@@ -181,17 +181,17 @@ export function AssetPreview({ data }: AssetPreviewProps) {
       {/* Assets Section */}
       {data.assets && data.assets.length > 0 && (
         <div className="space-y-4">
-          <div className="flex items-center gap-2 text-emerald-400 font-semibold uppercase tracking-wider text-xs">
+          <div className="flex items-center gap-2 text-[#E6B447] font-semibold uppercase tracking-wider text-xs">
             <Zap className="h-4 w-4" />
             Ativos Prontos para Uso
           </div>
           <div className="space-y-4">
             {data.assets.map((asset, idx) => (
               <div key={idx} className="group relative">
-                <Card className="card-premium p-0 overflow-hidden border-white/[0.06] hover:border-emerald-500/30 transition-colors">
+                <Card className="card-premium p-0 overflow-hidden border-white/[0.06] hover:border-[#E6B447]/30 transition-colors">
                   <div className="flex items-center justify-between px-4 py-3 bg-white/[0.02] border-b border-white/[0.04]">
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-400">
+                      <div className="p-1.5 rounded-md bg-[#E6B447]/10 text-[#E6B447]">
                         {getAssetIcon(asset.type)}
                       </div>
                       <div>
@@ -202,7 +202,7 @@ export function AssetPreview({ data }: AssetPreviewProps) {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="h-8 px-2 gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 hover:bg-emerald-500/10"
+                      className="h-8 px-2 gap-1.5 text-xs text-zinc-400 hover:text-[#E6B447] hover:bg-[#E6B447]/10"
                       onClick={() => handleCopy(asset.content, idx)}
                     >
                       {copiedIndex === idx ? (
@@ -226,7 +226,7 @@ export function AssetPreview({ data }: AssetPreviewProps) {
                   <div className="px-4 py-2 bg-white/[0.01] text-[10px] text-zinc-600 flex justify-between items-center">
                     <span>Referência: {asset.counselor_reference}</span>
                     <span className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Check className="h-3 w-3 text-emerald-500" /> Pronto para disparar
+                      <Check className="h-3 w-3 text-[#E6B447]" /> Pronto para disparar
                     </span>
                   </div>
                 </Card>

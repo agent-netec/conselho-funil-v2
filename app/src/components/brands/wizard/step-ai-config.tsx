@@ -15,7 +15,7 @@ const AI_PRESETS = [
     desc: 'Balanço entre criatividade e precisão. Ideal para a maioria dos casos.',
     temp: 0.6,
     topP: 0.85,
-    color: 'emerald',
+    color: 'gold',
   },
   {
     id: 'criativo',
@@ -47,7 +47,7 @@ const AI_PRESETS = [
 ];
 
 const COLOR_MAP: Record<string, { bg: string; border: string; text: string }> = {
-  emerald: { bg: 'bg-emerald-500/15', border: 'border-emerald-500/40', text: 'text-emerald-400' },
+  gold: { bg: 'bg-[#E6B447]/15', border: 'border-[#E6B447]/40', text: 'text-[#E6B447]' },
   purple: { bg: 'bg-purple-500/15', border: 'border-purple-500/40', text: 'text-purple-400' },
   red: { bg: 'bg-red-500/15', border: 'border-red-500/40', text: 'text-red-400' },
   blue: { bg: 'bg-blue-500/15', border: 'border-blue-500/40', text: 'text-blue-400' },

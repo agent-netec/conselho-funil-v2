@@ -106,7 +106,7 @@ export function ReviewCard({ item, onApprove, onReject }: ReviewCardProps) {
           <button
             onClick={handleApprove}
             disabled={isActing}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-[#AB8648]/20 hover:bg-[#AB8648]/30 text-[#E6B447] border border-[#E6B447]/30 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
           >
             <Check className="h-4 w-4" />
             Aprovar

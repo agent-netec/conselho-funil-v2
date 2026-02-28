@@ -92,7 +92,7 @@ export default function AttributionPage() {
               variant={dataSufficiency === 'real' ? 'default' : 'secondary'}
               className={
                 dataSufficiency === 'real'
-                  ? 'bg-emerald-500/10 text-emerald-600 border-emerald-200'
+                  ? 'bg-[#E6B447]/10 text-[#AB8648] border-[#E6B447]/30'
                   : 'bg-amber-500/10 text-amber-600 border-amber-200'
               }
             >
@@ -344,11 +344,11 @@ export default function AttributionPage() {
 function ChecklistItem({ done, label, hint }: { done: boolean; label: string; hint: string }) {
   return (
     <div className="flex items-start gap-3 p-3 rounded-lg border bg-background">
-      <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${done ? 'bg-emerald-100 text-emerald-600' : 'bg-muted text-muted-foreground'}`}>
+      <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${done ? 'bg-[#F0C35C]/20 text-[#AB8648]' : 'bg-muted text-muted-foreground'}`}>
         {done ? <CheckCircle2 className="w-3 h-3" /> : <span className="text-xs font-bold">?</span>}
       </div>
       <div>
-        <p className={`text-sm font-medium ${done ? 'text-emerald-700 line-through' : ''}`}>{label}</p>
+        <p className={`text-sm font-medium ${done ? 'text-[#895F29] line-through' : ''}`}>{label}</p>
         <p className="text-xs text-muted-foreground">{hint}</p>
       </div>
     </div>

@@ -35,7 +35,7 @@ export function VisualIdentityModal({ isOpen, onClose, brand }: VisualIdentityMo
   const { setSelectedBrand } = useBrandStore();
 
   const [colors, setColors] = useState({
-    primary: brand.brandKit?.colors?.primary || '#10b981',
+    primary: brand.brandKit?.colors?.primary || '#E6B447',
     secondary: brand.brandKit?.colors?.secondary || '#3b82f6',
     accent: brand.brandKit?.colors?.accent || '#f59e0b',
     background: brand.brandKit?.colors?.background || '#09090b',
@@ -144,8 +144,8 @@ export function VisualIdentityModal({ isOpen, onClose, brand }: VisualIdentityMo
           {/* Colors Section */}
           <div className="space-y-4 mb-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
-                <Palette className="h-5 w-5 text-emerald-500" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6B447]/10">
+                <Palette className="h-5 w-5 text-[#E6B447]" />
               </div>
               <div>
                 <h3 className="text-sm font-medium text-white">Paleta de Cores</h3>
@@ -167,7 +167,7 @@ export function VisualIdentityModal({ isOpen, onClose, brand }: VisualIdentityMo
                     <input
                       value={value}
                       onChange={(e) => handleColorChange(key, e.target.value)}
-                      className="flex-1 bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 text-white font-mono text-sm h-9 focus:border-emerald-500 focus:outline-none"
+                      className="flex-1 bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 text-white font-mono text-sm h-9 focus:border-[#E6B447] focus:outline-none"
                     />
                     <input
                       type="color"
@@ -193,7 +193,7 @@ export function VisualIdentityModal({ isOpen, onClose, brand }: VisualIdentityMo
                   className={cn(
                     'px-3 py-2.5 rounded-xl text-left border transition-all',
                     visualStyle === style.id
-                      ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400'
+                      ? 'bg-[#E6B447]/20 border-[#E6B447]/50 text-[#E6B447]'
                       : 'bg-white/[0.03] border-white/[0.08] text-zinc-500 hover:text-white hover:bg-white/[0.05]'
                   )}
                 >
@@ -223,7 +223,7 @@ export function VisualIdentityModal({ isOpen, onClose, brand }: VisualIdentityMo
                   value={typography.primaryFont}
                   onChange={(e) => handleTypographyChange('primaryFont', e.target.value)}
                   placeholder="Ex: Inter, Montserrat"
-                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm focus:border-emerald-500 focus:outline-none"
+                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm focus:border-[#E6B447] focus:outline-none"
                 />
               </div>
               <div className="space-y-2">
@@ -232,7 +232,7 @@ export function VisualIdentityModal({ isOpen, onClose, brand }: VisualIdentityMo
                   value={typography.secondaryFont}
                   onChange={(e) => handleTypographyChange('secondaryFont', e.target.value)}
                   placeholder="Ex: Roboto, Open Sans"
-                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm focus:border-emerald-500 focus:outline-none"
+                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm focus:border-[#E6B447] focus:outline-none"
                 />
               </div>
             </div>
@@ -267,7 +267,7 @@ export function VisualIdentityModal({ isOpen, onClose, brand }: VisualIdentityMo
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#E6B447] text-white font-medium hover:bg-[#E6B447] transition-colors disabled:opacity-50"
             >
               {isSaving ? (
                 <>

@@ -40,7 +40,7 @@ export default function CreativeIntelligencePage() {
               <Filter className="mr-2 h-4 w-4" />
               Filtros
             </Button>
-            <Button className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold">
+            <Button className="bg-[#AB8648] hover:bg-[#E6B447] text-white font-bold">
               <Zap className="mr-2 h-4 w-4" />
               Sincronizar Ads
             </Button>
@@ -57,7 +57,7 @@ export default function CreativeIntelligencePage() {
               { label: 'Melhor Profit Score', value: ranking[0]?.profitScore || '0', icon: Sparkles, color: 'text-amber-400' },
               { label: 'Total Ativos', value: ranking.length, icon: LayoutGrid, color: 'text-blue-400' },
               { label: 'Fadiga Média', value: '24%', icon: BarChart3, color: 'text-rose-400' },
-              { label: 'ROI Médio', value: '3.2x', icon: Zap, color: 'text-emerald-400' },
+              { label: 'ROI Médio', value: '3.2x', icon: Zap, color: 'text-[#E6B447]' },
             ].map((stat, i) => (
               <div key={i} className="bg-zinc-900/30 border border-white/[0.05] rounded-2xl p-4 flex items-center gap-4">
                 <div className={`h-10 w-10 rounded-xl bg-zinc-800 flex items-center justify-center ${stat.color}`}>

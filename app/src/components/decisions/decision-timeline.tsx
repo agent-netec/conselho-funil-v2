@@ -26,9 +26,9 @@ interface DecisionTimelineProps {
 const DECISION_CONFIG = {
   EXECUTAR: {
     icon: CheckCircle2,
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/10',
-    border: 'border-emerald-500/30',
+    color: 'text-[#E6B447]',
+    bg: 'bg-[#E6B447]/10',
+    border: 'border-[#E6B447]/30',
     label: 'Aprovado para Execução',
   },
   AJUSTAR: {
@@ -182,7 +182,7 @@ function DecisionCard({ decision, isLast }: { decision: DecisionWithMetadata; is
                 {/* Score if available */}
                 {decision.parecer?.consolidated?.totalScore && (
                   <div className="flex items-center gap-2 text-sm">
-                    <Sparkles className="h-4 w-4 text-emerald-400" />
+                    <Sparkles className="h-4 w-4 text-[#E6B447]" />
                     <span className="text-zinc-400">Score do Conselho:</span>
                     <span className="font-semibold text-white">
                       {typeof decision.parecer.consolidated.totalScore === 'number' 

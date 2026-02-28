@@ -113,7 +113,7 @@ export function DNAWizard({ onClose, onSaved }: DNAWizardProps) {
               </Button>
               <Button
                 onClick={() => { onSaved?.(); onClose(); }}
-                className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                className="bg-[#E6B447] hover:bg-[#AB8648] text-white"
               >
                 <Check className="mr-2 h-4 w-4" />
                 Salvo no Vault

@@ -277,13 +277,13 @@ function IntegrationCard({
       className={cn(
         'card-premium p-5 flex flex-col h-full border-white/[0.04] transition-all group',
         !def.available && 'opacity-50',
-        isConnected && 'hover:border-emerald-500/30',
+        isConnected && 'hover:border-[#E6B447]/30',
         isError && 'border-red-500/20',
         isExpired && 'border-amber-500/20'
       )}
     >
       <div className="flex items-start justify-between mb-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.03] border border-white/[0.06] group-hover:border-emerald-500/20 transition-colors">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.03] border border-white/[0.06] group-hover:border-[#E6B447]/20 transition-colors">
           <span className="text-xl">{def.icon}</span>
         </div>
         {isConnected && (
@@ -336,7 +336,7 @@ function IntegrationCard({
           isConnected
             ? 'bg-white/[0.03] hover:bg-white/[0.06] text-zinc-300'
             : def.available
-              ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400'
+              ? 'bg-[#E6B447]/10 hover:bg-[#E6B447]/20 text-[#E6B447]'
               : 'bg-white/[0.02] text-zinc-600 cursor-not-allowed'
         )}
       >
@@ -366,12 +366,12 @@ function HealthDashboard({ integrations }: { integrations: Integration[] }) {
   return (
     <div className="card-premium p-5 mb-8">
       <div className="flex items-center gap-2 mb-4">
-        <Activity className="h-4 w-4 text-emerald-500" />
+        <Activity className="h-4 w-4 text-[#E6B447]" />
         <h3 className="text-sm font-semibold text-white">Status das Integrações</h3>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-          <div className="text-2xl font-bold text-emerald-400">{active}</div>
+        <div className="p-3 rounded-xl bg-[#E6B447]/5 border border-[#E6B447]/10">
+          <div className="text-2xl font-bold text-[#E6B447]">{active}</div>
           <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Ativas</div>
         </div>
         <div className="p-3 rounded-xl bg-red-500/5 border border-red-500/10">
@@ -692,7 +692,7 @@ function ConfigPanel({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
-      className="card-premium p-8 border-emerald-500/20"
+      className="card-premium p-8 border-[#E6B447]/20"
     >
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
@@ -730,7 +730,7 @@ function ConfigPanel({
                       <span>
                         {step.split(/(conselho-funil-ads@conselho-de-funil\.iam\.gserviceaccount\.com)/g).map((part, j) =>
                           part.includes('@') ? (
-                            <code key={j} className="text-xs bg-zinc-800 text-emerald-400 px-1.5 py-0.5 rounded font-mono break-all">
+                            <code key={j} className="text-xs bg-zinc-800 text-[#E6B447] px-1.5 py-0.5 rounded font-mono break-all">
                               {part}
                             </code>
                           ) : part
@@ -761,7 +761,7 @@ function ConfigPanel({
                   <AlertCircle className="h-3 w-3 flex-shrink-0" />
                   {field.helpText}
                   {field.helpLink && (
-                    <a href={field.helpLink.url} target="_blank" rel="noreferrer" className="text-emerald-500 hover:underline inline-flex items-center gap-1">
+                    <a href={field.helpLink.url} target="_blank" rel="noreferrer" className="text-[#E6B447] hover:underline inline-flex items-center gap-1">
                       {field.helpLink.text} <ExternalLink className="h-2 w-2" />
                     </a>
                   )}
@@ -775,7 +775,7 @@ function ConfigPanel({
             <div className={cn(
               'flex items-center gap-2 p-3 rounded-xl text-sm',
               validationResult.ok
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                ? 'bg-[#E6B447]/10 text-[#E6B447] border border-[#E6B447]/20'
                 : 'bg-red-500/10 text-red-400 border border-red-500/20'
             )}>
               {validationResult.ok ? <CheckCircle2 className="h-4 w-4 flex-shrink-0" /> : <AlertCircle className="h-4 w-4 flex-shrink-0" />}
@@ -889,7 +889,7 @@ function ConfigPanel({
                     <div className={cn(
                       'flex items-start gap-2 p-3 rounded-lg text-xs',
                       manualResult.ok
-                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        ? 'bg-[#E6B447]/10 text-[#E6B447] border border-[#E6B447]/20'
                         : 'bg-red-500/10 text-red-400 border border-red-500/20'
                     )}>
                       {manualResult.ok ? <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" /> : <AlertCircle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />}
@@ -919,13 +919,13 @@ function ConfigPanel({
         <div className="space-y-6">
           <div className="p-6 rounded-2xl bg-zinc-900/50 border border-white/[0.04] space-y-4">
             <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
-              <Zap className="h-3 w-3 text-emerald-500" />
+              <Zap className="h-3 w-3 text-[#E6B447]" />
               O que o Conselho pode fazer com {def.name}?
             </h4>
             <ul className="space-y-3">
               {getCapabilities(def.provider).map((item) => (
                 <li key={item} className="flex items-start gap-3 text-sm text-zinc-400">
-                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500/50 mt-1.5 shrink-0" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-[#E6B447]/50 mt-1.5 shrink-0" />
                   {item}
                 </li>
               ))}
@@ -1086,7 +1086,7 @@ export default function IntegrationsPage() {
                 className={cn(
                   'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
                   filterCategory === 'all'
-                    ? 'bg-emerald-500/10 text-emerald-400'
+                    ? 'bg-[#E6B447]/10 text-[#E6B447]'
                     : 'text-zinc-500 hover:text-zinc-300'
                 )}
               >
@@ -1099,7 +1099,7 @@ export default function IntegrationsPage() {
                   className={cn(
                     'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
                     filterCategory === cat.id
-                      ? 'bg-emerald-500/10 text-emerald-400'
+                      ? 'bg-[#E6B447]/10 text-[#E6B447]'
                       : 'text-zinc-500 hover:text-zinc-300'
                   )}
                 >

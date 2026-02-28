@@ -32,7 +32,7 @@ export function MonitoringDashboard({ metrics, anomalies, onRefresh }: Monitorin
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Activity className="h-5 w-5 text-emerald-400" />
+          <Activity className="h-5 w-5 text-[#E6B447]" />
           <h2 className="text-lg font-bold text-white uppercase tracking-tight">Real-Time Performance</h2>
         </div>
         <Button variant="ghost" size="sm" onClick={onRefresh} className="text-zinc-500 hover:text-white">
@@ -61,7 +61,7 @@ export function MonitoringDashboard({ metrics, anomalies, onRefresh }: Monitorin
               {metric.change !== undefined && (
                 <div className={cn(
                   "flex items-center text-xs font-bold",
-                  metric.change >= 0 ? "text-emerald-400" : "text-red-400"
+                  metric.change >= 0 ? "text-[#E6B447]" : "text-red-400"
                 )}>
                   {metric.change >= 0 ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
                   {Math.abs(metric.change)}%
@@ -74,7 +74,7 @@ export function MonitoringDashboard({ metrics, anomalies, onRefresh }: Monitorin
                   <span className="text-zinc-600 font-bold uppercase">Meta: {metric.target}{metric.unit === '%' ? '%' : ''}</span>
                   <span className={cn(
                     "font-bold",
-                    metric.status === 'success' ? "text-emerald-500" : 
+                    metric.status === 'success' ? "text-[#E6B447]" : 
                     metric.status === 'danger' ? "text-red-500" : "text-amber-500"
                   )}>
                     {metric.status === 'success' ? 'No Alvo' : 'Desvio'}
@@ -84,7 +84,7 @@ export function MonitoringDashboard({ metrics, anomalies, onRefresh }: Monitorin
                   <div 
                     className={cn(
                       "h-full rounded-full transition-all duration-1000",
-                      metric.status === 'success' ? "bg-emerald-500" : 
+                      metric.status === 'success' ? "bg-[#E6B447]" : 
                       metric.status === 'danger' ? "bg-red-500" : "bg-amber-500"
                     )}
                     style={{ width: `${Math.min((Number(metric.value) / metric.target) * 100, 100)}%` }}

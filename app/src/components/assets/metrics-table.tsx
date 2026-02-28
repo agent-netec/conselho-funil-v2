@@ -118,7 +118,7 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
                 ) : asset.score > 0 ? (
                   <span className={cn(
                     "text-xs font-bold px-2 py-0.5 rounded-full",
-                    asset.score >= 80 ? "text-emerald-400 bg-emerald-500/10" : asset.score >= 50 ? "text-amber-400 bg-amber-500/10" : "text-red-400 bg-red-500/10"
+                    asset.score >= 80 ? "text-[#E6B447] bg-[#E6B447]/10" : asset.score >= 50 ? "text-amber-400 bg-amber-500/10" : "text-red-400 bg-red-500/10"
                   )}>
                     {asset.score}
                   </span>
@@ -134,7 +134,7 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
               <div>
                 <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">CTR</p>
                 <div className="flex items-center gap-1.5">
-                  <TrendingUp className="h-3 w-3 text-emerald-400" />
+                  <TrendingUp className="h-3 w-3 text-[#E6B447]" />
                   <span className="text-sm font-semibold text-zinc-200">{asset.metrics?.ctr ?? '0'}%</span>
                 </div>
               </div>
@@ -205,7 +205,7 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
                   {asset.score > 0 ? (
                     <span className={cn(
                       "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider",
-                      asset.score >= 80 ? "text-emerald-400 bg-emerald-500/10" : asset.score >= 50 ? "text-amber-400 bg-amber-500/10" : "text-red-400 bg-red-500/10"
+                      asset.score >= 80 ? "text-[#E6B447] bg-[#E6B447]/10" : asset.score >= 50 ? "text-amber-400 bg-amber-500/10" : "text-red-400 bg-red-500/10"
                     )}>
                       Score {asset.score}
                     </span>
@@ -219,7 +219,7 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
 
               {/* Asset Info */}
               <div className="px-4 pb-4 flex-1">
-                <h4 className="text-sm font-bold text-white line-clamp-2 min-h-[40px] leading-tight mb-1 group-hover:text-emerald-400 transition-colors">
+                <h4 className="text-sm font-bold text-white line-clamp-2 min-h-[40px] leading-tight mb-1 group-hover:text-[#E6B447] transition-colors">
                   {asset.name || asset.assetType}
                 </h4>
                 <p className="text-[10px] text-zinc-500 uppercase tracking-tight">
@@ -232,7 +232,7 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
                 <div className="p-3 border-r border-white/[0.05] text-center">
                   <p className="text-[9px] text-zinc-500 uppercase font-bold mb-1">CTR</p>
                   <div className="flex items-center justify-center gap-1">
-                    <TrendingUp className="h-3 w-3 text-emerald-400" />
+                    <TrendingUp className="h-3 w-3 text-[#E6B447]" />
                     <span className="text-xs font-bold text-zinc-200">{asset.metrics?.ctr ?? '0'}%</span>
                   </div>
                 </div>
@@ -344,7 +344,7 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
                         <div
                           className={cn(
                             "h-full rounded-full",
-                            asset.score >= 80 ? "bg-emerald-500" : asset.score >= 50 ? "bg-amber-500" : "bg-red-500"
+                            asset.score >= 80 ? "bg-[#E6B447]" : asset.score >= 50 ? "bg-amber-500" : "bg-red-500"
                           )}
                           style={{ width: `${asset.score}%` }}
                         />
@@ -357,7 +357,7 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
                 </td>
                 <td className="px-4 py-4 text-center">
                   <div className="flex items-center justify-center gap-1">
-                    <TrendingUp className="h-3 w-3 text-emerald-400" />
+                    <TrendingUp className="h-3 w-3 text-[#E6B447]" />
                     <span className="font-medium text-zinc-300">{asset.metrics?.ctr ?? '0'}%</span>
                   </div>
                 </td>

@@ -30,7 +30,7 @@ export function StageCard({
       animate={{ opacity: 1, y: 0 }}
       className={cn(
         "card-premium p-6 transition-all duration-300 border-l-4",
-        isActive ? "border-emerald-500 bg-emerald-500/[0.02]" : "border-transparent opacity-80",
+        isActive ? "border-[#E6B447] bg-[#E6B447]/[0.02]" : "border-transparent opacity-80",
         status === 'ready' && !isActive && "border-blue-500/50"
       )}
     >
@@ -38,7 +38,7 @@ export function StageCard({
         <div className="flex items-center gap-4">
           <div className={cn(
             "p-3 rounded-xl",
-            isActive ? "bg-emerald-500/10 text-emerald-400" : "bg-zinc-800 text-zinc-500"
+            isActive ? "bg-[#E6B447]/10 text-[#E6B447]" : "bg-zinc-800 text-zinc-500"
           )}>
             <Icon className="h-6 w-6" />
           </div>
@@ -50,7 +50,7 @@ export function StageCard({
         
         <div className={cn(
           "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest",
-          status === 'approved' ? "bg-emerald-500/10 text-emerald-400" :
+          status === 'approved' ? "bg-[#E6B447]/10 text-[#E6B447]" :
           status === 'ready' ? "bg-blue-500/10 text-blue-400" :
           status === 'generating' ? "bg-amber-500/10 text-amber-400 animate-pulse" :
           "bg-zinc-800 text-zinc-500"
@@ -67,7 +67,7 @@ export function StageCard({
           <ul className="space-y-2">
             {summary.map((item, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
-                <ChevronRight className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                <ChevronRight className="h-4 w-4 text-[#E6B447] shrink-0 mt-0.5" />
                 <span>{item}</span>
               </li>
             ))}
@@ -88,7 +88,7 @@ export function StageCard({
         className={cn(
           "w-full font-bold uppercase tracking-wider text-xs h-10 transition-all",
           isActive 
-            ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.2)]" 
+            ? "bg-[#AB8648] hover:bg-[#E6B447] text-white shadow-[0_0_20px_rgba(230,180,71,0.2)]" 
             : "btn-ghost border-zinc-800 text-zinc-500"
         )}
       >

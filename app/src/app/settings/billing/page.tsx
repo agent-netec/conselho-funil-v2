@@ -51,7 +51,7 @@ const TIER_DISPLAY: Record<string, { name: string; color: string; icon: typeof Z
   free: { name: 'Free', color: 'text-zinc-400', icon: Zap },
   trial: { name: 'Trial PRO', color: 'text-amber-400', icon: Crown },
   starter: { name: 'Starter', color: 'text-blue-400', icon: Zap },
-  pro: { name: 'Pro', color: 'text-emerald-400', icon: Crown },
+  pro: { name: 'Pro', color: 'text-[#E6B447]', icon: Crown },
   agency: { name: 'Agency', color: 'text-purple-400', icon: Crown },
 };
 
@@ -248,7 +248,7 @@ export default function BillingPage() {
               <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
                 <div className="flex items-center gap-2 mb-2">
                   {isPaid ? (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    <CheckCircle2 className="h-4 w-4 text-[#E6B447]" />
                   ) : isTrial ? (
                     <Clock className="h-4 w-4 text-amber-400" />
                   ) : (
@@ -256,7 +256,7 @@ export default function BillingPage() {
                   )}
                   <span className="text-sm text-zinc-400">Status</span>
                 </div>
-                <p className={cn('font-semibold', isPaid ? 'text-emerald-400' : isTrial ? 'text-amber-400' : 'text-zinc-300')}>
+                <p className={cn('font-semibold', isPaid ? 'text-[#E6B447]' : isTrial ? 'text-amber-400' : 'text-zinc-300')}>
                   {isPaid ? 'Ativo' : isTrial ? 'Em Trial' : 'Gratuito'}
                 </p>
               </div>
@@ -353,7 +353,7 @@ export default function BillingPage() {
                       <div
                         className={cn(
                           'h-full rounded-full transition-all',
-                          isExceeded ? 'bg-red-500' : isWarning ? 'bg-amber-500' : 'bg-emerald-500'
+                          isExceeded ? 'bg-red-500' : isWarning ? 'bg-amber-500' : 'bg-[#E6B447]'
                         )}
                         style={{ width: `${percentage}%` }}
                       />
@@ -419,7 +419,7 @@ export default function BillingPage() {
                         <p className="font-semibold text-white">{invoice.amount}</p>
                         <p className={cn(
                           'text-xs',
-                          invoice.status === 'paid' ? 'text-emerald-400' : 'text-amber-400'
+                          invoice.status === 'paid' ? 'text-[#E6B447]' : 'text-amber-400'
                         )}>
                           {invoice.status === 'paid' ? 'Paga' : 'Pendente'}
                         </p>

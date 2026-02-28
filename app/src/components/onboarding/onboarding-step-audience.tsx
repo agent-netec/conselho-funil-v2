@@ -74,7 +74,7 @@ export function OnboardingStepAudience({
           onChange={(e) => onUpdate('who', e.target.value)}
           placeholder="Ex: Empreendedores digitais com faturamento entre R$10k-50k/mês que querem escalar"
           rows={2}
-          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors resize-none"
+          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors resize-none"
         />
       </div>
 
@@ -88,7 +88,7 @@ export function OnboardingStepAudience({
           onChange={(e) => onUpdate('pain', e.target.value)}
           placeholder="Ex: Gasta muito em tráfego pago mas não consegue converter"
           rows={2}
-          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors resize-none"
+          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors resize-none"
         />
       </div>
 
@@ -105,7 +105,7 @@ export function OnboardingStepAudience({
               onClick={() => onUpdate('awareness', option.value)}
               className={`px-3 py-2.5 rounded-lg border text-left transition-all ${
                 awareness === option.value
-                  ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400'
+                  ? 'border-[#E6B447] bg-[#E6B447]/20 text-[#E6B447]'
                   : 'border-white/[0.06] bg-zinc-800/50 text-zinc-400 hover:border-white/[0.1] hover:text-white'
               }`}
             >
@@ -131,13 +131,13 @@ export function OnboardingStepAudience({
             onKeyDown={handleKeyDown}
             placeholder="Ex: É muito caro"
             disabled={objections.length >= 5}
-            className="flex-1 rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-2.5 text-white placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors disabled:opacity-50"
+            className="flex-1 rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-2.5 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors disabled:opacity-50"
           />
           <button
             type="button"
             onClick={handleAddObjection}
             disabled={!newObjection.trim() || objections.length >= 5}
-            className="flex items-center justify-center w-10 h-10 rounded-lg border border-white/[0.06] bg-zinc-800/50 text-zinc-400 hover:border-emerald-500 hover:text-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center w-10 h-10 rounded-lg border border-white/[0.06] bg-zinc-800/50 text-zinc-400 hover:border-[#E6B447] hover:text-[#E6B447] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="h-5 w-5" />
           </button>

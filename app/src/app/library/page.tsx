@@ -30,7 +30,7 @@ import type { LibraryTemplate, ProposalScorecard } from '@/types/database';
 
 const OBJECTIVE_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string }> = {
   leads: { label: 'Leads', icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-  sales: { label: 'Vendas', icon: TrendingUp, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+  sales: { label: 'Vendas', icon: TrendingUp, color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10' },
   calls: { label: 'Calls', icon: Zap, color: 'text-amber-400', bg: 'bg-amber-500/10' },
   retention: { label: 'Retenção', icon: Target, color: 'text-purple-400', bg: 'bg-purple-500/10' },
 };
@@ -57,7 +57,7 @@ function TemplateCard({ template, onUse }: { template: LibraryTemplate; onUse: (
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2 }}
-      className="card-premium p-6 hover:border-emerald-500/30 transition-all group flex flex-col h-full"
+      className="card-premium p-6 hover:border-[#E6B447]/30 transition-all group flex flex-col h-full"
     >
       <div className="flex items-start justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -65,7 +65,7 @@ function TemplateCard({ template, onUse }: { template: LibraryTemplate; onUse: (
             <config.icon className={cn("h-6 w-6", config.color)} />
           </div>
           <div className="min-w-0">
-            <h3 className="font-bold text-white group-hover:text-emerald-400 transition-colors truncate">
+            <h3 className="font-bold text-white group-hover:text-[#E6B447] transition-colors truncate">
               {template.name}
             </h3>
             <div className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-zinc-500">
@@ -83,7 +83,7 @@ function TemplateCard({ template, onUse }: { template: LibraryTemplate; onUse: (
         {scorecard && (
           <div className={cn(
             'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border border-white/[0.02]',
-            scorecard.overall >= 7.5 ? 'bg-emerald-500/10 text-emerald-400' :
+            scorecard.overall >= 7.5 ? 'bg-[#E6B447]/10 text-[#E6B447]' :
             scorecard.overall >= 6 ? 'bg-amber-500/10 text-amber-400' : 
             'bg-zinc-500/10 text-zinc-400'
           )}>
@@ -123,7 +123,7 @@ function TemplateCard({ template, onUse }: { template: LibraryTemplate; onUse: (
 
       <Button
         onClick={onUse}
-        className="w-full btn-accent h-10 group/btn shadow-lg shadow-emerald-500/10"
+        className="w-full btn-accent h-10 group/btn shadow-lg shadow-[#E6B447]/10"
       >
         <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover/btn:scale-110" />
         Usar Template
@@ -239,7 +239,7 @@ export default function LibraryPage() {
             {[
               { label: 'Total', value: stats.total, icon: Library, color: 'text-zinc-400', bg: 'bg-zinc-500/5' },
               { label: 'Leads', value: stats.leads, icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/5' },
-              { label: 'Vendas', value: stats.sales, icon: TrendingUp, color: 'text-emerald-400', bg: 'bg-emerald-500/5' },
+              { label: 'Vendas', value: stats.sales, icon: TrendingUp, color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/5' },
               { label: 'Calls', value: stats.calls, icon: Zap, color: 'text-amber-400', bg: 'bg-amber-500/5' },
               { label: 'Retenção', value: stats.retention, icon: Target, color: 'text-purple-400', bg: 'bg-purple-500/5' },
             ].map((stat, index) => (
@@ -278,7 +278,7 @@ export default function LibraryPage() {
                   className={cn(
                     'whitespace-nowrap',
                     activeFilter === filter.id
-                      ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                      ? 'bg-[#E6B447]/10 text-[#E6B447] hover:bg-[#E6B447]/20'
                       : 'text-zinc-400 hover:text-white'
                   )}
                 >
@@ -335,8 +335,8 @@ export default function LibraryPage() {
               transition={{ delay: 0.3 }}
               className="mt-12 card-premium p-8 text-center"
             >
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 mb-4">
-                <Sparkles className="h-7 w-7 text-emerald-400" />
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E6B447]/10 mb-4">
+                <Sparkles className="h-7 w-7 text-[#E6B447]" />
               </div>
               <h3 className="text-lg font-semibold text-white mb-2">
                 Cresça sua biblioteca

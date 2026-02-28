@@ -66,7 +66,7 @@ export function OnboardingTransition({ onComplete }: OnboardingTransitionProps) 
         {particles.map((particle) => (
           <motion.div
             key={particle.id}
-            className="absolute rounded-full bg-emerald-500/20"
+            className="absolute rounded-full bg-[#E6B447]/20"
             style={{
               left: `${particle.x}%`,
               top: `${particle.y}%`,
@@ -89,7 +89,7 @@ export function OnboardingTransition({ onComplete }: OnboardingTransitionProps) 
       </div>
 
       {/* Radial gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-radial from-emerald-900/20 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-radial from-[#1A1612]/20 via-transparent to-transparent" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center text-center px-6">
@@ -107,7 +107,7 @@ export function OnboardingTransition({ onComplete }: OnboardingTransitionProps) 
         >
           {/* Glow rings */}
           <motion.div
-            className="absolute inset-0 rounded-full bg-emerald-500/30 blur-xl"
+            className="absolute inset-0 rounded-full bg-[#E6B447]/30 blur-xl"
             animate={{
               scale: [1, 1.3, 1],
               opacity: [0.3, 0.1, 0.3],
@@ -120,7 +120,7 @@ export function OnboardingTransition({ onComplete }: OnboardingTransitionProps) 
             style={{ width: 120, height: 120, margin: -20 }}
           />
           <motion.div
-            className="absolute inset-0 rounded-full bg-emerald-500/20 blur-md"
+            className="absolute inset-0 rounded-full bg-[#E6B447]/20 blur-md"
             animate={{
               scale: [1.1, 1.4, 1.1],
               opacity: [0.2, 0.05, 0.2],
@@ -135,7 +135,7 @@ export function OnboardingTransition({ onComplete }: OnboardingTransitionProps) 
           />
 
           {/* Main icon container */}
-          <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/30">
+          <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-lg shadow-[#E6B447]/30">
             <Brain className="h-10 w-10 text-white" />
           </div>
         </motion.div>
@@ -169,7 +169,7 @@ export function OnboardingTransition({ onComplete }: OnboardingTransitionProps) 
         >
           <div className="h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden">
             <motion.div
-              className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full"
+              className="h-full bg-gradient-to-r from-[#E6B447] to-[#E6B447] rounded-full"
               style={{ width: `${progress}%` }}
             />
           </div>

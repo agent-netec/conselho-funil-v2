@@ -141,7 +141,7 @@ export function ApprovalWorkspace({ content, insightText, onApprove, onEdit }: A
       {/* Esquerda: Insight Original + Council Review */}
       <div className="lg:col-span-4 flex flex-col gap-4">
         <div className="flex items-center gap-2 px-1">
-          <Info className="h-4 w-4 text-emerald-400" />
+          <Info className="h-4 w-4 text-[#E6B447]" />
           <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-500">Insight Original</h3>
         </div>
         <Card className="flex-1 p-6 bg-zinc-900/50 border-white/[0.03] overflow-hidden flex flex-col">
@@ -151,7 +151,7 @@ export function ApprovalWorkspace({ content, insightText, onApprove, onEdit }: A
             </p>
           </ScrollArea>
           <div className="mt-6 pt-6 border-t border-white/[0.03] flex items-center justify-between">
-            <Badge variant="outline" className="bg-emerald-500/5 text-emerald-400 border-emerald-500/20">
+            <Badge variant="outline" className="bg-[#E6B447]/5 text-[#E6B447] border-[#E6B447]/20">
               Alta Relevância
             </Badge>
           </div>
@@ -175,7 +175,7 @@ export function ApprovalWorkspace({ content, insightText, onApprove, onEdit }: A
       <div className="lg:col-span-8 flex flex-col gap-4">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-emerald-400" />
+            <Sparkles className="h-4 w-4 text-[#E6B447]" />
             <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-500">Variantes Geradas</h3>
           </div>
           <div className="flex items-center gap-2">
@@ -247,7 +247,7 @@ export function ApprovalWorkspace({ content, insightText, onApprove, onEdit }: A
                         className="h-8 w-8 p-0 bg-zinc-800/80 hover:bg-zinc-700"
                         onClick={() => setEditMode(!editMode)}
                       >
-                        {editMode ? <Save className="h-4 w-4 text-emerald-400" /> : <Edit3 className="h-4 w-4 text-zinc-400" />}
+                        {editMode ? <Save className="h-4 w-4 text-[#E6B447]" /> : <Edit3 className="h-4 w-4 text-zinc-400" />}
                       </Button>
                     </div>
                   </div>
@@ -255,7 +255,7 @@ export function ApprovalWorkspace({ content, insightText, onApprove, onEdit }: A
                   <div className="mt-6 flex items-center justify-between">
                     <div className="flex items-center gap-4 text-xs text-zinc-500">
                       <div className="flex items-center gap-1.5">
-                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        <div className="h-1.5 w-1.5 rounded-full bg-[#E6B447]" />
                         Brand Voice: OK
                       </div>
                       <div className="flex items-center gap-1.5">
@@ -284,7 +284,7 @@ export function ApprovalWorkspace({ content, insightText, onApprove, onEdit }: A
                         Editar
                       </Button>
                       <Button
-                        className="btn-accent shadow-lg shadow-emerald-500/10"
+                        className="btn-accent shadow-lg shadow-[#E6B447]/10"
                         onClick={() => onApprove(v.platform, editedCopies[v.platform] || v.copy)}
                       >
                         <CheckCircle2 className="mr-2 h-4 w-4" />
@@ -296,18 +296,18 @@ export function ApprovalWorkspace({ content, insightText, onApprove, onEdit }: A
                   {/* X-2.4: Date picker for scheduling */}
                   {showScheduler && (
                     <div className="mt-4 p-4 rounded-lg bg-zinc-800/50 border border-white/[0.04] flex items-center gap-3">
-                      <CalendarPlus className="h-4 w-4 text-emerald-400 shrink-0" />
+                      <CalendarPlus className="h-4 w-4 text-[#E6B447] shrink-0" />
                       <input
                         type="datetime-local"
                         value={scheduleDate}
                         onChange={(e) => setScheduleDate(e.target.value)}
-                        className="bg-zinc-900 border border-white/[0.06] rounded-lg px-3 py-1.5 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+                        className="bg-zinc-900 border border-white/[0.06] rounded-lg px-3 py-1.5 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-[#E6B447]/50"
                       />
                       <Button
                         size="sm"
                         onClick={() => handleSchedule(v.platform)}
                         disabled={isScheduling || !scheduleDate}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                        className="bg-[#E6B447] hover:bg-[#AB8648] text-white"
                       >
                         {isScheduling ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Confirmar'}
                       </Button>

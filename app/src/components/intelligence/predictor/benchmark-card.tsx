@@ -68,7 +68,7 @@ export function BenchmarkCard({ benchmark, currentScore, className }: BenchmarkC
             <TrendingUp className="h-3.5 w-3.5 mx-auto text-zinc-500" />
             <p className={cn(
               'text-lg font-bold tabular-nums',
-              isAboveAverage ? 'text-emerald-400' : 'text-red-400'
+              isAboveAverage ? 'text-[#E6B447]' : 'text-red-400'
             )}>
               {percentileDisplay}
             </p>
@@ -87,7 +87,7 @@ export function BenchmarkCard({ benchmark, currentScore, className }: BenchmarkC
         <p className={cn(
           'text-xs text-center font-medium px-3 py-1.5 rounded-full',
           isAboveAverage
-            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+            ? 'bg-[#E6B447]/10 text-[#E6B447] border border-[#E6B447]/20'
             : 'bg-red-500/10 text-red-400 border border-red-500/20'
         )}>
           {benchmark.comparisonLabel}

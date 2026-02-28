@@ -30,8 +30,8 @@ export function BrandProgress({ brand, assetCount, onOpenModal }: BrandProgressP
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Shield className="h-4 w-4 text-emerald-400" />
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-400">
+          <Shield className="h-4 w-4 text-[#E6B447]" />
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#E6B447]">
             Checklist da Marca
           </h3>
         </div>
@@ -46,7 +46,7 @@ export function BrandProgress({ brand, assetCount, onOpenModal }: BrandProgressP
           initial={{ width: 0 }}
           animate={{ width: `${completeness.score}%` }}
           transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
-          className="h-full bg-emerald-500 rounded-full"
+          className="h-full bg-[#E6B447] rounded-full"
         />
       </div>
 
@@ -58,7 +58,7 @@ export function BrandProgress({ brand, assetCount, onOpenModal }: BrandProgressP
             key={field}
             className="flex items-center gap-3 py-2 px-2 text-sm text-zinc-500"
           >
-            <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+            <Check className="h-4 w-4 text-[#E6B447] flex-shrink-0" />
             <span className="line-through">{FIELD_LABELS[field] || field}</span>
           </div>
         ))}
@@ -73,7 +73,7 @@ export function BrandProgress({ brand, assetCount, onOpenModal }: BrandProgressP
                 <span>{field.label}</span>
               </div>
               {hasAction && (
-                <ArrowRight className="h-3 w-3 text-zinc-600 group-hover:text-emerald-400 transition-colors" />
+                <ArrowRight className="h-3 w-3 text-zinc-600 group-hover:text-[#E6B447] transition-colors" />
               )}
             </div>
           );

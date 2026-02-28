@@ -66,11 +66,11 @@ function PreBriefingBody({ onStartBriefing }: { onStartBriefing: () => void }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="rounded-2xl border-l-4 border-l-emerald-500 border border-white/[0.06] bg-zinc-900/60 p-8 text-center sm:text-left"
+      className="rounded-2xl border-l-4 border-l-[#E6B447] border border-white/[0.06] bg-zinc-900/60 p-8 text-center sm:text-left"
     >
       <div className="flex flex-col sm:flex-row items-center gap-6">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 flex-shrink-0">
-          <Sparkles className="h-8 w-8 text-emerald-400" />
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#E6B447]/10 flex-shrink-0">
+          <Sparkles className="h-8 w-8 text-[#E6B447]" />
         </div>
         <div className="flex-1">
           <h3 className="text-lg font-bold text-white mb-2">
@@ -131,8 +131,8 @@ function PostAhaBody({
         {/* Next actions */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center gap-2 mb-1">
-            <Target className="h-4 w-4 text-emerald-400" />
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-400">
+            <Target className="h-4 w-4 text-[#E6B447]" />
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#E6B447]">
               Proximo passo
             </h3>
           </div>
@@ -143,21 +143,21 @@ function PostAhaBody({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
               whileHover={{ y: -2 }}
-              className="group rounded-2xl border border-white/[0.06] bg-zinc-900/60 p-5 hover:border-emerald-500/20 transition-all cursor-pointer"
+              className="group rounded-2xl border border-white/[0.06] bg-zinc-900/60 p-5 hover:border-[#E6B447]/20 transition-all cursor-pointer"
             >
               <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10">
-                  <Plus className="h-5 w-5 text-emerald-400" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E6B447]/10">
+                  <Plus className="h-5 w-5 text-[#E6B447]" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">
+                  <h4 className="text-sm font-semibold text-white group-hover:text-[#E6B447] transition-colors">
                     Criar seu primeiro funil
                   </h4>
                   <p className="text-xs text-zinc-500 mt-0.5">
                     O MKTHONEY vai propor arquiteturas baseadas na sua marca
                   </p>
                 </div>
-                <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-emerald-400 transition-colors" />
+                <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-[#E6B447] transition-colors" />
               </div>
             </motion.div>
           </Link>
@@ -168,21 +168,21 @@ function PostAhaBody({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               whileHover={{ y: -2 }}
-              className="group rounded-2xl border border-white/[0.06] bg-zinc-900/60 p-5 hover:border-emerald-500/20 transition-all cursor-pointer"
+              className="group rounded-2xl border border-white/[0.06] bg-zinc-900/60 p-5 hover:border-[#E6B447]/20 transition-all cursor-pointer"
             >
               <div className="flex items-center gap-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10">
                   <Sparkles className="h-5 w-5 text-blue-400" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">
+                  <h4 className="text-sm font-semibold text-white group-hover:text-[#E6B447] transition-colors">
                     Continuar conversa com o MKTHONEY
                   </h4>
                   <p className="text-xs text-zinc-500 mt-0.5">
                     Aprofunde o diagnostico e receba recomendacoes
                   </p>
                 </div>
-                <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-emerald-400 transition-colors" />
+                <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-[#E6B447] transition-colors" />
               </div>
             </motion.div>
           </Link>

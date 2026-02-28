@@ -59,7 +59,7 @@ export function PaywallModal({ isOpen, onOpenChange }: PaywallModalProps) {
                   transition={{ delay: i * 0.1 }}
                   className="flex items-center gap-3 rounded-xl border border-white/[0.04] bg-white/[0.02] p-3"
                 >
-                  <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
+                  <CheckCircle2 className="h-5 w-5 text-[#E6B447] flex-shrink-0" />
                   <span className="text-sm text-zinc-300">{benefit}</span>
                 </motion.div>
               ))}

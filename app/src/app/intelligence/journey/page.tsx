@@ -125,7 +125,7 @@ export default function JourneyPage() {
   const statusBadge = (status: string) => {
     const styles: Record<string, string> = {
       lead: 'bg-blue-500/10 text-blue-400',
-      customer: 'bg-emerald-500/10 text-emerald-400',
+      customer: 'bg-[#E6B447]/10 text-[#E6B447]',
       churned: 'bg-red-500/10 text-red-400',
     };
     const labels: Record<string, string> = {
@@ -154,7 +154,7 @@ export default function JourneyPage() {
           <Card className="bg-zinc-900 border-zinc-800">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Search className="h-5 w-5 text-emerald-500" />
+                <Search className="h-5 w-5 text-[#E6B447]" />
                 Rastrear Jornada
               </CardTitle>
               <CardDescription>
@@ -169,7 +169,7 @@ export default function JourneyPage() {
                   onChange={(e) => setLeadId(e.target.value)}
                   className="bg-zinc-950 border-zinc-800 text-white"
                 />
-                <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Button type="submit" className="bg-[#AB8648] hover:bg-[#895F29] text-white">
                   Analisar Mapa
                 </Button>
               </form>
@@ -178,9 +178,9 @@ export default function JourneyPage() {
 
           {/* Empty state — no data yet */}
           {hasData === false && !loadingLeads && !loadingHeatmap && (
-            <Card className="bg-zinc-900/50 border-emerald-500/20 border-dashed">
+            <Card className="bg-zinc-900/50 border-[#E6B447]/20 border-dashed">
               <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                <Code2 className="h-12 w-12 text-emerald-500/50 mb-4" />
+                <Code2 className="h-12 w-12 text-[#E6B447]/50 mb-4" />
                 <h3 className="text-lg font-semibold text-white mb-2">
                   Instale o Tracking Script
                 </h3>
@@ -189,7 +189,7 @@ export default function JourneyPage() {
                   Os dados começam a aparecer aqui automaticamente.
                 </p>
                 <Link href="/settings/tracking">
-                  <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Button className="bg-[#AB8648] hover:bg-[#895F29] text-white">
                     <Code2 className="mr-2 h-4 w-4" />
                     Instalar Tracking Script
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -204,7 +204,7 @@ export default function JourneyPage() {
             <Card className="bg-zinc-900 border-zinc-800">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <Users className="h-5 w-5 text-emerald-500" />
+                  <Users className="h-5 w-5 text-[#E6B447]" />
                   Leads Recentes
                 </CardTitle>
               </CardHeader>
@@ -219,7 +219,7 @@ export default function JourneyPage() {
                       <button
                         key={lead.id}
                         onClick={() => router.push(`/intelligence/journey/${lead.id}?brandId=${brandId}`)}
-                        className="w-full flex items-center justify-between p-3 rounded-xl bg-zinc-950/50 border border-white/[0.04] hover:border-emerald-500/20 transition-all text-left"
+                        className="w-full flex items-center justify-between p-3 rounded-xl bg-zinc-950/50 border border-white/[0.04] hover:border-[#E6B447]/20 transition-all text-left"
                       >
                         <div className="flex items-center gap-3">
                           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-xs font-bold text-zinc-300">
@@ -230,7 +230,7 @@ export default function JourneyPage() {
                             <div className="flex items-center gap-2 mt-0.5">
                               {statusBadge(lead.status)}
                               {lead.metrics.totalLtv > 0 && (
-                                <span className="text-[10px] text-emerald-400">
+                                <span className="text-[10px] text-[#E6B447]">
                                   LTV: {formatCurrency(lead.metrics.totalLtv)}
                                 </span>
                               )}
@@ -258,7 +258,7 @@ export default function JourneyPage() {
                       )}
                     </Button>
                     {importResult && importResult.leadsImported > 0 && (
-                      <p className="text-xs text-emerald-400 mt-2">
+                      <p className="text-xs text-[#E6B447] mt-2">
                         {importResult.leadsImported} leads importados de {importResult.formsFound} formulários.
                       </p>
                     )}
@@ -276,7 +276,7 @@ export default function JourneyPage() {
             <Card className="bg-zinc-900 border-zinc-800">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <Map className="h-5 w-5 text-emerald-500" />
+                  <Map className="h-5 w-5 text-[#E6B447]" />
                   Heatmap de Conversão
                 </CardTitle>
               </CardHeader>
@@ -289,7 +289,7 @@ export default function JourneyPage() {
                   <div className="space-y-3">
                     {heatmapStages.map((stage, i) => {
                       const maxWidth = stage.conversionFromTop;
-                      const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-yellow-500', 'bg-purple-500'];
+                      const colors = ['bg-[#E6B447]', 'bg-blue-500', 'bg-yellow-500', 'bg-purple-500'];
                       return (
                         <div key={stage.stage}>
                           <div className="flex items-center justify-between mb-1">

@@ -37,7 +37,7 @@ export function AutomationLogCard({ log, onApprove, onReject, onViewDetails }: A
   
   const statusConfig = {
     pending_approval: { icon: Clock, color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'border-amber-400/20', label: 'Aguardando Aprovação' },
-    executed: { icon: CheckCircle2, color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-emerald-400/20', label: 'Executado' },
+    executed: { icon: CheckCircle2, color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10', border: 'border-[#E6B447]/20', label: 'Executado' },
     rejected: { icon: XCircle, color: 'text-rose-400', bg: 'bg-rose-400/10', border: 'border-rose-400/20', label: 'Rejeitado' },
     failed: { icon: AlertTriangle, color: 'text-rose-500', bg: 'bg-rose-500/10', border: 'border-rose-500/20', label: 'Falha na Execução' },
   };
@@ -121,7 +121,7 @@ export function AutomationLogCard({ log, onApprove, onReject, onViewDetails }: A
             <Button 
               className={cn(
                 "flex-1 shadow-lg",
-                isCritical ? "bg-rose-600 hover:bg-rose-700 shadow-rose-900/20" : "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-900/20"
+                isCritical ? "bg-rose-600 hover:bg-rose-700 shadow-rose-900/20" : "bg-[#AB8648] hover:bg-[#895F29] shadow-[#1A1612]/20"
               )}
               onClick={() => onApprove(log.id)}
             >
@@ -140,7 +140,7 @@ export function ControlCenterHeader({ pendingCount }: { pendingCount: number }) 
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <ShieldAlert className="h-5 w-5 text-emerald-400" />
+          <ShieldAlert className="h-5 w-5 text-[#E6B447]" />
           <h1 className="text-2xl font-bold tracking-tight text-white">Active Optimization Control Center</h1>
         </div>
         <p className="text-zinc-500 text-sm">
@@ -151,12 +151,12 @@ export function ControlCenterHeader({ pendingCount }: { pendingCount: number }) 
       <div className="flex items-center gap-3">
         <div className="bg-zinc-900/80 border border-white/[0.03] rounded-xl px-4 py-2 flex items-center gap-3">
           <div className="relative">
-            <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <div className="absolute inset-0 h-2 w-2 rounded-full bg-emerald-500 animate-ping opacity-50" />
+            <div className="h-2 w-2 rounded-full bg-[#E6B447] animate-pulse" />
+            <div className="absolute inset-0 h-2 w-2 rounded-full bg-[#E6B447] animate-ping opacity-50" />
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] uppercase font-bold text-zinc-500 leading-none mb-1">Status do Motor</span>
-            <span className="text-xs font-bold text-emerald-400 leading-none">ATIVO & MONITORANDO</span>
+            <span className="text-xs font-bold text-[#E6B447] leading-none">ATIVO & MONITORANDO</span>
           </div>
         </div>
 

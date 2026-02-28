@@ -14,7 +14,7 @@ interface VerdictSummaryProps {
 
 function MiniScoreBar({ value, label }: { value: number; label: string }) {
   const getColor = (score: number) => {
-    if (score >= 8) return { bar: 'bg-emerald-500', text: 'text-emerald-400' };
+    if (score >= 8) return { bar: 'bg-[#E6B447]', text: 'text-[#E6B447]' };
     if (score >= 5) return { bar: 'bg-yellow-500', text: 'text-yellow-400' };
     return { bar: 'bg-red-500', text: 'text-red-400' };
   };
@@ -67,8 +67,8 @@ function EmptyVerdictCard() {
       transition={{ duration: 0.4 }}
       className="rounded-2xl border border-white/[0.06] bg-zinc-900/60 p-6 text-center"
     >
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 mb-4">
-        <MessageSquare className="h-7 w-7 text-emerald-400" />
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E6B447]/10 mb-4">
+        <MessageSquare className="h-7 w-7 text-[#E6B447]" />
       </div>
       <h3 className="text-base font-semibold text-white mb-2">
         Seu veredito esta a caminho
@@ -97,13 +97,13 @@ export function VerdictSummary({ verdict, conversationId, isLoading }: VerdictSu
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="rounded-2xl border border-emerald-500/20 border-l-4 border-l-emerald-500 bg-zinc-900/60 p-6"
+      className="rounded-2xl border border-[#E6B447]/20 border-l-4 border-l-[#E6B447] bg-zinc-900/60 p-6"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20">
-            <Target className="h-5 w-5 text-emerald-400" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E6B447]/20">
+            <Target className="h-5 w-5 text-[#E6B447]" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-white">Veredito Estrategico</h3>
@@ -113,7 +113,7 @@ export function VerdictSummary({ verdict, conversationId, isLoading }: VerdictSu
         {conversationId && (
           <Link
             href={`/chat?id=${conversationId}`}
-            className="flex items-center gap-1 text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors"
+            className="flex items-center gap-1 text-xs font-medium text-[#E6B447] hover:text-[#E6B447]/60 transition-colors"
           >
             Ver completo
             <ArrowRight className="h-3 w-3" />

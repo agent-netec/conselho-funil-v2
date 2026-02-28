@@ -94,14 +94,14 @@ export function ChatSidebar({
                           ? 'bg-indigo-500/10 text-white border-indigo-500/20 shadow-sm shadow-indigo-500/5'
                           : accentColor === 'amber'
                           ? 'bg-amber-500/10 text-white border-amber-500/20 shadow-sm shadow-amber-500/5'
-                          : 'bg-emerald-500/10 text-white border-emerald-500/20 shadow-sm shadow-emerald-500/5'
+                          : 'bg-[#E6B447]/10 text-white border-[#E6B447]/20 shadow-sm shadow-[#E6B447]/5'
                         : 'text-zinc-500 hover:bg-white/[0.02] hover:text-zinc-300 hover:border-white/[0.05]'
                     )}
                   >
                     <div className={cn(
                       "p-1.5 rounded-lg transition-colors",
                       conv.id === conversationId 
-                        ? (accentColor === 'indigo' ? "bg-indigo-500/20 text-indigo-400" : accentColor === 'amber' ? "bg-amber-500/20 text-amber-400" : "bg-emerald-500/20 text-emerald-400")
+                        ? (accentColor === 'indigo' ? "bg-indigo-500/20 text-indigo-400" : accentColor === 'amber' ? "bg-amber-500/20 text-amber-400" : "bg-[#E6B447]/20 text-[#E6B447]")
                         : "bg-zinc-900 text-zinc-600 group-hover:text-zinc-400"
                     )}>
                       <MessageSquare className="h-3.5 w-3.5 flex-shrink-0" />
@@ -146,7 +146,7 @@ export function ChatSidebar({
           <div className="flex flex-col h-full">
             <div className="p-4 border-b border-white/[0.04] bg-[#0d0d0f]">
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 text-emerald-500" />
+                <MessageSquare className="h-4 w-4 text-[#E6B447]" />
                 Histórico
               </h2>
             </div>

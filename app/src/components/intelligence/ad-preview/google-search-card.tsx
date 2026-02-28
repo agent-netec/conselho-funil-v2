@@ -41,7 +41,7 @@ export function GoogleSearchCard({ ad, estimatedCPS, className }: GoogleSearchCa
         <span className="text-[10px] font-bold text-zinc-900 bg-zinc-300 px-1 py-0.5 rounded">
           Ad
         </span>
-        <span className="text-xs text-emerald-400">{displayUrl}</span>
+        <span className="text-xs text-[#E6B447]">{displayUrl}</span>
       </div>
 
       {/* Headlines */}
@@ -54,7 +54,7 @@ export function GoogleSearchCard({ ad, estimatedCPS, className }: GoogleSearchCa
           className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-zinc-800/80"
           aria-label="Copiar headlines"
         >
-          {copiedField === 'headlines' ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3 text-zinc-400" />}
+          {copiedField === 'headlines' ? <Check className="h-3 w-3 text-[#E6B447]" /> : <Copy className="h-3 w-3 text-zinc-400" />}
         </button>
       </div>
 
@@ -68,7 +68,7 @@ export function GoogleSearchCard({ ad, estimatedCPS, className }: GoogleSearchCa
           className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-zinc-800/80"
           aria-label="Copiar descrições"
         >
-          {copiedField === 'descriptions' ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3 text-zinc-400" />}
+          {copiedField === 'descriptions' ? <Check className="h-3 w-3 text-[#E6B447]" /> : <Copy className="h-3 w-3 text-zinc-400" />}
         </button>
       </div>
     </Card>

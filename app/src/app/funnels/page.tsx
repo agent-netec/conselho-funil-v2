@@ -32,10 +32,10 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
   draft: { label: 'Rascunho', color: 'text-zinc-400', bg: 'bg-zinc-500/10', icon: Clock, glow: 'from-zinc-500/5 to-transparent' },
   generating: { label: 'Gerando', color: 'text-blue-400', bg: 'bg-blue-500/10', icon: Clock, glow: 'from-blue-500/5 to-transparent' },
   review: { label: 'Avaliar', color: 'text-amber-400', bg: 'bg-amber-500/10', icon: AlertCircle, glow: 'from-amber-500/5 to-transparent' },
-  approved: { label: 'Aprovado', color: 'text-emerald-400', bg: 'bg-emerald-500/10', icon: CheckCircle2, glow: 'from-emerald-500/5 to-transparent' },
+  approved: { label: 'Aprovado', color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10', icon: CheckCircle2, glow: 'from-[#E6B447]/5 to-transparent' },
   adjusting: { label: 'Ajustando', color: 'text-violet-400', bg: 'bg-violet-500/10', icon: Clock, glow: 'from-violet-500/5 to-transparent' },
   executing: { label: 'Executando', color: 'text-blue-400', bg: 'bg-blue-500/10', icon: Clock, glow: 'from-blue-500/5 to-transparent' },
-  completed: { label: 'Concluído', color: 'text-emerald-400', bg: 'bg-emerald-500/10', icon: CheckCircle2, glow: 'from-emerald-500/5 to-transparent' },
+  completed: { label: 'Concluído', color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10', icon: CheckCircle2, glow: 'from-[#E6B447]/5 to-transparent' },
   killed: { label: 'Cancelado', color: 'text-red-400', bg: 'bg-red-500/10', icon: AlertCircle, glow: 'from-red-500/5 to-transparent' },
 };
 
@@ -94,7 +94,7 @@ export default function FunnelsPage() {
               </div>
               <div className="w-px h-10 bg-white/[0.05]" />
               <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Em Operação</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#E6B447]">Em Operação</span>
                 <p className="text-2xl font-bold text-white">{stats.active}</p>
               </div>
               <div className="w-px h-10 bg-white/[0.05]" />
@@ -183,11 +183,11 @@ export default function FunnelsPage() {
                           
                           <div className="flex items-start justify-between mb-6 relative z-10">
                             <div className="flex items-center gap-4">
-                              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 group-hover:border-emerald-500/40 transition-colors">
-                                <Target className="h-6 w-6 text-emerald-400" />
+                              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E6B447]/10 border border-[#E6B447]/20 group-hover:border-[#E6B447]/40 transition-colors">
+                                <Target className="h-6 w-6 text-[#E6B447]" />
                               </div>
                               <div className="min-w-0">
-                                <h4 className="font-bold text-white group-hover:text-emerald-400 transition-colors truncate">
+                                <h4 className="font-bold text-white group-hover:text-[#E6B447] transition-colors truncate">
                                   {funnel.name}
                                 </h4>
                                 <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold">
@@ -237,7 +237,7 @@ export default function FunnelsPage() {
                             </div>
                             <div className="flex items-center justify-between text-xs">
                               <span className="text-zinc-500 font-medium">Ticket Médio</span>
-                              <span className="text-emerald-400 font-bold">
+                              <span className="text-[#E6B447] font-bold">
                                 R$ {(Number(funnel.context.offer?.ticket) || 0).toLocaleString('pt-BR')}
                               </span>
                             </div>
@@ -252,7 +252,7 @@ export default function FunnelsPage() {
                               {status.label}
                             </div>
                             
-                            <div className="flex items-center gap-1 text-emerald-400 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
+                            <div className="flex items-center gap-1 text-[#E6B447] opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
                               <span className="text-[10px] font-bold uppercase tracking-tighter">Gerenciar</span>
                               <TrendingUp className="h-3 w-3" />
                             </div>

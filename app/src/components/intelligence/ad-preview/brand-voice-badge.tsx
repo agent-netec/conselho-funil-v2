@@ -15,7 +15,7 @@ export function BrandVoiceBadge({ toneMatch, passed, className }: BrandVoiceBadg
   let colorClasses: string;
   let label: string;
   if (toneMatch >= 0.75) {
-    colorClasses = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+    colorClasses = 'text-[#E6B447] bg-[#E6B447]/10 border-[#E6B447]/20';
     label = 'Alinhado';
   } else if (toneMatch >= 0.5) {
     colorClasses = 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';

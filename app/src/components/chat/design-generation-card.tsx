@@ -248,7 +248,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                 </span>
               </div>
               {promptData.objective && (
-                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-bold uppercase">
+                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#E6B447]/10 border border-[#E6B447]/20 text-[#E6B447] text-[9px] font-bold uppercase">
                   <Target className="w-2.5 h-2.5" />
                   {promptData.objective}
                 </div>
@@ -270,7 +270,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
               <div className="flex flex-col items-center gap-0.5">
                 <span className="text-[8px] text-zinc-500 uppercase font-bold tracking-tight">Zonas</span>
                 <div className="flex items-center gap-1 text-[10px] text-zinc-300 font-bold px-1 py-0.5 rounded bg-white/5 border border-white/5 capitalize">
-                  <Shield className="w-2.5 h-2.5 text-emerald-500/70" />
+                  <Shield className="w-2.5 h-2.5 text-[#E6B447]/70" />
                   {promptData.safeZone || 'Feed'}
                 </div>
               </div>
@@ -402,8 +402,8 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                   {promptData.safeZone === 'feed' && (
                     <>
                       {/* Side Margin Check */}
-                      <div className="absolute inset-x-[8%] inset-y-0 border-x border-dashed border-emerald-500/30">
-                        <div className="absolute top-2 left-1/2 -translate-x-1/2 text-[7px] text-emerald-400/80 font-black uppercase bg-black/60 px-1 rounded">
+                      <div className="absolute inset-x-[8%] inset-y-0 border-x border-dashed border-[#E6B447]/30">
+                        <div className="absolute top-2 left-1/2 -translate-x-1/2 text-[7px] text-[#E6B447]/80 font-black uppercase bg-black/60 px-1 rounded">
                           Optimal Text Margin
                         </div>
                       </div>
@@ -456,7 +456,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                     variant="outline" 
                     className={cn(
                       "h-7 text-[9px] border-white/20 text-white hover:bg-white/10",
-                      showSafeZones && "bg-emerald-500/20 border-emerald-500/50 text-emerald-300"
+                      showSafeZones && "bg-[#E6B447]/20 border-[#E6B447]/50 text-[#E6B447]/60"
                     )}
                     onClick={() => setShowSafeZones(!showSafeZones)}
                   >
@@ -499,7 +499,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                                 onClick={() => copyToClipboard(promptData.assets.headline!, 'headline')}
                                 className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded"
                               >
-                                {copiedField === 'headline' ? <Check className="w-2.5 h-2.5 text-emerald-500" /> : <Copy className="w-2.5 h-2.5 text-zinc-400" />}
+                                {copiedField === 'headline' ? <Check className="w-2.5 h-2.5 text-[#E6B447]" /> : <Copy className="w-2.5 h-2.5 text-zinc-400" />}
                               </button>
                             </div>
                             <p className="text-[11px] text-white font-medium leading-snug pr-6">{promptData.assets.headline}</p>
@@ -513,7 +513,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                                 onClick={() => copyToClipboard(promptData.assets.primaryText!, 'primary')}
                                 className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded"
                               >
-                                {copiedField === 'primary' ? <Check className="w-2.5 h-2.5 text-emerald-500" /> : <Copy className="w-2.5 h-2.5 text-zinc-400" />}
+                                {copiedField === 'primary' ? <Check className="w-2.5 h-2.5 text-[#E6B447]" /> : <Copy className="w-2.5 h-2.5 text-zinc-400" />}
                               </button>
                             </div>
                             <p className="text-[11px] text-zinc-300 leading-relaxed italic pr-6 whitespace-pre-wrap">"{promptData.assets.primaryText}"</p>
@@ -536,7 +536,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                                     onClick={() => copyToClipboard(text, `h-${idx}`)}
                                     className="p-1 hover:bg-white/10 rounded shrink-0"
                                   >
-                                    {copiedField === `h-${idx}` ? <Check className="w-2.5 h-2.5 text-emerald-500" /> : <Copy className="w-2.5 h-2.5 text-zinc-400" />}
+                                    {copiedField === `h-${idx}` ? <Check className="w-2.5 h-2.5 text-[#E6B447]" /> : <Copy className="w-2.5 h-2.5 text-zinc-400" />}
                                   </button>
                                 </div>
                               ))}
@@ -554,7 +554,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                                     onClick={() => copyToClipboard(text, `d-${idx}`)}
                                     className="p-1 hover:bg-white/10 rounded shrink-0"
                                   >
-                                    {copiedField === `d-${idx}` ? <Check className="w-2.5 h-2.5 text-emerald-500" /> : <Copy className="w-2.5 h-2.5 text-zinc-400" />}
+                                    {copiedField === `d-${idx}` ? <Check className="w-2.5 h-2.5 text-[#E6B447]" /> : <Copy className="w-2.5 h-2.5 text-zinc-400" />}
                                   </button>
                                 </div>
                               ))}
@@ -574,7 +574,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                           onClick={() => copyToClipboard(promptData.assets.callToAction!, 'cta')}
                           className="p-1 hover:bg-purple-500/20 rounded"
                         >
-                          {copiedField === 'cta' ? <Check className="w-2.5 h-2.5 text-emerald-500" /> : <Copy className="w-2.5 h-2.5 text-purple-400" />}
+                          {copiedField === 'cta' ? <Check className="w-2.5 h-2.5 text-[#E6B447]" /> : <Copy className="w-2.5 h-2.5 text-purple-400" />}
                         </button>
                       </div>
                     )}
@@ -583,7 +583,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
               </div>
             )}
 
-            <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-bold justify-center py-1">
+            <div className="flex items-center gap-1.5 text-[#E6B447] text-[10px] font-bold justify-center py-1">
               <CheckCircle2 className="w-3 h-3" />
               {isSelected ? 'CRIATIVO SELECIONADO PARA A CAMPANHA!' : 'CRIATIVO SALVO NA GALERIA!'}
             </div>
@@ -593,7 +593,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                 <Button 
                   onClick={handleSelectForCampaign}
                   disabled={isSelecting}
-                  className="col-span-2 bg-emerald-600 hover:bg-emerald-500 text-white border-0 shadow-lg shadow-emerald-900/20 h-9 text-xs font-bold transition-all hover:scale-[1.01]"
+                  className="col-span-2 bg-[#AB8648] hover:bg-[#E6B447] text-white border-0 shadow-lg shadow-[#1A1612]/20 h-9 text-xs font-bold transition-all hover:scale-[1.01]"
                 >
                   {isSelecting ? (
                     <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
@@ -605,7 +605,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
               ) : isSelected && campaignId ? (
                 <Button 
                   variant="secondary"
-                  className="col-span-2 bg-emerald-500/20 text-emerald-400 border-emerald-500/30 h-10 text-xs font-black uppercase tracking-widest hover:bg-emerald-500/30"
+                  className="col-span-2 bg-[#E6B447]/20 text-[#E6B447] border-[#E6B447]/30 h-10 text-xs font-black uppercase tracking-widest hover:bg-[#E6B447]/30"
                   asChild
                 >
                   <Link href={`/campaigns/${campaignId}`}>

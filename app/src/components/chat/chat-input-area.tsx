@@ -117,12 +117,12 @@ export function ChatInputArea({ onSend, isLoading, disabled = false, disabledMes
                     <div className="flex items-center gap-1.5">
                       {att.status === 'uploading' && (
                         <div className="flex items-center gap-1.5">
-                          <div className="h-1 w-12 rounded-full bg-zinc-800 overflow-hidden"><motion.div className="h-full bg-emerald-500" initial={{ width: 0 }} animate={{ width: `${att.progress}%` }} /></div>
+                          <div className="h-1 w-12 rounded-full bg-zinc-800 overflow-hidden"><motion.div className="h-full bg-[#E6B447]" initial={{ width: 0 }} animate={{ width: `${att.progress}%` }} /></div>
                           <span className="text-[8px] text-zinc-500">{att.progress}%</span>
                         </div>
                       )}
                       {att.status === 'analyzing' && <span className="text-[9px] text-indigo-400 flex items-center gap-1 animate-pulse"><Loader2 className="h-2.5 w-2.5 animate-spin" /> Analisando...</span>}
-                      {att.status === 'ready' && <span className="text-[9px] text-emerald-500 font-medium">Pronto</span>}
+                      {att.status === 'ready' && <span className="text-[9px] text-[#E6B447] font-medium">Pronto</span>}
                       {att.status === 'error' && <span className="text-[9px] text-red-500 truncate max-w-[80px]">{att.error}</span>}
                     </div>
                   </div>
@@ -216,7 +216,7 @@ export function ChatInputArea({ onSend, isLoading, disabled = false, disabledMes
               className={cn(
                 'inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition-all border',
                 isPartyMode
-                  ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-200 shadow-[0_0_24px_rgba(16,185,129,0.35)]'
+                  ? 'bg-[#E6B447]/10 border-[#E6B447]/40 text-[#E6B447]/30 shadow-[0_0_24px_rgba(230,180,71,0.35)]'
                   : 'bg-zinc-900/60 border-white/5 text-zinc-200 hover:border-white/10'
               )}
             >
@@ -238,7 +238,7 @@ export function ChatInputArea({ onSend, isLoading, disabled = false, disabledMes
             <Paperclip className="h-5 w-5" />
           </button>
           <textarea ref={textareaRef} value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={handleKeyDown} placeholder={mounted && disabled ? (disabledMessage || 'Saldo insuficiente') : modeConfig.placeholder} disabled={isInputDisabled} rows={1} className="flex-1 resize-none bg-transparent py-2.5 px-0 text-[16px] sm:text-sm text-white placeholder:text-zinc-600 focus:outline-none disabled:opacity-50 min-h-[44px] sm:min-h-0" style={{ maxHeight: '160px' }} />
-          <motion.button whileHover={!isInputDisabled ? { scale: 1.05 } : {}} whileTap={!isInputDisabled ? { scale: 0.95 } : {}} onClick={handleSubmit} disabled={isSendDisabled} className={cn('flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl transition-all duration-300', (value.trim() || attachments.length > 0) && !isInputDisabled && hasMinimumAgents ? accentColor === 'indigo' ? 'bg-indigo-500 text-white hover:bg-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.3)]' : accentColor === 'amber' ? 'bg-amber-500 text-white hover:bg-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.3)]' : accentColor === 'blue' ? 'bg-blue-500 text-white hover:bg-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : 'bg-emerald-500 text-white hover:bg-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-zinc-800 text-zinc-500')}>
+          <motion.button whileHover={!isInputDisabled ? { scale: 1.05 } : {}} whileTap={!isInputDisabled ? { scale: 0.95 } : {}} onClick={handleSubmit} disabled={isSendDisabled} className={cn('flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl transition-all duration-300', (value.trim() || attachments.length > 0) && !isInputDisabled && hasMinimumAgents ? accentColor === 'indigo' ? 'bg-indigo-500 text-white hover:bg-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.3)]' : accentColor === 'amber' ? 'bg-amber-500 text-white hover:bg-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.3)]' : accentColor === 'blue' ? 'bg-blue-500 text-white hover:bg-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : 'bg-[#E6B447] text-white hover:bg-[#E6B447] shadow-[0_0_15px_rgba(230,180,71,0.3)]' : 'bg-zinc-800 text-zinc-500')}>
             <Send className="h-5 w-5" />
           </motion.button>
         </div>

@@ -249,7 +249,7 @@ export default function AssetsPage() {
               <DialogTrigger asChild>
                 <button 
                   disabled={!activeBrand}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 text-sm font-bold text-black hover:bg-emerald-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#E6B447] text-sm font-bold text-black hover:bg-[#E6B447] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Plus className="h-4 w-4" />
                   <span>Adicionar Ativo</span>
@@ -258,7 +258,7 @@ export default function AssetsPage() {
               <DialogContent className="bg-zinc-950 border-white/[0.05] sm:max-w-[500px]">
                 <DialogHeader>
                   <DialogTitle className="text-white flex items-center gap-2">
-                    <ShieldCheck className="h-5 w-5 text-emerald-500" />
+                    <ShieldCheck className="h-5 w-5 text-[#E6B447]" />
                     Alimentar Inteligência
                   </DialogTitle>
                   <DialogDescription className="sr-only">
@@ -272,9 +272,9 @@ export default function AssetsPage() {
                     onAddUrl={handleAddUrl}
                   />
                   {isProcessing && (
-                    <div className="mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
-                      <Loader2 className="h-5 w-5 text-emerald-500 animate-spin" />
-                      <p className="text-sm text-emerald-200">Processando conhecimento...</p>
+                    <div className="mt-4 p-4 rounded-xl bg-[#E6B447]/10 border border-[#E6B447]/20 flex items-center gap-3">
+                      <Loader2 className="h-5 w-5 text-[#E6B447] animate-spin" />
+                      <p className="text-sm text-[#E6B447]/30">Processando conhecimento...</p>
                     </div>
                   )}
                 </div>
@@ -347,7 +347,7 @@ export default function AssetsPage() {
                 placeholder="Buscar por nome ou heurística..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-10 pr-4 rounded-xl bg-zinc-900 border border-white/[0.05] text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+                className="w-full h-10 pl-10 pr-4 rounded-xl bg-zinc-900 border border-white/[0.05] text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-[#E6B447]/50"
               />
             </div>
             <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 border border-white/[0.05] text-zinc-400 hover:text-white">

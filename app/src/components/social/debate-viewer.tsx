@@ -14,14 +14,14 @@ const COUNSELOR_INFO: Record<string, { name: string; role: string; color: string
   rachel_karten: { name: 'Rachel Karten', role: 'Criativo & Hooks', color: 'rose', avatar: 'RK' },
   lia_haberman: { name: 'Lia Haberman', role: 'Algoritmo & Mudanças', color: 'violet', avatar: 'LH' },
   nikita_beer: { name: 'Nikita Beer', role: 'Viralização & Trends', color: 'amber', avatar: 'NB' },
-  justin_welsh: { name: 'Justin Welsh', role: 'Funil Social', color: 'emerald', avatar: 'JW' },
+  justin_welsh: { name: 'Justin Welsh', role: 'Funil Social', color: 'gold', avatar: 'JW' },
 };
 
 const COLOR_MAP: Record<string, { bg: string; border: string; text: string; avatarBg: string }> = {
   rose: { bg: 'bg-rose-500/5', border: 'border-rose-500/20', text: 'text-rose-400', avatarBg: 'bg-rose-500/20' },
   violet: { bg: 'bg-violet-500/5', border: 'border-violet-500/20', text: 'text-violet-400', avatarBg: 'bg-violet-500/20' },
   amber: { bg: 'bg-amber-500/5', border: 'border-amber-500/20', text: 'text-amber-400', avatarBg: 'bg-amber-500/20' },
-  emerald: { bg: 'bg-emerald-500/5', border: 'border-emerald-500/20', text: 'text-emerald-400', avatarBg: 'bg-emerald-500/20' },
+  gold: { bg: 'bg-[#E6B447]/5', border: 'border-[#E6B447]/20', text: 'text-[#E6B447]', avatarBg: 'bg-[#E6B447]/20' },
 };
 
 interface DebateViewerProps {

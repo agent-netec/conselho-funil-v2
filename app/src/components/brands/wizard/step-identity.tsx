@@ -62,7 +62,7 @@ export function StepIdentity({ name, vertical, positioning, voiceTone, onUpdate 
         <select
           value={vertical}
           onChange={(e) => onUpdate('vertical', e.target.value)}
-          className="w-full rounded-lg border border-white/[0.06] bg-white/[0.02] px-4 py-2.5 text-white focus:border-emerald-500 focus:outline-none"
+          className="w-full rounded-lg border border-white/[0.06] bg-white/[0.02] px-4 py-2.5 text-white focus:border-[#E6B447] focus:outline-none"
         >
           <option value="" className="bg-zinc-900">Selecione...</option>
           {VERTICALS.map(v => (
@@ -101,7 +101,7 @@ export function StepIdentity({ name, vertical, positioning, voiceTone, onUpdate 
               onClick={() => onUpdate('voiceTone', tone.id)}
               className={`rounded-lg border p-3 text-left transition-all ${
                 voiceTone === tone.id
-                  ? 'border-emerald-500/50 bg-emerald-500/5'
+                  ? 'border-[#E6B447]/50 bg-[#E6B447]/5'
                   : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1]'
               }`}
             >

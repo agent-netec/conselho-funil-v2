@@ -23,7 +23,7 @@ export default function PredictiveIntelligencePage() {
             <span className="text-xs text-zinc-500 font-medium uppercase tracking-widest">Intelligence Wing</span>
           </div>
           <h1 className="text-4xl font-bold text-white tracking-tight">
-            Inteligência <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-emerald-400">Preditiva</span>
+            Inteligência <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-[#E6B447]">Preditiva</span>
           </h1>
           <p className="text-zinc-400 max-w-2xl text-sm leading-relaxed">
             Dashboard preditivo com visão de churn, LTV, forecast de audiência e simulador de escala.

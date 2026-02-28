@@ -78,8 +78,8 @@ export function FunnelDropoffChart({ data, className }: FunnelDropoffChartProps)
           >
             <defs>
               <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity={0.8} />
-                <stop offset="100%" stopColor="#10b981" stopOpacity={0.1} />
+                <stop offset="0%" stopColor="#E6B447" stopOpacity={0.8} />
+                <stop offset="100%" stopColor="#E6B447" stopOpacity={0.1} />
               </linearGradient>
               <linearGradient id="dropoffGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#ef4444" stopOpacity={0.8} />

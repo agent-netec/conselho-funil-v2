@@ -90,17 +90,17 @@ function generateHTML(funnel: Funnel, proposals: Proposal[]): string {
   <title>${funnel.name}</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 40px 20px; color: #1a1a1a; }
-    h1 { color: #059669; border-bottom: 3px solid #059669; padding-bottom: 10px; }
+    h1 { color: #AB8648; border-bottom: 3px solid #AB8648; padding-bottom: 10px; }
     h2 { color: #374151; margin-top: 30px; }
-    h3 { color: #059669; }
+    h3 { color: #AB8648; }
     table { border-collapse: collapse; width: 100%; margin: 15px 0; }
     th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
     th { background: #f3f4f6; }
     .score { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
-    .score-high { background: #d1fae5; color: #065f46; }
+    .score-high { background: #F5E8CE; color: #593519; }
     .score-mid { background: #fef3c7; color: #92400e; }
     .score-low { background: #fee2e2; color: #991b1b; }
-    .stage { background: #f9fafb; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #059669; }
+    .stage { background: #f9fafb; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #AB8648; }
     blockquote { border-left: 4px solid #d1d5db; margin: 20px 0; padding: 10px 20px; background: #f9fafb; }
     .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px; }
   </style>
@@ -289,7 +289,7 @@ export function ExportDialog({ isOpen, onClose, funnel, proposals }: ExportDialo
       <DialogContent className="bg-zinc-900 border-zinc-800 max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-white">
-            <Download className="h-5 w-5 text-emerald-400" />
+            <Download className="h-5 w-5 text-[#E6B447]" />
             Exportar Funil
           </DialogTitle>
         </DialogHeader>
@@ -308,13 +308,13 @@ export function ExportDialog({ isOpen, onClose, funnel, proposals }: ExportDialo
                 className={cn(
                   'flex flex-col items-center gap-2 p-4 rounded-lg border transition-all text-left',
                   selectedFormat === option.format
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-white'
+                    ? 'bg-[#E6B447]/10 border-[#E6B447]/30 text-white'
                     : 'bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:border-zinc-600'
                 )}
               >
                 <option.icon className={cn(
                   'h-6 w-6',
-                  selectedFormat === option.format ? 'text-emerald-400' : 'text-zinc-500'
+                  selectedFormat === option.format ? 'text-[#E6B447]' : 'text-zinc-500'
                 )} />
                 <div className="text-center">
                   <p className="font-medium text-sm">{option.label}</p>

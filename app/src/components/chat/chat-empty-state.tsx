@@ -72,7 +72,7 @@ export function ChatEmptyState({
     mode === 'social' ? 'rose' :
     mode === 'ads' ? 'blue' :
     mode === 'design' ? 'purple' :
-    'emerald';
+    'gold';
 
   return (
     <div className="flex h-full flex-col items-center justify-center p-4 sm:p-8">
@@ -91,7 +91,7 @@ export function ChatEmptyState({
             accentColor === 'rose' ? 'bg-rose-500/20' :
             accentColor === 'blue' ? 'bg-blue-500/20' :
             accentColor === 'purple' ? 'bg-purple-500/20' :
-            'bg-emerald-500/20'
+            'bg-[#E6B447]/20'
           )} />
           <div className={cn(
             'relative flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl sm:rounded-3xl shadow-xl mx-auto',
@@ -105,7 +105,7 @@ export function ChatEmptyState({
               ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-blue-500/20'
               : accentColor === 'purple'
               ? 'bg-gradient-to-br from-purple-500 to-purple-600 shadow-purple-500/20'
-              : 'bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-emerald-500/20'
+              : 'bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-[#E6B447]/20'
           )}>
             <Bot className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
           </div>
@@ -140,12 +140,12 @@ export function ChatEmptyState({
                   ? 'border-white/[0.04] bg-white/[0.01] hover:border-amber-500/30 hover:bg-amber-500/5'
                   : accentColor === 'rose'
                   ? 'border-white/[0.04] bg-white/[0.01] hover:border-rose-500/30 hover:bg-rose-500/5'
-                  : 'border-white/[0.04] bg-white/[0.01] hover:border-emerald-500/30 hover:bg-emerald-500/5'
+                  : 'border-white/[0.04] bg-white/[0.01] hover:border-[#E6B447]/30 hover:bg-[#E6B447]/5'
               )}
             >
               <Sparkles className={cn(
                 'h-3.5 w-3.5 shrink-0 opacity-70',
-                accentColor === 'indigo' ? 'text-indigo-400' : accentColor === 'amber' ? 'text-amber-400' : accentColor === 'rose' ? 'text-rose-400' : 'text-emerald-400'
+                accentColor === 'indigo' ? 'text-indigo-400' : accentColor === 'amber' ? 'text-amber-400' : accentColor === 'rose' ? 'text-rose-400' : 'text-[#E6B447]'
               )} />
               <span className="line-clamp-1">{suggestion}</span>
             </motion.button>
@@ -312,8 +312,8 @@ export function ChatEmptyState({
                     </motion.div>
                   );
                 })}
-                <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1.5 border border-emerald-500/20">
-                  <span className="text-xs text-emerald-400">+16 experts</span>
+                <div className="flex items-center gap-1.5 rounded-full bg-[#E6B447]/10 px-3 py-1.5 border border-[#E6B447]/20">
+                  <span className="text-xs text-[#E6B447]">+16 experts</span>
                 </div>
               </div>
             </div>

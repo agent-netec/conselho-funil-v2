@@ -72,7 +72,7 @@ export function ProjectList({ brandId }: ProjectListProps) {
         <Button 
           onClick={() => setIsModalOpen(true)}
           size="sm" 
-          className="bg-emerald-600 hover:bg-emerald-700"
+          className="bg-[#AB8648] hover:bg-[#895F29]"
         >
           <Plus className="mr-2 h-4 w-4" />
           Novo Projeto
@@ -99,7 +99,7 @@ export function ProjectList({ brandId }: ProjectListProps) {
               className="group flex items-center justify-between p-4 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
             >
               <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6B447]/10 text-[#E6B447]">
                   <FolderOpen className="h-5 w-5" />
                 </div>
                 <div>
@@ -113,7 +113,7 @@ export function ProjectList({ brandId }: ProjectListProps) {
                     </span>
                     <span className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border ${
                       project.status === 'active' 
-                        ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/5' 
+                        ? 'border-[#E6B447]/30 text-[#E6B447] bg-[#E6B447]/5' 
                         : 'border-zinc-500/30 text-zinc-400 bg-zinc-500/5'
                     }`}>
                       {project.status === 'active' ? 'Ativo' : project.status}
@@ -135,7 +135,7 @@ export function ProjectList({ brandId }: ProjectListProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-zinc-900 border-white/10 text-white">
                     <DropdownMenuItem className="hover:bg-white/5">
-                      <CheckCircle2 className="mr-2 h-4 w-4 text-emerald-500" />
+                      <CheckCircle2 className="mr-2 h-4 w-4 text-[#E6B447]" />
                       Concluir
                     </DropdownMenuItem>
                     <DropdownMenuItem className="hover:bg-white/5">

@@ -38,12 +38,12 @@ function StatCard({
       className="card-premium card-hover p-5"
     >
       <div className="flex items-start justify-between">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10">
-          <Icon className="h-5 w-5 text-emerald-400" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E6B447]/10">
+          <Icon className="h-5 w-5 text-[#E6B447]" />
         </div>
         {trend && (
           <div className={`flex items-center gap-1 text-xs font-medium ${
-            trend.positive ? 'text-emerald-400' : 'text-red-400'
+            trend.positive ? 'text-[#E6B447]' : 'text-red-400'
           }`}>
             {trend.positive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
             {trend.value}
@@ -67,7 +67,7 @@ function MiniChart({ status }: { status: string }) {
     ? "0,5 10,12 20,10 30,18 40,15 50,20"
     : "0,15 10,13 20,16 30,14 40,15 50,15";
     
-  const color = status === 'success' ? '#10b981' : status === 'danger' ? '#ef4444' : status === 'warning' ? '#f59e0b' : '#71717a';
+  const color = status === 'success' ? '#E6B447' : status === 'danger' ? '#ef4444' : status === 'warning' ? '#f59e0b' : '#71717a';
 
   return (
     <svg width="60" height="25" viewBox="0 0 50 25" className="opacity-60">
@@ -97,7 +97,7 @@ function BenchmarkCard({
   delay?: number;
 }) {
   const statusColors = {
-    success: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+    success: 'text-[#E6B447] bg-[#E6B447]/10 border-[#E6B447]/20',
     warning: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
     danger: 'text-red-400 bg-red-500/10 border-red-500/20',
     neutral: 'text-zinc-400 bg-zinc-500/10 border-zinc-500/20'
@@ -177,8 +177,8 @@ export function StatsCards({ stats, isLoading }: { stats: any; isLoading: boolea
       {stats.performance_benchmarks && stats.performance_benchmarks.length > 0 && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
           <div className="flex items-center gap-2 mb-4">
-            <Activity className="h-4 w-4 text-emerald-400" />
-            <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Benchmarks de Mercado 2026</h3>
+            <Activity className="h-4 w-4 text-[#E6B447]" />
+            <h3 className="text-xs font-bold text-[#E6B447] uppercase tracking-widest">Benchmarks de Mercado 2026</h3>
           </div>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {stats.performance_benchmarks.map((bench: any, i: number) => (

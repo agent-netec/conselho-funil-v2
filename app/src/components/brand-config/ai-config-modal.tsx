@@ -23,7 +23,7 @@ const AI_PRESETS = [
     desc: 'Balanco entre criatividade e precisao. Ideal para a maioria dos casos.',
     temp: 0.6,
     topP: 0.85,
-    color: 'emerald',
+    color: 'gold',
   },
   {
     id: 'criativo',
@@ -57,7 +57,7 @@ const AI_PRESETS = [
 type ProfileId = typeof AI_PRESETS[number]['id'];
 
 const COLOR_MAP: Record<string, { bg: string; border: string; text: string }> = {
-  emerald: { bg: 'bg-emerald-500/15', border: 'border-emerald-500/40', text: 'text-emerald-400' },
+  gold: { bg: 'bg-[#E6B447]/15', border: 'border-[#E6B447]/40', text: 'text-[#E6B447]' },
   purple: { bg: 'bg-purple-500/15', border: 'border-purple-500/40', text: 'text-purple-400' },
   red: { bg: 'bg-red-500/15', border: 'border-red-500/40', text: 'text-red-400' },
   blue: { bg: 'bg-blue-500/15', border: 'border-blue-500/40', text: 'text-blue-400' },
@@ -224,7 +224,7 @@ export function AiConfigModal({ isOpen, onClose, brand }: AiConfigModalProps) {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <label className="text-xs text-zinc-400 font-medium">Temperature</label>
-                    <span className="text-xs font-mono text-emerald-400">{temperature.toFixed(2)}</span>
+                    <span className="text-xs font-mono text-[#E6B447]">{temperature.toFixed(2)}</span>
                   </div>
                   <input
                     type="range"
@@ -233,7 +233,7 @@ export function AiConfigModal({ isOpen, onClose, brand }: AiConfigModalProps) {
                     step="0.05"
                     value={temperature}
                     onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                    className="w-full h-2 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-emerald-500"
+                    className="w-full h-2 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-[#E6B447]"
                   />
                   <div className="flex justify-between text-[10px] text-zinc-600">
                     <span>Preciso</span>
@@ -245,7 +245,7 @@ export function AiConfigModal({ isOpen, onClose, brand }: AiConfigModalProps) {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <label className="text-xs text-zinc-400 font-medium">Top P</label>
-                    <span className="text-xs font-mono text-emerald-400">{topP.toFixed(2)}</span>
+                    <span className="text-xs font-mono text-[#E6B447]">{topP.toFixed(2)}</span>
                   </div>
                   <input
                     type="range"
@@ -254,7 +254,7 @@ export function AiConfigModal({ isOpen, onClose, brand }: AiConfigModalProps) {
                     step="0.05"
                     value={topP}
                     onChange={(e) => setTopP(parseFloat(e.target.value))}
-                    className="w-full h-2 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-emerald-500"
+                    className="w-full h-2 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-[#E6B447]"
                   />
                   <div className="flex justify-between text-[10px] text-zinc-600">
                     <span>Focado</span>
@@ -306,7 +306,7 @@ export function AiConfigModal({ isOpen, onClose, brand }: AiConfigModalProps) {
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#E6B447] text-white font-medium hover:bg-[#E6B447] transition-colors disabled:opacity-50"
             >
               {isSaving ? (
                 <>

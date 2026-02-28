@@ -315,7 +315,7 @@ export function HookGenerator() {
             </div>
             {activeBrand && (
               <p className="text-xs text-zinc-500 flex items-center gap-1.5 px-1">
-                <Check className="h-3 w-3 text-emerald-500" />
+                <Check className="h-3 w-3 text-[#E6B447]" />
                 Alinhando com a marca: <span className="text-zinc-300 font-medium">{activeBrand.name}</span>
               </p>
             )}
@@ -340,7 +340,7 @@ export function HookGenerator() {
                         className="text-zinc-500 hover:text-rose-400 transition-colors"
                       >
                         {copiedIndex === index ? (
-                          <Check className="h-4 w-4 text-emerald-500" />
+                          <Check className="h-4 w-4 text-[#E6B447]" />
                         ) : (
                           <Copy className="h-4 w-4" />
                         )}

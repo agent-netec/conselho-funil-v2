@@ -41,7 +41,7 @@ export function SourcesTab() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'active': return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
+      case 'active': return <CheckCircle2 className="h-4 w-4 text-[#E6B447]" />;
       case 'error': return <AlertCircle className="h-4 w-4 text-red-500" />;
       default: return <RefreshCw className="h-4 w-4 text-zinc-500 animate-spin" />;
     }
@@ -64,7 +64,7 @@ export function SourcesTab() {
             Gerencie de onde extraímos dados para alimentar seus Conselheiros.
           </p>
         </div>
-        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2">
+        <Button className="bg-[#AB8648] hover:bg-[#895F29] text-white gap-2">
           <Plus className="h-4 w-4" />
           Adicionar Fonte
         </Button>
@@ -115,14 +115,14 @@ export function SourcesTab() {
               <div className="flex items-center justify-between mt-4">
                 <Badge variant="outline" className={cn(
                   "text-[10px] px-1.5 py-0 border-white/[0.1]",
-                  source.scope?.level === 'brand' ? "text-emerald-400" : "text-purple-400"
+                  source.scope?.level === 'brand' ? "text-[#E6B447]" : "text-purple-400"
                 )}>
                   {source.scope?.level === 'brand' ? 'Escopo: Marca' : 'Escopo: Funil'}
                 </Badge>
                 {source.relevanceScore && (
                   <div className="flex items-center gap-1.5">
                     <span className="text-[10px] text-zinc-500">Relevância:</span>
-                    <span className="text-[10px] font-bold text-emerald-500">
+                    <span className="text-[10px] font-bold text-[#E6B447]">
                       {Math.round(source.relevanceScore * 100)}%
                     </span>
                   </div>
@@ -141,12 +141,12 @@ export function SourcesTab() {
         ))}
         
         {/* Sugestão da IA */}
-        <Card className="bg-emerald-500/[0.02] border-emerald-500/20 border-dashed hover:bg-emerald-500/[0.04] transition-all cursor-pointer">
+        <Card className="bg-[#E6B447]/[0.02] border-[#E6B447]/20 border-dashed hover:bg-[#E6B447]/[0.04] transition-all cursor-pointer">
           <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full min-h-[160px]">
-            <div className="h-12 w-12 rounded-full bg-emerald-500/10 flex items-center justify-center mb-3">
-              <RefreshCw className="h-6 w-6 text-emerald-500" />
+            <div className="h-12 w-12 rounded-full bg-[#E6B447]/10 flex items-center justify-center mb-3">
+              <RefreshCw className="h-6 w-6 text-[#E6B447]" />
             </div>
-            <h3 className="text-sm font-semibold text-emerald-400">Sugestões da IA</h3>
+            <h3 className="text-sm font-semibold text-[#E6B447]">Sugestões da IA</h3>
             <p className="text-[11px] text-zinc-500 mt-1 max-w-[180px]">
               Deixe nossa IA encontrar fontes relevantes para seu nicho.
             </p>

@@ -5,7 +5,7 @@ import type { ConversionGrade } from '@/types/prediction';
 
 const GRADE_CONFIG: Record<ConversionGrade, { bg: string; text: string; border: string; label: string }> = {
   S: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', border: 'border-yellow-500/40', label: 'Elite' },
-  A: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/40', label: 'Excelente' },
+  A: { bg: 'bg-[#E6B447]/20', text: 'text-[#E6B447]', border: 'border-[#E6B447]/40', label: 'Excelente' },
   B: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/40', label: 'Bom' },
   C: { bg: 'bg-orange-500/20', text: 'text-orange-400', border: 'border-orange-500/40', label: 'Médio' },
   D: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/40', label: 'Fraco' },

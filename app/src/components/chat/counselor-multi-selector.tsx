@@ -131,7 +131,7 @@ export function CounselorMultiSelector({
               className={cn(
                 "flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold transition-all",
                 intensity === 'consensus' 
-                  ? "bg-emerald-500 text-white shadow-[0_0_10px_rgba(16,185,129,0.3)]" 
+                  ? "bg-[#E6B447] text-white shadow-[0_0_10px_rgba(230,180,71,0.3)]" 
                   : "text-zinc-500 hover:text-zinc-300"
               )}
             >
@@ -260,7 +260,7 @@ export function CounselorMultiSelector({
                     <span className="group-hover:scale-125 transition-transform">{counselor.icon}</span>
                     <motion.div 
                       layoutId={`indicator-${id}`}
-                      className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full bg-emerald-500 border-2 border-zinc-950 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                      className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full bg-[#E6B447] border-2 border-zinc-950 shadow-[0_0_8px_rgba(230,180,71,0.5)]"
                     />
                   </motion.div>
                 );
@@ -279,7 +279,7 @@ export function CounselorMultiSelector({
           <div className="flex flex-col">
             <span className={cn(
               "text-[11px] font-black uppercase tracking-[0.15em] transition-colors",
-              selectedIds.length === 3 ? "text-emerald-400" : "text-zinc-400"
+              selectedIds.length === 3 ? "text-[#E6B447]" : "text-zinc-400"
             )}>
               {selectedIds.length === 3 ? "Mesa Pronta" : "Convocação em curso"}
             </span>

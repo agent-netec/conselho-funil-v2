@@ -46,7 +46,7 @@ export function ScopeSelector({ onScopeChange, className }: ScopeSelectorProps) 
     <div className={cn("space-y-3 p-4 rounded-xl bg-zinc-900/50 border border-white/[0.04]", className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Shield className="h-4 w-4 text-emerald-500" />
+          <Shield className="h-4 w-4 text-[#E6B447]" />
           <h3 className="text-sm font-medium text-white">Escopo de Visibilidade</h3>
         </div>
         <TooltipProvider>
@@ -70,13 +70,13 @@ export function ScopeSelector({ onScopeChange, className }: ScopeSelectorProps) 
           className={cn(
             "flex flex-col items-start p-3 rounded-lg border transition-all text-left",
             selectedLevel === 'brand'
-              ? "bg-emerald-500/10 border-emerald-500/50 ring-1 ring-emerald-500/20"
+              ? "bg-[#E6B447]/10 border-[#E6B447]/50 ring-1 ring-[#E6B447]/20"
               : "bg-white/[0.02] border-white/[0.04] hover:bg-white/[0.04]"
           )}
         >
           <span className={cn(
             "text-xs font-bold uppercase tracking-wider mb-1",
-            selectedLevel === 'brand' ? "text-emerald-400" : "text-zinc-500"
+            selectedLevel === 'brand' ? "text-[#E6B447]" : "text-zinc-500"
           )}>
             Toda a Marca
           </span>
@@ -109,9 +109,9 @@ export function ScopeSelector({ onScopeChange, className }: ScopeSelectorProps) 
       </div>
 
       {selectedLevel === 'brand' && (
-        <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-emerald-500/5 border border-emerald-500/10">
-          <ShieldCheck className="h-3 w-3 text-emerald-500" />
-          <span className="text-[10px] text-emerald-500/80 font-medium">
+        <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#E6B447]/5 border border-[#E6B447]/10">
+          <ShieldCheck className="h-3 w-3 text-[#E6B447]" />
+          <span className="text-[10px] text-[#E6B447]/80 font-medium">
             Herança ativada: Funis filhos verão este dado.
           </span>
         </div>

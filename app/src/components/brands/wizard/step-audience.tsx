@@ -95,7 +95,7 @@ export function StepAudience({ who, pain, awareness, objections, onUpdate }: Ste
               onClick={() => onUpdate('awareness', level.id)}
               className={`rounded-lg border p-3 text-left transition-all ${
                 awareness === level.id
-                  ? 'border-emerald-500/50 bg-emerald-500/5'
+                  ? 'border-[#E6B447]/50 bg-[#E6B447]/5'
                   : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1]'
               }`}
             >

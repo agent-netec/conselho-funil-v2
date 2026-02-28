@@ -100,7 +100,7 @@ export function CopyLabModal({ creative, isOpen, onClose, brandId }: CopyLabModa
               <div className="grid grid-cols-1 gap-2">
                 {[
                   { id: 'fear', label: 'Medo (FOMO)', icon: AlertTriangle, color: 'text-rose-400' },
-                  { id: 'greed', label: 'Ganância (ROI)', icon: TrendingUp, color: 'text-emerald-400' },
+                  { id: 'greed', label: 'Ganância (ROI)', icon: TrendingUp, color: 'text-[#E6B447]' },
                   { id: 'authority', label: 'Autoridade', icon: ShieldCheck, color: 'text-blue-400' },
                   { id: 'curiosity', label: 'Curiosidade', icon: Sparkles, color: 'text-amber-400' },
                 ].map((angle) => (
@@ -162,7 +162,7 @@ export function CopyLabModal({ creative, isOpen, onClose, brandId }: CopyLabModa
                           className="h-8 w-8 text-zinc-500 hover:text-white"
                           onClick={() => copyToClipboard(`${variant.headline}\n\n${variant.primaryText}`, idx)}
                         >
-                          {copiedIndex === idx ? <Check className="h-4 w-4 text-emerald-400" /> : <CopyIcon className="h-4 w-4" />}
+                          {copiedIndex === idx ? <Check className="h-4 w-4 text-[#E6B447]" /> : <CopyIcon className="h-4 w-4" />}
                         </Button>
                       </div>
                       <h4 className="text-sm font-black text-white mb-2">{variant.headline}</h4>

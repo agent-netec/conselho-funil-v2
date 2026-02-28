@@ -55,7 +55,7 @@ export function MetaStoriesCard({ ad, brandName = 'Marca', estimatedCPS, classNa
             className="absolute -top-1 right-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-zinc-900/80"
             aria-label="Copiar hook"
           >
-            {copiedField === 'hook' ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3 text-zinc-400" />}
+            {copiedField === 'hook' ? <Check className="h-3 w-3 text-[#E6B447]" /> : <Copy className="h-3 w-3 text-zinc-400" />}
           </button>
         </div>
 
@@ -69,7 +69,7 @@ export function MetaStoriesCard({ ad, brandName = 'Marca', estimatedCPS, classNa
             className="absolute -top-1 right-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-zinc-900/80"
             aria-label="Copiar body"
           >
-            {copiedField === 'body' ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3 text-zinc-400" />}
+            {copiedField === 'body' ? <Check className="h-3 w-3 text-[#E6B447]" /> : <Copy className="h-3 w-3 text-zinc-400" />}
           </button>
         </div>
 
@@ -85,7 +85,7 @@ export function MetaStoriesCard({ ad, brandName = 'Marca', estimatedCPS, classNa
               className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-zinc-900/80"
               aria-label="Copiar CTA"
             >
-              {copiedField === 'cta' ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3 text-zinc-400" />}
+              {copiedField === 'cta' ? <Check className="h-3 w-3 text-[#E6B447]" /> : <Copy className="h-3 w-3 text-zinc-400" />}
             </button>
           </div>
         </div>

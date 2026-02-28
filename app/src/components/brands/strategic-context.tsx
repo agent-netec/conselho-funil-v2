@@ -139,7 +139,7 @@ export function StrategicContext({ brandId }: StrategicContextProps) {
     switch (status) {
       case 'ready':
         return (
-          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 gap-1.5">
+          <Badge variant="outline" className="bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/20 gap-1.5">
             <CheckCircle2 className="h-3 w-3" /> Ready
           </Badge>
         );
@@ -183,8 +183,8 @@ export function StrategicContext({ brandId }: StrategicContextProps) {
       <div className="lg:col-span-1 space-y-6">
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-              <ShieldCheck className="h-5 w-5 text-emerald-500" />
+            <div className="h-10 w-10 rounded-lg bg-[#E6B447]/10 flex items-center justify-center">
+              <ShieldCheck className="h-5 w-5 text-[#E6B447]" />
             </div>
             <div>
               <h3 className="text-white font-medium text-lg">Cérebro da Marca</h3>
@@ -209,7 +209,7 @@ export function StrategicContext({ brandId }: StrategicContextProps) {
               "Máxima fidelidade à voz e estratégia da sua marca."
             ].map((text, i) => (
               <li key={i} className="flex gap-3 text-xs text-zinc-500 leading-relaxed">
-                <div className="h-1.5 w-1.5 rounded-full bg-emerald-500/40 mt-1.5 shrink-0" />
+                <div className="h-1.5 w-1.5 rounded-full bg-[#E6B447]/40 mt-1.5 shrink-0" />
                 {text}
               </li>
             ))}

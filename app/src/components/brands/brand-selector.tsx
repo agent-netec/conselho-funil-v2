@@ -62,7 +62,7 @@ export function BrandSelector() {
       <Button
         onClick={handleNewBrand}
         size="sm"
-        className="bg-emerald-600 hover:bg-emerald-700 text-white"
+        className="bg-[#AB8648] hover:bg-[#895F29] text-white"
       >
         <Plus className="h-4 w-4 mr-2" />
         Criar Primeira Marca
@@ -82,7 +82,7 @@ export function BrandSelector() {
           isOpen && 'bg-white/[0.06] border-white/[0.1]'
         )}
       >
-        <div className="flex h-6 w-6 items-center justify-center rounded bg-gradient-to-br from-emerald-500 to-blue-600">
+        <div className="flex h-6 w-6 items-center justify-center rounded bg-gradient-to-br from-[#E6B447] to-blue-600">
           <Building2 className="h-3.5 w-3.5 text-white" />
         </div>
         <div className="hidden sm:flex flex-col items-start">
@@ -133,13 +133,13 @@ export function BrandSelector() {
                     className={cn(
                       'w-full px-4 py-3 flex items-start gap-3 transition-colors',
                       'hover:bg-white/[0.04]',
-                      selectedBrand?.id === brand.id && 'bg-emerald-500/5'
+                      selectedBrand?.id === brand.id && 'bg-[#E6B447]/5'
                     )}
                   >
                     <div className={cn(
                       'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
                       selectedBrand?.id === brand.id
-                        ? 'bg-gradient-to-br from-emerald-500 to-blue-600'
+                        ? 'bg-gradient-to-br from-[#E6B447] to-blue-600'
                         : 'bg-white/[0.06]'
                     )}>
                       <Building2 className={cn(
@@ -152,12 +152,12 @@ export function BrandSelector() {
                       <div className="flex items-center gap-2">
                         <span className={cn(
                           'font-medium',
-                          selectedBrand?.id === brand.id ? 'text-emerald-400' : 'text-white'
+                          selectedBrand?.id === brand.id ? 'text-[#E6B447]' : 'text-white'
                         )}>
                           {brand.name}
                         </span>
                         {selectedBrand?.id === brand.id && (
-                          <Check className="h-4 w-4 text-emerald-400" />
+                          <Check className="h-4 w-4 text-[#E6B447]" />
                         )}
                       </div>
                       <p className="text-xs text-zinc-500 mt-0.5">
@@ -172,9 +172,9 @@ export function BrandSelector() {
               <div className="px-2 py-2 border-t border-white/[0.06]">
                 <button
                   onClick={handleNewBrand}
-                  className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+                  className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-[#E6B447] hover:bg-[#E6B447]/10 transition-colors"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E6B447]/10">
                     <Plus className="h-4 w-4" />
                   </div>
                   <span>Nova Marca</span>

@@ -184,7 +184,7 @@ export function AssetUploader({ brandId, onUploadComplete, onUploadFile, onAddUr
         className={cn(
           "relative group aspect-[21/9] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden",
           isDragActive 
-            ? "border-emerald-500 bg-emerald-500/5 shadow-[0_0_20px_-5px_rgba(16,185,129,0.2)]" 
+            ? "border-[#E6B447] bg-[#E6B447]/5 shadow-[0_0_20px_-5px_rgba(230,180,71,0.2)]" 
             : "border-white/[0.08] hover:border-white/[0.15] hover:bg-white/[0.02]"
         )}
       >
@@ -192,12 +192,12 @@ export function AssetUploader({ brandId, onUploadComplete, onUploadFile, onAddUr
         <div className="flex flex-col items-center text-center p-6">
           <div className={cn(
             "h-14 w-14 rounded-2xl bg-white/[0.03] flex items-center justify-center mb-4 transition-transform group-hover:scale-110",
-            isDragActive && "bg-emerald-500/10"
+            isDragActive && "bg-[#E6B447]/10"
           )}>
             {isUploading ? (
-              <Loader2 className="h-7 w-7 text-emerald-500 animate-spin" />
+              <Loader2 className="h-7 w-7 text-[#E6B447] animate-spin" />
             ) : (
-              <Upload className={cn("h-7 w-7 text-zinc-500", isDragActive && "text-emerald-500")} />
+              <Upload className={cn("h-7 w-7 text-zinc-500", isDragActive && "text-[#E6B447]")} />
             )}
           </div>
           <h3 className="text-white font-medium">Upload de Documentos Estratégicos</h3>
@@ -210,7 +210,7 @@ export function AssetUploader({ brandId, onUploadComplete, onUploadFile, onAddUr
             <span className="text-[10px] bg-white/[0.05] text-zinc-400 px-2 py-1 rounded border border-white/[0.05]">Máx 10MB</span>
           </div>
           {uploadProgress !== null && (
-            <p className="mt-3 text-xs text-emerald-400">Progresso: {uploadProgress}%</p>
+            <p className="mt-3 text-xs text-[#E6B447]">Progresso: {uploadProgress}%</p>
           )}
         </div>
       </div>
@@ -224,7 +224,7 @@ export function AssetUploader({ brandId, onUploadComplete, onUploadFile, onAddUr
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://sua-landing-page.com/sobre-nos"
-          className="pl-12 pr-32 h-14 bg-white/[0.03] border-white/[0.08] text-white rounded-xl focus:ring-emerald-500/20"
+          className="pl-12 pr-32 h-14 bg-white/[0.03] border-white/[0.08] text-white rounded-xl focus:ring-[#E6B447]/20"
         />
         <div className="absolute right-2 top-1/2 -translate-y-1/2">
           <Button 

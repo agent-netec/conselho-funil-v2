@@ -160,7 +160,7 @@ export default function FunnelAutopsyPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pass': return <CheckCircle2 className="w-4 h-4 text-emerald-500" />;
+      case 'pass': return <CheckCircle2 className="w-4 h-4 text-[#E6B447]" />;
       case 'fail': return <XCircle className="w-4 h-4 text-red-500" />;
       case 'warning': return <AlertTriangle className="w-4 h-4 text-amber-500" />;
       default: return <Info className="w-4 h-4 text-zinc-500" />;
@@ -188,7 +188,7 @@ export default function FunnelAutopsyPage() {
       {/* N-4: Tabs — Analyze + Library */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="bg-zinc-900/50 border border-zinc-800">
-          <TabsTrigger value="analyze" className="data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-400">
+          <TabsTrigger value="analyze" className="data-[state=active]:bg-[#E6B447]/10 data-[state=active]:text-[#E6B447]">
             <Stethoscope className="h-4 w-4 mr-2" />
             Análise
           </TabsTrigger>
@@ -211,7 +211,7 @@ export default function FunnelAutopsyPage() {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
                   <Input
                     placeholder="Insira a URL da página para análise (ex: https://lp.exemplo.com)"
-                    className="pl-10 bg-zinc-950 border-zinc-800 focus:ring-emerald-500/20"
+                    className="pl-10 bg-zinc-950 border-zinc-800 focus:ring-[#E6B447]/20"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     disabled={isLoading}
@@ -220,7 +220,7 @@ export default function FunnelAutopsyPage() {
                 <Button
                   onClick={handleRunAutopsy}
                   disabled={isLoading || !url}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white min-w-[140px]"
+                  className="bg-[#AB8648] hover:bg-[#895F29] text-white min-w-[140px]"
                 >
                   {isLoading ? (
                     <>
@@ -254,14 +254,14 @@ export default function FunnelAutopsyPage() {
                 <Card className="bg-zinc-900/50 border-zinc-800">
                   <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
-                      <Activity className="w-5 h-5 text-emerald-500" />
+                      <Activity className="w-5 h-5 text-[#E6B447]" />
                       Resumo do Diagnóstico
                     </CardTitle>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-zinc-500">Health Score:</span>
                       <div className={cn(
                         "text-2xl font-bold px-3 py-1 rounded-lg",
-                        report.score >= 7 ? "text-emerald-500 bg-emerald-500/10" :
+                        report.score >= 7 ? "text-[#E6B447] bg-[#E6B447]/10" :
                         report.score >= 4 ? "text-amber-500 bg-amber-500/10" :
                         "text-red-500 bg-red-500/10"
                       )}>
@@ -287,7 +287,7 @@ export default function FunnelAutopsyPage() {
                           <ul className="space-y-2">
                             {result.findings.map((finding, i) => (
                               <li key={i} className="text-xs text-zinc-400 flex gap-2">
-                                <span className="text-emerald-500/50">•</span>
+                                <span className="text-[#E6B447]/50">•</span>
                                 {finding}
                               </li>
                             ))}
@@ -379,12 +379,12 @@ export default function FunnelAutopsyPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-emerald-500/5 border-emerald-500/10">
+                <Card className="bg-[#E6B447]/5 border-[#E6B447]/10">
                   <CardContent className="pt-6">
                     <div className="flex gap-3">
-                      <AlertTriangle className="w-5 h-5 text-emerald-500 shrink-0" />
+                      <AlertTriangle className="w-5 h-5 text-[#E6B447] shrink-0" />
                       <div className="text-xs space-y-2">
-                        <p className="font-bold text-emerald-400">Insight do Athos</p>
+                        <p className="font-bold text-[#E6B447]">Insight do Athos</p>
                         <p className="text-zinc-400 leading-relaxed">
                           Este diagnóstico foi gerado comparando os dados da página com os playbooks de conversão do Wilder.
                           Priorize as recomendações de <strong>Alta Prioridade</strong> para ver impacto imediato no ROAS.
@@ -425,7 +425,7 @@ export default function FunnelAutopsyPage() {
                           {cs.score && (
                             <span className={cn(
                               "text-[10px] font-bold px-1.5 py-0.5 rounded",
-                              cs.score >= 7 ? "text-emerald-400 bg-emerald-500/10" :
+                              cs.score >= 7 ? "text-[#E6B447] bg-[#E6B447]/10" :
                               cs.score >= 4 ? "text-amber-400 bg-amber-500/10" :
                               "text-red-400 bg-red-500/10"
                             )}>
