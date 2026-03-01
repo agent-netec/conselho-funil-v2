@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 
 /**
@@ -19,9 +20,12 @@ export default function PublicLayout({
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#E6B447]/10">
-                <span className="text-lg font-bold text-[#E6B447]">M</span>
-              </div>
+              <Image
+                src="/logo-mkthoney-icon.svg"
+                alt="MKTHONEY"
+                width={28}
+                height={28}
+              />
               <span className="text-lg font-bold text-white">MKTHONEY</span>
             </Link>
 
