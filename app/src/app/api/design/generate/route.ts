@@ -121,6 +121,7 @@ export async function POST(request: NextRequest) {
     let brandColors: string[] = [];
     let visualStyle = 'Professional and modern';
     let isLogoLocked = false;
+    let brandTypography = '';
 
     if (brandId) {
       console.log(`🔍 Buscando BrandKit e Assets para a marca: ${brandId}`);
@@ -131,6 +132,11 @@ export async function POST(request: NextRequest) {
         brandColors = [kit.colors.primary, kit.colors.secondary, kit.colors.accent].filter(Boolean);
         visualStyle = kit.visualStyle || visualStyle;
         isLogoLocked = Boolean(kit.logoLock?.locked);
+
+        // GAP-1 fix: extract typography
+        if (kit.typography?.primaryFont) {
+          brandTypography = `Heading: ${kit.typography.primaryFont}, Body: ${kit.typography.secondaryFont || kit.typography.primaryFont}`;
+        }
 
         if (kit.logoLock?.variants?.primary?.url) {
           imageReferences.push(kit.logoLock.variants.primary.url);
@@ -214,7 +220,7 @@ ${designBrainContext ? `${designBrainContext}\n\nApply the frameworks above in e
 Platform context: ${platformContext}
 Visual style: "${visualStyle}"
 Palette: ${brandColors.join(', ') || 'n/a'}
-Logo: ${logoInstruction}
+${brandTypography ? `Typography: ${brandTypography}\n` : ''}Logo: ${logoInstruction}
 Technical heuristics: ${seniorHeuristics.lighting}, ${seniorHeuristics.composition}, ${seniorHeuristics.sharpness}.
 Base briefing: ${basePrompt}.
 Return ONLY the JSON array of strings.`;

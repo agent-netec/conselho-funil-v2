@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 /**
- * API Route para Geração de Copy - Conselho de Copywriting
+ * API Route para Geração de Copy - Copywriting
  * 
  * POST /api/copy/generate
  * 
@@ -40,6 +40,7 @@ import {
 import { buildCopyPrompt } from '@/lib/ai/prompts';
 import { parseAIJSON } from '@/lib/ai/formatters';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { getBrand } from '@/lib/firebase/brands';
 import { buildCopyBrainContext } from '@/lib/ai/prompts/copy-brain-context';
 import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
@@ -117,6 +118,16 @@ export async function POST(request: NextRequest) {
         await requireBrandAccess(request, funnel.brandId);
       } catch (err: any) {
         return handleSecurityError(err);
+      }
+    }
+
+    // GAP-3C: load brand for AI config
+    let brand: Brand | null = null;
+    if (funnel.brandId) {
+      try {
+        brand = await getBrand(funnel.brandId);
+      } catch (err) {
+        console.warn('[Copy] Error loading brand for AI config:', err);
       }
     }
 
@@ -261,7 +272,13 @@ export async function POST(request: NextRequest) {
 
     // Generate with Gemini (using model from env or default to gemini-2.0-flash)
     const modelName = DEFAULT_GEMINI_MODEL;
-    const model = genAI.getGenerativeModel({ model: modelName });
+    const model = genAI.getGenerativeModel({
+      model: modelName,
+      generationConfig: {
+        temperature: brand?.aiConfiguration?.temperature || 0.8,
+        topP: brand?.aiConfiguration?.topP || 0.95,
+      },
+    });
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
 

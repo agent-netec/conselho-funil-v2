@@ -6,6 +6,7 @@ import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { updateUserUsage } from '@/lib/firebase/firestore';
+import { getBrand } from '@/lib/firebase/brands';
 import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { buildDesignBrainContext } from '@/lib/ai/prompts/design-brain-context';
 
@@ -33,10 +34,24 @@ export async function POST(request: NextRequest) {
       return createApiError(400, 'Contexto de copy é obrigatório.');
     }
 
+    // GAP-3D: load brand for AI config
+    let brand: any = null;
+    if (brandId) {
+      try {
+        brand = await getBrand(brandId);
+      } catch (err) {
+        console.warn('[Design/Plan] Error loading brand for AI config:', err);
+      }
+    }
+
     const modelName = DEFAULT_GEMINI_MODEL;
     const model = genAI.getGenerativeModel({
       model: modelName,
-      generationConfig: { responseMimeType: "application/json" }
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: brand?.aiConfiguration?.temperature || 0.7,
+        topP: brand?.aiConfiguration?.topP || 0.95,
+      }
     });
 
     // Sprint I: Load brain context from design_director identity card
@@ -51,7 +66,7 @@ export async function POST(request: NextRequest) {
     const copyLanguage = context.language || 'português brasileiro';
 
     const prompt = `
-      Você é o Conselho de Design Estratégico do "Conselho de Funil".
+      Você é o MKTHONEY — módulo Design Estratégico.
       Sua missão é criar prompts visuais ESTRATÉGICOS baseados no framework C.H.A.P.E.U.
 
       ${designBrainContext ? `${designBrainContext}\n\nAplique RIGOROSAMENTE os frameworks e princípios do Diretor de Arte acima.\n` : ''}

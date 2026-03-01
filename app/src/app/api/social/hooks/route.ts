@@ -37,8 +37,9 @@ export async function POST(request: NextRequest) {
 
     // 1. Carregar contexto da marca
     let brandContext = 'Nenhuma marca selecionada. Use um tom de voz neutro, prático e focado em resultados.';
+    let brand: any = null;
     try {
-      const brand = await getBrand(brandId);
+      brand = await getBrand(brandId);
       if (brand) {
         brandContext = `
 Marca: ${brand.name}
@@ -75,7 +76,8 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
     // 4. Gerar com Gemini
     const response = await generateWithGemini(fullPrompt, {
       model: DEFAULT_GEMINI_MODEL,
-      temperature: 0.85,
+      temperature: brand?.aiConfiguration?.temperature || 0.85,
+      topP: brand?.aiConfiguration?.topP || 0.95,
     });
 
     // 5. Parse JSON

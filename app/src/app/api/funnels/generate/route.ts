@@ -62,10 +62,11 @@ export async function POST(request: NextRequest) {
 
     // Load brand context if funnel has brandId
     let brandContext = '';
+    let brand: Brand | null = null;
     try {
       const funnel = await getFunnel(funnelId);
       if (funnel?.brandId) {
-        const brand = await getBrand(funnel.brandId);
+        brand = await getBrand(funnel.brandId);
         if (brand) {
           brandContext = formatBrandContextForFunnel(brand);
           console.log(`🏷️ Usando contexto da marca: ${brand.name}`);
@@ -113,7 +114,8 @@ export async function POST(request: NextRequest) {
     
     const response = await generateWithGemini(fullPrompt, {
       model: DEFAULT_GEMINI_MODEL,
-      temperature: 0.8,
+      temperature: brand?.aiConfiguration?.temperature || 0.8,
+      topP: brand?.aiConfiguration?.topP || 0.95,
       maxOutputTokens: 16384,
       responseMimeType: 'application/json',
     });

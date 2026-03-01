@@ -102,6 +102,21 @@ ${kit.logoLock?.variants?.primary?.url ? `- **URL Logo Principal**: ${kit.logoLo
 ${kit.logoLock?.variants?.horizontal?.url ? `- **URL Logo Horizontal**: ${kit.logoLock.variants.horizontal.url}\n` : ''}${kit.logoLock?.variants?.icon?.url ? `- **URL Ícone**: ${kit.logoLock.variants.icon.url}\n` : ''}`;
   }
 
+  // GAP-2 fix: inject AI personality into chat context
+  if (brand.aiConfiguration) {
+    const profileLabels: Record<string, string> = {
+      agressivo: 'Agressivo — direto, provocativo, urgente',
+      sobrio: 'Sóbrio — formal, técnico, dados',
+      equilibrado: 'Equilibrado — profissional com personalidade',
+      criativo: 'Criativo — ousado, metáforas, storytelling',
+    };
+    const profileDesc = profileLabels[brand.aiConfiguration.profile] || 'Equilibrado';
+    context += `\n#### Personalidade da IA
+- **Perfil**: ${profileDesc}
+- **Temperatura**: ${brand.aiConfiguration.temperature} (${brand.aiConfiguration.temperature >= 0.8 ? 'alta criatividade' : brand.aiConfiguration.temperature <= 0.4 ? 'conservador' : 'balanceado'})
+`;
+  }
+
   context += `\n**⚠️ IMPORTANTE:** Todas as respostas devem respeitar o tom de voz, posicionamento e contexto desta marca.`;
   return context;
 }
