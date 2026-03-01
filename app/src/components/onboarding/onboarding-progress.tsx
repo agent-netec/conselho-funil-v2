@@ -33,7 +33,7 @@ export function OnboardingProgress({ currentStep }: OnboardingProgressProps) {
                     : 'rgba(255, 255, 255, 0.04)',
                   scale: isActive ? 1.1 : 1,
                   borderColor: isActive
-                    ? 'rgb(52, 211, 153)'
+                    ? 'rgb(230, 180, 71)'
                     : isCompleted
                       ? 'rgb(230, 180, 71)'
                       : 'rgba(255, 255, 255, 0.06)',

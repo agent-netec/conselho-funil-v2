@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import type { Brand } from '@/types/database';
 import type { VerdictOutput } from '@/lib/ai/prompts/verdict-prompt';
 
-export type DashboardState = 'pre-briefing' | 'post-aha' | 'active' | 'loading';
+export type DashboardState = 'pre-briefing' | 'post-aha' | 'active' | 'loading' | 'welcome';
 
 interface DashboardHeroProps {
   state: DashboardState;
@@ -33,6 +33,7 @@ export function DashboardHero({ state, brand, verdict, onStartBriefing }: Dashbo
 
   const subtitleMap: Record<DashboardState, string> = {
     'loading': 'Carregando seu painel...',
+    'welcome': 'Configure sua marca para desbloquear o arsenal de marketing autonomo.',
     'pre-briefing': 'Configure sua marca em 3 minutos para desbloquear o poder do MKTHONEY.',
     'post-aha': brand
       ? `Sua marca ${brand.name} foi analisada. Veja os proximos passos abaixo.`
@@ -42,6 +43,7 @@ export function DashboardHero({ state, brand, verdict, onStartBriefing }: Dashbo
 
   const statusMap: Record<DashboardState, string> = {
     'loading': 'Carregando',
+    'welcome': 'Novo Usuario',
     'pre-briefing': 'Aguardando Briefing',
     'post-aha': 'Veredito Recebido',
     'active': 'Plataforma Ativa',

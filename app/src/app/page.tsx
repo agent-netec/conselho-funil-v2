@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Sparkles, Target, Plus, ArrowRight } from 'lucide-react';
+import { Sparkles, Target, Plus, ArrowRight, MessageSquare, Compass } from 'lucide-react';
 import { Header } from '@/components/layout/header';
 import { useStats } from '@/lib/hooks/use-stats';
 import { useFunnels } from '@/lib/hooks/use-funnels';
@@ -46,8 +47,11 @@ function resolveDashboardState(params: {
 
   const hasBrands = brands.length > 0;
 
-  // STATE 1: No brands or onboarding not completed
-  if (!hasBrands || !onboardingComplete) return 'pre-briefing';
+  // No brands → welcome state (user needs to create first brand)
+  if (!hasBrands) return 'welcome';
+
+  // STATE 1: Has brands but onboarding not completed
+  if (!onboardingComplete) return 'pre-briefing';
 
   // STATE 3: Has funnels → always active (no regression)
   if (funnelsCount > 0) return 'active';
@@ -213,10 +217,79 @@ function DashboardSkeleton() {
 }
 
 // ---------------------------------------------------------------------------
+// Welcome body
+// ---------------------------------------------------------------------------
+
+function WelcomeBody({ onCreateBrand }: { onCreateBrand: () => void }) {
+  const router = useRouter();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col items-center justify-center py-16 text-center"
+    >
+      {/* Icon */}
+      <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-[#E6B447]/10">
+        <Sparkles className="h-10 w-10 text-[#E6B447]" />
+      </div>
+
+      {/* Title */}
+      <h1 className="mb-2 text-2xl font-bold text-white">
+        Bem-vindo ao MKTHONEY
+      </h1>
+      <p className="mb-8 max-w-md text-sm text-zinc-400">
+        Configure sua marca para desbloquear todo o arsenal de marketing autonomo.
+      </p>
+
+      {/* Action Cards */}
+      <div className="grid w-full max-w-2xl gap-4 sm:grid-cols-3">
+        {/* Criar Marca */}
+        <button
+          onClick={onCreateBrand}
+          className="group flex flex-col items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 text-center transition-all hover:border-[#E6B447]/20 hover:bg-[#E6B447]/[0.03]"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E6B447]/10 transition-transform group-hover:scale-110">
+            <Sparkles className="h-6 w-6 text-[#E6B447]" />
+          </div>
+          <span className="text-sm font-medium text-white">Criar sua marca</span>
+          <span className="text-xs text-zinc-500">3 passos rapidos</span>
+        </button>
+
+        {/* Consultar MKTHONEY */}
+        <button
+          onClick={() => router.push('/chat')}
+          className="group flex flex-col items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 text-center transition-all hover:border-blue-500/20 hover:bg-blue-500/[0.03]"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 transition-transform group-hover:scale-110">
+            <MessageSquare className="h-6 w-6 text-blue-400" />
+          </div>
+          <span className="text-sm font-medium text-white">Consultar MKTHONEY</span>
+          <span className="text-xs text-zinc-500">Chat com os conselheiros</span>
+        </button>
+
+        {/* Explorar */}
+        <button
+          onClick={() => router.push('/funnels')}
+          className="group flex flex-col items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 text-center transition-all hover:border-purple-500/20 hover:bg-purple-500/[0.03]"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10 transition-transform group-hover:scale-110">
+            <Compass className="h-6 w-6 text-purple-400" />
+          </div>
+          <span className="text-sm font-medium text-white">Explorar plataforma</span>
+          <span className="text-xs text-zinc-500">Conhecer funcionalidades</span>
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 
 export default function HomePage() {
+  const router = useRouter();
   const statsData = useStats();
   const stats = statsData?.stats;
   const statsLoading = statsData?.isLoading;
@@ -249,11 +322,9 @@ export default function HomePage() {
     funnelsLoading: !!funnelsLoading,
   });
 
-  // Onboarding modal: auto-show for new users, or manual trigger from pre-briefing CTA
-  const isNewUser = !brands || brands.length === 0;
-  const autoShowOnboarding = !brandsLoading && !userLoading && isNewUser && !onboardingComplete;
+  // Onboarding modal: triggered manually from WelcomeBody or pre-briefing CTA
   const [manualOnboarding, setManualOnboarding] = useState(false);
-  const showOnboarding = autoShowOnboarding || manualOnboarding;
+  const showOnboarding = manualOnboarding;
 
   // Sprint R2.4: Brand config modals state
   const [openModal, setOpenModal] = useState<ModalKey | null>(null);
@@ -292,19 +363,25 @@ export default function HomePage() {
         </>
       )}
 
-      <Header title="Dashboard" />
+      <Header title={dashboardState === 'welcome' ? 'Inicio' : 'Dashboard'} />
 
       <div className="flex-1 p-4 sm:p-8">
-        {/* Hero — adapts per state */}
-        <DashboardHero
-          state={dashboardState}
-          brand={activeBrand}
-          verdict={verdict}
-          onStartBriefing={() => setManualOnboarding(true)}
-        />
+        {/* Hero — only for non-welcome states */}
+        {dashboardState !== 'welcome' && dashboardState !== 'loading' && (
+          <DashboardHero
+            state={dashboardState}
+            brand={activeBrand}
+            verdict={verdict}
+            onStartBriefing={() => setManualOnboarding(true)}
+          />
+        )}
 
         {/* Body — switches per state */}
         {dashboardState === 'loading' && <DashboardSkeleton />}
+
+        {dashboardState === 'welcome' && (
+          <WelcomeBody onCreateBrand={() => setManualOnboarding(true)} />
+        )}
 
         {dashboardState === 'pre-briefing' && (
           <PreBriefingBody onStartBriefing={() => setManualOnboarding(true)} />
