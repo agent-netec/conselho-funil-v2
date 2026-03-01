@@ -74,12 +74,12 @@ function EmptyVerdictCard() {
         Seu veredito esta a caminho
       </h3>
       <p className="text-sm text-zinc-500 mb-4 max-w-sm mx-auto">
-        Consulte o Conselho para receber sua analise estrategica personalizada.
+        Consulte o MKTHONEY para receber sua analise estrategica personalizada.
       </p>
       <Link href="/chat">
         <Button className="btn-accent">
           <MessageSquare className="mr-2 h-4 w-4" />
-          Consultar o Conselho
+          Consultar MKTHONEY
         </Button>
       </Link>
     </motion.div>

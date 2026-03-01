@@ -3,7 +3,7 @@ import { parsePartyResponse } from '../../../lib/utils/party-parser';
 describe('party-parser', () => {
   it('should parse a complete multi-persona response', () => {
     const content = `
-### 🎙️ Deliberação do Conselho
+### 🎙️ Deliberação dos Especialistas
 
 **[RUSSELL BRUNSON]**: Sua perspectiva aqui sobre funis.
 
@@ -20,7 +20,7 @@ Resumo final e próximos passos práticos.
     
     expect(sections[0]).toEqual({
       type: 'header',
-      content: '### 🎙️ Deliberação do Conselho'
+      content: '### 🎙️ Deliberação dos Especialistas'
     });
 
     expect(sections[1]).toEqual({

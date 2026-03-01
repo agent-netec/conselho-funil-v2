@@ -130,7 +130,7 @@ export async function evaluateBrandRules(brandId: string): Promise<EvaluationRes
 
     // Notificação in-app (fire-and-forget)
     const councilSummary = councilDebate
-      ? ` Conselho: ${councilDebate.votes.filter(v => v.recommendation === 'approve').length}/${councilDebate.votes.length} aprovam.`
+      ? ` Especialistas: ${councilDebate.votes.filter(v => v.recommendation === 'approve').length}/${councilDebate.votes.length} aprovam.`
       : '';
     createInAppNotification(brandId, {
       type: 'automation',
@@ -167,7 +167,7 @@ async function consultAdsCouncil(
     .map(([k, v]) => `${k}: ${typeof v === 'number' ? v.toFixed(2) : v}`)
     .join(', ');
 
-  const debateQuery = `Uma regra de automação foi disparada e precisa de avaliação do Conselho:
+  const debateQuery = `Uma regra de automação foi disparada e precisa de avaliação dos Especialistas:
 
 **Regra:** ${rule.name}
 **Trigger:** ${rule.trigger.metric || rule.trigger.type} ${rule.trigger.operator} ${rule.trigger.value}
@@ -176,11 +176,11 @@ ${rule.action.params.adjustmentValue ? `**Ajuste:** ${rule.action.params.adjustm
 
 **Métricas atuais:** ${metricsContext}
 
-Cada conselheiro deve opinar: APROVAR ou REJEITAR esta ação automática, com justificativa.
-O Veredito deve consolidar as opiniões com nível de confiança (0-100).
+Cada especialista deve opinar: APROVAR ou REJEITAR esta ação automática, com justificativa.
+O Veredito Final deve consolidar as opiniões com nível de confiança (0-100).
 
 FORMATO OBRIGATÓRIO para o Veredito:
-[VOTE:agentId:approve/reject:razão resumida] para cada conselheiro
+[VOTE:agentId:approve/reject:razão resumida] para cada especialista
 [CONFIDENCE:número 0-100]`;
 
   let brandContext = '';
@@ -258,7 +258,7 @@ function parseCouncilResponse(response: string): CouncilDebateResult {
   const confMatch = response.match(/\[CONFIDENCE:(\d+)\]/i);
   const confidence = confMatch ? Math.min(100, Math.max(0, parseInt(confMatch[1], 10))) : 50;
 
-  const verdictMatch = response.match(/veredito.*?(?:conselho|moderador)[\s\S]*?([\s\S]{50,})/i);
+  const verdictMatch = response.match(/veredito.*?(?:conselho|especialistas|moderador)[\s\S]*?([\s\S]{50,})/i);
   const verdict = verdictMatch ? verdictMatch[1].trim().slice(0, 500) : 'Veredito não estruturado';
 
   return {

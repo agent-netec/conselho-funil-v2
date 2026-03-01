@@ -162,7 +162,7 @@ export const FunnelClonerWizard: React.FC<FunnelClonerWizardProps> = ({
             <div className="space-y-2">
               <h3 className="text-xl font-bold">Funil Clonado com Sucesso!</h3>
               <p className="text-sm text-muted-foreground">
-                O template foi salvo e já está disponível para os **Conselheiros** usarem como contexto.
+                O template foi salvo e já está disponível para os **Especialistas** usarem como contexto.
               </p>
             </div>
             <div className="bg-muted/50 p-4 rounded-xl border flex items-center justify-between group">

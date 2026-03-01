@@ -34,7 +34,7 @@ ${analysis.recommendations.map((r: string) => `- ${r}`).join('\n')}
 - Investimento: R$ ${metrics.adSpend.toLocaleString()}
 - Maturação LTV: ${metrics.ltvMaturation.toFixed(1)}%
 
-_Gerado automaticamente pelo Conselho de Funil_
+_Gerado automaticamente pelo MKTHONEY_
     `.trim();
   }
 

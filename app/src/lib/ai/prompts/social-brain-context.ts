@@ -66,5 +66,5 @@ export function buildSocialBrainContext(): string {
 
   if (parts.length === 0) return '';
 
-  return `\n## EVALUATION FRAMEWORKS DOS CONSELHEIROS SOCIAIS (Calibração Real)\n\nIMPORTANTE: Use os pesos e critérios REAIS listados abaixo para cada dimensão. NÃO invente critérios — use EXATAMENTE os que estão nos frameworks.\n\n${parts.join('\n\n---\n\n')}\n`;
+  return `\n## EVALUATION FRAMEWORKS DOS ESPECIALISTAS SOCIAIS (Calibração Real)\n\nIMPORTANTE: Use os pesos e critérios REAIS listados abaixo para cada dimensão. NÃO invente critérios — use EXATAMENTE os que estão nos frameworks.\n\n${parts.join('\n\n---\n\n')}\n`;
 }

@@ -48,7 +48,7 @@ CONTEÚDO PARA REVISÃO:
 ${typeof content === 'string' ? content : JSON.stringify(content)}
 """
 
-Cada conselheiro deve:
+Cada especialista deve:
 1. Avaliar se o conteúdo está pronto para publicação
 2. Dar uma nota de 0-10
 3. Sugerir melhorias específicas se necessário

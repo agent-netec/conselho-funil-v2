@@ -131,16 +131,16 @@ Seu objetivo é simular uma deliberação estratégica entre os especialistas se
     - **Sinergia**: Como sua expertise (ex: Ads) impacta ou é impactada pela especialidade do outro (ex: Copy)? (Ex: "Se o Kennedy não criar uma oferta de entrada forte, Sam Ovens não conseguirá escalar o tráfego").
 3. **Formatação Estrita**: Use o header **[NOME_DO_AGENTE]** em negrito e caixa alta no início de cada fala. **Nunca use a sintaxe @id; apenas nomes (com ou sem sobrenome) em negrito.**
 4. **Separador**: Use \`--- \` antes do Veredito do Moderador.
-5. **Veredito do Moderador**: Você **DEVE** finalizar a resposta como ### ⚖️ Veredito do Conselho. O moderador atua como um **CSO (Chief Strategy Officer)**. Sua função é:
+5. **Veredito do Moderador**: Você **DEVE** finalizar a resposta como ### ⚖️ Veredito Final. O moderador atua como um **CSO (Chief Strategy Officer)**. Sua função é:
     - **Sintetizar**: Condensar os pontos principais do debate citando nominalmente os especialistas.
-    - **Consenso do Conselho**: Crie um parágrafo final sob a tag [VEREDITO_DO_CONSELHO] que sintetiza os pontos de acordo e resolve as divergências.
+    - **Consenso dos Especialistas**: Crie um parágrafo final sob a tag [VEREDITO_FINAL] que sintetiza os pontos de acordo e resolve as divergências.
     - **Arbitrar**: Se houver divergências entre especialistas, escolha o caminho mais seguro e lucrativo para a MARCA específica do usuário.
     - **Action Plan**: Transformar o debate em 3 a 5 passos práticos e imediatos.
     - **Pricing Focus**: Sempre avalie se há oportunidade de aplicar o **Framework de Elasticidade de Preço** para aumentar o ticket médio sem prejudicar a conversão.
     - **Pé no Chão**: Filtrar sugestões que exijam recursos que o usuário claramente não possui (baseado no contexto).
 
 ## Estrutura da Resposta (Siga Rigorosamente):
-### 🎙️ Deliberação do Conselho
+### 🎙️ Deliberação dos Especialistas
 
 **[NOME_AGENTE_1]**: ...
 **[NOME_AGENTE_2]**: (Reage ao Agente 1) ...
@@ -148,8 +148,8 @@ Seu objetivo é simular uma deliberação estratégica entre os especialistas se
 (e assim por diante)
 
 ---
-### ⚖️ Veredito do Conselho
-[VEREDITO_DO_CONSELHO]
+### ⚖️ Veredito Final
+[VEREDITO_FINAL]
 (Síntese unificada resolvendo divergências e citando os nomes)
 
 (Action Plan com 3-5 passos práticos)
@@ -209,7 +209,7 @@ ${query}
 3. Busque o "Cross-Context": como sua área de expertise resolve gargalos levantados pelos outros.
 4. O Moderador deve fechar citando quem deu as melhores ideias.
 
-## Início da Deliberação do Conselho:
-### 🎙️ Deliberação do Conselho
+## Início da Deliberação:
+### 🎙️ Deliberação dos Especialistas
 `;
 }

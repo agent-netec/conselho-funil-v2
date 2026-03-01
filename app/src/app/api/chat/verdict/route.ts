@@ -149,7 +149,7 @@ function generateFallbackVerdict(brandName: string): string {
       },
       {
         title: 'Explore o Chat',
-        description: 'Use o chat para conversar com o Conselho sobre estratégias de funil, copy, social e tráfego.'
+        description: 'Use o chat para conversar com o MKTHONEY sobre estratégias de funil, copy, social e tráfego.'
       }
     ],
     followUpQuestion: 'Qual é o maior desafio que você enfrenta hoje para escalar suas vendas?'

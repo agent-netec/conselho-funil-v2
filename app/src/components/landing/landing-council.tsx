@@ -15,7 +15,7 @@ const COUNSELORS = [
 ];
 
 const DEBATE_STEPS = [
-  'Cada conselheiro analisa pelo seu prisma especializado',
+  'Cada especialista analisa pelo seu prisma especializado',
   'Eles debatem pontos de concordancia e divergencia',
   'O sistema consolida um veredito com score de confianca',
   'Voce recebe recomendacoes fundamentadas em multiplas perspectivas',
@@ -23,7 +23,7 @@ const DEBATE_STEPS = [
 
 export function LandingCouncil() {
   return (
-    <section id="conselho" className="py-20 px-6 bg-[#1A1612]/30">
+    <section id="arsenal" className="py-20 px-6 bg-[#1A1612]/30">
       <div className="mx-auto max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -38,13 +38,13 @@ export function LandingCouncil() {
           </div>
 
           <h2 className="text-3xl md:text-4xl font-bold text-[#F5E8CE] mb-6">
-            O Conselho — 23 Especialistas de Marketing
+            O Arsenal — 23 Especialistas de Marketing
             <br className="hidden md:block" />
             Trabalhando Juntos Pela Sua Marca
           </h2>
 
           <p className="text-lg text-[#CAB792] max-w-3xl mx-auto leading-relaxed">
-            O diferencial do MktHoney e o Conselho: 23 conselheiros de IA, cada um modelado
+            O diferencial do MKTHONEY: 23 especialistas de IA, cada um modelado
             com os frameworks, metodos e criterios reais de uma lenda do marketing mundial.
           </p>
         </motion.div>
@@ -98,7 +98,7 @@ export function LandingCouncil() {
 
           <p className="text-[#CAB792] mb-6 leading-relaxed">
             Quando voce pede uma analise, nao e uma IA generica respondendo.
-            Multiplos conselheiros avaliam sua marca usando seus proprios frameworks:
+            Multiplos especialistas avaliam sua marca usando seus proprios frameworks:
           </p>
 
           <div className="space-y-3">

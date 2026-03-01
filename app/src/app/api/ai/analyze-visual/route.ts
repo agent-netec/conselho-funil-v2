@@ -23,7 +23,7 @@ interface VisionAnalysisRequest {
 
 /**
  * Endpoint para Análise Visual de Criativos via Gemini Vision
- * ST-11.2 - "Olho do Conselho"
+ * ST-11.2 - "Olho do MKTHONEY"
  */
 export async function POST(request: NextRequest) {
   try {

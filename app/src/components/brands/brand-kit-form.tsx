@@ -251,7 +251,7 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
               </div>
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider">Configuração de IA (Deep Intelligence)</h3>
-                <p className="text-xs text-zinc-500">Personalize como o Conselho deve se comportar para esta marca.</p>
+                <p className="text-xs text-zinc-500">Personalize como o MKTHONEY deve se comportar para esta marca.</p>
               </div>
             </div>
 
@@ -339,7 +339,7 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
                       </div>
                     ))}
                   </div>
-                  <span className="text-[10px] text-zinc-500 font-bold uppercase">Conselho Otimizado</span>
+                  <span className="text-[10px] text-zinc-500 font-bold uppercase">MKTHONEY Otimizado</span>
                 </div>
               </div>
             </div>

@@ -7,49 +7,49 @@ import { cn } from '@/lib/utils';
 
 const FAQ_ITEMS = [
   {
-    question: 'O que e o MktHoney?',
+    question: 'O que e o MKTHONEY?',
     answer:
-      'MktHoney e uma plataforma SaaS de marketing autonomo com inteligencia artificial. Ela reune 23 conselheiros de IA modelados em lendas do marketing como Gary Halbert, David Ogilvy e Russell Brunson. A plataforma cobre estrategia, criacao de conteudo, analise competitiva, automacao de campanhas e gestao de funil — tudo personalizado com a identidade e voz da sua marca, operando 24/7.',
+      'MKTHONEY e uma plataforma SaaS de marketing autonomo com inteligencia artificial. Ela reune 23 especialistas de IA modelados em lendas do marketing como Gary Halbert, David Ogilvy e Russell Brunson. A plataforma cobre estrategia, criacao de conteudo, analise competitiva, automacao de campanhas e gestao de funil — tudo personalizado com a identidade e voz da sua marca, operando 24/7.',
   },
   {
-    question: 'Como os 23 conselheiros de IA funcionam?',
+    question: 'Como os 23 especialistas de IA funcionam?',
     answer:
-      'Cada conselheiro e modelado com os frameworks reais de uma lenda do marketing. Quando voce faz uma consulta, multiplos conselheiros analisam usando seus criterios especificos, debatem entre si e entregam um veredito unificado com score de confianca. Nao sao chatbots genericos — sao sistemas de avaliacao estruturados com red flags, gold standards e criterios ponderados.',
+      'Cada especialista e modelado com os frameworks reais de uma lenda do marketing. Quando voce faz uma consulta, multiplos especialistas analisam usando seus criterios especificos, debatem entre si e entregam um veredito unificado com score de confianca. Nao sao chatbots genericos — sao sistemas de avaliacao estruturados com red flags, gold standards e criterios ponderados.',
   },
   {
-    question: 'Preciso ter conhecimento tecnico para usar o MktHoney?',
+    question: 'Preciso ter conhecimento tecnico para usar o MKTHONEY?',
     answer:
-      'Nao. O MktHoney foi projetado para ser usado por qualquer pessoa, do empreendedor solo ao gerente de marketing. O setup inicial leva 5 minutos pelo Brand Hub wizard. A plataforma traduz estrategias complexas em acoes praticas que voce pode aprovar e publicar com um clique.',
+      'Nao. O MKTHONEY foi projetado para ser usado por qualquer pessoa, do empreendedor solo ao gerente de marketing. O setup inicial leva 5 minutos pelo Brand Hub wizard. A plataforma traduz estrategias complexas em acoes praticas que voce pode aprovar e publicar com um clique.',
   },
   {
-    question: 'O MktHoney substitui minha agencia de marketing?',
+    question: 'O MKTHONEY substitui minha agencia de marketing?',
     answer:
-      'Sim, esse e o objetivo. O MktHoney entrega inteligencia estrategica, criacao de conteudo, analise competitiva, automacao de campanhas e monitoramento de performance — funcoes que normalmente exigem uma equipe de 5-10 pessoas. A diferenca: opera 24/7, mantem 100% de consistencia de marca e custa uma fracao do preco de uma agencia.',
+      'Sim, esse e o objetivo. O MKTHONEY entrega inteligencia estrategica, criacao de conteudo, analise competitiva, automacao de campanhas e monitoramento de performance — funcoes que normalmente exigem uma equipe de 5-10 pessoas. A diferenca: opera 24/7, mantem 100% de consistencia de marca e custa uma fracao do preco de uma agencia.',
   },
   {
     question: 'Meus dados estao seguros?',
     answer:
-      'Sim. O MktHoney usa isolamento total de dados por marca (multi-tenant), encriptacao AES-256-GCM para tokens de API, e autenticacao Firebase Auth. Cada marca tem seu proprio namespace no banco vetorial. Nenhum dado de uma marca e acessivel por outra.',
+      'Sim. O MKTHONEY usa isolamento total de dados por marca (multi-tenant), encriptacao AES-256-GCM para tokens de API, e autenticacao Firebase Auth. Cada marca tem seu proprio namespace no banco vetorial. Nenhum dado de uma marca e acessivel por outra.',
   },
   {
-    question: 'Quais redes sociais o MktHoney suporta?',
+    question: 'Quais redes sociais o MKTHONEY suporta?',
     answer:
-      'Atualmente o MktHoney integra com Instagram (Graph API), Meta Ads, Google Ads e LinkedIn. Integracoes com TikTok estao no roadmap. A plataforma gera conteudo otimizado para posts, stories, carrosseis e reels, adaptando formato e linguagem para cada plataforma automaticamente.',
+      'Atualmente o MKTHONEY integra com Instagram (Graph API), Meta Ads, Google Ads e LinkedIn. Integracoes com TikTok estao no roadmap. A plataforma gera conteudo otimizado para posts, stories, carrosseis e reels, adaptando formato e linguagem para cada plataforma automaticamente.',
   },
   {
     question: 'Posso gerenciar multiplas marcas?',
     answer:
-      'Sim. O MktHoney suporta gerenciamento multi-marca com isolamento total de dados. Cada marca tem seu proprio Brand Hub, voz de marca, conselheiros configurados e metricas independentes. Voce pode alternar entre marcas instantaneamente. O plano Agency e ideal para agencias e profissionais que gerenciam multiplos clientes.',
+      'Sim. O MKTHONEY suporta gerenciamento multi-marca com isolamento total de dados. Cada marca tem seu proprio Brand Hub, voz de marca, especialistas configurados e metricas independentes. Voce pode alternar entre marcas instantaneamente. O plano Agency e ideal para agencias e profissionais que gerenciam multiplos clientes.',
   },
   {
     question: 'O que e o Funnel Autopsy?',
     answer:
-      'Funnel Autopsy e o diagnostico forense de funil do MktHoney. Voce cola a URL do seu funil e em menos de 60 segundos recebe uma analise completa de falhas de conversao, usando 5 heuristicas diferentes. Os 23 conselheiros avaliam cada etapa e entregam recomendacoes especificas para melhorar sua taxa de conversao.',
+      'Funnel Autopsy e o diagnostico forense de funil do MKTHONEY. Voce cola a URL do seu funil e em menos de 60 segundos recebe uma analise completa de falhas de conversao, usando 5 heuristicas diferentes. Os 23 especialistas avaliam cada etapa e entregam recomendacoes especificas para melhorar sua taxa de conversao.',
   },
   {
-    question: 'Qual tecnologia de IA o MktHoney usa?',
+    question: 'Qual tecnologia de IA o MKTHONEY usa?',
     answer:
-      'MktHoney e construido sobre Google Gemini (modelos Flash e Pro), com RAG (Retrieval-Augmented Generation) usando Pinecone como banco vetorial. Cada resposta da IA e fundamentada no conhecimento especifico da sua marca, nao em respostas genericas.',
+      'MKTHONEY e construido sobre Google Gemini (modelos Flash e Pro), com RAG (Retrieval-Augmented Generation) usando Pinecone como banco vetorial. Cada resposta da IA e fundamentada no conhecimento especifico da sua marca, nao em respostas genericas.',
   },
 ];
 
@@ -109,7 +109,7 @@ export function LandingFaq() {
           </div>
 
           <h2 className="text-3xl md:text-4xl font-bold text-[#F5E8CE]">
-            Perguntas Frequentes Sobre o MktHoney
+            Perguntas Frequentes Sobre o MKTHONEY
           </h2>
         </motion.div>
 

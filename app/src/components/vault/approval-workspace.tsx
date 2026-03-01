@@ -125,9 +125,9 @@ export function ApprovalWorkspace({ content, insightText, onApprove, onEdit }: A
       const data = await res.json();
       if (res.ok && data.data?.review) {
         setCouncilReview(data.data.review);
-        notify.success('Parecer do Conselho recebido!');
+        notify.success('Parecer do MKTHONEY recebido!');
       } else {
-        notify.error(data.error || 'Erro ao consultar conselho');
+        notify.error(data.error || 'Erro ao consultar MKTHONEY');
       }
     } catch {
       notify.error('Erro de conexão');
@@ -162,7 +162,7 @@ export function ApprovalWorkspace({ content, insightText, onApprove, onEdit }: A
           <Card className="p-4 bg-violet-500/5 border-violet-500/10 max-h-[300px] overflow-y-auto">
             <div className="flex items-center gap-2 mb-3">
               <MessageSquare className="h-4 w-4 text-violet-400" />
-              <h4 className="text-xs font-bold text-violet-400 uppercase tracking-wider">Parecer do Conselho</h4>
+              <h4 className="text-xs font-bold text-violet-400 uppercase tracking-wider">Parecer do MKTHONEY</h4>
             </div>
             <div className="text-xs text-zinc-300 whitespace-pre-wrap leading-relaxed prose prose-invert prose-xs max-w-none">
               {councilReview}
@@ -187,7 +187,7 @@ export function ApprovalWorkspace({ content, insightText, onApprove, onEdit }: A
               className="h-7 text-[10px] border-violet-500/20 text-violet-400 hover:bg-violet-500/10"
             >
               {isReviewing ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <MessageSquare className="mr-1 h-3 w-3" />}
-              Consultar Conselho
+              Consultar MKTHONEY
             </Button>
             <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/20">Aguardando Revisão</Badge>
           </div>

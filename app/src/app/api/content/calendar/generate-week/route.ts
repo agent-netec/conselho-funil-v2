@@ -22,7 +22,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-const GENERATE_WEEK_PROMPT = `Você é o planejador de conteúdo do Conselho Social. Gere um plano semanal de 5-7 posts para a marca.
+const GENERATE_WEEK_PROMPT = `Você é o planejador de conteúdo Social. Gere um plano semanal de 5-7 posts para a marca.
 
 ## Regras:
 1. Distribua os pilares de conteúdo uniformemente pela semana

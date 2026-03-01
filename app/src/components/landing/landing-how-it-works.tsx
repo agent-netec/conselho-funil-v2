@@ -16,9 +16,9 @@ const STEPS = [
   {
     number: '02',
     icon: Users,
-    title: 'Ative o Conselho',
+    title: 'Ative os Especialistas',
     description:
-      'Escolha uma missao: criar uma campanha, diagnosticar seu funil, espionar um concorrente, ou gerar conteudo para a semana inteira. 23 conselheiros analisam e debatem.',
+      'Escolha uma missao: criar uma campanha, diagnosticar seu funil, espionar um concorrente, ou gerar conteudo para a semana inteira. 23 especialistas analisam e debatem.',
   },
   {
     number: '03',

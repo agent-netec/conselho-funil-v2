@@ -87,7 +87,7 @@ export function CounselorMultiSelector({
             <Users className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white leading-none">Convocação do Alto Conselho</h3>
+            <h3 className="text-sm font-semibold text-white leading-none">Convocação do Party Mode</h3>
             <p className="text-[10px] text-zinc-500 mt-1 uppercase tracking-wider">Selecione até 3 especialistas para a mesa redonda</p>
           </div>
         </div>

@@ -222,7 +222,7 @@ export function AutomationControlCenter({
                       {log.context.councilDebate && (
                         <Badge variant="outline" className="text-[10px] uppercase border-purple-500/20 text-purple-400">
                           <MessageSquare className="h-3 w-3 mr-1" />
-                          Conselho
+                          MKTHONEY
                         </Badge>
                       )}
                       <Badge variant="outline" className="text-[10px] uppercase border-white/10">
@@ -326,7 +326,7 @@ export function AutomationControlCenter({
                       <th className="text-left py-3 font-bold uppercase text-[10px]">Regra</th>
                       <th className="text-left py-3 font-bold uppercase text-[10px]">Ação</th>
                       <th className="text-left py-3 font-bold uppercase text-[10px]">Entidade</th>
-                      <th className="text-left py-3 font-bold uppercase text-[10px]">Conselho</th>
+                      <th className="text-left py-3 font-bold uppercase text-[10px]">MKTHONEY</th>
                       <th className="text-right py-3 font-bold uppercase text-[10px]">Status</th>
                     </tr>
                   </thead>
@@ -573,7 +573,7 @@ function CouncilVerdictPanel({ debate }: { debate: CouncilDebateResult }) {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <MessageSquare className="h-4 w-4 text-purple-400" />
-          <h4 className="text-sm font-bold text-purple-400 uppercase tracking-widest">Parecer do Conselho de Ads</h4>
+          <h4 className="text-sm font-bold text-purple-400 uppercase tracking-widest">Parecer do MKTHONEY Ads</h4>
         </div>
         <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20 text-[10px]">
           Confiança: {debate.confidence}%

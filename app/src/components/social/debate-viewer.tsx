@@ -40,7 +40,7 @@ function parseDebate(text: string) {
 
   for (const line of lines) {
     // Check for verdict section
-    if (line.includes('Veredito do Conselho') || line.includes('VEREDITO_DO_CONSELHO')) {
+    if (line.includes('Veredito do Conselho') || line.includes('Veredito Final') || line.includes('VEREDITO_DO_CONSELHO')) {
       if (currentSection) {
         sections.push({ ...currentSection, content: currentSection.lines.join('\n').trim() });
         currentSection = null;
@@ -107,7 +107,7 @@ export function DebateViewer({ debate }: DebateViewerProps) {
                     {info?.name || section.name}
                   </h4>
                   <span className="text-[10px] text-zinc-500 uppercase tracking-wider">
-                    {info?.role || 'Conselheiro'}
+                    {info?.role || 'Especialista'}
                   </span>
                 </div>
                 <MessageSquare className={cn('h-4 w-4 shrink-0', colors?.text || 'text-zinc-500')} />
@@ -127,7 +127,7 @@ export function DebateViewer({ debate }: DebateViewerProps) {
         <Card className="p-5 bg-gradient-to-b from-zinc-900/80 to-zinc-900/40 border-amber-500/20">
           <div className="flex items-center gap-2 mb-3">
             <Gavel className="h-5 w-5 text-amber-400" />
-            <h3 className="text-sm font-bold text-amber-400 uppercase tracking-wider">Veredito do Conselho</h3>
+            <h3 className="text-sm font-bold text-amber-400 uppercase tracking-wider">Veredito Final</h3>
           </div>
           <div className="text-sm text-zinc-200 leading-relaxed whitespace-pre-wrap">
             {verdict.replace(/\[VEREDITO_DO_CONSELHO\]/g, '').trim()}

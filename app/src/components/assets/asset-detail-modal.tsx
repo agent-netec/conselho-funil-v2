@@ -75,7 +75,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
   const canAnalyze = isImageAsset && !isVisualAsset && onAnalyzeVisual;
 
   const handleConsultCouncil = () => {
-    const contextParam = encodeURIComponent(`Gostaria de um conselho sobre o ativo: ${asset.name || asset.assetType}. Ele tem um score de ${asset.score}.`);
+    const contextParam = encodeURIComponent(`Gostaria de uma análise sobre o ativo: ${asset.name || asset.assetType}. Ele tem um score de ${asset.score}.`);
     router.push(`/chat?mode=general&initialMessage=${contextParam}`);
     onOpenChange(false);
   };
@@ -252,7 +252,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-[#E6B447] to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity" />
                     <MessageSquare className="h-4 w-4" />
-                    Consultar Conselho
+                    Consultar MKTHONEY
                     <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </button>
                   {onDelete && (
@@ -283,7 +283,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
                 <div className="absolute top-0 right-0 p-3 opacity-10">
                   <Zap className="h-12 w-12 text-amber-500" />
                 </div>
-                <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-2">Conselho Estratégico</h3>
+                <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-2">Recomendação Estratégica</h3>
                 <p className="text-sm text-zinc-300 leading-relaxed italic">
                   "{asset.strategicAdvice}"
                 </p>

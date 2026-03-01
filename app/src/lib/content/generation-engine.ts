@@ -111,7 +111,7 @@ function buildContentBrainContext(format: ContentFormat): string {
 
   if (parts.length === 0) return '';
 
-  return `\n\n## Expert Guidelines (Conselho de Funil)\n${parts.join('\n\n')}`;
+  return `\n\n## Expert Guidelines (MKTHONEY)\n${parts.join('\n\n')}`;
 }
 
 /**

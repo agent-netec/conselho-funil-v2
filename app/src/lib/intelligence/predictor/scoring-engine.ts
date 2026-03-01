@@ -3,7 +3,7 @@
  * Sprint 25 · S25-ST-01 / Sprint B · Brain Integration
  *
  * Calcula o CPS (0-100) baseado em 6 dimensões de análise,
- * usando frameworks REAIS dos identity cards dos conselheiros.
+ * usando frameworks REAIS dos identity cards dos especialistas.
  *
  * Dimensão → Experts:
  *   headline_strength  → Halbert (headline_score) + Ogilvy (headline_excellence)

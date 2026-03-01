@@ -56,7 +56,7 @@ const DIMENSION_ASSET_MAP: Record<ConversionDimension, ('headline' | 'cta' | 'ho
   trust_signals: ['visual', 'headline'],
 };
 
-/** Frameworks de copywriting dos Conselheiros (fallback) */
+/** Frameworks de copywriting dos Especialistas (fallback) */
 const COPYWRITING_FRAMEWORKS: Record<string, FrameworkInfo> = {
   schwartz: {
     name: 'Eugene Schwartz — Níveis de Consciência',
@@ -75,7 +75,7 @@ const COPYWRITING_FRAMEWORKS: Record<string, FrameworkInfo> = {
   },
 };
 
-/** Sprint B: Mapeamento dimensão → conselheiros para red_flags/gold_standards reais */
+/** Sprint B: Mapeamento dimensão → especialistas para red_flags/gold_standards reais */
 const DIMENSION_COUNSELORS: Record<ConversionDimension, CounselorId[]> = {
   headline_strength: ['gary_halbert', 'david_ogilvy'],
   cta_effectiveness: ['drayton_bird', 'dan_kennedy_copy'],
@@ -508,7 +508,7 @@ ${origCTAs || 'Nenhum CTA.'}
 ${origHooks || 'Nenhum hook.'}
 ${eliteSection}
 
-## Frameworks dos Conselheiros (Red Flags & Gold Standards)
+## Frameworks dos Especialistas (Red Flags & Gold Standards)
 
 ${realFrameworksContext}
 ${frameworkSection}
@@ -607,7 +607,7 @@ function parseGeminiRecommendations(
 
 /**
  * Recomendações genéricas quando Gemini/RAG não estão disponíveis.
- * Usa heurísticas locais baseadas nos frameworks dos Conselheiros.
+ * Usa heurísticas locais baseadas nos frameworks dos Especialistas.
  */
 function buildFallbackRecommendations(
   weakDimensions: DimensionScore[],

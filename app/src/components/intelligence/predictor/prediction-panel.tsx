@@ -128,7 +128,7 @@ function CounselorOpinionsSection({ opinions }: { opinions: CounselorOpinion[] }
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-medium text-zinc-400">
-        Opinião do Conselho ({uniqueCounselors.length} experts)
+        Opinião do MKTHONEY ({uniqueCounselors.length} experts)
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {opinions.map((opinion, i) => (
@@ -183,7 +183,7 @@ export function PredictionPanel({ data, loading, className }: PredictionPanelPro
         </Card>
       </div>
 
-      {/* Opinião do Conselho (Sprint B) */}
+      {/* Opinião do MKTHONEY (Sprint B) */}
       {data.counselorOpinions && data.counselorOpinions.length > 0 && (
         <CounselorOpinionsSection opinions={data.counselorOpinions} />
       )}

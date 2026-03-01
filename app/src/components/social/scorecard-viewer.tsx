@@ -101,7 +101,7 @@ export function ScorecardViewer({ scorecard }: ScorecardViewerProps) {
               <Star className="h-4 w-4 fill-amber-400 text-amber-400 animate-pulse" />
             </div>
           </div>
-          <span className="text-[10px] text-zinc-600 font-medium italic">Baseado em 4 conselheiros</span>
+          <span className="text-[10px] text-zinc-600 font-medium italic">Baseado em 4 especialistas</span>
         </Card>
 
         <Card className={cn("p-6 md:col-span-2 border flex items-center gap-4", getVerdictColor(scorecard.verdict))}>
@@ -109,7 +109,7 @@ export function ScorecardViewer({ scorecard }: ScorecardViewerProps) {
             {getVerdictIcon(scorecard.verdict)}
           </div>
           <div className="space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Veredito do Conselho</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Veredito Final</span>
             <h3 className="text-xl font-bold tracking-tight">{scorecard.verdict}</h3>
           </div>
         </Card>

@@ -2,7 +2,7 @@
  * Motor de Diagnóstico Forense (Funnel Autopsy Engine)
  * Versão 3.0 — Sprint B: Integrado com Brain Identity Cards
  *
- * Cada etapa de análise usa frameworks REAIS de 2 experts do Conselho:
+ * Cada etapa de análise usa frameworks REAIS de 2 experts do MKTHONEY:
  *   Hook    → Carlton (hook_and_fascinations) + Halbert (headline_score)
  *   Story   → Sugarman (slippery_slide) + Schwartz (awareness_alignment)
  *   Offer   → Kennedy (offer_architecture) + Brunson (value_ladder_score)
@@ -158,12 +158,12 @@ export class AutopsyEngine {
   }
 
   /**
-   * Constrói o prompt para o Gemini baseado nos frameworks reais do Conselho.
+   * Constrói o prompt para o Gemini baseado nos frameworks reais dos Especialistas.
    */
   private static buildAnalysisPrompt(content: string, context?: AutopsyRunRequest['context']): string {
     const stageFrameworks = this.buildStageFrameworks();
 
-    return `Você é o Analista Forense do Conselho de Funil. Sua missão é realizar uma autópsia detalhada em uma página de vendas/funil.
+    return `Você é o Analista Forense do MKTHONEY. Sua missão é realizar uma autópsia detalhada em uma página de vendas/funil.
 
 Baseie sua análise EXCLUSIVAMENTE nos dados fornecidos e nos frameworks dos experts abaixo.
 
@@ -176,7 +176,7 @@ CONTEXTO ADICIONAL:
 Público-alvo: ${context?.targetAudience || 'Não informado'}
 Oferta Principal: ${context?.mainOffer || 'Não informada'}
 
-## FRAMEWORKS DE ANÁLISE POR ETAPA (Conselho de Funil)
+## FRAMEWORKS DE ANÁLISE POR ETAPA (MKTHONEY)
 
 ${stageFrameworks}
 

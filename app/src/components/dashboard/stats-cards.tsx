@@ -158,7 +158,7 @@ export function StatsCards({ stats, isLoading }: { stats: any; isLoading: boolea
     {
       title: "Conversas",
       value: isLoading ? '—' : stats.totalConversations,
-      subtitle: "Com o Conselho",
+      subtitle: "Com o MKTHONEY",
       icon: MessageSquare,
       delay: 0.25
     }

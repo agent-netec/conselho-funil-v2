@@ -62,7 +62,7 @@ export class ReportingEngine {
   }
 
   private buildReportPrompt(metrics: ReportMetrics, context: any): string {
-    return `Você é um Analista de Performance Sênior do "Conselho de Funil".
+    return `Você é um Analista de Performance Sênior do "MKTHONEY".
 Sua tarefa é gerar um resumo executivo e insights estratégicos para um cliente com base nos dados de performance abaixo.
 
 ## Contexto

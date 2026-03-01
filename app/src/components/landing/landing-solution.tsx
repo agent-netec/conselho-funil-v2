@@ -45,12 +45,12 @@ export function LandingSolution() {
           </div>
 
           <h2 className="text-3xl md:text-4xl font-bold text-[#F5E8CE] mb-6">
-            O Que e o MktHoney — Sua Agencia de Marketing Autonoma
+            O Que e o MKTHONEY — Sua Agencia de Marketing Autonoma
           </h2>
 
           <p className="text-lg text-[#CAB792] max-w-3xl mx-auto leading-relaxed">
-            MktHoney e uma plataforma de marketing autonomo que transforma qualquer marca
-            em uma operacao de alta performance. Utilizando 23 conselheiros de IA baseados
+            MKTHONEY e uma plataforma de marketing autonomo que transforma qualquer marca
+            em uma operacao de alta performance. Utilizando 23 especialistas de IA baseados
             em frameworks reais de lendas como Gary Halbert, David Ogilvy e Eugene Schwartz.
           </p>
         </motion.div>

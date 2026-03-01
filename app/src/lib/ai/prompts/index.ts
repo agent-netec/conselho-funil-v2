@@ -24,7 +24,7 @@ ${context || 'Nenhum contexto específico encontrado. Responda com conhecimento 
 ## Pergunta do Usuário
 ${query}
 
-## Resposta do Conselho`;
+## Análise MKTHONEY`;
 }
 
 export function buildStructuredChatPrompt(
@@ -42,7 +42,7 @@ ${context || 'Nenhum contexto específico encontrado. Responda com conhecimento 
 ## Pergunta do Usuário
 ${query}
 
-## Resposta do Conselho (JSON)`;
+## Análise MKTHONEY (JSON)`;
 }
 
 export {

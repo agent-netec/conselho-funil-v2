@@ -138,7 +138,7 @@ export function useConversation(conversationId: string | null) {
         
         // US-16.1: Tratar erro de créditos insuficientes
         if (response.status === 403 && errorData.error === 'insufficient_credits') {
-          const insufficientCreditsMsg = '❌ **Saldo de créditos insuficiente.**\n\nSeu saldo de créditos acabou. Faça upgrade para continuar consultando o conselho.';
+          const insufficientCreditsMsg = '❌ **Saldo de créditos insuficiente.**\n\nSeu saldo de créditos acabou. Faça upgrade para continuar consultando o MKTHONEY.';
           
           await addMessage(conversationId, {
             role: 'assistant',

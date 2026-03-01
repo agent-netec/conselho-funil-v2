@@ -47,7 +47,7 @@ export class CopyRefactorEngine {
 
   private static buildPrompt(gap: CriticalGap, dnas: CopyDNA[]): string {
     return `
-Você é o Especialista em Refatoração de Copy do Conselho de Funil.
+Você é o Especialista em Refatoração de Copy do MKTHONEY.
 Sua tarefa é sugerir 3 variações de Headlines ou Hooks para corrigir um gargalo crítico no funil.
 
 ## GARGALO DETECTADO

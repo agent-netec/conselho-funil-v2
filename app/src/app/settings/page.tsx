@@ -535,7 +535,7 @@ export default function SettingsPage() {
                     </h3>
                     <p className="text-zinc-400 mb-6 text-sm leading-relaxed">
                       As informações do seu negócio (nome, mercado, público, oferta) são
-                      gerenciadas no <strong className="text-white">Brand Hub</strong>, onde o Conselho
+                      gerenciadas no <strong className="text-white">Brand Hub</strong>, onde o MKTHONEY
                       usa esses dados para gerar recomendações personalizadas.
                     </p>
                     <Link
@@ -577,7 +577,7 @@ export default function SettingsPage() {
                       <div className="space-y-4">
                         {([
                           { key: 'funnelReview' as const, label: 'Funil em revisão', desc: 'Quando um funil precisa de avaliação' },
-                          { key: 'proposalsGenerated' as const, label: 'Propostas geradas', desc: 'Quando o Conselho gera novas propostas' },
+                          { key: 'proposalsGenerated' as const, label: 'Propostas geradas', desc: 'Quando o MKTHONEY gera novas propostas' },
                           { key: 'updates' as const, label: 'Atualizações', desc: 'Novidades e melhorias da plataforma' },
                         ]).map((item) => (
                           <div key={item.key} className="flex items-center justify-between py-3 border-b border-white/[0.04] last:border-0">

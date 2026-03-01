@@ -165,8 +165,8 @@ ${ctx.channel?.secondary || ctx.channels?.secondary ? `- **Secundário:** ${ctx.
   md += `
 ---
 
-*Documento gerado pelo Conselho de Funil*
-*https://conselho-de-funil.web.app*
+*Documento gerado pelo MKTHONEY*
+*https://mkthoney.com*
 `;
 
   return md;
@@ -224,7 +224,7 @@ ${proposal.strategy.rationale}
 
   // Counselor insights
   if (proposal.strategy?.counselorInsights?.length) {
-    md += `#### 🧠 Insights dos Conselheiros
+    md += `#### 🧠 Insights dos Especialistas
 
 `;
     proposal.strategy.counselorInsights.forEach(insight => {

@@ -358,10 +358,10 @@ export const AWARENESS_STAGES = {
 export const CHAT_MODES = {
   general: {
     id: 'general',
-    label: 'Conselho',
-    title: 'Conselho',
+    label: 'Geral',
+    title: 'MKTHONEY',
     subtitle: '23 especialistas',
-    placeholder: 'Pergunte ao Conselho...',
+    placeholder: 'Pergunte ao MKTHONEY...',
     footer: 'Pressione Enter para enviar, Shift+Enter para nova linha',
     accentColor: 'gold',
     counselors: [
@@ -375,7 +375,7 @@ export const CHAT_MODES = {
   funnel: {
     id: 'funnel',
     label: 'Funil',
-    title: 'Conselho de Funil',
+    title: 'Funil',
     subtitle: '6 especialistas',
     placeholder: 'Pergunte sobre arquitetura de funis...',
     footer: '🎯 Consultando: Russell Brunson, Dan Kennedy, Frank Kern, Sam Ovens, Ryan Deiss, Perry Belcher',
@@ -387,7 +387,7 @@ export const CHAT_MODES = {
   copy: {
     id: 'copy',
     label: 'Copy',
-    title: 'Conselho de Copy',
+    title: 'Copywriting',
     subtitle: '9 copywriters',
     placeholder: 'Pergunte sobre copy e persuasão...',
     footer: '✍️ Consultando: Schwartz, Hopkins, Halbert, Sugarman, Ogilvy, Carlton, Bird, Kern',
@@ -400,7 +400,7 @@ export const CHAT_MODES = {
   social: {
     id: 'social',
     label: 'Social',
-    title: 'Conselho Social',
+    title: 'Social',
     subtitle: '4 especialistas',
     placeholder: 'Pergunte sobre redes sociais e viralização...',
     footer: '🚀 Consultando: Lia Haberman, Rachel Karten, Nikita Beer, Justin Welsh',
@@ -412,7 +412,7 @@ export const CHAT_MODES = {
   ads: {
     id: 'ads',
     label: 'Ads',
-    title: 'Conselho de Ads',
+    title: 'Ads & Tráfego',
     subtitle: '4 especialistas',
     placeholder: 'Pergunte sobre tráfego e escala...',
     footer: '📊 Consultando: Justin Brooke, Nicholas Kusmich, Jon Loomer, Savannah Sanchez',
@@ -424,7 +424,7 @@ export const CHAT_MODES = {
   design: {
     id: 'design',
     label: 'Design',
-    title: 'Conselho de Design',
+    title: 'Design',
     subtitle: 'Diretor de Design',
     placeholder: 'Peça um briefing de design ou prompt para o NanoBanana...',
     footer: '🎨 Consultando: Diretor de Design especializado em Thumbnails, Carrosséis e Estáticos',
@@ -436,7 +436,7 @@ export const CHAT_MODES = {
   party: {
     id: 'party',
     label: 'Party Mode',
-    title: 'Alto Conselho',
+    title: 'Party Mode',
     subtitle: 'Múltiplos Especialistas',
     placeholder: 'Inicie uma deliberação entre especialistas...',
     footer: '🎉 Party Mode: Selecione os especialistas para o debate',

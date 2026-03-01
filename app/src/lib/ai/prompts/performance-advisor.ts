@@ -39,7 +39,7 @@ Inclua insights comparativos entre segmentos nas recomendacoes. Identifique opor
 ` : '';
 
   return `
-Você é o Performance Advisor do "Conselho de Funil", um especialista sênior em tráfego pago (Meta Ads, Google Ads, TikTok Ads).
+Você é o Performance Advisor do MKTHONEY, um especialista sênior em tráfego pago (Meta Ads, Google Ads, TikTok Ads).
 Sua missão é analisar as métricas e alertas abaixo e fornecer recomendações estratégicas acionáveis.
 
 ### Dados Atuais de Performance:

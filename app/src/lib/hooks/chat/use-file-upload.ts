@@ -110,7 +110,7 @@ export function useFileUpload(
           const base64 = await fileToBase64(attachment.file);
           const prompt = attachment.file.type.startsWith('image/')
             ? 'Analise esta imagem sob a perspectiva de um estrategista de funis. Identifique elementos de conversão, copy, design e pontos de melhoria. Seja conciso e direto.'
-            : 'Analise este documento PDF. Extraia os pontos estratégicos mais relevantes para um conselho de marketing. Seja conciso.';
+            : 'Analise este documento PDF. Extraia os pontos estratégicos mais relevantes para um painel de marketing. Seja conciso.';
 
           const authHeaders = await getAuthHeaders();
           const analyzeRes = await fetch('/api/intelligence/analyze/image', {

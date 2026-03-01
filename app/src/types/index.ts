@@ -1,5 +1,5 @@
 // ============================================
-// TYPES - Conselho de Funil
+// TYPES - MKTHONEY
 // ============================================
 
 import { Timestamp } from 'firebase/firestore';

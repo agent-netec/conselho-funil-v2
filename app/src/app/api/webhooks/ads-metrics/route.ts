@@ -10,7 +10,7 @@ import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
  * Webhook para Recebimento de Métricas de Ads (ST-11.19)
  * 
  * Recebe sinais externos de performance (Meta, Google, etc) e atualiza
- * o CampaignContext no Firestore para análise do Conselho.
+ * o CampaignContext no Firestore para análise do MKTHONEY.
  *
  * S29-CL-04: Migrado para createApiError/createApiSuccess (padrão Sigma)
  */

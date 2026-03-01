@@ -187,7 +187,7 @@ export default function SharedFunnelPage() {
         >
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
             <FileText className="h-5 w-5 text-[#E6B447]" />
-            Propostas do Conselho
+            Propostas do MKTHONEY
           </h2>
           
           <div className="space-y-4">

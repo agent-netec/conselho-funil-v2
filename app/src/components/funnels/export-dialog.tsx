@@ -52,7 +52,7 @@ function generateMarkdown(funnel: Funnel, proposals: Proposal[]): string {
   md += `| **Canal Principal** | ${funnel.context.channel?.main || 'N/A'} |\n\n`;
 
   if (proposals.length > 0) {
-    md += `## 🎯 Propostas do Conselho\n\n`;
+    md += `## 🎯 Propostas do MKTHONEY\n\n`;
     
     proposals.forEach((proposal, i) => {
       md += `### Proposta ${i + 1}: ${proposal.name}\n\n`;
@@ -124,7 +124,7 @@ function generateHTML(funnel: Funnel, proposals: Proposal[]): string {
   </table>`;
 
   if (proposals.length > 0) {
-    html += `<h2>🎯 Propostas do Conselho</h2>`;
+    html += `<h2>🎯 Propostas do MKTHONEY</h2>`;
     
     proposals.forEach((proposal, i) => {
       const score = (proposal.scorecard as any)?.overall || 0;

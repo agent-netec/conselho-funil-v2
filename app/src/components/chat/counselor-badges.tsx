@@ -108,7 +108,7 @@ export function CounselorBadges({ counselors, sources, compact = false }: Counse
   return (
     <div className="mt-4 pt-4 border-t border-white/5">
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-xs text-zinc-500 font-medium">Conselheiros consultados</span>
+        <span className="text-xs text-zinc-500 font-medium">Especialistas consultados</span>
       </div>
       
       <div className="space-y-2">

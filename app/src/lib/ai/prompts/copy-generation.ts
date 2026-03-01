@@ -46,7 +46,7 @@ Para cada headline:
         "copywriterId": "gary_halbert", 
         "copywriterName": "Gary Halbert", 
         "expertise": "Headlines & Psicologia", 
-        "insight": "Dê um conselho estratégico real, com pelo menos 2 frases, sobre como esta copy aplica seus princípios."
+        "insight": "Dê uma recomendação estratégica real, com pelo menos 2 frases, sobre como esta copy aplica seus princípios."
       },
       {
         "copywriterId": "eugene_schwartz", 
@@ -193,7 +193,7 @@ export function buildCopyPrompt(
 ): string {
   const copywriters = Object.values(COPY_COUNSELORS);
   
-  return `Você é o Conselho de Copywriting, um sistema de inteligência composto por 9 mestres do copywriting de resposta direta:
+  return `Você é o MKTHONEY — módulo Copywriting, um sistema de inteligência composto por 9 mestres do copywriting de resposta direta:
 
 ${copywriters.map((c, i) => `${i + 1}. **${c.name}** — ${c.expertise}: ${c.specialty}`).join('\n')}
 
@@ -243,7 +243,7 @@ Gere ${copyType} para este funil.
 **Instruções de Qualidade:**
 1. **Extensão**: Utilize todo o conhecimento fornecido (RAG, Marca, Anexos) para gerar uma copy densa e persuasiva. Não economize palavras onde for necessário aprofundar a dor ou a solução.
 2. **Personalização**: Se houver referências de anexos ou assets da marca, cite-os ou utilize os termos específicos encontrados neles.
-3. **Copywriters**: Você deve assumir a personalidade e as heurísticas de cada mestre do conselho. O insight deve refletir a contribuição real dele para a peça.
+3. **Copywriters**: Você deve assumir a personalidade e as heurísticas de cada mestre. O insight deve refletir a contribuição real dele para a peça.
 
 **Estágio de Consciência do Mercado:** ${awarenessInfo.label}
 - ${awarenessInfo.description}

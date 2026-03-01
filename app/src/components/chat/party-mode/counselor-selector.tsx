@@ -92,7 +92,7 @@ export function CounselorSelector({
             <Users className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="text-sm font-black text-white leading-none uppercase tracking-tighter">Alto Conselho</h3>
+            <h3 className="text-sm font-black text-white leading-none uppercase tracking-tighter">Party Mode</h3>
             <p className="text-[9px] text-zinc-500 mt-1 font-mono uppercase tracking-wider">Selecione até 3 especialistas</p>
           </div>
         </div>

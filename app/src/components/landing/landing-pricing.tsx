@@ -14,7 +14,7 @@ const PLANS = [
     features: [
       '1 marca',
       '50 consultas/mes',
-      'Conselho Geral + 1 modo',
+      'Modo Geral + 1 especialidade',
       'Page Forensics (3/mes)',
       '1 funil ativo',
       'Biblioteca de Ativos (50)',

@@ -153,7 +153,7 @@ function buildAdCopyPrompt(text: string, wordCount: number, detectedFormat: stri
 
 Baseie sua análise EXCLUSIVAMENTE nos dados fornecidos.
 
-## Frameworks dos Experts do Conselho
+## Frameworks dos Especialistas MKTHONEY
 
 ${copyCouncilContext}
 

@@ -18,7 +18,7 @@ const ACTIONS = [
   },
   {
     icon: MessageSquare,
-    title: 'Consultar o Conselho',
+    title: 'Consultar o MKTHONEY',
     desc: 'Fale com 23 especialistas de marketing ao mesmo tempo.',
     href: '/chat',
     color: 'blue',

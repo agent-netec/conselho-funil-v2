@@ -334,7 +334,7 @@ export async function* generateWithGeminiStream(
 }
 
 /**
- * Gera uma resposta formatada para o Conselho de Estrategistas.
+ * Gera uma resposta formatada para o painel de Estrategistas MKTHONEY.
  * Utiliza um builder de prompt para combinar a consulta, o contexto RAG e as instruções do sistema.
  *
  * @param query - A pergunta do usuário.
@@ -370,7 +370,7 @@ export async function generateCouncilResponseWithGemini(
 }
 
 /**
- * Gera uma resposta ESTRUTURADA (JSON) para o Conselho de Estrategistas.
+ * Gera uma resposta ESTRUTURADA (JSON) para o painel de Estrategistas MKTHONEY.
  * Segue o contrato CouncilOutput v1.1.
  * 
  * @param query - A pergunta do usuário.
@@ -409,7 +409,7 @@ export async function generateStructuredCouncilResponseWithGemini(
   } catch (error) {
     console.error('❌ [Gemini] Erro ao parsear resposta estruturada:', error);
     console.error('Resposta bruta:', responseText);
-    throw new Error('Falha ao gerar resposta estruturada do conselho.');
+    throw new Error('Falha ao gerar resposta estruturada do MKTHONEY.');
   }
 }
 

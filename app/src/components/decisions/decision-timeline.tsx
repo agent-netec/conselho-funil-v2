@@ -183,7 +183,7 @@ function DecisionCard({ decision, isLast }: { decision: DecisionWithMetadata; is
                 {decision.parecer?.consolidated?.totalScore && (
                   <div className="flex items-center gap-2 text-sm">
                     <Sparkles className="h-4 w-4 text-[#E6B447]" />
-                    <span className="text-zinc-400">Score do Conselho:</span>
+                    <span className="text-zinc-400">Score do MKTHONEY:</span>
                     <span className="font-semibold text-white">
                       {typeof decision.parecer.consolidated.totalScore === 'number' 
                         ? decision.parecer.consolidated.totalScore.toFixed(1) 

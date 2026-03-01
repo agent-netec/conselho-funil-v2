@@ -47,7 +47,7 @@ export function PaywallModal({ isOpen, onOpenChange }: PaywallModalProps) {
             
             <div className="grid gap-3">
               {[
-                "Créditos ilimitados para o Conselho",
+                "Créditos ilimitados para o MKTHONEY",
                 "Acesso a todos os 15 especialistas",
                 "Upload de arquivos e URLs (Contexto Ilimitado)",
                 "Exportação em PDF e Notion"

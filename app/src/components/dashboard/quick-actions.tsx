@@ -79,14 +79,14 @@ export function QuickActions() {
           href="/funnels/new"
           icon={Plus}
           title="Novo Funil"
-          description="Crie um funil do zero com ajuda do Conselho"
+          description="Crie um funil do zero com ajuda do MKTHONEY"
           gradient="bg-gradient-to-br from-[#E6B447]/20 to-[#AB8648]/20"
           delay={0.3}
         />
         <ActionCard
           href="/chat"
           icon={MessageSquare}
-          title="Consultar Conselho"
+          title="Consultar MKTHONEY"
           description="Tire dúvidas com os 23 especialistas"
           gradient="bg-gradient-to-br from-blue-500/20 to-blue-600/20"
           delay={0.35}

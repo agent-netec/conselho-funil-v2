@@ -596,7 +596,7 @@ export interface LibraryTemplateContent {
 }
 
 // ============================================
-// COPY COUNCIL - Conselho de Copywriting
+// COPY COUNCIL - MKTHONEY Copywriting
 // ============================================
 
 export type CopyType = 

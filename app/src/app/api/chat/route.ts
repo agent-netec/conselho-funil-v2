@@ -457,7 +457,7 @@ function generateFallbackResponse(
     const isSocial = systemPrompt?.includes('Social');
     
     if (isSocial) {
-      return `**Conselho Social**
+      return `**Social**
 
 Desculpe, não encontrei informações específicas sobre redes sociais na base de conhecimento para responder sua pergunta.
 
@@ -470,7 +470,7 @@ ${Object.values(COUNSELORS_REGISTRY)
 
     const isAds = systemPrompt?.includes('Ads');
     if (isAds) {
-      return `**Conselho de Ads**
+      return `**Ads & Tráfego**
 
 Desculpe, não encontrei informações específicas sobre tráfego na base de conhecimento para responder sua pergunta.
 
@@ -483,7 +483,7 @@ ${Object.values(COUNSELORS_REGISTRY)
 
     const isDesign = systemPrompt?.includes('Design');
     if (isDesign) {
-      return `**Conselho de Design**
+      return `**Design**
 
 Desculpe, não encontrei informações específicas sobre design na base de conhecimento para responder sua pergunta.
 
@@ -495,11 +495,11 @@ O Diretor de Design está pronto para ajudar:
       ? ['eugene_schwartz', 'claude_hopkins', 'gary_halbert', 'joseph_sugarman', 'dan_kennedy_copy', 'david_ogilvy', 'john_carlton', 'drayton_bird', 'frank_kern_copy']
       : ['russell_brunson', 'dan_kennedy', 'frank_kern', 'sam_ovens', 'ryan_deiss', 'perry_belcher'];
 
-    return `**Conselho de ${isCopy ? 'Copywriting' : 'Funil'}**
+    return `**${isCopy ? 'Copywriting' : 'MKTHONEY'}**
 
 Desculpe, não encontrei informações específicas na base de conhecimento para responder sua pergunta.
 
-Os ${isCopy ? '9 copywriters' : '6 conselheiros'} estão prontos para ajudar:
+Os ${isCopy ? '9 copywriters' : '6 especialistas'} estão prontos para ajudar:
 ${relevantIds.map(id => {
   const c = COUNSELORS_REGISTRY[id as CounselorId];
   return `- ${c?.name} (${c?.expertise})`;
@@ -511,7 +511,7 @@ ${relevantIds.map(id => {
     chunks.map(c => c.metadata.counselor).filter(Boolean)
   )] as CounselorId[];
 
-  let response = `## Análise do Conselho de Funil\n\n`;
+  let response = `## Análise do MKTHONEY\n\n`;
 
   if (counselorsInvolved.length > 0) {
     const names = counselorsInvolved
@@ -537,7 +537,7 @@ ${relevantIds.map(id => {
   });
 
   response += `---\n📚 *${chunks.length} fonte(s) consultada(s) na base de conhecimento*\n\n`;
-  response += `⚠️ *Nota: Esta é uma resposta baseada apenas em retrieval. Configure o Vertex AI para respostas completas do Conselho.*`;
+  response += `⚠️ *Nota: Esta é uma resposta baseada apenas em retrieval. Configure o Vertex AI para respostas completas do MKTHONEY.*`;
 
   return response;
 }

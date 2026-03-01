@@ -123,7 +123,7 @@ ${proposal.assets.ctas.map(c => `- ${c}`).join('\n')}
 `;
   }
 
-  md += `---\n\n*Documento gerado pelo Conselho de Funil*`;
+  md += `---\n\n*Documento gerado pelo MKTHONEY*`;
   return md;
 }
 
@@ -505,7 +505,7 @@ export default function ProposalDetailPage() {
             <Link href={`/chat?funnelId=${funnel.id}&proposalId=${proposal.id}`}>
               <Button variant="outline" className="btn-ghost">
                 <MessageSquare className="mr-2 h-4 w-4" />
-                Perguntar ao Conselho
+                Perguntar ao MKTHONEY
               </Button>
             </Link>
           </div>
@@ -595,7 +595,7 @@ export default function ProposalDetailPage() {
                 >
                   <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
                     <Users className="h-5 w-5 text-blue-400" />
-                    Insights dos Conselheiros
+                    Insights dos Especialistas
                   </h3>
                   
                   <div className="space-y-4">
@@ -869,13 +869,13 @@ export default function ProposalDetailPage() {
                     Gerar Copy
                   </h3>
                   <p className="text-zinc-400 text-sm">
-                    Ative o Conselho de Copywriting para criar headlines, emails, ofertas, VSL e mais.
+                    Ative o Copywriting para criar headlines, emails, ofertas, VSL e mais.
                   </p>
                 </div>
                 <Link href={`/funnels/${funnel.id}/copy?proposalId=${proposal.id}`}>
                   <Button className="h-11 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500">
                     <Sparkles className="mr-2 h-4 w-4" />
-                    Conselho de Copy
+                    Copywriting
                   </Button>
                 </Link>
               </div>

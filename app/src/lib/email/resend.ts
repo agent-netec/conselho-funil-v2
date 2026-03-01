@@ -233,7 +233,7 @@ export async function sendWelcomeEmail(
           Durante seu trial, voce tera acesso a:
         </p>
         <ul style="color: #CAB792; padding-left: 20px;">
-          <li>23 conselheiros de IA especializados</li>
+          <li>23 especialistas de IA</li>
           <li>Sistema de debate multi-agentes</li>
           <li>Diagnostico de funil (Autopsy)</li>
           <li>Inteligencia competitiva (Spy Agent)</li>
@@ -242,7 +242,7 @@ export async function sendWelcomeEmail(
         <a href="${APP_URL}/dashboard" class="button">Acessar Meu Dashboard</a>
         <p style="font-size: 14px; color: #AB8648;">
           Dicas: Comece criando sua primeira marca no Brand Hub para
-          personalizar as recomendacoes dos conselheiros.
+          personalizar as recomendacoes dos especialistas.
         </p>
       </div>
     `);
@@ -356,7 +356,7 @@ export async function sendTrialExpiringEmail(
         <p>
           ${isLastDay
             ? 'Seu trial PRO termina hoje! Para continuar usando todas as funcionalidades, assine agora.'
-            : `Seu trial PRO expira em ${daysRemaining} dias. Nao perca acesso aos 23 conselheiros de IA e todas as funcionalidades PRO.`
+            : `Seu trial PRO expira em ${daysRemaining} dias. Nao perca acesso aos 23 especialistas de IA e todas as funcionalidades PRO.`
           }
         </p>
         <div class="divider"></div>

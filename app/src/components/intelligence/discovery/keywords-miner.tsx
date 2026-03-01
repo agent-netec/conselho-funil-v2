@@ -368,8 +368,8 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
                             <Button size="sm" variant="outline" className="text-[10px] h-7 flex-1 border-green-500/30 text-green-400 hover:bg-green-500/10" onClick={(e) => { e.stopPropagation(); handleSaveKeyword(kw); }}>
                               <Save className="w-3 h-3 mr-1" /> Salvar no Brand
                             </Button>
-                            <Button size="sm" variant="outline" className="text-[10px] h-7 flex-1 border-blue-500/30 text-blue-400 hover:bg-blue-500/10" onClick={(e) => { e.stopPropagation(); toast.info('Em breve: Enviar para Conselho de Copy'); }}>
-                              <Send className="w-3 h-3 mr-1" /> Copy Council
+                            <Button size="sm" variant="outline" className="text-[10px] h-7 flex-1 border-blue-500/30 text-blue-400 hover:bg-blue-500/10" onClick={(e) => { e.stopPropagation(); toast.info('Em breve: Enviar para MKTHONEY Copy'); }}>
+                              <Send className="w-3 h-3 mr-1" /> MKTHONEY Copy
                             </Button>
                           </div>
                         </div>

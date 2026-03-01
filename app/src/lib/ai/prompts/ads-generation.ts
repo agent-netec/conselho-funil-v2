@@ -2,7 +2,7 @@ import { CampaignContext } from '@/types/campaign';
 import { COUNSELORS_REGISTRY } from '@/lib/constants';
 
 export const ADS_GENERATION_RULES = `
-## REGRAS DE OURO - CONSELHO DE ADS
+## REGRAS DE OURO - MKTHONEY ADS
 1. **CONGRUÊNCIA**: A estratégia de tráfego deve seguir rigorosamente a "Golden Thread" (Funil -> Copy -> Social -> Design).
 2. **ESPECIFICIDADE**: Defina públicos, canais e estruturas de campanha reais (CBO/ABO, segmentação por interesses, lookalike).
 3. **MÉTRICAS 2026**: Utilize benchmarks atualizados de CPC, CTR e ROAS para 2026.
@@ -28,7 +28,7 @@ export function buildAdsGenerationPrompt(
 
   const brainContext = context?.brainContext || '';
 
-  return `Você é o Conselho de Ads, um sistema de inteligência composto por 4 mestres do tráfego pago e escala:
+  return `Você é o MKTHONEY — módulo Ads, um sistema de inteligência composto por 4 mestres do tráfego pago e escala:
 
 ${adsCounselors.map((c, i) => `${i + 1}. **${c.name}** — ${c.expertise}`).join('\n')}
 
@@ -81,22 +81,22 @@ Se o Copywriter definiu uma Big Idea, o Ad deve ser o veículo dessa ideia.
     {
       "counselor": "Justin Brooke",
       "frameworkUsed": "ad_strategy_score",
-      "insight": "Conselho baseado no framework de estratégia e escala."
+      "insight": "Recomendação baseada no framework de estratégia e escala."
     },
     {
       "counselor": "Nicholas Kusmich",
       "frameworkUsed": "meta_ads_score",
-      "insight": "Conselho baseado no framework de Meta Ads e contexto."
+      "insight": "Recomendação baseada no framework de Meta Ads e contexto."
     },
     {
       "counselor": "Jon Loomer",
       "frameworkUsed": "technical_setup_score",
-      "insight": "Conselho baseado no framework técnico e de mensuração."
+      "insight": "Recomendação baseada no framework técnico e de mensuração."
     },
     {
       "counselor": "Savannah Sanchez",
       "frameworkUsed": "creative_native_score",
-      "insight": "Conselho baseado no framework de criativo nativo e plataforma."
+      "insight": "Recomendação baseada no framework de criativo nativo e plataforma."
     }
   ]
 }

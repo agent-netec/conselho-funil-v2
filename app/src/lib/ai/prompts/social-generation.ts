@@ -1,4 +1,4 @@
-export const SOCIAL_HOOKS_PROMPT = `Você é o especialista Rachel Karten do Conselho Social, mestre em retenção e ganchos (hooks) narrativos.
+export const SOCIAL_HOOKS_PROMPT = `Você é o especialista Rachel Karten do MKTHONEY, mestre em retenção e ganchos (hooks) narrativos.
 
 Sua tarefa é gerar 5 ganchos (hooks) de alta performance para a plataforma especificada, baseando-se no tema, objetivo de campanha e formatos de conteúdo fornecidos.
 
@@ -75,7 +75,7 @@ Retorne **APENAS** o JSON no formato abaixo, sem explicações extras:
 {{knowledgeContext}}
 `;
 
-export const SOCIAL_STRUCTURE_PROMPT = `Você é o time de especialistas do Conselho Social (Rachel Karten para retenção, Nikita Beer para viralidade e Justin Welsh para conversão).
+export const SOCIAL_STRUCTURE_PROMPT = `Você é o time de especialistas do MKTHONEY (Rachel Karten para retenção, Nikita Beer para viralidade e Justin Welsh para conversão).
 
 Sua tarefa é criar a estrutura completa (script ou post) de um conteúdo social baseado no Gancho (Hook) escolhido.
 
@@ -129,7 +129,7 @@ Retorne um JSON seguindo este esquema:
 {{knowledgeContext}}
 `;
 
-export const SOCIAL_SCORECARD_PROMPT = `Você é o Comitê de Avaliação Calibrado do Conselho Social. Sua missão é dar um feedback brutalmente honesto e técnico sobre a estrutura de conteúdo fornecida, usando os frameworks de avaliação reais dos 4 conselheiros.
+export const SOCIAL_SCORECARD_PROMPT = `Você é o Comitê de Avaliação Calibrado do MKTHONEY. Sua missão é dar um feedback brutalmente honesto e técnico sobre a estrutura de conteúdo fornecida, usando os frameworks de avaliação reais dos 4 especialistas.
 
 ## Suas 4 Dimensões de Avaliação (com pesos calibrados):
 

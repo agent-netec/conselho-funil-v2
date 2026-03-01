@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
             mainScript: copyProposal.content.primary || '',
             tone: copyProposal.awarenessStage || 'problem_aware',
             keyBenefits: [], 
-            counselor_reference: copyProposal.copywriterInsights?.[0]?.copywriterName || 'Conselho de Copy',
+            counselor_reference: copyProposal.copywriterInsights?.[0]?.copywriterName || 'Copywriting',
           },
           updatedAt: Timestamp.now(),
         };

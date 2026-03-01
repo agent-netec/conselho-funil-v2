@@ -168,7 +168,7 @@ export function AdsStrategyCard({ strategyData, campaignId }: AdsStrategyCardPro
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 mb-1">
               <Lightbulb className="h-3.5 w-3.5 text-yellow-400" />
-              <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Insights dos Conselheiros</span>
+              <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Insights dos Especialistas</span>
             </div>
             {strategyData.counselorInsights.map((item, i) => (
               <div key={i} className="flex gap-2 p-2 rounded-lg bg-zinc-800/30 border border-zinc-700/30">

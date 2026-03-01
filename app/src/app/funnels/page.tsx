@@ -149,7 +149,7 @@ export default function FunnelsPage() {
               <p className="mt-2 text-zinc-500 max-w-sm mx-auto">
                 {searchQuery 
                   ? `Não encontramos resultados para "${searchQuery}". Tente outro termo.`
-                  : 'Crie seu primeiro funil e deixe o Conselho ajudar você a estruturar, avaliar e otimizar.'}
+                  : 'Crie seu primeiro funil e deixe o MKTHONEY ajudar você a estruturar, avaliar e otimizar.'}
               </p>
               {!searchQuery && (
                 <Link href="/funnels/new">

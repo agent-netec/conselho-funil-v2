@@ -147,7 +147,7 @@ export function OnboardingTransition({ onComplete }: OnboardingTransitionProps) 
           transition={{ delay: 0.3 }}
           className="text-2xl sm:text-3xl font-bold text-white mb-3"
         >
-          Seu Conselho está analisando sua marca...
+          O MKTHONEY está analisando sua marca...
         </motion.h2>
 
         {/* Secondary text */}

@@ -63,7 +63,7 @@ export function RecentActivity({ funnels, isLoading }: { funnels: Funnel[]; isLo
               Nenhum funil ainda
             </h4>
             <p className="mt-2 text-sm text-zinc-500 max-w-sm mx-auto">
-              Crie seu primeiro funil para começar a usar o Conselho
+              Crie seu primeiro funil para começar a usar o MKTHONEY
             </p>
             <Link href="/funnels/new">
               <Button className="mt-6 btn-accent">
@@ -118,7 +118,7 @@ export function RecentActivity({ funnels, isLoading }: { funnels: Funnel[]; isLo
         transition={{ duration: 0.4, delay: 0.5 }}
       >
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-lg font-semibold text-white">O Conselho</h3>
+          <h3 className="text-lg font-semibold text-white">MKTHONEY</h3>
         </div>
 
         <div className="card-premium p-5">

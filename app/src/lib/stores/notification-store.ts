@@ -93,7 +93,7 @@ export const notify = {
     return useNotificationStore.getState().addNotification({
       type: 'success',
       title: '🎯 Propostas Prontas!',
-      message: `O Conselho terminou de analisar "${funnelName}"`,
+      message: `O MKTHONEY terminou de analisar "${funnelName}"`,
       duration: 10000,
       action: {
         label: 'Ver Propostas',

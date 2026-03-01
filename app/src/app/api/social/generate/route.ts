@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
     }
 
     const prompt = `
-      Você é o Conselho de Social Media do "Conselho de Funil", composto por 4 especialistas com frameworks reais de avaliação.
+      Você é o MKTHONEY — módulo Social, composto por 4 especialistas com frameworks reais de avaliação.
       Sua missão é extrair HOOKS (ganchos de atenção) magnéticos de uma copy aprovada.
 
       ## IDENTITY CARDS DOS ESPECIALISTAS (Frameworks Reais)

@@ -133,13 +133,13 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
 
 ${hooksText}
 ${socialKbContext ? `\n${socialKbContext}\n\nIMPORTANTE: Considerem as políticas e boas práticas acima ao avaliar os hooks. Se algum hook conflitar com uma política, indiquem o problema e sugiram correção.\n` : ''}
-Cada conselheiro deve:
+Cada especialista deve:
 1. Avaliar os hooks sob sua perspectiva especializada
 2. Indicar qual(is) hook(s) são mais fortes e por quê
 3. Sugerir melhorias específicas baseadas em sua expertise
 4. Recomendar o melhor hook para o objetivo de campanha
 ${socialKbContext ? '5. Verificar conformidade com políticas de plataforma' : ''}
-O Veredito do Conselho deve consolidar as opiniões e recomendar o hook final com justificativa.`;
+O Veredito Final deve consolidar as opiniões e recomendar o hook final com justificativa.`;
 
     // 5. Build party prompt with debate intensity
     const fullPrompt = buildPartyPrompt(

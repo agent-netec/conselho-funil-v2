@@ -222,7 +222,7 @@ export async function saveBrandKeywordsConfig(brandId: string, config: Partial<B
 
 /**
  * Busca as top keywords mineradas de uma marca.
- * Usada para enriquecer copy generation, content engine, e chat/conselho.
+ * Usada para enriquecer copy generation, content engine, e chat/MKTHONEY.
  * Retorna keywords ordenadas por opportunityScore (desc).
  */
 export async function getBrandKeywords(

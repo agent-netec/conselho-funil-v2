@@ -23,7 +23,7 @@ export default function TrackingSettingsPage() {
   const brandId = activeBrand?.id;
 
   const snippet = brandId
-    ? `<!-- Conselho de Funil Tracking -->
+    ? `<!-- MKTHONEY Tracking -->
 <script src="${typeof window !== 'undefined' ? window.location.origin : 'https://seu-dominio.vercel.app'}/api/tracking/script.js?brandId=${brandId}" defer></script>`
     : '';
 

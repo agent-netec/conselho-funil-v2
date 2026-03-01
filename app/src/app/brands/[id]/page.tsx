@@ -309,7 +309,7 @@ export default function BrandDetailPage() {
                   <strong className="font-semibold">Contexto Compartilhado</strong>
                 </p>
                 <p className="text-sm text-[#E6B447]/30/70">
-                  Todas estas informações são usadas automaticamente pelos Conselhos de Funil, Copy e Social 
+                  Todas estas informações são usadas automaticamente pelo MKTHONEY (Funil, Copywriting e Social)
                   para gerar estratégias personalizadas para esta marca.
                 </p>
               </div>

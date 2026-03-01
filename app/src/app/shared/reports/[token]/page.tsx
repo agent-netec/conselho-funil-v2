@@ -123,7 +123,7 @@ export default function ClientReportPage() {
           <div className="h-16 w-16 rounded-full border-t-2 border-[#E6B447] animate-spin" />
           <Zap className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 text-[#E6B447] animate-pulse" />
         </div>
-        <p className="text-zinc-500 font-medium animate-pulse">Sintonizando com o Conselho...</p>
+        <p className="text-zinc-500 font-medium animate-pulse">Sintonizando com o MKTHONEY...</p>
       </div>
     );
   }
@@ -189,7 +189,7 @@ export default function ClientReportPage() {
                 <div className="h-8 w-8 bg-[#E6B447] rounded-lg flex items-center justify-center">
                   <Zap className="h-5 w-5 fill-white" />
                 </div>
-                {agency?.name || 'Conselho de Funil'}
+                {agency?.name || 'MKTHONEY'}
               </div>
             )}
             
@@ -228,11 +228,11 @@ export default function ClientReportPage() {
           animate="visible"
           className="space-y-10"
         >
-          {/* 2. Seção: "A Voz do Conselho" (AI Narrative) */}
+          {/* 2. Seção: "A Voz do MKTHONEY" (AI Narrative) */}
           <motion.section variants={itemVariants} className="space-y-4">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
               <MessageSquare className="h-4 w-4 text-[#E6B447]" />
-              A Voz do Conselho
+              A Voz do MKTHONEY
             </div>
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-[#E6B447]/20 to-blue-500/20 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
@@ -439,7 +439,7 @@ export default function ClientReportPage() {
           <div className="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] text-zinc-600 uppercase tracking-[0.2em]">
             <div className="flex items-center gap-2 grayscale opacity-50">
               <Zap className="h-3 w-3" />
-              Powered by Conselho de Funil
+              Powered by MKTHONEY
             </div>
             <div className="flex gap-6">
               <span>Privacidade</span>

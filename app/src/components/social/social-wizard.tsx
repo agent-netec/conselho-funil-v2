@@ -222,7 +222,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
       const data = await response.json();
       setDebate(data.data?.debate);
       setCurrentStep(2);
-      notify.success('Debate do Conselho gerado!');
+      notify.success('Debate dos especialistas gerado!');
     } catch (error) {
       console.error('Error:', error);
       notify.error('Erro ao gerar debate. Tente novamente.');
@@ -749,7 +749,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
                 <Loader2 className="h-6 w-6 text-violet-400 animate-spin" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-violet-300">Conselheiros em debate...</h4>
+                <h4 className="text-sm font-bold text-violet-300">Especialistas em debate...</h4>
                 <p className="text-xs text-zinc-400 mt-1">
                   4 especialistas estão analisando seus hooks. Isso pode levar até 1 minuto e meio.
                 </p>
@@ -769,7 +769,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
             className="bg-violet-500 hover:bg-violet-600 text-white font-semibold gap-2"
           >
             {isDebating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
-            {isDebating ? 'Conselheiros Debatendo...' : 'Debate do Conselho'}
+            {isDebating ? 'Especialistas Debatendo...' : 'Debate dos Especialistas'}
           </Button>
         </div>
       </div>
@@ -784,7 +784,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
 
         <div className="flex items-center gap-2 mb-2">
           <MessageSquare className="h-5 w-5 text-violet-400" />
-          <h2 className="text-xl font-bold text-zinc-100">Debate do Conselho Social</h2>
+          <h2 className="text-xl font-bold text-zinc-100">Debate do MKTHONEY Social</h2>
         </div>
 
         <DebateViewer debate={debate} />
@@ -799,7 +799,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
               <div>
                 <h4 className="text-sm font-bold text-amber-300">Avaliação em andamento...</h4>
                 <p className="text-xs text-zinc-400 mt-1">
-                  O conselho está calibrando a nota do conteúdo. Isso pode levar até 1 minuto.
+                  O MKTHONEY está calibrando a nota do conteúdo. Isso pode levar até 1 minuto.
                 </p>
               </div>
             </div>
@@ -834,7 +834,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
           <Trophy className="h-5 w-5 text-amber-400" />
           <h2 className="text-xl font-bold text-zinc-100">Avaliação Calibrada</h2>
           <Badge variant="outline" className="border-amber-500/30 text-amber-400 bg-amber-500/5 text-[10px]">
-            4 Conselheiros
+            4 Especialistas
           </Badge>
         </div>
 

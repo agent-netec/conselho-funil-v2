@@ -61,7 +61,7 @@ export function SourcesTab() {
         <div>
           <h2 className="text-xl font-bold text-white">Fontes de Inteligência</h2>
           <p className="text-sm text-zinc-500">
-            Gerencie de onde extraímos dados para alimentar seus Conselheiros.
+            Gerencie de onde extraímos dados para alimentar seus Especialistas.
           </p>
         </div>
         <Button className="bg-[#AB8648] hover:bg-[#895F29] text-white gap-2">

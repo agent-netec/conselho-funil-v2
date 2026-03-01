@@ -44,7 +44,7 @@ export function ChatMessageBubble({
   const [copied, setCopied] = useState(false);
   const isUser = message.role === 'user';
 
-  // US-1.5.2: Detecção de Output Estruturado do Conselho (Extração Robusta ST-11.6)
+  // US-1.5.2: Detecção de Output Estruturado do MKTHONEY (Extração Robusta ST-11.6)
   const detectCouncilOutput = (content: string) => {
     const marker = '[COUNCIL_OUTPUT]:';
     if (!content.includes(marker)) return null;
@@ -270,7 +270,7 @@ export function ChatMessageBubble({
         <div className="flex items-center justify-between gap-2 mb-1 sm:mb-2">
           <div className="flex items-center gap-2">
             <span className="text-[13px] sm:text-sm font-semibold text-zinc-300">
-              {isUser ? 'Você' : 'Conselho'}
+              {isUser ? 'Você' : 'MKTHONEY'}
             </span>
             {message.createdAt && (
               <span className="text-[10px] sm:text-xs text-zinc-600 font-medium">
@@ -370,7 +370,7 @@ export function ChatMessageBubble({
                           components={{
                             strong: ({ node, ...props }: any) => {
                               const text = props.children?.toString() || '';
-                              // Busca se o texto em negrito é o nome de algum conselheiro
+                              // Busca se o texto em negrito é o nome de algum especialista
                               const mentionedAgent = Object.values(COUNSELORS_REGISTRY).find(
                                 c => text.includes(c.name) || text.toUpperCase() === c.name.toUpperCase()
                               );
@@ -413,7 +413,7 @@ export function ChatMessageBubble({
                               <Gavel className="h-4 w-4" />
                             </div>
                             <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#E6B447] to-blue-400 uppercase tracking-wider text-sm">
-                              Veredito do Conselho
+                              Veredito do MKTHONEY
                             </span>
                           </div>
                           <MarkdownRenderer 

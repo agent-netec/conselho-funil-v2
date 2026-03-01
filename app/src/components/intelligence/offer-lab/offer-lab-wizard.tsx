@@ -170,7 +170,7 @@ const IrresistibilityScore = ({ score, analysis, scoringFactors }: { score: numb
 
         {analysis.length > 0 && (
           <div className="space-y-2 mt-4">
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Insights do Conselho:</p>
+            <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Insights do MKTHONEY:</p>
             {analysis.map((insight, i) => (
               <div key={i} className="flex gap-2 text-[11px] text-zinc-400 leading-tight">
                 <Sparkles className="w-3 h-3 text-purple-400 shrink-0" />
@@ -357,7 +357,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
       <div className="max-w-3xl mx-auto space-y-8 py-8">
         {/* Score Header */}
         <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold text-white">Avaliacao do Conselho</h2>
+          <h2 className="text-2xl font-bold text-white">Avaliacao do MKTHONEY</h2>
           <div className="flex items-center justify-center gap-6">
             <div className="text-center">
               <div className="text-5xl font-black text-white">{result.total}</div>
@@ -424,7 +424,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
         ) : (
           <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-lg text-center">
             <p className="text-sm text-zinc-400">
-              {isEvaluating ? 'Avaliando com o Conselho...' : 'Avaliacao AI indisponivel. Voce pode salvar a oferta normalmente.'}
+              {isEvaluating ? 'Avaliando com o MKTHONEY...' : 'Avaliacao AI indisponivel. Voce pode salvar a oferta normalmente.'}
             </p>
           </div>
         )}
@@ -686,7 +686,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
                     <Sparkles className="w-5 h-5 text-purple-500" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-white">Dica do Conselheiro (Russell Brunson)</h4>
+                    <h4 className="font-bold text-white">Dica do Especialista (Russell Brunson)</h4>
                     <p className="text-sm text-zinc-400 mt-1">
                       "O bonus nao deve ser apenas mais conteudo. Ele deve resolver um problema que o produto principal cria."
                     </p>
@@ -818,7 +818,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
             disabled={isSaving || isEvaluating}
             className="bg-white text-black hover:bg-zinc-200 px-8"
           >
-            {isEvaluating ? 'Avaliando com o Conselho...' : step === 4 ? 'Avaliar e Finalizar' : 'Próximo Passo'}
+            {isEvaluating ? 'Avaliando com o MKTHONEY...' : step === 4 ? 'Avaliar e Finalizar' : 'Próximo Passo'}
             {step === 4 ? <Sparkles className="w-4 h-4 ml-2" /> : <ArrowRight className="w-4 h-4 ml-2" />}
           </Button>
         </div>

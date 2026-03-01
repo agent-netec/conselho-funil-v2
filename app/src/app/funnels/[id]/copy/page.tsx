@@ -566,7 +566,7 @@ export default function CopyCouncilPage() {
       const data = await response.json();
 
       if (data.success) {
-        notify.success(`${COPY_TYPES[copyType].label} gerado!`, 'O Conselho de Copy terminou');
+        notify.success(`${COPY_TYPES[copyType].label} gerado!`, 'Copywriting terminou');
         // Auto-expand the new card
         if (data.copyProposal?.id) {
           setExpandedCards(prev => new Set([...prev, data.copyProposal.id]));
@@ -635,7 +635,7 @@ export default function CopyCouncilPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header title="Conselho de Copy" />
+        <Header title="Copywriting" />
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
         </div>
@@ -646,7 +646,7 @@ export default function CopyCouncilPage() {
   if (!funnel) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header title="Conselho de Copy" />
+        <Header title="Copywriting" />
         <div className="flex-1 flex items-center justify-center">
           <p className="text-zinc-500">Funil não encontrado</p>
         </div>
@@ -656,7 +656,7 @@ export default function CopyCouncilPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header title="Conselho de Copy" />
+      <Header title="Copywriting" />
 
       <div className="flex-1 p-8">
         {/* Back link */}
@@ -676,7 +676,7 @@ export default function CopyCouncilPage() {
               <Sparkles className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">Conselho de Copywriting</h1>
+              <h1 className="text-2xl font-bold text-white">Copywriting</h1>
               <p className="text-zinc-400">{funnel.name}</p>
             </div>
           </div>
@@ -828,7 +828,7 @@ export default function CopyCouncilPage() {
               Nenhuma copy gerada ainda
             </h3>
             <p className="text-zinc-500 mb-6">
-              Clique em um tipo de copy acima para o Conselho de Copywriting gerar propostas
+              Clique em um tipo de copy acima para Copywriting gerar propostas
             </p>
           </motion.div>
         )}
@@ -841,7 +841,7 @@ export default function CopyCouncilPage() {
           className="mt-12"
         >
           <h2 className="text-lg font-semibold text-white mb-4">
-            Os 9 Copywriters do Conselho
+            Os 9 Copywriters
           </h2>
           <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-9">
             {Object.values(COPY_COUNSELORS).map((copywriter) => (

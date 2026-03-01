@@ -67,7 +67,7 @@ export default function CampaignCommandCenter() {
                 mainScript: approvedCopy.content?.primary || '',
                 tone: approvedCopy.awarenessStage || 'problem_aware',
                 keyBenefits: [],
-                counselor_reference: approvedCopy.copywriterInsights?.[0]?.copywriterName || 'Conselho de Copy',
+                counselor_reference: approvedCopy.copywriterInsights?.[0]?.copywriterName || 'Copywriting',
               };
             }
           } catch (err) {
@@ -115,7 +115,7 @@ export default function CampaignCommandCenter() {
               mainScript: approvedCopy.content.primary || '',
               tone: approvedCopy.awarenessStage || 'problem_aware',
               keyBenefits: [],
-              counselor_reference: approvedCopy.copywriterInsights?.[0]?.copywriterName || 'Conselho de Copy',
+              counselor_reference: approvedCopy.copywriterInsights?.[0]?.copywriterName || 'Copywriting',
             } : undefined,
             createdAt: funnelData.createdAt,
             updatedAt: funnelData.updatedAt,
@@ -226,7 +226,7 @@ export default function CampaignCommandCenter() {
   const handleAction = async (stageId: string) => {
     if (!campaign) return;
 
-    notify.info(`Iniciando ${stageId}`, `O Conselho está sendo convocado...`);
+    notify.info(`Iniciando ${stageId}`, `O MKTHONEY está sendo convocado...`);
 
     if (stageId === 'funnel') {
       router.push(`/funnels/${campaign.funnelId}?campaignId=${campaign.id}`);
@@ -273,7 +273,7 @@ export default function CampaignCommandCenter() {
       // Se ads ainda não existe, auto-gerar via API dedicada (salva direto no Firestore)
       if (!campaign.ads) {
         setGeneratingAds(true);
-        notify.info('Gerando Estratégia', 'O Conselho de Ads está projetando a escala...');
+        notify.info('Gerando Estratégia', 'Ads & Tráfego está projetando a escala...');
         try {
           const authHeaders = await getAuthHeaders();
           const res = await fetch(`/api/campaigns/${campaign.id}/generate-ads`, {
@@ -507,7 +507,7 @@ export default function CampaignCommandCenter() {
             summary={campaign.copywriting ? [
               `Big Idea: ${campaign.copywriting.bigIdea.slice(0, 60)}...`,
               `Tom: ${campaign.copywriting.tone}`,
-              `Base: ${campaign.copywriting.counselor_reference || 'Conselho'}`
+              `Base: ${campaign.copywriting.counselor_reference || 'MKTHONEY'}`
             ] : []}
             onAction={() => handleAction('copy')}
             actionLabel={campaign.copywriting ? "Ver Copy" : "Gerar Copy"}
@@ -545,7 +545,7 @@ export default function CampaignCommandCenter() {
 
           <StageCard
             title="A Escala"
-            description="Conselho de Ads & Tráfego"
+            description="Ads & Tráfego"
             icon={BarChart3}
             status={campaign.ads ? 'approved' : generatingAds ? 'generating' : campaign.design ? 'ready' : 'empty'}
             summary={campaign.ads ? [
@@ -553,7 +553,7 @@ export default function CampaignCommandCenter() {
               `Budget Sugerido: ${campaign.ads.suggestedBudget || 'A definir'}`,
               ...(campaign.ads.audiences?.length ? [`${campaign.ads.audiences.length} audiência(s) segmentada(s)`] : [])
             ] : generatingAds ? [
-              'Conselho de Ads analisando o manifesto...',
+              'Ads & Tráfego analisando o manifesto...',
               'Projetando audiências, canais e budget'
             ] : campaign.design ? [
               'Design & Copy sincronizados',

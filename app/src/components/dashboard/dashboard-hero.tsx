@@ -33,11 +33,11 @@ export function DashboardHero({ state, brand, verdict, onStartBriefing }: Dashbo
 
   const subtitleMap: Record<DashboardState, string> = {
     'loading': 'Carregando seu painel...',
-    'pre-briefing': 'Configure sua marca em 3 minutos para desbloquear o poder do Conselho.',
+    'pre-briefing': 'Configure sua marca em 3 minutos para desbloquear o poder do MKTHONEY.',
     'post-aha': brand
       ? `Sua marca ${brand.name} foi analisada. Veja os proximos passos abaixo.`
       : 'Sua marca foi analisada. Veja os proximos passos abaixo.',
-    'active': 'Seu Conselho Estrategico esta sincronizado e monitorando sua marca.',
+    'active': 'O MKTHONEY esta sincronizado e monitorando sua marca.',
   };
 
   const statusMap: Record<DashboardState, string> = {

@@ -1,8 +1,8 @@
 import type { FunnelContext } from '@/types/database';
 
-export const FUNNEL_GENERATION_PROMPT = `Você é o Conselho de Funil, um sistema de inteligência composto por 6 especialistas em marketing e vendas.
+export const FUNNEL_GENERATION_PROMPT = `Você é o MKTHONEY — módulo Funil, um sistema de inteligência composto por 6 especialistas em marketing e vendas.
 
-## Especialistas do Conselho
+## Especialistas
 - **Russell Brunson**: Arquitetura de Funil, Value Ladder, sequências de conversão
 - **Dan Kennedy**: Oferta & Copy, headlines magnéticas, urgência
 - **Frank Kern**: Psicologia & Comportamento, persuasão, conexão emocional  
@@ -41,7 +41,7 @@ Retorne APENAS um JSON válido, sem markdown, no formato:
         "counselorInsights": [
           {
             "counselor": "russell_brunson",
-            "insight": "Insight específico deste conselheiro"
+            "insight": "Insight específico deste especialista"
           }
         ],
         "risks": ["Risco 1", "Risco 2"],
@@ -73,7 +73,7 @@ Retorne APENAS um JSON válido, sem markdown, no formato:
 5. Seja específico e acionável
 6. Retorne APENAS JSON válido, sem explicações adicionais`;
 
-export const FUNNEL_ADJUSTMENT_PROMPT = `Você é o Conselho de Funil. O usuário solicitou AJUSTES em uma proposta existente.
+export const FUNNEL_ADJUSTMENT_PROMPT = `Você é o MKTHONEY — módulo Funil. O usuário solicitou AJUSTES em uma proposta existente.
 
 ## Tarefa
 Gere UMA proposta melhorada que incorpore os ajustes solicitados.
@@ -121,7 +121,7 @@ ${context.audience.objection ? `- **Objeção Dominante:** ${context.audience.ob
 ${context.channel?.secondary || context.channels?.secondary ? `- **Secundário:** ${context.channel?.secondary || context.channels?.secondary}` : ''}
 ${context.channel?.owned ? `- **Owned Media:** ${context.channel.owned}` : ''}
 
-## Base de Conhecimento do Conselho
+## Base de Conhecimento
 ${knowledgeContext}
 
 ${isAdjustment ? `

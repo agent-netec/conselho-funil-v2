@@ -178,7 +178,7 @@ const INTEGRATIONS: IntegrationDef[] = [
   {
     id: 'slack',
     name: 'Slack',
-    description: 'Receba alertas de performance, aprovações de funil e notificações do Conselho direto no Slack.',
+    description: 'Receba alertas de performance, aprovações de funil e notificações do MKTHONEY direto no Slack.',
     icon: '💬',
     provider: 'slack',
     category: 'communication',
@@ -920,7 +920,7 @@ function ConfigPanel({
           <div className="p-6 rounded-2xl bg-zinc-900/50 border border-white/[0.04] space-y-4">
             <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
               <Zap className="h-3 w-3 text-[#E6B447]" />
-              O que o Conselho pode fazer com {def.name}?
+              O que o MKTHONEY pode fazer com {def.name}?
             </h4>
             <ul className="space-y-3">
               {getCapabilities(def.provider).map((item) => (
@@ -938,7 +938,7 @@ function ConfigPanel({
             </h4>
             <p className="text-xs text-zinc-500 leading-relaxed">
               Suas chaves de API são criptografadas com AES-256 e nunca compartilhadas.
-              O Conselho utiliza apenas acesso de leitura para extrair insights estratégicos.
+              O MKTHONEY utiliza apenas acesso de leitura para extrair insights estratégicos.
             </p>
           </div>
         </div>

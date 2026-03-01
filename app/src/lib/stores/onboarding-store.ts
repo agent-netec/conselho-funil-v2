@@ -10,7 +10,7 @@ export interface OnboardingStep {
 const ONBOARDING_STEPS: OnboardingStep[] = [
   { id: 'create_brand', label: 'Criar sua primeira marca', href: '/brands/new' },
   { id: 'configure_visual', label: 'Configurar identidade visual', href: '/brands' },
-  { id: 'consult_council', label: 'Consultar o Conselho', href: '/chat' },
+  { id: 'consult_council', label: 'Consultar o MKTHONEY', href: '/chat' },
   { id: 'create_funnel', label: 'Criar seu primeiro funil', href: '/funnels/new' },
   { id: 'upload_asset', label: 'Fazer upload de um asset', href: '/assets' },
 ];

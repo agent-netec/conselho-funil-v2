@@ -68,7 +68,7 @@ export function ChatInputArea({ onSend, isLoading, disabled = false, disabledMes
   const modeConfig = CHAT_MODES[mode];
   const accentColor = modeConfig.accentColor;
 
-  // Gerar footer dinâmico com base nos conselheiros
+  // Gerar footer dinâmico com base nos especialistas
   const counselorNames = isPartyMode
     ? selectedAgents.map(id => COUNSELORS_REGISTRY[id as CounselorId]?.name || id).join(', ')
     : modeConfig.counselors.map(id => COUNSELORS_REGISTRY[id as CounselorId]?.name || id).join(', ');
@@ -140,7 +140,7 @@ export function ChatInputArea({ onSend, isLoading, disabled = false, disabledMes
         >
           <SheetContent side="right" className="sm:max-w-md w-full p-0 bg-zinc-950 border-white/[0.08]">
             <SheetHeader className="sr-only">
-              <SheetTitle>Alto Conselho</SheetTitle>
+              <SheetTitle>Party Mode</SheetTitle>
               <SheetDescription>Selecione até 3 especialistas para o debate</SheetDescription>
             </SheetHeader>
             <CounselorSelector
@@ -225,7 +225,7 @@ export function ChatInputArea({ onSend, isLoading, disabled = false, disabledMes
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
-              {isPartyMode ? 'Alto Conselho Ativo' : 'Invocar Alto Conselho'}
+              {isPartyMode ? 'Party Mode Ativo' : 'Invocar Party Mode'}
             </motion.button>
           </div>
           {isPartyMode && !hasMinimumAgents && <p className="text-[11px] text-amber-400 font-medium">Selecione pelo menos 3 especialistas para iniciar o debate.</p>}

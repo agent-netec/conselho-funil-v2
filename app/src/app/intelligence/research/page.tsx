@@ -247,10 +247,10 @@ export default function ResearchPage() {
         throw new Error(err.error || err.details || `Erro ${res.status}`);
       }
       const data = await res.json();
-      toast.success(`${data.data?.chunksAdded || 0} seções adicionadas ao Conselho!`);
+      toast.success(`${data.data?.chunksAdded || 0} seções adicionadas ao MKTHONEY!`);
       setRagSections(new Set());
     } catch (err: any) {
-      toast.error(err.message || 'Erro ao adicionar ao Conselho.');
+      toast.error(err.message || 'Erro ao adicionar ao MKTHONEY.');
     } finally {
       setRagSaving(false);
     }
@@ -322,7 +322,7 @@ export default function ResearchPage() {
                   {item.ragChunkIds && item.ragChunkIds.length > 0 && (
                     <div className="flex items-center gap-1 mt-1">
                       <Database className="w-3 h-3 text-violet-400" />
-                      <span className="text-[9px] text-violet-400">No Conselho</span>
+                      <span className="text-[9px] text-violet-400">No MKTHONEY</span>
                     </div>
                   )}
                 </button>
@@ -390,10 +390,10 @@ export default function ResearchPage() {
                   <Card className="p-4 bg-zinc-900/30 border-zinc-800 space-y-3">
                     <h3 className="text-xs font-bold text-zinc-300 flex items-center gap-2">
                       <Database className="h-3.5 w-3.5 text-violet-400" />
-                      Adicionar ao Conselho (RAG)
+                      Adicionar ao MKTHONEY (RAG)
                     </h3>
                     <p className="text-[10px] text-zinc-500">
-                      Selecione seções para que os conselheiros usem como contexto ao gerar conteúdo.
+                      Selecione seções para que os especialistas usem como contexto ao gerar conteúdo.
                     </p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {SECTION_KEYS.map(key => {
@@ -424,7 +424,7 @@ export default function ResearchPage() {
                       const v = (selected.sections as Record<string, unknown>)?.[key];
                       return Array.isArray(v) ? v.length === 0 : !v || (typeof v === 'string' && !v.trim());
                     }) && (
-                      <p className="text-[10px] text-amber-400/80">Este dossiê não tem seções com conteúdo para adicionar ao Conselho.</p>
+                      <p className="text-[10px] text-amber-400/80">Este dossiê não tem seções com conteúdo para adicionar ao MKTHONEY.</p>
                     )}
                     <Button
                       onClick={handleAddToRag}
@@ -433,7 +433,7 @@ export default function ResearchPage() {
                       className="bg-violet-600 hover:bg-violet-500 text-white text-xs"
                     >
                       {ragSaving ? <Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> : <Database className="mr-1.5 h-3 w-3" />}
-                      Adicionar ao Conselho ({ragSections.size} seção{ragSections.size !== 1 ? 'ões' : ''})
+                      Adicionar ao MKTHONEY ({ragSections.size} seção{ragSections.size !== 1 ? 'ões' : ''})
                     </Button>
                   </Card>
 

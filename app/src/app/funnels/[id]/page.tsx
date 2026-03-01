@@ -140,7 +140,7 @@ ${proposal.assets.headlines.map(h => `- ${h}`).join('\n')}
     });
   }
 
-  md += `\n*Documento gerado pelo Conselho de Funil*`;
+  md += `\n*Documento gerado pelo MKTHONEY*`;
   return md;
 }
 
@@ -185,14 +185,14 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
     label: 'Rascunho', 
     color: 'text-zinc-400', 
     bg: 'bg-zinc-500/10',
-    description: 'Aguardando geração pelo Conselho',
+    description: 'Aguardando geração pelo MKTHONEY',
     glow: 'from-zinc-500/5 to-transparent'
   },
   generating: { 
     label: 'Gerando Propostas', 
     color: 'text-blue-400', 
     bg: 'bg-blue-500/10',
-    description: 'O Conselho está analisando e criando propostas...',
+    description: 'O MKTHONEY está analisando e criando propostas...',
     glow: 'from-blue-500/5 to-transparent'
   },
   review: { 
@@ -213,7 +213,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
     label: 'Ajustando', 
     color: 'text-violet-400', 
     bg: 'bg-violet-500/10',
-    description: 'Aplicando ajustes solicitados pelo Conselho',
+    description: 'Aplicando ajustes solicitados pelo MKTHONEY',
     glow: 'from-violet-500/5 to-transparent'
   },
   executing: { 
@@ -394,7 +394,7 @@ const GeneratingState = ({ isStuck, onReset }: { isStuck?: boolean; onReset?: ()
         <p className="text-zinc-400 mb-6 max-w-md mx-auto text-sm italic">
           {isStuck
             ? 'A geração demorou mais que o esperado. Pode ter ocorrido um erro no servidor. Você pode resetar e tentar novamente.'
-            : '"O Agente Monara está escaneando a estrutura do funil enquanto o Conselho de Estrategistas prepara o diagnóstico."'
+            : '"O Agente Monara está escaneando a estrutura do funil enquanto o MKTHONEY prepara o diagnóstico."'
           }
         </p>
 
@@ -488,7 +488,7 @@ export default function FunnelDetailPage() {
           
           // Check if status changed from generating to review (proposals ready)
           if (funnel?.status === 'generating' && data.status === 'review') {
-            notify.success('🎯 Propostas Prontas!', `O Conselho terminou de analisar "${data.name}"`);
+            notify.success('🎯 Propostas Prontas!', `O MKTHONEY terminou de analisar "${data.name}"`);
           }
           
           // Load proposals for all statuses except draft and generating
@@ -845,7 +845,7 @@ export default function FunnelDetailPage() {
             <Link href={`/chat?funnelId=${funnel.id}`}>
               <Button className="btn-accent">
                 <MessageSquare className="mr-2 h-4 w-4" />
-                Consultar Conselho
+                Consultar MKTHONEY
               </Button>
             </Link>
           </div>
@@ -945,7 +945,7 @@ export default function FunnelDetailPage() {
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                   <Zap className="h-5 w-5 text-[#E6B447]" />
-                  Propostas do Conselho
+                  Propostas do MKTHONEY
                   <span className="text-sm font-normal text-zinc-500">
                     ({proposals.length} {proposals.length === 1 ? 'proposta' : 'propostas'})
                   </span>
@@ -1108,12 +1108,12 @@ export default function FunnelDetailPage() {
                 Pronto para criar propostas?
               </h3>
               <p className="text-zinc-400 mb-6 max-w-md mx-auto">
-                O Conselho vai analisar seu contexto e gerar propostas de funil
+                O MKTHONEY vai analisar seu contexto e gerar propostas de funil
                 com arquitetura, copy e métricas.
               </p>
               <Button className="btn-accent" onClick={handleGenerate}>
                 <Sparkles className="mr-2 h-4 w-4" />
-                Gerar Propostas com o Conselho
+                Gerar Propostas com o MKTHONEY
               </Button>
             </motion.div>
           )}

@@ -23,7 +23,7 @@ export interface VerdictOutput {
 /**
  * System prompt para o veredito proativo do onboarding
  */
-export const PROACTIVE_VERDICT_SYSTEM_PROMPT = `Você é o Conselho de Funil, um sistema de inteligência estratégica de marketing.
+export const PROACTIVE_VERDICT_SYSTEM_PROMPT = `Você é o MKTHONEY, um sistema de inteligência estratégica de marketing.
 
 O usuário acabou de criar sua primeira marca na plataforma. Sua missão é dar um "Veredito Estratégico" inicial que:
 1. Analise os dados da marca fornecidos

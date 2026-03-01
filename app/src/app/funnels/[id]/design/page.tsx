@@ -88,7 +88,7 @@ export default function DesignCouncilPage() {
                 headlines: approvedCopy.content?.headlines || [],
                 mainScript: approvedCopy.content?.primary || '',
                 tone: approvedCopy.awarenessStage || 'problem_aware',
-                counselor_reference: approvedCopy.copywriterInsights?.[0]?.copywriterName || 'Conselho de Copy',
+                counselor_reference: approvedCopy.copywriterInsights?.[0]?.copywriterName || 'Copywriting',
               }
             };
           }
@@ -142,7 +142,7 @@ export default function DesignCouncilPage() {
         notify.error('Erro', data.error);
       }
     } catch (error) {
-      notify.error('Erro', 'Falha ao convocar Conselho de Design');
+      notify.error('Erro', 'Falha ao convocar Design');
     } finally {
       setIsGenerating(false);
     }
@@ -175,7 +175,7 @@ export default function DesignCouncilPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col bg-black">
-        <Header title="Conselho de Design" />
+        <Header title="Design" />
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
         </div>
@@ -199,7 +199,7 @@ export default function DesignCouncilPage() {
               <Palette className="h-8 w-8" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white tracking-tight">Conselho de Design</h1>
+              <h1 className="text-3xl font-bold text-white tracking-tight">Design</h1>
               <p className="text-zinc-500">Framework C.H.A.P.E.U: Contraste, Hierarquia, Antropomorfismo, Prova, Emoção, Urgência.</p>
             </div>
           </div>

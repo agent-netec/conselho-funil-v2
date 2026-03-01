@@ -51,7 +51,7 @@ export default function OfferLabPage() {
             <BrainCircuit className="w-6 h-6 text-blue-500" />
           </div>
           <div>
-            <div className="text-xs text-zinc-500 uppercase font-bold tracking-wider">Conselheiro Ativo</div>
+            <div className="text-xs text-zinc-500 uppercase font-bold tracking-wider">Especialista Ativo</div>
             <div className="text-sm font-bold text-white">Russell Brunson</div>
           </div>
         </div>

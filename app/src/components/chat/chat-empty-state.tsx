@@ -156,7 +156,7 @@ export function ChatEmptyState({
         <div className="hidden sm:block space-y-4">
           {mode === 'funnel' && (
             <div>
-              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Conselho de Funil</p>
+              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Funil</p>
               <div className="flex flex-wrap justify-center gap-2">
                 {CHAT_MODES.funnel.counselors.map((id, index) => {
                   const counselor = COUNSELORS_REGISTRY[id];
@@ -183,7 +183,7 @@ export function ChatEmptyState({
 
           {mode === 'copy' && (
             <div>
-              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Conselho de Copy</p>
+              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Copywriting</p>
               <div className="flex flex-wrap justify-center gap-2">
                 {CHAT_MODES.copy.counselors.map((id, index) => {
                   const counselor = COUNSELORS_REGISTRY[id];
@@ -210,7 +210,7 @@ export function ChatEmptyState({
 
           {mode === 'social' && (
             <div>
-              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Conselho Social</p>
+              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Social</p>
               <div className="flex flex-wrap justify-center gap-2">
                 {CHAT_MODES.social.counselors.map((id, index) => {
                   const counselor = COUNSELORS_REGISTRY[id];
@@ -237,7 +237,7 @@ export function ChatEmptyState({
 
           {mode === 'ads' && (
             <div>
-              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Conselho de Ads</p>
+              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Ads & Trafego</p>
               <div className="flex flex-wrap justify-center gap-2">
                 {CHAT_MODES.ads.counselors.map((id, index) => {
                   const counselor = COUNSELORS_REGISTRY[id];
@@ -291,7 +291,7 @@ export function ChatEmptyState({
 
           {mode === 'general' && (
             <div>
-              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">23 Especialistas do Conselho</p>
+              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">23 Especialistas MKTHONEY</p>
               <div className="flex flex-wrap justify-center gap-2 px-12">
                 {['russell_brunson', 'dan_kennedy', 'frank_kern', 'eugene_schwartz', 'gary_halbert', 'savannah_sanchez', 'design_director'].map((id, index) => {
                   const counselor = COUNSELORS_REGISTRY[id as CounselorId];

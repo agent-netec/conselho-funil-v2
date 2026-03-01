@@ -100,7 +100,7 @@ export function StageCard({
             >
               <Sparkles className="h-4 w-4" />
             </motion.div>
-            Consultando Conselho...
+            Consultando MKTHONEY...
           </div>
         ) : (
           <>

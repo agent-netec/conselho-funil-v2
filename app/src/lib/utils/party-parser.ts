@@ -38,7 +38,7 @@ function detectMentions(content: string, currentAgentId?: CounselorId): Counselo
  * Parses a multi-persona response into structured sections.
  * 
  * Expected format:
- * ### 🎙️ Deliberação do Conselho
+ * ### 🎙️ Deliberação dos Especialistas
  * 
  * **[AGENT NAME]**: Content...
  * 
@@ -60,7 +60,7 @@ export function parsePartyResponse(content: string): PartySection[] {
     const line = lines[i];
     
     // Check for Main Header
-    if (line.includes('### 🎙️ Deliberação do Conselho')) {
+    if (line.includes('### 🎙️ Deliberação dos Especialistas')) {
       if (currentSection) sections.push(currentSection);
       sections.push({
         type: 'header',
@@ -73,9 +73,9 @@ export function parsePartyResponse(content: string): PartySection[] {
     // Check for Verdict Header
     if (line.includes('### ⚖️ Veredito do Moderador') || 
         line.includes('### ⚖️ Veredito') || 
-        line.includes('### ⚖️ Veredito do Conselho') || 
-        line.includes('[VEREDITO_DO_CONSELHO]') ||
-        line.includes('### ⚖️ Veredito do Conselho')) {
+        line.includes('### ⚖️ Veredito Final') || 
+        line.includes('[VEREDITO_FINAL]') ||
+        line.includes('### ⚖️ Veredito Final')) {
       if (currentSection) sections.push(currentSection);
       currentSection = {
         type: 'verdict',

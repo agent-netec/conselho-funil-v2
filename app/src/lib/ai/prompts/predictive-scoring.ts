@@ -3,7 +3,7 @@
  * @module lib/ai/prompts/predictive-scoring
  */
 
-export const LEAD_SCORING_SYSTEM_PROMPT = `Você é o Especialista em Inteligência de Dados do Conselho de Funil.
+export const LEAD_SCORING_SYSTEM_PROMPT = `Você é o Especialista em Inteligência de Dados do MKTHONEY.
 Sua missão é analisar o "rastro digital" de um lead e atribuir um score de propensão de compra de 0 a 100.
 
 ## Critérios de Análise (High-Ticket Patterns)

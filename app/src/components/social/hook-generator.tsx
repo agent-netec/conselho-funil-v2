@@ -204,7 +204,7 @@ export function HookGenerator() {
               ) : (
                 <Trophy className="h-4 w-4 mr-2" />
               )}
-              Avaliação do Conselho
+              Avaliação do MKTHONEY
               {scorecard && (
                 <Badge className="ml-2 bg-white/20 text-white border-none py-0 px-1.5 text-[10px]">
                   {scorecard.overall_score}
@@ -227,7 +227,7 @@ export function HookGenerator() {
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-lg font-bold text-zinc-100">Avaliando Conteúdo...</h3>
-                  <p className="text-sm text-zinc-500">O Conselho Social está analisando seu roteiro baseado em 4 dimensões críticas.</p>
+                  <p className="text-sm text-zinc-500">O MKTHONEY Social está analisando seu roteiro baseado em 4 dimensões críticas.</p>
                 </div>
               </Card>
             )}

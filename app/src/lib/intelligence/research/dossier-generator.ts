@@ -93,7 +93,7 @@ export class DossierGenerator {
       sourcesBlock,
       '',
       brainContext
-        ? `# PERSPECTIVA DOS CONSELHEIROS\n${brainContext}\n\nConsidere os frameworks acima ao avaliar oportunidades, ameacas e recomendacoes. Identifique o nivel de consciencia do mercado (Schwartz) e oportunidades na escada de valor (Brunson).\n`
+        ? `# PERSPECTIVA DOS ESPECIALISTAS\n${brainContext}\n\nConsidere os frameworks acima ao avaliar oportunidades, ameacas e recomendacoes. Identifique o nivel de consciencia do mercado (Schwartz) e oportunidades na escada de valor (Brunson).\n`
         : '',
       '# INSTRUCOES',
       'Analise TODAS as fontes acima e gere um dossie de mercado completo.',
