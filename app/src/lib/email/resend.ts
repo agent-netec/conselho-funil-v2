@@ -501,3 +501,349 @@ export async function sendPaymentFailedEmail(
     return { success: false, error: message };
   }
 }
+
+// ============================================
+// TRIAL NURTURING SEQUENCE (T6)
+// ============================================
+
+/**
+ * Trial Day 1: Onboarding nudge — only sent if onboarding not completed.
+ */
+export async function sendTrialDay1Email(
+  to: string,
+  name: string
+): Promise<SendEmailResult> {
+  const client = getResendClient();
+  if (!client) return { success: false, error: 'RESEND_API_KEY not configured' };
+  try {
+    const html = baseTemplate(`
+      <div class="card">
+        <h1>Seu MKTHONEY está quase pronto</h1>
+        <p>Olá, <span class="highlight">${name}</span>!</p>
+        <p>
+          Falta só um passo para ativar os 23 especialistas
+          de IA da sua conta: o briefing inicial.
+        </p>
+        <p>Em 3 minutos, você configura:</p>
+        <ul style="color: #CAB792; padding-left: 20px;">
+          <li>Nome e vertical da sua marca</li>
+          <li>Tom de voz e posicionamento</li>
+          <li>Público-alvo e oferta principal</li>
+        </ul>
+        <p>
+          Com essas informações, todos os especialistas passam a gerar
+          recomendações personalizadas para o seu negócio.
+        </p>
+        <a href="${APP_URL}/welcome" class="button">Completar Meu Briefing</a>
+        <p style="font-size: 14px; color: #AB8648;">
+          Se já completou o briefing, ignore este email.
+          Estamos verificando automaticamente.
+        </p>
+      </div>
+    `);
+
+    const { data, error } = await client.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: 'Complete seu briefing em 3 minutos — MktHoney',
+      html,
+    });
+
+    if (error) {
+      console.error('[Email] Trial day 1 email failed:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, id: data?.id };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Email] Trial day 1 email error:', message);
+    return { success: false, error: message };
+  }
+}
+
+/**
+ * Trial Day 3: First value — encourage first chat consultation.
+ */
+export async function sendTrialDay3Email(
+  to: string,
+  name: string
+): Promise<SendEmailResult> {
+  const client = getResendClient();
+  if (!client) return { success: false, error: 'RESEND_API_KEY not configured' };
+  try {
+    const html = baseTemplate(`
+      <div class="card">
+        <h1>Hora de testar os especialistas</h1>
+        <p>Olá, <span class="highlight">${name}</span>!</p>
+        <p>Seu trial PRO está ativo há 3 dias. Já consultou algum especialista?</p>
+        <p>Experimente agora:</p>
+        <div class="info-box">
+          <p style="margin: 0; font-style: italic; color: #F5E8CE;">
+            "Analise meu funil de vendas atual e me diga os 3 maiores gargalos."
+          </p>
+        </div>
+        <p>
+          Os 23 especialistas vão cruzar referências de frameworks como
+          Value Ladder, StoryBrand e Copy Lógica para te dar um
+          diagnóstico que levaria semanas com uma consultoria tradicional.
+        </p>
+        <a href="${APP_URL}/chat" class="button">Iniciar Minha Primeira Consulta</a>
+        <p style="font-size: 14px; color: #AB8648;">
+          Cada consulta gasta 1 crédito. Você tem 300/mês no trial PRO.
+        </p>
+      </div>
+    `);
+
+    const { data, error } = await client.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: 'Peça seu primeiro diagnóstico ao MKTHONEY',
+      html,
+    });
+
+    if (error) {
+      console.error('[Email] Trial day 3 email failed:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, id: data?.id };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Email] Trial day 3 email error:', message);
+    return { success: false, error: message };
+  }
+}
+
+/**
+ * Trial Day 5: Feature spotlight — Offer Lab.
+ */
+export async function sendTrialDay5Email(
+  to: string,
+  name: string
+): Promise<SendEmailResult> {
+  const client = getResendClient();
+  if (!client) return { success: false, error: 'RESEND_API_KEY not configured' };
+  try {
+    const html = baseTemplate(`
+      <div class="card">
+        <h1>Teste sua oferta antes do mercado testar</h1>
+        <p>Olá, <span class="highlight">${name}</span>!</p>
+        <p>
+          Uma das ferramentas que nossos usuários mais usam
+          é o Offer Lab — um simulador que analisa sua oferta sob 8
+          perspectivas diferentes.
+        </p>
+        <p>O que o Offer Lab avalia:</p>
+        <ul style="color: #CAB792; padding-left: 20px;">
+          <li>Clareza da proposta de valor</li>
+          <li>Força do headline e hook</li>
+          <li>Risco percebido vs. recompensa</li>
+          <li>Urgência e escassez</li>
+          <li>Prova social e autoridade</li>
+          <li>Comparação com concorrência</li>
+        </ul>
+        <p>
+          Muitos descobrem gaps na oferta que estavam custando
+          conversões sem saber.
+        </p>
+        <a href="${APP_URL}/intelligence/offer-lab" class="button">Testar Minha Oferta</a>
+        <p style="font-size: 14px; color: #AB8648;">
+          Disponível durante todo o trial PRO. Após o trial,
+          requer plano Starter ou superior.
+        </p>
+      </div>
+    `);
+
+    const { data, error } = await client.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: 'Sua oferta resiste a um stress test? — MktHoney',
+      html,
+    });
+
+    if (error) {
+      console.error('[Email] Trial day 5 email failed:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, id: data?.id };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Email] Trial day 5 email error:', message);
+    return { success: false, error: message };
+  }
+}
+
+/**
+ * Trial Day 7: Mid-trial checklist.
+ */
+export async function sendTrialDay7Email(
+  to: string,
+  name: string
+): Promise<SendEmailResult> {
+  const client = getResendClient();
+  if (!client) return { success: false, error: 'RESEND_API_KEY not configured' };
+  try {
+    const html = baseTemplate(`
+      <div class="card">
+        <h1>Metade do trial — checklist de aproveitamento</h1>
+        <p>Olá, <span class="highlight">${name}</span>!</p>
+        <p>Você está na metade do seu trial PRO. Aqui está o que os usuários mais ativos fazem:</p>
+        <div class="info-box">
+          <p style="margin: 0 0 8px 0; color: #CAB792;">✅ Completar o briefing da marca</p>
+          <p style="margin: 0 0 8px 0; color: #CAB792;">✅ Fazer pelo menos 5 consultas ao chat</p>
+          <p style="margin: 0 0 8px 0; color: #CAB792;">✅ Testar o Offer Lab</p>
+          <p style="margin: 0 0 8px 0; color: #CAB792;">✅ Gerar um funil completo</p>
+          <p style="margin: 0; color: #CAB792;">✅ Experimentar o Party Mode (debate entre especialistas)</p>
+        </div>
+        <p>
+          Se fez tudo isso, já tem uma boa base para decidir.
+          Se não, ainda dá tempo — faltam 7 dias.
+        </p>
+        <p>
+          Dica: O Party Mode coloca vários especialistas
+          debatendo sobre uma questão sua. É o recurso mais
+          diferenciado do MKTHONEY.
+        </p>
+        <a href="${APP_URL}" class="button">Abrir Meu Dashboard</a>
+        <p style="font-size: 14px; color: #AB8648;">Faltam 7 dias de trial PRO.</p>
+      </div>
+    `);
+
+    const { data, error } = await client.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: 'Como extrair o máximo do MKTHONEY nos próximos 7 dias',
+      html,
+    });
+
+    if (error) {
+      console.error('[Email] Trial day 7 email failed:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, id: data?.id };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Email] Trial day 7 email error:', message);
+    return { success: false, error: message };
+  }
+}
+
+/**
+ * Trial Day 10: Soft urgency — 4 days remaining with PRO vs Free comparison.
+ */
+export async function sendTrialDay10Email(
+  to: string,
+  name: string
+): Promise<SendEmailResult> {
+  const client = getResendClient();
+  if (!client) return { success: false, error: 'RESEND_API_KEY not configured' };
+  try {
+    const html = baseTemplate(`
+      <div class="card">
+        <h1>4 dias para decidir</h1>
+        <p>Olá, <span class="highlight">${name}</span>!</p>
+        <p>Seu trial PRO expira em 4 dias.</p>
+        <p>Após a expiração, sua conta será convertida para o plano Free:</p>
+        <div class="info-box">
+          <table style="width: 100%; font-size: 14px; color: #CAB792; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 1px solid #3A3530;">
+                <th style="text-align: left; padding: 8px; color: #E6B447;">PRO (trial atual)</th>
+                <th style="text-align: left; padding: 8px; color: #AB8648;">Free (após expirar)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="padding: 6px 8px;">3 marcas</td><td style="padding: 6px 8px;">1 marca</td></tr>
+              <tr><td style="padding: 6px 8px;">300 consultas/mês</td><td style="padding: 6px 8px;">10 consultas/mês</td></tr>
+              <tr><td style="padding: 6px 8px;">Todos os modos de chat</td><td style="padding: 6px 8px;">Apenas modo Geral</td></tr>
+              <tr><td style="padding: 6px 8px;">Offer Lab, Autopsy</td><td style="padding: 6px 8px;">Indisponível</td></tr>
+              <tr><td style="padding: 6px 8px;">Party Mode</td><td style="padding: 6px 8px;">Indisponível</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Seus dados e histórico serão mantidos. Se assinar depois, tudo volta.</p>
+        <a href="${APP_URL}/settings/billing" class="button">Ver Planos e Preços</a>
+        <p style="font-size: 14px; color: #AB8648;">A partir de R$97/mês. Cancele quando quiser.</p>
+      </div>
+    `);
+
+    const { data, error } = await client.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: 'Faltam 4 dias do seu trial PRO — MktHoney',
+      html,
+    });
+
+    if (error) {
+      console.error('[Email] Trial day 10 email failed:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, id: data?.id };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Email] Trial day 10 email error:', message);
+    return { success: false, error: message };
+  }
+}
+
+/**
+ * Trial Day 12: Hard urgency — 2 days remaining.
+ */
+export async function sendTrialDay12Email(
+  to: string,
+  name: string
+): Promise<SendEmailResult> {
+  const client = getResendClient();
+  if (!client) return { success: false, error: 'RESEND_API_KEY not configured' };
+  try {
+    const html = baseTemplate(`
+      <div class="card">
+        <h1>Último aviso antes da conversão</h1>
+        <p>Olá, <span class="highlight">${name}</span>!</p>
+        <p>
+          Em 2 dias seu trial PRO expira e sua conta
+          será automaticamente convertida para o plano Free.
+        </p>
+        <p>O que você perde:</p>
+        <ul style="color: #CAB792; padding-left: 20px;">
+          <li>Acesso aos 23 especialistas (fica só modo Geral)</li>
+          <li>Offer Lab, Autopsy, Spy Agent</li>
+          <li>Party Mode (debate entre especialistas)</li>
+          <li>290 consultas/mês (Free tem 10)</li>
+          <li>2 marcas adicionais</li>
+        </ul>
+        <p>
+          Se o MKTHONEY gerou algum insight valioso nos últimos 12 dias,
+          considere manter o acesso.
+        </p>
+        <a href="${APP_URL}/settings/billing" class="button">Assinar Agora</a>
+        <p style="font-size: 14px; color: #AB8648;">
+          Garantia de 7 dias (CDC Art. 49).
+          Não gostou? Reembolso integral, sem perguntas.
+        </p>
+      </div>
+    `);
+
+    const { data, error } = await client.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: '2 dias para o fim do trial — MktHoney',
+      html,
+    });
+
+    if (error) {
+      console.error('[Email] Trial day 12 email failed:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, id: data?.id };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Email] Trial day 12 email error:', message);
+    return { success: false, error: message };
+  }
+}

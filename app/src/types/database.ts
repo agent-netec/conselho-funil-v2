@@ -57,6 +57,7 @@ export interface User {
   subscriptionCurrentPeriodEnd?: Timestamp;  // End of current billing period
   preferences?: UserPreferences;
   onboardingCompleted?: boolean; // L-4: Post-signup onboarding
+  lastTrialEmailDay?: number;    // T6: Last trial nurturing email day sent (0,1,3,5,7,10,12,14)
   createdAt: Timestamp;
   lastLogin: Timestamp;
 }
