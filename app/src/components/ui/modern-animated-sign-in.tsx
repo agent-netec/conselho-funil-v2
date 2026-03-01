@@ -243,7 +243,7 @@ const OrbitingCircles = memo(function OrbitingCircles({
           className='pointer-events-none absolute inset-0 size-full'
         >
           <circle
-            className='stroke-black/10 stroke-1 dark:stroke-white/10'
+            className='stroke-[#E6B447]/[0.06] stroke-1'
             cx='50%'
             cy='50%'
             r={radius}
@@ -260,7 +260,7 @@ const OrbitingCircles = memo(function OrbitingCircles({
           } as React.CSSProperties
         }
         className={cn(
-          'absolute flex size-full transform-gpu animate-orbit items-center justify-center rounded-full border bg-black/10 [animation-delay:calc(var(--delay)*1000ms)] dark:bg-white/10',
+          'absolute flex size-full transform-gpu animate-orbit items-center justify-center rounded-full border border-[#E6B447]/[0.08] bg-[#E6B447]/[0.06] [animation-delay:calc(var(--delay)*1000ms)]',
           { '[animation-direction:reverse]': reverse },
           className
         )}
@@ -425,7 +425,7 @@ const AnimatedForm = memo(function AnimatedForm({
             width='unset'
           >
             <button
-              className='group/btn relative flex items-center justify-center gap-3 w-full h-11 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] transition-all'
+              className='group/btn relative flex items-center justify-center gap-3 w-full h-11 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] hover:border-[#E6B447]/20 transition-colors'
               type='button'
               onClick={() => console.log('Google login clicked')}
             >
@@ -450,7 +450,7 @@ const AnimatedForm = memo(function AnimatedForm({
             <section className='flex items-center gap-4'>
               <hr className='flex-1 border-1 border-dashed border-neutral-300 dark:border-neutral-700' />
               <p className='text-neutral-700 text-sm dark:text-neutral-300'>
-                or
+                ou
               </p>
               <hr className='flex-1 border-1 border-dashed border-neutral-300 dark:border-neutral-700' />
             </section>
@@ -546,10 +546,7 @@ const AnimatedForm = memo(function AnimatedForm({
           overflow='visible'
         >
           <button
-            className='bg-gradient-to-br relative group/btn from-zinc-200 dark:from-zinc-900
-            dark:to-zinc-900 to-zinc-200 block dark:bg-zinc-800 w-full text-black
-            dark:text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset]
-              dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] outline-none hover:cursor-pointer'
+            className='bg-gradient-to-br relative group/btn from-[#E6B447] to-[#AB8648] block w-full text-[#0D0B09] font-semibold rounded-md h-10 hover:from-[#F0C35C] hover:to-[#E6B447] transition-all duration-200 outline-none hover:cursor-pointer'
             type='submit'
           >
             {submitButton} &rarr;
@@ -621,7 +618,7 @@ const AuthTabs = memo(function AuthTabs({
           fieldPerRow={1}
           onSubmit={handleSubmit}
           goTo={goTo}
-          googleLogin='Login with Google'
+          googleLogin='Entrar com Google'
         />
       </div>
     </div>

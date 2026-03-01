@@ -8,7 +8,10 @@ import {
   AuthTabs,
   TechOrbitDisplay,
 } from '@/components/ui/modern-animated-sign-in';
-import Image from 'next/image';
+import {
+  Target, BarChart3, Megaphone, Users, TrendingUp,
+  Zap, PieChart, Mail, Rocket
+} from 'lucide-react';
 
 type FormData = {
   name: string;
@@ -18,7 +21,7 @@ type FormData = {
 
 interface OrbitIcon {
   component: () => ReactNode;
-  className: string;
+  className?: string;
   duration?: number;
   delay?: number;
   radius?: number;
@@ -28,146 +31,40 @@ interface OrbitIcon {
 
 const iconsArray: OrbitIcon[] = [
   {
-    component: () => (
-      <Image
-        width={100}
-        height={100}
-        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg'
-        alt='HTML5'
-      />
-    ),
-    className: 'size-[30px] border-none bg-transparent',
-    duration: 20,
-    delay: 20,
-    radius: 100,
-    path: false,
-    reverse: false,
+    component: () => <Target className="size-[30px] text-[#E6B447]" />,
+    radius: 100, duration: 20, delay: 20, reverse: false, path: false,
   },
   {
-    component: () => (
-      <Image
-        width={100}
-        height={100}
-        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg'
-        alt='CSS3'
-      />
-    ),
-    className: 'size-[30px] border-none bg-transparent',
-    duration: 20,
-    delay: 10,
-    radius: 100,
-    path: false,
-    reverse: false,
+    component: () => <BarChart3 className="size-[30px] text-[#AB8648]" />,
+    radius: 100, duration: 20, delay: 10, reverse: false, path: false,
   },
   {
-    component: () => (
-      <Image
-        width={100}
-        height={100}
-        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg'
-        alt='TypeScript'
-      />
-    ),
-    className: 'size-[50px] border-none bg-transparent',
-    radius: 210,
-    duration: 20,
-    path: false,
-    reverse: false,
+    component: () => <Megaphone className="size-[50px] text-[#E6B447]" />,
+    radius: 210, duration: 20, delay: 0, reverse: false, path: false,
   },
   {
-    component: () => (
-      <Image
-        width={100}
-        height={100}
-        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg'
-        alt='JavaScript'
-      />
-    ),
-    className: 'size-[50px] border-none bg-transparent',
-    radius: 210,
-    duration: 20,
-    delay: 20,
-    path: false,
-    reverse: false,
+    component: () => <Users className="size-[50px] text-[#F0C35C]" />,
+    radius: 210, duration: 20, delay: 20, reverse: false, path: false,
   },
   {
-    component: () => (
-      <Image
-        width={100}
-        height={100}
-        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg'
-        alt='TailwindCSS'
-      />
-    ),
-    className: 'size-[30px] border-none bg-transparent',
-    duration: 20,
-    delay: 20,
-    radius: 150,
-    path: false,
-    reverse: true,
+    component: () => <TrendingUp className="size-[30px] text-[#E6B447]" />,
+    radius: 150, duration: 20, delay: 20, reverse: true, path: false,
   },
   {
-    component: () => (
-      <Image
-        width={100}
-        height={100}
-        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg'
-        alt='Nextjs'
-      />
-    ),
-    className: 'size-[30px] border-none bg-transparent',
-    duration: 20,
-    delay: 10,
-    radius: 150,
-    path: false,
-    reverse: true,
+    component: () => <Zap className="size-[30px] text-[#AB8648]" />,
+    radius: 150, duration: 20, delay: 10, reverse: true, path: false,
   },
   {
-    component: () => (
-      <Image
-        width={100}
-        height={100}
-        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg'
-        alt='React'
-      />
-    ),
-    className: 'size-[50px] border-none bg-transparent',
-    radius: 270,
-    duration: 20,
-    path: false,
-    reverse: true,
+    component: () => <PieChart className="size-[50px] text-[#F0C35C]" />,
+    radius: 270, duration: 20, delay: 0, reverse: true, path: false,
   },
   {
-    component: () => (
-      <Image
-        width={100}
-        height={100}
-        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg'
-        alt='Figma'
-      />
-    ),
-    className: 'size-[50px] border-none bg-transparent',
-    radius: 270,
-    duration: 20,
-    delay: 60,
-    path: false,
-    reverse: true,
+    component: () => <Mail className="size-[50px] text-[#E6B447]" />,
+    radius: 270, duration: 20, delay: 60, reverse: true, path: false,
   },
   {
-    component: () => (
-      <Image
-        width={100}
-        height={100}
-        src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg'
-        alt='Git'
-      />
-    ),
-    className: 'size-[50px] border-none bg-transparent',
-    radius: 320,
-    duration: 20,
-    delay: 20,
-    path: false,
-    reverse: false,
+    component: () => <Rocket className="size-[30px] text-[#E6B447]" />,
+    radius: 320, duration: 20, delay: 20, reverse: false, path: false,
   },
 ];
 
@@ -268,7 +165,7 @@ export default function SignupPage() {
         label: 'Senha',
         required: true,
         type: 'password' as any,
-        placeholder: 'Mín 8 chars, 1 maiúscula, 1 número',
+        placeholder: 'Mín. 8 caracteres, 1 maiúscula, 1 número',
         onChange: (event: ChangeEvent<HTMLInputElement>) =>
           handleInputChange(event, 'password'),
       },
@@ -279,15 +176,17 @@ export default function SignupPage() {
   };
 
   return (
-    <section className='flex max-lg:justify-center min-h-screen bg-zinc-950 overflow-hidden'>
+    <section className='flex max-lg:justify-center min-h-screen bg-[#0D0B09] overflow-hidden'>
       {/* Left Side */}
-      <div className='flex flex-col justify-center w-1/2 max-lg:hidden relative overflow-hidden bg-zinc-950 border-r border-white/[0.05]'>
+      <div className='flex flex-col justify-center w-1/2 max-lg:hidden relative overflow-hidden bg-[#0D0B09] border-r border-white/[0.05]'>
+        {/* Gold radial glow */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(230,180,71,0.06)_0%,transparent_70%)]" />
         <Ripple mainCircleSize={100} />
         <TechOrbitDisplay iconsArray={iconsArray} text="MKTHONEY" />
       </div>
 
       {/* Right Side */}
-      <div className='w-1/2 h-[100dvh] flex flex-col justify-center items-center max-lg:w-full max-lg:px-[10%] relative z-10'>
+      <div className='w-1/2 h-[100dvh] flex flex-col justify-center items-center max-lg:w-full max-lg:px-[10%] relative z-10 bg-[#0D0B09]'>
         <AuthTabs
           formFields={formFields}
           goTo={handleGoToLogin}
