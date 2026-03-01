@@ -2,41 +2,36 @@ import type { Metadata } from 'next';
 import {
   LandingNavbar,
   LandingHero,
-  LandingPain,
+  LandingMetrics,
+  LandingProblem,
   LandingSolution,
+  LandingArsenal,
   LandingHowItWorks,
-  LandingCouncil,
+  LandingFeatures,
+  LandingComparison,
   LandingPricing,
   LandingFaq,
   LandingCta,
   LandingFooter,
 } from '@/components/landing';
 
-/**
- * Landing Page — R5.3
- *
- * Public landing page for non-authenticated users.
- * Uses MKTHONEY honey/gold color palette.
- * Follows structure from landpage-mkthoney-structure.md.
- */
-
 // SEO Metadata
 export const metadata: Metadata = {
   metadataBase: new URL('https://mkthoney.com'),
-  title: 'MKTHONEY — Sua Agência de Marketing com IA | 23 Especialistas, 24/7',
+  title: 'MKTHONEY — Marketing Autônomo com IA | 23 Especialistas 24/7',
   description:
-    'MKTHONEY é a plataforma de marketing autônomo com 23 especialistas de IA baseados em lendas do marketing. Estratégia, conteúdo, análise competitiva e automação — tudo com a voz da sua marca, 24/7.',
+    'Plataforma SaaS que reúne 23 conselheiros de IA baseados em lendas do marketing. Estratégia, conteúdo, funis e automação — tudo numa tela, na sua mão.',
   keywords: [
-    'marketing com inteligência artificial',
-    'agência de marketing IA',
-    'automação de marketing',
-    'marketing autônomo',
-    'especialistas de marketing IA',
-    'funil de vendas IA',
-    'plataforma de marketing SaaS',
-    'criação de conteúdo IA',
-    'análise competitiva IA',
+    'marketing autonomo',
+    'marketing com IA',
+    'automacao de marketing',
+    'funil de vendas',
+    'SaaS marketing',
+    'inteligencia artificial marketing',
+    'conselheiros de marketing',
     'MKTHONEY',
+    'agencia de marketing IA',
+    'marketing digital automatizado',
   ],
   authors: [{ name: 'MKTHONEY' }],
   creator: 'MKTHONEY',
@@ -53,29 +48,18 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
+    title: 'MKTHONEY — Marketing Autônomo com IA',
+    description: 'Pare de contratar. Comece a operar. 23 especialistas de IA, 24/7.',
     type: 'website',
     locale: 'pt_BR',
     url: 'https://mkthoney.com',
     siteName: 'MKTHONEY',
-    title: 'MKTHONEY — Sua Agência de Marketing com IA | 23 Especialistas, 24/7',
-    description:
-      'MKTHONEY é a plataforma de marketing autônomo com 23 especialistas de IA baseados em lendas do marketing. Estratégia, conteúdo, análise competitiva e automação — tudo com a voz da sua marca.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'MKTHONEY — Plataforma de Marketing Autônomo com IA',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'MKTHONEY — Sua Agência de Marketing com IA',
-    description:
-      '23 especialistas de IA baseados em lendas do marketing. Estratégia, conteúdo, análise e automação — 24/7, com a voz da sua marca.',
+    title: 'MKTHONEY — Marketing Autônomo com IA',
+    description: 'Pare de contratar. Comece a operar. 23 especialistas de IA, 24/7.',
     creator: '@mkthoney',
-    images: ['/og-image.png'],
   },
   alternates: {
     canonical: 'https://mkthoney.com',
@@ -89,81 +73,71 @@ const schemaOrg = {
     {
       '@type': 'SoftwareApplication',
       name: 'MKTHONEY',
-      description:
-        'Plataforma SaaS de marketing autônomo com 23 especialistas de IA baseados em lendas do marketing. Substitui agências externas com estratégia, conteúdo, análise competitiva e automação — 24/7.',
       applicationCategory: 'BusinessApplication',
-      operatingSystem: 'Web Browser',
+      operatingSystem: 'Web',
       url: 'https://mkthoney.com',
-      offers: {
-        '@type': 'AggregateOffer',
-        lowPrice: '97',
-        highPrice: '597',
-        priceCurrency: 'BRL',
-        offerCount: '3',
-      },
+      description:
+        'Plataforma SaaS de marketing autônomo com 23 conselheiros de IA baseados em lendas do marketing.',
+      offers: [
+        { '@type': 'Offer', name: 'Starter', price: '97', priceCurrency: 'BRL', billingIncrement: 'P1M' },
+        { '@type': 'Offer', name: 'Pro', price: '297', priceCurrency: 'BRL', billingIncrement: 'P1M' },
+        { '@type': 'Offer', name: 'Agency', price: '597', priceCurrency: 'BRL', billingIncrement: 'P1M' },
+      ],
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: '4.9',
         reviewCount: '500',
         bestRating: '5',
       },
-      featureList: [
-        '23 AI Marketing Counselors',
-        'Multi-Agent Debate System',
-        'Funnel Autopsy Diagnostic',
-        'Competitive Intelligence (Spy Agent)',
-        'Content Calendar with Auto-Publishing',
-        'A/B Testing with Statistical Significance',
-        'Brand Voice Compliance Gate',
-        'Multi-Brand Management',
-        'Offer Engineering Lab',
-        'Social Listening & Trend Radar',
-      ],
     },
     {
       '@type': 'Organization',
       name: 'MKTHONEY',
       url: 'https://mkthoney.com',
-      logo: 'https://mkthoney.com/images/logo.png',
-      description: 'Plataforma de marketing autônomo com inteligência artificial.',
+      description: 'Marketing autônomo com inteligência artificial.',
       foundingDate: '2026',
-      sameAs: [
-        'https://www.linkedin.com/company/mkthoney',
-        'https://www.instagram.com/mkthoney',
-        'https://twitter.com/mkthoney',
-      ],
-      contactPoint: {
-        '@type': 'ContactPoint',
-        contactType: 'customer support',
-        availableLanguage: ['Portuguese', 'English'],
-        url: 'https://mkthoney.com/contato',
-      },
     },
     {
       '@type': 'FAQPage',
       mainEntity: [
         {
           '@type': 'Question',
-          name: 'O que é o MKTHONEY?',
+          name: 'Isso substitui minha agência?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'MKTHONEY é uma plataforma SaaS de marketing autônomo com inteligência artificial. Ela reúne 23 especialistas de IA modelados em lendas do marketing como Gary Halbert, David Ogilvy e Russell Brunson. A plataforma cobre estratégia, criação de conteúdo, análise competitiva, automação de campanhas e gestão de funil — tudo personalizado com a identidade e voz da sua marca, operando 24/7.',
+            text: 'Sim. Com o MKTHONEY, você opera inteligência competitiva, criação de conteúdo, automação de campanhas e monitoramento de performance sozinho. Funções que normalmente exigem de 5 a 10 pessoas. Sua operação roda 24/7 sem depender de ninguém.',
           },
         },
         {
           '@type': 'Question',
-          name: 'Como os 23 especialistas de IA funcionam?',
+          name: 'Quem são os 23 conselheiros?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Cada especialista é modelado com os frameworks reais de uma lenda do marketing. Quando você faz uma consulta, múltiplos especialistas analisam usando seus critérios específicos, debatem entre si e entregam um veredito unificado com score de confiança.',
+            text: 'São sistemas de avaliação treinados nos frameworks reais de lendas do marketing direto — Gary Halbert, Eugene Schwartz, Dan Kennedy, Russell Brunson, David Ogilvy, entre outros. Múltiplos conselheiros analisam, debatem entre si e entregam um veredito unificado com score de confiança.',
           },
         },
         {
           '@type': 'Question',
-          name: 'O MKTHONEY substitui minha agência de marketing?',
+          name: 'E se eu não gostar em 14 dias?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Sim, esse é o objetivo. O MKTHONEY entrega inteligência estratégica, criação de conteúdo, análise competitiva, automação de campanhas e monitoramento de performance — funções que normalmente exigem uma equipe de 5-10 pessoas.',
+            text: 'Você sai. Sem pergunta. Sem retenção. Sem cobrar cartão que você nem cadastrou. Os 14 dias são reais — não é trial com funcionalidades cortadas. É o produto inteiro.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Meus dados ficam seguros?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Isolamento total por marca. Encriptação AES-256-GCM. Cada marca tem namespace próprio. Nenhum dado cruza de uma marca para outra. Servidores no Brasil.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Funciona para qual nicho?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Qualquer marca que precisa de marketing consistente e não quer manter uma equipe para isso. Infoprodutores, SaaS, e-commerce, serviços, agências solo. A plataforma se adapta à sua vertical e tom de voz.',
           },
         },
       ],
@@ -173,36 +147,34 @@ const schemaOrg = {
 
 export default function LandingPage() {
   return (
-    <>
+    <div className="relative min-h-screen bg-[#0D0B09] text-[#F5E8CE]">
+      {/* Background texture */}
+      <div className="pointer-events-none fixed inset-0 bg-noise opacity-[0.02]" />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(230,180,71,0.06),transparent)]" />
+
       {/* Schema.org JSON-LD */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
       />
 
-      <div className="min-h-screen bg-[#0D0B09] text-white">
-        {/* Background effects */}
-        <div className="fixed inset-0 bg-dot-pattern opacity-10 pointer-events-none" />
-        <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(230,180,71,0.06),transparent)] pointer-events-none" />
+      <LandingNavbar />
 
-        {/* Navigation */}
-        <LandingNavbar />
+      <main>
+        <LandingHero />
+        <LandingMetrics />
+        <LandingProblem />
+        <LandingSolution />
+        <LandingArsenal />
+        <LandingHowItWorks />
+        <LandingFeatures />
+        <LandingComparison />
+        <LandingPricing />
+        <LandingFaq />
+        <LandingCta />
+      </main>
 
-        {/* Main content */}
-        <main>
-          <LandingHero />
-          <LandingPain />
-          <LandingSolution />
-          <LandingHowItWorks />
-          <LandingCouncil />
-          <LandingPricing />
-          <LandingFaq />
-          <LandingCta />
-        </main>
-
-        {/* Footer */}
-        <LandingFooter />
-      </div>
-    </>
+      <LandingFooter />
+    </div>
   );
 }

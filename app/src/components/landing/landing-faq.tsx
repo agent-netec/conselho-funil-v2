@@ -1,135 +1,87 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { HelpCircle, ChevronDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Plus, Minus } from 'lucide-react';
 
-const FAQ_ITEMS = [
+const faqs = [
   {
-    question: 'O que e o MKTHONEY?',
-    answer:
-      'MKTHONEY e uma plataforma SaaS de marketing autonomo com inteligencia artificial. Ela reune 23 especialistas de IA modelados em lendas do marketing como Gary Halbert, David Ogilvy e Russell Brunson. A plataforma cobre estrategia, criacao de conteudo, analise competitiva, automacao de campanhas e gestao de funil — tudo personalizado com a identidade e voz da sua marca, operando 24/7.',
+    q: 'Isso substitui minha agência?',
+    a: 'Sim. Esse é o ponto. Com o MKTHONEY, você opera inteligência competitiva, criação de conteúdo, automação de campanhas e monitoramento de performance sozinho. Funções que normalmente exigem de 5 a 10 pessoas. Sua marca fica 100% consistente. Sua operação roda 24/7. E você não depende mais de ninguém.',
   },
   {
-    question: 'Como os 23 especialistas de IA funcionam?',
-    answer:
-      'Cada especialista e modelado com os frameworks reais de uma lenda do marketing. Quando voce faz uma consulta, multiplos especialistas analisam usando seus criterios especificos, debatem entre si e entregam um veredito unificado com score de confianca. Nao sao chatbots genericos — sao sistemas de avaliacao estruturados com red flags, gold standards e criterios ponderados.',
+    q: 'E se eu não entendo de marketing?',
+    a: 'Não precisa. O setup leva 5 minutos. Você define sua marca, audiência e tom de voz. A plataforma traduz estratégias complexas em ações práticas que você aprova com um clique. Os 23 conselheiros fazem a análise pesada — você toma a decisão final. Se sabe o que vende e pra quem vende, é o suficiente.',
   },
   {
-    question: 'Preciso ter conhecimento tecnico para usar o MKTHONEY?',
-    answer:
-      'Nao. O MKTHONEY foi projetado para ser usado por qualquer pessoa, do empreendedor solo ao gerente de marketing. O setup inicial leva 5 minutos pelo Brand Hub wizard. A plataforma traduz estrategias complexas em acoes praticas que voce pode aprovar e publicar com um clique.',
+    q: 'Quem são os "23 conselheiros"?',
+    a: 'São sistemas de avaliação treinados nos frameworks reais de lendas do marketing direto — Gary Halbert, Eugene Schwartz, Dan Kennedy, Russell Brunson, David Ogilvy, entre outros. Quando você consulta, múltiplos conselheiros analisam pelo seu prisma específico, debatem entre si e entregam UM veredito unificado com score de confiança. Não é chatbot com nome bonito. É engenharia de decisão.',
   },
   {
-    question: 'O MKTHONEY substitui minha agencia de marketing?',
-    answer:
-      'Sim, esse e o objetivo. O MKTHONEY entrega inteligencia estrategica, criacao de conteudo, analise competitiva, automacao de campanhas e monitoramento de performance — funcoes que normalmente exigem uma equipe de 5-10 pessoas. A diferenca: opera 24/7, mantem 100% de consistencia de marca e custa uma fracao do preco de uma agencia.',
+    q: 'Consigo operar 10+ clientes sozinho?',
+    a: 'Sim. Cada marca tem seu próprio espaço isolado — tom de voz, identidade visual, conselheiros configurados e métricas independentes. Você alterna entre marcas instantaneamente. Uma pessoa gerenciando 10, 15, 20 marcas com a mesma consistência que uma agência com 50 funcionários.',
   },
   {
-    question: 'Meus dados estao seguros?',
-    answer:
-      'Sim. O MKTHONEY usa isolamento total de dados por marca (multi-tenant), encriptacao AES-256-GCM para tokens de API, e autenticacao Firebase Auth. Cada marca tem seu proprio namespace no banco vetorial. Nenhum dado de uma marca e acessivel por outra.',
+    q: 'Meus dados ficam seguros?',
+    a: 'Isolamento total por marca. Encriptação AES-256-GCM. Cada marca tem namespace próprio. Nenhum dado cruza de uma marca pra outra. Seus tokens e credenciais são armazenados com criptografia de nível bancário. Servidores no Brasil.',
   },
   {
-    question: 'Quais redes sociais o MKTHONEY suporta?',
-    answer:
-      'Atualmente o MKTHONEY integra com Instagram (Graph API), Meta Ads, Google Ads e LinkedIn. Integracoes com TikTok estao no roadmap. A plataforma gera conteudo otimizado para posts, stories, carrosseis e reels, adaptando formato e linguagem para cada plataforma automaticamente.',
+    q: 'E se eu não gostar em 14 dias?',
+    a: 'Você sai. Sem pergunta. Sem retenção. Sem cobrar cartão que você nem cadastrou. Os 14 dias são reais — não é trial com funcionalidades cortadas. É o produto inteiro. Se não servir, vai embora. Simples.',
   },
   {
-    question: 'Posso gerenciar multiplas marcas?',
-    answer:
-      'Sim. O MKTHONEY suporta gerenciamento multi-marca com isolamento total de dados. Cada marca tem seu proprio Brand Hub, voz de marca, especialistas configurados e metricas independentes. Voce pode alternar entre marcas instantaneamente. O plano Agency e ideal para agencias e profissionais que gerenciam multiplos clientes.',
+    q: 'Que tipo de conteúdo consigo produzir?',
+    a: 'Posts, stories, carrosséis, reels, headlines, hooks, scripts de anúncio, copies de email, estruturas de funil, ofertas formatadas. Tudo sai com a voz e identidade da sua marca. Não é template. É conteúdo sob medida, calibrado para o nível de consciência da sua audiência.',
   },
   {
-    question: 'O que e o Funnel Autopsy?',
-    answer:
-      'Funnel Autopsy e o diagnostico forense de funil do MKTHONEY. Voce cola a URL do seu funil e em menos de 60 segundos recebe uma analise completa de falhas de conversao, usando 5 heuristicas diferentes. Os 23 especialistas avaliam cada etapa e entregam recomendacoes especificas para melhorar sua taxa de conversao.',
-  },
-  {
-    question: 'Qual tecnologia de IA o MKTHONEY usa?',
-    answer:
-      'MKTHONEY e construido sobre Google Gemini (modelos Flash e Pro), com RAG (Retrieval-Augmented Generation) usando Pinecone como banco vetorial. Cada resposta da IA e fundamentada no conhecimento especifico da sua marca, nao em respostas genericas.',
+    q: 'Funciona para qual nicho?',
+    a: 'Qualquer marca que precisa de marketing consistente e não quer (ou não pode) manter uma equipe pra isso. Infoprodutores, SaaS, e-commerce, serviços, agências solo. A plataforma se adapta à sua vertical, ao seu público e ao seu tom de voz.',
   },
 ];
 
-function FaqItem({ question, answer, isOpen, onClick }: {
-  question: string;
-  answer: string;
-  isOpen: boolean;
-  onClick: () => void;
-}) {
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
   return (
-    <div className="border-b border-[#895F29]/20 last:border-b-0">
+    <div className="border-b border-white/[0.04]">
       <button
-        onClick={onClick}
-        className="w-full flex items-center justify-between py-5 text-left"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between gap-4 py-5 text-left"
       >
-        <span className="text-[#F5E8CE] font-medium pr-4">{question}</span>
-        <ChevronDown
-          className={cn(
-            'h-5 w-5 text-[#E6B447] flex-shrink-0 transition-transform duration-200',
-            isOpen && 'rotate-180'
-          )}
-        />
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <p className="text-[#CAB792] pb-5 leading-relaxed">{answer}</p>
-          </motion.div>
+        <span
+          className={`text-sm font-semibold transition-colors ${
+            open ? 'text-[#E6B447]' : 'text-white hover:text-[#E6B447]'
+          }`}
+        >
+          {q}
+        </span>
+        {open ? (
+          <Minus className="h-4 w-4 text-[#E6B447] flex-shrink-0" />
+        ) : (
+          <Plus className="h-4 w-4 text-zinc-500 flex-shrink-0" />
         )}
-      </AnimatePresence>
+      </button>
+      {open && (
+        <p className="pb-5 text-sm text-zinc-400 leading-relaxed">{a}</p>
+      )}
     </div>
   );
 }
 
 export function LandingFaq() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
-
   return (
-    <section id="faq" className="py-20 px-6">
-      <div className="mx-auto max-w-3xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#E6B447]/10 border border-[#E6B447]/20 mb-6">
-            <HelpCircle className="h-4 w-4 text-[#E6B447]" />
-            <span className="text-sm text-[#E6B447] font-medium">Duvidas</span>
-          </div>
+    <section id="faq" className="py-24 bg-[#0D0B09]">
+      <div className="mx-auto max-w-3xl px-6 lg:px-12">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E6B447]/60 mb-6 text-center">
+          [ PERGUNTAS FREQUENTES ]
+        </p>
+        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-12 text-center">
+          Sem Enrolação. Só Respostas.
+        </h2>
 
-          <h2 className="text-3xl md:text-4xl font-bold text-[#F5E8CE]">
-            Perguntas Frequentes Sobre o MKTHONEY
-          </h2>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="bg-[#1A1612] rounded-2xl border border-[#895F29]/20 px-6"
-        >
-          {FAQ_ITEMS.map((item, index) => (
-            <FaqItem
-              key={index}
-              question={item.question}
-              answer={item.answer}
-              isOpen={openIndex === index}
-              onClick={() => setOpenIndex(openIndex === index ? null : index)}
-            />
+        <div>
+          {faqs.map((faq) => (
+            <FaqItem key={faq.q} q={faq.q} a={faq.a} />
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -1,17 +1,11 @@
-'use client';
-
 import Link from 'next/link';
+import Image from 'next/image';
 
-const FOOTER_LINKS = {
+const links = {
   produto: [
-    { label: 'Funcionalidades', href: '#funcionalidades' },
-    { label: 'Precos', href: '#precos' },
-    { label: 'Como Funciona', href: '#como-funciona' },
-  ],
-  recursos: [
+    { label: 'Arsenal', href: '#arsenal' },
+    { label: 'Pricing', href: '#pricing' },
     { label: 'FAQ', href: '#faq' },
-    { label: 'Blog', href: '#' },
-    { label: 'Ajuda', href: '#' },
   ],
   legal: [
     { label: 'Termos de Uso', href: '/terms' },
@@ -19,70 +13,69 @@ const FOOTER_LINKS = {
     { label: 'Cookies', href: '/cookies' },
     { label: 'Reembolso', href: '/refund' },
   ],
+  suporte: [
+    { label: 'support@mkthoney.com', href: 'mailto:support@mkthoney.com' },
+  ],
 };
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-[#895F29]/20 bg-[#0D0B09] py-12 px-6">
-      <div className="mx-auto max-w-6xl">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
-          {/* Logo */}
-          <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#E6B447]/10">
-                <span className="text-lg font-bold text-[#E6B447]">M</span>
-              </div>
-              <span className="text-lg font-bold text-[#F5E8CE]">MKTHONEY</span>
-            </div>
-            <p className="text-sm text-[#AB8648]">
-              Plataforma de marketing autonomo com inteligencia artificial.
+    <footer className="border-t border-white/[0.04] bg-[#0D0B09] py-16">
+      <div className="mx-auto max-w-7xl px-6 lg:px-12">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+          {/* Brand */}
+          <div className="lg:col-span-2">
+            <Image
+              src="/logo-mkthoney.svg"
+              alt="MKTHONEY"
+              width={140}
+              height={32}
+              className="mb-4"
+            />
+            <p className="text-xs text-zinc-600 max-w-xs leading-relaxed">
+              Uma pessoa. Uma plataforma. Sem limites.
+              <br />
+              Marketing autônomo com inteligência artificial.
             </p>
           </div>
 
-          {/* Links */}
+          {/* Produto */}
           <div>
-            <h4 className="text-sm font-semibold text-[#F5E8CE] mb-4">Produto</h4>
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-600 mb-4">Produto</p>
             <ul className="space-y-2">
-              {FOOTER_LINKS.produto.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-[#AB8648] hover:text-[#E6B447] transition-colors"
-                  >
-                    {link.label}
+              {links.produto.map((l) => (
+                <li key={l.label}>
+                  <a href={l.href} className="text-xs text-zinc-500 hover:text-[#E6B447] transition-colors">
+                    {l.label}
                   </a>
                 </li>
               ))}
             </ul>
           </div>
 
+          {/* Legal */}
           <div>
-            <h4 className="text-sm font-semibold text-[#F5E8CE] mb-4">Recursos</h4>
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-600 mb-4">Legal</p>
             <ul className="space-y-2">
-              {FOOTER_LINKS.recursos.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-[#AB8648] hover:text-[#E6B447] transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-semibold text-[#F5E8CE] mb-4">Legal</h4>
-            <ul className="space-y-2">
-              {FOOTER_LINKS.legal.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-[#AB8648] hover:text-[#E6B447] transition-colors"
-                  >
-                    {link.label}
+              {links.legal.map((l) => (
+                <li key={l.label}>
+                  <Link href={l.href} className="text-xs text-zinc-500 hover:text-[#E6B447] transition-colors">
+                    {l.label}
                   </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Suporte */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-600 mb-4">Suporte</p>
+            <ul className="space-y-2">
+              {links.suporte.map((l) => (
+                <li key={l.label}>
+                  <a href={l.href} className="text-xs text-zinc-500 hover:text-[#E6B447] transition-colors">
+                    {l.label}
+                  </a>
                 </li>
               ))}
             </ul>
@@ -90,13 +83,11 @@ export function LandingFooter() {
         </div>
 
         {/* Bottom */}
-        <div className="pt-8 border-t border-[#895F29]/20 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[#593519]">
-            LEVIARK INTERMEDIACOES LTDA - CNPJ: 62.625.246/0001-06
+        <div className="border-t border-white/[0.04] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-zinc-600">
+            © 2026 MKTHONEY. Todos os direitos reservados.
           </p>
-          <p className="text-xs text-[#593519]">
-            © 2026 MktHoney. Todos os direitos reservados.
-          </p>
+          <p className="text-xs text-zinc-700">CNPJ: 62.625.246/0001-06</p>
         </div>
       </div>
     </footer>

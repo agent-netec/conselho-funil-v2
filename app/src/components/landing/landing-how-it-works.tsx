@@ -1,100 +1,66 @@
-'use client';
-
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Settings, Users, Rocket, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-
-const STEPS = [
+const steps = [
   {
-    number: '01',
-    icon: Settings,
-    title: 'Configure Sua Marca',
-    description:
-      'Cadastre-se e passe pelo Brand Hub — nosso wizard de identidade. Em 5 minutos, defina sua paleta de cores, tom de voz, publico-alvo, concorrentes e posicionamento.',
+    num: '01',
+    title: 'MAPEAMENTO & FUNIL',
+    line: 'Antes de atirar, você mira.',
+    body: 'Em minutos, você tem o dossiê completo dos seus concorrentes. Sabe o que estão rodando, quanto estão gastando, onde estão falhando. Seu funil é dissecado em 60 segundos — cada buraco exposto, cada vazamento de lead identificado. Sem analista. Sem briefing. Sem reunião de alinhamento.',
   },
   {
-    number: '02',
-    icon: Users,
-    title: 'Ative os Especialistas',
-    description:
-      'Escolha uma missao: criar uma campanha, diagnosticar seu funil, espionar um concorrente, ou gerar conteudo para a semana inteira. 23 especialistas analisam e debatem.',
+    num: '02',
+    title: 'COPY & CRIATIVOS',
+    line: 'Conteúdo bom não viraliza. Conteúdo preciso converte.',
+    body: 'Ofertas construídas com score de irresistibilidade. Headlines e hooks calibrados pro nível de consciência exato da sua audiência. Conteúdo que sai com a VOZ da sua marca — não com cara de template. Posts, stories, carrosséis, reels. Na frequência certa, no tom certo, no canal certo.',
   },
   {
-    number: '03',
-    icon: Rocket,
-    title: 'Execute e Escale',
-    description:
-      'Aprove as sugestoes, ajuste se quiser, e publique direto da plataforma. O MktHoney cuida do calendario editorial, testes A/B e monitoramento de performance.',
+    num: '03',
+    title: 'TRACKING & OTIMIZAÇÃO',
+    line: 'O que não se mede, morre.',
+    body: 'Todas as métricas que importam, num painel só. Multi-canal. Tempo real. Com alerta automático antes do problema virar crise. Testes A/B rodando com significância estatística. E quando algo quebra no funil? Diagnóstico em 60 segundos. Enquanto você dorme, a operação otimiza.',
   },
 ];
 
 export function LandingHowItWorks() {
   return (
-    <section id="como-funciona" className="py-20 px-6">
-      <div className="mx-auto max-w-5xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-[#F5E8CE] mb-6">
-            Como Funciona — Da Configuracao a Execucao em 3 Passos
-          </h2>
-        </motion.div>
+    <section id="how-it-works" className="py-24 bg-[#0D0B09]">
+      <div className="mx-auto max-w-7xl px-6 lg:px-12">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E6B447]/60 mb-6">
+          [ PROTOCOLO DE COMBATE ]
+        </p>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 max-w-xl">
+          Uma Pessoa. Três Fases.
+        </h2>
+        <p className="text-zinc-500 text-lg mb-16 max-w-lg">
+          Mais Resultado Que Sua Última Agência em 12 Meses.
+        </p>
 
-        <div className="space-y-8 mb-12">
-          {STEPS.map((step, index) => (
-            <motion.div
-              key={step.number}
-              initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="flex flex-col md:flex-row items-start gap-6 p-6 rounded-2xl bg-[#1A1612] border border-[#895F29]/20"
-            >
-              {/* Step number */}
-              <div className="flex-shrink-0">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#E6B447]/10 border border-[#E6B447]/20">
-                  <span className="text-2xl font-bold text-[#E6B447]">{step.number}</span>
+        <div className="relative">
+          {/* Vertical connector */}
+          <div className="absolute left-5 top-6 bottom-6 w-px bg-[#E6B447]/10 hidden md:block" />
+
+          <div className="space-y-14">
+            {steps.map((step) => (
+              <div key={step.num} className="relative flex gap-8">
+                {/* Number circle */}
+                <div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#E6B447]/30 bg-[#0D0B09] z-10">
+                  <span className="text-sm font-bold text-[#E6B447]">{step.num}</span>
+                </div>
+
+                {/* Content */}
+                <div className="pb-2">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#E6B447] mb-2">
+                    {step.title}
+                  </p>
+                  <p className="text-base font-semibold text-zinc-300 mb-3 italic">
+                    &ldquo;{step.line}&rdquo;
+                  </p>
+                  <p className="text-sm text-zinc-500 leading-relaxed max-w-xl">
+                    {step.body}
+                  </p>
                 </div>
               </div>
-
-              {/* Content */}
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-3">
-                  <step.icon className="h-5 w-5 text-[#E6B447]" />
-                  <h3 className="text-xl font-bold text-[#F5E8CE]">{step.title}</h3>
-                </div>
-                <p className="text-[#CAB792] leading-relaxed">{step.description}</p>
-              </div>
-            </motion.div>
-          ))}
+            ))}
+          </div>
         </div>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="text-center"
-        >
-          <Link href="/signup">
-            <Button
-              size="lg"
-              className="bg-[#E6B447] hover:bg-[#F0C35C] text-[#0D0B09] font-bold px-8 py-6"
-            >
-              Quero Comecar Agora
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
-          <p className="text-sm text-[#AB8648] mt-4">
-            Sem cartao de credito. Cancele quando quiser.
-          </p>
-        </motion.div>
       </div>
     </section>
   );

@@ -1,150 +1,133 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Check, Star, Zap } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Check } from 'lucide-react';
 
-const PLANS = [
+const plans = [
   {
     name: 'Starter',
-    price: 97,
-    description: 'Entenda seu marketing',
-    features: [
-      '1 marca',
-      '50 consultas/mes',
-      'Modo Geral + 1 especialidade',
-      'Page Forensics (3/mes)',
-      '1 funil ativo',
-      'Biblioteca de Ativos (50)',
-      'Brand Hub basico',
-    ],
-    cta: 'Comecar Gratis',
+    price: '97',
+    cta: 'Começar com Starter',
+    ctaHref: '/signup',
     popular: false,
+    features: [
+      '5 marcas',
+      '50 gerações por mês',
+      'Conselheiros básicos (8)',
+      'Templates padrão',
+      'Email support',
+      '14 dias grátis',
+    ],
   },
   {
     name: 'Pro',
-    price: 297,
-    description: 'Opere como uma agencia',
-    features: [
-      '3 marcas',
-      '300 consultas/mes',
-      'Todos os 6 modos + Party',
-      'Page Forensics (15/mes)',
-      '5 funis ativos',
-      'Biblioteca de Ativos (500)',
-      'Intelligence Wing completo',
-      'Offer Lab',
-      'Automacao de campanhas',
-      'Integracoes Meta & Google',
-    ],
-    cta: 'Comecar Pro',
+    price: '297',
+    cta: 'Escalar com Pro',
+    ctaHref: '/signup',
     popular: true,
+    features: [
+      '15 marcas',
+      '200 gerações por mês',
+      'Todos os 23 conselheiros',
+      'Templates premium',
+      'Spy Agent (intel competitiva)',
+      'Priority support',
+      '14 dias grátis',
+    ],
   },
   {
     name: 'Agency',
-    price: 597,
-    description: 'Escale sem equipe',
-    features: [
-      '10+ marcas',
-      '1.000 consultas/mes',
-      'Tudo do Pro +',
-      'Page Forensics ilimitado',
-      'Funis ilimitados',
-      'Ativos ilimitados',
-      'Vault completo',
-      'Acesso API',
-      'Suporte prioritario',
-      'Onboarding dedicado',
-    ],
-    cta: 'Falar com Vendas',
+    price: '597',
+    cta: 'Dominar com Agency',
+    ctaHref: '/signup',
     popular: false,
+    features: [
+      'Marcas ilimitadas',
+      'Gerações ilimitadas',
+      'Todos os 23 conselheiros',
+      'White-label reports',
+      'API access',
+      'Dedicated support',
+      '14 dias grátis',
+    ],
   },
 ];
 
 export function LandingPricing() {
   return (
-    <section id="precos" className="py-20 px-6 bg-[#1A1612]/30">
-      <div className="mx-auto max-w-6xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-[#F5E8CE] mb-4">
-            Planos e Precos — Escolha o Nivel Certo Para Sua Marca
-          </h2>
-          <p className="text-[#CAB792]">
-            Todos os planos incluem 14 dias gratis. Sem cartao de credito. Cancele a qualquer momento.
-          </p>
-        </motion.div>
+    <section id="pricing" className="py-24 bg-[#0D0B09]">
+      <div className="mx-auto max-w-7xl px-6 lg:px-12">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E6B447]/60 mb-6 text-center">
+          [ O PREÇO DA GUERRA ]
+        </p>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-4">
+          Sua Agência Cobra R$ 15.000 Por Mês
+        </h2>
+        <p className="text-zinc-400 text-center text-lg mb-4">
+          E Você Ainda Precisa Cobrar o Relatório.
+        </p>
+        <p className="text-zinc-600 text-center text-sm mb-16 max-w-md mx-auto">
+          Aqui, você opera sozinho. Espionagem, conteúdo, funil, tracking e otimização.
+          Todo dia. Toda hora.
+        </p>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {PLANS.map((plan, index) => (
-            <motion.div
+        <div className="grid md:grid-cols-3 gap-6 items-start">
+          {plans.map((plan) => (
+            <div
               key={plan.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              className={cn(
-                'relative p-6 rounded-2xl border',
+              className={`relative rounded-2xl p-8 flex flex-col transition-all ${
                 plan.popular
-                  ? 'bg-[#0D0B09] border-[#E6B447]/40 shadow-xl shadow-[#E6B447]/10'
-                  : 'bg-[#0D0B09] border-[#895F29]/20'
-              )}
+                  ? 'border-2 border-[#E6B447] bg-[#1A1612] shadow-[0_0_40px_-10px_rgba(230,180,71,0.2)] md:-translate-y-4'
+                  : 'border border-white/[0.06] bg-white/[0.01]'
+              }`}
             >
-              {/* Popular badge */}
               {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#E6B447] text-[#0D0B09]">
-                    <Star className="h-3 w-3 fill-current" />
-                    <span className="text-xs font-bold">Mais Popular</span>
-                  </div>
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                  <span className="rounded-full bg-[#E6B447] px-4 py-1 text-xs font-bold text-[#0D0B09]">
+                    Popular
+                  </span>
                 </div>
               )}
 
-              {/* Plan header */}
-              <div className="text-center mb-6 pt-2">
-                <h3 className="text-xl font-bold text-[#F5E8CE] mb-1">{plan.name}</h3>
-                <p className="text-sm text-[#AB8648] mb-4">{plan.description}</p>
-                <div className="flex items-end justify-center gap-1">
-                  <span className="text-sm text-[#CAB792]">R$</span>
-                  <span className="text-4xl font-bold text-[#F5E8CE]">{plan.price}</span>
-                  <span className="text-sm text-[#CAB792]">/mes</span>
-                </div>
+              <h3
+                className={`text-xs font-bold uppercase tracking-[0.2em] mb-2 ${
+                  plan.popular ? 'text-[#E6B447]' : 'text-zinc-500'
+                }`}
+              >
+                {plan.name}
+              </h3>
+
+              <div className="mb-6">
+                <span className="text-4xl font-bold text-white">R$ {plan.price}</span>
+                <span className="text-sm text-zinc-500"> /mês</span>
               </div>
 
-              {/* Features */}
-              <ul className="space-y-3 mb-8">
-                {plan.features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-2">
+              <ul className="space-y-3 mb-8 flex-grow">
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2.5">
                     <Check className="h-4 w-4 text-[#E6B447] flex-shrink-0 mt-0.5" />
-                    <span className="text-sm text-[#CAB792]">{feature}</span>
+                    <span className="text-sm text-zinc-400">{f}</span>
                   </li>
                 ))}
               </ul>
 
-              {/* CTA */}
-              <Link href="/signup" className="block">
-                <Button
-                  className={cn(
-                    'w-full font-semibold',
-                    plan.popular
-                      ? 'bg-[#E6B447] hover:bg-[#F0C35C] text-[#0D0B09]'
-                      : 'bg-[#1A1612] hover:bg-[#241F19] text-[#F5E8CE] border border-[#895F29]/30'
-                  )}
-                >
-                  {plan.popular && <Zap className="mr-2 h-4 w-4" />}
-                  {plan.cta}
-                </Button>
+              <Link
+                href={plan.ctaHref}
+                className={`block w-full text-center rounded-xl py-3 text-sm font-bold transition-all ${
+                  plan.popular
+                    ? 'bg-[#E6B447] text-[#0D0B09] hover:bg-[#F0C35C]'
+                    : 'border border-white/[0.1] text-white hover:border-[#E6B447]/30 hover:text-[#E6B447]'
+                }`}
+              >
+                {plan.cta}
               </Link>
-            </motion.div>
+            </div>
           ))}
         </div>
+
+        <p className="text-center text-xs text-zinc-600 mt-8">
+          Todos os planos incluem 14 dias grátis. Sem cartão na entrada. Cancele a qualquer momento.
+        </p>
       </div>
     </section>
   );
