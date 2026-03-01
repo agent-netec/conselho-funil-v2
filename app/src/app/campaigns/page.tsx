@@ -5,7 +5,8 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Header } from '@/components/layout/header';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
-import { Zap, ChevronRight, Search, Plus, CheckCircle2 } from 'lucide-react';
+import { Zap, ChevronRight, Search, Plus, CheckCircle2, Megaphone } from 'lucide-react';
+import { GuidedEmptyState } from '@/components/ui/guided-empty-state';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -154,28 +155,25 @@ export default function CampaignsPage() {
             ))}
           </div>
         ) : filteredCampaigns.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="card-premium p-16 text-center border-dashed border-zinc-800"
-          >
-            <div className="h-20 w-20 rounded-2xl bg-zinc-900 flex items-center justify-center mx-auto mb-6">
-              <Zap className="h-10 w-10 text-zinc-700" />
+          searchQuery ? (
+            <div className="card-premium p-16 text-center">
+              <p className="text-zinc-500">
+                Nenhuma campanha encontrada para &ldquo;{searchQuery}&rdquo;.
+              </p>
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">
-              {searchQuery ? 'Nenhuma campanha encontrada' : 'O Manifesto está aguardando'}
-            </h3>
-            <p className="text-zinc-500 max-w-sm mx-auto mb-8 leading-relaxed">
-              {searchQuery
-                ? `Não encontramos campanhas para "${searchQuery}".`
-                : 'Aprove um funil estratégico para ativar a Linha de Ouro e começar sua jornada rumo ao Ads de alta performance.'}
-            </p>
-            <Link href="/funnels">
-              <button className="btn-accent bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-white/[0.05] px-8">
-                Ir para Pipeline de Funis
-              </button>
-            </Link>
-          </motion.div>
+          ) : (
+            <GuidedEmptyState
+              icon={Megaphone}
+              title="Nenhuma campanha ativa"
+              description="Aprove um funil estratégico para ativar a Linha de Ouro e organizar sua operação de Ads."
+              ctaLabel="Ver Pipeline de Funis"
+              ctaHref="/funnels"
+              tips={[
+                'Funis aprovados ativam automaticamente a estrutura de campanha',
+                'A Linha de Ouro conecta funil, copy, social, design e ads',
+              ]}
+            />
+          )
         ) : (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {filteredCampaigns.map((campaign, index) => {

@@ -25,6 +25,7 @@ import {
   Sparkles,
   FolderOpen,
 } from 'lucide-react';
+import { GuidedEmptyState } from '@/components/ui/guided-empty-state';
 import { cn } from '@/lib/utils';
 import type { LibraryTemplate, ProposalScorecard } from '@/types/database';
 
@@ -132,32 +133,6 @@ function TemplateCard({ template, onUse }: { template: LibraryTemplate; onUse: (
   );
 }
 
-function EmptyState() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="card-premium p-12 text-center"
-    >
-      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-zinc-800/50 mb-6">
-        <FolderOpen className="h-10 w-10 text-zinc-600" />
-      </div>
-      <h3 className="text-xl font-semibold text-white mb-2">
-        Biblioteca Vazia
-      </h3>
-      <p className="text-zinc-400 mb-6 max-w-md mx-auto">
-        Você ainda não salvou nenhum template. Crie um funil, aprove uma proposta 
-        e salve na biblioteca para reutilizar no futuro.
-      </p>
-      <Link href="/funnels/new">
-        <Button className="btn-accent">
-          <Target className="mr-2 h-4 w-4" />
-          Criar Primeiro Funil
-        </Button>
-      </Link>
-    </motion.div>
-  );
-}
 
 export default function LibraryPage() {
   const router = useRouter();
@@ -307,7 +282,17 @@ export default function LibraryPage() {
               ))}
             </div>
           ) : filteredTemplates.length === 0 ? (
-            <EmptyState />
+            <GuidedEmptyState
+              icon={FolderOpen}
+              title="Biblioteca vazia"
+              description="Você ainda não salvou nenhum template. Crie um funil e salve como template para reutilizar."
+              ctaLabel="Criar Primeiro Funil"
+              ctaHref="/funnels/new"
+              tips={[
+                'Templates salvam estrutura, copy e design',
+                'Funis aprovados podem virar templates com 1 clique',
+              ]}
+            />
           ) : (
             <motion.div
               initial={{ opacity: 0 }}

@@ -10,7 +10,8 @@ interface GuidedEmptyStateProps {
   title: string;
   description: string;
   ctaLabel: string;
-  ctaHref: string;
+  ctaHref?: string;
+  onCtaClick?: () => void;
   tips?: string[];
   secondaryAction?: { label: string; href: string };
 }
@@ -21,6 +22,7 @@ export function GuidedEmptyState({
   description,
   ctaLabel,
   ctaHref,
+  onCtaClick,
   tips,
   secondaryAction,
 }: GuidedEmptyStateProps) {
@@ -55,12 +57,22 @@ export function GuidedEmptyState({
       )}
 
       <div className="flex items-center justify-center gap-3">
-        <Link href={ctaHref}>
-          <Button className="bg-[#AB8648] hover:bg-[#895F29]">
+        {onCtaClick ? (
+          <Button
+            onClick={onCtaClick}
+            className="bg-[#E6B447] text-[#0D0B09] hover:bg-[#F0C35C]"
+          >
             <Icon className="mr-2 h-4 w-4" />
             {ctaLabel}
           </Button>
-        </Link>
+        ) : ctaHref ? (
+          <Link href={ctaHref}>
+            <Button className="bg-[#E6B447] text-[#0D0B09] hover:bg-[#F0C35C]">
+              <Icon className="mr-2 h-4 w-4" />
+              {ctaLabel}
+            </Button>
+          </Link>
+        ) : null}
 
         {secondaryAction && (
           <Link href={secondaryAction.href}>

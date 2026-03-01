@@ -380,7 +380,7 @@ export default function VaultPage() {
                           Explorar Biblioteca
                         </Button>
                         <Button
-                          className="bg-[#AB8648] hover:bg-[#895F29] text-white"
+                          className="bg-[#E6B447] text-[#0D0B09] hover:bg-[#F0C35C]"
                           onClick={handleRunAutopilot}
                           disabled={runningAutopilot}
                         >

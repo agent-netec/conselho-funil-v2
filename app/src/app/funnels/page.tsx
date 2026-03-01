@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import {
   Plus,
   Target,
+  GitBranch,
   MoreVertical,
   Trash2,
   Eye,
@@ -17,6 +18,7 @@ import {
   Filter,
   TrendingUp,
 } from 'lucide-react';
+import { GuidedEmptyState } from '@/components/ui/guided-empty-state';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -135,31 +137,26 @@ export default function FunnelsPage() {
               ))}
             </div>
           ) : filteredFunnels.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="card-premium p-16 text-center border-dashed"
-            >
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-zinc-800/50 mb-6">
-                <Target className="h-10 w-10 text-zinc-600" />
+            searchQuery ? (
+              <div className="card-premium p-16 text-center">
+                <p className="text-zinc-500">
+                  Nenhum funil encontrado para &ldquo;{searchQuery}&rdquo;. Tente outro termo.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-white">
-                {searchQuery ? 'Nenhum funil encontrado' : 'Nenhum funil criado'}
-              </h3>
-              <p className="mt-2 text-zinc-500 max-w-sm mx-auto">
-                {searchQuery 
-                  ? `Não encontramos resultados para "${searchQuery}". Tente outro termo.`
-                  : 'Crie seu primeiro funil e deixe o MKTHONEY ajudar você a estruturar, avaliar e otimizar.'}
-              </p>
-              {!searchQuery && (
-                <Link href="/funnels/new">
-                  <Button className="mt-8 btn-accent px-8">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Criar Primeiro Funil
-                  </Button>
-                </Link>
-              )}
-            </motion.div>
+            ) : (
+              <GuidedEmptyState
+                icon={GitBranch}
+                title="Nenhum funil criado"
+                description="Crie seu primeiro funil de vendas e deixe o MKTHONEY ajudar a estruturar, avaliar e otimizar cada etapa."
+                ctaLabel="Criar Primeiro Funil"
+                ctaHref="/funnels/new"
+                tips={[
+                  'Descreva o objetivo e o MKTHONEY sugere a estrutura',
+                  'O Conselho avalia cada etapa com score de conversão',
+                  'Funis aprovados viram templates reutilizáveis',
+                ]}
+              />
+            )
           ) : (
             <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               <AnimatePresence mode="popLayout">

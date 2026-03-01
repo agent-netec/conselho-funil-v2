@@ -7,6 +7,7 @@ import { Plus, Sparkles } from 'lucide-react';
 import { useBrands } from '@/lib/hooks/use-brands';
 import { BrandCard } from '@/components/brands/brand-card';
 import { motion } from 'framer-motion';
+import { GuidedEmptyState } from '@/components/ui/guided-empty-state';
 
 /**
  * Página de Gerenciamento de Marcas
@@ -51,7 +52,7 @@ export default function BrandsPage() {
           
           <Button
             onClick={() => router.push('/brands/new')}
-            className="bg-[#AB8648] hover:bg-[#895F29]"
+            className="bg-[#E6B447] text-[#0D0B09] hover:bg-[#F0C35C]"
           >
             <Plus className="mr-2 h-4 w-4" />
             Nova Marca
@@ -72,32 +73,18 @@ export default function BrandsPage() {
 
         {/* Empty State */}
         {!isLoading && brands.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center py-20 text-center"
-          >
-            <div className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#E6B447] to-blue-600 mb-6">
-              <Sparkles className="h-10 w-10 text-white" />
-            </div>
-            
-            <h2 className="text-2xl font-bold text-white mb-3">
-              Nenhuma marca criada ainda
-            </h2>
-            
-            <p className="text-zinc-500 max-w-md mb-8">
-              Crie sua primeira marca para contextualizar os conselhos da IA 
-              com o tom de voz, audiência e oferta do seu negócio.
-            </p>
-            
-            <Button
-              onClick={() => router.push('/brands/new')}
-              className="bg-[#AB8648] hover:bg-[#895F29]"
-            >
-              <Sparkles className="mr-2 h-4 w-4" />
-              Criar Primeira Marca
-            </Button>
-          </motion.div>
+          <GuidedEmptyState
+            icon={Sparkles}
+            title="Nenhuma marca criada ainda"
+            description="Crie sua primeira marca para que o MKTHONEY possa personalizar estratégias, conteúdo e funis para o seu negócio."
+            ctaLabel="Criar Primeira Marca"
+            onCtaClick={() => router.push('/brands/new')}
+            tips={[
+              'O setup leva menos de 3 minutos',
+              'Você pode configurar até 5 marcas no plano Starter',
+              'Cada marca tem conselheiros personalizados',
+            ]}
+          />
         )}
 
         {/* Brands Grid */}
