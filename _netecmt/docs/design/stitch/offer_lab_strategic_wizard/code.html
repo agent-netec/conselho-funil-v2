@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Offer Lab Strategic Wizard - MKTHONEY</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#e6b447",
+                        "primary-hover": "#d4a036",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#211c12",
+                        "surface-1": "#322a1b",
+                        "surface-2": "#463b25",
+                        "surface-dark": "#0D0B09",
+                        "text-main": "#f8f7f6",
+                        "text-muted": "#c6b695",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #211c12; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #463b25; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #635536; 
+        }
+        
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #e6b447 0%, #ffdf9e 50%, #b88a2e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-glow {
+            box-shadow: 0 0 15px rgba(230, 180, 71, 0.15);
+        }
+
+        .gauge-glow {
+            box-shadow: 0 0 30px rgba(230, 180, 71, 0.2), inset 0 0 20px rgba(230, 180, 71, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-body antialiased min-h-screen flex flex-col overflow-hidden">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-surface-2 px-6 py-3 bg-surface-1 z-20">
+<div class="flex items-center gap-4 text-text-main">
+<div class="size-8 rounded bg-primary flex items-center justify-center text-surface-dark">
+<span class="material-symbols-outlined">hexagon</span>
+</div>
+<h2 class="text-text-main text-xl font-display font-bold leading-tight tracking-wider">MKTHONEY</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8 items-center">
+<div class="hidden md:flex items-center gap-9">
+<a class="text-text-muted hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Dashboard</a>
+<a class="text-text-muted hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">War Room</a>
+<a class="text-text-main text-sm font-medium leading-normal border-b-2 border-primary pb-0.5" href="#">Offer Lab</a>
+<a class="text-text-muted hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Campaigns</a>
+</div>
+<button class="flex items-center gap-2 cursor-pointer overflow-hidden rounded-lg h-9 px-4 bg-primary hover:bg-primary-hover text-surface-dark text-sm font-bold leading-normal tracking-wide transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span>New Project</span>
+</button>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-9 border border-surface-2" data-alt="User profile photo showing a man in professional attire" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA0VaqEgcGS18A7-Z10Z45kzlAqJrBPh9hqNfFijPu235n6IEz4inOJFqav2gRyeG6fR9OnpzLaEQXDpp7JWdvNPooJMsySVDSr9lOKRrbY5cgZsT0kk-8cZ1nbsgSulCpNEzNRqOSga8X1aKoJq0dm6tYhq_lcL0Ko1FPrkdTrKmLsK_TIfzxiWnggYtmSPbF33sh46tD5wtH6yeoaRVXnIH4tE_1hk6YlMmaSUIgfz05rIiyJ-oSnJ3iybKwmDcXDZz-ve0NCb8Y");'></div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex flex-1 h-[calc(100vh-64px)] overflow-hidden relative">
+<!-- LEFT PANEL: Wizard Form (55%) -->
+<div class="w-full lg:w-[55%] flex flex-col h-full overflow-y-auto bg-background-dark border-r border-surface-2">
+<!-- Progress Indicator -->
+<div class="px-8 pt-8 pb-4 sticky top-0 bg-background-dark z-10 border-b border-surface-2/30 backdrop-blur-sm">
+<h1 class="text-text-main font-display text-3xl font-bold leading-tight mb-6">Offer Lab Strategic Wizard</h1>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-end mb-1">
+<div>
+<p class="text-primary text-xs font-bold uppercase tracking-wider mb-1">Step 2 of 4</p>
+<p class="text-text-main text-lg font-medium leading-normal">Composição da Oferta</p>
+</div>
+<p class="text-text-muted text-sm font-normal">Next: Guarantee Structure</p>
+</div>
+<!-- Progress Bar -->
+<div class="h-1.5 w-full bg-surface-2 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/2 rounded-full shadow-[0_0_10px_rgba(230,180,71,0.5)]"></div>
+</div>
+<!-- Steps markers -->
+<div class="flex justify-between mt-2 px-1">
+<span class="text-primary text-xs font-mono">01</span>
+<span class="text-primary text-xs font-mono font-bold">02</span>
+<span class="text-surface-2 text-xs font-mono">03</span>
+<span class="text-surface-2 text-xs font-mono">04</span>
+</div>
+</div>
+</div>
+<!-- Form Content -->
+<div class="px-8 py-6 flex flex-col gap-8 pb-20">
+<!-- Basic Info Inputs -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<label class="flex flex-col gap-2 group">
+<span class="text-text-muted text-sm font-medium group-focus-within:text-primary transition-colors">Offer Name</span>
+<div class="relative">
+<input class="w-full bg-surface-1 border border-surface-2 text-text-main rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all font-display placeholder-surface-2" placeholder="e.g. The Freedom Bundle" type="text" value="High-Ticket AI Accelerator"/>
+<span class="material-symbols-outlined absolute right-3 top-3.5 text-surface-2">edit</span>
+</div>
+</label>
+<label class="flex flex-col gap-2 group">
+<span class="text-text-muted text-sm font-medium group-focus-within:text-primary transition-colors">Price (R$)</span>
+<div class="relative">
+<input class="w-full bg-surface-1 border border-surface-2 text-primary font-mono font-bold text-lg rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-right" type="text" value="997,00"/>
+<span class="absolute left-4 top-3.5 text-text-muted font-mono">R$</span>
+</div>
+</label>
+</div>
+<!-- Price Anchoring Visual -->
+<div class="bg-surface-1/50 rounded-xl p-6 border border-surface-2">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-text-main font-bold text-sm uppercase tracking-wide flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">anchor</span>
+                            Price Anchoring Analysis
+                        </h3>
+<span class="bg-green-900/30 text-green-400 text-xs px-2 py-1 rounded border border-green-800">Strong Contrast</span>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Total Value Bar -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-xs text-text-muted mb-1">
+<span>Total Value Stack</span>
+<span class="text-primary font-mono">R$ 14.750</span>
+</div>
+<div class="h-8 bg-gradient-to-r from-yellow-700 via-primary to-yellow-200 rounded w-full relative group cursor-help shadow-lg">
+<div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="absolute top-1/2 -translate-y-1/2 left-3 text-surface-dark font-bold text-xs uppercase">Perceived Value</div>
+</div>
+</div>
+<!-- Price Bar -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-xs text-text-muted mb-1">
+<span>Actual Price</span>
+<span class="text-[#cd7f32] font-mono">R$ 997</span>
+</div>
+<div class="h-8 bg-gradient-to-r from-[#8B4513] to-[#cd7f32] rounded w-[6.7%] relative group cursor-help shadow-md border-r border-[#ffbf80]/30 min-w-[60px]">
+<div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="absolute top-1/2 -translate-y-1/2 left-2 text-white font-bold text-xs">Cost</div>
+</div>
+</div>
+</div>
+<p class="text-xs text-text-muted mt-3 italic">The price is <span class="text-primary">6.7%</span> of the total value. Ideal range is &lt;10%.</p>
+</div>
+<!-- Bonus Stack Section -->
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-end">
+<div>
+<h2 class="text-text-main text-xl font-bold font-display">Bonus Stack</h2>
+<p class="text-text-muted text-sm mt-1">Add bonuses to increase perceived value (Surface-2 Cards).</p>
+</div>
+<button class="flex items-center gap-1 text-primary hover:text-white transition-colors text-sm font-bold bg-surface-1 border border-surface-2 hover:border-primary px-3 py-2 rounded-lg">
+<span class="material-symbols-outlined text-sm">add_circle</span> Add Bonus
+                        </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Bonus Card 1 -->
+<div class="bg-surface-1 border border-surface-2 rounded-xl p-4 flex flex-col gap-3 hover:border-primary/50 transition-colors group cursor-pointer relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-text-muted hover:text-white text-sm">more_vert</span>
+</div>
+<div class="size-10 rounded-lg bg-surface-2 flex items-center justify-center text-primary border border-surface-2 group-hover:bg-primary group-hover:text-surface-dark transition-colors">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<div>
+<h4 class="text-text-main font-bold text-sm leading-tight mb-1">Community Access</h4>
+<p class="text-text-muted text-xs">Networking &amp; peer support</p>
+</div>
+<div class="mt-auto pt-3 border-t border-surface-2 flex justify-between items-center">
+<span class="text-[10px] uppercase text-text-muted tracking-wider">Value</span>
+<span class="text-primary font-mono text-xs font-bold">R$ 2.000</span>
+</div>
+</div>
+<!-- Bonus Card 2 -->
+<div class="bg-surface-1 border border-surface-2 rounded-xl p-4 flex flex-col gap-3 hover:border-primary/50 transition-colors group cursor-pointer relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-text-muted hover:text-white text-sm">more_vert</span>
+</div>
+<div class="size-10 rounded-lg bg-surface-2 flex items-center justify-center text-primary border border-surface-2 group-hover:bg-primary group-hover:text-surface-dark transition-colors">
+<span class="material-symbols-outlined">videocam</span>
+</div>
+<div>
+<h4 class="text-text-main font-bold text-sm leading-tight mb-1">Weekly Q&amp;A Calls</h4>
+<p class="text-text-muted text-xs">Direct access to experts</p>
+</div>
+<div class="mt-auto pt-3 border-t border-surface-2 flex justify-between items-center">
+<span class="text-[10px] uppercase text-text-muted tracking-wider">Value</span>
+<span class="text-primary font-mono text-xs font-bold">R$ 5.000</span>
+</div>
+</div>
+<!-- Bonus Card 3 -->
+<div class="bg-surface-1 border border-surface-2 rounded-xl p-4 flex flex-col gap-3 hover:border-primary/50 transition-colors group cursor-pointer relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-text-muted hover:text-white text-sm">more_vert</span>
+</div>
+<div class="size-10 rounded-lg bg-surface-2 flex items-center justify-center text-primary border border-surface-2 group-hover:bg-primary group-hover:text-surface-dark transition-colors">
+<span class="material-symbols-outlined">folder_copy</span>
+</div>
+<div>
+<h4 class="text-text-main font-bold text-sm leading-tight mb-1">Template Library</h4>
+<p class="text-text-muted text-xs">Copy &amp; paste assets</p>
+</div>
+<div class="mt-auto pt-3 border-t border-surface-2 flex justify-between items-center">
+<span class="text-[10px] uppercase text-text-muted tracking-wider">Value</span>
+<span class="text-primary font-mono text-xs font-bold">R$ 1.500</span>
+</div>
+</div>
+<!-- Add New Ghost Card -->
+<div class="bg-transparent border border-dashed border-surface-2 rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:border-primary/50 hover:bg-surface-1/30 transition-all cursor-pointer min-h-[140px]">
+<span class="material-symbols-outlined text-surface-2 text-3xl">add</span>
+<span class="text-text-muted text-xs font-medium">Add another bonus</span>
+</div>
+</div>
+</div>
+<!-- Next Button -->
+<div class="flex justify-end pt-4">
+<button class="bg-primary hover:bg-primary-hover text-surface-dark font-bold py-3 px-8 rounded-lg shadow-lg shadow-primary/20 flex items-center gap-2 transition-all transform active:scale-95">
+                        Continue to Guarantee
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- RIGHT PANEL: Live Score Preview (45%) -->
+<div class="hidden lg:flex w-[45%] bg-surface-dark border-l border-surface-2 flex-col h-full overflow-y-auto relative">
+<!-- Background Grid Pattern -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#463b25 1px, transparent 1px); background-size: 20px 20px;"></div>
+<div class="p-8 flex flex-col items-center h-full gap-8 relative z-10">
+<div class="w-full flex justify-between items-center border-b border-surface-2 pb-4">
+<h2 class="text-text-muted text-sm font-mono uppercase tracking-widest">Live Offer Analysis</h2>
+<div class="flex items-center gap-2">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+</span>
+<span class="text-primary text-xs font-bold">REAL-TIME</span>
+</div>
+</div>
+<!-- Main Gauge Section -->
+<div class="relative w-64 h-64 flex items-center justify-center mt-4">
+<!-- Gauge SVG -->
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<!-- Track -->
+<circle cx="50" cy="50" fill="none" r="45" stroke="#211c12" stroke-width="8"></circle>
+<!-- Progress (72%) -->
+<circle class="drop-shadow-[0_0_10px_rgba(230,180,71,0.6)]" cx="50" cy="50" fill="none" r="45" stroke="#e6b447" stroke-dasharray="283" stroke-dashoffset="79" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<!-- Center Content -->
+<div class="absolute inset-4 rounded-full bg-surface-1 border border-surface-2 flex flex-col items-center justify-center gauge-glow">
+<span class="text-text-muted text-xs uppercase tracking-widest font-medium mb-1">Score</span>
+<h1 class="text-6xl font-bold font-display gold-gradient-text tracking-tighter">72</h1>
+<div class="mt-2 bg-primary/20 text-primary border border-primary/30 px-3 py-0.5 rounded text-sm font-bold">
+                            STRONG
+                        </div>
+</div>
+<!-- Grade Badge -->
+<div class="absolute -top-2 -right-2 bg-gradient-to-br from-primary to-yellow-600 text-surface-dark size-14 rounded-full flex items-center justify-center font-black text-2xl shadow-lg border-2 border-surface-dark rotate-12 z-20">
+                        B+
+                    </div>
+</div>
+<!-- Detailed Breakdown Bars -->
+<div class="w-full max-w-md flex flex-col gap-5 mt-4">
+<!-- Metric 1 -->
+<div class="group">
+<div class="flex justify-between text-sm mb-1.5">
+<span class="text-text-main font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base">diamond</span>
+                                Valor Percebido
+                            </span>
+<span class="text-primary font-mono font-bold">94/100</span>
+</div>
+<div class="h-2 bg-surface-2 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[94%] rounded-full shadow-[0_0_8px_rgba(230,180,71,0.5)]"></div>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="group">
+<div class="flex justify-between text-sm mb-1.5">
+<span class="text-text-main font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-yellow-600 text-base">timer</span>
+                                Urgência
+                            </span>
+<span class="text-yellow-500 font-mono font-bold">45/100</span>
+</div>
+<div class="h-2 bg-surface-2 rounded-full overflow-hidden">
+<div class="h-full bg-yellow-600 w-[45%] rounded-full"></div>
+</div>
+<p class="text-[10px] text-red-400 mt-1 pl-6">* Add scarcity to improve score</p>
+</div>
+<!-- Metric 3 -->
+<div class="group">
+<div class="flex justify-between text-sm mb-1.5">
+<span class="text-text-main font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base">verified</span>
+                                Credibilidade
+                            </span>
+<span class="text-primary font-mono font-bold">78/100</span>
+</div>
+<div class="h-2 bg-surface-2 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[78%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Counselor Insight Card -->
+<div class="w-full max-w-md mt-auto bg-surface-1 border-l-4 border-l-primary rounded-r-lg p-5 shadow-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-2 opacity-50">
+<span class="material-symbols-outlined text-surface-2 text-4xl">format_quote</span>
+</div>
+<div class="flex items-start gap-4 relative z-10">
+<div class="size-12 rounded-full bg-cover bg-center border-2 border-primary/50 shadow-md flex-shrink-0" data-alt="Portrait of a business consultant resembling Alex Hormozi" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCZ1LaDHgrEx6gst84hDKJg4EXLJEx572lirTPnK9-uvRKZI-cg253bLNfyCF0sjqzvbo5neYyD2-Uu5z30jgTlZGGQ57dhMlIe9lAmcZZqOeZx2-4P6NXK4gsvYuJMm8LAObtMwIKcUc33HnPrPaBEkGhNJEpSoT9usPrNVVlhvC6vE1PfIB1RG5L1BHDaYZnmDDhWjTr915I9W3IWGF5eQmLdTPOZ8XeI4S70RPUreSay2FTS_-U8urCMKn-I4x0d-9Joyw40LnM");'></div>
+<div>
+<h4 class="text-primary text-sm font-bold uppercase tracking-wider mb-1">Counselor Insight</h4>
+<p class="text-text-main text-sm italic leading-relaxed">
+                                "Your price-to-value ratio is killer (15:1), but you're missing the 'Reason Why'. Why are you giving them this much for so little? Without a reason, they'll think it's too good to be true."
+                            </p>
+<div class="mt-3 flex gap-2">
+<button class="text-[10px] bg-surface-2 hover:bg-surface-2/80 text-white px-2 py-1 rounded transition-colors">Apply 'Beta Test' Angle</button>
+<button class="text-[10px] bg-surface-2 hover:bg-surface-2/80 text-white px-2 py-1 rounded transition-colors">Apply 'Celebration' Angle</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

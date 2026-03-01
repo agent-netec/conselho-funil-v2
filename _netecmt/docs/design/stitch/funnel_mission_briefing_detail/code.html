@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Funnel Mission Briefing Detail - MKTHONEY</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Config -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#e6b447",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#211c11",
+                        "surface-dark": "#2c2619",
+                        "surface-darker": "#1a160d",
+                        "border-gold": "#635536",
+                        "gold-glow": "#9f7d33",
+                        "bronze": "#8c6b41",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                    backgroundImage: {
+                        'metallic-gradient': 'linear-gradient(135deg, #e6b447 0%, #c69c3a 50%, #e6b447 100%)',
+                        'dark-gradient': 'linear-gradient(180deg, rgba(33,28,17,0.9) 0%, rgba(33,28,17,1) 100%)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #211c11; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #463b25; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #635536; 
+        }
+        
+        .gold-glow-shadow {
+            box-shadow: 0 0 15px rgba(230, 180, 71, 0.15);
+        }
+        
+        .gold-text-gradient {
+            background: linear-gradient(to right, #e6b447, #f3d688, #e6b447);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display min-h-screen flex flex-col overflow-x-hidden text-slate-900 dark:text-slate-100">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-[#463b25] bg-white dark:bg-[#1a160d] px-6 py-4 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-primary">
+<div class="size-6">
+<span class="material-symbols-outlined text-primary text-2xl">hexagon</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">MKTHONEY</h2>
+</div>
+<nav class="hidden md:flex items-center gap-8 ml-4">
+<a class="text-slate-500 dark:text-[#c6b695] hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Mission Control</a>
+<a class="text-slate-500 dark:text-[#c6b695] hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Tactical Map</a>
+<a class="text-primary text-sm font-bold leading-normal relative after:content-[''] after:absolute after:-bottom-5 after:left-0 after:w-full after:h-0.5 after:bg-primary" href="#">Arsenal</a>
+<a class="text-slate-500 dark:text-[#c6b695] hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Intel</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden sm:block w-64">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#c6b695]">
+<span class="material-symbols-outlined text-xl">search</span>
+</span>
+<input class="w-full bg-slate-100 dark:bg-[#2c2619] text-slate-900 dark:text-white border-none rounded-lg py-2 pl-10 pr-4 focus:ring-1 focus:ring-primary placeholder:text-slate-400 dark:placeholder:text-[#635536] text-sm" placeholder="Search operational data..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="relative p-2 text-[#c6b695] hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 size-2 bg-red-500 rounded-full border border-[#1a160d]"></span>
+</button>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-9 border border-[#463b25]" data-alt="User profile avatar showing a silhouette or abstract face" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC3Mx5HxB2YTrX6ipurx07QNq11R1NvZLRx9N2ZnnXTrHZbglkvkoL5RbAoGEyJaU8PAYD9xiDVSNrdM-gJ_l_n4znw-pPSVt5ZS1SPpXSW1l4GZ2H-wM8S1wK5erKCPbaymh8Xv1xKpoATBicAXzbTMuQ92pfO_AHJIPa0aY3yxnA0bnJU98Kvl1ytapMPwK5QcAjh51kPYODisLm66pxvYXOwGto-TfyGoQCJHs2jaeBZTZGCjyzUamXKI5-QYzqdcx4pKkKUyJ4");'></div>
+</div>
+</div>
+</header>
+<main class="flex-1 flex flex-col max-w-[1440px] mx-auto w-full p-6 md:p-8 gap-8">
+<!-- Header Section: Breadcrumbs & Title -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center flex-wrap gap-2 text-sm">
+<a class="text-[#c6b695] hover:text-primary transition-colors" href="#">Campaigns</a>
+<span class="material-symbols-outlined text-[#635536] text-sm">chevron_right</span>
+<a class="text-[#c6b695] hover:text-primary transition-colors" href="#">Black Friday Offensive</a>
+<span class="material-symbols-outlined text-[#635536] text-sm">chevron_right</span>
+<span class="text-primary font-medium">Funnel Alpha</span>
+</div>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">Mission Briefing: Funnel Alpha</h1>
+<p class="text-[#c6b695] max-w-2xl">Strategic alignment and tactical execution plan for Q4 acquisition targets.</p>
+</div>
+<div class="flex gap-3">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded bg-primary/10 border border-primary/30 text-primary">
+<span class="material-symbols-outlined text-lg">history</span>
+<span class="text-sm font-bold tracking-wide uppercase">REVISÃO</span>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 rounded bg-primary hover:bg-[#c69c3a] text-[#1a160d] font-bold text-sm transition-colors shadow-[0_0_15px_rgba(230,180,71,0.3)]">
+<span class="material-symbols-outlined text-lg">play_arrow</span>
+                        LAUNCH
+                    </button>
+</div>
+</div>
+</div>
+<!-- Summary Card with Golden Thread -->
+<div class="w-full bg-white dark:bg-surface-dark rounded-xl border-t-[3px] border-t-primary shadow-lg dark:shadow-none overflow-hidden relative group">
+<div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+<div class="p-6 md:p-8 flex flex-col gap-8">
+<!-- Top Row: Metrics & Key Data -->
+<div class="flex flex-wrap gap-8 items-start justify-between border-b border-[#463b25] pb-8">
+<!-- Gauge Cluster -->
+<div class="flex items-center gap-6">
+<div class="relative size-20 flex items-center justify-center rounded-full border-4 border-[#463b25] border-t-primary border-r-primary rotate-45 gold-glow-shadow">
+<div class="absolute inset-0 flex items-center justify-center -rotate-45">
+<div class="flex flex-col items-center">
+<span class="text-2xl font-bold text-white leading-none">8.2</span>
+<span class="text-[10px] text-[#c6b695] uppercase font-bold tracking-wider mt-1">Score</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<h3 class="text-white font-bold text-lg">Readiness Assessment</h3>
+<p class="text-sm text-[#c6b695]">High probability of success based on current assets.</p>
+</div>
+</div>
+<!-- KPI Cards -->
+<div class="flex flex-wrap gap-4 flex-1 justify-end">
+<div class="bg-surface-darker/50 rounded-lg p-4 border border-[#463b25] min-w-[140px]">
+<div class="text-[#c6b695] text-xs font-bold uppercase mb-1">Predicted ROAS</div>
+<div class="text-2xl font-bold text-white">450%</div>
+<div class="text-green-500 text-xs font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span> +12% vs target
+                            </div>
+</div>
+<div class="bg-surface-darker/50 rounded-lg p-4 border border-[#463b25] min-w-[140px]">
+<div class="text-[#c6b695] text-xs font-bold uppercase mb-1">Est. Conversion</div>
+<div class="text-2xl font-bold text-white">3.8%</div>
+<div class="text-red-500 text-xs font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_down</span> -0.2% vs avg
+                            </div>
+</div>
+</div>
+</div>
+<!-- Congruence Tracker (Golden Thread) -->
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-end mb-2">
+<h4 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">linear_scale</span>
+                            Golden Thread
+                        </h4>
+<span class="text-primary font-bold text-sm">Congruência: 68%</span>
+</div>
+<div class="relative px-4 py-2">
+<!-- Progress Line Background -->
+<div class="absolute top-1/2 left-0 w-full h-1 bg-[#463b25] -translate-y-1/2 rounded-full"></div>
+<!-- Active Progress Line -->
+<div class="absolute top-1/2 left-0 w-[68%] h-1 bg-gradient-to-r from-primary/60 to-primary -translate-y-1/2 rounded-full shadow-[0_0_10px_rgba(230,180,71,0.4)]"></div>
+<!-- Nodes -->
+<div class="relative flex justify-between w-full">
+<!-- Node 1: Completed -->
+<div class="flex flex-col items-center gap-3 group/node cursor-pointer">
+<div class="size-8 rounded-full bg-primary border-2 border-primary flex items-center justify-center text-[#1a160d] z-10 shadow-[0_0_15px_rgba(230,180,71,0.4)] transition-transform hover:scale-110">
+<span class="material-symbols-outlined text-sm font-bold">check</span>
+</div>
+<span class="text-xs font-bold text-primary uppercase">Funil</span>
+</div>
+<!-- Node 2: Completed -->
+<div class="flex flex-col items-center gap-3 group/node cursor-pointer">
+<div class="size-8 rounded-full bg-primary border-2 border-primary flex items-center justify-center text-[#1a160d] z-10 shadow-[0_0_15px_rgba(230,180,71,0.4)] transition-transform hover:scale-110">
+<span class="material-symbols-outlined text-sm font-bold">check</span>
+</div>
+<span class="text-xs font-bold text-primary uppercase">Copy</span>
+</div>
+<!-- Node 3: Completed -->
+<div class="flex flex-col items-center gap-3 group/node cursor-pointer">
+<div class="size-8 rounded-full bg-primary border-2 border-primary flex items-center justify-center text-[#1a160d] z-10 shadow-[0_0_15px_rgba(230,180,71,0.4)] transition-transform hover:scale-110">
+<span class="material-symbols-outlined text-sm font-bold">check</span>
+</div>
+<span class="text-xs font-bold text-primary uppercase">Social</span>
+</div>
+<!-- Node 4: Active/Pending -->
+<div class="flex flex-col items-center gap-3 group/node cursor-pointer">
+<div class="size-8 rounded-full bg-[#2c2619] border-2 border-primary flex items-center justify-center text-primary z-10 shadow-[0_0_10px_rgba(230,180,71,0.2)] transition-transform hover:scale-110">
+<span class="material-symbols-outlined text-sm animate-pulse">edit</span>
+</div>
+<span class="text-xs font-bold text-white uppercase">Design</span>
+</div>
+<!-- Node 5: Pending -->
+<div class="flex flex-col items-center gap-3 group/node cursor-pointer opacity-50">
+<div class="size-8 rounded-full bg-[#1a160d] border-2 border-[#635536] flex items-center justify-center text-[#635536] z-10 transition-transform hover:scale-110">
+<span class="text-xs font-bold">5</span>
+</div>
+<span class="text-xs font-bold text-[#635536] uppercase">Ads</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Grid -->
+<div class="grid lg:grid-cols-5 gap-8">
+<!-- LEFT COLUMN: Council Proposals (60% width -> 3/5 cols) -->
+<div class="lg:col-span-3 flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-bold text-white">Propostas do Conselho</h3>
+<button class="text-primary text-sm font-medium hover:underline flex items-center gap-1">
+                        View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Active Proposal Card -->
+<div class="bg-surface-dark rounded-xl border border-green-500/50 p-6 relative overflow-hidden group hover:border-green-500 transition-colors">
+<div class="absolute top-0 right-0 bg-green-500/10 text-green-500 px-3 py-1 rounded-bl-lg border-b border-l border-green-500/20 text-xs font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">verified</span> Recommended
+                    </div>
+<div class="flex gap-4 items-start mb-4">
+<div class="size-10 rounded-full bg-[#1a160d] border border-[#463b25] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">psychology</span>
+</div>
+<div>
+<h4 class="text-lg font-bold text-white">Aggressive Scale Alpha</h4>
+<p class="text-sm text-[#c6b695] mt-1">Focus on high-ticket offer front-loading. Reduces CAC by leveraging social proof early in the sequence.</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-4">
+<div class="bg-[#1a160d] p-3 rounded border border-[#463b25]">
+<div class="text-xs text-[#c6b695] mb-1">Target Audience</div>
+<div class="text-sm font-medium text-white">SMB Owners, $1M+ Rev</div>
+</div>
+<div class="bg-[#1a160d] p-3 rounded border border-[#463b25]">
+<div class="text-xs text-[#c6b695] mb-1">Core Hook</div>
+<div class="text-sm font-medium text-white">"Stop Burning Ad Spend"</div>
+</div>
+</div>
+<div class="flex items-center gap-3 mt-4 pt-4 border-t border-[#463b25]">
+<button class="flex-1 bg-primary text-[#1a160d] font-bold py-2 rounded text-sm hover:bg-[#c69c3a] transition-colors">Approve Strategy</button>
+<button class="px-4 py-2 border border-[#635536] rounded text-sm text-[#c6b695] hover:text-white hover:border-[#c6b695] transition-colors">Details</button>
+</div>
+</div>
+<!-- Inactive Proposal Card -->
+<div class="bg-surface-dark rounded-xl border border-[#463b25] p-6 relative overflow-hidden group hover:border-[#635536] transition-colors opacity-80 hover:opacity-100">
+<div class="flex gap-4 items-start mb-4">
+<div class="size-10 rounded-full bg-[#1a160d] border border-[#463b25] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[#8c6b41]">shield</span>
+</div>
+<div>
+<h4 class="text-lg font-bold text-white">Conservative Retention</h4>
+<p class="text-sm text-[#c6b695] mt-1">Slower scale, focusing on LTV maximization through email nurturing sequences.</p>
+</div>
+</div>
+<div class="flex items-center gap-3 mt-2">
+<button class="text-sm text-[#c6b695] hover:text-primary font-medium flex items-center gap-1">
+                            Review Analysis <span class="material-symbols-outlined text-sm">arrow_right</span>
+</button>
+</div>
+</div>
+<!-- Timeline Section (Counselor Actions) -->
+<div class="mt-4">
+<h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-bronze">history_edu</span>
+                        Activity Log
+                    </h3>
+<div class="relative pl-6 border-l-2 border-bronze/30 space-y-8">
+<!-- Timeline Item 1 -->
+<div class="relative">
+<div class="absolute -left-[31px] bg-surface-dark border-2 border-bronze rounded-full p-1">
+<span class="material-symbols-outlined text-bronze text-xs block">edit_note</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-baseline">
+<span class="text-white font-medium text-sm">Headline Optimization</span>
+<span class="text-[#635536] text-xs">2h ago</span>
+</div>
+<p class="text-sm text-[#c6b695]">AI Copilot suggested variations for the landing page hero section.</p>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative">
+<div class="absolute -left-[31px] bg-surface-dark border-2 border-bronze rounded-full p-1">
+<span class="material-symbols-outlined text-bronze text-xs block">attach_money</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-baseline">
+<span class="text-white font-medium text-sm">Budget Allocation</span>
+<span class="text-[#635536] text-xs">Yesterday</span>
+</div>
+<p class="text-sm text-[#c6b695]">Shifted 20% of budget from "Cold Traffic" to "Retargeting" based on signal decay.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Funnel Intelligence (40% width -> 2/5 cols) -->
+<div class="lg:col-span-2 flex flex-col gap-6">
+<h3 class="text-xl font-bold text-white">Intel &amp; Recon</h3>
+<!-- Competitor Card -->
+<div class="bg-surface-dark rounded-xl border border-[#463b25] p-5 flex flex-col gap-4">
+<div class="flex items-center justify-between mb-2">
+<h4 class="text-sm font-bold text-[#c6b695] uppercase tracking-wider">Top Competitors</h4>
+<span class="material-symbols-outlined text-[#635536]">radar</span>
+</div>
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between p-3 rounded bg-[#1a160d] border border-[#2c2619]">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded bg-gray-700 bg-cover bg-center" data-alt="Logo of competitor company A" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBSmX5hBTas_SZoLTA3VAtGkHbbzV3jRvhj4O8MVIio4xKuv2SSAB-exL8xUZeCCbGlZx-ryfiG-stvqHGOmPO3ZT9q-hE7CODFFn-qy0_Jlo79TdvIGnHpxfX8FMpaSt0QZhVaDbn0I1CL_jneqILnGQB_WTUS2Q4UWbMNK6XcLgKo8tI9wPtXoHPkxseHLJVzonYzh6aiUxEaEQihmYclUabkuwloAgOuuJcH2aDDe7oWjIHC74IgK5HMc4O3JherHbkT0SgFnUo');"></div>
+<span class="text-white text-sm font-medium">AdVantage Inc.</span>
+</div>
+<span class="text-red-400 text-xs font-bold flex items-center">
+<span class="material-symbols-outlined text-sm mr-0.5">arrow_upward</span> High Activity
+                            </span>
+</div>
+<div class="flex items-center justify-between p-3 rounded bg-[#1a160d] border border-[#2c2619]">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded bg-gray-700 bg-cover bg-center" data-alt="Logo of competitor company B" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAdu4xI_F2poKUq3GNxp7ALvF_NCL3yTXZA5nkky-FbenMv3YsAklbMkxc8pxVTefUBaJ5RuTSDLGt6_8Nsyng9ljN2y7CT1Up53qn4hSu6tnZKw4QY9SGCNltnYyCishpzWxO8pLqUnPjxD5-dGgitBT_NwDDEHmhrEgFvCJxkFHTYQ7n2Xzw3b3P5QnSSdB36TNmvM7AxrBE3DlD75ZYFghQ9KJoOICzKGMoqb1nrcwX3XyCWS7ajTTHA8rP4ZhGojW18sGZl7CI');"></div>
+<span class="text-white text-sm font-medium">ScaleForce</span>
+</div>
+<span class="text-yellow-500 text-xs font-bold flex items-center">
+<span class="material-symbols-outlined text-sm mr-0.5">remove</span> Stable
+                            </span>
+</div>
+</div>
+</div>
+<!-- Keywords Card -->
+<div class="bg-surface-dark rounded-xl border border-[#463b25] p-5 flex flex-col gap-4">
+<div class="flex items-center justify-between mb-2">
+<h4 class="text-sm font-bold text-[#c6b695] uppercase tracking-wider">Keyword Dominance</h4>
+<span class="material-symbols-outlined text-[#635536]">key</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary text-xs font-medium">AI Marketing</span>
+<span class="px-3 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary text-xs font-medium">Auto-Funnels</span>
+<span class="px-3 py-1 rounded-full bg-[#1a160d] border border-[#463b25] text-[#c6b695] text-xs font-medium">Lead Gen</span>
+<span class="px-3 py-1 rounded-full bg-[#1a160d] border border-[#463b25] text-[#c6b695] text-xs font-medium">Conversion Rate</span>
+</div>
+<div class="mt-2 pt-4 border-t border-[#463b25]">
+<div class="flex justify-between items-center text-xs text-[#c6b695] mb-1">
+<span>Opportunity Volume</span>
+<span class="text-white font-bold">High</span>
+</div>
+<div class="w-full bg-[#1a160d] rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 75%"></div>
+</div>
+</div>
+</div>
+<!-- Tactical Map Preview -->
+<div class="bg-surface-dark rounded-xl border border-[#463b25] overflow-hidden relative h-48 group cursor-pointer">
+<div class="absolute inset-0 bg-cover bg-center opacity-40 group-hover:opacity-60 transition-opacity" data-alt="Abstract tactical map showing nodes and connections in gold on dark background" data-location="Global Tactical View" style="background-image: url('https://placeholder.pics/svg/300');"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-dark via-transparent to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4">
+<div class="flex justify-between items-end">
+<div>
+<h4 class="text-white font-bold text-sm">Geographic Impact</h4>
+<p class="text-[#c6b695] text-xs">Primary: Brazil, USA</p>
+</div>
+<div class="size-8 rounded-full bg-primary/90 flex items-center justify-center text-[#1a160d]">
+<span class="material-symbols-outlined text-sm">open_in_full</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

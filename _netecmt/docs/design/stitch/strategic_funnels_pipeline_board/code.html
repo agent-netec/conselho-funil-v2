@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MKTHONEY - Strategic Funnels Pipeline</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Noto+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#e6b447",
+              "primary-dark": "#c2932f",
+              "background-light": "#f8f7f6",
+              "background-dark": "#0D0B09", // Specified #0D0B09
+              "surface-1": "#1A1712",
+              "surface-2": "#26221A",
+              "surface-border": "#3D3428", // Specified border
+              "text-main": "#F5E8CE", // Specified header color
+              "text-muted": "#9C9283",
+              "status-green": "#4ADE80",
+              "status-gold": "#e6b447",
+            },
+            fontFamily: {
+              "display": ["Manrope", "sans-serif"],
+              "mono": ["Noto Sans", "monospace"], // Using Noto Sans as proxy for Geist Mono per available fonts
+            },
+            borderRadius: {
+              "DEFAULT": "0.25rem",
+              "lg": "0.5rem",
+              "xl": "0.75rem",
+              "full": "9999px"
+            },
+            boxShadow: {
+              'glow': '0 0 10px rgba(230, 180, 71, 0.3)',
+              'glow-green': '0 0 10px rgba(74, 222, 128, 0.3)',
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        /* Custom scrollbar for Kanban */
+        .kanban-scroll::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .kanban-scroll::-webkit-scrollbar-track {
+            background: #1A1712;
+        }
+        .kanban-scroll::-webkit-scrollbar-thumb {
+            background: #3D3428;
+            border-radius: 4px;
+        }
+        .kanban-scroll::-webkit-scrollbar-thumb:hover {
+            background: #e6b447;
+        }
+        
+        /* Subtle noise texture */
+        .bg-noise {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+        }
+    </style>
+</head>
+<body class="bg-background-dark text-text-main font-display antialiased overflow-hidden h-screen flex flex-col bg-noise relative">
+<!-- Top Navigation Bar -->
+<header class="flex-none flex items-center justify-between border-b border-surface-border bg-surface-1/90 backdrop-blur-md px-6 py-3 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-white">
+<div class="size-5 text-primary">
+<span class="material-symbols-outlined !text-[24px]">hexagon</span>
+</div>
+<h2 class="text-white text-lg font-bold tracking-tight uppercase">MKTHONEY</h2>
+</div>
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64 group">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full border border-surface-border bg-surface-2 focus-within:border-primary transition-colors">
+<div class="text-text-muted flex items-center justify-center pl-3 pr-2">
+<span class="material-symbols-outlined !text-[20px]">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 bg-transparent text-sm text-white focus:outline-0 placeholder:text-text-muted/50" placeholder="Search operations..."/>
+</div>
+</label>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-text-muted hover:text-primary text-sm font-medium transition-colors" href="#">Dashboard</a>
+<a class="text-text-main text-sm font-bold border-b-2 border-primary pb-0.5" href="#">Campanhas</a>
+<a class="text-text-muted hover:text-primary text-sm font-medium transition-colors" href="#">Funnels</a>
+<a class="text-text-muted hover:text-primary text-sm font-medium transition-colors" href="#">Insights</a>
+</nav>
+<div class="h-6 w-px bg-surface-border hidden lg:block"></div>
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center text-text-muted hover:text-white transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-9 border border-surface-border ring-2 ring-transparent hover:ring-primary/50 transition-all cursor-pointer" data-alt="User profile photo showing a man in business attire" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB-5sCyWGTUIGsZf0e6YdjlNMZxQ3J7mFK6AgzXQRenQeyp8ys-4zerw1yZ-W0GHr-GSB8Lte1TGQ7u3GzM3j7OmOpgeaZbKLqWgylg-3kWeBPFBzlFUgyNJFiEn8bFTquuOdXOgN8JALBQVSayuKXw_TP9UbefGyGeFq2bgI1spQ_0C4yrH9yfiGSH_PLXwlUfO3jlOkQGJRYd2zQ871mGSxZcoxKcM5QWqD2xF9KUWos6RcMQ_dAMhJW6CZzXROh7-s2FQEyPej0");'></div>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-h-0 relative">
+<!-- Page Header & Filters -->
+<div class="flex-none px-6 py-5 bg-background-dark/50 backdrop-blur-sm border-b border-surface-border z-40">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-5">
+<h1 class="text-text-main tracking-tight text-[28px] font-bold leading-tight">Pipeline de Funis</h1>
+<div class="flex gap-3">
+<button class="flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-surface-2 border border-surface-border hover:bg-surface-border/50 text-text-muted text-sm font-medium transition-all">
+<span class="material-symbols-outlined !text-[18px]">filter_list</span>
+<span>Filtros</span>
+</button>
+<button class="flex items-center justify-center gap-2 rounded-lg h-10 px-5 bg-primary hover:bg-primary-dark text-background-dark text-sm font-bold tracking-wide transition-all shadow-glow">
+<span class="material-symbols-outlined !text-[20px] font-bold">add</span>
+<span>NOVO FUNIL</span>
+</button>
+</div>
+</div>
+<!-- Stats Bar -->
+<div class="flex flex-wrap items-center gap-4">
+<!-- Stat Item -->
+<div class="flex items-center gap-3 bg-surface-1 px-4 py-2 rounded border border-surface-border">
+<span class="text-text-muted text-xs font-semibold uppercase tracking-wider">Total Funis</span>
+<span class="text-white text-lg font-bold font-mono">12</span>
+</div>
+<div class="w-px h-6 bg-surface-border"></div>
+<!-- Stat Item -->
+<div class="flex items-center gap-3 bg-surface-1 px-4 py-2 rounded border border-surface-border">
+<span class="text-text-muted text-xs font-semibold uppercase tracking-wider">Ativos</span>
+<span class="text-primary text-lg font-bold font-mono">4</span>
+</div>
+<div class="w-px h-6 bg-surface-border"></div>
+<!-- Stat Item -->
+<div class="flex items-center gap-3 bg-surface-1 px-4 py-2 rounded border border-surface-border">
+<span class="text-text-muted text-xs font-semibold uppercase tracking-wider">Em Revisão</span>
+<span class="text-white text-lg font-bold font-mono">3</span>
+</div>
+<div class="w-px h-6 bg-surface-border"></div>
+<!-- Stat Item -->
+<div class="flex items-center gap-3 bg-surface-1 px-4 py-2 rounded border border-surface-border">
+<span class="text-text-muted text-xs font-semibold uppercase tracking-wider">Concluídos</span>
+<span class="text-status-green text-lg font-bold font-mono">5</span>
+</div>
+<!-- Tag Filters (pushed right on large screens) -->
+<div class="ml-auto flex gap-2 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
+<button class="flex items-center gap-2 px-3 py-1.5 rounded bg-surface-2 border border-surface-border hover:border-primary/50 transition-colors whitespace-nowrap">
+<span class="material-symbols-outlined !text-[16px] text-primary">sell</span>
+<span class="text-xs font-medium text-text-muted">Todas Marcas</span>
+<span class="material-symbols-outlined !text-[16px] text-text-muted">expand_more</span>
+</button>
+<button class="flex items-center gap-2 px-3 py-1.5 rounded bg-surface-2 border border-surface-border hover:border-primary/50 transition-colors whitespace-nowrap">
+<span class="material-symbols-outlined !text-[16px] text-primary">campaign</span>
+<span class="text-xs font-medium text-text-muted">Campanha Q4</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Kanban Board Area -->
+<div class="flex-1 overflow-x-auto overflow-y-hidden kanban-scroll p-6">
+<div class="flex h-full gap-5 min-w-max">
+<!-- Column 1: Rascunho -->
+<div class="flex flex-col w-80 h-full">
+<div class="flex items-center justify-between mb-4 sticky top-0 z-10">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-surface-border"></div>
+<h3 class="text-sm font-bold text-text-muted uppercase tracking-wider">Rascunho</h3>
+<span class="text-xs text-text-muted/50 font-mono bg-surface-2 px-1.5 rounded">2</span>
+</div>
+<button class="text-text-muted hover:text-primary transition-colors">
+<span class="material-symbols-outlined !text-[18px]">add</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-3 kanban-scroll">
+<!-- Card -->
+<div class="bg-gradient-to-br from-surface-1 to-surface-2 border border-surface-border rounded-lg p-4 cursor-pointer hover:border-primary/40 transition-all group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-mono text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">LOW TICKET</span>
+<span class="material-symbols-outlined !text-[16px] text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">more_horiz</span>
+</div>
+<h4 class="text-white font-bold text-base mb-1 group-hover:text-primary transition-colors">Funil E-book Starter</h4>
+<p class="text-text-muted text-xs mb-3 line-clamp-2">Captação inicial para base fria com foco em nutrição.</p>
+<div class="flex justify-between items-end border-t border-surface-border/50 pt-3 mt-2">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full border border-surface-1 bg-cover" data-alt="Female team member" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDoq8aPihv81Ltu0I6m_tguAco-lWu45q95JWpUW7OQJLBi5P6xLG8PuMMQW88TuCIHuIQkGNOv2RLoRAiDhusi7IBDi6GIs_6UKYx43nEJZQohq055npJpfRBfus4pnV7cEJFSoLQc3dVJptOKl2HTZg2SUU9ZKPOevYl7HnGXRBTh70XV2G8jnIvwJw-hGPrW6nPAglVC48ykPjJozRvSDn4mxAu-qGUcapSqhX88wkGNGx0E7dfGqk2CKjyrzhImCha0O7OihIQ')"></div>
+</div>
+<div class="text-xs text-text-muted font-mono">R$ 27,90</div>
+</div>
+</div>
+<!-- Card -->
+<div class="bg-gradient-to-br from-surface-1 to-surface-2 border border-surface-border rounded-lg p-4 cursor-pointer hover:border-primary/40 transition-all group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-mono text-text-muted bg-surface-border/30 px-2 py-0.5 rounded">LEAD GEN</span>
+</div>
+<h4 class="text-white font-bold text-base mb-1 group-hover:text-primary transition-colors">Quiz Interativo V2</h4>
+<p class="text-text-muted text-xs mb-3 line-clamp-2">Segmentação por nível de consciência antes da oferta.</p>
+<div class="flex justify-between items-end border-t border-surface-border/50 pt-3 mt-2">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full border border-surface-1 bg-cover" data-alt="Male team member" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDuSZg3i_rreD9Uc9rRVvGIOuTbDUKfHZZSB9w662zpPZz5_DtjD0jfwdVff3tFG0D0QoImebCJ3lCf83UG8QTaiKfxVcr2CxycbIkRqy8VkcFXE57iMjKbcH7r1DvfsQsJCfX8TE6SmUcDgOxMBbOS2MvjgvjH0aIF9vHvdOYfzsmd3jMtyUTtY2cg9Ro6w4XKnHhdlbOjNqu-S9-ART8z3HTsDxryZV5VA83R6OE1xyQF35ya-cwkDNykAltct8sZUF6T-0a6_OI')"></div>
+</div>
+<div class="text-xs text-text-muted font-mono">Gratuito</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 2: Gerando (Gold Pulse) -->
+<div class="flex flex-col w-80 h-full">
+<div class="flex items-center justify-between mb-4 sticky top-0 z-10">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+</span>
+<h3 class="text-sm font-bold text-primary uppercase tracking-wider">Gerando</h3>
+<span class="text-xs text-primary/50 font-mono bg-primary/10 px-1.5 rounded">1</span>
+</div>
+<button class="text-text-muted hover:text-primary transition-colors">
+<span class="material-symbols-outlined !text-[18px]">add</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-3 kanban-scroll">
+<!-- Card -->
+<div class="bg-gradient-to-br from-surface-1 to-surface-2 border border-primary/30 rounded-lg p-4 cursor-pointer shadow-glow transition-all group relative overflow-hidden">
+<!-- Scanning line effect -->
+<div class="absolute top-0 left-0 w-full h-0.5 bg-primary/50 animate-[scan_2s_ease-in-out_infinite]"></div>
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-1 text-xs font-mono text-primary">
+<span class="material-symbols-outlined !text-[14px] animate-spin">sync</span>
+                                    AI WORKING
+                                </div>
+</div>
+<h4 class="text-white font-bold text-base mb-1">Funil Upsell Black Friday</h4>
+<p class="text-text-muted text-xs mb-3">Gerando copy e estrutura de páginas de vendas.</p>
+<div class="w-full bg-surface-border rounded-full h-1.5 mb-3">
+<div class="bg-primary h-1.5 rounded-full" style="width: 45%"></div>
+</div>
+<div class="flex justify-between items-end pt-1">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full border border-surface-1 flex items-center justify-center bg-primary text-black text-[10px] font-bold">AI</div>
+</div>
+<div class="text-xs text-primary font-mono">45%</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 3: Revisão -->
+<div class="flex flex-col w-80 h-full">
+<div class="flex items-center justify-between mb-4 sticky top-0 z-10">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-orange-400"></div>
+<h3 class="text-sm font-bold text-text-muted uppercase tracking-wider">Revisão</h3>
+<span class="text-xs text-text-muted/50 font-mono bg-surface-2 px-1.5 rounded">3</span>
+</div>
+<button class="text-text-muted hover:text-primary transition-colors">
+<span class="material-symbols-outlined !text-[18px]">add</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-3 kanban-scroll">
+<!-- Card -->
+<div class="bg-gradient-to-br from-surface-1 to-surface-2 border border-surface-border rounded-lg p-4 cursor-pointer hover:border-primary/40 transition-all group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-mono text-orange-300 bg-orange-900/20 px-2 py-0.5 rounded border border-orange-500/20">WEBINAR</span>
+</div>
+<h4 class="text-white font-bold text-base mb-1 group-hover:text-primary transition-colors">Masterclass Q4</h4>
+<p class="text-text-muted text-xs mb-3">Aprovação pendente no copy de e-mails 3 e 4.</p>
+<div class="flex justify-between items-end border-t border-surface-border/50 pt-3 mt-2">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full border border-surface-1 bg-cover" data-alt="Reviewer avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBxOe-Hn04JWHSD1hRkkuTHA6gB9_Q83MBqduwYQZvWm6dsEqxFXHSKZDd2tbIrhgF5ETe8bLscr73Lk0_zLl5VbBH-60R3ISuM4DBGchWgZtyF-UB_R5p8eTan5VsDh1Sd4EM0z_42eiNTmcoyop1TwzLN7YyOgc4vT_uQFm439YGqD4ZM1Ubq5y6Q5GeHNN3rtwhgrQ5_HuT4ugqNVZPkiAfxDRZHzYvHiRYj65NOAfk95iLOzVHaWT7mu9EnmFn6Uas4MbhtBn4')"></div>
+<div class="size-6 rounded-full border border-surface-1 bg-cover" data-alt="Reviewer avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA1-lCP7VZHiwe7du1D-0RDhxMUBd2-zlo5ZDb9oZnO6v-IYdppdqmXQ5Anbaa6jGCUWA7MMTXrh86Al14-sWgK-tX3vQA2UPBWz90LdvW1fi7fZ1qEdrH4b9rvvPdxj478fUzoKISxMW6faqXh73ePopKCnsEcWA847KUjQEsJAtq96DY7FoBuqayEzNfv2Lsnwz3SOreYeztzj5AyUChrVKAmf05hLqGFtbSZnoUENFyehMXF_QAvI5oWTSkZaZsgpp81gI0xsL8')"></div>
+</div>
+<div class="text-xs text-orange-300 font-mono">Aguardando</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 4: Aprovado -->
+<div class="flex flex-col w-80 h-full">
+<div class="flex items-center justify-between mb-4 sticky top-0 z-10">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-blue-400"></div>
+<h3 class="text-sm font-bold text-text-muted uppercase tracking-wider">Aprovado</h3>
+<span class="text-xs text-text-muted/50 font-mono bg-surface-2 px-1.5 rounded">1</span>
+</div>
+<button class="text-text-muted hover:text-primary transition-colors">
+<span class="material-symbols-outlined !text-[18px]">add</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-3 kanban-scroll">
+<!-- Card -->
+<div class="bg-gradient-to-br from-surface-1 to-surface-2 border border-surface-border rounded-lg p-4 cursor-pointer hover:border-primary/40 transition-all group opacity-80 hover:opacity-100">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-mono text-blue-300 bg-blue-900/20 px-2 py-0.5 rounded border border-blue-500/20">READY</span>
+</div>
+<h4 class="text-white font-bold text-base mb-1 group-hover:text-primary transition-colors">Funil Lançamento Semente</h4>
+<p class="text-text-muted text-xs mb-3">Configuração técnica finalizada. Pronto para start.</p>
+<div class="flex justify-between items-end border-t border-surface-border/50 pt-3 mt-2">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full border border-surface-1 bg-cover" data-alt="Team lead" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCFzzbYmoSjzUVwfuisbZSSz4NJvgeNgVfDsZkWAvuZarRnGnTsyGYPup2nwf_XTsRLEnUH-1o_DYmG6b7asmjEAQX3mkAFVRROjbcQLAuK6PG5LSZXv25DEH6v8kfk90BblAkLT72vpp1u2lNSHSZcoHu5izpBsDYWWxHcWqV5lBR7EKmI72CBb2Adpvk7A2DXBp_iU4T3GZh02hqCq2fyMS_rC58x1xPyHOUn3_LblQdehzAr4wVrFe2LOdna3RiyVsUCXd0KL8Q')"></div>
+</div>
+<div class="text-xs text-blue-300 font-bold font-mono">SCORE: 8.8</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 5: Executando (Green Breathing) -->
+<div class="flex flex-col w-80 h-full">
+<div class="flex items-center justify-between mb-4 sticky top-0 z-10">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-pulse absolute inline-flex h-full w-full rounded-full bg-status-green opacity-50"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-status-green"></span>
+</span>
+<h3 class="text-sm font-bold text-status-green uppercase tracking-wider">Executando</h3>
+<span class="text-xs text-status-green/50 font-mono bg-status-green/10 px-1.5 rounded">4</span>
+</div>
+<button class="text-text-muted hover:text-primary transition-colors">
+<span class="material-symbols-outlined !text-[18px]">add</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-3 kanban-scroll">
+<!-- Card: Active 1 -->
+<div class="bg-gradient-to-br from-surface-1 to-surface-2 border border-surface-border border-l-[3px] border-l-status-green rounded-lg p-4 cursor-pointer hover:border-primary/40 transition-all group shadow-glow-green/10">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-mono text-status-green bg-status-green/10 px-2 py-0.5 rounded border border-status-green/20">PERPETUAL</span>
+<div class="flex items-center gap-1 text-xs text-status-green font-bold shadow-glow-green px-1.5 py-0.5 rounded bg-status-green/10">
+<span class="material-symbols-outlined !text-[12px]">trending_up</span>
+                                    9.2
+                                </div>
+</div>
+<h4 class="text-white font-bold text-base mb-1 group-hover:text-primary transition-colors">Funil High Ticket Mentoria</h4>
+<div class="flex gap-4 mt-3 mb-3">
+<div>
+<p class="text-[10px] text-text-muted uppercase">Leads</p>
+<p class="text-sm font-mono text-white">1,240</p>
+</div>
+<div>
+<p class="text-[10px] text-text-muted uppercase">Conv.</p>
+<p class="text-sm font-mono text-white">2.4%</p>
+</div>
+<div>
+<p class="text-[10px] text-text-muted uppercase">Ticket</p>
+<p class="text-sm font-mono text-primary">R$ 5k</p>
+</div>
+</div>
+<div class="flex justify-between items-center border-t border-surface-border/50 pt-3">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full border border-surface-1 bg-cover" data-alt="Manager" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBv6mR1DW-2XiR71CmWy9al0a8KXfnqFlkVwrI6PW58iTyQ86L5IhkFdMJzDynEyKjPEIbrl_zaDFOlAab4rC3vhHw7fdKgo56dniz7MhYLf7ktC40pqP9_YYp21t2oKXjLEoPvofGetrncljeY5PVH8l99FM0fRa69NkjRbFoIjlgWXAbkwICIQosdKz3Pp_o0T2NxSY5MjmfaANYLrPPwWqyTZ91qHZ241KDIlbka49r2MrGXBsuyorGkk8z_ewCQiVf4DvVIy6Y')"></div>
+<div class="size-6 rounded-full border border-surface-1 bg-cover" data-alt="Manager" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD4Img-1ODPiPtiYh5lq34JDekgHQ0TNA-NPgRnjmALdBKLc2AmY6734Ju_2HIcPZXwqqHxVzpWM5tdySp7uYp9LVnOZkJgnlR0K-7kC2_qQaR_-Ija9eqkJ6beF7fm500vP0MftDEHqStU2No_oi51MVDYEG0lMlmfH4PhersiW1OUY4CvLXTx0x-JgGLRDEwi6Tdd3zjxjHOVzZuKzXQrXPaR8_us5nVgWixIlDnC9pbsO9zps7NPl3L32NMMBWiSvfy3EFY8Ois')"></div>
+</div>
+<div class="h-1.5 w-16 bg-surface-border rounded-full overflow-hidden">
+<div class="h-full bg-status-green w-[80%]"></div>
+</div>
+</div>
+</div>
+<!-- Card: Active 2 -->
+<div class="bg-gradient-to-br from-surface-1 to-surface-2 border border-surface-border border-l-[3px] border-l-status-green rounded-lg p-4 cursor-pointer hover:border-primary/40 transition-all group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-mono text-status-green bg-status-green/10 px-2 py-0.5 rounded border border-status-green/20">TRIPWIRE</span>
+<div class="flex items-center gap-1 text-xs text-status-gold font-bold shadow-glow px-1.5 py-0.5 rounded bg-status-gold/10">
+<span class="material-symbols-outlined !text-[12px]">star</span>
+                                    8.5
+                                </div>
+</div>
+<h4 class="text-white font-bold text-base mb-1 group-hover:text-primary transition-colors">Offer Liquidacão</h4>
+<div class="flex gap-4 mt-3 mb-3">
+<div>
+<p class="text-[10px] text-text-muted uppercase">Leads</p>
+<p class="text-sm font-mono text-white">8,500</p>
+</div>
+<div>
+<p class="text-[10px] text-text-muted uppercase">Ticket</p>
+<p class="text-sm font-mono text-primary">R$ 97</p>
+</div>
+</div>
+<div class="flex justify-between items-center border-t border-surface-border/50 pt-3">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full border border-surface-1 bg-cover" data-alt="Manager" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAO7LOwkSH3g9tLmTok0kyFybF5_8StcbQncC3Czps0-yNQYkcWFsvSdv0FGtmXnQJgM_y_3wmqg8ctLgKk7eQL0J114ZZLWQCaJuEOQgZ3vcbtXzWFWjGVVjHTg4dDpupFmoSFo6mlNJt3lUNBYUkf4IyRmJmhxq_gkcQgoszF75rkmKp23537EXOOq6k6ydLu0tdOV0yAbBVbkE5_zf8v46ZmiQsTCIIMBBUt_NbTHuT6pNpQqQievI1dqX_TTExfULYrauuzsTU')"></div>
+</div>
+<span class="text-[10px] text-status-green animate-pulse">● LIVE</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 6: Concluído -->
+<div class="flex flex-col w-80 h-full">
+<div class="flex items-center justify-between mb-4 sticky top-0 z-10">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-surface-border"></div>
+<h3 class="text-sm font-bold text-text-muted uppercase tracking-wider">Concluído</h3>
+<span class="text-xs text-text-muted/50 font-mono bg-surface-2 px-1.5 rounded">5</span>
+</div>
+<button class="text-text-muted hover:text-primary transition-colors">
+<span class="material-symbols-outlined !text-[18px]">add</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-3 kanban-scroll">
+<!-- Card -->
+<div class="bg-surface-2/50 border border-surface-border rounded-lg p-4 opacity-60 hover:opacity-100 transition-opacity">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-mono text-text-muted bg-surface-1 px-2 py-0.5 rounded">ARCHIVED</span>
+</div>
+<h4 class="text-text-muted font-bold text-base mb-1 decoration-slice">Campanha Pais</h4>
+<p class="text-text-muted text-xs mb-3">Finalizado em 15/08. ROI 3.5x.</p>
+<div class="flex justify-between items-end border-t border-surface-border/50 pt-3 mt-2">
+<div class="text-xs text-text-muted font-mono">Total: R$ 45k</div>
+<span class="material-symbols-outlined !text-[16px] text-status-green">check_circle</span>
+</div>
+</div>
+<!-- Card -->
+<div class="bg-surface-2/50 border border-surface-border rounded-lg p-4 opacity-60 hover:opacity-100 transition-opacity">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-mono text-text-muted bg-surface-1 px-2 py-0.5 rounded">ARCHIVED</span>
+</div>
+<h4 class="text-text-muted font-bold text-base mb-1 decoration-slice">Webinar Q3</h4>
+<p class="text-text-muted text-xs mb-3">Finalizado em 01/07.</p>
+<div class="flex justify-between items-end border-t border-surface-border/50 pt-3 mt-2">
+<div class="text-xs text-text-muted font-mono">Total: R$ 12k</div>
+<span class="material-symbols-outlined !text-[16px] text-status-green">check_circle</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<style>
+        @keyframes scan {
+            0%, 100% { top: 0; opacity: 0; }
+            50% { top: 100%; opacity: 1; }
+        }
+        
+        /* Hide scrollbar for header filters */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>
