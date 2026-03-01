@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -187,21 +188,18 @@ export function Sidebar() {
               <div className="absolute inset-0 rounded-xl bg-[#E6B447]/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
               {/* Logo container */}
-              <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-lg shadow-[#E6B447]/20">
+              <div className="relative flex h-11 w-11 items-center justify-center rounded-xl">
                 {branding.logoUrl ? (
-                  <img src={branding.logoUrl} alt="Agency Logo" className="h-7 w-7 object-contain" />
+                  <img src={branding.logoUrl} alt="Agency Logo" className="h-11 w-11 object-contain rounded-xl" />
                 ) : (
-                  <svg 
-                    viewBox="0 0 24 24" 
-                    className="h-6 w-6 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                  </svg>
+                  <Image
+                    src="/logo-mkthoney-icon.svg"
+                    alt="MKTHONEY"
+                    width={44}
+                    height={44}
+                    className="transition-all duration-300 group-hover:drop-shadow-[0_0_12px_rgba(230,180,71,0.4)]"
+                    priority
+                  />
                 )}
               </div>
             </div>

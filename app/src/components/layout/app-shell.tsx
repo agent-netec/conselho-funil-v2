@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { Sidebar } from './sidebar';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { ToastNotifications } from '@/components/ui/toast-notifications';
@@ -44,28 +45,25 @@ function LoadingScreen() {
           {/* Glow */}
           <div className="absolute inset-0 rounded-2xl bg-[#E6B447]/20 blur-2xl animate-pulse" />
           
-          <motion.div 
-            className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-xl shadow-[#E6B447]/20"
-            animate={{ 
-              boxShadow: [
-                '0 20px 25px -5px rgba(230, 180, 71, 0.2)',
-                '0 20px 25px -5px rgba(230, 180, 71, 0.4)',
-                '0 20px 25px -5px rgba(230, 180, 71, 0.2)',
+          <motion.div
+            className="relative flex h-16 w-16 items-center justify-center"
+            animate={{
+              filter: [
+                'drop-shadow(0 0 8px rgba(230, 180, 71, 0.2))',
+                'drop-shadow(0 0 20px rgba(230, 180, 71, 0.5))',
+                'drop-shadow(0 0 8px rgba(230, 180, 71, 0.2))',
               ]
             }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <svg 
-              viewBox="0 0 24 24" 
-              className="h-8 w-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
+            <Image
+              src="/logo-mkthoney-icon.svg"
+              alt="MKTHONEY"
+              width={40}
+              height={57}
+              priority
+              className="h-14 w-auto"
+            />
           </motion.div>
         </div>
         

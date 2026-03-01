@@ -37,7 +37,7 @@ export function Header({ title, subtitle, showBack, actions, showBrandSelector =
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => router.back()}
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/[0.03] transition-colors flex-shrink-0 border border-white/[0.04]"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-[#E6B447]/[0.03] transition-colors flex-shrink-0 border border-white/[0.04] focus-visible:ring-2 focus-visible:ring-[#E6B447]/40 focus-visible:ring-offset-0"
           >
             <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
           </motion.button>
@@ -82,7 +82,8 @@ export function Header({ title, subtitle, showBack, actions, showBrandSelector =
             className={cn(
               'hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-lg',
               'bg-white/[0.03] border border-white/[0.06]',
-              'text-[11px] text-zinc-400 hover:text-white hover:bg-white/[0.06]'
+              'text-[11px] text-zinc-400 hover:text-white hover:bg-white/[0.06]',
+              'active:text-[#E6B447] focus-visible:ring-2 focus-visible:ring-[#E6B447]/40 focus-visible:ring-offset-0'
             )}
             title={`Copiar brandId: ${activeBrand.id}`}
             aria-label="Copiar brandId"
