@@ -90,7 +90,7 @@ function PreBriefingBody({ onStartBriefing }: { onStartBriefing: () => void }) {
           className="btn-accent flex-shrink-0"
         >
           <Sparkles className="mr-2 h-4 w-4" />
-          Comecar Briefing
+          Começar Briefing
         </Button>
       </div>
     </motion.div>
@@ -227,7 +227,7 @@ function WelcomeBody({ onCreateBrand }: { onCreateBrand: () => void }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col items-center justify-center py-16 text-center"
+      className="flex flex-col items-center justify-center py-16"
     >
       {/* Icon */}
       <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-[#E6B447]/10">
@@ -235,51 +235,74 @@ function WelcomeBody({ onCreateBrand }: { onCreateBrand: () => void }) {
       </div>
 
       {/* Title */}
-      <h1 className="mb-2 text-2xl font-bold text-white">
-        Bem-vindo ao MKTHONEY
+      <h1 className="mb-3 text-2xl font-bold text-white text-center">
+        Bem-vindo ao <span className="text-[#E6B447]">MKTHONEY</span>
       </h1>
-      <p className="mb-8 max-w-md text-sm text-zinc-400">
-        Configure sua marca para desbloquear todo o arsenal de marketing autonomo.
+      <p className="mb-10 max-w-lg text-sm text-zinc-400 text-center">
+        Sua plataforma de marketing com IA. 23 especialistas prontos
+        para criar estratégias personalizadas para sua marca.
       </p>
 
-      {/* Action Cards */}
-      <div className="grid w-full max-w-2xl gap-4 sm:grid-cols-3">
-        {/* Criar Marca */}
+      {/* Section Label */}
+      <p className="mb-5 text-xs font-semibold uppercase tracking-[0.15em] text-zinc-500">
+        Por onde você quer começar?
+      </p>
+
+      {/* Card Stack — vertical full-width, horizontal layout per card */}
+      <div className="flex w-full max-w-xl flex-col gap-3">
+        {/* Card 1: Criar Marca */}
         <button
           onClick={onCreateBrand}
-          className="group flex flex-col items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 text-center transition-all hover:border-[#E6B447]/20 hover:bg-[#E6B447]/[0.03]"
+          className="group flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-left transition-all hover:border-[#E6B447]/20 hover:bg-[#E6B447]/[0.03]"
         >
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E6B447]/10 transition-transform group-hover:scale-110">
-            <Sparkles className="h-6 w-6 text-[#E6B447]" />
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#E6B447]/10 transition-transform group-hover:scale-110">
+            <Sparkles className="h-5 w-5 text-[#E6B447]" />
           </div>
-          <span className="text-sm font-medium text-white">Criar sua marca</span>
-          <span className="text-xs text-zinc-500">3 passos rapidos</span>
+          <div className="flex-1 min-w-0">
+            <span className="block text-sm font-semibold text-white">Criar sua marca</span>
+            <span className="block text-xs text-zinc-500">Configure o contexto da sua marca para personalizar todos os conselhos.</span>
+          </div>
+          <ArrowRight className="h-4 w-4 flex-shrink-0 text-zinc-600 transition-transform group-hover:translate-x-1 group-hover:text-zinc-400" />
         </button>
 
-        {/* Consultar MKTHONEY */}
+        {/* Card 2: Consultar MKTHONEY */}
         <button
           onClick={() => router.push('/chat')}
-          className="group flex flex-col items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 text-center transition-all hover:border-blue-500/20 hover:bg-blue-500/[0.03]"
+          className="group flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-left transition-all hover:border-blue-500/20 hover:bg-blue-500/[0.03]"
         >
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 transition-transform group-hover:scale-110">
-            <MessageSquare className="h-6 w-6 text-blue-400" />
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-500/10 transition-transform group-hover:scale-110">
+            <MessageSquare className="h-5 w-5 text-blue-400" />
           </div>
-          <span className="text-sm font-medium text-white">Consultar MKTHONEY</span>
-          <span className="text-xs text-zinc-500">Chat com os conselheiros</span>
+          <div className="flex-1 min-w-0">
+            <span className="block text-sm font-semibold text-white">Consultar o MKTHONEY</span>
+            <span className="block text-xs text-zinc-500">Fale com 23 especialistas de marketing ao mesmo tempo.</span>
+          </div>
+          <ArrowRight className="h-4 w-4 flex-shrink-0 text-zinc-600 transition-transform group-hover:translate-x-1 group-hover:text-zinc-400" />
         </button>
 
-        {/* Explorar */}
+        {/* Card 3: Explorar */}
         <button
           onClick={() => router.push('/funnels')}
-          className="group flex flex-col items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 text-center transition-all hover:border-purple-500/20 hover:bg-purple-500/[0.03]"
+          className="group flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-left transition-all hover:border-purple-500/20 hover:bg-purple-500/[0.03]"
         >
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10 transition-transform group-hover:scale-110">
-            <Compass className="h-6 w-6 text-purple-400" />
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-purple-500/10 transition-transform group-hover:scale-110">
+            <Compass className="h-5 w-5 text-purple-400" />
           </div>
-          <span className="text-sm font-medium text-white">Explorar plataforma</span>
-          <span className="text-xs text-zinc-500">Conhecer funcionalidades</span>
+          <div className="flex-1 min-w-0">
+            <span className="block text-sm font-semibold text-white">Explorar a plataforma</span>
+            <span className="block text-xs text-zinc-500">Veja funis, campanhas, calendário e mais.</span>
+          </div>
+          <ArrowRight className="h-4 w-4 flex-shrink-0 text-zinc-600 transition-transform group-hover:translate-x-1 group-hover:text-zinc-400" />
         </button>
       </div>
+
+      {/* Skip link */}
+      <button
+        onClick={() => router.push('/chat')}
+        className="mt-8 text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+      >
+        Pular e ir para o dashboard
+      </button>
     </motion.div>
   );
 }

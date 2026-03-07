@@ -63,7 +63,7 @@ export function OnboardingProgress({ currentStep }: OnboardingProgressProps) {
                   initial={{ width: 0 }}
                   animate={{ width: isCompleted ? '100%' : '0%' }}
                   transition={{ duration: 0.4, ease: 'easeInOut' }}
-                  className="absolute left-0 top-0 h-full bg-[#E6B447]"
+                  className="absolute left-0 top-0 h-full bg-gradient-to-r from-[#E6B447] to-[#AB8648]"
                 />
               </div>
             )}

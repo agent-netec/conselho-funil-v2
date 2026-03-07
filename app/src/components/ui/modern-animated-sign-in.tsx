@@ -373,11 +373,11 @@ const AnimatedForm = memo(function AnimatedForm({
       const value = (event.target as HTMLFormElement)[field.label]?.value;
 
       if (field.required && !value) {
-        currentErrors[field.label] = `${field.label} is required`;
+        currentErrors[field.label] = `${field.label} é obrigatório`;
       }
 
       if (field.type === 'email' && value && !/\S+@\S+\.\S+/.test(value)) {
-        currentErrors[field.label] = 'Invalid email address';
+        currentErrors[field.label] = 'Endereço de email inválido';
       }
 
       if (field.type === 'password' && value && value.length < 8) {
