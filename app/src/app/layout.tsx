@@ -19,8 +19,24 @@ import { Toaster } from "sonner";
 // });
 
 export const metadata: Metadata = {
-  title: "MKTHONEY",
-  description: "Plataforma de inteligência estratégica de marketing com IA",
+  title: {
+    default: 'MKTHONEY — Marketing Autônomo com IA',
+    template: '%s | MKTHONEY',
+  },
+  description: 'Plataforma de inteligência estratégica de marketing com IA. Funis, copy, ads e social — tudo com conselheiros especializados.',
+  metadataBase: new URL('https://mkthoney.com'),
+  openGraph: {
+    type: 'website',
+    locale: 'pt_BR',
+    siteName: 'MKTHONEY',
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
