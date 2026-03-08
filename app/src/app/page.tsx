@@ -19,7 +19,9 @@ import { DashboardHero, type DashboardState } from '@/components/dashboard/dashb
 import { VerdictSummary } from '@/components/dashboard/verdict-summary';
 import { BrandProgress } from '@/components/dashboard/brand-progress';
 import { OnboardingModal } from '@/components/onboarding';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   LogoUploadModal,
   VisualIdentityModal,
@@ -46,18 +48,132 @@ function resolveDashboardState(params: {
   if (brandsLoading || userLoading || funnelsLoading) return 'loading';
 
   const hasBrands = brands.length > 0;
-
-  // No brands → welcome state (user needs to create first brand)
   if (!hasBrands) return 'welcome';
-
-  // STATE 1: Has brands but onboarding not completed
   if (!onboardingComplete) return 'pre-briefing';
-
-  // STATE 3: Has funnels → always active (no regression)
   if (funnelsCount > 0) return 'active';
-
-  // STATE 2: Has brand + onboarding done + no funnels
   return 'post-aha';
+}
+
+// ---------------------------------------------------------------------------
+// Loading skeleton
+// ---------------------------------------------------------------------------
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Card key={i} className="border-[#2A2318] bg-[#1A1612] py-0 gap-0 rounded-xl shadow-none">
+            <CardContent className="p-5">
+              <Skeleton className="h-3 w-20 bg-[#241F19] mb-4" />
+              <Skeleton className="h-9 w-14 bg-[#241F19] mb-3" />
+              <Skeleton className="h-3 w-24 bg-[#1A1612]" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Welcome body
+// ---------------------------------------------------------------------------
+
+function WelcomeBody({ onCreateBrand }: { onCreateBrand: () => void }) {
+  const router = useRouter();
+
+  const actions = [
+    {
+      key: 'create',
+      icon: Sparkles,
+      label: 'Criar sua marca',
+      description: 'Configure o contexto da sua marca para personalizar todos os conselhos.',
+      onClick: onCreateBrand,
+      accent: 'gold' as const,
+    },
+    {
+      key: 'chat',
+      icon: MessageSquare,
+      label: 'Consultar o MKTHONEY',
+      description: 'Fale com 23 especialistas de marketing ao mesmo tempo.',
+      onClick: () => router.push('/chat'),
+      accent: 'blue' as const,
+    },
+    {
+      key: 'explore',
+      icon: Compass,
+      label: 'Explorar a plataforma',
+      description: 'Veja funis, campanhas, calendario e mais.',
+      onClick: () => router.push('/funnels'),
+      accent: 'gold' as const,
+    },
+  ];
+
+  const accentColors = {
+    gold: {
+      icon: 'text-[#E6B447]',
+      bg: 'bg-[#E6B447]/10',
+      hover: 'hover:border-[#E6B447]/20',
+    },
+    blue: {
+      icon: 'text-[#5B8EC4]',
+      bg: 'bg-[#5B8EC4]/10',
+      hover: 'hover:border-[#5B8EC4]/20',
+    },
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col items-center justify-center py-12"
+    >
+      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#E6B447]/10">
+        <img src="/logo-mkthoney-icon.svg" alt="MKTHONEY" className="h-10 w-10" />
+      </div>
+
+      <h1 className="mb-2 text-xl font-bold text-[#F5E8CE] text-center">
+        Bem-vindo ao <span className="text-[#E6B447]">MKTHONEY</span>
+      </h1>
+      <p className="mb-8 max-w-md text-sm text-[#6B5D4A] text-center">
+        23 especialistas de marketing com IA, prontos para sua marca.
+      </p>
+
+      <span className="mb-4 font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#AB8648]">
+        Por onde comecar?
+      </span>
+
+      <div className="flex w-full max-w-lg flex-col gap-2">
+        {actions.map((action) => {
+          const colors = accentColors[action.accent];
+          return (
+            <button
+              key={action.key}
+              onClick={action.onClick}
+              className={`group flex items-center gap-3 rounded-xl border border-[#2A2318] bg-[#1A1612] px-4 py-3.5 text-left transition-all ${colors.hover} hover:bg-[#241F19]`}
+            >
+              <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ${colors.bg}`}>
+                <action.icon className={`h-4 w-4 ${colors.icon}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="block text-sm font-medium text-[#F5E8CE]">{action.label}</span>
+                <span className="block text-[11px] text-[#6B5D4A]">{action.description}</span>
+              </div>
+              <ArrowRight className="h-3.5 w-3.5 flex-shrink-0 text-[#3D3428] group-hover:text-[#AB8648] transition-colors" />
+            </button>
+          );
+        })}
+      </div>
+
+      <button
+        onClick={() => router.push('/chat')}
+        className="mt-6 text-[11px] text-[#6B5D4A] hover:text-[#AB8648] transition-colors"
+      >
+        Pular e ir para o dashboard
+      </button>
+    </motion.div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -67,32 +183,32 @@ function resolveDashboardState(params: {
 function PreBriefingBody({ onStartBriefing }: { onStartBriefing: () => void }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.1 }}
-      className="rounded-2xl border-l-4 border-l-[#E6B447] border border-white/[0.06] bg-white/[0.02] p-8 text-center sm:text-left"
+      transition={{ duration: 0.3, delay: 0.1 }}
     >
-      <div className="flex flex-col sm:flex-row items-center gap-6">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#E6B447]/10 flex-shrink-0">
-          <Sparkles className="h-8 w-8 text-[#E6B447]" />
-        </div>
-        <div className="flex-1">
-          <h3 className="text-lg font-bold text-white mb-2">
-            Seu MKTHONEY esta pronto
-          </h3>
-          <p className="text-sm text-[#A89B84] max-w-lg">
-            Complete o briefing da sua marca para receber seu primeiro veredito estrategico.
-            Em 3 minutos, 23 especialistas vao analisar seu posicionamento e oferta.
-          </p>
-        </div>
-        <Button
-          onClick={onStartBriefing}
-          className="btn-accent flex-shrink-0"
-        >
-          <Sparkles className="mr-2 h-4 w-4" />
-          Começar Briefing
-        </Button>
-      </div>
+      <Card className="border-[#2A2318] bg-[#1A1612] py-0 gap-0 rounded-xl shadow-none border-l-2 border-l-[#E6B447]/50">
+        <CardContent className="p-6">
+          <div className="flex flex-col sm:flex-row items-center gap-5">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E6B447]/10 flex-shrink-0">
+              <Sparkles className="h-6 w-6 text-[#E6B447]" />
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <h3 className="text-base font-semibold text-[#F5E8CE] mb-1">
+                Seu MKTHONEY esta pronto
+              </h3>
+              <p className="text-xs text-[#6B5D4A] max-w-lg">
+                Complete o briefing da sua marca para receber seu primeiro veredito estrategico.
+                Em 3 minutos, 23 especialistas analisam seu posicionamento e oferta.
+              </p>
+            </div>
+            <Button onClick={onStartBriefing} className="btn-accent flex-shrink-0 text-sm">
+              <Sparkles className="mr-2 h-4 w-4" />
+              Comecar Briefing
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 }
@@ -117,7 +233,7 @@ function PostAhaBody({
   onOpenModal: (modalKey: ModalKey) => void;
 }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Verdict Summary — full width */}
       <VerdictSummary
         verdict={verdict}
@@ -126,184 +242,61 @@ function PostAhaBody({
       />
 
       {/* Two columns: Brand Progress + Next Actions */}
-      <div className="grid gap-6 lg:grid-cols-5">
-        {/* Brand Progress */}
+      <div className="grid gap-5 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <BrandProgress brand={brand} assetCount={assetCount} onOpenModal={onOpenModal} />
         </div>
 
-        {/* Next actions */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Target className="h-4 w-4 text-[#E6B447]" />
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#E6B447]">
-              Proximo passo
-            </h3>
-          </div>
+        <div className="lg:col-span-2 space-y-3">
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#AB8648] flex items-center gap-2">
+            <Target className="h-3.5 w-3.5" />
+            Proximo passo
+          </span>
 
-          <Link href="/funnels/new">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              whileHover={{ y: -2 }}
-              className="group rounded-2xl border border-white/[0.06] bg-zinc-900/60 p-5 hover:border-[#E6B447]/20 transition-all cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E6B447]/10">
-                  <Plus className="h-5 w-5 text-[#E6B447]" />
+          <Link href="/funnels/new" className="block">
+            <Card className="group border-[#2A2318] bg-[#1A1612] py-0 gap-0 rounded-xl shadow-none hover:border-[#E6B447]/20 hover:bg-[#241F19] transition-all cursor-pointer">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#E6B447]/10">
+                    <Plus className="h-4 w-4 text-[#E6B447]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="block text-sm font-medium text-[#F5E8CE] group-hover:text-[#E6B447] transition-colors">
+                      Criar seu primeiro funil
+                    </span>
+                    <span className="block text-[11px] text-[#6B5D4A]">
+                      O MKTHONEY propoe arquiteturas baseadas na sua marca
+                    </span>
+                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 text-[#3D3428] group-hover:text-[#E6B447] transition-colors" />
                 </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-white group-hover:text-[#E6B447] transition-colors">
-                    Criar seu primeiro funil
-                  </h4>
-                  <p className="text-xs text-zinc-500 mt-0.5">
-                    O MKTHONEY vai propor arquiteturas baseadas na sua marca
-                  </p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-[#E6B447] transition-colors" />
-              </div>
-            </motion.div>
+              </CardContent>
+            </Card>
           </Link>
 
-          <Link href="/chat">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              whileHover={{ y: -2 }}
-              className="group rounded-2xl border border-white/[0.06] bg-zinc-900/60 p-5 hover:border-[#E6B447]/20 transition-all cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10">
-                  <Sparkles className="h-5 w-5 text-blue-400" />
+          <Link href="/chat" className="block">
+            <Card className="group border-[#2A2318] bg-[#1A1612] py-0 gap-0 rounded-xl shadow-none hover:border-[#5B8EC4]/20 hover:bg-[#241F19] transition-all cursor-pointer">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#5B8EC4]/10">
+                    <MessageSquare className="h-4 w-4 text-[#5B8EC4]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="block text-sm font-medium text-[#F5E8CE] group-hover:text-[#E6B447] transition-colors">
+                      Continuar conversa com o MKTHONEY
+                    </span>
+                    <span className="block text-[11px] text-[#6B5D4A]">
+                      Aprofunde o diagnostico e receba recomendacoes
+                    </span>
+                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 text-[#3D3428] group-hover:text-[#E6B447] transition-colors" />
                 </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-white group-hover:text-[#E6B447] transition-colors">
-                    Continuar conversa com o MKTHONEY
-                  </h4>
-                  <p className="text-xs text-zinc-500 mt-0.5">
-                    Aprofunde o diagnostico e receba recomendacoes
-                  </p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-[#E6B447] transition-colors" />
-              </div>
-            </motion.div>
+              </CardContent>
+            </Card>
           </Link>
         </div>
       </div>
     </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Loading skeleton
-// ---------------------------------------------------------------------------
-
-function DashboardSkeleton() {
-  return (
-    <div className="space-y-6 animate-pulse">
-      <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="rounded-2xl border border-white/[0.06] bg-zinc-900/60 p-5 h-32">
-            <div className="h-10 w-10 rounded-xl bg-zinc-800 mb-4" />
-            <div className="h-5 w-16 rounded bg-zinc-800 mb-2" />
-            <div className="h-3 w-24 rounded bg-zinc-800/50" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Welcome body
-// ---------------------------------------------------------------------------
-
-function WelcomeBody({ onCreateBrand }: { onCreateBrand: () => void }) {
-  const router = useRouter();
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col items-center justify-center py-16"
-    >
-      {/* Logo icon */}
-      <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-[#E6B447]/10">
-        <img src="/logo-mkthoney-icon.svg" alt="MKTHONEY" className="h-12 w-12" />
-      </div>
-
-      {/* Title */}
-      <h1 className="mb-3 text-2xl font-bold text-white text-center">
-        Bem-vindo ao <span className="text-[#E6B447]">MKTHONEY</span>
-      </h1>
-      <p className="mb-10 max-w-lg text-sm text-zinc-400 text-center">
-        Sua plataforma de marketing com IA. 23 especialistas prontos
-        para criar estratégias personalizadas para sua marca.
-      </p>
-
-      {/* Section Label */}
-      <p className="mb-5 text-xs font-semibold uppercase tracking-[0.15em] text-zinc-500">
-        Por onde você quer começar?
-      </p>
-
-      {/* Card Stack — vertical full-width, horizontal layout per card */}
-      <div className="flex w-full max-w-xl flex-col gap-3">
-        {/* Card 1: Criar Marca */}
-        <button
-          onClick={onCreateBrand}
-          className="group flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-left transition-all hover:border-[#E6B447]/20 hover:bg-[#E6B447]/[0.03]"
-        >
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#E6B447]/10 transition-transform group-hover:scale-110">
-            <Sparkles className="h-5 w-5 text-[#E6B447]" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <span className="block text-sm font-semibold text-white">Criar sua marca</span>
-            <span className="block text-xs text-zinc-500">Configure o contexto da sua marca para personalizar todos os conselhos.</span>
-          </div>
-          <ArrowRight className="h-4 w-4 flex-shrink-0 text-zinc-600 transition-transform group-hover:translate-x-1 group-hover:text-zinc-400" />
-        </button>
-
-        {/* Card 2: Consultar MKTHONEY */}
-        <button
-          onClick={() => router.push('/chat')}
-          className="group flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-left transition-all hover:border-blue-500/20 hover:bg-blue-500/[0.03]"
-        >
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-500/10 transition-transform group-hover:scale-110">
-            <MessageSquare className="h-5 w-5 text-blue-400" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <span className="block text-sm font-semibold text-white">Consultar o MKTHONEY</span>
-            <span className="block text-xs text-zinc-500">Fale com 23 especialistas de marketing ao mesmo tempo.</span>
-          </div>
-          <ArrowRight className="h-4 w-4 flex-shrink-0 text-zinc-600 transition-transform group-hover:translate-x-1 group-hover:text-zinc-400" />
-        </button>
-
-        {/* Card 3: Explorar */}
-        <button
-          onClick={() => router.push('/funnels')}
-          className="group flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-left transition-all hover:border-[#E6B447]/20 hover:bg-[#F0C35C]/[0.03]"
-        >
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#E6B447]/10 transition-transform group-hover:scale-110">
-            <Compass className="h-5 w-5 text-[#E6B447]" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <span className="block text-sm font-semibold text-white">Explorar a plataforma</span>
-            <span className="block text-xs text-zinc-500">Veja funis, campanhas, calendário e mais.</span>
-          </div>
-          <ArrowRight className="h-4 w-4 flex-shrink-0 text-zinc-600 transition-transform group-hover:translate-x-1 group-hover:text-zinc-400" />
-        </button>
-      </div>
-
-      {/* Skip link */}
-      <button
-        onClick={() => router.push('/chat')}
-        className="mt-8 text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
-      >
-        Pular e ir para o dashboard
-      </button>
-    </motion.div>
   );
 }
 
@@ -312,7 +305,6 @@ function WelcomeBody({ onCreateBrand }: { onCreateBrand: () => void }) {
 // ---------------------------------------------------------------------------
 
 export default function HomePage() {
-  const router = useRouter();
   const statsData = useStats();
   const stats = statsData?.stats;
   const statsLoading = statsData?.isLoading;
@@ -335,7 +327,7 @@ export default function HomePage() {
     useVerdictForBrand(activeBrand?.id);
   const { assets, isLoading: assetsLoading } = useBrandAssets(activeBrand?.id);
 
-  // Tri-state resolution
+  // State machine
   const dashboardState = resolveDashboardState({
     brands: brands || [],
     brandsLoading: !!brandsLoading,
@@ -362,40 +354,22 @@ export default function HomePage() {
       {/* Sprint R2.4: Brand Config Modals */}
       {activeBrand && (
         <>
-          <LogoUploadModal
-            isOpen={openModal === 'logo'}
-            onClose={handleCloseModal}
-            brand={activeBrand}
-          />
-          <VisualIdentityModal
-            isOpen={openModal === 'visual'}
-            onClose={handleCloseModal}
-            brand={activeBrand}
-          />
-          <RagAssetsModal
-            isOpen={openModal === 'rag'}
-            onClose={handleCloseModal}
-            brand={activeBrand}
-            assetCount={assetsLoading ? 0 : assets.length}
-          />
-          <AiConfigModal
-            isOpen={openModal === 'ai'}
-            onClose={handleCloseModal}
-            brand={activeBrand}
-          />
+          <LogoUploadModal isOpen={openModal === 'logo'} onClose={handleCloseModal} brand={activeBrand} />
+          <VisualIdentityModal isOpen={openModal === 'visual'} onClose={handleCloseModal} brand={activeBrand} />
+          <RagAssetsModal isOpen={openModal === 'rag'} onClose={handleCloseModal} brand={activeBrand} assetCount={assetsLoading ? 0 : assets.length} />
+          <AiConfigModal isOpen={openModal === 'ai'} onClose={handleCloseModal} brand={activeBrand} />
         </>
       )}
 
       <Header title={dashboardState === 'welcome' ? 'Inicio' : 'Dashboard'} />
 
-      <div className="flex-1 p-4 sm:p-8">
-        {/* Hero — only for non-welcome states */}
+      <div className="flex-1 px-4 sm:px-6 py-4 sm:py-6">
+        {/* Command status bar — all states except welcome/loading */}
         {dashboardState !== 'welcome' && dashboardState !== 'loading' && (
           <DashboardHero
             state={dashboardState}
             brand={activeBrand}
             verdict={verdict}
-            onStartBriefing={() => setManualOnboarding(true)}
           />
         )}
 
@@ -424,8 +398,16 @@ export default function HomePage() {
         {dashboardState === 'active' && (
           <>
             <StatsCards stats={stats} isLoading={statsLoading} />
-            <QuickActions />
-            <RecentActivity funnels={funnels} isLoading={funnelsLoading} />
+
+            {/* Two-column bento: Recent Funnels + Quick Actions */}
+            <div className="grid gap-5 lg:grid-cols-5">
+              <div className="lg:col-span-3">
+                <RecentActivity funnels={funnels} isLoading={funnelsLoading} />
+              </div>
+              <div className="lg:col-span-2">
+                <QuickActions />
+              </div>
+            </div>
           </>
         )}
       </div>

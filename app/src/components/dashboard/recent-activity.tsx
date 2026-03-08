@@ -2,166 +2,115 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Target, ArrowRight, Plus, MessageSquare } from 'lucide-react';
+import { Target, ArrowRight, Plus } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { COUNSELORS } from '@/lib/constants';
+import { Skeleton } from '@/components/ui/skeleton';
 import type { Funnel } from '@/types/database';
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  draft: { label: 'Rascunho', color: 'text-zinc-400', bg: 'bg-zinc-500/10' },
-  generating: { label: 'Gerando', color: 'text-blue-400', bg: 'bg-blue-500/10' },
-  review: { label: 'Avaliar', color: 'text-amber-400', bg: 'bg-amber-500/10' },
-  approved: { label: 'Aprovado', color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10' },
-  adjusting: { label: 'Ajustando', color: 'text-violet-400', bg: 'bg-violet-500/10' },
-  executing: { label: 'Executando', color: 'text-blue-400', bg: 'bg-blue-500/10' },
-  completed: { label: 'Concluído', color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10' },
-  killed: { label: 'Cancelado', color: 'text-red-400', bg: 'bg-red-500/10' },
+const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+  draft: { label: 'Rascunho', className: 'border-[#3D3428] text-[#6B5D4A]' },
+  generating: { label: 'Gerando', className: 'border-[#5B8EC4]/30 text-[#5B8EC4]' },
+  review: { label: 'Avaliar', className: 'border-amber-500/30 text-amber-400' },
+  approved: { label: 'Aprovado', className: 'border-[#E6B447]/30 text-[#E6B447]' },
+  adjusting: { label: 'Ajustando', className: 'border-violet-500/30 text-violet-400' },
+  executing: { label: 'Executando', className: 'border-[#5B8EC4]/30 text-[#5B8EC4]' },
+  completed: { label: 'Concluido', className: 'border-[#7A9B5A]/30 text-[#7A9B5A]' },
+  killed: { label: 'Cancelado', className: 'border-[#C45B3A]/30 text-[#C45B3A]' },
 };
 
 export function RecentActivity({ funnels, isLoading }: { funnels: Funnel[]; isLoading: boolean }) {
-  const recentFunnels = funnels.slice(0, 3);
+  const recent = funnels?.slice(0, 5) ?? [];
 
   return (
-    <div className="grid gap-8 lg:grid-cols-5 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
-      {/* Recent Funnels */}
-      <motion.div 
-        className="lg:col-span-3"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        <div className="flex items-center justify-between mb-6">
+    <Card className="border-[#2A2318] bg-[#1A1612] py-0 gap-0 rounded-xl shadow-none">
+      <CardContent className="p-0">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 pt-4 pb-2">
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-[#E6B447]" />
-            <h3 className="text-sm font-bold uppercase tracking-widest text-white">Funis em Operação</h3>
+            <div className="h-1.5 w-1.5 rounded-full bg-[#E6B447]" />
+            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#AB8648]">
+              Funis em Operacao
+            </span>
           </div>
-          <Link href="/funnels" className="group flex items-center gap-2 text-xs font-medium text-zinc-500 hover:text-[#E6B447] transition-colors">
-            Ver pipeline completo
-            <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+          <Link
+            href="/funnels"
+            className="flex items-center gap-1 text-[11px] font-medium text-[#6B5D4A] hover:text-[#E6B447] transition-colors"
+          >
+            Pipeline
+            <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
 
+        {/* Content */}
         {isLoading ? (
-          <div className="space-y-3">
+          <div className="p-4 space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="card-premium p-4 animate-pulse">
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-xl bg-zinc-800" />
-                  <div className="flex-1">
-                    <div className="h-4 w-32 rounded bg-zinc-800" />
-                    <div className="mt-2 h-3 w-48 rounded bg-zinc-800/50" />
-                  </div>
+              <div key={i} className="flex items-center gap-3">
+                <Skeleton className="h-9 w-9 rounded-lg bg-[#241F19]" />
+                <div className="flex-1">
+                  <Skeleton className="h-4 w-28 bg-[#241F19] mb-1.5" />
+                  <Skeleton className="h-3 w-40 bg-[#1A1612]" />
                 </div>
               </div>
             ))}
           </div>
-        ) : recentFunnels.length === 0 ? (
-          <div className="card-premium p-12 text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-800/50">
-              <Target className="h-8 w-8 text-zinc-600" />
+        ) : recent.length === 0 ? (
+          <div className="p-8 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#241F19] mb-3">
+              <Target className="h-5 w-5 text-[#3D3428]" />
             </div>
-            <h4 className="mt-4 text-lg font-medium text-zinc-300">
-              Nenhum funil ainda
-            </h4>
-            <p className="mt-2 text-sm text-zinc-500 max-w-sm mx-auto">
-              Crie seu primeiro funil para começar a usar o MKTHONEY
+            <p className="text-sm font-medium text-[#CAB792] mb-1">Nenhum funil ainda</p>
+            <p className="text-xs text-[#6B5D4A] mb-4">
+              Crie seu primeiro funil para ativar o painel
             </p>
             <Link href="/funnels/new">
-              <Button className="mt-6 btn-accent">
-                <Plus className="mr-2 h-4 w-4" />
-                Criar Primeiro Funil
+              <Button size="sm" className="btn-accent text-xs">
+                <Plus className="mr-1.5 h-3.5 w-3.5" />
+                Criar Funil
               </Button>
             </Link>
           </div>
         ) : (
-          <div className="space-y-3">
-            {recentFunnels.map((funnel, index) => {
-              const status = STATUS_CONFIG[funnel.status] || STATUS_CONFIG.draft;
+          <div className="divide-y divide-[#2A2318]">
+            {recent.map((funnel, i) => {
+              const status = STATUS_CONFIG[funnel.status] ?? STATUS_CONFIG.draft;
               return (
                 <motion.div
                   key={funnel.id}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
+                  transition={{ duration: 0.2, delay: i * 0.05 }}
                 >
-                  <Link href={`/funnels/${funnel.id}`}>
-                    <div className="card-premium card-hover p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E6B447]/10">
-                            <Target className="h-5 w-5 text-[#E6B447]" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-white">{funnel.name}</h4>
-                            <p className="text-sm text-zinc-500">
-                              {funnel.context.objective} • {funnel.context.channel?.main || funnel.context.channels?.primary}
-                            </p>
-                          </div>
-                        </div>
-                        <div className={`px-2.5 py-1 rounded-full text-xs font-medium ${status.color} ${status.bg}`}>
-                          {status.label}
-                        </div>
-                      </div>
+                  <Link
+                    href={`/funnels/${funnel.id}`}
+                    className="group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[#241F19]"
+                  >
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#E6B447]/10 flex-shrink-0">
+                      <Target className="h-4 w-4 text-[#E6B447]" />
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="block text-sm font-medium text-[#F5E8CE] group-hover:text-[#E6B447] transition-colors truncate">
+                        {funnel.name}
+                      </span>
+                      <span className="block text-[11px] text-[#6B5D4A] truncate">
+                        {funnel.context?.objective} · {funnel.context?.channel?.main || funnel.context?.channels?.primary}
+                      </span>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={`font-mono text-[10px] rounded-md flex-shrink-0 ${status.className}`}
+                    >
+                      {status.label}
+                    </Badge>
                   </Link>
                 </motion.div>
               );
             })}
           </div>
         )}
-      </motion.div>
-
-      {/* Council */}
-      <motion.div 
-        className="lg:col-span-2"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.5 }}
-      >
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="text-lg font-semibold text-white">MKTHONEY</h3>
-        </div>
-
-        <div className="card-premium p-5">
-          <div className="grid grid-cols-2 gap-3">
-            {Object.values(COUNSELORS).map((counselor, index) => (
-              <motion.div
-                key={counselor.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.2, delay: 0.6 + index * 0.05 }}
-                className="group flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.02] transition-colors cursor-default"
-              >
-                <div 
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-base transition-transform group-hover:scale-110"
-                  style={{ backgroundColor: `${counselor.color}15` }}
-                >
-                  {counselor.icon}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-zinc-200 truncate">
-                    {counselor.name.split(' ').slice(-1)[0]}
-                  </p>
-                  <p className="text-xs text-zinc-500 truncate">
-                    {counselor.expertise.split(' ').slice(0, 2).join(' ')}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          
-          <div className="mt-5 pt-4 border-t border-white/[0.04]">
-            <Link href="/chat">
-              <Button variant="ghost" className="w-full justify-center text-[#E6B447] hover:text-[#E6B447]/60 hover:bg-[#E6B447]/10">
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Consultar Agora
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </motion.div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
-
-
-

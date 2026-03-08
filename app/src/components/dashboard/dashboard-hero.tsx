@@ -1,8 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Sparkles, Zap } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import type { Brand } from '@/types/database';
 import type { VerdictOutput } from '@/lib/ai/prompts/verdict-prompt';
 
@@ -12,7 +11,6 @@ interface DashboardHeroProps {
   state: DashboardState;
   brand?: Brand | null;
   verdict?: VerdictOutput | null;
-  onStartBriefing?: () => void;
 }
 
 function getGreeting() {
@@ -22,112 +20,78 @@ function getGreeting() {
   return 'Boa noite';
 }
 
-function getScoreColor(value: number) {
-  if (value >= 8) return 'text-[#E6B447] bg-[#E6B447]/10 border-[#E6B447]/20';
-  if (value >= 5) return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
-  return 'text-red-400 bg-red-500/10 border-red-500/20';
+function getScoreClass(value: number) {
+  if (value >= 8) return 'border-[#E6B447]/30 bg-[#E6B447]/5 text-[#E6B447]';
+  if (value >= 5) return 'border-amber-500/30 bg-amber-500/5 text-amber-400';
+  return 'border-[#C45B3A]/30 bg-[#C45B3A]/5 text-[#C45B3A]';
 }
 
-export function DashboardHero({ state, brand, verdict, onStartBriefing }: DashboardHeroProps) {
+export function DashboardHero({ state, brand, verdict }: DashboardHeroProps) {
   const greeting = getGreeting();
 
-  const subtitleMap: Record<DashboardState, string> = {
-    'loading': 'Carregando seu painel...',
-    'welcome': 'Configure sua marca para desbloquear o arsenal de marketing autonomo.',
-    'pre-briefing': 'Configure sua marca em 3 minutos para desbloquear o poder do MKTHONEY.',
-    'post-aha': brand
-      ? `Sua marca ${brand.name} foi analisada. Veja os proximos passos abaixo.`
-      : 'Sua marca foi analisada. Veja os proximos passos abaixo.',
-    'active': 'O MKTHONEY esta sincronizado e monitorando sua marca.',
+  const statusConfig: Record<DashboardState, { label: string; glow: boolean }> = {
+    loading: { label: 'SYNC', glow: false },
+    welcome: { label: 'SETUP', glow: false },
+    'pre-briefing': { label: 'BRIEFING PENDENTE', glow: false },
+    'post-aha': { label: 'VEREDITO PRONTO', glow: true },
+    active: { label: 'OPERACIONAL', glow: true },
   };
 
-  const statusMap: Record<DashboardState, string> = {
-    'loading': 'Carregando',
-    'welcome': 'Novo Usuario',
-    'pre-briefing': 'Aguardando Briefing',
-    'post-aha': 'Veredito Recebido',
-    'active': 'Plataforma Ativa',
-  };
+  const { label, glow } = statusConfig[state];
 
   return (
-    <motion.div
-      className="mb-8 sm:mb-10 relative overflow-hidden rounded-2xl sm:rounded-3xl bg-zinc-900/40 border border-white/[0.04] p-6 sm:p-8"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      {/* Decorative background elements */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-[#E6B447]/10 blur-[80px] rounded-full -mr-20 -mt-20 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/5 blur-[40px] rounded-full -ml-10 -mb-10 pointer-events-none" />
-
-      <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <div className={`h-1.5 w-1.5 rounded-full ${
-              state === 'active' ? 'bg-[#E6B447] animate-pulse' : 'bg-zinc-500'
-            }`} />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E6B447]/80">
-              {statusMap[state]}
-            </span>
-          </div>
-          <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white">
-            {greeting}, <span className="text-[#E6B447]">Estrategista</span>.
-          </h2>
-          <p className="mt-3 text-zinc-400 text-sm sm:text-base max-w-lg leading-relaxed">
-            {subtitleMap[state]}
-          </p>
-
-          {/* Pre-briefing: CTA button inline */}
-          {state === 'pre-briefing' && onStartBriefing && (
-            <Button
-              onClick={onStartBriefing}
-              className="mt-5 btn-accent"
-            >
-              <Sparkles className="mr-2 h-4 w-4" />
-              Comecar Briefing
-            </Button>
-          )}
+    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#2A2318] pb-5">
+      <div className="flex items-center gap-3 min-w-0">
+        {/* Status dot + label */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div
+            className={`h-2 w-2 rounded-full transition-shadow ${
+              glow
+                ? 'bg-[#E6B447] shadow-[0_0_8px_rgba(230,180,71,0.4)]'
+                : 'bg-[#6B5D4A]'
+            }`}
+          />
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#AB8648]">
+            {label}
+          </span>
         </div>
 
-        {/* Right section: pills/info cards */}
-        <div className="flex flex-wrap items-center gap-3">
-          {state === 'post-aha' && verdict && (
-            <>
-              <div className={`px-4 py-3 rounded-xl sm:rounded-2xl border backdrop-blur-md ${getScoreColor(verdict.scores.positioning.value)}`}>
-                <div className="text-[9px] sm:text-[10px] uppercase tracking-wider font-bold mb-1 opacity-70">Posicionamento</div>
-                <div className="text-sm sm:text-base font-bold">
-                  {verdict.scores.positioning.value}/10
-                </div>
-              </div>
-              <div className={`px-4 py-3 rounded-xl sm:rounded-2xl border backdrop-blur-md ${getScoreColor(verdict.scores.offer.value)}`}>
-                <div className="text-[9px] sm:text-[10px] uppercase tracking-wider font-bold mb-1 opacity-70">Oferta</div>
-                <div className="text-sm sm:text-base font-bold">
-                  {verdict.scores.offer.value}/10
-                </div>
-              </div>
-            </>
-          )}
+        <Separator orientation="vertical" className="hidden sm:block h-4 bg-[#2A2318]" />
 
-          {state === 'active' && (
-            <>
-              <div className="flex-1 min-w-[140px] px-4 py-3 rounded-xl sm:rounded-2xl bg-white/[0.03] border border-white/[0.05] backdrop-blur-md">
-                <div className="text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Status</div>
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-3.5 w-3.5 text-[#E6B447]" />
-                  <span className="text-xs sm:text-sm font-semibold text-zinc-200">Monitorando</span>
-                </div>
-              </div>
-              <div className="flex-1 min-w-[140px] px-4 py-3 rounded-xl sm:rounded-2xl bg-white/[0.03] border border-white/[0.05] backdrop-blur-md">
-                <div className="text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Engine</div>
-                <div className="flex items-center gap-2">
-                  <Zap className="h-3.5 w-3.5 text-amber-400" />
-                  <span className="text-xs sm:text-sm font-semibold text-zinc-200">Gemini 2.5</span>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
+        {/* Greeting */}
+        <h2 className="text-base sm:text-lg font-semibold text-[#F5E8CE] tracking-tight truncate">
+          {greeting}, <span className="text-[#E6B447]">Estrategista</span>.
+        </h2>
       </div>
-    </motion.div>
+
+      {/* Right: status pills */}
+      <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+        {state === 'post-aha' && verdict && (
+          <>
+            <Badge
+              variant="outline"
+              className={`font-mono text-[10px] rounded-md ${getScoreClass(verdict.scores.positioning.value)}`}
+            >
+              POS {verdict.scores.positioning.value}/10
+            </Badge>
+            <Badge
+              variant="outline"
+              className={`font-mono text-[10px] rounded-md ${getScoreClass(verdict.scores.offer.value)}`}
+            >
+              OFR {verdict.scores.offer.value}/10
+            </Badge>
+          </>
+        )}
+
+        {state === 'active' && (
+          <Badge
+            variant="outline"
+            className="border-[#3D3428] text-[#6B5D4A] font-mono text-[10px] rounded-md"
+          >
+            GEMINI 2.5
+          </Badge>
+        )}
+      </div>
+    </div>
   );
 }

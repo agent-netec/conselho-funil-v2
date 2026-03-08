@@ -1,8 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { Check, ArrowRight, Shield } from 'lucide-react';
 import Link from 'next/link';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { calculateBrandCompleteness, FIELDS, type ModalKey } from '@/lib/utils/brand-completeness';
 import type { Brand } from '@/types/database';
 
@@ -21,89 +22,87 @@ export function BrandProgress({ brand, assetCount, onOpenModal }: BrandProgressP
   const completeness = calculateBrandCompleteness(brand, assetCount);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.2 }}
-      className="rounded-2xl border border-white/[0.06] bg-zinc-900/60 p-6"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Shield className="h-4 w-4 text-[#E6B447]" />
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#E6B447]">
-            Checklist da Marca
-          </h3>
-        </div>
-        <span className="text-sm font-bold text-white">
-          {completeness.score}%
-        </span>
-      </div>
-
-      {/* Progress bar */}
-      <div className="h-2 bg-zinc-800 rounded-full overflow-hidden mb-6">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${completeness.score}%` }}
-          transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
-          className="h-full bg-[#E6B447] rounded-full"
-        />
-      </div>
-
-      {/* Checklist items */}
-      <div className="space-y-1">
-        {/* Completed items */}
-        {completeness.completedFields.map((field) => (
-          <div
-            key={field}
-            className="flex items-center gap-3 py-2 px-2 text-sm text-zinc-500"
-          >
-            <Check className="h-4 w-4 text-[#E6B447] flex-shrink-0" />
-            <span className="line-through">{FIELD_LABELS[field] || field}</span>
+    <Card className="border-[#2A2318] bg-[#1A1612] py-0 gap-0 rounded-xl shadow-none">
+      <CardContent className="p-5">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Shield className="h-3.5 w-3.5 text-[#AB8648]" />
+            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#AB8648]">
+              Checklist da Marca
+            </span>
           </div>
-        ))}
+          <span
+            className="font-mono text-sm font-bold tabular-nums text-[#F5E8CE]"
+            style={{
+              textShadow:
+                completeness.score >= 80 ? '0 0 12px rgba(230,180,71,0.3)' : 'none',
+            }}
+          >
+            {completeness.score}%
+          </span>
+        </div>
 
-        {/* Missing items (clickable) */}
-        {completeness.missingFields.map((field) => {
-          const hasAction = field.modalKey || field.href;
-          const inner = (
-            <div className="flex items-center justify-between group py-2 px-2 rounded-lg hover:bg-white/[0.02] transition-colors">
-              <div className="flex items-center gap-3 text-sm text-zinc-300">
-                <div className="h-4 w-4 rounded-full border border-zinc-600 flex-shrink-0" />
-                <span>{field.label}</span>
-              </div>
-              {hasAction && (
-                <ArrowRight className="h-3 w-3 text-zinc-600 group-hover:text-[#E6B447] transition-colors" />
-              )}
+        {/* Progress bar */}
+        <Progress
+          value={completeness.score}
+          className="h-1.5 bg-[#241F19] mb-5"
+          indicatorClassName="from-[#E6B447] to-[#E6B447]"
+        />
+
+        {/* Checklist */}
+        <div className="space-y-0.5">
+          {/* Completed */}
+          {completeness.completedFields.map((field) => (
+            <div
+              key={field}
+              className="flex items-center gap-2.5 py-1.5 px-2 text-xs text-[#6B5D4A]"
+            >
+              <Check className="h-3.5 w-3.5 text-[#E6B447] flex-shrink-0" />
+              <span className="line-through">{FIELD_LABELS[field] || field}</span>
             </div>
-          );
+          ))}
 
-          // Modal-based action
-          if (field.modalKey && onOpenModal) {
-            return (
-              <button
-                key={field.key}
-                type="button"
-                onClick={() => onOpenModal(field.modalKey!)}
-                className="w-full text-left cursor-pointer"
-              >
-                {inner}
-              </button>
+          {/* Missing (clickable) */}
+          {completeness.missingFields.map((field) => {
+            const hasAction = field.modalKey || field.href;
+            const inner = (
+              <div className="flex items-center justify-between group py-1.5 px-2 rounded-md hover:bg-[#241F19] transition-colors">
+                <div className="flex items-center gap-2.5 text-xs text-[#CAB792]">
+                  <div className="h-3.5 w-3.5 rounded-full border border-[#3D3428] flex-shrink-0" />
+                  <span>{field.label}</span>
+                </div>
+                {hasAction && (
+                  <ArrowRight className="h-3 w-3 text-[#3D3428] group-hover:text-[#E6B447] transition-colors" />
+                )}
+              </div>
             );
-          }
 
-          // Link-based action
-          if (field.href) {
-            return (
-              <Link key={field.key} href={field.href}>
-                {inner}
-              </Link>
-            );
-          }
+            if (field.modalKey && onOpenModal) {
+              return (
+                <button
+                  key={field.key}
+                  type="button"
+                  onClick={() => onOpenModal(field.modalKey!)}
+                  className="w-full text-left cursor-pointer"
+                >
+                  {inner}
+                </button>
+              );
+            }
 
-          return <div key={field.key}>{inner}</div>;
-        })}
-      </div>
-    </motion.div>
+            if (field.href) {
+              return (
+                <Link key={field.key} href={field.href}>
+                  {inner}
+                </Link>
+              );
+            }
+
+            return <div key={field.key}>{inner}</div>;
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

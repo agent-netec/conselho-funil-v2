@@ -1,108 +1,79 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Plus, MessageSquare, Zap, ArrowUpRight } from 'lucide-react';
+import { Plus, MessageSquare, Zap, BookOpen, ArrowRight } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
-interface ActionCardProps {
-  href: string;
-  icon: any;
-  title: string;
-  description: string;
-  gradient: string;
-  delay?: number;
-}
-
-function ActionCard({ 
-  href, 
-  icon: Icon, 
-  title, 
-  description, 
-  gradient,
-  delay = 0 
-}: ActionCardProps) {
-  return (
-    <Link href={href}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay }}
-        whileHover={{ y: -4 }}
-        className="group relative h-full"
-      >
-        <div className="card-premium card-hover h-full p-6">
-          <div className={`absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${gradient} blur-2xl -z-10`} />
-          
-          <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${gradient.replace('blur-2xl', '')} bg-opacity-20`}>
-            <Icon className="h-6 w-6 text-white" />
-          </div>
-          
-          <div className="mt-4">
-            <h3 className="font-semibold text-white group-hover:text-[#E6B447] transition-colors">
-              {title}
-            </h3>
-            <p className="mt-1 text-sm text-zinc-500">{description}</p>
-          </div>
-          
-          <div className="mt-4 flex items-center gap-1 text-sm font-medium text-[#E6B447] opacity-0 group-hover:opacity-100 transition-opacity">
-            Acessar
-            <ArrowUpRight className="h-4 w-4" />
-          </div>
-        </div>
-      </motion.div>
-    </Link>
-  );
-}
+const ACTIONS = [
+  {
+    href: '/funnels/new',
+    icon: Zap,
+    label: 'Nova Campanha',
+    description: 'Golden Thread: Funil ao Ads',
+    color: 'text-[#E6B447]',
+    bg: 'bg-[#E6B447]/10',
+  },
+  {
+    href: '/funnels/new',
+    icon: Plus,
+    label: 'Novo Funil',
+    description: 'Criar com ajuda do MKTHONEY',
+    color: 'text-[#E6B447]',
+    bg: 'bg-[#E6B447]/10',
+  },
+  {
+    href: '/chat',
+    icon: MessageSquare,
+    label: 'Consultar MKTHONEY',
+    description: '23 especialistas',
+    color: 'text-[#5B8EC4]',
+    bg: 'bg-[#5B8EC4]/10',
+  },
+  {
+    href: '/assets',
+    icon: BookOpen,
+    label: 'Biblioteca',
+    description: 'Ativos vetorizados',
+    color: 'text-[#AB8648]',
+    bg: 'bg-[#AB8648]/10',
+  },
+];
 
 export function QuickActions() {
   return (
-    <motion.div 
-      className="mb-10"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-    >
-      <div className="flex items-center justify-between mb-5">
-        <h3 className="text-lg font-semibold text-white">Ações Rápidas</h3>
-      </div>
-      
-      <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <ActionCard
-          href="/funnels/new"
-          icon={Zap}
-          title="Nova Campanha"
-          description="Inicie a Golden Thread: Funil ao Ads"
-          gradient="bg-gradient-to-br from-amber-500/20 to-orange-600/20"
-          delay={0.25}
-        />
-        <ActionCard
-          href="/funnels/new"
-          icon={Plus}
-          title="Novo Funil"
-          description="Crie um funil do zero com ajuda do MKTHONEY"
-          gradient="bg-gradient-to-br from-[#E6B447]/20 to-[#AB8648]/20"
-          delay={0.3}
-        />
-        <ActionCard
-          href="/chat"
-          icon={MessageSquare}
-          title="Consultar MKTHONEY"
-          description="Tire dúvidas com os 23 especialistas"
-          gradient="bg-gradient-to-br from-blue-500/20 to-blue-600/20"
-          delay={0.35}
-        />
-        <ActionCard
-          href="/assets"
-          icon={Zap}
-          title="Biblioteca"
-          description="Gerencie e monitore seus ativos vetorizados"
-          gradient="bg-gradient-to-br from-[#E6B447]/20 to-indigo-600/20"
-          delay={0.4}
-        />
-      </div>
-    </motion.div>
+    <Card className="border-[#2A2318] bg-[#1A1612] py-0 gap-0 rounded-xl shadow-none">
+      <CardContent className="p-0">
+        <div className="px-4 pt-4 pb-2">
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#AB8648]">
+            Acoes Rapidas
+          </span>
+        </div>
+
+        <div className="divide-y divide-[#2A2318]">
+          {ACTIONS.map((action) => (
+            <Link
+              key={action.label}
+              href={action.href}
+              className="group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[#241F19]"
+            >
+              <div
+                className={`flex h-8 w-8 items-center justify-center rounded-lg ${action.bg} flex-shrink-0`}
+              >
+                <action.icon className={`h-4 w-4 ${action.color}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="block text-sm font-medium text-[#F5E8CE] group-hover:text-[#E6B447] transition-colors truncate">
+                  {action.label}
+                </span>
+                <span className="block text-[11px] text-[#6B5D4A] truncate">
+                  {action.description}
+                </span>
+              </div>
+              <ArrowRight className="h-3.5 w-3.5 text-[#3D3428] group-hover:text-[#E6B447] transition-colors flex-shrink-0" />
+            </Link>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
-
-
-
