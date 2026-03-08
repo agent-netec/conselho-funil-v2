@@ -14,6 +14,7 @@ import { NextRequest } from 'next/server';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { logger } from '@/lib/utils/logger';
 import { getExpiredTrialUsers, downgradeUsersToFree, getUser } from '@/lib/firebase/firestore';
 import type { User } from '@/types/database';
 import {
@@ -33,7 +34,7 @@ export async function GET(req: NextRequest) {
     const cronSecret = (process.env.CRON_SECRET || '').trim();
 
     if (!cronSecret) {
-      console.error('[Cron trial-check] CRON_SECRET env var not configured');
+      logger.error('CRON_SECRET env var not configured', { route: '/api/cron/trial-check' });
       return createApiError(500, 'Cron configuration error');
     }
 
@@ -98,7 +99,7 @@ export async function GET(req: NextRequest) {
           emailsSent++;
         }
       } catch (err) {
-        console.error(`[Cron trial-check] Nurture email failed for ${user.id} (day ${trialDay}):`, err);
+        logger.error('Nurture email failed', { route: '/api/cron/trial-check', userId: user.id, error: (err as Error).message, meta: { trialDay } });
       }
     }
 
@@ -133,7 +134,7 @@ export async function GET(req: NextRequest) {
           await sendTrialExpiringEmail(user.email, name, 0);
         }
       } catch (emailErr) {
-        console.error(`[Cron trial-check] Email failed for user ${uid}:`, emailErr);
+        logger.error('Trial expired email failed', { route: '/api/cron/trial-check', userId: uid, error: (emailErr as Error).message });
       }
     }
 
@@ -144,7 +145,7 @@ export async function GET(req: NextRequest) {
       downgradedUsers: downgradedCount,
     });
   } catch (error) {
-    console.error('[Cron trial-check] Error:', error);
+    logger.error('Trial check cron failed', { route: '/api/cron/trial-check', error: (error as Error).message });
     const message = error instanceof Error ? error.message : 'Internal server error';
     return createApiError(500, message);
   }

@@ -6,6 +6,7 @@ import { PostHogProvider } from "@/components/providers/posthog-provider";
 import { AppShell } from "@/components/layout/app-shell";
 import { BrandingProvider } from "@/components/providers/branding-provider";
 import { CookieBanner } from "@/components/legal";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "sonner";
 
 // const inter = Inter({
@@ -58,6 +59,7 @@ export default function RootLayout({
           </PostHogProvider>
         </AuthProvider>
         <Toaster position="bottom-right" theme="dark" />
+        <SpeedInsights />
       </body>
     </html>
   );

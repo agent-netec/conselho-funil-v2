@@ -49,6 +49,7 @@ import { requireConversationAccess } from '@/lib/auth/conversation-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { withRateLimit } from '@/lib/middleware/rate-limiter';
+import { logger } from '@/lib/utils/logger';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -132,7 +133,7 @@ async function handlePOST(request: NextRequest) {
             return formatFunnelContextForChat(funnel, proposals);
           }
         } catch (err) {
-          console.error('Error loading funnel:', err);
+          logger.error('Error loading funnel', { route: '/api/chat', error: (err as Error).message });
         }
         return '';
       })();
@@ -163,7 +164,7 @@ async function handlePOST(request: NextRequest) {
             return context;
           }
         } catch (err) {
-          console.error('Error loading campaign:', err);
+          logger.error('Error loading campaign', { route: '/api/chat', error: (err as Error).message });
         }
         return '';
       })();
@@ -184,7 +185,7 @@ async function handlePOST(request: NextRequest) {
           }
           return `## SEUS FUNIS EXISTENTES\n\nVocê ainda não possui funis criados.`;
         } catch (err) {
-          console.error('Error loading user funnels:', err);
+          logger.error('Error loading user funnels', { route: '/api/chat', error: (err as Error).message });
         }
         return '';
       })();
@@ -206,7 +207,7 @@ async function handlePOST(request: NextRequest) {
             return { context: bContext, brandChunks: bChunks, brand };
           }
         } catch (err) {
-          console.error('Error loading brand:', err);
+          logger.error('Error loading brand context', { route: '/api/chat', error: (err as Error).message });
         }
         return { context: '', brandChunks: [], brand: null };
       })();
@@ -390,7 +391,7 @@ async function handlePOST(request: NextRequest) {
         });
       }
     } catch (aiError) {
-      console.error('AI generation error:', aiError);
+      logger.error('AI generation error', { route: '/api/chat', error: (aiError as Error).message });
       
       // Se houver erro na IA, aí sim usamos o fallback de segurança
       assistantResponse = generateFallbackResponse(message, chunks, systemPrompt);
@@ -431,7 +432,7 @@ async function handlePOST(request: NextRequest) {
       await Promise.all([saveMessagePromise, usagePromise, titlePromise]);
       console.log('[Chat API] Post-processing completed.');
     } catch (dbError) {
-      console.error('Error in post-processing:', dbError);
+      logger.error('Error in post-processing', { route: '/api/chat', error: (dbError as Error).message });
     }
 
     // DT-10: Wrap chat success in createApiSuccess
@@ -441,7 +442,7 @@ async function handlePOST(request: NextRequest) {
       version: '11.24.5-perf'
     });
   } catch (error) {
-    console.error('Error in chat API:', error);
+    logger.error('Chat API unhandled error', { route: '/api/chat', error: (error as Error).message });
     return createApiError(500, 'Internal server error');
   }
 }

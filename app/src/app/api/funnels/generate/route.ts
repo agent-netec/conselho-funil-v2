@@ -21,6 +21,7 @@ import {
 import { formatBrandContextForFunnel, parseAIJSON } from '@/lib/ai/formatters';
 import { requireUser } from '@/lib/auth/brand-guard';
 import { ApiError } from '@/lib/utils/api-security';
+import { logger } from '@/lib/utils/logger';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
         }
       }
     } catch (err) {
-      console.error('Error loading brand:', err);
+      logger.error('Error loading brand for funnel generation', { route: '/api/funnels/generate', error: (err as Error).message });
     }
 
     // 1. Retrieve relevant knowledge
@@ -211,7 +212,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error('❌ Erro ao gerar propostas:', error);
+    logger.error('Funnel generation failed', { route: '/api/funnels/generate', error: (error as Error).message });
 
     // Reset funnel status to draft so it doesn't get stuck in 'generating'
     if (_funnelId) {

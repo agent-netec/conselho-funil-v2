@@ -4,6 +4,7 @@ import { evaluateOfferQuality } from '@/lib/intelligence/offer/evaluator';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { logger } from '@/lib/utils/logger';
 
 /**
  * AI-powered offer evaluation with Brain Council (Kennedy + Brunson).
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
       aiEvaluation,
     });
   } catch (error: unknown) {
-    console.error('[OFFER_SCORING_API_ERROR]:', error);
+    logger.error('Offer scoring failed', { route: '/api/intelligence/offer/calculate-score', error: (error as Error).message });
     if (error instanceof ApiError) {
       return handleSecurityError(error);
     }
