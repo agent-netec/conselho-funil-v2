@@ -127,6 +127,77 @@ export default function PricingPage() {
         ))}
       </div>
 
+      {/* Comparison table */}
+      <div className="mb-16">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E6B447]/60 mb-6 text-center">
+          [ COMPARATIVO ]
+        </p>
+
+        <div className="space-y-2 max-w-2xl mx-auto">
+          {[
+            {
+              name: 'Agência Tradicional',
+              price: 'R$ 5.000 — R$ 30.000/mês',
+              caveat: '+ contrato de 6 meses',
+              highlighted: false,
+            },
+            {
+              name: 'Equipe Interna Mínima',
+              price: 'R$ 15.000 — R$ 60.000/mês',
+              caveat: '+ CLT + gestão',
+              highlighted: false,
+            },
+            {
+              name: 'Freelancers Avulsos',
+              price: 'R$ 2.000 — R$ 8.000/mês',
+              caveat: '+ depende de disponibilidade',
+              highlighted: false,
+            },
+            {
+              name: 'MKTHONEY',
+              price: 'R$ 297/mês',
+              caveat: 'Você. Sozinho. Operando tudo.',
+              highlighted: true,
+            },
+          ].map((row) => (
+            <div
+              key={row.name}
+              className={`flex items-center justify-between gap-4 rounded-xl px-5 py-4 transition-all ${
+                row.highlighted
+                  ? 'border border-[#E6B447]/30 bg-[#E6B447]/[0.06]'
+                  : 'border border-white/[0.04] bg-white/[0.01]'
+              }`}
+            >
+              <span
+                className={`text-sm font-semibold ${
+                  row.highlighted ? 'text-[#E6B447]' : 'text-zinc-400'
+                }`}
+              >
+                {row.name}
+              </span>
+              <div className="text-right">
+                <span
+                  className={`text-sm font-bold ${
+                    row.highlighted ? 'text-[#E6B447]' : 'text-white'
+                  }`}
+                >
+                  {row.price}
+                </span>
+                <span
+                  className={`block text-[11px] ${
+                    row.highlighted
+                      ? 'text-[#E6B447]/70 font-semibold tracking-wide'
+                      : 'text-zinc-600'
+                  }`}
+                >
+                  {row.caveat}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* FAQ pricing */}
       <div className="mb-12 space-y-4">
         <h2 className="text-lg font-semibold text-white mb-6">Perguntas sobre os planos</h2>
