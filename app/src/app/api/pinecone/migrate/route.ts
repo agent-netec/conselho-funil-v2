@@ -1,9 +1,10 @@
 export const dynamic = 'force-dynamic';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { migrateChunksToPinecone } from '@/lib/ai/pinecone-migration';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { verifyAdminRole, handleSecurityError, ApiError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 
@@ -56,14 +57,17 @@ async function fetchApprovedKnowledgeChunks(): Promise<any[]> {
   }));
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const { 
-      namespace, 
-      collections = ['brand_assets'] 
-    } = (await request.json().catch(() => ({}))) as { 
-      namespace?: string, 
-      collections?: ('brand_assets' | 'knowledge')[] 
+    // Auth: require admin role for data migration
+    await verifyAdminRole(request);
+
+    const {
+      namespace,
+      collections = ['brand_assets']
+    } = (await request.json().catch(() => ({}))) as {
+      namespace?: string,
+      collections?: ('brand_assets' | 'knowledge')[]
     };
 
     let allChunksToMigrate: any[] = [];
@@ -97,6 +101,10 @@ export async function POST(request: Request) {
       ...report,
     });
   } catch (error) {
+    // Auth errors: return proper status code (401/403)
+    if (error instanceof ApiError) {
+      return handleSecurityError(error);
+    }
     const message = error instanceof Error ? error.message : 'Erro desconhecido na migração para Pinecone.';
     console.error('[Pinecone] Migração falhou', error);
     return createApiError(500, message);

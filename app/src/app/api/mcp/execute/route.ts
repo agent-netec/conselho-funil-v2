@@ -4,6 +4,8 @@ import { stripPII } from '@/lib/intelligence/pii-stripper';
 import { db } from '@/lib/firebase/config';
 import { doc, getDoc, increment, updateDoc } from 'firebase/firestore';
 import { createApiError } from '@/lib/utils/api-response';
+import { requireBrandAccess, requireUser } from '@/lib/auth/brand-guard';
+import { ApiError } from '@/lib/utils/api-security';
 
 // Tipos básicos para a rota
 interface MCPRequest {
@@ -22,6 +24,13 @@ export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as MCPRequest;
     const { provider, tool, args, brandId, userId } = body;
+
+    // Auth: require brand access if brandId is provided, otherwise require authenticated user
+    if (brandId) {
+      await requireBrandAccess(req, brandId);
+    } else {
+      await requireUser(req);
+    }
 
     // 1. Validação de Input
     if (!provider || !tool || !args) {
@@ -87,6 +96,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(sanitizedResult);
 
   } catch (error: any) {
+    if (error instanceof ApiError) {
+      return createApiError(error.status, error.message);
+    }
     console.error('[MCP Relay Error]:', error);
     return createApiError(500, error.message || 'Internal Server Error');
   }

@@ -13,12 +13,14 @@ import { generateWithGemini, isGeminiConfigured, DEFAULT_GEMINI_MODEL } from '@/
 import { updateFunnel, createProposal, getFunnel } from '@/lib/firebase/firestore';
 import { getBrand } from '@/lib/firebase/brands';
 import type { FunnelContext, Proposal, Brand } from '@/types/database';
-import { 
-  FUNNEL_GENERATION_PROMPT, 
-  FUNNEL_ADJUSTMENT_PROMPT, 
-  buildFunnelContextPrompt 
+import {
+  FUNNEL_GENERATION_PROMPT,
+  FUNNEL_ADJUSTMENT_PROMPT,
+  buildFunnelContextPrompt
 } from '@/lib/ai/prompts';
 import { formatBrandContextForFunnel, parseAIJSON } from '@/lib/ai/formatters';
+import { requireUser } from '@/lib/auth/brand-guard';
+import { ApiError } from '@/lib/utils/api-security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -36,6 +38,9 @@ interface GenerateRequest {
 export async function POST(request: NextRequest) {
   let _funnelId: string | undefined;
   try {
+    // Auth: require authenticated user
+    await requireUser(request);
+
     const body: GenerateRequest = await request.json();
     const { funnelId, context, adjustments, originalProposalId, baseVersion } = body;
     _funnelId = funnelId;
@@ -198,6 +203,14 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
+    // Auth errors: return proper status code
+    if (error instanceof ApiError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status }
+      );
+    }
+
     console.error('❌ Erro ao gerar propostas:', error);
 
     // Reset funnel status to draft so it doesn't get stuck in 'generating'
