@@ -36,6 +36,50 @@ function getGeminiApiKey(): string | undefined {
 
 import { AICostGuard } from './cost-guard';
 
+/** Default timeout for non-streaming Gemini calls (30s) */
+const GEMINI_TIMEOUT_MS = 30_000;
+/** Default timeout for streaming Gemini calls (60s) */
+const GEMINI_STREAM_TIMEOUT_MS = 60_000;
+/** Max retries for 429 rate limit errors */
+const MAX_RETRIES = 2;
+
+/**
+ * Fetch with AbortController timeout and retry on 429.
+ */
+async function geminieFetch(
+  url: string,
+  init: RequestInit,
+  timeoutMs = GEMINI_TIMEOUT_MS,
+  retries = MAX_RETRIES
+): Promise<Response> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, { ...init, signal: controller.signal });
+
+      if (response.status === 429 && attempt < retries) {
+        const backoffMs = Math.min(1000 * 2 ** attempt, 8000);
+        console.warn(`[Gemini] 429 rate limited, retrying in ${backoffMs}ms (attempt ${attempt + 1}/${retries})`);
+        await new Promise(resolve => setTimeout(resolve, backoffMs));
+        continue;
+      }
+
+      return response;
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        throw new Error(`Gemini API timeout after ${timeoutMs}ms`);
+      }
+      throw error;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  throw new Error('Gemini API: max retries exceeded');
+}
+
 interface GeminiResponse {
   candidates: Array<{
     content: {
@@ -88,22 +132,15 @@ export async function analyzeMultimodalWithGemini(
 
   const url = `${GEMINI_BASE_URL}/models/${model}:generateContent?key=${apiKey}`;
 
-  const response = await fetch(url, {
+  const response = await geminieFetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [
         {
           parts: [
             { text: prompt },
-            {
-              inlineData: {
-                mimeType,
-                data: fileBase64,
-              },
-            },
+            { inlineData: { mimeType, data: fileBase64 } },
           ],
         },
       ],
@@ -212,11 +249,9 @@ export async function generateWithGemini(
       };
     }
 
-    const response = await fetch(url, {
+    const response = await geminieFetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(bodyPayload),
     });
 
@@ -271,11 +306,9 @@ export async function* generateWithGeminiStream(
 
   const url = `${GEMINI_BASE_URL}/models/${model}:streamGenerateContent?key=${apiKey}`;
 
-  const response = await fetch(url, {
+  const response = await geminieFetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [
         {
@@ -289,7 +322,7 @@ export async function* generateWithGeminiStream(
         topK: 40,
       },
     }),
-  });
+  }, GEMINI_STREAM_TIMEOUT_MS, 0); // No retries for streaming
 
   if (!response.ok) {
     const error = await response.text();
