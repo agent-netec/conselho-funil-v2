@@ -566,7 +566,7 @@ function ConfigPanel({
     }
   };
 
-  // OAuth button — uses the central Conselho de Funil Meta app (META_APP_ID env var)
+  // OAuth button — uses the central MKTHONEY Meta app (META_APP_ID env var)
   const handleOAuth = async (provider: string) => {
     const callbackUrl = `${window.location.origin}/api/auth/${provider}/callback`;
     let authUrl = '';

@@ -152,7 +152,7 @@ export default function FunnelsPage() {
                 ctaHref="/funnels/new"
                 tips={[
                   'Descreva o objetivo e o MKTHONEY sugere a estrutura',
-                  'O Conselho avalia cada etapa com score de conversão',
+                  'O MKTHONEY avalia cada etapa com score de conversão',
                   'Funis aprovados viram templates reutilizáveis',
                 ]}
               />

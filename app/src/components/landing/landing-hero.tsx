@@ -58,11 +58,11 @@ export function LandingHero() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white mb-6"
+            className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight text-white mb-6 uppercase"
           >
-            Pare de Contratar.
+            Não é uma
             <br />
-            <span className="text-[#E6B447]">Comece a Operar.</span>
+            <span className="text-[#E6B447]">Luta Justa.</span>
           </motion.h1>
 
           {/* Subheadline */}
@@ -87,16 +87,16 @@ export function LandingHero() {
           >
             <Link
               href="/signup"
-              className="group flex items-center gap-2 rounded-xl bg-[#E6B447] px-8 py-3.5 text-base font-bold text-[#0D0B09] hover:bg-[#F0C35C] transition-colors"
+              className="group flex items-center gap-2 rounded-xl bg-[#E6B447] px-8 py-3.5 text-base font-black text-[#0D0B09] hover:bg-[#F0C35C] transition-colors tracking-wide uppercase"
             >
-              Iniciar Operação
+              Iniciar Guerra
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <a
               href="#arsenal"
               className="flex items-center gap-2 rounded-xl border border-white/[0.1] px-8 py-3.5 text-base font-medium text-zinc-300 hover:border-[#E6B447]/20 hover:text-white transition-colors"
             >
-              Ver Arsenal
+              Ver Demonstração
             </a>
           </motion.div>
 

@@ -40,7 +40,7 @@ function parseDebate(text: string) {
 
   for (const line of lines) {
     // Check for verdict section
-    if (line.includes('Veredito do Conselho') || line.includes('Veredito Final') || line.includes('VEREDITO_DO_CONSELHO')) {
+    if (line.includes('Veredito do Conselho') || line.includes('Veredito Final') || line.includes('VEREDITO_DO_CONSELHO') || line.includes('Veredito do MKTHONEY')) {
       if (currentSection) {
         sections.push({ ...currentSection, content: currentSection.lines.join('\n').trim() });
         currentSection = null;
