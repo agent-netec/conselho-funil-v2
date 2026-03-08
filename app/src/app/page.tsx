@@ -70,7 +70,7 @@ function PreBriefingBody({ onStartBriefing }: { onStartBriefing: () => void }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="rounded-2xl border-l-4 border-l-[#E6B447] border border-white/[0.06] bg-zinc-900/60 p-8 text-center sm:text-left"
+      className="rounded-2xl border-l-4 border-l-[#E6B447] border border-white/[0.06] bg-white/[0.02] p-8 text-center sm:text-left"
     >
       <div className="flex flex-col sm:flex-row items-center gap-6">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#E6B447]/10 flex-shrink-0">
@@ -80,7 +80,7 @@ function PreBriefingBody({ onStartBriefing }: { onStartBriefing: () => void }) {
           <h3 className="text-lg font-bold text-white mb-2">
             Seu MKTHONEY esta pronto
           </h3>
-          <p className="text-sm text-zinc-400 max-w-lg">
+          <p className="text-sm text-[#A89B84] max-w-lg">
             Complete o briefing da sua marca para receber seu primeiro veredito estrategico.
             Em 3 minutos, 23 especialistas vao analisar seu posicionamento e oferta.
           </p>
@@ -229,9 +229,9 @@ function WelcomeBody({ onCreateBrand }: { onCreateBrand: () => void }) {
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col items-center justify-center py-16"
     >
-      {/* Icon */}
+      {/* Logo icon */}
       <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-[#E6B447]/10">
-        <Sparkles className="h-10 w-10 text-[#E6B447]" />
+        <img src="/logo-mkthoney-icon.svg" alt="MKTHONEY" className="h-12 w-12" />
       </div>
 
       {/* Title */}

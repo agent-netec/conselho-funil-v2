@@ -111,68 +111,30 @@ export function LandingHero() {
           </motion.p>
         </div>
 
-        {/* Dashboard mockup */}
+        {/* Impact stats — floating capsules */}
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="relative max-w-5xl mx-auto"
+          transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 max-w-3xl mx-auto"
         >
-          <div className="relative overflow-hidden rounded-2xl border border-[#E6B447]/20 bg-[#1A1612] shadow-[0_20px_80px_-20px_rgba(230,180,71,0.15)]">
-            {/* Browser chrome */}
-            <div className="flex items-center gap-2 border-b border-white/[0.04] bg-[#0D0B09]/80 px-5 py-3">
-              <div className="flex gap-1.5">
-                <span className="h-3 w-3 rounded-full bg-red-500/40" />
-                <span className="h-3 w-3 rounded-full bg-yellow-500/40" />
-                <span className="h-3 w-3 rounded-full bg-green-500/40" />
-              </div>
-              <div className="ml-4 flex-1 max-w-xs rounded-md bg-[#0D0B09]/60 px-3 py-1">
-                <span className="text-xs text-[#E6B447]/50 font-mono">app.mkthoney.com/dashboard</span>
-              </div>
-            </div>
-
-            {/* Dashboard skeleton */}
-            <div className="p-5 md:p-8 bg-gradient-to-br from-[#0D0B09] via-[#1A1612] to-[#0D0B09]">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                {[
-                  { val: '147', label: 'Conteúdos' },
-                  { val: '23', label: 'Conselheiros' },
-                  { val: '8.4K', label: 'Alcance' },
-                  { val: '94%', label: 'Satisfação' },
-                ].map((s) => (
-                  <div key={s.label} className="rounded-xl border border-[#E6B447]/[0.08] bg-[#1A1612]/80 p-4">
-                    <div className="text-xl font-bold text-[#E6B447] mb-1">{s.val}</div>
-                    <div className="text-xs text-zinc-500">{s.label}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-12 gap-3">
-                <div className="col-span-8 rounded-xl border border-white/[0.04] bg-[#0D0B09]/60 p-4 h-28 flex flex-col justify-between">
-                  <span className="text-xs text-zinc-600">Performance Semanal</span>
-                  <div className="flex items-end gap-1 h-16">
-                    {[35, 55, 40, 70, 50, 85, 65, 90, 55, 80, 68, 95, 72, 88].map((h, i) => (
-                      <div
-                        key={i}
-                        className="flex-1 rounded-t-sm bg-gradient-to-t from-[#E6B447]/40 to-[#E6B447]/10"
-                        style={{ height: `${h}%` }}
-                      />
-                    ))}
-                  </div>
-                </div>
-                <div className="col-span-4 rounded-xl border border-white/[0.04] bg-[#0D0B09]/60 p-4 h-28 space-y-2">
-                  <span className="text-xs text-zinc-600">Atividade</span>
-                  {['Post gerado', 'Relatório pronto', 'Campanha ativa'].map((t) => (
-                    <div key={t} className="flex items-center gap-2">
-                      <div className="h-1.5 w-1.5 rounded-full bg-[#E6B447]/50" />
-                      <span className="text-[11px] text-zinc-500">{t}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Bottom fade */}
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0D0B09] to-transparent pointer-events-none" />
+          {[
+            { val: '10x', label: 'mais output por operador' },
+            { val: '500+', label: 'marcas em operação' },
+            { val: '24/7', label: 'conselheiros ativos' },
+            { val: '<60s', label: 'diagnóstico de funil' },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.val}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: 0.6 + i * 0.1 }}
+              className="flex items-center gap-3 rounded-xl border border-[#E6B447]/15 bg-[#1A1612]/60 backdrop-blur-sm px-5 py-3"
+            >
+              <span className="text-2xl font-black text-[#E6B447] tracking-tight">{stat.val}</span>
+              <span className="text-[11px] text-[#A89B84] font-medium leading-tight max-w-[100px]">{stat.label}</span>
+            </motion.div>
+          ))}
         </motion.div>
 
         {/* Answer Capsule — AEO */}
