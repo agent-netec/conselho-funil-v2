@@ -58,8 +58,18 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     let verifyInterval: ReturnType<typeof setInterval> | null = null;
 
+    // Safety timeout: force initialization after 5s to prevent infinite loading
+    const safetyTimeout = setTimeout(() => {
+      const state = useAuthStore.getState();
+      if (!state.isInitialized) {
+        console.warn('[AuthStore] Safety timeout: forcing initialization after 5s');
+        set({ user: null, isLoading: false, isInitialized: true });
+      }
+    }, 5000);
+
     try {
       const unsubscribe = onAuthChange((user) => {
+        clearTimeout(safetyTimeout);
         // R5.2: Sync auth cookie with Firebase auth state
         if (user) {
           setAuthCookie();

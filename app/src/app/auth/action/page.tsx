@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { CheckCircle, AlertTriangle, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
@@ -17,6 +17,20 @@ import Image from 'next/image';
 type ActionStatus = 'loading' | 'success' | 'error' | 'reset-form' | 'reset-success';
 
 export default function AuthActionPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="h-8 w-8 text-[#E6B447] animate-spin" />
+        </div>
+      }
+    >
+      <AuthActionContent />
+    </Suspense>
+  );
+}
+
+function AuthActionContent() {
   const searchParams = useSearchParams();
   const mode = searchParams.get('mode');
   const oobCode = searchParams.get('oobCode');

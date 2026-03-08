@@ -25,6 +25,7 @@ const PUBLIC_PATHS = [
   '/pricing',
   '/shared', // shared funnel pages
   '/auth',   // Firebase action links (verify email, reset password)
+  '/landing', // public landing page (middleware rewrites "/" here)
 ];
 
 function LoadingScreen() {
@@ -106,13 +107,13 @@ export function AppShell({ children }: AppShellProps) {
   const isPublicPage = PUBLIC_PATHS.some(path => pathname === path || pathname?.startsWith(`${path}/`));
   const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/signup');
   const isWelcomePage = pathname === '/welcome';
+  const isRootPath = pathname === '/';
 
   useEffect(() => {
     if (!isInitialized) return;
 
     // Redirect to login if not authenticated and trying to access protected page
     // "/" is handled by middleware (rewrite to landing for non-auth)
-    const isRootPath = pathname === '/';
     if (!user && !isPublicPage && !isRootPath) {
       router.push('/login');
     }
@@ -123,8 +124,8 @@ export function AppShell({ children }: AppShellProps) {
     }
   }, [user, isInitialized, isPublicPage, isAuthPage, router]);
 
-  // Show loading while checking auth
-  if (!isInitialized || isLoading) {
+  // Show loading while checking auth — but not for public pages or root
+  if ((!isInitialized || isLoading) && !isPublicPage && !isRootPath) {
     return <LoadingScreen />;
   }
 
@@ -148,14 +149,19 @@ export function AppShell({ children }: AppShellProps) {
     );
   }
 
-  // Welcome page & Auth pages - no sidebar
+  // Public pages (landing, legal, pricing) - render directly, no shell chrome
+  if (isPublicPage || isRootPath) {
+    return <>{children}</>;
+  }
+
+  // Auth & welcome pages - shell chrome without sidebar
   if (isAuthPage || isWelcomePage) {
     return (
       <div className="min-h-screen bg-[#09090b]">
         {/* Background effects */}
         <div className="fixed inset-0 bg-dot-pattern opacity-30 pointer-events-none" />
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(230,180,71,0.08),transparent)] pointer-events-none" />
-        
+
         <AnimatePresence mode="wait">
           <motion.div
             key={pathname}
