@@ -380,10 +380,10 @@ const GeneratingState = ({ isStuck, onReset }: { isStuck?: boolean; onReset?: ()
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-            className="absolute inset-0 rounded-full border-2 border-purple-500/20 border-t-purple-500"
+            className="absolute inset-0 rounded-full border-2 border-[#E6B447]/20 border-t-[#E6B447]"
           />
-          <div className="absolute inset-3 rounded-full bg-gradient-to-br from-purple-500/20 to-transparent flex items-center justify-center">
-            <Zap className="h-8 w-8 text-purple-400 animate-pulse" />
+          <div className="absolute inset-3 rounded-full bg-gradient-to-br from-[#E6B447]/20 to-transparent flex items-center justify-center">
+            <Zap className="h-8 w-8 text-[#E6B447] animate-pulse" />
           </div>
         </div>
 
@@ -409,11 +409,11 @@ const GeneratingState = ({ isStuck, onReset }: { isStuck?: boolean; onReset?: ()
         ) : (
           <div className="flex flex-col items-center gap-4 text-xs font-mono text-zinc-500">
             <div className="flex items-center gap-2">
-              <div className="h-1 w-1 rounded-full bg-purple-500 animate-ping" />
+              <div className="h-1 w-1 rounded-full bg-[#E6B447] animate-ping" />
               <span>[SCRAPING_ENGINE]: ACTIVE</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-1 w-1 rounded-full bg-purple-500 animate-ping delay-75" />
+              <div className="h-1 w-1 rounded-full bg-[#E6B447] animate-ping delay-75" />
               <span>[HEURISTIC_ANALYSIS]: GEMINI_1.5_PRO_READY</span>
             </div>
           </div>
@@ -787,7 +787,7 @@ export default function FunnelDetailPage() {
               <Button 
                 onClick={handleRunAutopsy}
                 disabled={isAutopsying}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-bold"
+                className="bg-[#E6B447] hover:bg-[#F0C35C] text-black font-bold"
               >
                 {isAutopsying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Zap className="mr-2 h-4 w-4" />}
                 Executar Autópsia
@@ -916,8 +916,8 @@ export default function FunnelDetailPage() {
               >
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-2xl font-black text-white flex items-center gap-3">
-                    <div className="p-2 bg-purple-500/20 rounded-lg">
-                      <Zap className="h-6 w-6 text-purple-400" />
+                    <div className="p-2 bg-[#E6B447]/20 rounded-lg">
+                      <Zap className="h-6 w-6 text-[#E6B447]" />
                     </div>
                     Relatório de Autópsia Forense
                   </h3>

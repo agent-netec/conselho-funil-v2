@@ -173,7 +173,7 @@ const IrresistibilityScore = ({ score, analysis, scoringFactors }: { score: numb
             <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Insights do MKTHONEY:</p>
             {analysis.map((insight, i) => (
               <div key={i} className="flex gap-2 text-[11px] text-zinc-400 leading-tight">
-                <Sparkles className="w-3 h-3 text-purple-400 shrink-0" />
+                <Sparkles className="w-3 h-3 text-[#E6B447] shrink-0" />
                 <span>{insight}</span>
               </div>
             ))}
@@ -193,7 +193,7 @@ const ValueEquationGuide = () => {
         className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
       >
         <span className="flex items-center gap-2">
-          <HelpCircle className="w-4 h-4 text-purple-400" />
+          <HelpCircle className="w-4 h-4 text-[#E6B447]" />
           Como funciona a Equação de Valor?
         </span>
         <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -365,7 +365,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
             </div>
             {aiEvaluation && aiEvaluation.overallQuality > 0 && (
               <div className="text-center">
-                <div className="text-5xl font-black text-purple-400">{aiEvaluation.overallQuality}</div>
+                <div className="text-5xl font-black text-[#E6B447]">{aiEvaluation.overallQuality}</div>
                 <p className="text-xs text-zinc-500 mt-1">Score AI</p>
               </div>
             )}
@@ -379,7 +379,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
               <Card key={i} className="bg-zinc-900/50 border-zinc-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-purple-400" />
+                    <Sparkles className="w-4 h-4 text-[#E6B447]" />
                     {insight.counselorName}
                     <Badge variant="outline" className="ml-auto text-[10px]">{insight.score}/100</Badge>
                   </CardTitle>
@@ -400,9 +400,9 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
                   )}
                   {insight.goldStandardsHit.length > 0 && (
                     <div className="space-y-1">
-                      <p className="text-[10px] text-green-400/80 uppercase tracking-wider font-bold">Pontos fortes:</p>
+                      <p className="text-[10px] text-[#E6B447]/80 uppercase tracking-wider font-bold">Pontos fortes:</p>
                       {insight.goldStandardsHit.map((gs, j) => (
-                        <div key={j} className="flex gap-1.5 text-[11px] text-green-400/70">
+                        <div key={j} className="flex gap-1.5 text-[11px] text-[#E6B447]/70">
                           <CheckCircle2 className="w-3 h-3 shrink-0 mt-0.5" />
                           <span>{gs}</span>
                         </div>
@@ -415,8 +415,8 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
 
             {/* Summary */}
             {aiEvaluation.summary && (
-              <div className="p-4 bg-purple-500/5 border border-purple-500/20 rounded-lg">
-                <p className="text-[10px] text-purple-400/80 uppercase tracking-wider font-bold mb-2">Resumo Executivo</p>
+              <div className="p-4 bg-[#E6B447]/5 border border-[#E6B447]/20 rounded-lg">
+                <p className="text-[10px] text-[#E6B447]/80 uppercase tracking-wider font-bold mb-2">Resumo Executivo</p>
                 <p className="text-sm text-zinc-300 leading-relaxed">{aiEvaluation.summary}</p>
               </div>
             )}
@@ -479,7 +479,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
           <p className="text-zinc-400 max-w-md">
             Sua oferta foi salva com score de irresistibilidade <span className="font-bold text-white">{result.total}</span>.
             {aiEvaluation && aiEvaluation.overallQuality > 0 && (
-              <> Score AI: <span className="font-bold text-purple-400">{aiEvaluation.overallQuality}</span>.</>
+              <> Score AI: <span className="font-bold text-[#E6B447]">{aiEvaluation.overallQuality}</span>.</>
             )}
             {' '}Você pode encontrá-la no histórico do Offer Lab.
           </p>
@@ -520,7 +520,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
               }`}
             >
               <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
-                step === s.id ? 'border-purple-500 bg-purple-500/20' : 
+                step === s.id ? 'border-[#E6B447] bg-[#E6B447]/20' :
                 step > s.id ? 'border-green-500 bg-green-500/20' : 'border-zinc-800'
               }`}>
                 {step > s.id ? <CheckCircle2 className="w-5 h-5" /> : <s.icon className="w-5 h-5" />}
@@ -549,7 +549,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
                     <label className="text-sm font-medium text-zinc-300">Sua Headline / Promessa Principal</label>
                     <Textarea
                       placeholder="Ex: Como faturar R$ 10k em 30 dias sem precisar de anúncios pagos..."
-                      className="bg-zinc-900 border-zinc-800 min-h-[120px] focus:ring-purple-500"
+                      className="bg-zinc-900 border-zinc-800 min-h-[120px] focus:ring-[#E6B447]"
                       value={offer.promise}
                       onChange={(e) => setOffer({...offer, promise: e.target.value})}
                     />
@@ -584,7 +584,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
             {step === 2 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Value Stacking</h2>
+                  <h2 className="text-2xl font-bold text-white mb-2">Empilhamento de Valor</h2>
                   <p className="text-zinc-400">Empilhe os componentes do produto para que o preço pareça insignificante.</p>
                 </div>
 
@@ -677,13 +677,13 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
             {step === 3 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Bonus Irresistiveis</h2>
+                  <h2 className="text-2xl font-bold text-white mb-2">Bônus Irresistíveis</h2>
                   <p className="text-zinc-400">Bonus devem resolver as proximas objecoes ou acelerar o resultado.</p>
                 </div>
 
                 <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-xl flex items-start gap-4">
-                  <div className="p-2 bg-purple-500/10 rounded-lg">
-                    <Sparkles className="w-5 h-5 text-purple-500" />
+                  <div className="p-2 bg-[#E6B447]/10 rounded-lg">
+                    <Sparkles className="w-5 h-5 text-[#E6B447]" />
                   </div>
                   <div>
                     <h4 className="font-bold text-white">Dica do Especialista (Russell Brunson)</h4>
@@ -699,7 +699,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
                       <Card key={item.id} className="bg-zinc-900/50 border-zinc-800 p-4">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex items-center gap-3 shrink-0 pt-2">
-                            <Gift className="w-4 h-4 text-purple-400" />
+                            <Gift className="w-4 h-4 text-[#E6B447]" />
                           </div>
                           <div className="flex-1 space-y-3">
                             <Input
@@ -836,9 +836,9 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
           </CardHeader>
           <CardContent className="space-y-4">
             {/* K-1.1: Callout explaining slider importance */}
-            <div className="flex gap-2 p-2.5 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-              <Info className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-              <p className="text-[11px] text-purple-300/80 leading-relaxed">
+            <div className="flex gap-2 p-2.5 bg-[#E6B447]/10 border border-[#E6B447]/20 rounded-lg">
+              <Info className="w-4 h-4 text-[#E6B447] shrink-0 mt-0.5" />
+              <p className="text-[11px] text-[#E6B447]/80 leading-relaxed">
                 Estes sliders controlam ~40% do score. Os outros 60% vem do conteudo que voce escreve nos steps.
               </p>
             </div>
@@ -868,7 +868,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
                         scoringFactors: { ...offer.scoringFactors, [factor.id]: internal }
                       });
                     }}
-                    className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                    className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-[#E6B447]"
                   />
                   {factor.inverse && (
                     <div className="flex justify-between text-[9px] text-zinc-600">
@@ -904,7 +904,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-2 text-xs">
                 <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
-                  item.met ? 'bg-green-500/20 text-green-500' : 'bg-zinc-800 text-zinc-600'
+                  item.met ? 'bg-[#E6B447]/20 text-[#E6B447]' : 'bg-zinc-800 text-zinc-600'
                 }`}>
                   <CheckCircle2 className="w-3 h-3" />
                 </div>
