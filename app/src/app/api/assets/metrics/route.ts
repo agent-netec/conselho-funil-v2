@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       const raw = await getBrandAssets(brandId);
       firestoreAssets = raw.map(a => ({
         id: a.id,
-        namespace: 'knowledge' as const,
+        namespace: (a.type === 'image' ? 'visual' : 'knowledge') as 'visual' | 'knowledge',
         score: 0,
         assetType: a.type || 'knowledge_base',
         name: a.name || a.originalName || 'Documento',

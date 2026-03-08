@@ -72,6 +72,8 @@ export default function AssetsPage() {
       toast.success('Arquivo vetorizado com sucesso!');
     } catch (err) {
       console.error('Erro ao processar asset:', err);
+      // Always refresh so the newly created asset appears in the list
+      await refresh();
       toast.error('O upload foi feito, mas o processamento falhou.');
     }
   };

@@ -92,10 +92,10 @@ export function QuickActions() {
           delay={0.35}
         />
         <ActionCard
-          href="/library"
+          href="/assets"
           icon={Zap}
           title="Biblioteca"
-          description="Acesse templates e cases de sucesso"
+          description="Gerencie e monitore seus ativos vetorizados"
           gradient="bg-gradient-to-br from-[#E6B447]/20 to-indigo-600/20"
           delay={0.4}
         />
