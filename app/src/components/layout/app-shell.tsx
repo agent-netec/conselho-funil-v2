@@ -4,8 +4,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 import { Sidebar } from './sidebar';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useSidebarStore } from '@/lib/stores/sidebar-store';
 import { ToastNotifications } from '@/components/ui/toast-notifications';
 import { sendEmailVerification } from '@/lib/firebase/auth';
 import { EmailVerificationBanner } from '@/components/auth/email-verification-banner';
@@ -180,6 +182,9 @@ export function AppShell({ children }: AppShellProps) {
   // R-1.7: Email verification banner
   const showVerificationBanner = user && !user.emailVerified && !isAuthPage && !isWelcomePage;
 
+  // E1: Dynamic sidebar margin
+  const { isExpanded } = useSidebarStore();
+
   // Protected pages - with sidebar
   return (
     <div className="min-h-screen bg-background selection:bg-[#E6B447]/20 selection:text-[#F5E8CE]">
@@ -189,7 +194,12 @@ export function AppShell({ children }: AppShellProps) {
 
       <Sidebar />
 
-      <main className="md:ml-[72px] min-h-screen relative flex flex-col">
+      <main
+        className={cn(
+          'min-h-screen relative flex flex-col transition-[margin-left] duration-200 ease-in-out',
+          isExpanded ? 'md:ml-[256px]' : 'md:ml-[72px]'
+        )}
+      >
         {/* R-1.7: Email verification banner */}
         {showVerificationBanner && (
           <EmailVerificationBanner onResend={() => sendEmailVerification(user)} />
