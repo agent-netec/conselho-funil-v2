@@ -255,7 +255,7 @@ export default function AttributionPage() {
                   <div className="space-y-4">
                     {[
                       { label: "Topo (First Touch)", value: 40, color: "bg-blue-500" },
-                      { label: "Meio (Assisted)", value: 20, color: "bg-purple-500" },
+                      { label: "Meio (Assisted)", value: 20, color: "bg-[#E6B447]" },
                       { label: "Fundo (Last Click)", value: 40, color: "bg-primary" },
                     ].map((item) => (
                       <div key={item.label} className="space-y-1">
@@ -302,7 +302,7 @@ export default function AttributionPage() {
                       <th className="px-6 py-4 font-medium">Campanha / Fonte</th>
                       <th className="px-6 py-4 font-medium">Conv. (Last Click)</th>
                       <th className="px-6 py-4 font-medium text-primary">Conv. (U-Shape)</th>
-                      <th className="px-6 py-4 font-medium text-purple-600">Conv. (Linear)</th>
+                      <th className="px-6 py-4 font-medium text-[#E6B447]">Conv. (Linear)</th>
                       <th className="px-6 py-4 font-medium text-amber-600">Conv. (Time Decay)</th>
                       <th className="px-6 py-4 font-medium">Variação (%)</th>
                     </tr>
@@ -313,7 +313,7 @@ export default function AttributionPage() {
                         <td className="px-6 py-4 font-medium">{row.campaignName}</td>
                         <td className="px-6 py-4">{row.conversions.last_touch.toFixed(1)}</td>
                         <td className="px-6 py-4 font-bold text-primary">{row.conversions.u_shape.toFixed(1)}</td>
-                        <td className="px-6 py-4 text-purple-600">{row.conversions.linear.toFixed(1)}</td>
+                        <td className="px-6 py-4 text-[#E6B447]">{row.conversions.linear.toFixed(1)}</td>
                         <td className="px-6 py-4 text-amber-600">{row.conversions.time_decay.toFixed(1)}</td>
                         <td className="px-6 py-4">
                           <div className={`flex items-center gap-1 ${row.variation >= 0 ? 'text-green-600' : 'text-red-600'}`}>

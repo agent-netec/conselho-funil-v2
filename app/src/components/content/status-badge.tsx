@@ -25,7 +25,7 @@ const STATUS_CONFIG: Record<CalendarItemStatus, { label: string; className: stri
   },
   scheduled: {
     label: 'Agendado',
-    className: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+    className: 'bg-[#E6B447]/20 text-[#E6B447] border-[#E6B447]/30',
   },
   published: {
     label: 'Publicado',

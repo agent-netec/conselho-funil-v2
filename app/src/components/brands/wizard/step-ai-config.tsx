@@ -24,7 +24,7 @@ const AI_PRESETS = [
     desc: 'Mais liberdade para a IA. Ótimo para brainstorming e ideias fora da caixa.',
     temp: 0.8,
     topP: 0.9,
-    color: 'purple',
+    color: 'gold',
   },
   {
     id: 'agressivo',
@@ -48,7 +48,6 @@ const AI_PRESETS = [
 
 const COLOR_MAP: Record<string, { bg: string; border: string; text: string }> = {
   gold: { bg: 'bg-[#E6B447]/15', border: 'border-[#E6B447]/40', text: 'text-[#E6B447]' },
-  purple: { bg: 'bg-purple-500/15', border: 'border-purple-500/40', text: 'text-purple-400' },
   red: { bg: 'bg-red-500/15', border: 'border-red-500/40', text: 'text-red-400' },
   blue: { bg: 'bg-blue-500/15', border: 'border-blue-500/40', text: 'text-blue-400' },
 };
@@ -63,8 +62,8 @@ export function StepAiConfig({ aiProfile, onUpdate }: StepAiConfigProps) {
       className="space-y-6"
     >
       <div className="text-center mb-2">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-purple-500/10 mb-3">
-          <BrainCircuit className="w-6 h-6 text-purple-400" />
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#E6B447]/10 mb-3">
+          <BrainCircuit className="w-6 h-6 text-[#E6B447]" />
         </div>
         <h3 className="text-base font-medium text-white mb-1">Personalidade da IA</h3>
         <p className="text-xs text-zinc-500">

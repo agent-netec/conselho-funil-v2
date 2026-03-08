@@ -432,10 +432,10 @@ export function ChatMessageBubble({
               )}
 
               {nanobananaPrompts.length > 0 && (
-                <div className="space-y-4 mt-4 border-t border-purple-500/10 pt-4">
+                <div className="space-y-4 mt-4 border-t border-[#E6B447]/10 pt-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="h-4 w-4 text-purple-400" />
-                    <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">Ações de Design Disponíveis</span>
+                    <Sparkles className="h-4 w-4 text-[#E6B447]" />
+                    <span className="text-xs font-bold text-[#E6B447] uppercase tracking-wider">Ações de Design Disponíveis</span>
                   </div>
                   <div className="space-y-3">
                     {nanobananaPrompts.map((prompt, idx) => (

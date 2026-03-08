@@ -102,7 +102,7 @@ export const LeadTimeline: React.FC<LeadTimelineProps> = ({ events }) => {
                           <span>{event.session.utmSource || 'direct'}</span>
                         </div>
                         <Separator orientation="vertical" className="h-3 hidden sm:block" />
-                        <div className="flex items-center gap-1 text-purple-600 dark:text-purple-400">
+                        <div className="flex items-center gap-1 text-[#E6B447] dark:text-[#E6B447]">
                           <span className="font-semibold uppercase">Medium:</span>
                           <span>{event.session.utmMedium || 'none'}</span>
                         </div>

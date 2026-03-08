@@ -37,7 +37,7 @@ interface KeywordRankingProps {
 
 const INTENT_LABELS: Record<SearchIntent, { label: string; color: string }> = {
   informational: { label: "Informativa", color: "bg-blue-100 text-blue-700 border-blue-200" },
-  navigational: { label: "Navegacional", color: "bg-purple-100 text-purple-700 border-purple-200" },
+  navigational: { label: "Navegacional", color: "bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/30" },
   commercial: { label: "Comercial", color: "bg-orange-100 text-orange-700 border-orange-200" },
   transactional: { label: "Transacional", color: "bg-green-100 text-green-700 border-green-200" },
 };

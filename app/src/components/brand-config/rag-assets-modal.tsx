@@ -61,8 +61,8 @@ export function RagAssetsModal({ isOpen, onClose, brand, assetCount }: RagAssets
           <div className="space-y-4">
             {/* Icon */}
             <div className="flex justify-center">
-              <div className="h-16 w-16 rounded-2xl bg-purple-500/10 flex items-center justify-center">
-                <FileText className="h-8 w-8 text-purple-400" />
+              <div className="h-16 w-16 rounded-2xl bg-[#E6B447]/10 flex items-center justify-center">
+                <FileText className="h-8 w-8 text-[#E6B447]" />
               </div>
             </div>
 

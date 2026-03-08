@@ -367,7 +367,7 @@ export default function PerformanceWarRoomPage() {
                 )}
               </div>
               <div className="mt-4 h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
-                <div className="h-full bg-purple-600 w-[75%]" />
+                <div className="h-full bg-[#E6B447] w-[75%]" />
               </div>
             </Card>
 
@@ -417,9 +417,9 @@ export default function PerformanceWarRoomPage() {
             onAcknowledge={(id) => console.log('Acknowledge alert:', id)}
           />
 
-          <Card className="bg-zinc-900/40 border-zinc-800 p-6 border-l-4 border-l-purple-600">
+          <Card className="bg-zinc-900/40 border-zinc-800 p-6 border-l-4 border-l-[#E6B447]">
             <div className="flex items-center gap-2 mb-4">
-              <Zap className="w-5 h-5 text-purple-500" />
+              <Zap className="w-5 h-5 text-[#E6B447]" />
               <h3 className="text-sm font-black text-white uppercase tracking-widest">AI Strategic Insight</h3>
             </div>
             <p className="text-sm text-zinc-400 leading-relaxed">
@@ -429,7 +429,7 @@ export default function PerformanceWarRoomPage() {
             </p>
             <Button
               variant="link"
-              className="text-purple-500 p-0 h-auto mt-4 text-xs font-bold uppercase tracking-tighter"
+              className="text-[#E6B447] p-0 h-auto mt-4 text-xs font-bold uppercase tracking-tighter"
               onClick={() => setShowFullAnalysis(true)}
               disabled={advisorLoading || (!advisorSummary && advisorInsights.length === 0)}
             >
@@ -444,7 +444,7 @@ export default function PerformanceWarRoomPage() {
         <DialogContent className="bg-zinc-900 border-zinc-700 text-zinc-100 max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-white">
-              <Zap className="w-5 h-5 text-purple-500" />
+              <Zap className="w-5 h-5 text-[#E6B447]" />
               AI Strategic Insight — Análise Completa
             </DialogTitle>
           </DialogHeader>
@@ -453,7 +453,7 @@ export default function PerformanceWarRoomPage() {
             {/* Summary */}
             {advisorSummary && (
               <div>
-                <h4 className="text-xs font-black text-purple-400 uppercase tracking-widest mb-2">Resumo</h4>
+                <h4 className="text-xs font-black text-[#E6B447] uppercase tracking-widest mb-2">Resumo</h4>
                 <p className="text-sm text-zinc-300 leading-relaxed">{advisorSummary}</p>
               </div>
             )}

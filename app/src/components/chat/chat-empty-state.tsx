@@ -71,7 +71,7 @@ export function ChatEmptyState({
     mode === 'copy' ? 'amber' : 
     mode === 'social' ? 'rose' :
     mode === 'ads' ? 'blue' :
-    mode === 'design' ? 'purple' :
+    mode === 'design' ? 'gold' :
     'gold';
 
   return (
@@ -90,7 +90,7 @@ export function ChatEmptyState({
             accentColor === 'amber' ? 'bg-amber-500/20' : 
             accentColor === 'rose' ? 'bg-rose-500/20' :
             accentColor === 'blue' ? 'bg-blue-500/20' :
-            accentColor === 'purple' ? 'bg-purple-500/20' :
+            accentColor === 'gold' ? 'bg-[#E6B447]/20' :
             'bg-[#E6B447]/20'
           )} />
           <div className={cn(
@@ -103,8 +103,8 @@ export function ChatEmptyState({
               ? 'bg-gradient-to-br from-rose-500 to-rose-600 shadow-rose-500/20'
               : accentColor === 'blue'
               ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-blue-500/20'
-              : accentColor === 'purple'
-              ? 'bg-gradient-to-br from-purple-500 to-purple-600 shadow-purple-500/20'
+              : accentColor === 'gold'
+              ? 'bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-[#E6B447]/20'
               : 'bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-[#E6B447]/20'
           )}>
             <Bot className="h-8 w-8 sm:h-10 sm:w-10 text-white" />

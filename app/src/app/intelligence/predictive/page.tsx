@@ -16,14 +16,14 @@ export default function PredictiveIntelligencePage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/20 gap-1 px-2">
+            <Badge variant="outline" className="bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/20 gap-1 px-2">
               <Sparkles size={12} />
               Alpha v2.0
             </Badge>
             <span className="text-xs text-zinc-500 font-medium uppercase tracking-widest">Intelligence Wing</span>
           </div>
           <h1 className="text-4xl font-bold text-white tracking-tight">
-            Inteligência <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-[#E6B447]">Preditiva</span>
+            Inteligência <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E6B447] to-[#E6B447]">Preditiva</span>
           </h1>
           <p className="text-zinc-400 max-w-2xl text-sm leading-relaxed">
             Dashboard preditivo com visão de churn, LTV, forecast de audiência e simulador de escala.
@@ -31,7 +31,7 @@ export default function PredictiveIntelligencePage() {
         </div>
 
         <div className="flex items-center gap-2 text-xs text-zinc-500 bg-zinc-900/50 px-3 py-2 rounded-lg border border-white/5">
-          <Info size={14} className="text-purple-400" />
+          <Info size={14} className="text-[#E6B447]" />
           Modelos recalibrados há 4 horas
         </div>
       </div>

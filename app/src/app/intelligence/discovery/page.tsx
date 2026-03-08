@@ -172,7 +172,7 @@ export default function DiscoveryPage() {
                   </p>
                 </div>
                 <div className="flex items-start gap-2 p-2 rounded-lg bg-zinc-950/50">
-                  <BarChart3 className="w-3.5 h-3.5 text-purple-400 mt-0.5 shrink-0" />
+                  <BarChart3 className="w-3.5 h-3.5 text-[#E6B447] mt-0.5 shrink-0" />
                   <p className="text-[11px] text-zinc-500">
                     <strong className="text-zinc-400">Otimizar funil existente:</strong> Cole a URL do funil do seu cliente.
                     A IA identifica pontos fracos (hook fraco, falta de prova social) com ações concretas.
@@ -193,9 +193,9 @@ export default function DiscoveryPage() {
 
       <AssetsPanel brandId={brandId} assets={assets} isLoading={loadingAssets} error={assetsError} onRefetch={refetchAssets} />
 
-      <Card className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-purple-500/20 hover:border-purple-500/40 transition-colors">
+      <Card className="bg-gradient-to-br from-[#E6B447]/10 to-blue-500/10 border-[#E6B447]/20 hover:border-[#E6B447]/40 transition-colors">
         <CardContent className="py-10 text-center space-y-4">
-          <Brain className="w-12 h-12 text-purple-500 mx-auto" />
+          <Brain className="w-12 h-12 text-[#E6B447] mx-auto" />
           <h2 className="text-xl font-semibold">Predictive Engine</h2>
           <p className="text-zinc-400 max-w-md mx-auto">
             Analise textos, preveja a probabilidade de conversão e gere anúncios otimizados com IA.

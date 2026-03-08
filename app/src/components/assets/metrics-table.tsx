@@ -92,11 +92,11 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
                 <div className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-lg border",
                   asset.namespace === 'visual' 
-                    ? "bg-purple-500/10 border-purple-500/20" 
+                    ? "bg-[#E6B447]/10 border-[#E6B447]/20" 
                     : "bg-blue-500/10 border-blue-500/20"
                 )}>
                   {asset.namespace === 'visual' ? (
-                    <ImageIcon className="h-5 w-5 text-purple-400" />
+                    <ImageIcon className="h-5 w-5 text-[#E6B447]" />
                   ) : (
                     <FileText className="h-5 w-5 text-blue-400" />
                   )}
@@ -192,11 +192,11 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
                 <div className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-xl border shadow-inner",
                   asset.namespace === 'visual' 
-                    ? "bg-purple-500/10 border-purple-500/20" 
+                    ? "bg-[#E6B447]/10 border-[#E6B447]/20" 
                     : "bg-blue-500/10 border-blue-500/20"
                 )}>
                   {asset.namespace === 'visual' ? (
-                    <ImageIcon className="h-5 w-5 text-purple-400" />
+                    <ImageIcon className="h-5 w-5 text-[#E6B447]" />
                   ) : (
                     <FileText className="h-5 w-5 text-blue-400" />
                   )}
@@ -303,11 +303,11 @@ export function AssetMetricsTable({ assets, isLoading, viewMode = 'list', onDele
                     <div className={cn(
                       "flex h-8 w-8 items-center justify-center rounded-lg border",
                       asset.namespace === 'visual' 
-                        ? "bg-purple-500/10 border-purple-500/20" 
+                        ? "bg-[#E6B447]/10 border-[#E6B447]/20" 
                         : "bg-blue-500/10 border-blue-500/20"
                     )}>
                       {asset.namespace === 'visual' ? (
-                        <ImageIcon className="h-4 w-4 text-purple-400" />
+                        <ImageIcon className="h-4 w-4 text-[#E6B447]" />
                       ) : (
                         <FileText className="h-4 w-4 text-blue-400" />
                       )}

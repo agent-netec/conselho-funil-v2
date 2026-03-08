@@ -227,7 +227,7 @@ export default function ChatPage() {
                     ? `/funnels/${funnelId}/design${campaignId ? `?campaignId=${campaignId}` : ''}`
                     : `/funnels/${funnelId}/social${campaignId ? `?campaignId=${campaignId}` : ''}`
                 }
-                className="flex items-center justify-between gap-3 rounded-lg border border-purple-500/20 bg-purple-500/5 px-4 py-2.5 transition-all hover:bg-purple-500/10 hover:border-purple-500/40 group"
+                className="flex items-center justify-between gap-3 rounded-lg border border-[#E6B447]/20 bg-[#E6B447]/5 px-4 py-2.5 transition-all hover:bg-[#E6B447]/10 hover:border-[#E6B447]/40 group"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-lg">{chatMode === 'design' ? '\uD83C\uDFA8' : '\uD83D\uDD17'}</span>
@@ -242,7 +242,7 @@ export default function ChatPage() {
                     </p>
                   </div>
                 </div>
-                <span className="text-zinc-500 group-hover:text-purple-400 transition-colors text-lg">\u2192</span>
+                <span className="text-zinc-500 group-hover:text-[#E6B447] transition-colors text-lg">\u2192</span>
               </Link>
             </div>
           )}

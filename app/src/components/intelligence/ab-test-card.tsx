@@ -22,7 +22,7 @@ export function ABTestCard({ test, onSelect, isActive }: ABTestCardProps) {
 
   return (
     <Card
-      className={`p-4 border ${isActive ? 'border-purple-500/60 bg-zinc-900/70' : 'border-zinc-800 bg-zinc-900/40'} cursor-pointer hover:border-zinc-700 transition-colors`}
+      className={`p-4 border ${isActive ? 'border-[#E6B447]/60 bg-zinc-900/70' : 'border-zinc-800 bg-zinc-900/40'} cursor-pointer hover:border-zinc-700 transition-colors`}
       onClick={() => onSelect(test.id)}
     >
       <div className="flex items-center justify-between gap-3">

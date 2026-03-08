@@ -49,7 +49,7 @@ export function AdPreviewSystem({ ads, brandName, loading, className }: AdPrevie
       <Card className={cn('border-zinc-800 bg-zinc-900/60', className)}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Sparkles className="h-4 w-4 text-purple-400" />
+            <Sparkles className="h-4 w-4 text-[#E6B447]" />
             Gerando Anúncios...
           </CardTitle>
         </CardHeader>
@@ -73,7 +73,7 @@ export function AdPreviewSystem({ ads, brandName, loading, className }: AdPrevie
     <Card className={cn('border-zinc-800 bg-zinc-900/60', className)}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Sparkles className="h-4 w-4 text-purple-400" />
+          <Sparkles className="h-4 w-4 text-[#E6B447]" />
           Preview de Anúncios
           <span className="text-xs text-zinc-500 font-normal ml-auto">
             {ads.length} variações geradas
@@ -120,7 +120,7 @@ export function AdPreviewSystem({ ads, brandName, loading, className }: AdPrevie
                           className={cn(
                             'h-2 w-2 rounded-full transition-all',
                             i === currentIdx
-                              ? 'bg-purple-400 w-4'
+                              ? 'bg-[#E6B447] w-4'
                               : 'bg-zinc-600 hover:bg-zinc-500'
                           )}
                           aria-label={`Variação ${i + 1}`}
@@ -147,7 +147,7 @@ export function AdPreviewSystem({ ads, brandName, loading, className }: AdPrevie
                     toneMatch={currentAd.brandVoice.toneMatch}
                     passed={currentAd.brandVoice.passed}
                   />
-                  <span className="text-[10px] text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded border border-purple-500/20">
+                  <span className="text-[10px] text-[#E6B447] bg-[#E6B447]/10 px-1.5 py-0.5 rounded border border-[#E6B447]/20">
                     {currentAd.framework}
                   </span>
                   <span className="text-[10px] text-zinc-500 ml-auto">

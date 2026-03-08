@@ -116,7 +116,7 @@ export default function AgencyDashboardPage() {
 
         <Card className="p-6 card-premium border-white/[0.05]">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-purple-500/10 text-purple-400">
+            <div className="p-3 rounded-xl bg-[#E6B447]/10 text-[#E6B447]">
               <TrendingUp size={24} />
             </div>
             <div>

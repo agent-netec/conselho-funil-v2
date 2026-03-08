@@ -34,7 +34,7 @@ function SophisticationBars({ level }: { level: 1 | 2 | 3 | 4 | 5 }) {
         <div
           key={i}
           className={`h-2.5 w-6 rounded-sm transition-colors ${
-            i <= level ? "bg-purple-500" : "bg-muted"
+            i <= level ? "bg-[#E6B447]" : "bg-muted"
           }`}
         />
       ))}

@@ -40,7 +40,7 @@ export function PublicEmotion({ emotions, loading }: PublicEmotionProps) {
     { label: "Alegria", value: emotions.joy, color: "text-yellow-500", icon: Smile },
     { label: "Raiva", value: emotions.anger, color: "text-red-600", icon: Flame },
     { label: "Tristeza", value: emotions.sadness, color: "text-blue-500", icon: Frown },
-    { label: "Surpresa", value: emotions.surprise, color: "text-purple-500", icon: Zap },
+    { label: "Surpresa", value: emotions.surprise, color: "text-[#E6B447]", icon: Zap },
     { label: "Medo", value: emotions.fear, color: "text-orange-500", icon: AlertCircle },
     { label: "Neutro", value: emotions.neutral, color: "text-gray-400", icon: Meh },
   ].sort((a, b) => b.value - a.value);

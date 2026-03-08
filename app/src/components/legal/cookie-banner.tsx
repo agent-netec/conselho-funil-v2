@@ -147,8 +147,8 @@ export function CookieBanner() {
                   {/* Marketing */}
                   <CookieCategory
                     icon={<Megaphone className="h-4 w-4" />}
-                    iconColor="text-purple-400"
-                    iconBg="bg-purple-500/10"
+                    iconColor="text-[#E6B447]"
+                    iconBg="bg-[#E6B447]/10"
                     title="Marketing"
                     description="Usados para personalizar anuncios e medir campanhas publicitarias."
                     checked={marketingEnabled}

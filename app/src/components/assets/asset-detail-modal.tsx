@@ -94,7 +94,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
 
   // Build heuristics display items for visual assets
   const heuristicItems = isVisualAsset ? [
-    { label: 'Psicologia de Cores', value: heuristics.colorPsychology !== null ? `${heuristics.colorPsychology}%` : 'Sem dados', icon: Palette, color: 'text-purple-400' },
+    { label: 'Psicologia de Cores', value: heuristics.colorPsychology !== null ? `${heuristics.colorPsychology}%` : 'Sem dados', icon: Palette, color: 'text-[#E6B447]' },
     { label: 'Legibilidade', value: heuristics.legibility !== null ? `${heuristics.legibility}%` : 'Sem dados', icon: Eye, color: 'text-blue-400' },
     { label: 'Hook Visual', value: heuristics.visualHooks || 'Sem dados', icon: Zap, color: 'text-amber-400' },
     { label: 'Score Geral', value: asset.score > 0 ? `${asset.score}/100` : 'N/A', icon: Target, color: 'text-[#E6B447]' },
@@ -111,7 +111,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
         </DialogDescription>
         <div className="relative">
           {/* Header Visual */}
-          <div className="h-32 w-full bg-gradient-to-br from-purple-500/20 via-[#E6B447]/10 to-zinc-950 border-b border-white/[0.05]" />
+          <div className="h-32 w-full bg-gradient-to-br from-[#E6B447]/20 via-[#E6B447]/10 to-zinc-950 border-b border-white/[0.05]" />
 
           <div className="px-6 pb-6 -mt-12 relative z-10">
             <div className="flex flex-col md:flex-row gap-6">
@@ -148,7 +148,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
                   <div className="flex items-center gap-2 mb-2">
                     <span className={cn(
                       "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border",
-                      isVisualAsset ? "bg-purple-500/10 border-purple-500/20 text-purple-400" : "bg-blue-500/10 border-blue-500/20 text-blue-400"
+                      isVisualAsset ? "bg-[#E6B447]/10 border-[#E6B447]/20 text-[#E6B447]" : "bg-blue-500/10 border-blue-500/20 text-blue-400"
                     )}>
                       {asset.namespace}
                     </span>
@@ -234,7 +234,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
                     <button
                       onClick={handleAnalyze}
                       disabled={isAnalyzing}
-                      className="flex-1 group relative flex items-center justify-center gap-3 h-12 rounded-xl bg-purple-600 text-white font-black text-xs uppercase tracking-widest overflow-hidden transition-all hover:bg-purple-500 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                      className="flex-1 group relative flex items-center justify-center gap-3 h-12 rounded-xl bg-[#E6B447] text-white font-black text-xs uppercase tracking-widest overflow-hidden transition-all hover:bg-[#F0C35C] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                     >
                       {isAnalyzing ? (
                         <><Loader2 className="h-4 w-4 animate-spin" /> Analisando...</>
@@ -250,7 +250,7 @@ export function AssetDetailModal({ asset, isOpen, onOpenChange, onDelete, onAnal
                       canAnalyze ? "flex-1" : "flex-1"
                     )}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#E6B447] to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#E6B447] to-[#AB8648] opacity-0 group-hover:opacity-10 transition-opacity" />
                     <MessageSquare className="h-4 w-4" />
                     Consultar MKTHONEY
                     <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

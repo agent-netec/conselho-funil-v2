@@ -177,7 +177,7 @@ export default function DesignCouncilPage() {
       <div className="flex min-h-screen flex-col bg-black">
         <Header title="Design" />
         <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#E6B447]" />
         </div>
       </div>
     );
@@ -195,7 +195,7 @@ export default function DesignCouncilPage() {
 
         <div className="mb-12">
           <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-500">
+            <div className="p-3 rounded-2xl bg-[#E6B447]/10 text-[#E6B447]">
               <Palette className="h-8 w-8" />
             </div>
             <div>
@@ -241,7 +241,7 @@ export default function DesignCouncilPage() {
               <Button 
                 onClick={handleGenerateDesign} 
                 disabled={isGenerating}
-                className="bg-purple-600 hover:bg-purple-500 h-12 px-8 font-bold"
+                className="bg-[#E6B447] hover:bg-[#F0C35C] h-12 px-8 font-bold"
               >
                 {isGenerating ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Palette className="mr-2 h-5 w-5" />}
                 Planejar Ativos Visuais
@@ -251,7 +251,7 @@ export default function DesignCouncilPage() {
             <div className="space-y-8">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-purple-400" />
+                  <Zap className="h-5 w-5 text-[#E6B447]" />
                   Criativos NanoBanana
                 </h2>
                 <Button variant="ghost" onClick={handleGenerateDesign} disabled={isGenerating} className="text-zinc-500 hover:text-white">
@@ -272,7 +272,7 @@ export default function DesignCouncilPage() {
               </div>
 
               <div className="pt-8 border-t border-white/[0.05] flex justify-end">
-                <Button onClick={handleApproveDesign} className="bg-purple-600 hover:bg-purple-500 h-12 px-12 text-lg font-bold shadow-[0_0_30px_rgba(168,85,247,0.3)]">
+                <Button onClick={handleApproveDesign} className="bg-[#E6B447] hover:bg-[#F0C35C] h-12 px-12 text-lg font-bold shadow-[0_0_30px_rgba(230,180,71,0.3)]">
                   Concluir Etapa Visual
                   <ChevronRight className="ml-2 h-5 w-5" />
                 </Button>

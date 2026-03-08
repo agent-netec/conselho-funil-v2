@@ -159,7 +159,7 @@ export function OfferCompare({ offerA, offerB, onBack }: OfferCompareProps) {
         <Card className="bg-zinc-900/50 border-zinc-800">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-zinc-400 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-400" />
+              <Sparkles className="w-4 h-4 text-[#E6B447]" />
               Pareceres AI
             </CardTitle>
           </CardHeader>
@@ -173,7 +173,7 @@ export function OfferCompare({ offerA, offerB, onBack }: OfferCompareProps) {
                   </div>
                 )) || <p className="text-[11px] text-zinc-600">Sem avaliação AI</p>}
                 {a.aiEvaluation?.summary && (
-                  <p className="text-[11px] text-purple-400/80 italic">{a.aiEvaluation.summary}</p>
+                  <p className="text-[11px] text-[#E6B447]/80 italic">{a.aiEvaluation.summary}</p>
                 )}
               </div>
               <div className="space-y-3 border-l border-zinc-800 pl-4">
@@ -184,7 +184,7 @@ export function OfferCompare({ offerA, offerB, onBack }: OfferCompareProps) {
                   </div>
                 )) || <p className="text-[11px] text-zinc-600">Sem avaliação AI</p>}
                 {b.aiEvaluation?.summary && (
-                  <p className="text-[11px] text-purple-400/80 italic">{b.aiEvaluation.summary}</p>
+                  <p className="text-[11px] text-[#E6B447]/80 italic">{b.aiEvaluation.summary}</p>
                 )}
               </div>
             </div>

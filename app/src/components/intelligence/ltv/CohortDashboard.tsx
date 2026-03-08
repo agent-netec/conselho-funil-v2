@@ -122,7 +122,7 @@ export const CohortDashboard: React.FC<CohortDashboardProps> = ({ data, summary 
         <MetricCard
           title="Total de Leads"
           value={(summary?.totalLeads ?? data.reduce((acc, c) => acc + c.leadCount, 0)).toLocaleString()}
-          icon={<Users className="w-4 h-4 text-purple-500" />}
+          icon={<Users className="w-4 h-4 text-[#E6B447]" />}
           description="Base total de contatos"
           badge="Real"
         />

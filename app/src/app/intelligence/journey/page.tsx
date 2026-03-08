@@ -289,7 +289,7 @@ export default function JourneyPage() {
                   <div className="space-y-3">
                     {heatmapStages.map((stage, i) => {
                       const maxWidth = stage.conversionFromTop;
-                      const colors = ['bg-[#E6B447]', 'bg-blue-500', 'bg-yellow-500', 'bg-purple-500'];
+                      const colors = ['bg-[#E6B447]', 'bg-blue-500', 'bg-yellow-500', 'bg-[#E6B447]'];
                       return (
                         <div key={stage.stage}>
                           <div className="flex items-center justify-between mb-1">

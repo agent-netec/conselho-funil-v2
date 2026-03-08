@@ -323,7 +323,7 @@ export default function AssetsPage() {
               onClick={() => setFilterType('visual')}
               className={cn(
                 "px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all",
-                filterType === 'visual' ? "bg-purple-500/20 text-purple-400" : "text-zinc-500 hover:text-zinc-300"
+                filterType === 'visual' ? "bg-[#E6B447]/20 text-[#E6B447]" : "text-zinc-500 hover:text-zinc-300"
               )}
             >
               Visual

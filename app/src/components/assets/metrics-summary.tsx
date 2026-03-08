@@ -41,8 +41,8 @@ export function AssetMetricsSummary({ summary, isLoading, recentAssets, onReproc
       value: isLoading ? '—' : (summary?.visualCount || 0),
       subtitle: "Criativos analisados",
       icon: ImageIcon,
-      color: "text-purple-400",
-      bg: "bg-purple-500/10",
+      color: "text-[#E6B447]",
+      bg: "bg-[#E6B447]/10",
       delay: 0.15
     },
     {

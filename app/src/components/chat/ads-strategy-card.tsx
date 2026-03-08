@@ -107,14 +107,14 @@ export function AdsStrategyCard({ strategyData, campaignId }: AdsStrategyCardPro
         {strategyData.channels?.length > 0 && (
           <div>
             <div className="flex items-center gap-1.5 mb-2">
-              <Megaphone className="h-3.5 w-3.5 text-purple-400" />
+              <Megaphone className="h-3.5 w-3.5 text-[#E6B447]" />
               <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Canais</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {strategyData.channels.map((channel, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-500/10 border border-purple-500/20 text-xs text-purple-300"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#E6B447]/10 border border-[#E6B447]/20 text-xs text-[#E6B447]"
                 >
                   {channel}
                 </span>

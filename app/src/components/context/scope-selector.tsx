@@ -91,14 +91,14 @@ export function ScopeSelector({ onScopeChange, className }: ScopeSelectorProps) 
           className={cn(
             "flex flex-col items-start p-3 rounded-lg border transition-all text-left",
             selectedLevel === 'funnel'
-              ? "bg-purple-500/10 border-purple-500/50 ring-1 ring-purple-500/20"
+              ? "bg-[#E6B447]/10 border-[#E6B447]/50 ring-1 ring-[#E6B447]/20"
               : "bg-white/[0.02] border-white/[0.04] hover:bg-white/[0.04]",
             !hasFunnelContext && "opacity-50 cursor-not-allowed grayscale"
           )}
         >
           <span className={cn(
             "text-xs font-bold uppercase tracking-wider mb-1",
-            selectedLevel === 'funnel' ? "text-purple-400" : "text-zinc-500"
+            selectedLevel === 'funnel' ? "text-[#E6B447]" : "text-zinc-500"
           )}>
             Apenas este Funil
           </span>

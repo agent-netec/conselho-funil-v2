@@ -32,7 +32,7 @@ const AI_PRESETS = [
     desc: 'Mais liberdade para a IA. Otimo para brainstorming e ideias fora da caixa.',
     temp: 0.8,
     topP: 0.9,
-    color: 'purple',
+    color: 'gold',
   },
   {
     id: 'agressivo',
@@ -58,7 +58,6 @@ type ProfileId = typeof AI_PRESETS[number]['id'];
 
 const COLOR_MAP: Record<string, { bg: string; border: string; text: string }> = {
   gold: { bg: 'bg-[#E6B447]/15', border: 'border-[#E6B447]/40', text: 'text-[#E6B447]' },
-  purple: { bg: 'bg-purple-500/15', border: 'border-purple-500/40', text: 'text-purple-400' },
   red: { bg: 'bg-red-500/15', border: 'border-red-500/40', text: 'text-red-400' },
   blue: { bg: 'bg-blue-500/15', border: 'border-blue-500/40', text: 'text-blue-400' },
 };
@@ -157,8 +156,8 @@ export function AiConfigModal({ isOpen, onClose, brand }: AiConfigModalProps) {
           {/* Profile Selection */}
           <div className="space-y-4 mb-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
-                <BrainCircuit className="h-5 w-5 text-purple-500" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6B447]/10">
+                <BrainCircuit className="h-5 w-5 text-[#E6B447]" />
               </div>
               <div>
                 <h3 className="text-sm font-medium text-white">Perfil de Geracao</h3>

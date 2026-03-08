@@ -82,7 +82,7 @@ export function RecommendationsList({ recommendations, className }: Recommendati
                       Score: {rec.currentScore}
                     </span>
                     {rec.framework && (
-                      <span className="inline-flex items-center gap-1 text-[10px] text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded border border-purple-500/20">
+                      <span className="inline-flex items-center gap-1 text-[10px] text-[#E6B447] bg-[#E6B447]/10 px-1.5 py-0.5 rounded border border-[#E6B447]/20">
                         <BookOpen className="h-2.5 w-2.5" />
                         {rec.framework}
                       </span>

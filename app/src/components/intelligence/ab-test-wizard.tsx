@@ -110,7 +110,7 @@ export function ABTestWizard({ brandId, onCreated }: ABTestWizardProps) {
   return (
     <Card className="p-6 border-zinc-800 bg-zinc-900/40 space-y-6">
       <div className="flex items-center gap-2">
-        <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/20">
+        <Badge variant="outline" className="bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/20">
           Wizard
         </Badge>
         <span className="text-xs text-zinc-500">Step {step} of 3</span>

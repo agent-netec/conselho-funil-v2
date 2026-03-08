@@ -21,7 +21,7 @@ export function TechStackBadges({ techStack, className }: TechStackBadgesProps) 
   const sections = [
     { label: "CMS", icon: Globe, value: techStack.cms, color: "bg-blue-500/10 text-blue-500 border-blue-500/20" },
     { label: "Analytics", icon: BarChart3, values: techStack.analytics, color: "bg-green-500/10 text-green-500 border-green-500/20" },
-    { label: "Marketing", icon: Mail, values: techStack.marketing, color: "bg-purple-500/10 text-purple-500 border-purple-500/20" },
+    { label: "Marketing", icon: Mail, values: techStack.marketing, color: "bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/20" },
     { label: "Payments", icon: CreditCard, values: techStack.payments, color: "bg-orange-500/10 text-orange-500 border-orange-500/20" },
     { label: "Infra", icon: Server, values: techStack.infrastructure, color: "bg-slate-500/10 text-slate-500 border-slate-500/20" },
   ];

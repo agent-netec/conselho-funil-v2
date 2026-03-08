@@ -33,7 +33,7 @@ const OBJECTIVE_CONFIG: Record<string, { label: string; icon: any; color: string
   leads: { label: 'Leads', icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
   sales: { label: 'Vendas', icon: TrendingUp, color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10' },
   calls: { label: 'Calls', icon: Zap, color: 'text-amber-400', bg: 'bg-amber-500/10' },
-  retention: { label: 'Retenção', icon: Target, color: 'text-purple-400', bg: 'bg-purple-500/10' },
+  retention: { label: 'Retenção', icon: Target, color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10' },
 };
 
 const FILTER_OPTIONS = [
@@ -216,7 +216,7 @@ export default function LibraryPage() {
               { label: 'Leads', value: stats.leads, icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/5' },
               { label: 'Vendas', value: stats.sales, icon: TrendingUp, color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/5' },
               { label: 'Calls', value: stats.calls, icon: Zap, color: 'text-amber-400', bg: 'bg-amber-500/5' },
-              { label: 'Retenção', value: stats.retention, icon: Target, color: 'text-purple-400', bg: 'bg-purple-500/5' },
+              { label: 'Retenção', value: stats.retention, icon: Target, color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/5' },
             ].map((stat, index) => (
               <div key={stat.label} className={cn("card-premium p-4 text-center border-white/[0.03]", stat.bg)}>
                 <stat.icon className={cn('h-4 w-4 mx-auto mb-3', stat.color)} />

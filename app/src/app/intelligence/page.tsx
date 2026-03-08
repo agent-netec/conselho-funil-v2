@@ -37,7 +37,7 @@ export default function IntelligencePage() {
           </p>
         </div>
         <Link href="/intelligence/personalization">
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 gap-2">
+          <Button className="bg-gradient-to-r from-[#E6B447] to-blue-600 hover:from-[#AB8648] hover:to-blue-700 gap-2">
             <Sparkles className="w-4 h-4" />
             Personalização Dinâmica
           </Button>
@@ -101,7 +101,7 @@ export default function IntelligencePage() {
               )}
               <div className="p-6 border rounded-xl bg-muted/20">
                 <h3 className="font-bold flex items-center gap-2 mb-2">
-                  <BrainCircuit className="w-5 h-5 text-purple-500" />
+                  <BrainCircuit className="w-5 h-5 text-[#E6B447]" />
                   Insight do Analyst
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">

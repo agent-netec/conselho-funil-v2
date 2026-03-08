@@ -33,7 +33,7 @@ export function WarRoomDashboard({ blended, platforms, loading }: WarRoomDashboa
           title="Blended ROAS"
           value={blended.roas.toFixed(2)}
           suffix="x"
-          icon={<Target className="w-4 h-4 text-purple-500" />}
+          icon={<Target className="w-4 h-4 text-[#E6B447]" />}
         />
         <MetricCard
           title="Total Spend"

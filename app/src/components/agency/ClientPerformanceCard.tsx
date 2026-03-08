@@ -88,12 +88,12 @@ export const ClientPerformanceCard = ({ client }: ClientPerformanceCardProps) =>
         <div className="space-y-4 pt-4 border-t border-white/5">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded bg-purple-500/10 text-purple-400">
+              <div className="p-1.5 rounded bg-[#E6B447]/10 text-[#E6B447]">
                 <Activity size={12} />
               </div>
               <span className="text-[10px] text-zinc-400 font-medium">ROI Preditivo (S22)</span>
             </div>
-            <span className="text-xs font-bold text-purple-400">{client.predictiveROI.toFixed(2)}x</span>
+            <span className="text-xs font-bold text-[#E6B447]">{client.predictiveROI.toFixed(2)}x</span>
           </div>
 
           <div className="space-y-1.5">

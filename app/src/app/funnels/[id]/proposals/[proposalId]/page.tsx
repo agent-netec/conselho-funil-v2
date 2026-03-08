@@ -155,7 +155,7 @@ import { Textarea } from '@/components/ui/textarea';
 const COUNSELOR_NAMES: Record<string, { name: string; role: string; color: string }> = {
   russell_brunson: { name: 'Russell Brunson', role: 'Arquitetura', color: 'text-blue-400' },
   dan_kennedy: { name: 'Dan Kennedy', role: 'Copy & Oferta', color: 'text-amber-400' },
-  frank_kern: { name: 'Frank Kern', role: 'Psicologia', color: 'text-purple-400' },
+  frank_kern: { name: 'Frank Kern', role: 'Psicologia', color: 'text-[#E6B447]' },
   sam_ovens: { name: 'Sam Ovens', role: 'Aquisição', color: 'text-green-400' },
   ryan_deiss: { name: 'Ryan Deiss', role: 'LTV', color: 'text-rose-400' },
   perry_belcher: { name: 'Perry Belcher', role: 'Monetização', color: 'text-orange-400' },
@@ -554,7 +554,7 @@ export default function ProposalDetailPage() {
                     <ScoreBar label="Clareza" value={scorecard.clarity} color="text-blue-400" />
                     <ScoreBar label="Força da Oferta" value={scorecard.offerStrength} color="text-amber-400" />
                     <ScoreBar label="Qualificação" value={scorecard.qualification} color="text-green-400" />
-                    <ScoreBar label="Fricção" value={10 - scorecard.friction} color="text-purple-400" />
+                    <ScoreBar label="Fricção" value={10 - scorecard.friction} color="text-[#E6B447]" />
                     <ScoreBar label="Potencial LTV" value={scorecard.ltvPotential} color="text-rose-400" />
                     <ScoreBar label="ROI Esperado" value={scorecard.expectedRoi} color="text-[#E6B447]" />
                   </div>
@@ -873,7 +873,7 @@ export default function ProposalDetailPage() {
                   </p>
                 </div>
                 <Link href={`/funnels/${funnel.id}/copy?proposalId=${proposal.id}`}>
-                  <Button className="h-11 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500">
+                  <Button className="h-11 bg-gradient-to-r from-violet-600 to-[#AB8648] hover:from-violet-500 hover:to-[#F0C35C]">
                     <Sparkles className="mr-2 h-4 w-4" />
                     Copywriting
                   </Button>

@@ -144,7 +144,7 @@ export function PredictionPanel({ data, loading, className }: PredictionPanelPro
     return (
       <div className={cn('space-y-6', className)}>
         <div className="flex items-center gap-2 text-sm text-zinc-400">
-          <Activity className="h-4 w-4 animate-pulse text-purple-400" />
+          <Activity className="h-4 w-4 animate-pulse text-[#E6B447]" />
           Calculando Conversion Probability Score...
         </div>
         <PredictionSkeleton />

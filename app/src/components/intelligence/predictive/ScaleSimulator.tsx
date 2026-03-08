@@ -67,7 +67,7 @@ export const ScaleSimulator = () => {
       <div className="lg:col-span-4 space-y-6">
         <Card className="p-6 card-premium border-white/[0.05]">
           <div className="flex items-center gap-2 mb-6">
-            <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400">
+            <div className="p-2 rounded-lg bg-[#E6B447]/10 text-[#E6B447]">
               <Target size={20} />
             </div>
             <h2 className="text-lg font-semibold text-white">Painel de Controle</h2>

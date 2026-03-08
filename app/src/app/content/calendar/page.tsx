@@ -178,7 +178,7 @@ export default function ContentCalendarPage() {
         { action: 'approve' as const, label: 'Aprovar', icon: CheckCircle, color: 'bg-[#AB8648] hover:bg-[#E6B447]' },
         { action: 'reject' as const, label: 'Rejeitar', icon: XCircle, color: 'bg-red-600 hover:bg-red-500' },
       ];
-      case 'approved': return [{ action: 'schedule' as const, label: 'Agendar Publicação', icon: Clock, color: 'bg-purple-600 hover:bg-purple-500' }];
+      case 'approved': return [{ action: 'schedule' as const, label: 'Agendar Publicação', icon: Clock, color: 'bg-[#E6B447] hover:bg-[#F0C35C]' }];
       case 'rejected': return [{ action: 're_edit' as const, label: 'Voltar para Rascunho', icon: ArrowLeft, color: 'bg-amber-600 hover:bg-amber-500' }];
       default: return [];
     }
@@ -520,7 +520,7 @@ export default function ContentCalendarPage() {
                       previewPlatform === 'instagram' ? 'bg-pink-500/20 text-pink-400' :
                       previewPlatform === 'linkedin' ? 'bg-blue-500/20 text-blue-400' :
                       previewPlatform === 'x' ? 'bg-zinc-500/20 text-zinc-300' :
-                      'bg-purple-500/20 text-purple-400'
+                      'bg-[#E6B447]/20 text-[#E6B447]'
                     }`}>
                       {previewPlatform === 'x' ? 'X (Twitter)' : previewPlatform.charAt(0).toUpperCase() + previewPlatform.slice(1)}
                     </span>
@@ -576,7 +576,7 @@ export default function ContentCalendarPage() {
                   selectedItem.status === 'approved' ? 'bg-[#E6B447]/20 text-[#E6B447]' :
                   selectedItem.status === 'published' ? 'bg-blue-500/20 text-blue-400' :
                   selectedItem.status === 'pending_review' ? 'bg-amber-500/20 text-amber-400' :
-                  selectedItem.status === 'scheduled' ? 'bg-purple-500/20 text-purple-400' :
+                  selectedItem.status === 'scheduled' ? 'bg-[#E6B447]/20 text-[#E6B447]' :
                   selectedItem.status === 'rejected' ? 'bg-red-500/20 text-red-400' :
                   'bg-zinc-500/20 text-zinc-400'
                 }`}>

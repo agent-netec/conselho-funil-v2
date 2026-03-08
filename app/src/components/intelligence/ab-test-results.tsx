@@ -158,7 +158,7 @@ export function ABTestResults({
                 </div>
 
                 <div className="mt-3 h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-purple-600" style={{ width: `${(cr / maxCr) * 100}%` }} />
+                  <div className="h-full bg-[#E6B447]" style={{ width: `${(cr / maxCr) * 100}%` }} />
                 </div>
               </div>
             );

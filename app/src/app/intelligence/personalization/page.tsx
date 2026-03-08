@@ -224,7 +224,7 @@ export default function PersonalizationPage() {
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-            <Sparkles className="w-8 h-8 text-purple-500" />
+            <Sparkles className="w-8 h-8 text-[#E6B447]" />
             Personalização Dinâmica
           </h1>
           <p className="text-muted-foreground">
@@ -249,7 +249,7 @@ export default function PersonalizationPage() {
           <Button
             onClick={handleRunScan}
             disabled={isScanning || !brandId}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 gap-2"
+            className="bg-gradient-to-r from-[#E6B447] to-blue-600 hover:from-[#AB8648] hover:to-blue-700 gap-2"
           >
             {isScanning ? (
               <RefreshCw className="w-4 h-4 animate-spin" />
@@ -346,7 +346,7 @@ export default function PersonalizationPage() {
                     size="sm"
                     onClick={handleRunScan}
                     disabled={isScanning || !brandId}
-                    className="gap-2 bg-purple-600 hover:bg-purple-700"
+                    className="gap-2 bg-[#E6B447] hover:bg-[#AB8648]"
                   >
                     {isScanning ? (
                       <RefreshCw className="w-4 h-4 animate-spin" />
@@ -371,7 +371,7 @@ export default function PersonalizationPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-purple-500" />
+                    <Sparkles className="w-5 h-5 text-[#E6B447]" />
                     Regras de Conteúdo Dinâmico
                   </h3>
                   <Button
@@ -489,7 +489,7 @@ export default function PersonalizationPage() {
                       </div>
                       <Button
                         size="sm"
-                        className="gap-2 bg-purple-600 hover:bg-purple-700"
+                        className="gap-2 bg-[#E6B447] hover:bg-[#AB8648]"
                         onClick={() => {
                           setEditingRule(null)
                           setShowRuleEditor(true)
@@ -531,7 +531,7 @@ export default function PersonalizationPage() {
               <Card>
                 <CardContent className="p-6 space-y-3">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <BrainCircuit className="w-5 h-5 text-purple-500" />
+                    <BrainCircuit className="w-5 h-5 text-[#E6B447]" />
                     O que a Personalização Dinâmica faz?
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -599,7 +599,7 @@ export default function PersonalizationPage() {
 
                     {/* Step 3 */}
                     <div className="flex gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-purple-100 text-purple-700 text-xs font-bold">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E6B447]/10 text-[#E6B447] text-xs font-bold">
                         3
                       </div>
                       <div>
@@ -645,7 +645,7 @@ export default function PersonalizationPage() {
 
                   <div className="grid gap-3">
                     <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-                      <Target className="w-4 h-4 text-purple-500 mt-0.5 shrink-0" />
+                      <Target className="w-4 h-4 text-[#E6B447] mt-0.5 shrink-0" />
                       <div>
                         <p className="text-sm font-medium">
                           Segmentar por dor principal

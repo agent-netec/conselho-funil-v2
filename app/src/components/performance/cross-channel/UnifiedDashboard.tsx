@@ -56,7 +56,7 @@ export function UnifiedCrossChannelDashboard({ metrics, insights, loading }: Uni
         <MetricCard
           title="Blended ROAS"
           value={`${metrics.totals.blendedRoas.toFixed(2)}x`}
-          icon={<Target className="w-4 h-4 text-purple-500" />}
+          icon={<Target className="w-4 h-4 text-[#E6B447]" />}
         />
         <MetricCard
           title="Total Spend"
@@ -116,7 +116,7 @@ export function UnifiedCrossChannelDashboard({ metrics, insights, loading }: Uni
         <Card className="card-premium border-white/5">
           <CardHeader>
             <CardTitle className="text-lg font-bold flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-purple-400" />
+              <TrendingUp className="w-5 h-5 text-[#E6B447]" />
               Ranking de Blended ROAS
             </CardTitle>
             <CardDescription>Eficiência por canal vs Investimento</CardDescription>

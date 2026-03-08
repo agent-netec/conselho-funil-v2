@@ -161,8 +161,8 @@ export function StepConfirm({ formData }: StepConfirmProps) {
       {/* Oferta */}
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 space-y-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10">
-            <Package className="h-4 w-4 text-purple-500" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E6B447]/10">
+            <Package className="h-4 w-4 text-[#E6B447]" />
           </div>
           <h4 className="font-medium text-white text-sm">Oferta Principal</h4>
         </div>
@@ -252,8 +252,8 @@ export function StepConfirm({ formData }: StepConfirmProps) {
       {/* AI Config */}
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 space-y-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10">
-            <BrainCircuit className="h-4 w-4 text-purple-400" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E6B447]/10">
+            <BrainCircuit className="h-4 w-4 text-[#E6B447]" />
           </div>
           <h4 className="font-medium text-white text-sm">Personalidade da IA</h4>
         </div>

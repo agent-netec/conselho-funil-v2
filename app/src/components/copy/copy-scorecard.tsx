@@ -51,7 +51,7 @@ const DIMENSIONS = [
     label: 'Oferta',
     description: 'Clareza de oferta, garantia, urgência',
     icon: DollarSign,
-    color: 'from-violet-500 to-purple-500',
+    color: 'from-violet-500 to-[#AB8648]',
     bgColor: 'bg-violet-500/10',
     textColor: 'text-violet-400',
   },

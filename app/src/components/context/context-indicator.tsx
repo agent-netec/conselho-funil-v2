@@ -95,7 +95,7 @@ export function ContextIndicator() {
                 { brand: names.brand, funnel: names.funnel }
               )}
             >
-              <Filter className="h-3.5 w-3.5 text-purple-400" />
+              <Filter className="h-3.5 w-3.5 text-[#E6B447]" />
               <span>Focar no Funil: {names.funnel}</span>
             </DropdownMenuItem>
           )}

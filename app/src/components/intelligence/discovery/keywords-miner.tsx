@@ -44,7 +44,7 @@ const INTENT_CONFIG: Record<string, { label: string; color: string; icon: typeof
   },
   navigational: {
     label: 'Navegação',
-    color: 'text-purple-400 border-purple-500/30 bg-purple-500/10',
+    color: 'text-[#E6B447] border-[#E6B447]/30 bg-[#E6B447]/10',
     icon: Compass,
     hint: 'Pessoa buscando algo específico. Oportunidade de brand awareness.',
   },
@@ -259,7 +259,7 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
               Mineração
               {results.length > 0 && <Badge className="ml-1 bg-blue-500 text-white border-none h-4 text-[9px] px-1">{results.length}</Badge>}
             </TabsTrigger>
-            <TabsTrigger value="related" className="text-[10px] h-6 data-[state=active]:bg-purple-500/10 data-[state=active]:text-purple-400">
+            <TabsTrigger value="related" className="text-[10px] h-6 data-[state=active]:bg-[#E6B447]/10 data-[state=active]:text-[#E6B447]">
               <Brain className="w-3 h-3 mr-1" />
               Correlacionadas
             </TabsTrigger>
@@ -291,7 +291,7 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
                   {savingAll ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Save className="w-3 h-3 mr-1" />}
                   Salvar Todas no Brand
                 </Button>
-                <Button size="sm" variant="outline" className="text-[10px] h-7 border-purple-500/30 text-purple-400 hover:bg-purple-500/10" onClick={handleRelatedKeywords} disabled={relatedLoading}>
+                <Button size="sm" variant="outline" className="text-[10px] h-7 border-[#E6B447]/30 text-[#E6B447] hover:bg-[#E6B447]/10" onClick={handleRelatedKeywords} disabled={relatedLoading}>
                   {relatedLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Brain className="w-3 h-3 mr-1" />}
                   Correlacionadas
                 </Button>

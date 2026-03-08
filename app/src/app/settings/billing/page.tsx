@@ -52,7 +52,7 @@ const TIER_DISPLAY: Record<string, { name: string; color: string; icon: typeof Z
   trial: { name: 'Trial PRO', color: 'text-amber-400', icon: Crown },
   starter: { name: 'Starter', color: 'text-blue-400', icon: Zap },
   pro: { name: 'Pro', color: 'text-[#E6B447]', icon: Crown },
-  agency: { name: 'Agency', color: 'text-purple-400', icon: Crown },
+  agency: { name: 'Agency', color: 'text-[#E6B447]', icon: Crown },
 };
 
 // ============================================

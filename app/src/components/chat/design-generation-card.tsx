@@ -231,10 +231,10 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
   };
 
   return (
-    <div className="mt-3 max-w-md overflow-hidden rounded-xl border border-purple-500/20 bg-purple-500/5 transition-all shadow-md">
+    <div className="mt-3 max-w-md overflow-hidden rounded-xl border border-[#E6B447]/20 bg-[#E6B447]/5 transition-all shadow-md">
       <div className="p-3 sm:p-4">
         <div className="flex items-center gap-3 mb-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400 shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E6B447]/20 text-[#E6B447] shrink-0">
             <Palette className="h-4 w-4" />
           </div>
           <div className="min-w-0 flex-1">
@@ -243,7 +243,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                 <h3 className="text-[13px] font-bold text-white truncate">
                   NanoBanana AI
                 </h3>
-                <span className="text-[9px] uppercase tracking-tighter px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold">
+                <span className="text-[9px] uppercase tracking-tighter px-1.5 py-0.5 rounded-full bg-[#E6B447]/20 text-[#E6B447] border border-[#E6B447]/30 font-bold">
                   Motor Visual
                 </span>
               </div>
@@ -277,7 +277,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
               <div className="flex flex-col items-center gap-0.5">
                 <span className="text-[8px] text-zinc-500 uppercase font-bold tracking-tight">Aspecto</span>
                 <div className="flex items-center gap-1 text-[10px] text-zinc-300 font-bold px-1 py-0.5 rounded bg-white/5 border border-white/5">
-                  <Layers className="w-2.5 h-2.5 text-purple-400/70" />
+                  <Layers className="w-2.5 h-2.5 text-[#E6B447]/70" />
                   {promptData.aspectRatio || '1:1'}
                 </div>
               </div>
@@ -287,7 +287,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                   onClick={() => setShowStrategy(!showStrategy)}
                   className={cn(
                     "flex items-center gap-1 text-[10px] font-bold px-1 py-0.5 rounded border transition-all",
-                    showStrategy ? "bg-purple-500/20 border-purple-500/50 text-purple-300" : "bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10"
+                    showStrategy ? "bg-[#E6B447]/20 border-[#E6B447]/50 text-[#E6B447]" : "bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10"
                   )}
                 >
                   <Sparkles className="w-2.5 h-2.5" />
@@ -297,8 +297,8 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
             </div>
 
             {showStrategy && promptData.strategy && (
-              <div className="p-2.5 rounded-lg bg-purple-500/10 border border-purple-500/20 space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                <div className="flex items-center gap-1.5 text-purple-300 text-[10px] font-bold uppercase tracking-wider mb-1">
+              <div className="p-2.5 rounded-lg bg-[#E6B447]/10 border border-[#E6B447]/20 space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                <div className="flex items-center gap-1.5 text-[#E6B447] text-[10px] font-bold uppercase tracking-wider mb-1">
                   <Info className="w-3 h-3" />
                   Racional Estratégico
                 </div>
@@ -316,7 +316,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                     <div className="flex flex-wrap gap-1 mt-0.5">
                       {promptData.strategy.hierarchyOrder.map((item, idx) => (
                         <div key={idx} className="flex items-center gap-1 text-[8px] bg-black/40 px-1.5 py-0.5 rounded border border-white/5 text-zinc-400">
-                          <span className="text-purple-400 font-bold">{idx + 1}</span>
+                          <span className="text-[#E6B447] font-bold">{idx + 1}</span>
                           {item}
                         </div>
                       ))}
@@ -328,7 +328,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
             
             <Button 
               onClick={handleGenerate}
-              className="w-full bg-purple-600 hover:bg-purple-500 text-white border-0 shadow-lg shadow-purple-900/20 h-9 text-xs font-bold transition-all hover:scale-[1.01] active:scale-[0.98]"
+              className="w-full bg-[#E6B447] hover:bg-[#F0C35C] text-white border-0 shadow-lg shadow-black/20 h-9 text-xs font-bold transition-all hover:scale-[1.01] active:scale-[0.98]"
             >
               <Sparkles className="mr-2 h-3.5 w-3.5" />
               Gerar Criativo Baseado na Intenção
@@ -339,7 +339,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
         {status === 'generating' && (
           <div className="flex flex-col items-center justify-center py-4 text-center">
             <div className="relative mb-2">
-              <Loader2 className="h-6 w-6 text-purple-500 animate-spin" />
+              <Loader2 className="h-6 w-6 text-[#E6B447] animate-spin" />
             </div>
             <h4 className="text-xs font-medium text-white">Processando sua visão...</h4>
           </div>
@@ -347,7 +347,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
 
         {status === 'success' && imageUrl && (
           <div className="space-y-3">
-            <div className="relative group rounded-lg overflow-hidden border border-purple-500/30 shadow-lg">
+            <div className="relative group rounded-lg overflow-hidden border border-[#E6B447]/30 shadow-lg">
               <img 
                 src={imageUrl} 
                 alt="Criativo Gerado" 
@@ -442,7 +442,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                   </Button>
                   <Button 
                     size="sm" 
-                    className="bg-purple-600 hover:bg-purple-700 h-8 text-[10px]"
+                    className="bg-[#E6B447] hover:bg-[#AB8648] h-8 text-[10px]"
                     onClick={handleDownload}
                   >
                     <Download className="mr-1 h-3 w-3" />
@@ -475,7 +475,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                   className="w-full flex items-center justify-between p-2.5 text-[10px] font-bold text-zinc-400 hover:bg-white/5 transition-colors"
                 >
                   <div className="flex items-center gap-2">
-                    <Type className="w-3.5 h-3.5 text-purple-400" />
+                    <Type className="w-3.5 h-3.5 text-[#E6B447]" />
                     COPYWRITING PARA {promptData.platform?.toUpperCase() || 'AD'}
                   </div>
                   <div className="flex items-center gap-2">
@@ -565,16 +565,16 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                     )}
 
                     {promptData.assets.callToAction && (
-                      <div className="flex items-center justify-between p-2 rounded bg-purple-500/10 border border-purple-500/20">
+                      <div className="flex items-center justify-between p-2 rounded bg-[#E6B447]/10 border border-[#E6B447]/20">
                         <div className="flex items-center gap-2">
-                          <Target className="w-3 h-3 text-purple-400" />
-                          <span className="text-[9px] text-purple-300 font-bold uppercase">CTA: {promptData.assets.callToAction}</span>
+                          <Target className="w-3 h-3 text-[#E6B447]" />
+                          <span className="text-[9px] text-[#E6B447] font-bold uppercase">CTA: {promptData.assets.callToAction}</span>
                         </div>
                         <button 
                           onClick={() => copyToClipboard(promptData.assets.callToAction!, 'cta')}
-                          className="p-1 hover:bg-purple-500/20 rounded"
+                          className="p-1 hover:bg-[#E6B447]/20 rounded"
                         >
-                          {copiedField === 'cta' ? <Check className="w-2.5 h-2.5 text-[#E6B447]" /> : <Copy className="w-2.5 h-2.5 text-purple-400" />}
+                          {copiedField === 'cta' ? <Check className="w-2.5 h-2.5 text-[#E6B447]" /> : <Copy className="w-2.5 h-2.5 text-[#E6B447]" />}
                         </button>
                       </div>
                     )}
@@ -619,7 +619,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                 <Button 
                   onClick={handleUpscale}
                   className={cn(
-                    "bg-zinc-800 hover:bg-zinc-700 text-purple-400 border border-purple-500/20 h-8 text-[10px]",
+                    "bg-zinc-800 hover:bg-zinc-700 text-[#E6B447] border border-[#E6B447]/20 h-8 text-[10px]",
                     isSelected && "opacity-50 pointer-events-none"
                   )}
                 >
@@ -636,7 +636,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                   setIsSelected(false);
                 }}
                 className={cn(
-                  "border-purple-500/30 text-purple-400 hover:bg-purple-500/10 h-8 text-[10px]",
+                  "border-[#E6B447]/30 text-[#E6B447] hover:bg-[#E6B447]/10 h-8 text-[10px]",
                   isUpscaled ? "col-span-2" : ""
                 )}
               >

@@ -294,7 +294,7 @@ export default function BrandAssetsPage() {
           <Button 
             variant="outline"
             onClick={() => router.push(`/brands/${brandId}`)}
-            className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10 shrink-0"
+            className="border-[#E6B447]/30 text-[#E6B447] hover:bg-[#E6B447]/10 shrink-0"
           >
             <Palette className="mr-2 h-4 w-4" />
             Configurar Identidade (BrandKit)
@@ -350,7 +350,7 @@ export default function BrandAssetsPage() {
                         />
                         {upscalingAssetId === asset.id && (
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <Loader2 className="h-4 w-4 text-purple-500 animate-spin" />
+                            <Loader2 className="h-4 w-4 text-[#E6B447] animate-spin" />
                           </div>
                         )}
                       </>
@@ -426,7 +426,7 @@ export default function BrandAssetsPage() {
                             <button
                               onClick={() => handleUpscale(asset)}
                               disabled={upscalingAssetId === asset.id}
-                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-purple-500/20 bg-purple-500/5 text-purple-400 hover:text-purple-300 hover:border-purple-500/40 transition-colors disabled:opacity-50"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#E6B447]/20 bg-[#E6B447]/5 text-[#E6B447] hover:text-[#F0C35C] hover:border-[#E6B447]/40 transition-colors disabled:opacity-50"
                               aria-label="Gerar versão HD"
                             >
                               <Sparkles className="h-4 w-4" />

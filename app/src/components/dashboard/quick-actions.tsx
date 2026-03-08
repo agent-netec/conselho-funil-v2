@@ -96,7 +96,7 @@ export function QuickActions() {
           icon={Zap}
           title="Biblioteca"
           description="Acesse templates e cases de sucesso"
-          gradient="bg-gradient-to-br from-purple-500/20 to-indigo-600/20"
+          gradient="bg-gradient-to-br from-[#E6B447]/20 to-indigo-600/20"
           delay={0.4}
         />
       </div>

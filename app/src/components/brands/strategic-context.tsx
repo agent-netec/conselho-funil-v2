@@ -169,7 +169,7 @@ export function StrategicContext({ brandId }: StrategicContextProps) {
       case 'url':
         return <Globe className="h-5 w-5 text-blue-400" />;
       case 'image':
-        return <ImageIcon className="h-5 w-5 text-purple-400" />;
+        return <ImageIcon className="h-5 w-5 text-[#E6B447]" />;
       case 'brand_book':
         return <BookOpen className="h-5 w-5 text-amber-400" />;
       default:

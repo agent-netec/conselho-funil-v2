@@ -47,7 +47,7 @@ export function ChatModeSelector({
                   : key === 'social'
                   ? 'bg-rose-500/20 text-rose-400'
                   : key === 'design'
-                  ? 'bg-purple-500/20 text-purple-400'
+                  ? 'bg-[#E6B447]/20 text-[#E6B447]'
                   : key === 'party'
                   ? 'bg-fuchsia-500/20 text-fuchsia-400 border border-fuchsia-500/30 shadow-[0_0_10px_rgba(217,70,239,0.1)]'
                   : 'bg-[#E6B447]/20 text-[#E6B447]'

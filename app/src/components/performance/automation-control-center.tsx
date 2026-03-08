@@ -185,7 +185,7 @@ export function AutomationControlCenter({
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs font-bold text-zinc-500 uppercase">Impacto Medido</p>
-                  <Target className="h-4 w-4 text-purple-500" />
+                  <Target className="h-4 w-4 text-[#E6B447]" />
                 </div>
                 <div className="text-3xl font-black text-white">{logsWithImpact.length}</div>
                 <p className="text-[10px] text-zinc-500 mt-1">Ações com resultado medido</p>
@@ -220,7 +220,7 @@ export function AutomationControlCenter({
                     </div>
                     <div className="flex items-center gap-2">
                       {log.context.councilDebate && (
-                        <Badge variant="outline" className="text-[10px] uppercase border-purple-500/20 text-purple-400">
+                        <Badge variant="outline" className="text-[10px] uppercase border-[#E6B447]/20 text-[#E6B447]">
                           <MessageSquare className="h-3 w-3 mr-1" />
                           MKTHONEY
                         </Badge>
@@ -487,7 +487,7 @@ export function AutomationControlCenter({
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs font-bold text-zinc-500 uppercase">Ações com Impacto</p>
-                  <Sparkles className="h-4 w-4 text-purple-500" />
+                  <Sparkles className="h-4 w-4 text-[#E6B447]" />
                 </div>
                 <div className="text-3xl font-black text-white">{logsWithImpact.length}</div>
                 <p className="text-[10px] text-zinc-500 mt-1">de {logs.filter(l => l.status === 'executed').length} executadas</p>
@@ -569,13 +569,13 @@ function CouncilVerdictPanel({ debate }: { debate: CouncilDebateResult }) {
   const [expanded, setExpanded] = React.useState(false);
 
   return (
-    <div className="bg-zinc-900/80 rounded-lg border border-purple-500/10 p-4">
+    <div className="bg-zinc-900/80 rounded-lg border border-[#E6B447]/10 p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <MessageSquare className="h-4 w-4 text-purple-400" />
-          <h4 className="text-sm font-bold text-purple-400 uppercase tracking-widest">Parecer do MKTHONEY Ads</h4>
+          <MessageSquare className="h-4 w-4 text-[#E6B447]" />
+          <h4 className="text-sm font-bold text-[#E6B447] uppercase tracking-widest">Parecer do MKTHONEY Ads</h4>
         </div>
-        <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20 text-[10px]">
+        <Badge className="bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/20 text-[10px]">
           Confiança: {debate.confidence}%
         </Badge>
       </div>
@@ -614,7 +614,7 @@ function CouncilVerdictPanel({ debate }: { debate: CouncilDebateResult }) {
 
       <button
         onClick={() => setExpanded(!expanded)}
-        className="mt-2 text-[10px] text-purple-400 hover:text-purple-300 font-bold uppercase tracking-widest"
+        className="mt-2 text-[10px] text-[#E6B447] hover:text-[#F0C35C] font-bold uppercase tracking-widest"
       >
         {expanded ? 'Recolher' : 'Ver debate completo'}
       </button>

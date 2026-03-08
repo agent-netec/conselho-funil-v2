@@ -115,7 +115,7 @@ export function SourcesTab() {
               <div className="flex items-center justify-between mt-4">
                 <Badge variant="outline" className={cn(
                   "text-[10px] px-1.5 py-0 border-white/[0.1]",
-                  source.scope?.level === 'brand' ? "text-[#E6B447]" : "text-purple-400"
+                  source.scope?.level === 'brand' ? "text-[#E6B447]" : "text-[#E6B447]"
                 )}>
                   {source.scope?.level === 'brand' ? 'Escopo: Marca' : 'Escopo: Funil'}
                 </Badge>

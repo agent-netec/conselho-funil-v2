@@ -323,7 +323,7 @@ export const STATUS_COLORS: Record<string, string> = {
   review: 'bg-yellow-500',
   approved: 'bg-green-500',
   adjusting: 'bg-orange-500',
-  executing: 'bg-purple-500',
+  executing: 'bg-[#E6B447]',
   completed: 'bg-[#E6B447]',
   killed: 'bg-red-500',
 };
@@ -428,7 +428,7 @@ export const CHAT_MODES = {
     subtitle: 'Diretor de Design',
     placeholder: 'Peça um briefing de design ou prompt para o NanoBanana...',
     footer: '🎨 Consultando: Diretor de Design especializado em Thumbnails, Carrosséis e Estáticos',
-    accentColor: 'purple',
+    accentColor: 'gold',
     counselors: [
       'design_director'
     ] as CounselorId[],
@@ -440,7 +440,7 @@ export const CHAT_MODES = {
     subtitle: 'Múltiplos Especialistas',
     placeholder: 'Inicie uma deliberação entre especialistas...',
     footer: '🎉 Party Mode: Selecione os especialistas para o debate',
-    accentColor: 'purple',
+    accentColor: 'gold',
     counselors: [] as CounselorId[], // Será preenchido dinamicamente
   },
 } as const;

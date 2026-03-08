@@ -136,7 +136,7 @@ export function OfferList({ brandId, onEditOffer, onCompare }: OfferListProps) {
               key={offer.id}
               className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
                 isSelected
-                  ? 'bg-purple-500/10 border-purple-500/30'
+                  ? 'bg-[#E6B447]/10 border-[#E6B447]/30'
                   : 'bg-zinc-900/30 border-zinc-800 hover:border-zinc-700'
               }`}
             >
@@ -147,7 +147,7 @@ export function OfferList({ brandId, onEditOffer, onCompare }: OfferListProps) {
                     onClick={() => toggleCompare(offer.id)}
                     className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${
                       isSelected
-                        ? 'bg-purple-500 border-purple-500 text-white'
+                        ? 'bg-[#E6B447] border-[#E6B447] text-white'
                         : 'border-zinc-700 hover:border-zinc-500'
                     }`}
                     title="Selecionar para comparação"

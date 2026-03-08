@@ -283,10 +283,10 @@ function WelcomeBody({ onCreateBrand }: { onCreateBrand: () => void }) {
         {/* Card 3: Explorar */}
         <button
           onClick={() => router.push('/funnels')}
-          className="group flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-left transition-all hover:border-purple-500/20 hover:bg-purple-500/[0.03]"
+          className="group flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-left transition-all hover:border-[#E6B447]/20 hover:bg-[#F0C35C]/[0.03]"
         >
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-purple-500/10 transition-transform group-hover:scale-110">
-            <Compass className="h-5 w-5 text-purple-400" />
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#E6B447]/10 transition-transform group-hover:scale-110">
+            <Compass className="h-5 w-5 text-[#E6B447]" />
           </div>
           <div className="flex-1 min-w-0">
             <span className="block text-sm font-semibold text-white">Explorar a plataforma</span>

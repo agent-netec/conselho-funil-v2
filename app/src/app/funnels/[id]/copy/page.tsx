@@ -672,7 +672,7 @@ export default function CopyCouncilPage() {
           className="mb-8"
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-[#AB8648]">
               <Sparkles className="h-6 w-6 text-white" />
             </div>
             <div>

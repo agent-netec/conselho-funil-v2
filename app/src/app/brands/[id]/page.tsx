@@ -266,8 +266,8 @@ export default function BrandDetailPage() {
           {/* Oferta */}
           <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6">
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10">
-                <Package className="h-6 w-6 text-purple-500" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E6B447]/10">
+                <Package className="h-6 w-6 text-[#E6B447]" />
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-white">Oferta Principal</h2>

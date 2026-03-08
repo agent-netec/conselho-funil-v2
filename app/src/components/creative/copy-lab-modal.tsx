@@ -80,8 +80,8 @@ export function CopyLabModal({ creative, isOpen, onClose, brandId }: CopyLabModa
       <DialogContent className="max-w-4xl bg-zinc-950 border-white/[0.1] text-white">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
-            <div className="h-10 w-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-              <BrainCircuit className="h-6 w-6 text-purple-400" />
+            <div className="h-10 w-10 rounded-xl bg-[#E6B447]/20 flex items-center justify-center">
+              <BrainCircuit className="h-6 w-6 text-[#E6B447]" />
             </div>
             <div>
               <DialogTitle className="text-xl font-black tracking-tight">AI Copy Variation Lab</DialogTitle>
@@ -123,7 +123,7 @@ export function CopyLabModal({ creative, isOpen, onClose, brandId }: CopyLabModa
             <Button 
               onClick={handleGenerate} 
               disabled={isGenerating}
-              className="w-full h-12 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-black rounded-xl gap-2 shadow-lg shadow-purple-500/20"
+              className="w-full h-12 bg-gradient-to-r from-[#E6B447] to-blue-600 hover:from-[#F0C35C] hover:to-blue-500 text-white font-black rounded-xl gap-2 shadow-lg shadow-[#E6B447]/20"
             >
               {isGenerating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
               GERAR VARIANTES
@@ -141,8 +141,8 @@ export function CopyLabModal({ creative, isOpen, onClose, brandId }: CopyLabModa
                   className="h-full flex flex-col items-center justify-center space-y-4"
                 >
                   <div className="relative">
-                    <div className="h-16 w-16 rounded-full border-2 border-purple-500/20 border-t-purple-500 animate-spin" />
-                    <BrainCircuit className="h-8 w-8 text-purple-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                    <div className="h-16 w-16 rounded-full border-2 border-[#E6B447]/20 border-t-[#E6B447] animate-spin" />
+                    <BrainCircuit className="h-8 w-8 text-[#E6B447] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                   </div>
                   <p className="text-zinc-400 font-medium animate-pulse">Consultando o motor criativo...</p>
                 </motion.div>

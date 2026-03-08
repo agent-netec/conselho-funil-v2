@@ -104,7 +104,7 @@ export function PersonalizationRuleEditor({
   };
 
   return (
-    <Card className="border-2 border-purple-100 bg-purple-50/10">
+    <Card className="border-2 border-[#E6B447]/20 bg-[#E6B447]/10">
       <CardHeader>
         <div className="flex items-center gap-2">
           {isEditing ? (
@@ -132,7 +132,7 @@ export function PersonalizationRuleEditor({
             placeholder="Ex: Como mães empreendedoras podem escalar sem perder tempo..." 
             value={headline}
             onChange={(e) => setHeadline(e.target.value)}
-            className="border-purple-200 focus-visible:ring-purple-500"
+            className="border-[#E6B447]/30 focus-visible:ring-[#E6B447]"
           />
           <p className="text-[10px] text-muted-foreground">
             Dica da IA: Use a dor &quot;{scan.persona.painPoints[0]}&quot; para maior conversão.
@@ -208,7 +208,7 @@ export function PersonalizationRuleEditor({
             </Button>
             <Button
               size="sm"
-              className="gap-2 bg-purple-600 hover:bg-purple-700"
+              className="gap-2 bg-[#E6B447] hover:bg-[#AB8648]"
               onClick={handleSave}
               disabled={!headline.trim()}
             >

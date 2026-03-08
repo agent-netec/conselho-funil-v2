@@ -90,7 +90,7 @@ export function AutomationLogCard({ log, onApprove, onReject, onViewDetails }: A
               <span>Funil: {log.context.funnelId}</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-zinc-300">
-              <div className="h-1.5 w-1.5 rounded-full bg-purple-500" />
+              <div className="h-1.5 w-1.5 rounded-full bg-[#E6B447]" />
               <span>Entidade: {log.context.entityId}</span>
             </div>
           </div>

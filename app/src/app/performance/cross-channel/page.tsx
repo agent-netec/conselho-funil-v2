@@ -24,13 +24,13 @@ export default function CrossChannelWarRoomPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/20 px-2">
+            <Badge variant="outline" className="bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/20 px-2">
               Cross-Channel
             </Badge>
             <span className="text-xs text-zinc-500 font-medium uppercase tracking-widest">Intelligence Wing</span>
           </div>
           <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-            <LayoutDashboard className="w-8 h-8 text-purple-500" />
+            <LayoutDashboard className="w-8 h-8 text-[#E6B447]" />
             Unified War Room
           </h1>
           <p className="text-zinc-400 text-sm">Visão holística de performance: Meta, Google e TikTok unificados.</p>
@@ -48,7 +48,7 @@ export default function CrossChannelWarRoomPage() {
           <Button
             onClick={refresh}
             disabled={loading}
-            className="bg-purple-600 hover:bg-purple-500 text-white gap-2"
+            className="bg-[#E6B447] hover:bg-[#F0C35C] text-white gap-2"
           >
             <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} />
             Atualizar
@@ -112,7 +112,7 @@ export default function CrossChannelWarRoomPage() {
             <span className="text-xs text-zinc-500">Attribution Bridge: Active</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${loading ? 'bg-purple-500 animate-pulse' : 'bg-[#E6B447]'}`} />
+            <div className={`w-2 h-2 rounded-full ${loading ? 'bg-[#E6B447] animate-pulse' : 'bg-[#E6B447]'}`} />
             <span className="text-xs text-zinc-500">AI Optimizer: {loading ? 'Processing' : 'Ready'}</span>
           </div>
         </div>

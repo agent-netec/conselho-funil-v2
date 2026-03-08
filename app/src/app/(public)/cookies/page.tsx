@@ -149,10 +149,10 @@ export default function CookiesPage() {
         </div>
 
         {/* Marketing */}
-        <div className="mt-6 p-6 rounded-xl bg-purple-500/5 border border-purple-500/20">
+        <div className="mt-6 p-6 rounded-xl bg-[#E6B447]/5 border border-[#E6B447]/20">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
-              <span className="text-purple-400 text-lg">📢</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6B447]/10">
+              <span className="text-[#E6B447] text-lg">📢</span>
             </div>
             <div>
               <h3 className="text-lg font-semibold text-white m-0">Cookies de Marketing</h3>

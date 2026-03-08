@@ -51,7 +51,7 @@ const HeuristicCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      className="card-premium p-5 border-l-4 border-l-zinc-800 hover:border-l-purple-500 transition-all"
+      className="card-premium p-5 border-l-4 border-l-zinc-800 hover:border-l-[#E6B447] transition-all"
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -97,7 +97,7 @@ export const AutopsyReportView: React.FC<AutopsyReportViewProps> = ({ report }) 
           </div>
           <CardHeader>
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="outline" className="text-purple-400 border-purple-500/30 bg-purple-500/5">
+              <Badge variant="outline" className="text-[#E6B447] border-[#E6B447]/30 bg-[#E6B447]/5">
                 Diagnóstico Forense Ativo
               </Badge>
               <span className="text-[10px] text-zinc-500 uppercase tracking-widest">ID: {report.id}</span>
@@ -173,7 +173,7 @@ export const AutopsyReportView: React.FC<AutopsyReportViewProps> = ({ report }) 
       {/* Recomendações Priorizadas */}
       <div className="space-y-4">
         <h3 className="text-xl font-bold text-white flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 text-purple-400" />
+          <AlertCircle className="w-5 h-5 text-[#E6B447]" />
           Plano de Ação Corretiva
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -206,7 +206,7 @@ export const AutopsyReportView: React.FC<AutopsyReportViewProps> = ({ report }) 
                   </Badge>
                   <Badge variant="secondary" className="text-[9px] uppercase bg-zinc-800">{rec.type}</Badge>
                 </div>
-                <h5 className="font-bold text-white group-hover:text-purple-400 transition-colors">{rec.action}</h5>
+                <h5 className="font-bold text-white group-hover:text-[#E6B447] transition-colors">{rec.action}</h5>
                 <p className="text-xs text-zinc-500 leading-relaxed">{rec.impact}</p>
               </div>
             </motion.div>

@@ -121,7 +121,7 @@ export default function ABTestingPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800 pb-8">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-purple-500/10 text-purple-500 border-purple-500/20 gap-1 px-2">
+            <Badge variant="outline" className="bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/20 gap-1 px-2">
               <FlaskConical className="w-3 h-3" />
               Intelligence Wing
             </Badge>

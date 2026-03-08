@@ -20,7 +20,7 @@ export function AudienceScanCard({ scan, onSelect, isSelected }: AudienceScanCar
 
   return (
     <Card 
-      className={`cursor-pointer transition-all hover:shadow-md ${isSelected ? 'border-purple-500 ring-1 ring-purple-500' : ''}`}
+      className={`cursor-pointer transition-all hover:shadow-md ${isSelected ? 'border-[#E6B447] ring-1 ring-[#E6B447]' : ''}`}
       onClick={() => onSelect?.(scan)}
     >
       <CardHeader className="pb-2">
@@ -54,7 +54,7 @@ export function AudienceScanCard({ scan, onSelect, isSelected }: AudienceScanCar
               {[1, 2, 3, 4, 5].map((level) => (
                 <div 
                   key={level} 
-                  className={`h-2 w-full rounded-full ${level <= persona.sophisticationLevel ? 'bg-purple-500' : 'bg-muted'}`}
+                  className={`h-2 w-full rounded-full ${level <= persona.sophisticationLevel ? 'bg-[#E6B447]' : 'bg-muted'}`}
                 />
               ))}
             </div>
@@ -80,7 +80,7 @@ export function AudienceScanCard({ scan, onSelect, isSelected }: AudienceScanCar
 
         <div className="p-3 bg-muted/30 rounded-lg border border-dashed">
           <div className="flex items-start gap-2">
-            <BrainCircuit className="w-4 h-4 text-purple-500 mt-1 shrink-0" />
+            <BrainCircuit className="w-4 h-4 text-[#E6B447] mt-1 shrink-0" />
             <p className="text-xs italic text-muted-foreground leading-relaxed">
               "{propensity.reasoning.substring(0, 120)}..."
             </p>

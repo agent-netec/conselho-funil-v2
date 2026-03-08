@@ -97,7 +97,7 @@ export function ReviewCard({ item, onApprove, onReject }: ReviewCardProps) {
             {scheduledLabel}
           </div>
           {item.metadata?.generatedBy === 'ai' && (
-            <span className="text-xs text-purple-400/70 bg-purple-500/10 px-2 py-0.5 rounded">IA</span>
+            <span className="text-xs text-[#E6B447]/70 bg-[#E6B447]/10 px-2 py-0.5 rounded">IA</span>
           )}
         </div>
 
