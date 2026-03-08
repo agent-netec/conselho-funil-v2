@@ -22,6 +22,7 @@ const PUBLIC_ROUTES = [
   '/refund',
   '/pricing',
   '/shared',
+  '/auth',
 ];
 
 // Routes that should not be processed by middleware

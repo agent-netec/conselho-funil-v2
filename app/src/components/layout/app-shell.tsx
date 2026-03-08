@@ -1,13 +1,14 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { Sidebar } from './sidebar';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { ToastNotifications } from '@/components/ui/toast-notifications';
 import { sendEmailVerification } from '@/lib/firebase/auth';
+import { EmailVerificationBanner } from '@/components/auth/email-verification-banner';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -23,6 +24,7 @@ const PUBLIC_PATHS = [
   '/refund',
   '/pricing',
   '/shared', // shared funnel pages
+  '/auth',   // Firebase action links (verify email, reset password)
 ];
 
 function LoadingScreen() {
@@ -105,9 +107,6 @@ export function AppShell({ children }: AppShellProps) {
   const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/signup');
   const isWelcomePage = pathname === '/welcome';
 
-  // R-1.7: Must be declared here (before any early returns) to satisfy Rules of Hooks
-  const [verificationSent, setVerificationSent] = useState(false);
-
   useEffect(() => {
     if (!isInitialized) return;
 
@@ -175,16 +174,6 @@ export function AppShell({ children }: AppShellProps) {
   // R-1.7: Email verification banner
   const showVerificationBanner = user && !user.emailVerified && !isAuthPage && !isWelcomePage;
 
-  const handleResendVerification = async () => {
-    try {
-      await sendEmailVerification(user);
-      setVerificationSent(true);
-      setTimeout(() => setVerificationSent(false), 5000);
-    } catch {
-      // Rate limited or other error — silently ignore
-    }
-  };
-
   // Protected pages - with sidebar
   return (
     <div className="min-h-screen bg-background selection:bg-[#E6B447]/20 selection:text-[#F5E8CE]">
@@ -197,18 +186,7 @@ export function AppShell({ children }: AppShellProps) {
       <main className="md:ml-[72px] min-h-screen relative flex flex-col">
         {/* R-1.7: Email verification banner */}
         {showVerificationBanner && (
-          <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 flex items-center justify-between text-sm">
-            <span className="text-amber-200">
-              Verifique seu email para ativar todas as funcionalidades.
-            </span>
-            <button
-              onClick={handleResendVerification}
-              disabled={verificationSent}
-              className="text-amber-400 hover:text-amber-300 font-medium transition-colors disabled:opacity-50"
-            >
-              {verificationSent ? 'Email enviado!' : 'Reenviar email'}
-            </button>
-          </div>
+          <EmailVerificationBanner onResend={() => sendEmailVerification(user)} />
         )}
 
         <AnimatePresence mode="wait">

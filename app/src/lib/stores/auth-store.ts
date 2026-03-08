@@ -56,6 +56,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       return () => {};
     }
 
+    let verifyInterval: ReturnType<typeof setInterval> | null = null;
+
     try {
       const unsubscribe = onAuthChange((user) => {
         // R5.2: Sync auth cookie with Firebase auth state
@@ -65,6 +67,41 @@ export const useAuthStore = create<AuthState>((set) => ({
           removeAuthCookie();
         }
         set({ user, isLoading: false, isInitialized: true });
+
+        // Clear previous interval if any
+        if (verifyInterval) {
+          clearInterval(verifyInterval);
+          verifyInterval = null;
+        }
+
+        // Auto-refresh emailVerified via visibility change + polling
+        if (user && !user.emailVerified) {
+          const checkVerified = async () => {
+            try {
+              await user.reload();
+              if (user.emailVerified) {
+                set({ user: { ...user } as typeof user });
+                if (verifyInterval) {
+                  clearInterval(verifyInterval);
+                  verifyInterval = null;
+                }
+              }
+            } catch {
+              // Silently ignore reload errors
+            }
+          };
+
+          // Poll every 10s while tab is active
+          verifyInterval = setInterval(checkVerified, 10_000);
+
+          // Also check on tab focus
+          if (typeof document !== 'undefined') {
+            const onVisibility = () => {
+              if (document.visibilityState === 'visible') checkVerified();
+            };
+            document.addEventListener('visibilitychange', onVisibility);
+          }
+        }
       });
 
       // Se o unsubscribe for uma função vazia (string representation check ou similar)

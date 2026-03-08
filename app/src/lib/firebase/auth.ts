@@ -77,7 +77,7 @@ export const signupWithEmail = async (email: string, password: string, displayNa
   }
   // R-1.7: Send email verification after signup
   try {
-    await firebaseSendEmailVerification(result.user);
+    await firebaseSendEmailVerification(result.user, getActionCodeSettings());
   } catch (e) {
     console.warn('[Auth] Email verification send failed:', e);
   }
@@ -95,12 +95,21 @@ export function getCurrentUser() {
   return auth?.currentUser || null;
 }
 
+// Action URL settings for Firebase email links
+function getActionCodeSettings() {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
+  return {
+    url: `${baseUrl}/auth/action`,
+    handleCodeInApp: false,
+  };
+}
+
 // R-1.7: Send email verification
 export async function sendEmailVerification(user?: User | null) {
   const target = user || auth?.currentUser;
   if (!target) throw new Error('Nenhum usuário autenticado');
   if (target.emailVerified) return;
-  await firebaseSendEmailVerification(target);
+  await firebaseSendEmailVerification(target, getActionCodeSettings());
 }
 
 // R-1.8: Send password reset email
