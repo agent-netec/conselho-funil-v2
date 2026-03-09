@@ -63,6 +63,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const auth = useAuthStore();
+  const { isExpanded } = useSidebarStore();
 
   const user = auth?.user;
   const isLoading = auth?.isLoading;
@@ -106,7 +107,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   if (!user) return <LoadingScreen />;
 
   const showVerificationBanner = !user.emailVerified;
-  const { isExpanded } = useSidebarStore();
 
   return (
     <div className="min-h-screen bg-background selection:bg-[#E6B447]/20 selection:text-[#F5E8CE]">
