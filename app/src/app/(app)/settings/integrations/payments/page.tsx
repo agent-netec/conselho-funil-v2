@@ -145,8 +145,8 @@ export default function PaymentWebhooksPage() {
           </div>
 
           {!brandId && (
-            <div className="card-premium p-6 border-yellow-500/20">
-              <p className="text-sm text-yellow-400">
+            <div className="card-premium p-6 border-[#E6B447]/20">
+              <p className="text-sm text-[#E6B447]">
                 Selecione uma brand no menu lateral para configurar webhooks.
               </p>
             </div>

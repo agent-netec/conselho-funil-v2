@@ -16,7 +16,7 @@ export default function SocialPage() {
       <div className="flex flex-col gap-8 p-6 lg:p-10">
         <div className="flex items-start justify-between">
           <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-rose-400">
+            <div className="flex items-center gap-2 text-[#E6B447]">
               <Sparkles className="h-5 w-5 fill-current" />
               <span className="text-sm font-bold uppercase tracking-wider">Social</span>
             </div>
@@ -32,7 +32,7 @@ export default function SocialPage() {
             onClick={() => setShowKBUploader(true)}
             className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-sm font-medium transition-colors border border-zinc-700"
           >
-            <BookOpen className="h-4 w-4 text-rose-400" />
+            <BookOpen className="h-4 w-4 text-[#E6B447]" />
             Adicionar Conhecimento
           </button>
         </div>

@@ -321,8 +321,8 @@ export default function ResearchPage() {
                   {/* O-3.6: RAG indicator */}
                   {item.ragChunkIds && item.ragChunkIds.length > 0 && (
                     <div className="flex items-center gap-1 mt-1">
-                      <Database className="w-3 h-3 text-violet-400" />
-                      <span className="text-[9px] text-violet-400">No MKTHONEY</span>
+                      <Database className="w-3 h-3 text-[#E6B447]" />
+                      <span className="text-[9px] text-[#E6B447]">No MKTHONEY</span>
                     </div>
                   )}
                 </button>
@@ -372,9 +372,9 @@ export default function ResearchPage() {
 
                 {/* O-3.6: Research context indicator */}
                 {selected.ragChunkIds && selected.ragChunkIds.length > 0 && (
-                  <div className="ml-auto flex items-center gap-1.5 px-2 py-1 bg-violet-500/10 border border-violet-500/20 rounded-lg">
-                    <Database className="h-3 w-3 text-violet-400" />
-                    <span className="text-[10px] text-violet-400">
+                  <div className="ml-auto flex items-center gap-1.5 px-2 py-1 bg-[#E6B447]/10 border border-[#E6B447]/20 rounded-lg">
+                    <Database className="h-3 w-3 text-[#E6B447]" />
+                    <span className="text-[10px] text-[#E6B447]">
                       Usando insights de Deep Research: {selected.topic}
                     </span>
                   </div>
@@ -389,7 +389,7 @@ export default function ResearchPage() {
                   {/* O-3.3: Add to Council checkboxes */}
                   <Card className="p-4 bg-zinc-900/30 border-zinc-800 space-y-3">
                     <h3 className="text-xs font-bold text-zinc-300 flex items-center gap-2">
-                      <Database className="h-3.5 w-3.5 text-violet-400" />
+                      <Database className="h-3.5 w-3.5 text-[#E6B447]" />
                       Adicionar ao MKTHONEY (RAG)
                     </h3>
                     <p className="text-[10px] text-zinc-500">
@@ -410,7 +410,7 @@ export default function ResearchPage() {
                             className={cn(
                               'flex items-center gap-2 px-3 py-2 rounded-lg text-xs border transition-all',
                               isChecked
-                                ? 'bg-violet-500/10 border-violet-500/30 text-violet-400'
+                                ? 'bg-[#E6B447]/10 border-[#E6B447]/30 text-[#E6B447]'
                                 : 'bg-zinc-900/40 border-zinc-800 text-zinc-500 hover:text-zinc-300'
                             )}
                           >
@@ -424,13 +424,13 @@ export default function ResearchPage() {
                       const v = (selected.sections as Record<string, unknown>)?.[key];
                       return Array.isArray(v) ? v.length === 0 : !v || (typeof v === 'string' && !v.trim());
                     }) && (
-                      <p className="text-[10px] text-amber-400/80">Este dossiê não tem seções com conteúdo para adicionar ao MKTHONEY.</p>
+                      <p className="text-[10px] text-[#E6B447]/80">Este dossiê não tem seções com conteúdo para adicionar ao MKTHONEY.</p>
                     )}
                     <Button
                       onClick={handleAddToRag}
                       disabled={ragSaving || ragSections.size === 0}
                       size="sm"
-                      className="bg-violet-600 hover:bg-violet-500 text-white text-xs"
+                      className="bg-[#AB8648] hover:bg-[#E6B447] text-white text-xs"
                     >
                       {ragSaving ? <Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> : <Database className="mr-1.5 h-3 w-3" />}
                       Adicionar ao MKTHONEY ({ragSections.size} seção{ragSections.size !== 1 ? 'ões' : ''})
@@ -512,7 +512,7 @@ export default function ResearchPage() {
                             )}
                             {voiceAnalysis.triggers?.length > 0 && (
                               <div>
-                                <span className="text-amber-400 font-medium">Gatilhos:</span>
+                                <span className="text-[#E6B447] font-medium">Gatilhos:</span>
                                 <ul className="list-disc ml-5 mt-1 space-y-0.5">
                                   {voiceAnalysis.triggers.map((t: string, i: number) => <li key={i}>{t}</li>)}
                                 </ul>
@@ -524,12 +524,12 @@ export default function ResearchPage() {
 
                       {/* O-2.3: Persona Card */}
                       {persona && (
-                        <Card className="p-4 bg-gradient-to-br from-violet-500/5 to-[#E6B447]/5 border-violet-500/20 space-y-3">
+                        <Card className="p-4 bg-gradient-to-br from-[#E6B447]/5 to-[#AB8648]/5 border-[#E6B447]/20 space-y-3">
                           <h3 className="text-sm font-bold text-zinc-200 flex items-center gap-2">
-                            <Users className="h-4 w-4 text-violet-400" />
+                            <Users className="h-4 w-4 text-[#E6B447]" />
                             Persona: {persona.name}
                           </h3>
-                          <Badge variant="outline" className="text-[10px] border-violet-500/20 text-violet-400">
+                          <Badge variant="outline" className="text-[10px] border-[#E6B447]/20 text-[#E6B447]">
                             {persona.age}
                           </Badge>
                           <p className="text-xs text-zinc-400 italic">&ldquo;{persona.summary}&rdquo;</p>
@@ -547,7 +547,7 @@ export default function ResearchPage() {
                               <ul className="list-disc ml-4 mt-1 space-y-0.5">{persona.questions.map((q, i) => <li key={i}>{q}</li>)}</ul>
                             </div>
                             <div>
-                              <span className="text-amber-400 font-medium text-[10px] uppercase">Gatilhos</span>
+                              <span className="text-[#E6B447] font-medium text-[10px] uppercase">Gatilhos</span>
                               <ul className="list-disc ml-4 mt-1 space-y-0.5">{persona.triggers.map((t, i) => <li key={i}>{t}</li>)}</ul>
                             </div>
                           </div>

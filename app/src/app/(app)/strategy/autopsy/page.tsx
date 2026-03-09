@@ -162,7 +162,7 @@ export default function FunnelAutopsyPage() {
     switch (status) {
       case 'pass': return <CheckCircle2 className="w-4 h-4 text-[#E6B447]" />;
       case 'fail': return <XCircle className="w-4 h-4 text-red-500" />;
-      case 'warning': return <AlertTriangle className="w-4 h-4 text-amber-500" />;
+      case 'warning': return <AlertTriangle className="w-4 h-4 text-[#E6B447]" />;
       default: return <Info className="w-4 h-4 text-zinc-500" />;
     }
   };
@@ -170,7 +170,7 @@ export default function FunnelAutopsyPage() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high': return 'bg-red-500/10 text-red-500 border-red-500/20';
-      case 'medium': return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
+      case 'medium': return 'bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/20';
       case 'low': return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
       default: return 'bg-zinc-500/10 text-zinc-500 border-zinc-500/20';
     }
@@ -262,7 +262,7 @@ export default function FunnelAutopsyPage() {
                       <div className={cn(
                         "text-2xl font-bold px-3 py-1 rounded-lg",
                         report.score >= 7 ? "text-[#E6B447] bg-[#E6B447]/10" :
-                        report.score >= 4 ? "text-amber-500 bg-amber-500/10" :
+                        report.score >= 4 ? "text-[#E6B447] bg-[#E6B447]/10" :
                         "text-red-500 bg-red-500/10"
                       )}>
                         {report.score}/10
@@ -426,7 +426,7 @@ export default function FunnelAutopsyPage() {
                             <span className={cn(
                               "text-[10px] font-bold px-1.5 py-0.5 rounded",
                               cs.score >= 7 ? "text-[#E6B447] bg-[#E6B447]/10" :
-                              cs.score >= 4 ? "text-amber-400 bg-amber-500/10" :
+                              cs.score >= 4 ? "text-[#E6B447] bg-[#E6B447]/10" :
                               "text-red-400 bg-red-500/10"
                             )}>
                               {cs.score}/10

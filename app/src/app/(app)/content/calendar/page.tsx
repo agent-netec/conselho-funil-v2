@@ -173,13 +173,13 @@ export default function ContentCalendarPage() {
   // === Status-based approval actions ===
   const getAvailableActions = (status: CalendarItemStatus) => {
     switch (status) {
-      case 'draft': return [{ action: 'submit_review' as const, label: 'Enviar para Revisão', icon: Send, color: 'bg-amber-600 hover:bg-amber-500' }];
+      case 'draft': return [{ action: 'submit_review' as const, label: 'Enviar para Revisão', icon: Send, color: 'bg-[#AB8648] hover:bg-[#E6B447]' }];
       case 'pending_review': return [
         { action: 'approve' as const, label: 'Aprovar', icon: CheckCircle, color: 'bg-[#AB8648] hover:bg-[#E6B447]' },
         { action: 'reject' as const, label: 'Rejeitar', icon: XCircle, color: 'bg-red-600 hover:bg-red-500' },
       ];
       case 'approved': return [{ action: 'schedule' as const, label: 'Agendar Publicação', icon: Clock, color: 'bg-[#E6B447] hover:bg-[#F0C35C]' }];
-      case 'rejected': return [{ action: 're_edit' as const, label: 'Voltar para Rascunho', icon: ArrowLeft, color: 'bg-amber-600 hover:bg-amber-500' }];
+      case 'rejected': return [{ action: 're_edit' as const, label: 'Voltar para Rascunho', icon: ArrowLeft, color: 'bg-[#AB8648] hover:bg-[#E6B447]' }];
       default: return [];
     }
   };
@@ -330,7 +330,7 @@ export default function ContentCalendarPage() {
           <button
             onClick={handleGenerateWeek}
             disabled={generatingWeek || !selectedBrand?.id}
-            className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-[#AB8648] hover:bg-[#E6B447] text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
           >
             {generatingWeek ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             Gerar Semana
@@ -390,7 +390,7 @@ export default function ContentCalendarPage() {
         <div className="bg-zinc-900/60 border border-zinc-700/50 rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <BookmarkPlus className="h-4 w-4 text-violet-400" />
+              <BookmarkPlus className="h-4 w-4 text-[#AB8648]" />
               Templates Salvos
             </h3>
             <button onClick={() => setShowTemplates(false)} className="text-zinc-400 hover:text-white">
@@ -413,8 +413,8 @@ export default function ContentCalendarPage() {
                   <p className="text-xs text-zinc-500 line-clamp-2">{tpl.content}</p>
                   {tpl.pillar && (
                     <div className="flex items-center gap-1 mt-2">
-                      <Tag className="h-3 w-3 text-violet-400" />
-                      <span className="text-[10px] text-violet-400">{tpl.pillar}</span>
+                      <Tag className="h-3 w-3 text-[#AB8648]" />
+                      <span className="text-[10px] text-[#AB8648]">{tpl.pillar}</span>
                     </div>
                   )}
                 </div>
@@ -575,7 +575,7 @@ export default function ContentCalendarPage() {
                 <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded ${
                   selectedItem.status === 'approved' ? 'bg-[#E6B447]/20 text-[#E6B447]' :
                   selectedItem.status === 'published' ? 'bg-blue-500/20 text-blue-400' :
-                  selectedItem.status === 'pending_review' ? 'bg-amber-500/20 text-amber-400' :
+                  selectedItem.status === 'pending_review' ? 'bg-[#E6B447]/20 text-[#E6B447]' :
                   selectedItem.status === 'scheduled' ? 'bg-[#E6B447]/20 text-[#E6B447]' :
                   selectedItem.status === 'rejected' ? 'bg-red-500/20 text-red-400' :
                   'bg-zinc-500/20 text-zinc-400'
@@ -625,7 +625,7 @@ export default function ContentCalendarPage() {
                 <button
                   onClick={() => handleSaveAsTemplate(selectedItem)}
                   disabled={savingTemplate}
-                  className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 w-full justify-center"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#AB8648] hover:bg-[#E6B447] text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 w-full justify-center"
                 >
                   {savingTemplate ? <Loader2 className="h-4 w-4 animate-spin" /> : <BookmarkPlus className="h-4 w-4" />}
                   Salvar como Template

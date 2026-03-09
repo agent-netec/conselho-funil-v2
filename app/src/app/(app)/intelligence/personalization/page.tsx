@@ -249,7 +249,7 @@ export default function PersonalizationPage() {
           <Button
             onClick={handleRunScan}
             disabled={isScanning || !brandId}
-            className="bg-gradient-to-r from-[#E6B447] to-blue-600 hover:from-[#AB8648] hover:to-blue-700 gap-2"
+            className="bg-gradient-to-r from-[#E6B447] to-[#AB8648] hover:from-[#AB8648] hover:to-[#895F29] gap-2"
           >
             {isScanning ? (
               <RefreshCw className="w-4 h-4 animate-spin" />
@@ -290,7 +290,7 @@ export default function PersonalizationPage() {
         {/* ── Coluna de Scans (lista) ─────────────────────────────────── */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            <BrainCircuit className="w-5 h-5 text-blue-500" />
+            <BrainCircuit className="w-5 h-5 text-[#E6B447]" />
             Scans de Audiência
           </h2>
 
@@ -395,8 +395,8 @@ export default function PersonalizationPage() {
                         key={rule.id}
                         className={`transition-colors ${
                           rule.isActive
-                            ? "border-green-200 bg-green-50/30"
-                            : "border-gray-200 bg-gray-50/30"
+                            ? "border-[#E6B447]/30 bg-[#E6B447]/5"
+                            : "border-zinc-800 bg-zinc-900/20"
                         }`}
                       >
                         <CardContent className="flex items-center gap-4 py-3 px-4">
@@ -414,9 +414,9 @@ export default function PersonalizationPage() {
                             }
                           >
                             {rule.isActive ? (
-                              <CheckCircle2 className="w-6 h-6 text-green-500" />
+                              <CheckCircle2 className="w-6 h-6 text-[#E6B447]" />
                             ) : (
-                              <Circle className="w-6 h-6 text-gray-400" />
+                              <Circle className="w-6 h-6 text-zinc-500" />
                             )}
                           </button>
 
@@ -548,14 +548,14 @@ export default function PersonalizationPage() {
               <Card>
                 <CardContent className="p-6 space-y-4">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <Settings2 className="w-5 h-5 text-blue-500" />
+                    <Settings2 className="w-5 h-5 text-[#E6B447]" />
                     Como configurar
                   </h3>
 
                   <div className="space-y-4">
                     {/* Step 1 */}
                     <div className="flex gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#5B8EC4]/10 text-[#5B8EC4] text-xs font-bold">
                         1
                       </div>
                       <div>
@@ -580,7 +580,7 @@ export default function PersonalizationPage() {
 
                     {/* Step 2 */}
                     <div className="flex gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#5B8EC4]/10 text-[#5B8EC4] text-xs font-bold">
                         2
                       </div>
                       <div>
@@ -617,7 +617,7 @@ export default function PersonalizationPage() {
 
                     {/* Step 4 */}
                     <div className="flex gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-bold">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#7A9B5A]/10 text-[#7A9B5A] text-xs font-bold">
                         4
                       </div>
                       <div>
@@ -639,7 +639,7 @@ export default function PersonalizationPage() {
               <Card>
                 <CardContent className="p-6 space-y-4">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-amber-500" />
+                    <Zap className="w-5 h-5 text-[#E6B447]" />
                     Casos de uso
                   </h3>
 
@@ -659,7 +659,7 @@ export default function PersonalizationPage() {
                     </div>
 
                     <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-                      <Users className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+                      <Users className="w-4 h-4 text-[#AB8648] mt-0.5 shrink-0" />
                       <div>
                         <p className="text-sm font-medium">
                           Personalizar por nível de consciência

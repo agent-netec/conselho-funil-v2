@@ -129,7 +129,7 @@ export default function ABTestingPage() {
           </div>
           <h1 className="text-4xl font-black tracking-tight text-white flex items-center gap-3">
             A/B Testing
-            <Sparkles className="w-8 h-8 text-yellow-500 animate-pulse" />
+            <Sparkles className="w-8 h-8 text-[#E6B447] animate-pulse" />
           </h1>
           <p className="text-zinc-400 max-w-2xl">
             Crie variantes por segmento, mensure performance e descubra quais mensagens convertem melhor.

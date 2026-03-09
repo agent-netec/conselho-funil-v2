@@ -227,11 +227,11 @@ export default function PerformanceWarRoomPage() {
           <div className="hidden lg:flex items-center gap-4 mr-4 px-4 py-2 bg-zinc-900/50 rounded-lg border border-zinc-800">
             <div className="text-right">
               <p className="text-[10px] text-zinc-500 font-bold uppercase">System Status</p>
-              <p className={`text-xs font-black ${hasIntegration === false ? 'text-amber-500' : 'text-[#E6B447]'}`}>
+              <p className={`text-xs font-black ${hasIntegration === false ? 'text-[#E6B447]' : 'text-[#E6B447]'}`}>
                 {hasIntegration === false ? 'NO ADS CONNECTED' : 'ALL SYSTEMS NOMINAL'}
               </p>
             </div>
-            <Zap className={`w-5 h-5 ${hasIntegration === false ? 'text-amber-500' : 'text-[#E6B447]'}`} />
+            <Zap className={`w-5 h-5 ${hasIntegration === false ? 'text-[#E6B447]' : 'text-[#E6B447]'}`} />
           </div>
 
           <Button variant="outline" className="border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800 hover:text-white gap-2 h-11">
@@ -274,8 +274,8 @@ export default function PerformanceWarRoomPage() {
 
       {/* Diagnostic panel: shows when integration found but no real spend */}
       {!loading && hasIntegration && diagnostic && blendedMetrics.spend === 0 && (
-        <Card className="bg-amber-950/20 border-amber-500/20 p-6">
-          <h3 className="text-sm font-black text-amber-400 uppercase tracking-widest mb-3">
+        <Card className="bg-[#E6B447]/5 border-[#E6B447]/20 p-6">
+          <h3 className="text-sm font-black text-[#E6B447] uppercase tracking-widest mb-3">
             Diagnóstico da Conexão
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -334,7 +334,7 @@ export default function PerformanceWarRoomPage() {
             </div>
           )}
           {diagnostic.metaTokenFound && diagnostic.metaCampaigns === 0 && diagnostic.errors?.length === 0 && (
-            <p className="mt-3 text-xs text-amber-400/70">
+            <p className="mt-3 text-xs text-[#E6B447]/70">
               Token válido mas nenhuma campanha encontrada nos últimos 365 dias. Verifique se a conta de anúncios (Ad Account) está correta.
             </p>
           )}
@@ -476,11 +476,11 @@ export default function PerformanceWarRoomPage() {
             {/* Recommendations */}
             {advisorRecommendations.length > 0 && (
               <div>
-                <h4 className="text-xs font-black text-amber-400 uppercase tracking-widest mb-2">Recomendações</h4>
+                <h4 className="text-xs font-black text-[#E6B447] uppercase tracking-widest mb-2">Recomendações</h4>
                 <ul className="space-y-2">
                   {advisorRecommendations.map((rec, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
-                      <span className="text-amber-500 mt-0.5">{i + 1}.</span>
+                      <span className="text-[#E6B447] mt-0.5">{i + 1}.</span>
                       <span>{rec}</span>
                     </li>
                   ))}

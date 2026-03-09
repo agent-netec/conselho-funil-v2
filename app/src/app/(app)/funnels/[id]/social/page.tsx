@@ -73,14 +73,14 @@ export default function FunnelSocialPage({ params }: PageProps) {
         <div className="max-w-7xl mx-auto space-y-6">
           <Card className="p-4 bg-zinc-900/50 border-white/[0.04]">
             <div className="flex items-center gap-3">
-              <Share2 className="h-5 w-5 text-rose-400" />
+              <Share2 className="h-5 w-5 text-[#E6B447]" />
               <div>
                 <h3 className="text-sm font-semibold text-zinc-100">Pipeline de Campanha</h3>
                 <p className="text-xs text-zinc-500">
                   O conteúdo gerado será automaticamente vinculado ao funil <span className="text-zinc-300">{funnelName}</span>
                 </p>
               </div>
-              <Badge variant="outline" className="ml-auto border-rose-500/20 text-rose-400 bg-rose-500/5 text-[10px]">
+              <Badge variant="outline" className="ml-auto border-[#E6B447]/20 text-[#E6B447] bg-[#E6B447]/5 text-[10px]">
                 Funil #{funnelId.slice(0, 8)}
               </Badge>
             </div>

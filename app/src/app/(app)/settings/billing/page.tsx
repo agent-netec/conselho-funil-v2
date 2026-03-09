@@ -49,7 +49,7 @@ interface Invoice {
 
 const TIER_DISPLAY: Record<string, { name: string; color: string; icon: typeof Zap }> = {
   free: { name: 'Free', color: 'text-zinc-400', icon: Zap },
-  trial: { name: 'Trial PRO', color: 'text-amber-400', icon: Crown },
+  trial: { name: 'Trial PRO', color: 'text-[#E6B447]', icon: Crown },
   starter: { name: 'Starter', color: 'text-blue-400', icon: Zap },
   pro: { name: 'Pro', color: 'text-[#E6B447]', icon: Crown },
   agency: { name: 'Agency', color: 'text-[#E6B447]', icon: Crown },
@@ -222,20 +222,20 @@ export default function BillingPage() {
 
             {/* Trial Badge */}
             {isTrial && (
-              <div className="mb-6 flex items-center gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                <Clock className="h-5 w-5 text-amber-400 flex-shrink-0" />
+              <div className="mb-6 flex items-center gap-3 p-4 rounded-xl bg-[#E6B447]/10 border border-[#E6B447]/20">
+                <Clock className="h-5 w-5 text-[#E6B447] flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-amber-400">
+                  <p className="text-sm font-medium text-[#E6B447]">
                     Trial PRO ativo - {trialDaysRemaining} dias restantes
                   </p>
-                  <p className="text-xs text-amber-400/70 mt-0.5">
+                  <p className="text-xs text-[#E6B447]/70 mt-0.5">
                     Apos o trial, sua conta sera convertida para o plano Free
                   </p>
                 </div>
                 <Button
                   size="sm"
                   onClick={() => handleUpgrade('pro')}
-                  className="bg-amber-500 hover:bg-amber-600 text-black font-medium"
+                  className="bg-[#E6B447] hover:bg-[#AB8648] text-black font-medium"
                 >
                   Assinar Pro
                 </Button>
@@ -250,13 +250,13 @@ export default function BillingPage() {
                   {isPaid ? (
                     <CheckCircle2 className="h-4 w-4 text-[#E6B447]" />
                   ) : isTrial ? (
-                    <Clock className="h-4 w-4 text-amber-400" />
+                    <Clock className="h-4 w-4 text-[#E6B447]" />
                   ) : (
                     <AlertTriangle className="h-4 w-4 text-zinc-500" />
                   )}
                   <span className="text-sm text-zinc-400">Status</span>
                 </div>
-                <p className={cn('font-semibold', isPaid ? 'text-[#E6B447]' : isTrial ? 'text-amber-400' : 'text-zinc-300')}>
+                <p className={cn('font-semibold', isPaid ? 'text-[#E6B447]' : isTrial ? 'text-[#E6B447]' : 'text-zinc-300')}>
                   {isPaid ? 'Ativo' : isTrial ? 'Em Trial' : 'Gratuito'}
                 </p>
               </div>
@@ -353,7 +353,7 @@ export default function BillingPage() {
                       <div
                         className={cn(
                           'h-full rounded-full transition-all',
-                          isExceeded ? 'bg-red-500' : isWarning ? 'bg-amber-500' : 'bg-[#E6B447]'
+                          isExceeded ? 'bg-red-500' : isWarning ? 'bg-[#E6B447]' : 'bg-[#E6B447]'
                         )}
                         style={{ width: `${percentage}%` }}
                       />
@@ -419,7 +419,7 @@ export default function BillingPage() {
                         <p className="font-semibold text-white">{invoice.amount}</p>
                         <p className={cn(
                           'text-xs',
-                          invoice.status === 'paid' ? 'text-[#E6B447]' : 'text-amber-400'
+                          invoice.status === 'paid' ? 'text-[#E6B447]' : 'text-[#E6B447]'
                         )}>
                           {invoice.status === 'paid' ? 'Paga' : 'Pendente'}
                         </p>
@@ -465,8 +465,8 @@ export default function BillingPage() {
                   Tem certeza que deseja cancelar? Voce mantera acesso ate o fim do periodo atual.
                 </p>
 
-                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 mb-6">
-                  <p className="text-sm text-amber-400">
+                <div className="p-4 rounded-xl bg-[#E6B447]/10 border border-[#E6B447]/20 mb-6">
+                  <p className="text-sm text-[#E6B447]">
                     <strong>CDC Art. 49:</strong> Se voce assinou nos ultimos 7 dias,
                     pode solicitar reembolso total.
                   </p>

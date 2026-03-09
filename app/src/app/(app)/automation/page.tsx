@@ -434,7 +434,7 @@ export default function AutomationPage() {
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
                           item.status === 'abandoned' 
                             ? 'bg-rose-500/10 text-rose-400' 
-                            : 'bg-amber-500/10 text-amber-400'
+                            : 'bg-[#E6B447]/10 text-[#E6B447]'
                         }`}>
                           {item.status}
                         </span>

@@ -249,7 +249,7 @@ export default function NewBrandPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-[#0D0B09]">
       <Header />
 
       <main className="mx-auto max-w-3xl px-6 py-12">
@@ -265,7 +265,7 @@ export default function NewBrandPage() {
 
         <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8">
           <div className="mb-8 text-center">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#E6B447] to-blue-600 mb-4">
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#E6B447] to-[#AB8648] mb-4">
               <Sparkles className="h-7 w-7 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">
@@ -308,7 +308,7 @@ export default function NewBrandPage() {
                 <Button
                   onClick={() => setCurrentStep((prev) => prev + 1)}
                   disabled={!canProceed()}
-                  className="bg-[#AB8648] hover:bg-[#895F29]"
+                  className="bg-[#E6B447] hover:bg-[#AB8648]"
                 >
                   Próximo
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -317,7 +317,7 @@ export default function NewBrandPage() {
                 <Button
                   onClick={handleSubmit}
                   disabled={isSubmitting || !canProceed()}
-                  className="bg-[#AB8648] hover:bg-[#895F29]"
+                  className="bg-[#E6B447] hover:bg-[#AB8648]"
                 >
                   {isSubmitting ? (
                     <>

@@ -37,7 +37,7 @@ export default function IntelligencePage() {
           </p>
         </div>
         <Link href="/intelligence/personalization">
-          <Button className="bg-gradient-to-r from-[#E6B447] to-blue-600 hover:from-[#AB8648] hover:to-blue-700 gap-2">
+          <Button className="bg-gradient-to-r from-[#E6B447] to-[#AB8648] hover:from-[#AB8648] hover:to-[#895F29] gap-2">
             <Sparkles className="w-4 h-4" />
             Personalização Dinâmica
           </Button>

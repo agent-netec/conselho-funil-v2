@@ -187,7 +187,7 @@ export default function EditBrandPage() {
   // Loading da marca
   if (isLoadingBrand) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0D0B09] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 text-[#E6B447] animate-spin mx-auto mb-4" />
           <p className="text-zinc-500">Carregando marca...</p>
@@ -197,9 +197,9 @@ export default function EditBrandPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-[#0D0B09]">
       <Header showBrandSelector={false} />
-      
+
       <main className="mx-auto max-w-3xl px-6 py-12">
         <div className="mb-8 flex items-center justify-between">
           <button
@@ -251,7 +251,7 @@ export default function EditBrandPage() {
               <Button
                 onClick={() => setCurrentStep((prev) => prev + 1)}
                 disabled={!canProceed()}
-                className="bg-[#AB8648] hover:bg-[#895F29]"
+                className="bg-[#E6B447] hover:bg-[#AB8648]"
               >
                 Próximo
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -260,7 +260,7 @@ export default function EditBrandPage() {
               <Button
                 onClick={handleSubmit}
                 disabled={isSubmitting || !canProceed()}
-                className="bg-[#AB8648] hover:bg-[#895F29]"
+                className="bg-[#E6B447] hover:bg-[#AB8648]"
               >
                 {isSubmitting ? (
                   <>

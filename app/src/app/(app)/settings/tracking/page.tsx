@@ -94,8 +94,8 @@ export default function TrackingSettingsPage() {
                 </pre>
               </div>
             ) : (
-              <div className="bg-zinc-950 border border-yellow-500/20 rounded-xl p-6 text-center">
-                <p className="text-sm text-yellow-400">
+              <div className="bg-zinc-950 border border-[#E6B447]/20 rounded-xl p-6 text-center">
+                <p className="text-sm text-[#E6B447]">
                   Selecione uma brand no menu lateral para gerar o snippet.
                 </p>
               </div>

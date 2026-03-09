@@ -154,7 +154,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 const COUNSELOR_NAMES: Record<string, { name: string; role: string; color: string }> = {
   russell_brunson: { name: 'Russell Brunson', role: 'Arquitetura', color: 'text-blue-400' },
-  dan_kennedy: { name: 'Dan Kennedy', role: 'Copy & Oferta', color: 'text-amber-400' },
+  dan_kennedy: { name: 'Dan Kennedy', role: 'Copy & Oferta', color: 'text-[#E6B447]' },
   frank_kern: { name: 'Frank Kern', role: 'Psicologia', color: 'text-[#E6B447]' },
   sam_ovens: { name: 'Sam Ovens', role: 'Aquisição', color: 'text-green-400' },
   ryan_deiss: { name: 'Ryan Deiss', role: 'LTV', color: 'text-rose-400' },
@@ -543,7 +543,7 @@ export default function ProposalDetailPage() {
                     <div className={cn(
                       'text-5xl font-bold',
                       overallScore >= 7.5 ? 'text-[#E6B447]' :
-                      overallScore >= 6 ? 'text-amber-400' : 'text-red-400'
+                      overallScore >= 6 ? 'text-[#E6B447]' : 'text-red-400'
                     )}>
                       {overallScore.toFixed(1)}
                     </div>
@@ -552,7 +552,7 @@ export default function ProposalDetailPage() {
                   
                   <div className="space-y-3">
                     <ScoreBar label="Clareza" value={scorecard.clarity} color="text-blue-400" />
-                    <ScoreBar label="Força da Oferta" value={scorecard.offerStrength} color="text-amber-400" />
+                    <ScoreBar label="Força da Oferta" value={scorecard.offerStrength} color="text-[#E6B447]" />
                     <ScoreBar label="Qualificação" value={scorecard.qualification} color="text-green-400" />
                     <ScoreBar label="Fricção" value={10 - scorecard.friction} color="text-[#E6B447]" />
                     <ScoreBar label="Potencial LTV" value={scorecard.ltvPotential} color="text-rose-400" />
@@ -681,7 +681,7 @@ export default function ProposalDetailPage() {
               className="card-premium p-6 mt-8"
             >
               <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-6">
-                <Zap className="h-5 w-5 text-amber-400" />
+                <Zap className="h-5 w-5 text-[#E6B447]" />
                 Assets Gerados
               </h3>
 
@@ -787,7 +787,7 @@ export default function ProposalDetailPage() {
                   onClick={() => handleDecision('adjust')}
                   disabled={isActioning}
                   variant="outline"
-                  className="flex-1 h-12 border-amber-500/50 text-amber-400 hover:bg-amber-500/10"
+                  className="flex-1 h-12 border-[#E6B447]/50 text-[#E6B447] hover:bg-[#E6B447]/10"
                 >
                   <RefreshCw className="mr-2 h-5 w-5" />
                   AJUSTAR
@@ -860,12 +860,12 @@ export default function ProposalDetailPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35 }}
-              className="card-premium p-6 mt-4 border-violet-500/20 bg-gradient-to-br from-violet-500/5 to-transparent"
+              className="card-premium p-6 mt-4 border-[#E6B447]/20 bg-gradient-to-br from-[#E6B447]/5 to-transparent"
             >
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-1 flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-violet-400" />
+                    <Sparkles className="h-5 w-5 text-[#E6B447]" />
                     Gerar Copy
                   </h3>
                   <p className="text-zinc-400 text-sm">
@@ -873,7 +873,7 @@ export default function ProposalDetailPage() {
                   </p>
                 </div>
                 <Link href={`/funnels/${funnel.id}/copy?proposalId=${proposal.id}`}>
-                  <Button className="h-11 bg-gradient-to-r from-violet-600 to-[#AB8648] hover:from-violet-500 hover:to-[#F0C35C]">
+                  <Button className="h-11 bg-gradient-to-r from-[#E6B447] to-[#AB8648] hover:from-[#F0C35C] hover:to-[#E6B447]">
                     <Sparkles className="mr-2 h-4 w-4" />
                     Copywriting
                   </Button>
@@ -911,7 +911,7 @@ export default function ProposalDetailPage() {
             <Button
               onClick={handleDialogSubmit}
               disabled={!dialogInput.trim()}
-              className={dialogType === 'adjust' ? 'bg-amber-600 hover:bg-amber-500' : 'bg-red-600 hover:bg-red-500'}
+              className={dialogType === 'adjust' ? 'bg-[#AB8648] hover:bg-[#E6B447]' : 'bg-red-600 hover:bg-red-500'}
             >
               {dialogType === 'adjust' ? 'Solicitar Ajustes' : 'Descartar'}
             </Button>

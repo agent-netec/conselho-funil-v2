@@ -33,9 +33,9 @@ import { cn } from '@/lib/utils';
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: any; glow: string }> = {
   draft: { label: 'Rascunho', color: 'text-zinc-400', bg: 'bg-zinc-500/10', icon: Clock, glow: 'from-zinc-500/5 to-transparent' },
   generating: { label: 'Gerando', color: 'text-blue-400', bg: 'bg-blue-500/10', icon: Clock, glow: 'from-blue-500/5 to-transparent' },
-  review: { label: 'Avaliar', color: 'text-amber-400', bg: 'bg-amber-500/10', icon: AlertCircle, glow: 'from-amber-500/5 to-transparent' },
+  review: { label: 'Avaliar', color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10', icon: AlertCircle, glow: 'from-[#E6B447]/5 to-transparent' },
   approved: { label: 'Aprovado', color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10', icon: CheckCircle2, glow: 'from-[#E6B447]/5 to-transparent' },
-  adjusting: { label: 'Ajustando', color: 'text-violet-400', bg: 'bg-violet-500/10', icon: Clock, glow: 'from-violet-500/5 to-transparent' },
+  adjusting: { label: 'Ajustando', color: 'text-[#AB8648]', bg: 'bg-[#AB8648]/10', icon: Clock, glow: 'from-[#E6B447]/5 to-transparent' },
   executing: { label: 'Executando', color: 'text-blue-400', bg: 'bg-blue-500/10', icon: Clock, glow: 'from-blue-500/5 to-transparent' },
   completed: { label: 'Concluído', color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10', icon: CheckCircle2, glow: 'from-[#E6B447]/5 to-transparent' },
   killed: { label: 'Cancelado', color: 'text-red-400', bg: 'bg-red-500/10', icon: AlertCircle, glow: 'from-red-500/5 to-transparent' },
@@ -51,7 +51,7 @@ const OBJECTIVE_LABELS: Record<string, string> = {
 const KANBAN_COLUMNS = [
   { key: 'draft', label: 'Rascunho', statuses: ['draft'], dotColor: 'bg-zinc-500' },
   { key: 'generating', label: 'Gerando', statuses: ['generating', 'adjusting', 'executing'], dotColor: 'bg-blue-400' },
-  { key: 'review', label: 'Em Revisão', statuses: ['review'], dotColor: 'bg-amber-400' },
+  { key: 'review', label: 'Em Revisão', statuses: ['review'], dotColor: 'bg-[#E6B447]' },
   { key: 'approved', label: 'Concluído', statuses: ['approved', 'completed'], dotColor: 'bg-[#E6B447]' },
 ];
 

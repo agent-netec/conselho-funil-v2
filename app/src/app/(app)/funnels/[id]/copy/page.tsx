@@ -88,7 +88,7 @@ function CopyScoreDisplay({ scorecard }: { scorecard: CopyScorecard }) {
 
   const getScoreColor = (score: number) => {
     if (score >= 8) return 'text-[#E6B447]';
-    if (score >= 6) return 'text-amber-400';
+    if (score >= 6) return 'text-[#E6B447]';
     return 'text-red-400';
   };
 
@@ -112,7 +112,7 @@ function CopyScoreDisplay({ scorecard }: { scorecard: CopyScorecard }) {
                   animate={{ width: `${score * 10}%` }}
                   className={cn(
                     'h-full rounded-full',
-                    score >= 8 ? 'bg-[#E6B447]' : score >= 6 ? 'bg-amber-500' : 'bg-red-500'
+                    score >= 8 ? 'bg-[#E6B447]' : score >= 6 ? 'bg-[#E6B447]' : 'bg-red-500'
                   )}
                 />
               </div>
@@ -223,7 +223,7 @@ function CopyProposalCard({
               <div className={cn(
                 'text-lg font-bold',
                 (Number(copyProposal.scorecard.overall) || 0) >= 8 ? 'text-[#E6B447]' :
-                (Number(copyProposal.scorecard.overall) || 0) >= 6 ? 'text-amber-400' :
+                (Number(copyProposal.scorecard.overall) || 0) >= 6 ? 'text-[#E6B447]' :
                 'text-red-400'
               )}>
                 {(Number(copyProposal.scorecard.overall) || 0).toFixed(1)}
@@ -307,7 +307,7 @@ function CopyProposalCard({
                         {copyProposal.content.vslSections.map((section: { name?: string; content?: string; duration?: string }, i: number) => (
                           <div key={i} className="bg-zinc-800/50 rounded-lg p-3 border border-zinc-700/50">
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs text-violet-400 font-medium">{safeStr(section.name) || `Seção ${i + 1}`}</span>
+                              <span className="text-xs text-[#AB8648] font-medium">{safeStr(section.name) || `Seção ${i + 1}`}</span>
                               {section.duration && (
                                 <span className="text-xs text-zinc-500">⏱️ {safeStr(section.duration)}</span>
                               )}
@@ -672,7 +672,7 @@ export default function CopyCouncilPage() {
           className="mb-8"
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-[#AB8648]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#E6B447] to-[#AB8648]">
               <Sparkles className="h-6 w-6 text-white" />
             </div>
             <div>
@@ -739,7 +739,7 @@ export default function CopyCouncilPage() {
             })}
           </div>
           {!activeProposalId && (
-            <p className="text-sm text-amber-400 mt-3">
+            <p className="text-sm text-[#E6B447] mt-3">
               ⚠️ Selecione uma proposta aprovada para gerar copy
             </p>
           )}
@@ -764,9 +764,9 @@ export default function CopyCouncilPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mb-8 p-6 rounded-2xl bg-amber-500/5 border border-amber-500/20"
+            className="mb-8 p-6 rounded-2xl bg-[#E6B447]/5 border border-[#E6B447]/20"
           >
-            <h3 className="text-amber-400 font-bold mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
+            <h3 className="text-[#E6B447] font-bold mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
               <AlertCircle className="h-4 w-4" />
               Selecione a base estratégica para esta copy
             </h3>
@@ -775,13 +775,13 @@ export default function CopyCouncilPage() {
                 <button
                   key={p.id}
                   onClick={() => setProposal(p)}
-                  className="text-left p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 transition-all group"
+                  className="text-left p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-[#E6B447]/50 transition-all group"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-zinc-500">v{p.version}</span>
                     {p.status === 'selected' && <span className="text-[10px] bg-[#E6B447]/10 text-[#E6B447] px-1.5 py-0.5 rounded uppercase font-bold">Aprovada</span>}
                   </div>
-                  <h4 className="font-bold text-white group-hover:text-amber-400 transition-colors truncate">{p.name}</h4>
+                  <h4 className="font-bold text-white group-hover:text-[#E6B447] transition-colors truncate">{p.name}</h4>
                   <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{p.summary}</p>
                 </button>
               ))}

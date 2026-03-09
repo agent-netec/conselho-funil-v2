@@ -142,7 +142,7 @@ export default function BrandDetailPage() {
             <Button
               onClick={() => router.push(`/brands/${brandId}/edit`)}
               size="sm"
-              className="bg-[#AB8648] hover:bg-[#895F29]"
+              className="bg-[#E6B447] hover:bg-[#AB8648]"
             >
               <Edit className="mr-2 h-4 w-4" />
               Editar
@@ -193,7 +193,7 @@ export default function BrandDetailPage() {
               {/* Identidade */}
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6">
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#E6B447] to-blue-600">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#E6B447] to-[#AB8648]">
                 <Building2 className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -225,8 +225,8 @@ export default function BrandDetailPage() {
           {/* Público-Alvo */}
           <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6">
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10">
-                <Users className="h-6 w-6 text-blue-500" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E6B447]/5">
+                <Users className="h-6 w-6 text-[#E6B447]" />
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-white">Público-Alvo</h2>

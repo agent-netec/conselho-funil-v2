@@ -136,7 +136,7 @@ export default function LTVDashboardPage() {
               className={
                 !summary.isEstimated && !summary.isSimulated
                   ? 'bg-[#F5E8CE] text-[#AB8648] border-[#E6B447]/30'
-                  : 'bg-amber-50 text-amber-600 border-amber-200'
+                  : 'bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/20'
               }
             >
               {!summary.isEstimated && !summary.isSimulated ? 'Dados Reais' : 'Parcialmente Estimado'}
@@ -161,17 +161,17 @@ export default function LTVDashboardPage() {
               key={alert.id}
               className={
                 alert.severity === 'critical'
-                  ? 'border-red-200 bg-red-50/50'
-                  : 'border-amber-200 bg-amber-50/50'
+                  ? 'border-red-500/20 bg-red-500/5'
+                  : 'border-[#E6B447]/20 bg-[#E6B447]/5'
               }
             >
               <CardContent className="py-3 text-sm flex items-center gap-2">
                 {alert.severity === 'critical' ? (
-                  <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                  <AlertTriangle className="w-4 h-4 text-[#C45B3A] flex-shrink-0" />
                 ) : (
-                  <Bell className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <Bell className="w-4 h-4 text-[#E6B447] flex-shrink-0" />
                 )}
-                <span className={alert.severity === 'critical' ? 'text-red-700' : 'text-amber-700'}>
+                <span className={alert.severity === 'critical' ? 'text-red-700' : 'text-[#E6B447]'}>
                   <strong>{alert.title}:</strong> {alert.description}
                 </span>
               </CardContent>
@@ -259,7 +259,7 @@ function RetentionPanel({ data }: { data: any }) {
         <Card>
           <CardContent className="pt-6">
             <p className="text-xs font-medium text-muted-foreground uppercase">Em Risco de Churn</p>
-            <p className="text-2xl font-bold text-red-600">{atRisk}</p>
+            <p className="text-2xl font-bold text-[#C45B3A]">{atRisk}</p>
           </CardContent>
         </Card>
         <Card>
@@ -271,7 +271,7 @@ function RetentionPanel({ data }: { data: any }) {
         <Card>
           <CardContent className="pt-6">
             <p className="text-xs font-medium text-muted-foreground uppercase">Risco Crítico</p>
-            <p className="text-2xl font-bold text-red-600">{riskBuckets.critical}</p>
+            <p className="text-2xl font-bold text-[#C45B3A]">{riskBuckets.critical}</p>
           </CardContent>
         </Card>
       </div>
@@ -285,8 +285,8 @@ function RetentionPanel({ data }: { data: any }) {
         <CardContent>
           <div className="space-y-4">
             {[
-              { label: 'Crítico (>70% risco)', count: riskBuckets.critical, color: 'bg-red-500', textColor: 'text-red-600' },
-              { label: 'Atenção (30-70% risco)', count: riskBuckets.warning, color: 'bg-amber-500', textColor: 'text-amber-600' },
+              { label: 'Crítico (>70% risco)', count: riskBuckets.critical, color: 'bg-red-500', textColor: 'text-[#C45B3A]' },
+              { label: 'Atenção (30-70% risco)', count: riskBuckets.warning, color: 'bg-[#E6B447]', textColor: 'text-[#E6B447]' },
               { label: 'Seguro (<30% risco)', count: riskBuckets.safe, color: 'bg-[#E6B447]', textColor: 'text-[#AB8648]' },
             ].map(bucket => {
               const pct = totalLeads > 0 ? (bucket.count / totalLeads * 100) : 0;
@@ -335,7 +335,7 @@ function RetentionPanel({ data }: { data: any }) {
                         <td className="px-4 py-3">
                           <Badge variant="outline" className="capitalize">{p.currentSegment}</Badge>
                         </td>
-                        <td className="px-4 py-3 text-red-600 font-bold">{(p.churnRisk * 100).toFixed(0)}%</td>
+                        <td className="px-4 py-3 text-[#C45B3A] font-bold">{(p.churnRisk * 100).toFixed(0)}%</td>
                         <td className="px-4 py-3">{p.daysSinceLastEvent}d</td>
                         <td className="px-4 py-3 capitalize">{p.engagementTrend}</td>
                       </tr>
@@ -372,7 +372,7 @@ function LtvError({ message, onRetry }: { message: string, onRetry: () => void }
   return (
     <div className="container mx-auto py-20 text-center">
       <div className="max-w-md mx-auto space-y-4">
-        <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+        <div className="w-16 h-16 bg-red-100 text-[#C45B3A] rounded-full flex items-center justify-center mx-auto">
           <TrendingUp className="w-8 h-8" />
         </div>
         <h2 className="text-2xl font-bold">Falha na Inteligência</h2>

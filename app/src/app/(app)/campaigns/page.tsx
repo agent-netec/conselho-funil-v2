@@ -118,8 +118,8 @@ export default function CampaignsPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
           <div>
             <h2 className="text-3xl font-bold text-white flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                <Zap className="h-6 w-6 text-amber-400" />
+              <div className="p-2 rounded-xl bg-[#E6B447]/10 border border-[#E6B447]/20">
+                <Zap className="h-6 w-6 text-[#E6B447]" />
               </div>
               Suas Campanhas
             </h2>
@@ -136,11 +136,11 @@ export default function CampaignsPage() {
                 placeholder="Buscar campanha..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-10 pr-4 rounded-xl bg-zinc-900 border border-white/[0.05] text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+                className="w-full h-10 pl-10 pr-4 rounded-xl bg-zinc-900 border border-white/[0.05] text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-[#E6B447]/50"
               />
             </div>
             <Link href="/funnels/new">
-              <button className="btn-accent bg-amber-600 hover:bg-amber-500 border-amber-500/20 whitespace-nowrap">
+              <button className="btn-accent bg-[#E6B447] hover:bg-[#D4A33E] border-[#E6B447]/20 whitespace-nowrap">
                 <Plus className="mr-2 h-4 w-4" />
                 Nova Campanha
               </button>
@@ -190,28 +190,28 @@ export default function CampaignsPage() {
                   transition={{ delay: index * 0.05 }}
                 >
                   <Link href={`/campaigns/${campaign.id}`}>
-                    <div className="card-premium group hover:border-amber-500/30 transition-all cursor-pointer h-full flex flex-col p-0 overflow-hidden">
+                    <div className="card-premium group hover:border-[#E6B447]/30 transition-all cursor-pointer h-full flex flex-col p-0 overflow-hidden">
                       <div className="p-6 flex-1">
                         <div className="flex items-center justify-between mb-6">
                           <div className={cn(
                             "flex h-10 w-10 items-center justify-center rounded-xl border transition-colors",
                             isComplete
                               ? "bg-[#E6B447]/10 border-[#E6B447]/20 text-[#E6B447]"
-                              : "bg-amber-500/10 border-amber-500/20 text-amber-400 group-hover:bg-amber-500/20"
+                              : "bg-[#E6B447]/10 border-[#E6B447]/20 text-[#E6B447] group-hover:bg-[#E6B447]/20"
                           )}>
                             {isComplete ? <CheckCircle2 className="h-5 w-5" /> : <Zap className="h-5 w-5" />}
                           </div>
                           <div className={cn(
                             "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/[0.02]",
                             isComplete ? "bg-[#E6B447]/10 text-[#E6B447]" :
-                            campaign.status === 'active' ? "bg-amber-500/10 text-amber-400" :
+                            campaign.status === 'active' ? "bg-[#E6B447]/10 text-[#E6B447]" :
                             "bg-zinc-800 text-zinc-500"
                           )}>
                             {isComplete ? 'Completa' : campaign.status === 'active' ? 'Ativa' : campaign.status}
                           </div>
                         </div>
 
-                        <h3 className="text-xl font-bold text-white group-hover:text-amber-400 transition-colors mb-3">
+                        <h3 className="text-xl font-bold text-white group-hover:text-[#E6B447] transition-colors mb-3">
                           {campaign.name}
                         </h3>
                         <p className="text-sm text-zinc-500 line-clamp-2 leading-relaxed">
@@ -225,7 +225,7 @@ export default function CampaignsPage() {
                           <div className="flex items-center justify-between text-[10px] uppercase font-bold tracking-wider">
                             <span className="text-zinc-500">Congruência Estratégica</span>
                             <span className={cn(
-                              isComplete ? "text-[#E6B447]" : congruence >= 60 ? "text-amber-400" : "text-orange-400"
+                              isComplete ? "text-[#E6B447]" : congruence >= 60 ? "text-[#E6B447]" : "text-orange-400"
                             )}>{congruence}%</span>
                           </div>
                           <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden">
@@ -234,7 +234,7 @@ export default function CampaignsPage() {
                                 "h-full rounded-full transition-all duration-500",
                                 isComplete
                                   ? "bg-gradient-to-r from-[#AB8648] to-[#E6B447] shadow-[0_0_10px_rgba(230,180,71,0.3)]"
-                                  : "bg-gradient-to-r from-amber-600 to-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.3)]"
+                                  : "bg-gradient-to-r from-[#AB8648] to-[#E6B447] shadow-[0_0_10px_rgba(245,158,11,0.3)]"
                               )}
                               style={{ width: `${congruence}%` }}
                             />
@@ -265,7 +265,7 @@ export default function CampaignsPage() {
                                 {completedCount}/{stages.length} Etapas
                               </span>
                             </div>
-                            <ChevronRight className="h-4 w-4 text-amber-500 group-hover:translate-x-1 transition-transform" />
+                            <ChevronRight className="h-4 w-4 text-[#E6B447] group-hover:translate-x-1 transition-transform" />
                           </div>
                         </div>
                       </div>

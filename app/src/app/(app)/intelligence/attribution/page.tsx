@@ -93,7 +93,7 @@ export default function AttributionPage() {
               className={
                 dataSufficiency === 'real'
                   ? 'bg-[#E6B447]/10 text-[#AB8648] border-[#E6B447]/30'
-                  : 'bg-amber-500/10 text-amber-600 border-amber-200'
+                  : 'bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/20'
               }
             >
               {dataSufficiency === 'real' ? (
@@ -113,7 +113,7 @@ export default function AttributionPage() {
               size="sm"
               onClick={triggerSync}
               disabled={syncing}
-              className="text-amber-600 border-amber-200"
+              className="text-[#E6B447] border-[#E6B447]/20"
             >
               <RefreshCw className={`w-3 h-3 mr-1 ${syncing ? 'animate-spin' : ''}`} />
               {syncing ? 'Sincronizando...' : 'Dados desatualizados'}
@@ -183,8 +183,8 @@ export default function AttributionPage() {
         <>
           {/* Sprint T-1.3: Insufficient data banner */}
           {dataSufficiency === 'insufficient' && (
-            <Card className="border-amber-200 bg-amber-50/50">
-              <CardContent className="py-4 text-sm text-amber-700 flex items-center gap-2">
+            <Card className="border-[#E6B447]/20 bg-[#E6B447]/5">
+              <CardContent className="py-4 text-sm text-[#E6B447] flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                 <span>
                   Dados insuficientes para atribuição completa
@@ -215,10 +215,10 @@ export default function AttributionPage() {
                       contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
                     />
                     <Legend iconType="circle" />
-                    <Bar dataKey="lastClick" name="Last Click" fill="#94a3b8" radius={[4, 4, 0, 0]} animationDuration={1500} />
-                    <Bar dataKey="uShape" name="U-Shape" fill="#8b5cf6" radius={[4, 4, 0, 0]} animationDuration={1500} />
-                    <Bar dataKey="linear" name="Linear" fill="#3b82f6" radius={[4, 4, 0, 0]} animationDuration={1500} />
-                    <Bar dataKey="timeDecay" name="Time Decay" fill="#f59e0b" radius={[4, 4, 0, 0]} animationDuration={1500} />
+                    <Bar dataKey="lastClick" name="Last Click" fill="#6B5D4A" radius={[4, 4, 0, 0]} animationDuration={1500} />
+                    <Bar dataKey="uShape" name="U-Shape" fill="#E6B447" radius={[4, 4, 0, 0]} animationDuration={1500} />
+                    <Bar dataKey="linear" name="Linear" fill="#AB8648" radius={[4, 4, 0, 0]} animationDuration={1500} />
+                    <Bar dataKey="timeDecay" name="Time Decay" fill="#F0C35C" radius={[4, 4, 0, 0]} animationDuration={1500} />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -254,7 +254,7 @@ export default function AttributionPage() {
                 <CardContent>
                   <div className="space-y-4">
                     {[
-                      { label: "Topo (First Touch)", value: 40, color: "bg-blue-500" },
+                      { label: "Topo (First Touch)", value: 40, color: "bg-[#5B8EC4]" },
                       { label: "Meio (Assisted)", value: 20, color: "bg-[#E6B447]" },
                       { label: "Fundo (Last Click)", value: 40, color: "bg-primary" },
                     ].map((item) => (
@@ -281,8 +281,8 @@ export default function AttributionPage() {
 
           {/* Fallback visual — Sprint 27 (P12) */}
           {!hasSpendData && stats.length > 0 && (
-            <Card className="border-amber-200 bg-amber-50/50">
-              <CardContent className="py-4 text-sm text-amber-700 flex items-center gap-2">
+            <Card className="border-[#E6B447]/20 bg-[#E6B447]/5">
+              <CardContent className="py-4 text-sm text-[#E6B447] flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 Sem dados de spend disponíveis. Conecte uma integração de Ads (Meta/Google) para visualizar custos reais por campanha.
               </CardContent>
@@ -303,7 +303,7 @@ export default function AttributionPage() {
                       <th className="px-6 py-4 font-medium">Conv. (Last Click)</th>
                       <th className="px-6 py-4 font-medium text-primary">Conv. (U-Shape)</th>
                       <th className="px-6 py-4 font-medium text-[#E6B447]">Conv. (Linear)</th>
-                      <th className="px-6 py-4 font-medium text-amber-600">Conv. (Time Decay)</th>
+                      <th className="px-6 py-4 font-medium text-[#AB8648]">Conv. (Time Decay)</th>
                       <th className="px-6 py-4 font-medium">Variação (%)</th>
                     </tr>
                   </thead>
@@ -314,7 +314,7 @@ export default function AttributionPage() {
                         <td className="px-6 py-4">{row.conversions.last_touch.toFixed(1)}</td>
                         <td className="px-6 py-4 font-bold text-primary">{row.conversions.u_shape.toFixed(1)}</td>
                         <td className="px-6 py-4 text-[#E6B447]">{row.conversions.linear.toFixed(1)}</td>
-                        <td className="px-6 py-4 text-amber-600">{row.conversions.time_decay.toFixed(1)}</td>
+                        <td className="px-6 py-4 text-[#AB8648]">{row.conversions.time_decay.toFixed(1)}</td>
                         <td className="px-6 py-4">
                           <div className={`flex items-center gap-1 ${row.variation >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                             {row.variation >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}

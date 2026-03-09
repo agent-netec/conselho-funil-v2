@@ -45,7 +45,7 @@ export default function DiscoveryPage() {
     return (
       <div className="container mx-auto p-6 flex items-center justify-center h-[50vh]">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-[#E6B447] border-t-transparent rounded-full animate-spin" />
           <p className="text-zinc-500 animate-pulse">Sincronizando com o Hub de Inteligência...</p>
         </div>
       </div>
@@ -74,26 +74,26 @@ export default function DiscoveryPage() {
         <Card className="bg-zinc-900/30 border-white/[0.05]">
           <CardContent className="p-6 space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2 text-zinc-200">
-              <Search className="w-5 h-5 text-blue-500" />
+              <Search className="w-5 h-5 text-[#E6B447]" />
               Como usar o Keywords Miner
             </h3>
             <div className="space-y-3">
               <div className="flex gap-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold">1</div>
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#E6B447]/20 text-[#E6B447] text-[10px] font-bold">1</div>
                 <p className="text-xs text-zinc-400">
                   <strong className="text-zinc-300">Digite o termo principal do nicho</strong> — ex: &quot;tráfego pago&quot;,
                   &quot;emagrecimento&quot;, &quot;investimentos&quot;
                 </p>
               </div>
               <div className="flex gap-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold">2</div>
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#E6B447]/20 text-[#E6B447] text-[10px] font-bold">2</div>
                 <p className="text-xs text-zinc-400">
                   <strong className="text-zinc-300">Clique em &quot;Minerar&quot;</strong> — o sistema busca as sugestões reais do Google
                   Autocomplete em tempo real
                 </p>
               </div>
               <div className="flex gap-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold">3</div>
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#E6B447]/20 text-[#E6B447] text-[10px] font-bold">3</div>
                 <p className="text-xs text-zinc-400">
                   <strong className="text-zinc-300">Analise os resultados</strong> — cada termo revela dores, objeções e
                   intenções de compra do público. Use para criar headlines, hooks e copys.
@@ -105,7 +105,7 @@ export default function DiscoveryPage() {
               <p className="text-[10px] uppercase tracking-wider text-zinc-600 font-bold">Casos de uso</p>
               <div className="space-y-2">
                 <div className="flex items-start gap-2 p-2 rounded-lg bg-zinc-950/50">
-                  <Target className="w-3.5 h-3.5 text-blue-400 mt-0.5 shrink-0" />
+                  <Target className="w-3.5 h-3.5 text-[#E6B447] mt-0.5 shrink-0" />
                   <p className="text-[11px] text-zinc-500">
                     <strong className="text-zinc-400">Descobrir dores:</strong> Minere &quot;nome do nicho&quot; e veja termos como
                     &quot;funciona?&quot;, &quot;vale a pena?&quot;, &quot;como começar&quot; — cada um é uma objeção real.
@@ -119,7 +119,7 @@ export default function DiscoveryPage() {
                   </p>
                 </div>
                 <div className="flex items-start gap-2 p-2 rounded-lg bg-zinc-950/50">
-                  <Lightbulb className="w-3.5 h-3.5 text-amber-400 mt-0.5 shrink-0" />
+                  <Lightbulb className="w-3.5 h-3.5 text-[#E6B447] mt-0.5 shrink-0" />
                   <p className="text-[11px] text-zinc-500">
                     <strong className="text-zinc-400">Espionar concorrentes:</strong> Minere o nome de um concorrente para ver o que
                     as pessoas buscam sobre ele — reclamações, comparações e alternativas.
@@ -134,26 +134,26 @@ export default function DiscoveryPage() {
         <Card className="bg-zinc-900/30 border-white/[0.05]">
           <CardContent className="p-6 space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2 text-zinc-200">
-              <Zap className="w-5 h-5 text-amber-500" />
+              <Zap className="w-5 h-5 text-[#E6B447]" />
               Como usar o Spy Agent
             </h3>
             <div className="space-y-3">
               <div className="flex gap-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold">1</div>
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#E6B447]/20 text-[#E6B447] text-[10px] font-bold">1</div>
                 <p className="text-xs text-zinc-400">
                   <strong className="text-zinc-300">Cole a URL de qualquer página de vendas</strong> — pode ser de um concorrente
                   ou do próprio cliente
                 </p>
               </div>
               <div className="flex gap-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold">2</div>
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#E6B447]/20 text-[#E6B447] text-[10px] font-bold">2</div>
                 <p className="text-xs text-zinc-400">
                   <strong className="text-zinc-300">Clique em &quot;Scan&quot;</strong> — a IA (Gemini) faz uma autópsia completa analisando
                   hook, story, oferta, fricção e confiança
                 </p>
               </div>
               <div className="flex gap-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold">3</div>
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#E6B447]/20 text-[#E6B447] text-[10px] font-bold">3</div>
                 <p className="text-xs text-zinc-400">
                   <strong className="text-zinc-300">Receba o score (0-10)</strong> e recomendações priorizadas de melhorias.
                   O resultado fica salvo nos Assets de Inteligência abaixo.
@@ -165,7 +165,7 @@ export default function DiscoveryPage() {
               <p className="text-[10px] uppercase tracking-wider text-zinc-600 font-bold">Casos de uso</p>
               <div className="space-y-2">
                 <div className="flex items-start gap-2 p-2 rounded-lg bg-zinc-950/50">
-                  <Globe className="w-3.5 h-3.5 text-amber-400 mt-0.5 shrink-0" />
+                  <Globe className="w-3.5 h-3.5 text-[#E6B447] mt-0.5 shrink-0" />
                   <p className="text-[11px] text-zinc-500">
                     <strong className="text-zinc-400">Benchmarking:</strong> Analise 3-5 concorrentes do mesmo nicho. Compare scores e
                     descubra o que os melhores estão fazendo que seu cliente não está.
@@ -193,7 +193,7 @@ export default function DiscoveryPage() {
 
       <AssetsPanel brandId={brandId} assets={assets} isLoading={loadingAssets} error={assetsError} onRefetch={refetchAssets} />
 
-      <Card className="bg-gradient-to-br from-[#E6B447]/10 to-blue-500/10 border-[#E6B447]/20 hover:border-[#E6B447]/40 transition-colors">
+      <Card className="bg-gradient-to-br from-[#E6B447]/10 to-[#AB8648]/5 border-[#E6B447]/20 hover:border-[#E6B447]/40 transition-colors">
         <CardContent className="py-10 text-center space-y-4">
           <Brain className="w-12 h-12 text-[#E6B447] mx-auto" />
           <h2 className="text-xl font-semibold">Predictive Engine</h2>

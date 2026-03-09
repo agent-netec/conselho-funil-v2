@@ -300,7 +300,7 @@ export default function VaultPage() {
                     }
                   }}
                 >
-                  <PenLine className="h-4 w-4 text-amber-400" />
+                  <PenLine className="h-4 w-4 text-[#E6B447]" />
                   Post Manual
                 </button>
               </PopoverContent>

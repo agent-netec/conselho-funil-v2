@@ -279,7 +279,7 @@ function IntegrationCard({
         !def.available && 'opacity-50',
         isConnected && 'hover:border-[#E6B447]/30',
         isError && 'border-red-500/20',
-        isExpired && 'border-amber-500/20'
+        isExpired && 'border-[#E6B447]/20'
       )}
     >
       <div className="flex items-start justify-between mb-3">
@@ -299,7 +299,7 @@ function IntegrationCard({
           </div>
         )}
         {isExpired && (
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 text-[10px] font-bold uppercase tracking-wider">
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#E6B447]/10 text-[#E6B447] text-[10px] font-bold uppercase tracking-wider">
             <AlertTriangle className="h-2.5 w-2.5" />
             Expirado
           </div>
@@ -378,8 +378,8 @@ function HealthDashboard({ integrations }: { integrations: Integration[] }) {
           <div className="text-2xl font-bold text-red-400">{errors}</div>
           <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Com Erro</div>
         </div>
-        <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
-          <div className="text-2xl font-bold text-amber-400">{expired}</div>
+        <div className="p-3 rounded-xl bg-[#E6B447]/5 border border-[#E6B447]/10">
+          <div className="text-2xl font-bold text-[#E6B447]">{expired}</div>
           <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Expiradas</div>
         </div>
         <div className="p-3 rounded-xl bg-zinc-500/5 border border-zinc-500/10">
@@ -389,8 +389,8 @@ function HealthDashboard({ integrations }: { integrations: Integration[] }) {
       </div>
 
       {expiringSoon.length > 0 && (
-        <div className="mt-4 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
-          <div className="flex items-center gap-2 text-xs text-amber-400 font-medium mb-2">
+        <div className="mt-4 p-3 rounded-xl bg-[#E6B447]/5 border border-[#E6B447]/10">
+          <div className="flex items-center gap-2 text-xs text-[#E6B447] font-medium mb-2">
             <AlertTriangle className="h-3.5 w-3.5" />
             Tokens expirando em breve
           </div>
@@ -400,7 +400,7 @@ function HealthDashboard({ integrations }: { integrations: Integration[] }) {
             return (
               <div key={i.id} className="flex items-center justify-between text-xs text-zinc-400 py-1">
                 <span>{def?.icon} {def?.name || i.provider}</span>
-                <span className="text-amber-400">{daysLeft} dias restantes</span>
+                <span className="text-[#E6B447]">{daysLeft} dias restantes</span>
               </div>
             );
           })}
@@ -841,21 +841,21 @@ function ConfigPanel({
             <div className="mt-6 border-t border-white/[0.06] pt-5">
               <button
                 onClick={() => setShowManualToken(!showManualToken)}
-                className="text-xs text-amber-400/80 hover:text-amber-400 flex items-center gap-2 transition-colors"
+                className="text-xs text-[#E6B447]/80 hover:text-[#E6B447] flex items-center gap-2 transition-colors"
               >
                 <AlertTriangle className="h-3 w-3" />
                 {showManualToken ? 'Fechar token manual' : 'Problemas com OAuth? Insira um token manualmente'}
               </button>
 
               {showManualToken && (
-                <div className="mt-4 space-y-3 p-4 rounded-xl bg-amber-500/5 border border-amber-500/15">
+                <div className="mt-4 space-y-3 p-4 rounded-xl bg-[#E6B447]/5 border border-[#E6B447]/15">
                   <p className="text-xs text-zinc-400 leading-relaxed">
                     Se o OAuth não está concedendo permissões de Ads, gere um token no{' '}
                     <a
                       href="https://developers.facebook.com/tools/explorer/"
                       target="_blank"
                       rel="noreferrer"
-                      className="text-amber-400 hover:underline"
+                      className="text-[#E6B447] hover:underline"
                     >
                       Graph API Explorer
                     </a>
@@ -900,7 +900,7 @@ function ConfigPanel({
                   <Button
                     onClick={handleSaveManualToken}
                     disabled={!manualToken.trim() || !manualAdAccount.trim() || isSavingManual}
-                    className="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 text-xs"
+                    className="w-full bg-[#E6B447]/20 hover:bg-[#E6B447]/30 text-[#E6B447] text-xs"
                     variant="ghost"
                   >
                     {isSavingManual ? (

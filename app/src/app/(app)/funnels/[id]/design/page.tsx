@@ -174,7 +174,7 @@ export default function DesignCouncilPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen flex-col bg-black">
+      <div className="flex min-h-screen flex-col bg-[#0D0B09]">
         <Header title="Design" />
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-[#E6B447]" />
@@ -184,7 +184,7 @@ export default function DesignCouncilPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-black">
+    <div className="flex min-h-screen flex-col bg-[#0D0B09]">
       <Header title="Design Intelligence" showBack />
 
       <div className="flex-1 p-8 max-w-5xl mx-auto w-full">
@@ -215,7 +215,7 @@ export default function DesignCouncilPage() {
               </div>
             </div>
             <div className="card-premium p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+              <div className="p-2 rounded-lg bg-[#E6B447]/10 text-[#E6B447]">
                 <Layers className="h-5 w-5" />
               </div>
               <div>
@@ -224,7 +224,7 @@ export default function DesignCouncilPage() {
               </div>
             </div>
             <div className="card-premium p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400">
+              <div className="p-2 rounded-lg bg-[#E6B447]/10 text-[#E6B447]">
                 <Shield className="h-5 w-5" />
               </div>
               <div>

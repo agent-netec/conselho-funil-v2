@@ -197,10 +197,10 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
   },
   review: { 
     label: 'Propostas Prontas', 
-    color: 'text-amber-400', 
-    bg: 'bg-amber-500/10',
+    color: 'text-[#E6B447]',
+    bg: 'bg-[#E6B447]/10',
     description: 'Avalie as propostas e decida: EXECUTAR, AJUSTAR ou MATAR',
-    glow: 'from-amber-500/5 to-transparent'
+    glow: 'from-[#E6B447]/5 to-transparent'
   },
   approved: { 
     label: 'Aprovado', 
@@ -211,10 +211,10 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
   },
   adjusting: { 
     label: 'Ajustando', 
-    color: 'text-violet-400', 
-    bg: 'bg-violet-500/10',
+    color: 'text-[#AB8648]',
+    bg: 'bg-[#AB8648]/10',
     description: 'Aplicando ajustes solicitados pelo MKTHONEY',
-    glow: 'from-violet-500/5 to-transparent'
+    glow: 'from-[#E6B447]/5 to-transparent'
   },
   executing: { 
     label: 'Executando', 
@@ -272,7 +272,7 @@ function ProposalCard({ proposal, index, onSelect }: { proposal: Proposal; index
             </div>
             <h4 className="font-semibold text-white text-lg">{proposal.name}</h4>
             {index === 0 && (
-              <span className="flex items-center gap-1 text-xs font-medium text-amber-400 bg-amber-500/10 px-2 py-1 rounded-full">
+              <span className="flex items-center gap-1 text-xs font-medium text-[#E6B447] bg-[#E6B447]/10 px-2 py-1 rounded-full">
                 <Star className="h-3 w-3" />
                 Recomendado
               </span>
@@ -286,7 +286,7 @@ function ProposalCard({ proposal, index, onSelect }: { proposal: Proposal; index
             <div className={cn(
               'text-3xl font-bold',
               overallScore >= 7.5 ? 'text-[#E6B447]' :
-              overallScore >= 6 ? 'text-amber-400' : 'text-red-400'
+              overallScore >= 6 ? 'text-[#E6B447]' : 'text-red-400'
             )}>
               {overallScore.toFixed(1)}
             </div>
@@ -334,7 +334,7 @@ function ProposalCard({ proposal, index, onSelect }: { proposal: Proposal; index
             <div className="flex items-center gap-1">
               <div className="h-1.5 flex-1 bg-zinc-800 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-amber-500 rounded-full" 
+                  className="h-full bg-[#E6B447] rounded-full"
                   style={{ width: `${(scorecard.offerStrength / 10) * 100}%` }}
                 />
               </div>
@@ -401,7 +401,7 @@ const GeneratingState = ({ isStuck, onReset }: { isStuck?: boolean; onReset?: ()
         {isStuck && onReset ? (
           <Button
             onClick={onReset}
-            className="bg-amber-500 hover:bg-amber-600 text-black font-bold mt-2"
+            className="bg-[#E6B447] hover:bg-[#AB8648] text-black font-bold mt-2"
           >
             <AlertCircle className="mr-2 h-4 w-4" />
             Resetar e Tentar Novamente
@@ -796,7 +796,7 @@ export default function FunnelDetailPage() {
             {funnel.status === 'approved' && (
               <Button 
                 onClick={handleActivateGoldenThread}
-                className="bg-amber-500 hover:bg-amber-600 text-black font-bold"
+                className="bg-[#E6B447] hover:bg-[#AB8648] text-black font-bold"
               >
                 <Zap className="mr-2 h-4 w-4" />
                 Ativar Linha de Ouro
@@ -1034,8 +1034,8 @@ export default function FunnelDetailPage() {
                 className="card-premium p-5"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10">
-                    <Package className="h-5 w-5 text-amber-400" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E6B447]/10">
+                    <Package className="h-5 w-5 text-[#E6B447]" />
                   </div>
                   <h3 className="text-lg font-semibold text-white">Oferta</h3>
                 </div>
@@ -1069,8 +1069,8 @@ export default function FunnelDetailPage() {
                 className="card-premium p-5"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10">
-                    <Radio className="h-5 w-5 text-violet-400" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#AB8648]/10">
+                    <Radio className="h-5 w-5 text-[#AB8648]" />
                   </div>
                   <h3 className="text-lg font-semibold text-white">Canais</h3>
                 </div>

@@ -140,7 +140,7 @@ export default function LeadJourneyPage() {
           </Card>
 
           {/* Card: LTV Intelligence */}
-          <Card className="bg-gradient-to-br from-slate-900 to-slate-800 text-white border-none shadow-xl">
+          <Card className="bg-gradient-to-br from-[#1A1612] to-[#241F19] text-white border-none shadow-xl">
             <CardHeader>
               <CardTitle className="text-sm font-medium flex items-center gap-2 opacity-80">
                 <TrendingUp className="w-4 h-4" />

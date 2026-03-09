@@ -345,7 +345,7 @@ export default function CampaignCommandCenter() {
         {/* The Golden Thread Stepper */}
         <section className="mb-8 sm:mb-12">
           <div className="flex items-center gap-3 mb-4 sm:mb-6">
-            <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
+            <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-[#E6B447]" />
             <h2 className="text-[10px] sm:text-sm font-bold uppercase tracking-[0.2em] text-zinc-400">
               The Golden Thread
             </h2>

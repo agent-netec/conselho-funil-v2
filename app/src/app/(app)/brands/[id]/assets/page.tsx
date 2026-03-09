@@ -199,14 +199,14 @@ export default function BrandAssetsPage() {
     switch (status) {
       case 'uploaded':
         return (
-          <Badge variant="outline" className="border-blue-500/30 bg-blue-500/10 text-blue-400">
+          <Badge variant="outline" className="border-[#E6B447]/20 bg-[#E6B447]/5 text-[#E6B447]">
             <CheckCircle className="h-3 w-3 mr-1" />
             Uploaded
           </Badge>
         );
       case 'processing':
         return (
-          <Badge variant="outline" className="border-yellow-500/30 bg-yellow-500/10 text-yellow-400">
+          <Badge variant="outline" className="border-[#E6B447]/20 bg-[#E6B447]/10 text-[#E6B447]">
             <Clock className="h-3 w-3 mr-1 animate-pulse" />
             Processando
           </Badge>
@@ -240,7 +240,7 @@ export default function BrandAssetsPage() {
   // Loading
   if (loadingBrands || isLoadingAssets) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0D0B09] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 text-[#E6B447] animate-spin mx-auto mb-4" />
           <p className="text-zinc-500">Carregando arquivos...</p>
@@ -252,7 +252,7 @@ export default function BrandAssetsPage() {
   // Marca não encontrada
   if (!brand) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0D0B09] flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-white mb-2">Marca não encontrada</h2>
@@ -265,7 +265,7 @@ export default function BrandAssetsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-[#0D0B09]">
       <Header showBrandSelector={false} />
       
       <main className="mx-auto max-w-4xl px-6 py-12">
