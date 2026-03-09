@@ -15,7 +15,7 @@ interface ChatInputProps {
 export function ChatInput({
   onSend,
   isLoading = false,
-  placeholder = 'Digite sua pergunta para o conselho...',
+  placeholder = 'Digite sua pergunta para o MKTHONEY...',
 }: ChatInputProps) {
   const [input, setInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);

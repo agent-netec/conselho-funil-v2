@@ -46,7 +46,7 @@ export default function BrandsPage() {
               Minhas Marcas
             </h1>
             <p className="text-zinc-500">
-              Gerencie o contexto das suas marcas para personalizar os conselhos
+              Gerencie o contexto das suas marcas para personalizar as análises
             </p>
           </div>
           
@@ -82,7 +82,7 @@ export default function BrandsPage() {
             tips={[
               'O setup leva menos de 3 minutos',
               'Você pode configurar até 5 marcas no plano Starter',
-              'Cada marca tem conselheiros personalizados',
+              'Cada marca tem especialistas personalizados',
             ]}
           />
         )}

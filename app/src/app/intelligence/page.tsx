@@ -110,7 +110,7 @@ export default function IntelligencePage() {
                      O termo "${keywords[0].term}" possui o maior KOS (${keywords[0].metrics.opportunityScore}), 
                      sendo a prioridade número 1 para sua estratégia de conteúdo.`
                   ) : (
-                    `Detectamos um aumento de 40% nas buscas por "conselho de funil login". 
+                    `Detectamos um aumento de 40% nas buscas por "mkthoney login". 
                      Isso indica uma retenção forte, mas também sugere que o link de acesso 
                      deve estar mais visível em suas comunicações sociais.`
                   )}

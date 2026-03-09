@@ -145,6 +145,6 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     if (error instanceof ApiError) return handleSecurityError(error);
     console.error('[Research/RAG] Error:', error);
-    return createApiError(500, 'Erro interno ao adicionar ao conselho.');
+    return createApiError(500, 'Erro interno ao adicionar ao MKTHONEY.');
   }
 }

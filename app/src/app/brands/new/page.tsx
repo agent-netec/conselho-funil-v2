@@ -272,7 +272,7 @@ export default function NewBrandPage() {
               Nova Marca
             </h1>
             <p className="text-zinc-500">
-              Configure o contexto da sua marca para usar em todos os conselhos
+              Configure o contexto da sua marca para usar em todas as análises
             </p>
           </div>
 

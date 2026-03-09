@@ -187,7 +187,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `conselho_design_${Date.now()}.webp`;
+      link.download = `mkthoney_design_${Date.now()}.webp`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

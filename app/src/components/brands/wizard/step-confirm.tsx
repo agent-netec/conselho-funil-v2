@@ -264,7 +264,7 @@ export function StepConfirm({ formData }: StepConfirmProps) {
 
       <div className="rounded-lg border border-[#E6B447]/20 bg-[#E6B447]/5 p-3">
         <p className="text-xs text-[#E6B447]/30/80 text-center">
-          Este contexto sera usado por todos os conselhos (Funil, Copy e Social)
+          Este contexto sera usado por todas as análises (Funil, Copy e Social)
           para gerar estrategias alinhadas com sua marca.
         </p>
       </div>

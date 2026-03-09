@@ -88,7 +88,7 @@ function WelcomeBody({ onCreateBrand }: { onCreateBrand: () => void }) {
       key: 'create',
       icon: Sparkles,
       label: 'Criar sua marca',
-      description: 'Configure o contexto da sua marca para personalizar todos os conselhos.',
+      description: 'Configure o contexto da sua marca para personalizar todas as análises.',
       onClick: onCreateBrand,
       accent: 'gold' as const,
     },
