@@ -3,169 +3,154 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import { Header } from '@/components/layout/header';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
-import { Zap, ChevronRight, Search, Plus, CheckCircle2, Megaphone } from 'lucide-react';
+import { Search, Plus, ChevronRight } from 'lucide-react';
 import { GuidedEmptyState } from '@/components/ui/guided-empty-state';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { CampaignContext } from '@/types/campaign';
 
-// Calcula quantas etapas da Linha de Ouro estão completas
-function getCompletedStages(campaign: CampaignContext) {
-  const stages = [
-    { id: 'funnel', label: 'Funil', done: Boolean(campaign.funnel) },
-    { id: 'copy', label: 'Copy', done: Boolean(campaign.copywriting) },
-    { id: 'social', label: 'Social', done: Boolean(campaign.social) },
-    { id: 'design', label: 'Design', done: Boolean(campaign.design) },
-    { id: 'ads', label: 'Ads', done: Boolean(campaign.ads) },
-  ];
-  return stages;
+const STAGES = ['funnel', 'copy', 'social', 'design', 'ads'] as const;
+const STAGE_LABELS: Record<string, string> = {
+  funnel: 'Funil',
+  copy: 'Copy',
+  social: 'Social',
+  design: 'Design',
+  ads: 'Ads',
+};
+
+function getStageDone(campaign: CampaignContext) {
+  return {
+    funnel: Boolean(campaign.funnel),
+    copy: Boolean(campaign.copywriting),
+    social: Boolean(campaign.social),
+    design: Boolean(campaign.design),
+    ads: Boolean(campaign.ads),
+  };
 }
 
-function getCongruencePercent(campaign: CampaignContext): number {
-  const stages = getCompletedStages(campaign);
-  const completed = stages.filter(s => s.done).length;
-  return Math.round((completed / stages.length) * 100);
+function getCongruence(campaign: CampaignContext): number {
+  const done = getStageDone(campaign);
+  const completed = Object.values(done).filter(Boolean).length;
+  return Math.round((completed / STAGES.length) * 100);
 }
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<CampaignContext[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [search, setSearch] = useState('');
   const activeBrand = useActiveBrand();
 
   useEffect(() => {
-    async function loadCampaigns() {
+    async function load() {
       try {
-        // Busca campanhas reais da coleção 'campaigns'
-        const campaignsQuery = query(
-          collection(db, 'campaigns'),
-          where('status', 'in', ['planning', 'active', 'archived'])
+        const cSnap = await getDocs(
+          query(collection(db, 'campaigns'), where('status', 'in', ['planning', 'active', 'archived']))
         );
-        const campaignsSnap = await getDocs(campaignsQuery);
-        const campaignsData = campaignsSnap.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as CampaignContext[];
+        const cData = cSnap.docs.map(d => ({ id: d.id, ...d.data() })) as CampaignContext[];
 
-        // Também busca funis aprovados que ainda não têm campanha (fallback)
-        const funnelsQuery = query(
-          collection(db, 'funnels'),
-          where('status', 'in', ['approved', 'executing', 'completed', 'review'])
+        const fSnap = await getDocs(
+          query(collection(db, 'funnels'), where('status', 'in', ['approved', 'executing', 'completed', 'review']))
         );
-        const funnelsSnap = await getDocs(funnelsQuery);
-        const funnelsData = funnelsSnap.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as any[];
+        const fData = fSnap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
 
-        // IDs de funis que já têm campanha
-        const funnelIdsWithCampaign = new Set(
-          campaignsData.map(c => c.funnelId).filter(Boolean)
-        );
-
-        // Funis aprovados sem campanha → criar entrada virtual
-        const virtualCampaigns: CampaignContext[] = funnelsData
-          .filter(f => !funnelIdsWithCampaign.has(f.id))
+        const usedFunnelIds = new Set(cData.map(c => c.funnelId).filter(Boolean));
+        const virtual: CampaignContext[] = fData
+          .filter(f => !usedFunnelIds.has(f.id))
           .map(f => ({
-            id: f.id,
-            funnelId: f.id,
-            brandId: f.brandId || '',
-            userId: f.userId || '',
-            name: f.name || 'Funil sem nome',
-            status: 'planning' as const,
-            funnel: f.context ? {
-              type: f.type || '',
-              architecture: '',
-              targetAudience: f.context?.audience?.who || '',
-              mainGoal: f.context?.objective || '',
-              stages: [],
-              summary: '',
-            } : undefined,
-            createdAt: f.createdAt,
-            updatedAt: f.updatedAt,
+            id: f.id, funnelId: f.id, brandId: f.brandId || '', userId: f.userId || '',
+            name: f.name || 'Funil sem nome', status: 'planning' as const,
+            funnel: f.context ? { type: f.type || '', architecture: '', targetAudience: f.context?.audience?.who || '', mainGoal: f.context?.objective || '', stages: [], summary: '' } : undefined,
+            createdAt: f.createdAt, updatedAt: f.updatedAt,
           }));
 
-        const all = [...campaignsData, ...virtualCampaigns];
-        all.sort((a, b) => {
-          const dateA = (a.updatedAt as any)?.seconds || 0;
-          const dateB = (b.updatedAt as any)?.seconds || 0;
-          return dateB - dateA;
-        });
-
+        const all = [...cData, ...virtual].sort((a, b) => ((b.updatedAt as any)?.seconds || 0) - ((a.updatedAt as any)?.seconds || 0));
         setCampaigns(all);
-      } catch (error) {
-        console.error('Error loading campaigns:', error);
+      } catch (e) {
+        console.error('Error loading campaigns:', e);
       } finally {
         setLoading(false);
       }
     }
-
-    loadCampaigns();
+    load();
   }, []);
 
-  const filteredCampaigns = campaigns.filter(c =>
-    c.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filtered = campaigns.filter(c => c.name?.toLowerCase().includes(search.toLowerCase()));
+  const totalActive = campaigns.filter(c => c.status === 'active').length;
+  const avgCongruence = campaigns.length > 0
+    ? Math.round(campaigns.reduce((sum, c) => sum + getCongruence(c), 0) / campaigns.length)
+    : 0;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header title="Golden Thread Center" subtitle="Governança de Campanhas" />
-
-      <div className="flex-1 p-4 sm:p-8 max-w-7xl mx-auto w-full">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-          <div>
-            <h2 className="text-3xl font-bold text-white flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-[#E6B447]/10 border border-[#E6B447]/20">
-                <Zap className="h-6 w-6 text-[#E6B447]" />
-              </div>
-              Suas Campanhas
-            </h2>
-            <p className="text-zinc-500 text-sm mt-2 max-w-md">
-              Acompanhe a evolução estratégica dos seus funis aprovados para a Linha de Ouro.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="relative flex-1 md:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-              <input
-                type="text"
-                placeholder="Buscar campanha..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-10 pr-4 rounded-xl bg-zinc-900 border border-white/[0.05] text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-[#E6B447]/50"
-              />
-            </div>
-            <Link href="/funnels/new">
-              <button className="btn-accent bg-[#E6B447] hover:bg-[#D4A33E] border-[#E6B447]/20 whitespace-nowrap">
-                <Plus className="mr-2 h-4 w-4" />
-                Nova Campanha
-              </button>
+    <div className="min-h-screen flex flex-col">
+      {/* ═══ HEADER ══════════════════════════════════════════════════════ */}
+      <header className="shrink-0 border-b border-white/[0.06]">
+        <div className="px-8 pt-8 pb-0 max-w-[1440px] mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-[42px] font-black tracking-[-0.02em] text-[#F5E8CE] leading-none">
+              Campanhas
+            </h1>
+            <Link
+              href="/funnels/new"
+              className="text-[11px] font-mono font-bold tracking-wider text-[#0D0B09] bg-[#E6B447] hover:bg-[#F0C35C] px-4 py-2 transition-colors flex items-center gap-2"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              NOVA CAMPANHA
             </Link>
           </div>
-        </div>
 
+          {/* KPI bar */}
+          <div className="grid grid-cols-3 border border-white/[0.06] divide-x divide-white/[0.06] mb-8">
+            <div className="px-6 py-5 bg-[#0D0B09]">
+              <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-1">Total</p>
+              <p className="text-[36px] font-mono font-black tabular-nums text-[#F5E8CE] leading-none">{campaigns.length}</p>
+            </div>
+            <div className="px-6 py-5 bg-[#0D0B09]">
+              <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-1">Ativas</p>
+              <p className="text-[36px] font-mono font-black tabular-nums text-[#E6B447] leading-none">{totalActive}</p>
+            </div>
+            <div className="px-6 py-5 bg-[#0D0B09]">
+              <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-1">Congruência Média</p>
+              <p className="text-[36px] font-mono font-black tabular-nums text-[#F5E8CE] leading-none">
+                {avgCongruence}<span className="text-[11px] font-normal text-[#6B5D4A] ml-1">%</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="relative mb-0">
+            <Search className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6B5D4A]" />
+            <input
+              type="text"
+              placeholder="Buscar campanha..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full h-10 pl-7 pr-4 bg-transparent border-b border-white/[0.06] text-sm text-[#F5E8CE] placeholder:text-[#6B5D4A] focus:outline-none focus:border-[#E6B447]/40 font-mono transition-colors"
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* ═══ CONTENT ═════════════════════════════════════════════════════ */}
+      <main className="flex-1 px-8 py-6 max-w-[1440px] mx-auto w-full">
         {loading ? (
-          <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-px">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-56 rounded-2xl bg-zinc-900/50 animate-pulse border border-white/[0.03]" />
+              <div key={i} className="h-24 bg-[#1A1612] animate-pulse border-b border-white/[0.04]" />
             ))}
           </div>
-        ) : filteredCampaigns.length === 0 ? (
-          searchQuery ? (
-            <div className="card-premium p-16 text-center">
-              <p className="text-zinc-500">
-                Nenhuma campanha encontrada para &ldquo;{searchQuery}&rdquo;.
+        ) : filtered.length === 0 ? (
+          search ? (
+            <div className="py-20 text-center">
+              <p className="text-[#6B5D4A] text-sm font-mono">
+                Nenhuma campanha para "{search}"
               </p>
             </div>
           ) : (
             <GuidedEmptyState
-              icon={Megaphone}
+              icon={ChevronRight}
               title="Nenhuma campanha ativa"
-              description="Aprove um funil estratégico para ativar a Linha de Ouro e organizar sua operação de Ads."
+              description="Aprove um funil para ativar a Linha de Ouro."
               ctaLabel="Ver Pipeline de Funis"
               ctaHref="/funnels"
               tips={[
@@ -175,108 +160,87 @@ export default function CampaignsPage() {
             />
           )
         ) : (
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredCampaigns.map((campaign, index) => {
-              const stages = getCompletedStages(campaign);
-              const congruence = getCongruencePercent(campaign);
-              const completedCount = stages.filter(s => s.done).length;
+          <div className="border border-white/[0.06] divide-y divide-white/[0.04]">
+            {/* Table header */}
+            <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-[#1A1612]/50">
+              <div className="col-span-4 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A]">Campanha</div>
+              <div className="col-span-3 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A]">Linha de Ouro</div>
+              <div className="col-span-2 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] text-right">Congruência</div>
+              <div className="col-span-2 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] text-right">Status</div>
+              <div className="col-span-1" />
+            </div>
+
+            {/* Campaign rows */}
+            {filtered.map((campaign) => {
+              const done = getStageDone(campaign);
+              const congruence = getCongruence(campaign);
+              const completedCount = Object.values(done).filter(Boolean).length;
               const isComplete = congruence === 100;
 
               return (
-                <motion.div
-                  key={campaign.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Link href={`/campaigns/${campaign.id}`}>
-                    <div className="card-premium group hover:border-[#E6B447]/30 transition-all cursor-pointer h-full flex flex-col p-0 overflow-hidden">
-                      <div className="p-6 flex-1">
-                        <div className="flex items-center justify-between mb-6">
-                          <div className={cn(
-                            "flex h-10 w-10 items-center justify-center rounded-xl border transition-colors",
-                            isComplete
-                              ? "bg-[#E6B447]/10 border-[#E6B447]/20 text-[#E6B447]"
-                              : "bg-[#E6B447]/10 border-[#E6B447]/20 text-[#E6B447] group-hover:bg-[#E6B447]/20"
-                          )}>
-                            {isComplete ? <CheckCircle2 className="h-5 w-5" /> : <Zap className="h-5 w-5" />}
-                          </div>
-                          <div className={cn(
-                            "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/[0.02]",
-                            isComplete ? "bg-[#E6B447]/10 text-[#E6B447]" :
-                            campaign.status === 'active' ? "bg-[#E6B447]/10 text-[#E6B447]" :
-                            "bg-zinc-800 text-zinc-500"
-                          )}>
-                            {isComplete ? 'Completa' : campaign.status === 'active' ? 'Ativa' : campaign.status}
-                          </div>
-                        </div>
-
-                        <h3 className="text-xl font-bold text-white group-hover:text-[#E6B447] transition-colors mb-3">
-                          {campaign.name}
-                        </h3>
-                        <p className="text-sm text-zinc-500 line-clamp-2 leading-relaxed">
-                          {campaign.funnel?.mainGoal || 'Estratégia multicanal'}
-                          {campaign.funnel?.targetAudience ? ` • ${campaign.funnel.targetAudience.slice(0, 50)}` : ''}
-                        </p>
-                      </div>
-
-                      <div className="px-6 py-5 bg-white/[0.01] border-t border-white/[0.04]">
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between text-[10px] uppercase font-bold tracking-wider">
-                            <span className="text-zinc-500">Congruência Estratégica</span>
-                            <span className={cn(
-                              isComplete ? "text-[#E6B447]" : congruence >= 60 ? "text-[#E6B447]" : "text-orange-400"
-                            )}>{congruence}%</span>
-                          </div>
-                          <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden">
-                            <div
-                              className={cn(
-                                "h-full rounded-full transition-all duration-500",
-                                isComplete
-                                  ? "bg-gradient-to-r from-[#AB8648] to-[#E6B447] shadow-[0_0_10px_rgba(230,180,71,0.3)]"
-                                  : "bg-gradient-to-r from-[#AB8648] to-[#E6B447] shadow-[0_0_10px_rgba(245,158,11,0.3)]"
-                              )}
-                              style={{ width: `${congruence}%` }}
-                            />
-                          </div>
-
-                          <div className="flex items-center justify-between pt-3">
-                            <div className="flex items-center gap-3">
-                              <div className="flex -space-x-1.5">
-                                {stages.map((stage) => (
-                                  <div
-                                    key={stage.id}
-                                    title={`${stage.label}: ${stage.done ? 'Completo' : 'Pendente'}`}
-                                    className={cn(
-                                      "h-6 w-6 rounded-full border-2 border-zinc-950 flex items-center justify-center",
-                                      stage.done ? "bg-[#E6B447]/20" : "bg-zinc-800"
-                                    )}
-                                  >
-                                    <div className={cn(
-                                      "h-1.5 w-1.5 rounded-full",
-                                      stage.done
-                                        ? "bg-[#E6B447] shadow-[0_0_5px_rgba(230,180,71,0.5)]"
-                                        : "bg-zinc-600"
-                                    )} />
-                                  </div>
-                                ))}
-                              </div>
-                              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">
-                                {completedCount}/{stages.length} Etapas
-                              </span>
-                            </div>
-                            <ChevronRight className="h-4 w-4 text-[#E6B447] group-hover:translate-x-1 transition-transform" />
-                          </div>
-                        </div>
-                      </div>
+                <Link key={campaign.id} href={`/campaigns/${campaign.id}`}>
+                  <div className="grid grid-cols-12 gap-4 px-6 py-5 bg-[#0D0B09] hover:bg-[#1A1612] transition-colors cursor-pointer group items-center">
+                    {/* Name + goal */}
+                    <div className="col-span-4">
+                      <p className="text-[15px] font-bold text-[#F5E8CE] group-hover:text-[#E6B447] transition-colors truncate">
+                        {campaign.name}
+                      </p>
+                      <p className="text-[11px] text-[#6B5D4A] truncate mt-0.5">
+                        {campaign.funnel?.targetAudience || campaign.funnel?.mainGoal || '—'}
+                      </p>
                     </div>
-                  </Link>
-                </motion.div>
+
+                    {/* Stage progress — segmented bar */}
+                    <div className="col-span-3 flex items-center gap-1">
+                      {STAGES.map((stage) => (
+                        <div key={stage} className="flex-1 group/stage" title={`${STAGE_LABELS[stage]}: ${done[stage] ? '✓' : '—'}`}>
+                          <div className={cn(
+                            "h-2 transition-colors",
+                            done[stage]
+                              ? "bg-[#E6B447]"
+                              : "bg-white/[0.06]"
+                          )} />
+                          <p className="text-[8px] font-mono text-[#6B5D4A] mt-1 text-center uppercase">
+                            {STAGE_LABELS[stage]}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Congruence number */}
+                    <div className="col-span-2 text-right">
+                      <span className={cn(
+                        "text-2xl font-mono font-black tabular-nums",
+                        isComplete ? "text-[#E6B447]" : congruence >= 60 ? "text-[#F5E8CE]" : "text-[#AB8648]"
+                      )}>
+                        {congruence}
+                      </span>
+                      <span className="text-[10px] text-[#6B5D4A] ml-0.5">%</span>
+                    </div>
+
+                    {/* Status */}
+                    <div className="col-span-2 text-right">
+                      <span className={cn(
+                        "text-[10px] font-mono font-bold uppercase tracking-wider",
+                        isComplete ? "text-[#E6B447]" :
+                        campaign.status === 'active' ? "text-[#E6B447]" :
+                        "text-[#6B5D4A]"
+                      )}>
+                        {isComplete ? 'Completa' : campaign.status === 'active' ? 'Ativa' : campaign.status}
+                      </span>
+                    </div>
+
+                    {/* Arrow */}
+                    <div className="col-span-1 text-right">
+                      <ChevronRight className="h-4 w-4 text-[#6B5D4A] group-hover:text-[#E6B447] group-hover:translate-x-1 transition-all inline-block" />
+                    </div>
+                  </div>
+                </Link>
               );
             })}
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }
