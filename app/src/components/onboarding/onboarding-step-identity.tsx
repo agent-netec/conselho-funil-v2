@@ -1,25 +1,32 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+
+const INPUT_CLASS = 'h-11 bg-[#241F19] border-[#2A2318] text-[#F5E8CE] placeholder:text-[#6B5D4A] focus-visible:border-[#E6B447]/50 focus-visible:ring-[#E6B447]/20';
+const TEXTAREA_CLASS = 'bg-[#241F19] border-[#2A2318] text-[#F5E8CE] placeholder:text-[#6B5D4A] focus-visible:border-[#E6B447]/50 focus-visible:ring-[#E6B447]/20 resize-none min-h-0';
+const LABEL_CLASS = 'text-xs font-medium text-[#AB8648] uppercase tracking-wider';
 
 const verticalOptions = [
   'SaaS',
   'Infoprodutos',
   'E-commerce',
-  'Serviços',
+  'Servicos',
   'Consultoria',
-  'Agência',
-  'Educação',
-  'Saúde',
+  'Agencia',
+  'Educacao',
+  'Saude',
   'Outro',
 ];
 
 const voiceToneOptions = [
-  { value: 'profissional', label: 'Profissional', emoji: '👔' },
-  { value: 'casual', label: 'Casual', emoji: '😊' },
-  { value: 'autoritario', label: 'Autoritário', emoji: '🏛️' },
-  { value: 'amigavel', label: 'Amigável', emoji: '🤝' },
-  { value: 'inspiracional', label: 'Inspiracional', emoji: '✨' },
+  { value: 'profissional', label: 'Profissional' },
+  { value: 'casual', label: 'Casual' },
+  { value: 'autoritario', label: 'Autoritario' },
+  { value: 'amigavel', label: 'Amigavel' },
+  { value: 'inspiracional', label: 'Inspiracional' },
 ];
 
 interface OnboardingStepIdentityProps {
@@ -46,88 +53,74 @@ export function OnboardingStepIdentity({
       transition={{ duration: 0.3 }}
       className="space-y-5"
     >
-      {/* Title */}
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Identidade da Marca</h2>
-        <p className="text-sm text-zinc-400 mt-1">
+        <h2 className="text-2xl font-bold text-[#F5E8CE]">Identidade da Marca</h2>
+        <p className="text-sm text-[#CAB792] mt-1">
           Comece nos contando sobre a sua marca
         </p>
       </div>
 
-      {/* Nome da marca */}
-      <div>
-        <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">
-          Nome da Marca
-        </label>
-        <input
+      <div className="space-y-1.5">
+        <Label className={LABEL_CLASS}>Nome da Marca</Label>
+        <Input
           type="text"
           value={name}
           onChange={(e) => onUpdate('name', e.target.value)}
           placeholder="Ex: MKTHONEY"
-          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors"
+          className={INPUT_CLASS}
         />
       </div>
 
-      {/* Descrição curta */}
-      <div>
-        <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">
-          Descrição Curta
-        </label>
-        <textarea
+      <div className="space-y-1.5">
+        <Label className={LABEL_CLASS}>Descricao Curta</Label>
+        <Textarea
           value={positioning}
           onChange={(e) => onUpdate('positioning', e.target.value)}
           placeholder="O que sua marca faz em 1 frase"
           rows={2}
-          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors resize-none"
+          className={TEXTAREA_CLASS}
         />
       </div>
 
-      {/* Vertical/Nicho */}
-      <div>
-        <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">
-          Vertical / Nicho
-        </label>
+      <div className="space-y-1.5">
+        <Label className={LABEL_CLASS}>Vertical / Nicho</Label>
         <select
           value={vertical}
           onChange={(e) => onUpdate('vertical', e.target.value)}
-          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white focus:border-[#E6B447] focus:outline-none transition-colors appearance-none cursor-pointer"
+          className="w-full h-11 rounded-md border bg-[#241F19] border-[#2A2318] px-3 text-sm text-[#F5E8CE] focus:border-[#E6B447]/50 focus:outline-none focus:ring-[3px] focus:ring-[#E6B447]/20 transition-colors appearance-none cursor-pointer"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2371717a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B5D4A'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'right 12px center',
-            backgroundSize: '20px',
+            backgroundSize: '16px',
           }}
         >
-          <option value="" disabled className="bg-zinc-900">
+          <option value="" disabled className="bg-[#1A1612]">
             Selecione o nicho
           </option>
           {verticalOptions.map((option) => (
-            <option key={option} value={option} className="bg-zinc-900">
+            <option key={option} value={option} className="bg-[#1A1612]">
               {option}
             </option>
           ))}
         </select>
       </div>
 
-      {/* Tom de Voz */}
-      <div>
-        <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-3">
-          Tom de Voz
-        </label>
+      <div className="space-y-2">
+        <Label className={LABEL_CLASS}>Tom de Voz</Label>
         <div className="flex flex-wrap gap-2">
           {voiceToneOptions.map((option) => (
             <button
               key={option.value}
               type="button"
               onClick={() => onUpdate('voiceTone', option.value)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-full border transition-all ${
+              className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
                 voiceTone === option.value
-                  ? 'border-[#E6B447] bg-[#E6B447]/20 text-[#E6B447]'
-                  : 'border-white/[0.06] bg-zinc-800/50 text-zinc-400 hover:border-white/[0.1] hover:text-white'
+                  ? 'border-[#E6B447] bg-[#E6B447]/15 text-[#E6B447]'
+                  : 'border-[#2A2318] bg-[#241F19] text-[#CAB792] hover:border-[#3D3428] hover:text-[#F5E8CE]'
               }`}
             >
-              <span>{option.emoji}</span>
-              <span className="text-sm font-medium">{option.label}</span>
+              {option.label}
             </button>
           ))}
         </div>

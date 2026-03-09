@@ -5,158 +5,33 @@ import {
   useState,
   ChangeEvent,
   FormEvent,
-  useEffect,
-  useRef,
-  forwardRef,
 } from 'react';
-import Image from 'next/image';
-import {
-  motion,
-  useAnimation,
-  useInView,
-  useMotionTemplate,
-  useMotionValue,
-} from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 
-// ==================== Input Component ====================
+// ==================== FadeIn (replaces BoxReveal — CSS only, no framer-motion) ====================
 
-const Input = memo(
-  forwardRef(function Input(
-    { className, type, ...props }: React.InputHTMLAttributes<HTMLInputElement>,
-    ref: React.ForwardedRef<HTMLInputElement>
-  ) {
-    const radius = 100; // change this to increase the radius of the hover effect
-    const [visible, setVisible] = useState(false);
-
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
-
-    function handleMouseMove({
-      currentTarget,
-      clientX,
-      clientY,
-    }: React.MouseEvent<HTMLDivElement>) {
-      const { left, top } = currentTarget.getBoundingClientRect();
-
-      mouseX.set(clientX - left);
-      mouseY.set(clientY - top);
-    }
-
-    return (
-      <motion.div
-        style={{
-          background: useMotionTemplate`
-        radial-gradient(
-          ${visible ? radius + 'px' : '0px'} circle at ${mouseX}px ${mouseY}px,
-          rgba(230, 180, 71, 0.4),
-          transparent 80%
-        )
-      `,
-        }}
-        onMouseMove={handleMouseMove}
-        onMouseEnter={() => setVisible(true)}
-        onMouseLeave={() => setVisible(false)}
-        className='group/input rounded-lg p-[2px] transition duration-300'
-      >
-        <input
-          type={type}
-          className={cn(
-            `shadow-input dark:placeholder-text-neutral-600 flex h-10 w-full rounded-md border-none bg-gray-50 px-3 py-2 text-sm text-black transition duration-400 group-hover/input:shadow-none file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-neutral-400 focus-visible:ring-[2px] focus-visible:ring-neutral-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-800 dark:text-white dark:shadow-[0px_0px_1px_1px_#404040] dark:focus-visible:ring-neutral-600`,
-            className
-          )}
-          ref={ref}
-          {...props}
-        />
-      </motion.div>
-    );
-  })
-);
-
-Input.displayName = 'Input';
-
-// ==================== BoxReveal Component ====================
-
-type BoxRevealProps = {
-  children: ReactNode;
-  width?: string;
-  boxColor?: string;
-  duration?: number;
-  overflow?: string;
-  position?: string;
-  className?: string;
-};
-
-const BoxReveal = memo(function BoxReveal({
+function FadeIn({
   children,
-  width = 'fit-content',
-  boxColor,
-  duration,
-  overflow = 'hidden',
-  position = 'relative',
   className,
-}: BoxRevealProps) {
-  const mainControls = useAnimation();
-  const slideControls = useAnimation();
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-
-  useEffect(() => {
-    if (isInView) {
-      slideControls.start('visible');
-      mainControls.start('visible');
-    } else {
-      slideControls.start('hidden');
-      mainControls.start('hidden');
-    }
-  }, [isInView, mainControls, slideControls]);
-
+  delay = 0,
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}) {
   return (
-    <section
-      ref={ref}
-      style={{
-        position: position as
-          | 'relative'
-          | 'absolute'
-          | 'fixed'
-          | 'sticky'
-          | 'static',
-        width,
-        overflow,
-      }}
-      className={className}
+    <div
+      className={cn('animate-in-up', className)}
+      style={{ animationDelay: `${delay}ms` }}
     >
-      <motion.div
-        variants={{
-          hidden: { opacity: 0, y: 75 },
-          visible: { opacity: 1, y: 0 },
-        }}
-        initial='hidden'
-        animate={mainControls}
-        transition={{ duration: duration ?? 0.5, delay: 0.25 }}
-      >
-        {children}
-      </motion.div>
-      <motion.div
-        variants={{ hidden: { left: 0 }, visible: { left: '100%' } }}
-        initial='hidden'
-        animate={slideControls}
-        transition={{ duration: duration ?? 0.5, ease: 'easeIn' }}
-        style={{
-          position: 'absolute',
-          top: 4,
-          bottom: 4,
-          left: 0,
-          right: 0,
-          zIndex: 20,
-          background: boxColor ?? 'rgb(230, 180, 71)',
-          borderRadius: 4,
-        }}
-      />
-    </section>
+      {children}
+    </div>
   );
-});
+}
 
 // ==================== Ripple Component ====================
 
@@ -175,10 +50,11 @@ const Ripple = memo(function Ripple({
 }: RippleProps) {
   return (
     <section
-      className={`max-w-[50%] absolute inset-0 flex items-center justify-center
-        dark:bg-white/5 bg-neutral-50
-        [mask-image:linear-gradient(to_bottom,black,transparent)]
-        dark:[mask-image:linear-gradient(to_bottom,white,transparent)] ${className}`}
+      className={cn(
+        'max-w-[50%] absolute inset-0 flex items-center justify-center bg-[#1A1612]/30',
+        '[mask-image:linear-gradient(to_bottom,white,transparent)]',
+        className
+      )}
     >
       {Array.from({ length: numCircles }, (_, i) => {
         const size = mainCircleSize + i * 70;
@@ -190,22 +66,19 @@ const Ripple = memo(function Ripple({
         return (
           <span
             key={i}
-            className='absolute animate-ripple rounded-full bg-foreground/15 border'
+            className="absolute animate-ripple rounded-full bg-[#E6B447]/5 border"
             style={{
               width: `${size}px`,
               height: `${size}px`,
-              opacity: opacity,
-              animationDelay: animationDelay,
-              borderStyle: borderStyle,
+              opacity,
+              animationDelay,
+              borderStyle,
               borderWidth: '1px',
-              borderColor: `var(--foreground) dark:var(--background) / ${
-                borderOpacity / 100
-              })`,
+              borderColor: `rgba(230, 180, 71, ${borderOpacity / 100})`,
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              '--i': i,
-            } as any}
+            }}
           />
         );
       })}
@@ -238,27 +111,25 @@ const OrbitingCircles = memo(function OrbitingCircles({
     <>
       {path && (
         <svg
-          xmlns='http://www.w3.org/2000/svg'
-          version='1.1'
-          className='pointer-events-none absolute inset-0 size-full'
+          xmlns="http://www.w3.org/2000/svg"
+          version="1.1"
+          className="pointer-events-none absolute inset-0 size-full"
         >
           <circle
-            className='stroke-[#E6B447]/[0.06] stroke-1'
-            cx='50%'
-            cy='50%'
+            className="stroke-[#E6B447]/[0.06] stroke-1"
+            cx="50%"
+            cy="50%"
             r={radius}
-            fill='none'
+            fill="none"
           />
         </svg>
       )}
       <section
-        style={
-          {
-            '--duration': duration,
-            '--radius': radius,
-            '--delay': -delay,
-          } as React.CSSProperties
-        }
+        style={{
+          '--duration': duration,
+          '--radius': radius,
+          '--delay': -delay,
+        } as React.CSSProperties}
         className={cn(
           'absolute flex size-full transform-gpu animate-orbit items-center justify-center rounded-full border border-[#E6B447]/[0.08] bg-[#E6B447]/[0.06] [animation-delay:calc(var(--delay)*1000ms)]',
           { '[animation-direction:reverse]': reverse },
@@ -273,7 +144,7 @@ const OrbitingCircles = memo(function OrbitingCircles({
 
 // ==================== TechOrbitDisplay Component ====================
 
-type IconConfig = {
+export type IconConfig = {
   className?: string;
   duration?: number;
   delay?: number;
@@ -290,11 +161,11 @@ type TechnologyOrbitDisplayProps = {
 
 const TechOrbitDisplay = memo(function TechOrbitDisplay({
   iconsArray,
-  text = 'Animated Login',
+  text = 'MKTHONEY',
 }: TechnologyOrbitDisplayProps) {
   return (
-    <section className='relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg'>
-      <span className='pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-black to-gray-300/80 bg-clip-text text-center text-7xl font-semibold leading-none text-transparent dark:from-white dark:to-slate-900/10'>
+    <section className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg">
+      <span className="pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-[#E6B447] to-[#AB8648]/60 bg-clip-text text-center text-7xl font-semibold leading-none text-transparent">
         {text}
       </span>
 
@@ -335,17 +206,13 @@ type AnimatedFormProps = {
   textVariantButton?: string;
   errorField?: string;
   successField?: string;
-  fieldPerRow?: number;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  googleLogin?: string;
   goTo?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   secondaryLinkText?: string;
   onSecondaryLink?: () => void;
 };
 
-type Errors = {
-  [key: string]: string;
-};
+type Errors = { [key: string]: string };
 
 const AnimatedForm = memo(function AnimatedForm({
   header,
@@ -355,14 +222,12 @@ const AnimatedForm = memo(function AnimatedForm({
   textVariantButton,
   errorField,
   successField,
-  fieldPerRow = 1,
   onSubmit,
-  googleLogin,
   goTo,
   secondaryLinkText,
   onSecondaryLink,
 }: AnimatedFormProps) {
-  const [visible, setVisible] = useState<boolean>(false);
+  const [visible, setVisible] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
 
   const toggleVisibility = () => setVisible(!visible);
@@ -371,18 +236,14 @@ const AnimatedForm = memo(function AnimatedForm({
     const currentErrors: Errors = {};
     fields.forEach((field) => {
       const value = (event.target as HTMLFormElement)[field.label]?.value;
-
       if (field.required && !value) {
-        currentErrors[field.label] = `${field.label} é obrigatório`;
+        currentErrors[field.label] = `${field.label} e obrigatorio`;
       }
-
       if (field.type === 'email' && value && !/\S+@\S+\.\S+/.test(value)) {
-        currentErrors[field.label] = 'Endereço de email inválido';
+        currentErrors[field.label] = 'Endereco de email invalido';
       }
-
       if (field.type === 'password' && value && value.length < 8) {
-        currentErrors[field.label] =
-          'A senha deve ter pelo menos 8 caracteres';
+        currentErrors[field.label] = 'A senha deve ter pelo menos 8 caracteres';
       }
     });
     return currentErrors;
@@ -391,147 +252,76 @@ const AnimatedForm = memo(function AnimatedForm({
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formErrors = validateForm(event);
-
     if (Object.keys(formErrors).length === 0) {
       onSubmit(event);
-      console.log('Form submitted');
     } else {
       setErrors(formErrors);
     }
   };
 
   return (
-    <section className='max-md:w-full flex flex-col gap-4 w-96 mx-auto'>
-      <BoxReveal boxColor='var(--skeleton)' duration={0.3}>
-        <h2 className='font-bold text-3xl text-neutral-800 dark:text-neutral-200'>
-          {header}
-        </h2>
-      </BoxReveal>
+    <div className="max-md:w-full flex flex-col gap-5 w-[380px] mx-auto">
+      <FadeIn>
+        <h2 className="font-bold text-3xl text-[#F5E8CE]">{header}</h2>
+      </FadeIn>
 
       {subHeader && (
-        <BoxReveal boxColor='var(--skeleton)' duration={0.3} className='pb-2'>
-          <p className='text-neutral-600 text-sm max-w-sm dark:text-neutral-300'>
-            {subHeader}
-          </p>
-        </BoxReveal>
-      )}
-
-      {googleLogin && (
-        <>
-          <BoxReveal
-            boxColor='var(--skeleton)'
-            duration={0.3}
-            overflow='visible'
-            width='unset'
-          >
-            <button
-              className='group/btn relative flex items-center justify-center gap-3 w-full h-11 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] hover:border-[#E6B447]/20 transition-colors'
-              type='button'
-              onClick={() => console.log('Google login clicked')}
-            >
-              <svg 
-                viewBox="0 0 24 24" 
-                className="h-5 w-5 group-hover:scale-110 transition-transform"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c1.68-1.55 2.65-3.83 2.65-5.64z" fill="#4285F4" />
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-              </svg>
-              <span className="text-sm font-medium text-zinc-300 group-hover:text-white transition-colors">
-                {googleLogin}
-              </span>
-              <BottomGradient />
-            </button>
-          </BoxReveal>
-
-          <BoxReveal boxColor='var(--skeleton)' duration={0.3} width='100%'>
-            <section className='flex items-center gap-4'>
-              <hr className='flex-1 border-1 border-dashed border-neutral-300 dark:border-neutral-700' />
-              <p className='text-neutral-700 text-sm dark:text-neutral-300'>
-                ou
-              </p>
-              <hr className='flex-1 border-1 border-dashed border-neutral-300 dark:border-neutral-700' />
-            </section>
-          </BoxReveal>
-        </>
+        <FadeIn delay={50} className="pb-1">
+          <p className="text-[#CAB792] text-sm max-w-sm">{subHeader}</p>
+        </FadeIn>
       )}
 
       <form onSubmit={handleSubmit}>
-        <section
-          className={`grid grid-cols-1 md:grid-cols-${fieldPerRow} mb-4`}
-        >
-          {fields.map((field) => (
-            <section key={field.label} className='flex flex-col gap-2'>
-              <BoxReveal boxColor='var(--skeleton)' duration={0.3}>
-                <Label htmlFor={field.label}>
-                  {field.label} <span className='text-red-500'>*</span>
+        <div className="mb-5 space-y-4">
+          {fields.map((field, i) => (
+            <FadeIn key={field.label} delay={100 + i * 60}>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor={field.label} className="text-[#CAB792] text-xs font-medium">
+                  {field.label}
+                  {field.required && <span className="text-[#C45B3A] ml-0.5">*</span>}
                 </Label>
-              </BoxReveal>
-
-              <BoxReveal
-                width='100%'
-                boxColor='var(--skeleton)'
-                duration={0.3}
-                className='flex flex-col space-y-2 w-full'
-              >
-                <section className='relative'>
+                <div className="relative group">
                   <Input
                     type={
                       field.type === 'password'
-                        ? visible
-                          ? 'text'
-                          : 'password'
+                        ? visible ? 'text' : 'password'
                         : field.type
                     }
                     id={field.label}
                     placeholder={field.placeholder}
                     onChange={field.onChange}
+                    className="h-10 bg-[#1A1612] border-[#2A2318] text-[#F5E8CE] placeholder:text-[#6B5D4A] focus-visible:border-[#E6B447]/50 focus-visible:ring-[#E6B447]/20 transition-colors"
                   />
-
                   {field.type === 'password' && (
                     <button
-                      type='button'
+                      type="button"
                       onClick={toggleVisibility}
-                      className='absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5'
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#6B5D4A] hover:text-[#CAB792] transition-colors"
                     >
-                      {visible ? (
-                        <Eye className='h-5 w-5' />
-                      ) : (
-                        <EyeOff className='h-5 w-5' />
-                      )}
+                      {visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                     </button>
                   )}
-                </section>
-
-                <section className='h-4'>
-                  {errors[field.label] && (
-                    <p className='text-red-500 text-xs'>
-                      {errors[field.label]}
-                    </p>
-                  )}
-                </section>
-              </BoxReveal>
-            </section>
+                </div>
+                {errors[field.label] && (
+                  <p className="text-[#C45B3A] text-xs mt-0.5">{errors[field.label]}</p>
+                )}
+              </div>
+            </FadeIn>
           ))}
-        </section>
+        </div>
 
-        <BoxReveal width='100%' boxColor='var(--skeleton)' duration={0.3}>
-          {errorField && (
-            <p className='text-red-500 text-sm mb-4'>{errorField}</p>
-          )}
-          {successField && (
-            <p className='text-[#E6B447] text-sm mb-4'>{successField}</p>
-          )}
-        </BoxReveal>
+        {(errorField || successField) && (
+          <div className="mb-3">
+            {errorField && <p className="text-[#C45B3A] text-sm">{errorField}</p>}
+            {successField && <p className="text-[#E6B447] text-sm">{successField}</p>}
+          </div>
+        )}
 
-        {/* R-1.8: Secondary link (e.g. "Esqueci minha senha") */}
         {secondaryLinkText && onSecondaryLink && (
-          <div className='mb-3 text-right'>
+          <div className="mb-3 text-right">
             <button
-              type='button'
-              className='text-xs text-zinc-400 hover:text-[#E6B447] transition-colors outline-none'
+              type="button"
+              className="text-xs text-[#6B5D4A] hover:text-[#E6B447] transition-colors outline-none"
               onClick={onSecondaryLink}
             >
               {secondaryLinkText}
@@ -539,46 +329,42 @@ const AnimatedForm = memo(function AnimatedForm({
           </div>
         )}
 
-        <BoxReveal
-          width='100%'
-          boxColor='var(--skeleton)'
-          duration={0.3}
-          overflow='visible'
-        >
-          <button
-            className='bg-gradient-to-br relative group/btn from-[#E6B447] to-[#AB8648] block w-full text-[#0D0B09] font-semibold rounded-md h-10 hover:from-[#F0C35C] hover:to-[#E6B447] transition-all duration-200 outline-none hover:cursor-pointer'
-            type='submit'
+        <FadeIn delay={300}>
+          <Button
+            type="submit"
+            className="group/btn relative w-full h-10 bg-gradient-to-r from-[#E6B447] to-[#AB8648] text-[#0D0B09] font-semibold hover:from-[#F0C35C] hover:to-[#E6B447] rounded-md cursor-pointer transition-all duration-200"
           >
-            {submitButton} &rarr;
+            {submitButton}
             <BottomGradient />
-          </button>
-        </BoxReveal>
+          </Button>
+        </FadeIn>
 
         {textVariantButton && goTo && (
-          <BoxReveal boxColor='var(--skeleton)' duration={0.3}>
-            <section className='mt-4 text-center hover:cursor-pointer'>
+          <FadeIn delay={350}>
+            <div className="mt-4 text-center">
               <button
-                className='text-sm text-[#E6B447] hover:text-[#E6B447]/60 font-medium hover:cursor-pointer outline-none transition-colors'
+                type="button"
+                className="text-sm text-[#AB8648] hover:text-[#E6B447] font-medium cursor-pointer outline-none transition-colors"
                 onClick={goTo as any}
               >
                 {textVariantButton}
               </button>
-            </section>
-          </BoxReveal>
+            </div>
+          </FadeIn>
         )}
       </form>
-    </section>
+    </div>
   );
 });
 
-const BottomGradient = () => {
-  return (
-    <>
-      <span className='group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-[#E6B447] to-transparent' />
-      <span className='group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-[#E6B447] to-transparent' />
-    </>
-  );
-};
+// ==================== BottomGradient ====================
+
+const BottomGradient = () => (
+  <>
+    <span className="group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-[#E6B447] to-transparent" />
+    <span className="group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-[#E6B447] to-transparent" />
+  </>
+);
 
 // ==================== AuthTabs Component ====================
 
@@ -610,35 +396,10 @@ const AuthTabs = memo(function AuthTabs({
   handleSubmit,
 }: AuthTabsProps) {
   return (
-    <div className='flex max-lg:justify-center w-full md:w-auto'>
-      {/* Right Side */}
-      <div className='w-full lg:w-1/2 h-[100dvh] flex flex-col justify-center items-center max-lg:px-[10%]'>
-        <AnimatedForm
-          {...formFields}
-          fieldPerRow={1}
-          onSubmit={handleSubmit}
-          goTo={goTo}
-          googleLogin='Entrar com Google'
-        />
-      </div>
-    </div>
-  );
-});
-
-// ==================== Label Component ====================
-
-interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
-  htmlFor?: string;
-}
-
-const Label = memo(function Label({ className, ...props }: LabelProps) {
-  return (
-    <label
-      className={cn(
-        'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-        className
-      )}
-      {...props}
+    <AnimatedForm
+      {...formFields}
+      onSubmit={handleSubmit}
+      goTo={goTo}
     />
   );
 });
@@ -646,13 +407,10 @@ const Label = memo(function Label({ className, ...props }: LabelProps) {
 // ==================== Exports ====================
 
 export {
-  Input,
-  BoxReveal,
   Ripple,
   OrbitingCircles,
   TechOrbitDisplay,
   AnimatedForm,
   AuthTabs,
-  Label,
   BottomGradient,
 };

@@ -1,33 +1,19 @@
 'use client';
-import { useState, ChangeEvent, FormEvent, ReactNode } from 'react';
+import { useState, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginWithEmail, sendPasswordReset } from '@/lib/firebase/auth';
 import {
   Ripple,
   AuthTabs,
   TechOrbitDisplay,
+  type IconConfig,
 } from '@/components/ui/modern-animated-sign-in';
 import {
   Target, BarChart3, Megaphone, Users, TrendingUp,
   Zap, PieChart, Mail, Rocket
 } from 'lucide-react';
 
-type FormData = {
-  email: string;
-  password: string;
-};
-
-interface OrbitIcon {
-  component: () => ReactNode;
-  className?: string;
-  duration?: number;
-  delay?: number;
-  radius?: number;
-  path?: boolean;
-  reverse?: boolean;
-}
-
-const iconsArray: OrbitIcon[] = [
+const iconsArray: IconConfig[] = [
   {
     component: () => <Target className="size-[30px] text-[#E6B447]" />,
     radius: 100, duration: 20, delay: 20, reverse: false, path: false,
@@ -66,6 +52,11 @@ const iconsArray: OrbitIcon[] = [
   },
 ];
 
+type FormData = {
+  email: string;
+  password: string;
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
@@ -80,11 +71,7 @@ export default function LoginPage() {
     event: ChangeEvent<HTMLInputElement>,
     name: keyof FormData
   ) => {
-    const value = event.target.value;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: event.target.value }));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -99,7 +86,7 @@ export default function LoginPage() {
       if (err.code === 'auth/invalid-credential') {
         setError('Email ou senha incorretos');
       } else if (err.code === 'auth/user-not-found') {
-        setError('Usuário não encontrado');
+        setError('Usuario nao encontrado');
       } else {
         setError('Erro ao fazer login. Tente novamente.');
       }
@@ -121,24 +108,24 @@ export default function LoginPage() {
     try {
       await sendPasswordReset(formData.email);
       setError('');
-      setSuccess('Email de recuperação enviado! Verifique sua caixa de entrada.');
+      setSuccess('Email de recuperacao enviado! Verifique sua caixa de entrada.');
     } catch (err: any) {
       if (err.code === 'auth/user-not-found') {
-        setError('Email não encontrado');
+        setError('Email nao encontrado');
       } else {
-        setError('Erro ao enviar email de recuperação');
+        setError('Erro ao enviar email de recuperacao');
       }
     }
   };
 
   const formFields = {
     header: 'Bem-vindo ao MKTHONEY',
-    subHeader: 'Acesse sua central estratégica',
+    subHeader: 'Acesse sua central estrategica',
     fields: [
       {
         label: 'Email',
         required: true,
-        type: 'email' as any,
+        type: 'email' as const,
         placeholder: 'seu@email.com',
         onChange: (event: ChangeEvent<HTMLInputElement>) =>
           handleInputChange(event, 'email'),
@@ -146,14 +133,14 @@ export default function LoginPage() {
       {
         label: 'Senha',
         required: true,
-        type: 'password' as any,
+        type: 'password' as const,
         placeholder: 'Sua senha segura',
         onChange: (event: ChangeEvent<HTMLInputElement>) =>
           handleInputChange(event, 'password'),
       },
     ],
     submitButton: isLoading ? 'Autenticando...' : 'Acessar Comando',
-    textVariantButton: 'Não tem conta? Criar agora',
+    textVariantButton: 'Nao tem conta? Criar agora',
     errorField: error,
     successField: success,
     secondaryLinkText: 'Esqueci minha senha',
@@ -161,17 +148,16 @@ export default function LoginPage() {
   };
 
   return (
-    <section className='flex max-lg:justify-center min-h-screen bg-[#0D0B09] overflow-hidden'>
-      {/* Left Side */}
-      <div className='flex flex-col justify-center w-1/2 max-lg:hidden relative overflow-hidden bg-[#0D0B09] border-r border-white/[0.05]'>
-        {/* Gold radial glow */}
+    <section className="flex max-lg:justify-center min-h-screen bg-[#0D0B09] overflow-hidden">
+      {/* Left — Orbit showcase */}
+      <div className="flex flex-col justify-center w-1/2 max-lg:hidden relative overflow-hidden bg-[#0D0B09] border-r border-[#2A2318]">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(230,180,71,0.06)_0%,transparent_70%)]" />
         <Ripple mainCircleSize={100} />
         <TechOrbitDisplay iconsArray={iconsArray} text="MKTHONEY" />
       </div>
 
-      {/* Right Side */}
-      <div className='w-1/2 h-[100dvh] flex flex-col justify-center items-center max-lg:w-full max-lg:px-[10%] relative z-10 bg-[#0D0B09]'>
+      {/* Right — Form */}
+      <div className="w-1/2 h-dvh flex flex-col justify-center items-center max-lg:w-full max-lg:px-[10%] relative z-10 bg-[#0D0B09]">
         <AuthTabs
           formFields={formFields}
           goTo={handleGoToSignup}

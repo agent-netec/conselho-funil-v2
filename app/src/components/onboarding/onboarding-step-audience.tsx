@@ -3,11 +3,17 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+
+const TEXTAREA_CLASS = 'bg-[#241F19] border-[#2A2318] text-[#F5E8CE] placeholder:text-[#6B5D4A] focus-visible:border-[#E6B447]/50 focus-visible:ring-[#E6B447]/20 resize-none min-h-0';
+const LABEL_CLASS = 'text-xs font-medium text-[#AB8648] uppercase tracking-wider';
 
 const awarenessOptions = [
-  { value: 'unaware', label: 'Não sabe que tem o problema' },
+  { value: 'unaware', label: 'Nao sabe que tem o problema' },
   { value: 'problem', label: 'Sabe do problema' },
-  { value: 'solution', label: 'Conhece soluções' },
+  { value: 'solution', label: 'Conhece solucoes' },
   { value: 'product', label: 'Conhece seu produto' },
 ];
 
@@ -56,109 +62,95 @@ export function OnboardingStepAudience({
       transition={{ duration: 0.3 }}
       className="space-y-5"
     >
-      {/* Title */}
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Sua Audiência</h2>
-        <p className="text-sm text-zinc-400 mt-1">
-          Quem você quer alcançar com sua marca
+        <h2 className="text-2xl font-bold text-[#F5E8CE]">Sua Audiencia</h2>
+        <p className="text-sm text-[#CAB792] mt-1">
+          Quem voce quer alcancar com sua marca
         </p>
       </div>
 
-      {/* Cliente ideal */}
-      <div>
-        <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">
-          Quem é seu cliente ideal?
-        </label>
-        <textarea
+      <div className="space-y-1.5">
+        <Label className={LABEL_CLASS}>Quem e seu cliente ideal?</Label>
+        <Textarea
           value={who}
           onChange={(e) => onUpdate('who', e.target.value)}
-          placeholder="Ex: Empreendedores digitais com faturamento entre R$10k-50k/mês que querem escalar"
+          placeholder="Ex: Empreendedores digitais com faturamento entre R$10k-50k/mes que querem escalar"
           rows={2}
-          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors resize-none"
+          className={TEXTAREA_CLASS}
         />
       </div>
 
-      {/* Maior frustração */}
-      <div>
-        <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">
-          Qual a maior frustração dele?
-        </label>
-        <textarea
+      <div className="space-y-1.5">
+        <Label className={LABEL_CLASS}>Qual a maior frustracao dele?</Label>
+        <Textarea
           value={pain}
           onChange={(e) => onUpdate('pain', e.target.value)}
-          placeholder="Ex: Gasta muito em tráfego pago mas não consegue converter"
+          placeholder="Ex: Gasta muito em trafego pago mas nao consegue converter"
           rows={2}
-          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors resize-none"
+          className={TEXTAREA_CLASS}
         />
       </div>
 
-      {/* Nível de consciência */}
-      <div>
-        <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-3">
-          Nível de Consciência
-        </label>
+      <div className="space-y-2">
+        <Label className={LABEL_CLASS}>Nivel de Consciencia</Label>
         <div className="grid grid-cols-2 gap-2">
           {awarenessOptions.map((option) => (
             <button
               key={option.value}
               type="button"
               onClick={() => onUpdate('awareness', option.value)}
-              className={`px-3 py-2.5 rounded-lg border text-left transition-all ${
+              className={`px-3 py-2.5 rounded-lg border text-left text-sm font-medium transition-all ${
                 awareness === option.value
-                  ? 'border-[#E6B447] bg-[#E6B447]/20 text-[#E6B447]'
-                  : 'border-white/[0.06] bg-zinc-800/50 text-zinc-400 hover:border-white/[0.1] hover:text-white'
+                  ? 'border-[#E6B447] bg-[#E6B447]/15 text-[#E6B447]'
+                  : 'border-[#2A2318] bg-[#241F19] text-[#CAB792] hover:border-[#3D3428] hover:text-[#F5E8CE]'
               }`}
             >
-              <span className="text-sm font-medium">{option.label}</span>
+              {option.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Objeções principais */}
-      <div>
-        <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">
-          Objeções Principais
-          <span className="text-zinc-600 ml-2">({objections.length}/5)</span>
-        </label>
+      <div className="space-y-1.5">
+        <Label className={LABEL_CLASS}>
+          Objecoes Principais
+          <span className="text-[#6B5D4A] ml-2">({objections.length}/5)</span>
+        </Label>
 
-        {/* Input para adicionar */}
-        <div className="flex gap-2 mb-3">
-          <input
+        <div className="flex gap-2">
+          <Input
             type="text"
             value={newObjection}
             onChange={(e) => setNewObjection(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ex: É muito caro"
+            placeholder="Ex: E muito caro"
             disabled={objections.length >= 5}
-            className="flex-1 rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-2.5 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors disabled:opacity-50"
+            className="h-10 bg-[#241F19] border-[#2A2318] text-[#F5E8CE] placeholder:text-[#6B5D4A] focus-visible:border-[#E6B447]/50 focus-visible:ring-[#E6B447]/20"
           />
           <button
             type="button"
             onClick={handleAddObjection}
             disabled={!newObjection.trim() || objections.length >= 5}
-            className="flex items-center justify-center w-10 h-10 rounded-lg border border-white/[0.06] bg-zinc-800/50 text-zinc-400 hover:border-[#E6B447] hover:text-[#E6B447] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center w-10 h-10 rounded-lg border border-[#2A2318] bg-[#241F19] text-[#6B5D4A] hover:border-[#E6B447] hover:text-[#E6B447] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Lista de objeções */}
         {objections.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mt-2">
             {objections.map((objection, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-800/80 border border-white/[0.06] text-sm text-zinc-300"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#241F19] border border-[#2A2318] text-sm text-[#CAB792]"
               >
                 <span>{objection}</span>
                 <button
                   type="button"
                   onClick={() => handleRemoveObjection(index)}
-                  className="p-0.5 rounded-full hover:bg-zinc-700 text-zinc-500 hover:text-zinc-300 transition-colors"
+                  className="p-0.5 rounded hover:bg-[#1A1612] text-[#6B5D4A] hover:text-[#CAB792] transition-colors"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>

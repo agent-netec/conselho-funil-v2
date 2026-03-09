@@ -5,16 +5,6 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Brain } from 'lucide-react';
 
-// Generate particles for background animation
-const particles = Array.from({ length: 30 }, (_, i) => ({
-  id: i,
-  x: Math.random() * 100,
-  y: Math.random() * 100,
-  size: Math.random() * 3 + 1,
-  duration: Math.random() * 3 + 2,
-  delay: Math.random() * 2,
-}));
-
 interface OnboardingTransitionProps {
   onComplete?: () => void;
 }
@@ -24,7 +14,6 @@ export function OnboardingTransition({ onComplete }: OnboardingTransitionProps) 
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Animate progress bar over 3.5 seconds
     const duration = 3500;
     const startTime = Date.now();
 
@@ -40,7 +29,6 @@ export function OnboardingTransition({ onComplete }: OnboardingTransitionProps) 
 
     requestAnimationFrame(updateProgress);
 
-    // Redirect after 3.5 seconds
     // Sprint R2.2: Add ?from=onboarding to trigger proactive verdict
     const redirectTimer = setTimeout(() => {
       if (onComplete) {
@@ -59,105 +47,53 @@ export function OnboardingTransition({ onComplete }: OnboardingTransitionProps) 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#0D0B09]"
     >
-      {/* Animated particles background */}
-      <div className="absolute inset-0 overflow-hidden">
-        {particles.map((particle) => (
-          <motion.div
-            key={particle.id}
-            className="absolute rounded-full bg-[#E6B447]/20"
-            style={{
-              left: `${particle.x}%`,
-              top: `${particle.y}%`,
-              width: particle.size,
-              height: particle.size,
-            }}
-            animate={{
-              opacity: [0.2, 0.5, 0.2],
-              scale: [1, 1.5, 1],
-              y: [0, -20, 0],
-            }}
-            transition={{
-              duration: particle.duration,
-              delay: particle.delay,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Radial gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-radial from-[#1A1612]/20 via-transparent to-transparent" />
+      {/* Radial gold glow background */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(230,180,71,0.06)_0%,transparent_60%)]" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center text-center px-6">
-        {/* Pulsing icon */}
+        {/* Pulsing icon with glow */}
         <motion.div
           className="relative mb-8"
-          animate={{
-            scale: [1, 1.05, 1],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          {/* Glow rings */}
-          <motion.div
-            className="absolute inset-0 rounded-full bg-[#E6B447]/30 blur-xl"
-            animate={{
-              scale: [1, 1.3, 1],
-              opacity: [0.3, 0.1, 0.3],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-            style={{ width: 120, height: 120, margin: -20 }}
+          {/* Outer glow */}
+          <div
+            className="absolute rounded-full bg-[#E6B447]/10 blur-xl animate-pulse"
+            style={{ width: 120, height: 120, top: -20, left: -20 }}
           />
-          <motion.div
-            className="absolute inset-0 rounded-full bg-[#E6B447]/20 blur-md"
-            animate={{
-              scale: [1.1, 1.4, 1.1],
-              opacity: [0.2, 0.05, 0.2],
-            }}
-            transition={{
-              duration: 2.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              delay: 0.2,
-            }}
-            style={{ width: 120, height: 120, margin: -20 }}
+          {/* Inner glow */}
+          <div
+            className="absolute rounded-full bg-[#E6B447]/5 blur-md"
+            style={{ width: 100, height: 100, top: -10, left: -10 }}
           />
 
-          {/* Main icon container */}
-          <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-lg shadow-[#E6B447]/30">
-            <Brain className="h-10 w-10 text-white" />
+          {/* Main icon */}
+          <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-lg shadow-[#E6B447]/20">
+            <Brain className="h-10 w-10 text-[#0D0B09]" />
           </div>
         </motion.div>
 
-        {/* Main text */}
+        {/* Text */}
         <motion.h2
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="text-2xl sm:text-3xl font-bold text-white mb-3"
+          className="text-2xl sm:text-3xl font-bold text-[#F5E8CE] mb-3"
         >
-          O MKTHONEY está analisando sua marca...
+          Analisando sua marca...
         </motion.h2>
 
-        {/* Secondary text */}
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="text-zinc-400 text-sm sm:text-base mb-8 max-w-md"
+          className="text-[#CAB792] text-sm sm:text-base mb-8 max-w-md"
         >
-          Preparando seu veredito estratégico personalizado
+          Preparando seu veredito estrategico personalizado
         </motion.p>
 
         {/* Progress bar */}
@@ -167,13 +103,13 @@ export function OnboardingTransition({ onComplete }: OnboardingTransitionProps) 
           transition={{ delay: 0.7 }}
           className="w-full max-w-xs"
         >
-          <div className="h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-[#E6B447] to-[#E6B447] rounded-full"
+          <div className="h-1.5 w-full rounded-full bg-[#241F19] overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-[#E6B447] to-[#AB8648] rounded-full transition-[width] duration-100"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="text-xs text-zinc-600 mt-2">
+          <p className="text-xs text-[#6B5D4A] mt-2 font-mono tabular-nums">
             {Math.round(progress)}%
           </p>
         </motion.div>

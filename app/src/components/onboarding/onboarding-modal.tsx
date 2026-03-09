@@ -12,7 +12,8 @@ import { useBrands } from '@/lib/hooks/use-brands';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { updateUserPreferences } from '@/lib/firebase/firestore';
-import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 
 interface FormData {
   // Step 1 - Identity
@@ -88,7 +89,7 @@ export function OnboardingModal() {
 
   const handleNext = () => {
     if (!canProceed()) {
-      toast.error('Preencha todos os campos obrigatórios');
+      toast.error('Preencha todos os campos obrigatorios');
       return;
     }
 
@@ -107,14 +108,13 @@ export function OnboardingModal() {
 
   const handleSubmit = async () => {
     if (!user) {
-      toast.error('Usuário não autenticado');
+      toast.error('Usuario nao autenticado');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Create brand with collected data
       const brandId = await create({
         userId: user.uid,
         name: formData.name,
@@ -135,12 +135,10 @@ export function OnboardingModal() {
         },
       });
 
-      // Mark onboarding as complete
       await updateUserPreferences(user.uid, {
         onboardingPhase1AComplete: true,
       });
 
-      // Set as selected brand
       setSelectedBrand({
         id: brandId,
         userId: user.uid,
@@ -164,7 +162,6 @@ export function OnboardingModal() {
         updatedAt: { seconds: Date.now() / 1000, nanoseconds: 0 } as any,
       });
 
-      // Show transition screen
       setShowTransition(true);
     } catch (error) {
       console.error('Error creating brand:', error);
@@ -210,7 +207,6 @@ export function OnboardingModal() {
     }
   };
 
-  // Show transition screen
   if (showTransition) {
     return <OnboardingTransition />;
   }
@@ -229,9 +225,9 @@ export function OnboardingModal() {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="relative z-10 w-full max-w-[680px] mx-4 max-h-[90vh] overflow-y-auto rounded-3xl bg-zinc-900 border border-white/[0.06] p-6 sm:p-8 shadow-2xl"
+        className="relative z-10 w-full max-w-[680px] mx-4 max-h-[90vh] overflow-y-auto rounded-2xl bg-[#1A1612] border border-[#2A2318] p-6 sm:p-8 shadow-2xl"
       >
-        {/* Progress bar */}
+        {/* Progress */}
         <OnboardingProgress currentStep={currentStep} />
 
         {/* Step content */}
@@ -239,52 +235,46 @@ export function OnboardingModal() {
           {renderStep()}
         </AnimatePresence>
 
-        {/* Navigation buttons */}
-        <div className="flex items-center justify-between mt-8 pt-6 border-t border-white/[0.06]">
-          {/* Back button */}
+        {/* Navigation */}
+        <div className="flex items-center justify-between mt-8 pt-6 border-t border-[#2A2318]">
           {currentStep > 1 ? (
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={handleBack}
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-white/[0.06] text-zinc-400 hover:text-white hover:border-white/[0.1] transition-colors disabled:opacity-50"
+              className="border-[#2A2318] bg-transparent text-[#CAB792] hover:bg-[#241F19] hover:text-[#F5E8CE]"
             >
-              <ArrowLeft className="h-4 w-4" />
-              <span className="text-sm font-medium">Voltar</span>
-            </button>
+              <ArrowLeft className="h-4 w-4 mr-1.5" />
+              Voltar
+            </Button>
           ) : (
             <div />
           )}
 
-          {/* Next/Submit button */}
-          <button
+          <Button
             type="button"
             onClick={handleNext}
             disabled={isSubmitting || !canProceed()}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#E6B447] text-white font-medium hover:bg-[#E6B447] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gradient-to-r from-[#E6B447] to-[#AB8648] text-[#0D0B09] font-semibold hover:from-[#F0C35C] hover:to-[#E6B447] disabled:opacity-50"
           >
             {isSubmitting ? (
               <>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                >
-                  <Sparkles className="h-4 w-4" />
-                </motion.div>
-                <span className="text-sm">Criando...</span>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Criando...
               </>
             ) : currentStep === 3 ? (
               <>
                 <Sparkles className="h-4 w-4" />
-                <span className="text-sm">Analisar minha marca</span>
+                Analisar minha marca
               </>
             ) : (
               <>
-                <span className="text-sm">Continuar</span>
+                Continuar
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
-          </button>
+          </Button>
         </div>
       </motion.div>
     </div>

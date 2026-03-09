@@ -1,14 +1,21 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+
+const INPUT_CLASS = 'h-11 bg-[#241F19] border-[#2A2318] text-[#F5E8CE] placeholder:text-[#6B5D4A] focus-visible:border-[#E6B447]/50 focus-visible:ring-[#E6B447]/20';
+const TEXTAREA_CLASS = 'bg-[#241F19] border-[#2A2318] text-[#F5E8CE] placeholder:text-[#6B5D4A] focus-visible:border-[#E6B447]/50 focus-visible:ring-[#E6B447]/20 resize-none min-h-0';
+const LABEL_CLASS = 'text-xs font-medium text-[#AB8648] uppercase tracking-wider';
 
 const offerTypeOptions = [
-  { value: 'curso', label: 'Curso', emoji: '📚' },
-  { value: 'saas', label: 'SaaS', emoji: '💻' },
-  { value: 'servico', label: 'Serviço', emoji: '🛠️' },
-  { value: 'mentoria', label: 'Mentoria', emoji: '🎯' },
-  { value: 'produto_fisico', label: 'Produto Físico', emoji: '📦' },
-  { value: 'assinatura', label: 'Assinatura', emoji: '🔄' },
+  { value: 'curso', label: 'Curso' },
+  { value: 'saas', label: 'SaaS' },
+  { value: 'servico', label: 'Servico' },
+  { value: 'mentoria', label: 'Mentoria' },
+  { value: 'produto_fisico', label: 'Produto Fisico' },
+  { value: 'assinatura', label: 'Assinatura' },
 ];
 
 interface OnboardingStepOfferProps {
@@ -45,83 +52,69 @@ export function OnboardingStepOffer({
       transition={{ duration: 0.3 }}
       className="space-y-5"
     >
-      {/* Title */}
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Sua Oferta</h2>
-        <p className="text-sm text-zinc-400 mt-1">
-          O que você vende e como se diferencia
+        <h2 className="text-2xl font-bold text-[#F5E8CE]">Sua Oferta</h2>
+        <p className="text-sm text-[#CAB792] mt-1">
+          O que voce vende e como se diferencia
         </p>
       </div>
 
-      {/* O que você vende */}
-      <div>
-        <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">
-          O que você vende?
-        </label>
-        <textarea
+      <div className="space-y-1.5">
+        <Label className={LABEL_CLASS}>O que voce vende?</Label>
+        <Textarea
           value={what}
           onChange={(e) => onUpdate('what', e.target.value)}
           placeholder="Ex: Mentoria de 12 semanas para donos de e-commerce"
           rows={2}
-          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors resize-none"
+          className={TEXTAREA_CLASS}
         />
       </div>
 
-      {/* Ticket médio */}
-      <div>
-        <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">
-          Ticket Médio
-        </label>
+      <div className="space-y-1.5">
+        <Label className={LABEL_CLASS}>Ticket Medio</Label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B5D4A] font-medium text-sm">
             R$
           </span>
-          <input
+          <Input
             type="text"
             inputMode="numeric"
             value={formatTicket(ticket)}
             onChange={handleTicketChange}
             placeholder="0"
-            className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 pl-11 pr-4 py-3 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors"
+            className={`${INPUT_CLASS} pl-10`}
           />
         </div>
       </div>
 
-      {/* Tipo da oferta */}
-      <div>
-        <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-3">
-          Tipo da Oferta
-        </label>
+      <div className="space-y-2">
+        <Label className={LABEL_CLASS}>Tipo da Oferta</Label>
         <div className="grid grid-cols-3 gap-2">
           {offerTypeOptions.map((option) => (
             <button
               key={option.value}
               type="button"
               onClick={() => onUpdate('type', option.value)}
-              className={`flex flex-col items-center gap-1.5 px-3 py-3 rounded-lg border transition-all ${
+              className={`px-3 py-3 rounded-lg border text-sm font-medium transition-all ${
                 type === option.value
-                  ? 'border-[#E6B447] bg-[#E6B447]/20 text-[#E6B447]'
-                  : 'border-white/[0.06] bg-zinc-800/50 text-zinc-400 hover:border-white/[0.1] hover:text-white'
+                  ? 'border-[#E6B447] bg-[#E6B447]/15 text-[#E6B447]'
+                  : 'border-[#2A2318] bg-[#241F19] text-[#CAB792] hover:border-[#3D3428] hover:text-[#F5E8CE]'
               }`}
             >
-              <span className="text-xl">{option.emoji}</span>
-              <span className="text-xs font-medium">{option.label}</span>
+              {option.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Diferencial principal */}
-      <div>
-        <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">
-          Diferencial Principal
-        </label>
-        <textarea
+      <div className="space-y-1.5">
+        <Label className={LABEL_CLASS}>Diferencial Principal</Label>
+        <Textarea
           value={differentiator}
           onChange={(e) => onUpdate('differentiator', e.target.value)}
-          placeholder="O que torna sua oferta única vs concorrentes?"
+          placeholder="O que torna sua oferta unica vs concorrentes?"
           rows={2}
-          className="w-full rounded-lg border border-white/[0.06] bg-zinc-800/50 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-[#E6B447] focus:outline-none transition-colors resize-none"
+          className={TEXTAREA_CLASS}
         />
       </div>
     </motion.div>
