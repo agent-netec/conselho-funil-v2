@@ -1,180 +1,250 @@
 "use client"
 
 import * as React from "react"
-import { MentionCardSkeleton } from "@/components/intelligence/mention-card"
-import { TrendListSkeleton } from "@/components/intelligence/trend-list"
 import { SentimentGauge, SentimentGaugeSkeleton } from "@/components/intelligence/sentiment-gauge"
-import { IntelligenceFeedSkeleton } from "@/components/intelligence/intelligence-feed"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CompetitorList } from "@/components/intelligence/competitors/competitor-list"
 import { AssetGallery } from "@/components/intelligence/competitors/asset-gallery"
 import { CompetitorProfile } from "@/types/competitors"
 import { DossierView } from "@/components/intelligence/competitors/dossier-view"
-import { FileText, BrainCircuit, Search, Share2, Sparkles } from "lucide-react"
 import { PublicEmotion } from "@/components/intelligence/public-emotion"
 import { KeywordRanking } from "@/components/intelligence/keyword-ranking"
 import { SocialVolumeChart } from "@/components/intelligence/social-volume-chart"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { useKeywordIntelligence, useIntelligenceStats } from "@/lib/hooks/use-intelligence"
+import { FileText } from "lucide-react"
+
+const NAV = [
+  { key: "overview", label: "Overview", href: null },
+  { key: "discovery", label: "Discovery", href: "/intelligence/discovery" },
+  { key: "attribution", label: "Attribution", href: "/intelligence/attribution" },
+  { key: "ltv", label: "LTV", href: "/intelligence/ltv" },
+  { key: "journey", label: "Journey", href: "/intelligence/journey" },
+  { key: "autopsy", label: "Autopsy", href: "/strategy/autopsy" },
+  { key: "offer-lab", label: "Offer Lab", href: "/intelligence/offer-lab" },
+] as const
 
 export default function IntelligencePage() {
-  const [selectedCompetitor, setSelectedCompetitor] = React.useState<CompetitorProfile | null>(null);
-  const [viewingDossier, setViewingDossier] = React.useState<boolean>(false);
+  const [selectedCompetitor, setSelectedCompetitor] = React.useState<CompetitorProfile | null>(null)
+  const [viewingDossier, setViewingDossier] = React.useState(false)
+  const [tab, setTab] = React.useState("overview")
 
-  const { keywords, loading: loadingKeywords } = useKeywordIntelligence();
-  const { stats, loading: loadingStats } = useIntelligenceStats();
+  const { keywords, loading: lk } = useKeywordIntelligence()
+  const { stats, loading: ls } = useIntelligenceStats()
+
+  const mentions = stats.fullStats?.totalMentions ?? 0
+  const sentiment = stats.fullStats?.averageSentimentScore ?? 0
+  const topTerm = keywords[0]?.term ?? "—"
+  const topKOS = keywords[0]?.metrics?.opportunityScore ?? 0
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">Intelligence Dashboard</h1>
-          <p className="text-muted-foreground">
-            Monitoramento de menções, tendências e inteligência competitiva em tempo real.
-          </p>
-        </div>
-        <Link href="/intelligence/personalization">
-          <Button className="bg-gradient-to-r from-[#E6B447] to-[#AB8648] hover:from-[#AB8648] hover:to-[#895F29] gap-2">
-            <Sparkles className="w-4 h-4" />
-            Personalização Dinâmica
-          </Button>
-        </Link>
-      </div>
-
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full max-w-[840px] grid-cols-7">
-          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-          <TabsTrigger value="discovery" asChild>
-            <Link href="/intelligence/discovery">Discovery Hub</Link>
-          </TabsTrigger>
-          <TabsTrigger value="attribution" asChild>
-            <Link href="/intelligence/attribution">Atribuição</Link>
-          </TabsTrigger>
-          <TabsTrigger value="ltv" asChild>
-            <Link href="/intelligence/ltv">LTV & Retenção</Link>
-          </TabsTrigger>
-          <TabsTrigger value="journey" asChild>
-            <Link href="/intelligence/journey">Jornada</Link>
-          </TabsTrigger>
-          <TabsTrigger value="autopsy" asChild>
-            <Link href="/strategy/autopsy">Funnel Autopsy</Link>
-          </TabsTrigger>
-          <TabsTrigger value="offer-lab" asChild>
-            <Link href="/intelligence/offer-lab">Offer Lab</Link>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2">
-              {loadingStats ? (
-                <Skeleton className="h-[350px] w-full rounded-xl" />
-              ) : (
-                <SocialVolumeChart data={stats.socialVolume} />
-              )}
+    <div className="min-h-screen flex flex-col">
+      {/* ═══ HEADER — no icons, numbers ARE the design ═══════════════════ */}
+      <header className="shrink-0 border-b border-white/[0.06]">
+        <div className="px-8 pt-8 pb-0 max-w-[1440px] mx-auto">
+          {/* Row 1: Status + action */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-baseline gap-4">
+              <h1 className="text-[42px] font-black tracking-[-0.02em] text-[#F5E8CE] leading-none">
+                Intelligence
+              </h1>
+              <div className="flex items-center gap-2">
+                <span className="inline-block h-[6px] w-[6px] rounded-full bg-[#E6B447] shadow-[0_0_12px_rgba(230,180,71,0.8)] animate-pulse" />
+                <span className="text-[11px] font-mono text-[#AB8648] tracking-wider">LIVE</span>
+              </div>
             </div>
-            <div>
-              {loadingStats ? (
-                <Skeleton className="h-[350px] w-full rounded-xl" />
-              ) : (
-                <PublicEmotion emotions={Object.values(stats.emotions).some((v: number) => v > 0) ? stats.emotions as { joy: number; anger: number; sadness: number; surprise: number; fear: number; neutral: number } : undefined} />
-              )}
-            </div>
+            <Link
+              href="/intelligence/personalization"
+              className="text-[11px] font-mono font-bold tracking-wider text-[#0D0B09] bg-[#E6B447] hover:bg-[#F0C35C] px-4 py-2 transition-colors"
+            >
+              PERSONALIZAÇÃO DINÂMICA →
+            </Link>
           </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
-              {loadingKeywords ? (
-                <Skeleton className="h-[400px] w-full rounded-xl" />
+
+          {/* Row 2: KPI bar — giant monospace numbers, vertical dividers */}
+          <div className="grid grid-cols-4 border border-white/[0.06] divide-x divide-white/[0.06] mb-8">
+            <KPI label="Menções Totais" value={String(mentions)} />
+            <KPI label="Sentimento" value={sentiment.toFixed(1)} unit="/10" />
+            <KPI label="Top Keyword" value={topTerm} isText />
+            <KPI label="Melhor KOS" value={String(topKOS)} unit="pts" highlight />
+          </div>
+
+          {/* Row 3: Navigation — minimal, text-only */}
+          <nav className="flex gap-0 -mb-px">
+            {NAV.map((item) => {
+              const active = tab === item.key
+              const cls = `
+                block px-5 py-3 text-[11px] font-mono tracking-wider transition-colors
+                border-b-2 ${active
+                  ? 'text-[#E6B447] border-[#E6B447] font-bold'
+                  : 'text-[#6B5D4A] border-transparent hover:text-[#CAB792]'
+                }
+              `
+              return item.href ? (
+                <Link key={item.key} href={item.href} className={cls}>
+                  {item.label}
+                </Link>
               ) : (
-                <KeywordRanking keywords={keywords} />
-              )}
+                <button key={item.key} onClick={() => setTab(item.key)} className={cls}>
+                  {item.label}
+                </button>
+              )
+            })}
+          </nav>
+        </div>
+      </header>
+
+      {/* ═══ CONTENT ═════════════════════════════════════════════════════ */}
+      <main className="flex-1 px-8 py-8 max-w-[1440px] mx-auto w-full">
+        {tab === "overview" && (
+          <div className="space-y-8">
+            {/* Bento row 1 — chart 2/3, emotion 1/3 */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-px bg-white/[0.04] border border-white/[0.06] overflow-hidden">
+              <section className="lg:col-span-3 bg-[#0D0B09] p-6">
+                <SectionLabel>Volume Social · 7 dias</SectionLabel>
+                {ls ? <Skeleton className="h-[280px] w-full" /> : <SocialVolumeChart data={stats.socialVolume} />}
+              </section>
+              <section className="lg:col-span-2 bg-[#0D0B09] p-6">
+                <SectionLabel>Emoção do Público</SectionLabel>
+                {ls ? (
+                  <Skeleton className="h-[280px] w-full" />
+                ) : (
+                  <PublicEmotion
+                    emotions={
+                      Object.values(stats.emotions).some((v: number) => v > 0)
+                        ? (stats.emotions as { joy: number; anger: number; sadness: number; surprise: number; fear: number; neutral: number })
+                        : undefined
+                    }
+                  />
+                )}
+              </section>
             </div>
-            <div className="space-y-6">
-              {loadingStats ? (
-                <SentimentGaugeSkeleton />
-              ) : (
-                <SentimentGauge stats={stats.fullStats} />
-              )}
-              <div className="p-6 border rounded-xl bg-muted/20">
-                <h3 className="font-bold flex items-center gap-2 mb-2">
-                  <BrainCircuit className="w-5 h-5 text-[#E6B447]" />
-                  Insight do Analyst
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {keywords.length > 0 ? (
-                    `Detectamos ${keywords.length} novas oportunidades de palavras-chave. 
-                     O termo "${keywords[0].term}" possui o maior KOS (${keywords[0].metrics.opportunityScore}), 
-                     sendo a prioridade número 1 para sua estratégia de conteúdo.`
-                  ) : (
-                    `Detectamos um aumento de 40% nas buscas por "mkthoney login". 
-                     Isso indica uma retenção forte, mas também sugere que o link de acesso 
-                     deve estar mais visível em suas comunicações sociais.`
-                  )}
-                </p>
+
+            {/* Bento row 2 — keywords 3/5, right col 2/5 */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-px bg-white/[0.04] border border-white/[0.06] overflow-hidden">
+              <section className="lg:col-span-3 bg-[#0D0B09] p-6">
+                <SectionLabel>Keyword Ranking · KOS</SectionLabel>
+                {lk ? <Skeleton className="h-[360px] w-full" /> : <KeywordRanking keywords={keywords} />}
+              </section>
+
+              <div className="lg:col-span-2 bg-[#0D0B09] flex flex-col divide-y divide-white/[0.04]">
+                {/* Sentiment */}
+                <section className="p-6 flex-1">
+                  <SectionLabel>Sentimento Geral</SectionLabel>
+                  {ls ? <SentimentGaugeSkeleton /> : <SentimentGauge stats={stats.fullStats} />}
+                </section>
+
+                {/* AI Insight — gold left border, no chrome */}
+                <section className="p-6">
+                  <div className="border-l-2 border-[#E6B447] pl-4">
+                    <p className="text-[10px] font-mono font-bold tracking-wider text-[#E6B447] mb-2">
+                      ANALYST INSIGHT
+                    </p>
+                    <p className="text-[13px] leading-relaxed text-[#CAB792]">
+                      {keywords.length > 0 ? (
+                        <>
+                          <strong className="text-[#F5E8CE]">{keywords.length} oportunidades</strong> detectadas.
+                          Termo prioritário: <strong className="text-[#E6B447] font-mono">{keywords[0].term}</strong> com
+                          KOS <strong className="text-[#E6B447] font-mono">{keywords[0].metrics.opportunityScore}</strong>.
+                        </>
+                      ) : (
+                        <>
+                          Buscas por <strong className="text-[#E6B447]">"mkthoney"</strong> subiram
+                          <strong className="text-[#F5E8CE]"> 40%</strong>. Indica retenção forte — torne o link de acesso mais visível.
+                        </>
+                      )}
+                    </p>
+                    <div className="flex gap-4 mt-3">
+                      <Link href="/intelligence/discovery" className="text-[10px] font-mono tracking-wider text-[#AB8648] hover:text-[#E6B447] transition-colors">
+                        Discovery →
+                      </Link>
+                      <Link href="/intelligence/research" className="text-[10px] font-mono tracking-wider text-[#AB8648] hover:text-[#E6B447] transition-colors">
+                        Deep Research →
+                      </Link>
+                    </div>
+                  </div>
+                </section>
               </div>
             </div>
           </div>
-        </TabsContent>
+        )}
 
-        <TabsContent value="keywords" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold tracking-tight">Inteligência de Palavras-Chave</h2>
-              <p className="text-sm text-muted-foreground">Análise profunda de termos e oportunidades de SEO.</p>
-            </div>
-          </div>
-          {loadingKeywords ? (
-            <Skeleton className="h-[600px] w-full rounded-xl" />
-          ) : (
-            <KeywordRanking keywords={keywords} />
-          )}
-        </TabsContent>
+        {tab === "keywords" && (
+          <section className="border border-white/[0.06] bg-[#0D0B09] p-6">
+            <SectionLabel>Inteligência de Palavras-Chave</SectionLabel>
+            {lk ? <Skeleton className="h-[600px] w-full" /> : <KeywordRanking keywords={keywords} />}
+          </section>
+        )}
 
-        <TabsContent value="competitors" className="space-y-6">
-          <CompetitorList 
-            competitors={[]}
-            onSelect={(comp) => {
-              setSelectedCompetitor(comp);
-              // Em um app real, aqui mudaríamos para a aba de ativos ou dossiê filtrado
-            }}
-            onAdd={() => console.log("Add competitor")}
-            onTriggerDossier={(id) => {
-              console.log("Trigger dossier for", id);
-              setViewingDossier(true);
-            }}
-          />
-        </TabsContent>
+        {tab === "competitors" && (
+          <section className="border border-white/[0.06] bg-[#0D0B09] p-6">
+            <SectionLabel>Competidores</SectionLabel>
+            <CompetitorList
+              competitors={[]}
+              onSelect={(comp) => setSelectedCompetitor(comp)}
+              onAdd={() => console.log("Add competitor")}
+              onTriggerDossier={(id) => {
+                console.log("Trigger dossier for", id)
+                setViewingDossier(true)
+              }}
+            />
+          </section>
+        )}
 
-        <TabsContent value="assets" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold tracking-tight">Biblioteca de Ativos</h2>
-              <p className="text-sm text-muted-foreground">Screenshots e evidências coletadas pelo Spy Agent.</p>
-            </div>
-          </div>
-          <AssetGallery assets={[]} />
-        </TabsContent>
+        {tab === "assets" && (
+          <section className="border border-white/[0.06] bg-[#0D0B09] p-6">
+            <SectionLabel>Biblioteca de Ativos</SectionLabel>
+            <AssetGallery assets={[]} />
+          </section>
+        )}
 
-        <TabsContent value="dossier" className="space-y-6">
-          {viewingDossier ? (
-            <DossierView dossier={undefined} />
-          ) : (
-            <div className="text-center py-20 border-2 border-dashed rounded-xl bg-muted/20">
-              <FileText className="mx-auto h-12 w-12 opacity-20 mb-4" />
-              <h3 className="font-medium text-lg">Nenhum dossiê selecionado</h3>
-              <p className="text-sm text-muted-foreground max-w-xs mx-auto mt-1">
-                Selecione um concorrente na aba ao lado e clique em "Gerar Dossiê" para visualizar a análise detalhada.
-              </p>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+        {tab === "dossier" && (
+          <section className="border border-white/[0.06] bg-[#0D0B09] p-6">
+            <SectionLabel>Dossiê</SectionLabel>
+            {viewingDossier ? (
+              <DossierView dossier={undefined} />
+            ) : (
+              <div className="py-20 text-center">
+                <p className="text-[#6B5D4A] text-sm">Selecione um concorrente e gere o dossiê.</p>
+              </div>
+            )}
+          </section>
+        )}
+      </main>
     </div>
   )
 }
 
+/* ── KPI Cell ─────────────────────────────────────────────────────────── */
+function KPI({ label, value, unit, isText, highlight }: {
+  label: string
+  value: string
+  unit?: string
+  isText?: boolean
+  highlight?: boolean
+}) {
+  return (
+    <div className="px-6 py-5 bg-[#0D0B09]">
+      <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-1">
+        {label}
+      </p>
+      <p className={`leading-none ${isText
+          ? 'text-lg font-bold text-[#F5E8CE] truncate max-w-[200px]'
+          : 'text-[36px] font-mono font-black tabular-nums'
+        } ${highlight ? 'text-[#E6B447]' : 'text-[#F5E8CE]'}`}
+      >
+        {value}
+        {unit && <span className="text-[11px] font-normal text-[#6B5D4A] ml-1">{unit}</span>}
+      </p>
+    </div>
+  )
+}
 
+/* ── Section Label ────────────────────────────────────────────────────── */
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-4">
+      {children}
+    </p>
+  )
+}
