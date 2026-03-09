@@ -1,22 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Header } from '@/components/layout/header';
-import { Button } from '@/components/ui/button';
 import {
   Plus,
-  Target,
-  GitBranch,
   MoreVertical,
   Trash2,
   Eye,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
   Search,
-  Filter,
-  TrendingUp,
+  ChevronRight,
 } from 'lucide-react';
 import { GuidedEmptyState } from '@/components/ui/guided-empty-state';
 import {
@@ -26,264 +17,233 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useFunnels } from '@/lib/hooks/use-funnels';
-import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: any; glow: string }> = {
-  draft: { label: 'Rascunho', color: 'text-zinc-400', bg: 'bg-zinc-500/10', icon: Clock, glow: 'from-zinc-500/5 to-transparent' },
-  generating: { label: 'Gerando', color: 'text-blue-400', bg: 'bg-blue-500/10', icon: Clock, glow: 'from-blue-500/5 to-transparent' },
-  review: { label: 'Avaliar', color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10', icon: AlertCircle, glow: 'from-[#E6B447]/5 to-transparent' },
-  approved: { label: 'Aprovado', color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10', icon: CheckCircle2, glow: 'from-[#E6B447]/5 to-transparent' },
-  adjusting: { label: 'Ajustando', color: 'text-[#AB8648]', bg: 'bg-[#AB8648]/10', icon: Clock, glow: 'from-[#E6B447]/5 to-transparent' },
-  executing: { label: 'Executando', color: 'text-blue-400', bg: 'bg-blue-500/10', icon: Clock, glow: 'from-blue-500/5 to-transparent' },
-  completed: { label: 'Concluído', color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10', icon: CheckCircle2, glow: 'from-[#E6B447]/5 to-transparent' },
-  killed: { label: 'Cancelado', color: 'text-red-400', bg: 'bg-red-500/10', icon: AlertCircle, glow: 'from-red-500/5 to-transparent' },
+const STATUS_LABEL: Record<string, string> = {
+  draft: 'Rascunho',
+  generating: 'Gerando',
+  review: 'Avaliar',
+  approved: 'Aprovado',
+  adjusting: 'Ajustando',
+  executing: 'Executando',
+  completed: 'Concluído',
+  killed: 'Cancelado',
+};
+
+const STATUS_COLOR: Record<string, string> = {
+  draft: 'border-l-zinc-600',
+  generating: 'border-l-[#5B8EC4]',
+  review: 'border-l-[#E6B447]',
+  approved: 'border-l-[#E6B447]',
+  adjusting: 'border-l-[#AB8648]',
+  executing: 'border-l-[#5B8EC4]',
+  completed: 'border-l-[#7A9B5A]',
+  killed: 'border-l-[#C45B3A]',
 };
 
 const OBJECTIVE_LABELS: Record<string, string> = {
-  leads: 'Leads',
-  sales: 'Vendas',
-  calls: 'Calls',
-  retention: 'Retenção',
+  leads: 'Leads', sales: 'Vendas', calls: 'Calls', retention: 'Retenção',
 };
 
-const KANBAN_COLUMNS = [
-  { key: 'draft', label: 'Rascunho', statuses: ['draft'], dotColor: 'bg-zinc-500' },
-  { key: 'generating', label: 'Gerando', statuses: ['generating', 'adjusting', 'executing'], dotColor: 'bg-blue-400' },
-  { key: 'review', label: 'Em Revisão', statuses: ['review'], dotColor: 'bg-[#E6B447]' },
-  { key: 'approved', label: 'Concluído', statuses: ['approved', 'completed'], dotColor: 'bg-[#E6B447]' },
+const COLUMNS = [
+  { key: 'draft', label: 'Rascunho', statuses: ['draft'] },
+  { key: 'wip', label: 'Em Progresso', statuses: ['generating', 'adjusting', 'executing'] },
+  { key: 'review', label: 'Revisão', statuses: ['review'] },
+  { key: 'done', label: 'Concluído', statuses: ['approved', 'completed'] },
 ];
 
 export default function FunnelsPage() {
   const { funnels, isLoading, remove } = useFunnels();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [search, setSearch] = useState('');
 
-  const filteredFunnels = funnels.filter(f => 
-    f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    f.context.objective.toLowerCase().includes(searchQuery.toLowerCase())
+  const filtered = funnels.filter(f =>
+    f.name.toLowerCase().includes(search.toLowerCase()) ||
+    f.context.objective.toLowerCase().includes(search.toLowerCase())
   );
 
   const stats = {
     total: funnels.length,
     active: funnels.filter(f => ['approved', 'executing', 'generating', 'review'].includes(f.status)).length,
-    completed: funnels.filter(f => f.status === 'completed').length,
+    done: funnels.filter(f => f.status === 'completed').length,
   };
 
-  const handleDelete = async (funnelId: string) => {
-    if (confirm('Tem certeza que deseja excluir este funil?')) {
-      await remove(funnelId);
-    }
+  const handleDelete = async (id: string) => {
+    if (confirm('Excluir este funil?')) await remove(id);
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header 
-        title="Pipeline de Funis" 
-        subtitle="Governança estratégica"
-        actions={
-          <Link href="/funnels/new">
-            <Button className="btn-accent">
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Funil
-            </Button>
-          </Link>
-        }
-      />
+    <div className="min-h-screen flex flex-col">
+      {/* ═══ HEADER ══════════════════════════════════════════════════════ */}
+      <header className="shrink-0 border-b border-white/[0.06]">
+        <div className="px-8 pt-8 pb-0 max-w-[1440px] mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-[42px] font-black tracking-[-0.02em] text-[#F5E8CE] leading-none">
+              Funis
+            </h1>
+            <Link
+              href="/funnels/new"
+              className="text-[11px] font-mono font-bold tracking-wider text-[#0D0B09] bg-[#E6B447] hover:bg-[#F0C35C] px-4 py-2 transition-colors flex items-center gap-2"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              NOVO FUNIL
+            </Link>
+          </div>
 
-      <div className="flex-1 p-4 sm:p-8">
-        <div className="max-w-7xl mx-auto space-y-8">
-          
-          {/* List Header & Stats */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="flex items-center gap-6">
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Ativos</span>
-                <p className="text-2xl font-bold text-white">{stats.total}</p>
-              </div>
-              <div className="w-px h-10 bg-white/[0.05]" />
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#E6B447]">Em Operação</span>
-                <p className="text-2xl font-bold text-white">{stats.active}</p>
-              </div>
-              <div className="w-px h-10 bg-white/[0.05]" />
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Concluídos</span>
-                <p className="text-2xl font-bold text-white">{stats.completed}</p>
-              </div>
+          {/* KPI bar */}
+          <div className="grid grid-cols-3 border border-white/[0.06] divide-x divide-white/[0.06] mb-8">
+            <div className="px-6 py-5 bg-[#0D0B09]">
+              <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-1">Total</p>
+              <p className="text-[36px] font-mono font-black tabular-nums text-[#F5E8CE] leading-none">{stats.total}</p>
             </div>
-
-            <div className="flex items-center gap-3 w-full md:w-auto">
-              <div className="relative flex-1 md:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <Input 
-                  placeholder="Buscar funil..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input-premium pl-10"
-                />
-              </div>
-              <Button variant="ghost" className="btn-ghost border border-white/[0.05] h-10 w-10 p-0">
-                <Filter className="h-4 w-4" />
-              </Button>
+            <div className="px-6 py-5 bg-[#0D0B09]">
+              <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-1">Em Operação</p>
+              <p className="text-[36px] font-mono font-black tabular-nums text-[#E6B447] leading-none">{stats.active}</p>
+            </div>
+            <div className="px-6 py-5 bg-[#0D0B09]">
+              <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-1">Concluídos</p>
+              <p className="text-[36px] font-mono font-black tabular-nums text-[#F5E8CE] leading-none">{stats.done}</p>
             </div>
           </div>
 
-          {isLoading ? (
-            /* Kanban skeleton */
-            <div className="flex gap-4 overflow-x-auto pb-4">
-              {KANBAN_COLUMNS.map((col) => (
-                <div key={col.key} className="flex-shrink-0 w-72 space-y-3">
-                  <div className="flex items-center gap-2 px-1">
-                    <span className={cn("h-2 w-2 rounded-full", col.dotColor)} />
-                    <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">{col.label}</span>
-                  </div>
-                  {[1, 2].map((i) => (
-                    <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 animate-pulse">
-                      <div className="h-4 w-28 rounded bg-zinc-800 mb-3" />
-                      <div className="h-3 w-36 rounded bg-zinc-800/50 mb-2" />
-                      <div className="h-3 w-20 rounded bg-zinc-800/30" />
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          ) : filteredFunnels.length === 0 ? (
-            searchQuery ? (
-              <div className="card-premium p-16 text-center">
-                <p className="text-zinc-500">
-                  Nenhum funil encontrado para &ldquo;{searchQuery}&rdquo;. Tente outro termo.
-                </p>
-              </div>
-            ) : (
-              <GuidedEmptyState
-                icon={GitBranch}
-                title="Nenhum funil criado"
-                description="Crie seu primeiro funil de vendas e deixe o MKTHONEY ajudar a estruturar, avaliar e otimizar cada etapa."
-                ctaLabel="Criar Primeiro Funil"
-                ctaHref="/funnels/new"
-                tips={[
-                  'Descreva o objetivo e o MKTHONEY sugere a estrutura',
-                  'O MKTHONEY avalia cada etapa com score de conversão',
-                  'Funis aprovados viram templates reutilizáveis',
-                ]}
-              />
-            )
-          ) : (
-            /* Kanban board */
-            <div className="flex gap-4 overflow-x-auto pb-4">
-              {KANBAN_COLUMNS.map((column) => {
-                const columnFunnels = filteredFunnels.filter((f) =>
-                  column.statuses.includes(f.status)
-                );
-
-                return (
-                  <div key={column.key} className="flex-shrink-0 w-72 min-h-[200px]">
-                    {/* Column header */}
-                    <div className="flex items-center gap-2 px-1 mb-3">
-                      <span className={cn("h-2 w-2 rounded-full", column.dotColor)} />
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-                        {column.label}
-                      </span>
-                      <span className="ml-auto text-[10px] font-bold text-zinc-600">
-                        {columnFunnels.length}
-                      </span>
-                    </div>
-
-                    {/* Column body */}
-                    <div className="space-y-3">
-                      <AnimatePresence mode="popLayout">
-                        {columnFunnels.map((funnel, index) => {
-                          const status = STATUS_CONFIG[funnel.status] || STATUS_CONFIG.draft;
-                          const StatusIcon = status.icon;
-                          const objective = OBJECTIVE_LABELS[funnel.context.objective] || funnel.context.objective;
-
-                          return (
-                            <motion.div
-                              key={funnel.id}
-                              initial={{ opacity: 0, y: 12 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, scale: 0.95 }}
-                              transition={{ duration: 0.25, delay: index * 0.04 }}
-                            >
-                              <Link href={`/funnels/${funnel.id}`}>
-                                <div className="group rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 hover:border-[#E6B447]/20 hover:bg-[#E6B447]/[0.02] transition-all relative overflow-hidden">
-                                  {/* Glow */}
-                                  <div className={cn("absolute inset-0 bg-gradient-to-br opacity-[0.03] pointer-events-none", status.glow)} />
-
-                                  {/* Top: status badge + actions */}
-                                  <div className="flex items-center justify-between mb-3 relative z-10">
-                                    <div className={cn(
-                                      'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest',
-                                      status.color, status.bg
-                                    )}>
-                                      <StatusIcon className="h-3 w-3" />
-                                      {status.label}
-                                    </div>
-
-                                    <DropdownMenu>
-                                      <DropdownMenuTrigger asChild>
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          className="h-6 w-6 text-zinc-600 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                                          onClick={(e) => e.preventDefault()}
-                                        >
-                                          <MoreVertical className="h-3.5 w-3.5" />
-                                        </Button>
-                                      </DropdownMenuTrigger>
-                                      <DropdownMenuContent align="end" className="bg-zinc-900 border-white/[0.08] text-zinc-300">
-                                        <DropdownMenuItem asChild>
-                                          <Link href={`/funnels/${funnel.id}`} className="flex items-center cursor-pointer">
-                                            <Eye className="mr-2 h-4 w-4" />
-                                            Ver Detalhes
-                                          </Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            handleDelete(funnel.id);
-                                          }}
-                                          className="text-red-400 focus:text-red-400 focus:bg-red-500/10 cursor-pointer"
-                                        >
-                                          <Trash2 className="mr-2 h-4 w-4" />
-                                          Excluir
-                                        </DropdownMenuItem>
-                                      </DropdownMenuContent>
-                                    </DropdownMenu>
-                                  </div>
-
-                                  {/* Name + objective */}
-                                  <h4 className="text-sm font-bold text-white group-hover:text-[#E6B447] transition-colors truncate mb-1 relative z-10">
-                                    {funnel.name}
-                                  </h4>
-                                  <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-3 relative z-10">
-                                    {objective}
-                                  </p>
-
-                                  {/* Ticket */}
-                                  <div className="flex items-center justify-between text-xs relative z-10 pt-2 border-t border-white/[0.04]">
-                                    <span className="text-zinc-600 font-medium">
-                                      {funnel.context.channel?.main || funnel.context.channels?.primary || '—'}
-                                    </span>
-                                    <span className="text-[#E6B447] font-bold text-[11px]">
-                                      R$ {(Number(funnel.context.offer?.ticket) || 0).toLocaleString('pt-BR')}
-                                    </span>
-                                  </div>
-                                </div>
-                              </Link>
-                            </motion.div>
-                          );
-                        })}
-                      </AnimatePresence>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          {/* Search */}
+          <div className="relative mb-0">
+            <Search className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6B5D4A]" />
+            <input
+              type="text"
+              placeholder="Buscar funil..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full h-10 pl-7 pr-4 bg-transparent border-b border-white/[0.06] text-sm text-[#F5E8CE] placeholder:text-[#6B5D4A] focus:outline-none focus:border-[#E6B447]/40 font-mono transition-colors"
+            />
+          </div>
         </div>
-      </div>
+      </header>
+
+      {/* ═══ KANBAN ══════════════════════════════════════════════════════ */}
+      <main className="flex-1 px-8 py-6 max-w-[1440px] mx-auto w-full overflow-x-auto">
+        {isLoading ? (
+          <div className="grid grid-cols-4 gap-px bg-white/[0.04]">
+            {COLUMNS.map((col) => (
+              <div key={col.key} className="bg-[#0D0B09] p-4 min-h-[400px]">
+                <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-4">{col.label}</p>
+                <div className="space-y-2">
+                  {[1, 2].map(i => <div key={i} className="h-20 bg-[#1A1612] animate-pulse" />)}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          search ? (
+            <div className="py-20 text-center">
+              <p className="text-[#6B5D4A] text-sm font-mono">Nenhum funil para "{search}"</p>
+            </div>
+          ) : (
+            <GuidedEmptyState
+              icon={ChevronRight}
+              title="Nenhum funil criado"
+              description="Crie seu primeiro funil e deixe o MKTHONEY estruturar, avaliar e otimizar cada etapa."
+              ctaLabel="Criar Primeiro Funil"
+              ctaHref="/funnels/new"
+              tips={[
+                'Descreva o objetivo e o MKTHONEY sugere a estrutura',
+                'O MKTHONEY avalia cada etapa com score de conversão',
+                'Funis aprovados viram templates reutilizáveis',
+              ]}
+            />
+          )
+        ) : (
+          <div className="grid grid-cols-4 gap-px bg-white/[0.04] border border-white/[0.06]">
+            {COLUMNS.map((column) => {
+              const items = filtered.filter(f => column.statuses.includes(f.status));
+
+              return (
+                <div key={column.key} className="bg-[#0D0B09] min-h-[400px] flex flex-col">
+                  {/* Column header */}
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.04]">
+                    <span className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A]">
+                      {column.label}
+                    </span>
+                    <span className="text-[11px] font-mono font-black text-[#F5E8CE]">
+                      {items.length}
+                    </span>
+                  </div>
+
+                  {/* Cards */}
+                  <div className="flex-1 p-2 space-y-1">
+                    {items.map((funnel) => {
+                      const objective = OBJECTIVE_LABELS[funnel.context.objective] || funnel.context.objective;
+                      const ticket = Number(funnel.context.offer?.ticket) || 0;
+
+                      return (
+                        <Link key={funnel.id} href={`/funnels/${funnel.id}`}>
+                          <div className={cn(
+                            "group border-l-2 bg-[#1A1612] hover:bg-[#241F19] transition-colors cursor-pointer px-3 py-3",
+                            STATUS_COLOR[funnel.status] || 'border-l-zinc-600'
+                          )}>
+                            {/* Name */}
+                            <div className="flex items-center justify-between gap-2">
+                              <h4 className="text-[13px] font-bold text-[#F5E8CE] group-hover:text-[#E6B447] transition-colors truncate">
+                                {funnel.name}
+                              </h4>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <button
+                                    className="shrink-0 h-5 w-5 flex items-center justify-center text-[#6B5D4A] hover:text-[#F5E8CE] opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={(e) => e.preventDefault()}
+                                  >
+                                    <MoreVertical className="h-3 w-3" />
+                                  </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="bg-[#1A1612] border-white/[0.08] text-[#CAB792]">
+                                  <DropdownMenuItem asChild>
+                                    <Link href={`/funnels/${funnel.id}`} className="flex items-center cursor-pointer">
+                                      <Eye className="mr-2 h-3.5 w-3.5" /> Detalhes
+                                    </Link>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={(e) => { e.preventDefault(); handleDelete(funnel.id); }}
+                                    className="text-[#C45B3A] focus:text-[#C45B3A] focus:bg-[#C45B3A]/10 cursor-pointer"
+                                  >
+                                    <Trash2 className="mr-2 h-3.5 w-3.5" /> Excluir
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+
+                            {/* Meta row */}
+                            <div className="flex items-center justify-between mt-1.5">
+                              <span className="text-[10px] font-mono uppercase tracking-wider text-[#6B5D4A]">
+                                {objective}
+                              </span>
+                              {ticket > 0 && (
+                                <span className="text-[11px] font-mono font-bold text-[#E6B447] tabular-nums">
+                                  R$ {ticket.toLocaleString('pt-BR')}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Status text */}
+                            <p className="text-[9px] font-mono uppercase tracking-[0.15em] text-[#AB8648] mt-1.5">
+                              {STATUS_LABEL[funnel.status] || funnel.status}
+                            </p>
+                          </div>
+                        </Link>
+                      );
+                    })}
+
+                    {items.length === 0 && (
+                      <div className="py-8 text-center">
+                        <p className="text-[10px] font-mono text-[#6B5D4A]/50 uppercase tracking-wider">Vazio</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </main>
     </div>
   );
 }
