@@ -83,12 +83,6 @@ const schemaOrg = {
         { '@type': 'Offer', name: 'Pro', price: '297', priceCurrency: 'BRL', billingIncrement: 'P1M' },
         { '@type': 'Offer', name: 'Agency', price: '597', priceCurrency: 'BRL', billingIncrement: 'P1M' },
       ],
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '4.9',
-        reviewCount: '500',
-        bestRating: '5',
-      },
     },
     {
       '@type': 'Organization',
@@ -102,26 +96,34 @@ const schemaOrg = {
       mainEntity: [
         {
           '@type': 'Question',
-          name: 'Isso substitui minha agência?',
+          name: 'Isso substitui minha agencia?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Sim. Com o MKTHONEY, você opera inteligência competitiva, criação de conteúdo, automação de campanhas e monitoramento de performance sozinho. Funções que normalmente exigem de 5 a 10 pessoas. Sua operação roda 24/7 sem depender de ninguém.',
+            text: 'Sim. Com o MKTHONEY, voce opera inteligencia competitiva, criacao de conteudo, automacao de campanhas e monitoramento de performance sozinho. Funcoes que normalmente exigem de 5 a 10 pessoas. Sua operacao roda 24/7 sem depender de ninguem.',
           },
         },
         {
           '@type': 'Question',
-          name: 'Quem são os 23 conselheiros?',
+          name: 'E se eu nao entendo de marketing?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'São sistemas de avaliação treinados nos frameworks reais de lendas do marketing direto — Gary Halbert, Eugene Schwartz, Dan Kennedy, Russell Brunson, David Ogilvy, entre outros. Múltiplos conselheiros analisam, debatem entre si e entregam um veredito unificado com score de confiança.',
+            text: 'Nao precisa. O setup leva 5 minutos. Voce define sua marca, audiencia e tom de voz. A plataforma traduz estrategias complexas em acoes praticas que voce aprova com um clique. Os 23 conselheiros fazem a analise pesada — voce toma a decisao final.',
           },
         },
         {
           '@type': 'Question',
-          name: 'E se eu não gostar em 14 dias?',
+          name: 'Quem sao os 23 conselheiros?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Você sai. Sem pergunta. Sem retenção. Sem cobrar cartão que você nem cadastrou. Os 14 dias são reais — não é trial com funcionalidades cortadas. É o produto inteiro.',
+            text: 'Sao sistemas de avaliacao treinados nos frameworks reais de lendas do marketing direto — Gary Halbert, Eugene Schwartz, Dan Kennedy, Russell Brunson, David Ogilvy, entre outros. Multiplos conselheiros analisam, debatem entre si e entregam um veredito unificado com score de confianca.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Consigo operar 10+ clientes sozinho?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Sim. Cada marca tem seu proprio espaco isolado — tom de voz, identidade visual, conselheiros configurados e metricas independentes. Voce alterna entre marcas instantaneamente.',
           },
         },
         {
@@ -129,7 +131,23 @@ const schemaOrg = {
           name: 'Meus dados ficam seguros?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Isolamento total por marca. Encriptação AES-256-GCM. Cada marca tem namespace próprio. Nenhum dado cruza de uma marca para outra. Servidores no Brasil.',
+            text: 'Isolamento total por marca. Encriptacao AES-256-GCM. Cada marca tem namespace proprio. Nenhum dado cruza de uma marca para outra. Servidores no Brasil.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'E se eu nao gostar em 14 dias?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Voce sai. Sem pergunta. Sem retencao. Sem cobrar cartao que voce nem cadastrou. Os 14 dias sao reais — nao e trial com funcionalidades cortadas. E o produto inteiro.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Que tipo de conteudo consigo produzir?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Posts, stories, carrosseis, reels, headlines, hooks, scripts de anuncio, copies de email, estruturas de funil, ofertas formatadas. Tudo sai com a voz e identidade da sua marca.',
           },
         },
         {
@@ -137,7 +155,7 @@ const schemaOrg = {
           name: 'Funciona para qual nicho?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Qualquer marca que precisa de marketing consistente e não quer manter uma equipe para isso. Infoprodutores, SaaS, e-commerce, serviços, agências solo. A plataforma se adapta à sua vertical e tom de voz.',
+            text: 'Qualquer marca que precisa de marketing consistente e nao quer manter uma equipe para isso. Infoprodutores, SaaS, e-commerce, servicos, agencias solo. A plataforma se adapta a sua vertical e tom de voz.',
           },
         },
       ],

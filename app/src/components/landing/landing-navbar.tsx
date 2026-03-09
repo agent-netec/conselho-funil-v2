@@ -65,6 +65,7 @@ export function LandingNavbar() {
           onClick={() => setOpen(!open)}
           className="md:hidden text-zinc-400 hover:text-white"
           aria-label="Menu"
+          aria-expanded={open}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>

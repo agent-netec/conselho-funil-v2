@@ -1,5 +1,3 @@
-'use client';
-
 import { Eye, BookOpen, Zap } from 'lucide-react';
 
 const columns = [
