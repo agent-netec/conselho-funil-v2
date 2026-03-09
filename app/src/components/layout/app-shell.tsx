@@ -1,169 +1,35 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
-import { cn } from '@/lib/utils';
-import { Sidebar } from './sidebar';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import { useSidebarStore } from '@/lib/stores/sidebar-store';
 import { ToastNotifications } from '@/components/ui/toast-notifications';
-import { sendEmailVerification } from '@/lib/firebase/auth';
-import { EmailVerificationBanner } from '@/components/auth/email-verification-banner';
 
 interface AppShellProps {
   children: React.ReactNode;
 }
 
-// Pages that don't require authentication
-const PUBLIC_PATHS = [
-  '/login',
-  '/signup',
-  '/terms',
-  '/privacy',
-  '/cookies',
-  '/refund',
-  '/pricing',
-  '/shared', // shared funnel pages
-  '/auth',   // Firebase action links (verify email, reset password)
-  '/landing', // public landing page (middleware rewrites "/" here)
-];
+const AUTH_PATHS = ['/login', '/signup'];
 
-function LoadingScreen() {
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-[#09090b]">
-      {/* Background pattern */}
-      <div className="absolute inset-0 bg-dot-pattern opacity-30" />
-      
-      {/* Radial gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(230,180,71,0.1),transparent)]" />
-      
-      <motion.div 
-        className="flex flex-col items-center gap-6"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        {/* Logo */}
-        <div className="relative">
-          {/* Glow */}
-          <div className="absolute inset-0 rounded-2xl bg-[#E6B447]/20 blur-2xl animate-pulse" />
-          
-          <motion.div
-            className="relative flex h-16 w-16 items-center justify-center"
-            animate={{
-              filter: [
-                'drop-shadow(0 0 8px rgba(230, 180, 71, 0.2))',
-                'drop-shadow(0 0 20px rgba(230, 180, 71, 0.5))',
-                'drop-shadow(0 0 8px rgba(230, 180, 71, 0.2))',
-              ]
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <Image
-              src="/logo-mkthoney-icon.svg"
-              alt="MKTHONEY"
-              width={40}
-              height={57}
-              priority
-              className="h-14 w-auto"
-            />
-          </motion.div>
-        </div>
-        
-        {/* Loading bar */}
-        <div className="w-32 h-1 rounded-full bg-zinc-800 overflow-hidden">
-          <motion.div 
-            className="h-full bg-[#E6B447] rounded-full"
-            initial={{ x: '-100%' }}
-            animate={{ x: '100%' }}
-            transition={{ 
-              duration: 1, 
-              repeat: Infinity, 
-              ease: 'easeInOut' 
-            }}
-          />
-        </div>
-        
-        <p className="text-sm text-zinc-500 font-medium">Carregando...</p>
-      </motion.div>
-    </div>
-  );
-}
-
+/**
+ * AppShell — Thin wrapper (T3 refactor)
+ *
+ * Auth guard, sidebar, loading screen, and email banner are now in (app)/layout.tsx.
+ * AppShell only handles:
+ * - Auth/welcome pages: background effects without sidebar
+ * - Everything else: render children directly
+ */
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
-  const router = useRouter();
-  const auth = useAuthStore();
-  
-  // Destructuring com segurança
-  const user = auth?.user;
-  const isLoading = auth?.isLoading;
-  const isInitialized = auth?.isInitialized;
 
-  // US-28.01: Check if Firebase is properly configured
-  const isFirebaseAvailable = !((auth as any)?._isMock);
-
-  // R5.2: Check if path starts with any public path (for dynamic routes like /shared/[token])
-  const isPublicPage = PUBLIC_PATHS.some(path => pathname === path || pathname?.startsWith(`${path}/`));
-  const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/signup');
+  const isAuthPage = AUTH_PATHS.some(p => pathname?.startsWith(p));
   const isWelcomePage = pathname === '/welcome';
-  const isRootPath = pathname === '/';
 
-  useEffect(() => {
-    if (!isInitialized) return;
-
-    // Redirect to login if not authenticated and trying to access protected page
-    // "/" is handled by middleware (rewrite to landing for non-auth)
-    if (!user && !isPublicPage && !isRootPath) {
-      router.push('/login');
-    }
-
-    // Redirect to home if authenticated and trying to access auth page
-    if (user && isAuthPage) {
-      router.push('/');
-    }
-  }, [user, isInitialized, isPublicPage, isAuthPage, router]);
-
-  // Show loading while checking auth — but not for public pages or root
-  if ((!isInitialized || isLoading) && !isPublicPage && !isRootPath) {
-    return <LoadingScreen />;
-  }
-
-  // US-28.01: Show error if Firebase is not available
-  if (!isFirebaseAvailable && !isPublicPage) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white p-6 text-center">
-        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-8 max-w-md">
-          <h1 className="text-xl font-bold text-red-500 mb-4">Erro de Configuração</h1>
-          <p className="text-zinc-400 mb-6">
-            O Firebase não foi inicializado corretamente. Verifique se as variáveis de ambiente (API Keys) estão configuradas no painel da Vercel.
-          </p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
-          >
-            Tentar Novamente
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Public pages (landing, legal, pricing) - render directly, no shell chrome
-  if (isPublicPage || isRootPath) {
-    return <>{children}</>;
-  }
-
-  // Auth & welcome pages - shell chrome without sidebar
+  // Auth & welcome pages — background effects, no sidebar
   if (isAuthPage || isWelcomePage) {
     return (
       <div className="min-h-screen bg-[#09090b]">
-        {/* Background effects */}
         <div className="fixed inset-0 bg-dot-pattern opacity-30 pointer-events-none" />
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(230,180,71,0.08),transparent)] pointer-events-none" />
-
         <AnimatePresence mode="wait">
           <motion.div
             key={pathname}
@@ -175,52 +41,18 @@ export function AppShell({ children }: AppShellProps) {
             {children}
           </motion.div>
         </AnimatePresence>
+        <ToastNotifications />
       </div>
     );
   }
 
-  // R-1.7: Email verification banner
-  const showVerificationBanner = user && !user.emailVerified && !isAuthPage && !isWelcomePage;
-
-  // E1: Dynamic sidebar margin
-  const { isExpanded } = useSidebarStore();
-
-  // Protected pages - with sidebar
+  // All other pages — render directly
+  // Protected pages get chrome from (app)/layout.tsx
+  // Public pages (landing, legal) render without chrome
   return (
-    <div className="min-h-screen bg-background selection:bg-[#E6B447]/20 selection:text-[#F5E8CE]">
-      {/* Background effects */}
-      <div className="fixed inset-0 bg-dot-pattern opacity-[0.15] pointer-events-none" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(230,180,71,0.08),transparent)] pointer-events-none" />
-
-      <Sidebar />
-
-      <main
-        className={cn(
-          'min-h-screen relative flex flex-col transition-[margin-left] duration-200 ease-in-out',
-          isExpanded ? 'md:ml-[256px]' : 'md:ml-[72px]'
-        )}
-      >
-        {/* R-1.7: Email verification banner */}
-        {showVerificationBanner && (
-          <EmailVerificationBanner onResend={() => sendEmailVerification(user)} />
-        )}
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={pathname}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="flex-1"
-          >
-            {children}
-          </motion.div>
-        </AnimatePresence>
-      </main>
-
-      {/* Toast Notifications */}
+    <>
+      {children}
       <ToastNotifications />
-    </div>
+    </>
   );
 }

@@ -5,14 +5,14 @@ import type { NextRequest } from 'next/server';
  * MKTHONEY Middleware — T3
  *
  * Routing strategy:
- * - "/" without auth → REWRITE to /landing (user sees "/" in URL bar)
- * - "/" with auth    → pass through to dashboard (page.tsx)
- * - "/landing"       → 301 redirect to "/" (SEO canonical)
- * - Public routes    → pass through
- * - Protected routes → pass through (AppShell handles client-side auth)
+ * - "/" without auth -> REWRITE to /landing (user sees "/" in URL bar)
+ * - "/" with auth    -> REWRITE to /home (user sees "/" in URL bar)
+ * - "/landing"       -> 301 redirect to "/" (SEO canonical)
+ * - "/home"          -> 301 redirect to "/" (SEO canonical, prevent direct access)
+ * - Public routes    -> pass through
+ * - Protected routes -> pass through ((app)/layout.tsx handles auth)
  */
 
-// Routes that are always public (no auth needed)
 const PUBLIC_ROUTES = [
   '/login',
   '/signup',
@@ -25,7 +25,6 @@ const PUBLIC_ROUTES = [
   '/auth',
 ];
 
-// Routes that should not be processed by middleware
 const SKIP_ROUTES = [
   '/api/',
   '/_next/',
@@ -37,30 +36,32 @@ const SKIP_ROUTES = [
   '/sitemap.xml',
 ];
 
-// Cookie name for auth presence detection
 const AUTH_COOKIE = 'mkthoney_auth';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip middleware for API routes, static files, etc.
   if (SKIP_ROUTES.some(route => pathname.startsWith(route))) {
     return NextResponse.next();
   }
 
   const hasAuthCookie = request.cookies.has(AUTH_COOKIE);
 
-  // "/" → rewrite to landing (non-auth) or pass through to dashboard (auth)
+  // "/" -> rewrite to dashboard (auth) or landing (non-auth)
   if (pathname === '/') {
-    if (!hasAuthCookie) {
-      // REWRITE (not redirect) — user sees "/" in URL bar, content is from /landing
-      return NextResponse.rewrite(new URL('/landing', request.url));
+    if (hasAuthCookie) {
+      return NextResponse.rewrite(new URL('/home', request.url));
     }
-    return NextResponse.next();
+    return NextResponse.rewrite(new URL('/landing', request.url));
   }
 
-  // "/landing" → redirect to "/" for backwards compat and SEO canonical
+  // "/landing" -> 301 redirect to "/"
   if (pathname === '/landing') {
+    return NextResponse.redirect(new URL('/', request.url), 301);
+  }
+
+  // "/home" direct access -> 301 redirect to "/"
+  if (pathname === '/home') {
     return NextResponse.redirect(new URL('/', request.url), 301);
   }
 
@@ -73,12 +74,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // All other routes: let AppShell handle client-side auth
+  // All other routes: (app)/layout.tsx handles auth
   return NextResponse.next();
 }
 
 export const config = {
-  // Match all routes except static files
   matcher: [
     '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
