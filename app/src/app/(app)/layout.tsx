@@ -10,6 +10,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { useSidebarStore } from '@/lib/stores/sidebar-store';
 import { sendEmailVerification } from '@/lib/firebase/auth';
 import { EmailVerificationBanner } from '@/components/auth/email-verification-banner';
+import { BrandingProvider } from '@/components/providers/branding-provider';
 
 function LoadingScreen() {
   return (
@@ -109,6 +110,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const showVerificationBanner = !user.emailVerified;
 
   return (
+    <BrandingProvider>
     <div className="min-h-screen bg-background selection:bg-[#E6B447]/20 selection:text-[#F5E8CE]">
       {/* Background effects */}
       <div className="fixed inset-0 bg-dot-pattern opacity-[0.15] pointer-events-none" />
@@ -117,6 +119,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar />
 
       <main
+        id="main-content"
         className={cn(
           'min-h-screen relative flex flex-col transition-[margin-left] duration-200 ease-in-out',
           isExpanded ? 'md:ml-[256px]' : 'md:ml-[72px]'
@@ -140,5 +143,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </AnimatePresence>
       </main>
     </div>
+    </BrandingProvider>
   );
 }

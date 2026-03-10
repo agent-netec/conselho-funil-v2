@@ -4,7 +4,6 @@ import "./globals.css";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { PostHogProvider } from "@/components/providers/posthog-provider";
 import { AppShell } from "@/components/layout/app-shell";
-import { BrandingProvider } from "@/components/providers/branding-provider";
 import { CookieBanner } from "@/components/legal";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "sonner";
@@ -53,12 +52,17 @@ export default function RootLayout({
       <body
         className={`min-h-screen bg-background font-sans text-foreground antialiased`}
       >
+        {/* A11Y-2: Skip navigation */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-[#E6B447] focus:text-[#0D0B09] focus:rounded-lg focus:font-semibold focus:text-sm"
+        >
+          Ir para o conteúdo principal
+        </a>
         <AuthProvider>
           <PostHogProvider>
-            <BrandingProvider>
               <AppShell>{children}</AppShell>
               <CookieBanner />
-            </BrandingProvider>
           </PostHogProvider>
         </AuthProvider>
         <Toaster position="bottom-right" theme="dark" />
