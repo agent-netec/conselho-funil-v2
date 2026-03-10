@@ -1,7 +1,7 @@
 # Production Hardening — MKTHONEY
 
 > **Data:** 2026-03-10
-> **Status:** P0 CONCLUÍDO — P1 CONCLUÍDO — P2 pendente
+> **Status:** P0 CONCLUÍDO — P1 CONCLUÍDO — P2 parcial (6/8 done, faltam PERF-5 + SEO-4)
 > **Estimativa total:** ~40 tarefas granulares
 
 ---
@@ -121,29 +121,30 @@
 ## P2 — MELHORIA CONTÍNUA
 
 ### PERF-4: BrandingProvider otimização
-- [ ] Mover BrandingProvider para dentro do AppShell (só rotas que usam branding)
+- [x] Mover BrandingProvider para dentro do `(app)/layout.tsx` (só rotas autenticadas)
 
 ### PERF-5: Layout RSC split
 - [ ] Investigar mover auth gate de `(app)/layout.tsx` para middleware (RSC)
 
 ### ERR-9: Cron error aggregation
-- [ ] Editar cron routes para contar falhas e retornar 500 se failure rate > 50%
+- [x] Editar cron routes para contar falhas e retornar 500 se failure rate > 50%
+- [x] Aplicado em: ads-sync, automation-evaluate, content-autopilot, content-metrics, social-sync, trial-check
 
 ### ERR-10: Health check granularidade
-- [ ] Melhorar `/api/health` para retornar `{ status: 'timeout', available: false }` ao invés de string
+- [x] Melhorar `/api/health` para retornar `{ status, available, detail }` ao invés de string
 
 ### SEO-4: Metadata nas auth pages
 - [ ] Adicionar metadata exports individuais em login e signup (title, description)
 
 ### A11Y-2: Skip navigation
-- [ ] Adicionar "skip to content" link no layout principal
+- [x] Adicionar "skip to content" link no root layout + `id="main-content"` no `<main>`
 
 ### PERF-6: Bundle analysis
-- [ ] Configurar `@next/bundle-analyzer` e rodar análise
+- [x] Configurar `@next/bundle-analyzer` — rodar com `ANALYZE=true npm run build`
 - [ ] Identificar dependências >50KB que podem ser lazy-loaded
 
 ### PERF-7: next.config minor
-- [ ] Adicionar `poweredByHeader: false` no next.config.ts
+- [x] Adicionar `poweredByHeader: false` no next.config.ts
 
 ---
 
