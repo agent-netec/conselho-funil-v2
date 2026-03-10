@@ -69,7 +69,7 @@
 
 ### ERR-5: Credit deduction silenciosa
 - [x] **ERR-5.1** Editar `app/src/app/api/content/autopilot/route.ts` — retornar `creditStatus` + `creditWarning` na response
-- [ ] **ERR-5.2** Frontend mostrar aviso se credit deduction falhou _(precisa de UI)_
+- [x] **ERR-5.2** Frontend mostra `creditWarning` via toast no `vault/page.tsx`
 
 ### ERR-6: Webhook idempotency
 - [x] **ERR-6.1** Editar `app/src/app/api/payments/webhook/route.ts` — checar `event.id` contra Firestore (`stripe_events` collection) antes de processar
@@ -77,11 +77,11 @@
 
 ### ERR-7: Import parcial sem feedback
 - [x] **ERR-7.1** Editar `app/src/app/api/assets/import/route.ts` — retornar `{ imported, failed, total }` no response
-- [ ] **ERR-7.2** Frontend mostrar "X de Y importados" quando houver falhas parciais _(precisa de UI)_
+- [x] **ERR-7.2** N/A — rota órfã sem consumidor frontend (endpoint planejado para Meta Ads import, não integrado)
 
 ### ERR-8: Diferenciação de erros Gemini
 - [x] **ERR-8.1** 27 API routes com detecção de `RESOURCE_EXHAUSTED` / `QUOTA_EXCEEDED` / HTTP 429 → retorna mensagem específica
-- [ ] **ERR-8.2** Frontend mostrar "Cota de IA excedida, tente em alguns minutos" ao invés de erro genérico _(precisa de UI)_
+- [x] **ERR-8.2** Frontend propaga mensagem da API nos toasts (copy-lab-modal, hook-generator, social-wizard, design-generation-card)
 
 ### SEC-5: CSP — Remover unsafe-eval
 - [x] **SEC-5.1** Editar `app/next.config.ts` — removido `'unsafe-eval'` do script-src
