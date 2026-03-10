@@ -1,7 +1,7 @@
 # Production Hardening — MKTHONEY
 
 > **Data:** 2026-03-10
-> **Status:** P0 CONCLUÍDO — P1 CONCLUÍDO — P2 parcial (6/8 done, faltam PERF-5 + SEO-4)
+> **Status:** P0 CONCLUÍDO — P1 CONCLUÍDO — P2 CONCLUÍDO
 > **Estimativa total:** ~40 tarefas granulares
 
 ---
@@ -124,7 +124,7 @@
 - [x] Mover BrandingProvider para dentro do `(app)/layout.tsx` (só rotas autenticadas)
 
 ### PERF-5: Layout RSC split
-- [ ] Investigar mover auth gate de `(app)/layout.tsx` para middleware (RSC)
+- [x] Investigado — won't fix by design. Middleware só tem acesso a cookies, não ao Firebase Auth real. Padrão atual (cookie routing no middleware + validação Firebase client-side) é o correto.
 
 ### ERR-9: Cron error aggregation
 - [x] Editar cron routes para contar falhas e retornar 500 se failure rate > 50%
@@ -134,14 +134,14 @@
 - [x] Melhorar `/api/health` para retornar `{ status, available, detail }` ao invés de string
 
 ### SEO-4: Metadata nas auth pages
-- [ ] Adicionar metadata exports individuais em login e signup (title, description)
+- [x] Metadata exports em `(auth)/login/layout.tsx` (title: "Login — MKTHONEY", noindex) e `(auth)/signup/layout.tsx` (title: "Criar conta — MKTHONEY", noindex)
 
 ### A11Y-2: Skip navigation
 - [x] Adicionar "skip to content" link no root layout + `id="main-content"` no `<main>`
 
 ### PERF-6: Bundle analysis
 - [x] Configurar `@next/bundle-analyzer` — rodar com `ANALYZE=true npm run build`
-- [ ] Identificar dependências >50KB que podem ser lazy-loaded
+- [x] Recharts charts já lazy-loaded (ForecastChart, LTVBreakdown, SocialVolumeChart). Demais deps dentro do aceitável.
 
 ### PERF-7: next.config minor
 - [x] Adicionar `poweredByHeader: false` no next.config.ts
