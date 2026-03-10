@@ -151,6 +151,7 @@ export default function BrandDetailPage() {
               onClick={handleDelete}
               variant="outline"
               size="sm"
+              aria-label="Excluir marca"
               className="border-red-500/30 text-red-400 hover:bg-red-500/10"
             >
               <Trash2 className="h-4 w-4" />

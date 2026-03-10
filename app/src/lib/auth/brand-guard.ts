@@ -142,9 +142,15 @@ export async function requireBrandAccess(
     throw new ApiError(401, 'Falha na validação do token de autenticação');
   }
 
+  // SEC-6: Sanitize brandId before any Firestore query
+  const safeBrandId = sanitizeBrandId(brandId);
+  if (!safeBrandId) {
+    throw new ApiError(400, 'brandId inválido');
+  }
+
   // 3. Verificar se o usuário tem acesso à brand
   try {
-    const brandRef = doc(db, 'brands', brandId);
+    const brandRef = doc(db, 'brands', safeBrandId);
     const brandSnap = await getDoc(brandRef);
 
     if (!brandSnap.exists()) {
@@ -162,7 +168,7 @@ export async function requireBrandAccess(
       throw new ApiError(403, 'Acesso negado: brandId não pertence ao usuário');
     }
 
-    return { userId, brandId };
+    return { userId, brandId: safeBrandId };
   } catch (error) {
     if (error instanceof ApiError) throw error;
     throw new ApiError(500, 'Erro ao verificar acesso à brand');

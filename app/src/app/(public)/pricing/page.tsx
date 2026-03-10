@@ -62,6 +62,55 @@ const tiers = [
   },
 ];
 
+const pricingSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: 'MKTHONEY',
+  description: 'Plataforma de marketing autônomo com IA. Crie, gerencie e otimize funis de vendas.',
+  brand: { '@type': 'Brand', name: 'MKTHONEY' },
+  offers: [
+    {
+      '@type': 'Offer',
+      name: 'Starter',
+      price: '97.00',
+      priceCurrency: 'BRL',
+      priceValidUntil: '2027-12-31',
+      availability: 'https://schema.org/InStock',
+      url: 'https://mkthoney.com/pricing',
+      description: 'Para quem está começando no marketing autônomo. 5 marcas, 50 gerações/mês.',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Pro',
+      price: '297.00',
+      priceCurrency: 'BRL',
+      priceValidUntil: '2027-12-31',
+      availability: 'https://schema.org/InStock',
+      url: 'https://mkthoney.com/pricing',
+      description: 'Para profissionais que querem o arsenal completo. 15 marcas, 200 gerações/mês.',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Agency',
+      price: '597.00',
+      priceCurrency: 'BRL',
+      priceValidUntil: '2027-12-31',
+      availability: 'https://schema.org/InStock',
+      url: 'https://mkthoney.com/pricing',
+      description: 'Para agências e operações de escala. Marcas e gerações ilimitadas.',
+    },
+  ],
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://mkthoney.com' },
+    { '@type': 'ListItem', position: 2, name: 'Planos', item: 'https://mkthoney.com/pricing' },
+  ],
+};
+
 export default function PricingPage() {
   return (
     <div>
@@ -251,6 +300,15 @@ export default function PricingPage() {
           .
         </p>
       </div>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pricingSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
     </div>
   );
 }

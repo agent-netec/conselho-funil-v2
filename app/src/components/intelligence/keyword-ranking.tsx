@@ -86,7 +86,7 @@ export function KeywordRanking({ keywords, loading }: KeywordRankingProps) {
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" aria-label="Filtrar por intenção">
                   <Filter className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -172,7 +172,7 @@ export function KeywordRanking({ keywords, loading }: KeywordRankingProps) {
                       {kw.metrics.opportunityScore}
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" aria-label="Abrir link externo" className="h-8 w-8">
                         <ExternalLink className="h-3 w-3" />
                       </Button>
                     </TableCell>

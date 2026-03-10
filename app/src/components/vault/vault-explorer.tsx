@@ -34,6 +34,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 import type { CopyDNA, VaultContent, VaultAsset } from '@/types/vault';
 
 interface VaultExplorerProps {
@@ -233,7 +234,7 @@ function ContentCard({ item, viewMode, onUse, onViewDetails }: { item: VaultCont
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Button variant="ghost" size="sm" aria-label="Mais opções" className="h-8 w-8 p-0">
                 <MoreVertical className="h-4 w-4 text-zinc-500" />
               </Button>
             </DropdownMenuTrigger>
@@ -335,10 +336,12 @@ function DNACard({ item, viewMode, onUse }: { item: CopyDNA; viewMode: 'grid' | 
 function AssetCard({ asset }: { asset: VaultAsset }) {
   return (
     <div className="group relative aspect-square rounded-xl overflow-hidden bg-zinc-900 border border-white/[0.03] hover:border-[#E6B447]/30 transition-all cursor-pointer">
-      <img 
-        src={asset.url} 
-        alt={asset.name} 
+      <Image
+        src={asset.url}
+        alt={asset.name}
+        fill
         className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
+        unoptimized
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
         <p className="text-[10px] font-bold text-white truncate">{asset.name}</p>

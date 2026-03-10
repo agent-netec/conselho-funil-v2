@@ -135,6 +135,7 @@ export function VisualIdentityModal({ isOpen, onClose, brand }: VisualIdentityMo
             </div>
             <button
               onClick={onClose}
+              aria-label="Fechar"
               className="p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/[0.05] transition-colors"
             >
               <X className="h-5 w-5" />

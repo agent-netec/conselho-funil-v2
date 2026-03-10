@@ -137,6 +137,12 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     if (error instanceof ApiError) return handleSecurityError(error);
     console.error('[Research/Chat] Error:', error);
+    if (error instanceof Error) {
+      const msg = error.message || '';
+      if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('QUOTA_EXCEEDED') || msg.includes('429')) {
+        return createApiError(429, 'Cota de IA excedida. Tente novamente em alguns minutos.');
+      }
+    }
     return createApiError(500, 'Erro interno no chat de refinamento.', {
       details: error instanceof Error ? error.message : String(error)
     });

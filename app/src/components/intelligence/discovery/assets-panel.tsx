@@ -153,6 +153,7 @@ function AssetCard({ asset }: { asset: IntelligenceAsset }) {
               onClick={handleCopy}
               className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-white/5"
               title="Copiar para clipboard"
+              aria-label="Copiar para clipboard"
             >
               <Copy className="h-3 w-3 text-zinc-500" />
             </button>
@@ -275,6 +276,7 @@ export function AssetsPanel({ brandId, assets, isLoading, error, onRefetch }: As
                 variant="ghost"
                 size="sm"
                 onClick={onRefetch}
+                aria-label="Atualizar"
                 className="h-7 w-7 p-0 text-zinc-500 hover:text-zinc-300"
               >
                 <RefreshCw className="h-3.5 w-3.5" />

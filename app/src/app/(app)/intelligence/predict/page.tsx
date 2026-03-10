@@ -108,7 +108,7 @@ export default function PredictPage() {
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-3">
           <Link href="/intelligence/discovery">
-            <Button variant="ghost" size="icon-sm">
+            <Button variant="ghost" size="icon-sm" aria-label="Voltar">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>

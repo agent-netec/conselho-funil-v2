@@ -706,7 +706,7 @@ function ConfigPanel({
             </p>
           </div>
         </div>
-        <Button variant="ghost" onClick={onClose} className="text-zinc-500 hover:text-white">
+        <Button variant="ghost" onClick={onClose} aria-label="Fechar" className="text-zinc-500 hover:text-white">
           <X className="h-4 w-4" />
         </Button>
       </div>

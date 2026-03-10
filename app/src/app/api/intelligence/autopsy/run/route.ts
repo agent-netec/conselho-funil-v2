@@ -98,11 +98,20 @@ export async function POST(req: NextRequest) {
     if (autopsyDoc.result?.metadata?.screenshotUrl === undefined) {
       delete autopsyDoc.result.metadata.screenshotUrl;
     }
-    setDoc(autopsyRef, autopsyDoc).catch(err => {
-      console.error('[Autopsy] Persist failed:', err);
-    });
 
-    return createApiSuccess(response);
+    // ERR-3: await persistence instead of fire-and-forget
+    let persistWarning: string | undefined;
+    try {
+      await setDoc(autopsyRef, autopsyDoc);
+    } catch (err) {
+      console.error('[Autopsy] Persist failed:', err);
+      persistWarning = 'Análise concluída, mas houve erro ao salvar no histórico.';
+    }
+
+    return createApiSuccess({
+      ...response,
+      ...(persistWarning ? { warning: persistWarning } : {}),
+    });
   } catch (error: unknown) {
     console.error('[AUTOPSY_API_ERROR]:', error);
     if (error instanceof ApiError) {

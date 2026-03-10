@@ -37,6 +37,7 @@ import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { AdsDesignContract } from '@/types/ads-design';
 import { CampaignContext } from '@/types/campaign';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Tooltip,
   TooltipContent,
@@ -348,11 +349,14 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
         {status === 'success' && imageUrl && (
           <div className="space-y-3">
             <div className="relative group rounded-lg overflow-hidden border border-[#E6B447]/30 shadow-lg">
-              <img 
-                src={imageUrl} 
-                alt="Criativo Gerado" 
+              <Image
+                src={imageUrl}
+                alt="Criativo Gerado"
+                width={800}
+                height={800}
                 className="w-full object-cover"
                 style={{ aspectRatio: promptData.aspectRatio?.replace(':', '/') || '1/1' }}
+                unoptimized
               />
               
               {/* Safe Zone Overlays (ST-11.11) */}

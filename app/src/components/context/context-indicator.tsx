@@ -59,7 +59,7 @@ export function ContextIndicator() {
       {/* Dropdown para troca rápida ou info */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="ml-1 p-1 hover:bg-white/[0.05] rounded-md transition-colors">
+          <button aria-label="Alterar contexto" className="ml-1 p-1 hover:bg-white/[0.05] rounded-md transition-colors">
             <ChevronDown className="h-3 w-3 text-zinc-500" />
           </button>
         </DropdownMenuTrigger>

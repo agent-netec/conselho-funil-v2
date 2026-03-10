@@ -286,7 +286,7 @@ export default function ResearchPage() {
               <Clock className="w-4 h-4 text-zinc-400" />
               Dossiês Anteriores
             </h2>
-            <button onClick={loadList} className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 transition-colors" title="Recarregar">
+            <button onClick={loadList} className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 transition-colors" title="Recarregar" aria-label="Recarregar">
               <RefreshCw className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -599,7 +599,7 @@ export default function ResearchPage() {
                       onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendChat(); } }}
                       className="bg-zinc-800/50 border-zinc-700"
                     />
-                    <Button onClick={handleSendChat} disabled={chatLoading || !chatInput.trim()} className="bg-[#AB8648] hover:bg-[#E6B447]">
+                    <Button onClick={handleSendChat} disabled={chatLoading || !chatInput.trim()} aria-label="Enviar mensagem" className="bg-[#AB8648] hover:bg-[#E6B447]">
                       <Send className="h-4 w-4" />
                     </Button>
                   </div>

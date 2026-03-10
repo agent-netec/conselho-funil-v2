@@ -30,6 +30,7 @@ import {
 } from '@/components/brand-config';
 import type { ModalKey } from '@/lib/utils/brand-completeness';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // ---------------------------------------------------------------------------
 // State resolution
@@ -130,7 +131,7 @@ function WelcomeBody({ onCreateBrand }: { onCreateBrand: () => void }) {
       className="flex flex-col items-center justify-center py-12"
     >
       <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#E6B447]/10">
-        <img src="/logo-mkthoney-icon.svg" alt="MKTHONEY" className="h-10 w-10" />
+        <Image src="/logo-mkthoney-icon.svg" alt="MKTHONEY" width={40} height={40} className="h-10 w-10" />
       </div>
 
       <h1 className="mb-2 text-xl font-bold text-[#F5E8CE] text-center">

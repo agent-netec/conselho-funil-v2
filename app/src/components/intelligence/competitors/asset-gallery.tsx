@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ExternalLink, Eye, ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 interface AssetGalleryProps {
   assets: IntelligenceAsset[];
@@ -38,10 +39,12 @@ export function AssetGallery({ assets, loading }: AssetGalleryProps) {
         <Card key={asset.id} className="overflow-hidden group border-muted/40 hover:border-primary/50 transition-all">
           <div className="relative aspect-video bg-muted overflow-hidden">
             {asset.publicUrl ? (
-              <img 
-                src={asset.publicUrl} 
+              <Image
+                src={asset.publicUrl}
                 alt={`${asset.pageType} screenshot`}
+                fill
                 className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                unoptimized
               />
             ) : (
               <div className="flex items-center justify-center h-full">

@@ -112,6 +112,12 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
     return createApiSuccess(result);
   } catch (error) {
     console.error('Hook generation error:', error);
+    if (error instanceof Error) {
+      const msg = error.message || '';
+      if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('QUOTA_EXCEEDED') || msg.includes('429')) {
+        return createApiError(429, 'Cota de IA excedida. Tente novamente em alguns minutos.');
+      }
+    }
     return createApiError(500, 'Erro interno no servidor', { details: String(error) });
   }
 }

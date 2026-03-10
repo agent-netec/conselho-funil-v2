@@ -84,12 +84,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4. Deduct credits (2 per adapted content)
+    // 4. Deduct credits (2 per adapted content) — ERR-5: track credit status
+    let creditStatus: 'success' | 'failed' | 'skipped' = 'skipped';
     if (userId && adapted > 0) {
       try {
         await updateUserUsage(userId, -(adapted * 2));
+        creditStatus = 'success';
         console.log(`[Autopilot] ${adapted * 2} créditos decrementados`);
       } catch (creditError) {
+        creditStatus = 'failed';
         console.error('[Autopilot] Credit error:', creditError);
       }
     }
@@ -99,6 +102,9 @@ export async function POST(req: NextRequest) {
       insightsFound: highRelevance.length,
       jobsCreated: jobIds.length,
       contentAdapted: adapted,
+      creditStatus,
+      creditsDeducted: creditStatus === 'success' ? adapted * 2 : 0,
+      ...(creditStatus === 'failed' ? { creditWarning: 'Erro ao deduzir créditos. Sua conta pode não refletir o uso.' } : {}),
     });
   } catch (error: unknown) {
     console.error('[Autopilot] Error:', error);

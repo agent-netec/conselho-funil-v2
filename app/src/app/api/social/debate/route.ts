@@ -184,6 +184,12 @@ O Veredito Final deve consolidar as opiniões e recomendar o hook final com just
     return createApiSuccess({ debate: response, model: modelUsed });
   } catch (error: any) {
     console.error('Social debate error:', error);
+    if (error instanceof Error) {
+      const msg = error.message || '';
+      if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('QUOTA_EXCEEDED') || msg.includes('429')) {
+        return createApiError(429, 'Cota de IA excedida. Tente novamente em alguns minutos.');
+      }
+    }
     return createApiError(500, 'Erro interno no servidor', {
       details: error?.message || String(error),
       stage: 'debate_generation',

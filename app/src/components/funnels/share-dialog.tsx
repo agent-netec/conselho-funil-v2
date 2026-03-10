@@ -187,6 +187,7 @@ export function ShareDialog({
                 <Button
                   onClick={removeShareLink}
                   variant="outline"
+                  aria-label="Excluir link"
                   className="text-red-400 hover:text-red-300"
                   disabled={isLoading}
                 >

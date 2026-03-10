@@ -134,7 +134,7 @@ export function TextInput({ onAnalyze, loading, className }: TextInputProps) {
             {fileName && (
               <span className="text-xs text-zinc-400 flex items-center gap-1">
                 {fileName}
-                <button onClick={clearFile} className="hover:text-zinc-200">
+                <button onClick={clearFile} aria-label="Remover arquivo" className="hover:text-zinc-200">
                   <X className="h-3 w-3" />
                 </button>
               </span>

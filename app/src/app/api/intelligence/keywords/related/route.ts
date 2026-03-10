@@ -81,6 +81,12 @@ Retorne APENAS um JSON válido neste formato:
     if (error instanceof ApiError) {
       return handleSecurityError(error);
     }
+    if (error instanceof Error) {
+      const msg = error.message || '';
+      if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('QUOTA_EXCEEDED') || msg.includes('429')) {
+        return createApiError(429, 'Cota de IA excedida. Tente novamente em alguns minutos.');
+      }
+    }
     const message = error instanceof Error ? error.message : 'Erro ao gerar keywords correlacionadas';
     return createApiError(500, message);
   }

@@ -278,7 +278,7 @@ export function StrategicContext({ brandId }: StrategicContextProps) {
                       )}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-white">
+                          <Button variant="ghost" size="icon" aria-label="Mais opções" className="h-8 w-8 text-zinc-500 hover:text-white">
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>

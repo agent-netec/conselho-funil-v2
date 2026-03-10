@@ -153,6 +153,12 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     if (error instanceof ApiError) return handleSecurityError(error);
     console.error('[Social/KB] Error:', error);
+    if (error instanceof Error) {
+      const msg = error.message || '';
+      if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('QUOTA_EXCEEDED') || msg.includes('429')) {
+        return createApiError(429, 'Cota de IA excedida. Tente novamente em alguns minutos.');
+      }
+    }
     return createApiError(500, 'Erro ao salvar no knowledge base.');
   }
 }

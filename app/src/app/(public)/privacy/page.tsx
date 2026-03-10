@@ -10,6 +10,15 @@ export const metadata: Metadata = {
  * LGPD compliant with data processors listed.
  * [PLACEHOLDERS] for company data.
  */
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://mkthoney.com' },
+    { '@type': 'ListItem', position: 2, name: 'Política de Privacidade', item: 'https://mkthoney.com/privacy' },
+  ],
+};
+
 export default function PrivacyPage() {
   return (
     <article className="prose prose-invert prose-zinc max-w-none">
@@ -291,6 +300,11 @@ export default function PrivacyPage() {
           </a>
         </p>
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
     </article>
   );
 }

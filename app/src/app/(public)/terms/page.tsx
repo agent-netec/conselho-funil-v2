@@ -10,6 +10,15 @@ export const metadata: Metadata = {
  * Standard SaaS terms for Brazilian market.
  * [PLACEHOLDERS] for company data.
  */
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://mkthoney.com' },
+    { '@type': 'ListItem', position: 2, name: 'Termos de Uso', item: 'https://mkthoney.com/terms' },
+  ],
+};
+
 export default function TermsPage() {
   return (
     <article className="prose prose-invert prose-zinc max-w-none">
@@ -208,6 +217,11 @@ export default function TermsPage() {
         </p>
         <p className="text-[#E6B447]">support@mkthoney.com</p>
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
     </article>
   );
 }

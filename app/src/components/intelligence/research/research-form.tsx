@@ -161,7 +161,7 @@ export function ResearchForm({ onSubmit, loading = false }: Props) {
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addUrl(); } }}
               className="bg-zinc-800/50 border-zinc-700 text-xs"
             />
-            <Button type="button" size="sm" variant="outline" onClick={addUrl} className="border-zinc-700 px-2">
+            <Button type="button" size="sm" variant="outline" onClick={addUrl} aria-label="Adicionar URL" className="border-zinc-700 px-2">
               <Plus className="h-3.5 w-3.5" />
             </Button>
           </div>

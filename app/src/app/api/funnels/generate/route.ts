@@ -219,6 +219,16 @@ export async function POST(request: NextRequest) {
       try { await updateFunnel(_funnelId, { status: 'draft' }); } catch { /* best effort */ }
     }
 
+    if (error instanceof Error) {
+      const msg = error.message || '';
+      if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('QUOTA_EXCEEDED') || msg.includes('429')) {
+        return NextResponse.json(
+          { error: 'Cota de IA excedida. Tente novamente em alguns minutos.' },
+          { status: 429 }
+        );
+      }
+    }
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Erro interno ao gerar propostas' },
       { status: 500 }

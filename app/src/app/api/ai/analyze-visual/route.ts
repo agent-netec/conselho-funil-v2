@@ -128,6 +128,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Error in analyze-visual API:', error);
+    if (error instanceof Error) {
+      const msg = error.message || '';
+      if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('QUOTA_EXCEEDED') || msg.includes('429')) {
+        return createApiError(429, 'Cota de IA excedida. Tente novamente em alguns minutos.');
+      }
+    }
     return createApiError(500, 'Internal server error', { details: error.message });
   }
 }

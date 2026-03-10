@@ -13,6 +13,7 @@ import { useUser } from '@/lib/hooks/use-user';
 import { toast } from 'sonner';
 import { Loader2, Lock, Unlock, Upload, Check, Palette, BrainCircuit, Sparkles, Zap, ShieldCheck, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 interface BrandKitFormProps {
   brand: Brand;
@@ -224,10 +225,13 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
               <div className="flex flex-col items-center justify-center p-4 border border-dashed rounded-xl bg-white/5">
                 {kit.logoLock.variants.primary.url ? (
                   <>
-                    <img 
-                      src={kit.logoLock.variants.primary.url} 
-                      alt="Preview Logo" 
+                    <Image
+                      src={kit.logoLock.variants.primary.url}
+                      alt="Preview Logo"
+                      width={200}
+                      height={96}
                       className="max-h-24 object-contain mb-2"
+                      unoptimized
                     />
                     <span className="text-xs text-[#E6B447] flex items-center gap-1">
                       <Check className="w-3 h-3" /> Logo Oficial Ativa

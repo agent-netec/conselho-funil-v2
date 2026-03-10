@@ -11,11 +11,13 @@ import { Target, Info } from 'lucide-react';
 import { simulateScale } from '@/lib/intelligence/predictive/scale-math';
 import { SimulationOutput } from '@/types/predictive';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import dynamic from 'next/dynamic';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChurnOverview } from './ChurnOverview';
-import { LTVBreakdown } from './LTVBreakdown';
-import { ForecastChart } from './ForecastChart';
 import { PredictiveAlerts } from './PredictiveAlerts';
+
+const LTVBreakdown = dynamic(() => import('./LTVBreakdown').then(m => ({ default: m.LTVBreakdown })), { ssr: false });
+const ForecastChart = dynamic(() => import('./ForecastChart').then(m => ({ default: m.ForecastChart })), { ssr: false });
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { usePredictiveData } from '@/lib/hooks/use-predictive-data';
 

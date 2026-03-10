@@ -351,7 +351,7 @@ export default function AssetsPage() {
                 className="w-full h-10 pl-6 pr-4 bg-transparent border-b border-white/[0.06] text-sm font-mono text-[#F5E8CE] placeholder:text-[#6B5D4A]/60 focus:outline-none focus:border-[#E6B447]/50 transition-colors"
               />
             </div>
-            <button className="flex h-10 w-10 items-center justify-center text-[#6B5D4A] hover:text-[#CAB792] transition-colors">
+            <button aria-label="Filtrar" className="flex h-10 w-10 items-center justify-center text-[#6B5D4A] hover:text-[#CAB792] transition-colors">
               <Filter className="h-4 w-4" />
             </button>
           </div>

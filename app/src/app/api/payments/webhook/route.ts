@@ -21,7 +21,7 @@ import Stripe from 'stripe';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { getStripeClient, getTierFromPriceId } from '@/lib/stripe';
 import { updateUserTier, getUser } from '@/lib/firebase/firestore';
-import { doc, updateDoc, Timestamp } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
   sendWelcomeEmail,
@@ -253,6 +253,14 @@ export async function POST(req: NextRequest) {
     return createApiError(400, `Webhook signature verification failed: ${message}`);
   }
 
+  // ERR-6: Idempotency check — skip already-processed events
+  const eventRef = doc(db, 'stripe_events', event.id);
+  const eventSnap = await getDoc(eventRef);
+  if (eventSnap.exists()) {
+    console.log(`[Webhook] Duplicate event ${event.id}, skipping`);
+    return createApiSuccess({ received: true, duplicate: true, eventId: event.id });
+  }
+
   // Handle different event types
   let result: Record<string, unknown> = {};
 
@@ -286,6 +294,16 @@ export async function POST(req: NextRequest) {
       received: true,
       error: error instanceof Error ? error.message : 'Handler error',
     });
+  }
+
+  // ERR-6: Mark event as processed for idempotency
+  try {
+    await setDoc(eventRef, {
+      eventType: event.type,
+      processedAt: Timestamp.now(),
+    });
+  } catch (idempErr) {
+    console.error('[Webhook] Failed to save event id:', idempErr);
   }
 
   return createApiSuccess({

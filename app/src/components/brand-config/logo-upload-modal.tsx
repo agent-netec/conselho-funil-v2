@@ -160,6 +160,7 @@ export function LogoUploadModal({ isOpen, onClose, brand }: LogoUploadModalProps
             </div>
             <button
               onClick={onClose}
+              aria-label="Fechar"
               className="p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/[0.05] transition-colors"
             >
               <X className="h-5 w-5" />
@@ -185,6 +186,7 @@ export function LogoUploadModal({ isOpen, onClose, brand }: LogoUploadModalProps
                 <button
                   type="button"
                   onClick={handleRemove}
+                  aria-label="Remover logo"
                   className="absolute top-3 right-3 p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
                 >
                   <X className="h-4 w-4" />

@@ -153,8 +153,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // ERR-7: Return total + failed count for partial import feedback
     return createApiSuccess({
       imported: imported.length,
+      failed: errors.length,
+      total: selectedCreatives.length,
       errors: errors.length,
       details: { imported, errors },
     });

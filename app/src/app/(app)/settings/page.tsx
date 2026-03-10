@@ -14,6 +14,7 @@ import { getUserPreferences, updateUserPreferences } from '@/lib/firebase/firest
 import { UserPreferences } from '@/types/database';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import Image from 'next/image';
 import { BrandingSettings } from '@/components/agency/BrandingSettings';
 import { useBranding } from '@/components/providers/branding-provider';
 
@@ -186,7 +187,7 @@ export default function SettingsPage() {
                 <Section title="Perfil">
                   <div className="flex items-start gap-6 mb-6">
                     {authUser?.photoURL ? (
-                      <img src={authUser.photoURL} alt="Avatar" className="h-16 w-16 object-cover" />
+                      <Image src={authUser.photoURL} alt="Avatar" width={64} height={64} className="h-16 w-16 object-cover" unoptimized />
                     ) : (
                       <div className="flex h-16 w-16 items-center justify-center bg-[#1A1612] text-xl font-black text-[#F5E8CE] border border-white/[0.06]">
                         {authUser?.displayName?.[0]?.toUpperCase() || authUser?.email?.[0]?.toUpperCase() || 'U'}

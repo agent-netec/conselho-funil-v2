@@ -156,12 +156,16 @@ export function useConversation(conversationId: string | null) {
     } catch (err) {
       console.error('Error sending message:', err);
       setError(err instanceof Error ? err.message : 'Erro ao enviar mensagem');
-      
-      // Add error message to show user
-      await addMessage(conversationId, {
-        role: 'assistant',
-        content: `⚠️ Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.\n\n*Erro: ${err instanceof Error ? err.message : 'Erro desconhecido'}*`,
-      });
+
+      // ERR-4: Separate try/catch for error message persistence
+      try {
+        await addMessage(conversationId, {
+          role: 'assistant',
+          content: `⚠️ Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.\n\n*Erro: ${err instanceof Error ? err.message : 'Erro desconhecido'}*`,
+        });
+      } catch (addErr) {
+        console.error('Error persisting error message:', addErr);
+      }
     } finally {
       setIsSending(false);
     }

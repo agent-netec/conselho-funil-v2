@@ -37,7 +37,7 @@ export function OnboardingChecklist({ isMobile = false }: OnboardingChecklistPro
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-[#E6B447] font-bold">{progress}%</span>
-            <button onClick={dismiss} className="p-1 text-zinc-600 hover:text-zinc-400">
+            <button onClick={dismiss} aria-label="Fechar" className="p-1 text-zinc-600 hover:text-zinc-400">
               <X className="h-3 w-3" />
             </button>
           </div>

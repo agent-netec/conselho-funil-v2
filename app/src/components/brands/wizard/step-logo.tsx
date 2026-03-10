@@ -60,6 +60,7 @@ export function StepLogo({ logoFile, logoLocked, onUpdate }: StepLogoProps) {
             <button
               type="button"
               onClick={handleRemove}
+              aria-label="Remover logo"
               className="absolute top-3 right-3 p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
             >
               <X className="h-4 w-4" />

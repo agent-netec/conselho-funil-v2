@@ -77,7 +77,7 @@ export default function LeadJourneyPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/intelligence">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" aria-label="Voltar">
               <ChevronLeft className="w-5 h-5" />
             </Button>
           </Link>

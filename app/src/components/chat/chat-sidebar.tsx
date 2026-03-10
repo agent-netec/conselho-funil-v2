@@ -134,9 +134,10 @@ export function ChatSidebar({
     return (
       <Sheet>
         <SheetTrigger asChild>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Abrir menu"
             className="fixed left-3 top-3.5 z-40 md:hidden h-9 w-9 text-zinc-400 bg-zinc-900/50 backdrop-blur-md border border-white/[0.04] rounded-xl hover:bg-zinc-800"
           >
             <Menu className="h-5 w-5" />

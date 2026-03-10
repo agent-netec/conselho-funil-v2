@@ -389,6 +389,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Copy generation error:', error);
+    if (error instanceof Error) {
+      const msg = error.message || '';
+      if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('QUOTA_EXCEEDED') || msg.includes('429')) {
+        return createApiError(429, 'Cota de IA excedida. Tente novamente em alguns minutos.');
+      }
+    }
     return createApiError(500, 'Failed to generate copy', { details: String(error) });
   }
 }

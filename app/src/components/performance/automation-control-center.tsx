@@ -286,7 +286,7 @@ export function AutomationControlCenter({
                         {rule.isEnabled ? <Pause className="h-4 w-4 mr-2" /> : <Play className="h-4 w-4 mr-2" />}
                         {rule.isEnabled ? "Pausar" : "Ativar"}
                       </Button>
-                      <Button variant="outline" size="sm" className="h-9 px-3 border-white/10 hover:bg-white/5">
+                      <Button variant="outline" size="sm" aria-label="Configurações" className="h-9 px-3 border-white/10 hover:bg-white/5">
                         <Settings2 className="h-4 w-4" />
                       </Button>
                     </div>

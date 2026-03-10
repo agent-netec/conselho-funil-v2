@@ -9,8 +9,10 @@ import { CompetitorProfile } from "@/types/competitors"
 import { DossierView } from "@/components/intelligence/competitors/dossier-view"
 import { PublicEmotion } from "@/components/intelligence/public-emotion"
 import { KeywordRanking } from "@/components/intelligence/keyword-ranking"
-import { SocialVolumeChart } from "@/components/intelligence/social-volume-chart"
+import dynamic from 'next/dynamic'
 import Link from "next/link"
+
+const SocialVolumeChart = dynamic(() => import("@/components/intelligence/social-volume-chart").then(m => ({ default: m.SocialVolumeChart })), { ssr: false })
 import { useKeywordIntelligence, useIntelligenceStats } from "@/lib/hooks/use-intelligence"
 import { FileText } from "lucide-react"
 

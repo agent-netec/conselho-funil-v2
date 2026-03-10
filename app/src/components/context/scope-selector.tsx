@@ -52,7 +52,7 @@ export function ScopeSelector({ onScopeChange, className }: ScopeSelectorProps) 
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <button className="text-zinc-500 hover:text-zinc-300">
+              <button aria-label="Informações sobre escopo" className="text-zinc-500 hover:text-zinc-300">
                 <Info className="h-3.5 w-3.5" />
               </button>
             </TooltipTrigger>

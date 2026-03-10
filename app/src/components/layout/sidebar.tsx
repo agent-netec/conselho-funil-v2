@@ -135,6 +135,7 @@ function DesktopSidebar() {
           <TooltipTrigger asChild>
             <button
               onClick={toggle}
+              aria-label={isExpanded ? 'Recolher menu lateral' : 'Expandir menu lateral'}
               className={cn(
                 'flex items-center justify-center w-full rounded-lg py-2 transition-all duration-200',
                 'text-zinc-600 hover:text-zinc-400 hover:bg-white/[0.03]',
@@ -236,7 +237,7 @@ function SidebarLogo({ expanded, onClose }: { expanded: boolean; onClose?: () =>
           <div className="absolute inset-0 rounded-xl bg-[#E6B447]/15 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
           {logoUrl ? (
-            <img src={logoUrl} alt="Logo" className="h-10 w-10 object-contain rounded-xl relative" />
+            <Image src={logoUrl} alt="Logo" width={40} height={40} className="h-10 w-10 object-contain rounded-xl relative" unoptimized />
           ) : (
             <Image
               src="/logo-mkthoney-icon.svg"
@@ -262,6 +263,7 @@ function SidebarLogo({ expanded, onClose }: { expanded: boolean; onClose?: () =>
       {onClose && (
         <button
           onClick={onClose}
+          aria-label="Fechar menu"
           className="p-1.5 text-zinc-600 hover:text-zinc-400 transition-colors ml-auto shrink-0"
         >
           <X className="h-4 w-4" />
@@ -675,6 +677,7 @@ function SidebarFooter({ expanded }: { expanded: boolean }) {
               <button
                 onClick={handleReloadCredits}
                 disabled={isReloading}
+                aria-label="Recarregar créditos"
                 className={cn(
                   'flex h-10 w-10 items-center justify-center rounded-lg transition-all',
                   'bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/20',
@@ -705,6 +708,7 @@ function SidebarFooter({ expanded }: { expanded: boolean }) {
           <TooltipTrigger asChild>
             <button
               onClick={handleLogout}
+              aria-label="Sair"
               className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-600 hover:text-red-400 hover:bg-red-500/5 transition-all"
             >
               <LogOut className="h-4 w-4" strokeWidth={1.5} />

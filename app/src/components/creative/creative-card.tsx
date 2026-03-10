@@ -14,6 +14,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 interface CreativeCardProps {
   creative: CreativePerformance;
@@ -40,10 +41,12 @@ export function CreativeCard({ creative, onGenerateCopy }: CreativeCardProps) {
         {/* Preview do Ativo */}
         <div className="relative aspect-square overflow-hidden bg-zinc-800">
           {creative.type === 'image' ? (
-            <img 
-              src={creative.assetUrl} 
-              alt="Creative Preview" 
+            <Image
+              src={creative.assetUrl}
+              alt="Creative Preview"
+              fill
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              unoptimized
             />
           ) : (
             <video 

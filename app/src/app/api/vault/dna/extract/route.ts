@@ -73,6 +73,9 @@ Responda APENAS em JSON válido.`;
     if (!response.ok) {
       const errText = await response.text();
       console.error('[vault/dna/extract] Gemini API error:', errText);
+      if (response.status === 429 || errText.includes('RESOURCE_EXHAUSTED') || errText.includes('QUOTA_EXCEEDED')) {
+        return createApiError(429, 'Cota de IA excedida. Tente novamente em alguns minutos.');
+      }
       return createApiError(502, 'Erro ao processar com IA. Tente novamente.');
     }
 
@@ -107,6 +110,12 @@ Responda APENAS em JSON válido.`;
     });
   } catch (error: any) {
     console.error('[DNA Extract] Error:', error);
+    if (error instanceof Error) {
+      const msg = error.message || '';
+      if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('QUOTA_EXCEEDED') || msg.includes('429')) {
+        return createApiError(429, 'Cota de IA excedida. Tente novamente em alguns minutos.');
+      }
+    }
     return createApiError(500, error.message || 'Failed to extract DNA');
   }
 }

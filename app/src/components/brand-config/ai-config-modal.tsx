@@ -147,6 +147,7 @@ export function AiConfigModal({ isOpen, onClose, brand }: AiConfigModalProps) {
             </div>
             <button
               onClick={onClose}
+              aria-label="Fechar"
               className="p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/[0.05] transition-colors"
             >
               <X className="h-5 w-5" />
