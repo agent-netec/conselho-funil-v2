@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import withBundleAnalyzer from '@next/bundle-analyzer';
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -69,10 +70,13 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  poweredByHeader: false,
   distDir: '.next',
   typescript: {
     ignoreBuildErrors: true,
   },
 };
 
-export default nextConfig;
+// PERF-6: Bundle analyzer — run with ANALYZE=true npm run build
+const analyzer = withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' });
+export default analyzer(nextConfig);
