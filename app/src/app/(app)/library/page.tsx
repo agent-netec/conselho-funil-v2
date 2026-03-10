@@ -3,183 +3,49 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Header } from '@/components/layout/header';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Library,
-  Search,
-  Filter,
-  Target,
-  Users,
-  Zap,
-  Star,
-  Copy,
-  ChevronRight,
-  Layers,
-  TrendingUp,
-  Package,
-  Calendar,
-  ArrowRight,
-  Sparkles,
-  FolderOpen,
-} from 'lucide-react';
+import { Search, Star, ChevronRight, Layers, Copy } from 'lucide-react';
 import { GuidedEmptyState } from '@/components/ui/guided-empty-state';
 import { cn } from '@/lib/utils';
 import type { LibraryTemplate, ProposalScorecard } from '@/types/database';
 
-const OBJECTIVE_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string }> = {
-  leads: { label: 'Leads', icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-  sales: { label: 'Vendas', icon: TrendingUp, color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10' },
-  calls: { label: 'Calls', icon: Zap, color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10' },
-  retention: { label: 'Retenção', icon: Target, color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/10' },
+const OBJECTIVE_LABEL: Record<string, string> = {
+  leads: 'Leads', sales: 'Vendas', calls: 'Calls', retention: 'Retenção',
 };
 
-const FILTER_OPTIONS = [
-  { id: 'all', label: 'Todos' },
-  { id: 'leads', label: 'Leads' },
-  { id: 'sales', label: 'Vendas' },
-  { id: 'calls', label: 'Calls' },
-  { id: 'retention', label: 'Retenção' },
-];
-
-function TemplateCard({ template, onUse }: { template: LibraryTemplate; onUse: () => void }) {
-  const objective = template.metadata?.objective as string;
-  const config = OBJECTIVE_CONFIG[objective] || { label: 'Funil', icon: Target, color: 'text-zinc-400', bg: 'bg-zinc-800/50' };
-  const metadata = template.metadata as Record<string, unknown> | undefined;
-  const scorecard = metadata?.scorecard as ProposalScorecard | undefined;
-  const stages = (metadata?.stages as number) || 0;
-
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.2 }}
-      className="card-premium p-6 hover:border-[#E6B447]/30 transition-all group flex flex-col h-full"
-    >
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl border border-white/[0.05] text-xl", config.bg)}>
-            <config.icon className={cn("h-6 w-6", config.color)} />
-          </div>
-          <div className="min-w-0">
-            <h3 className="font-bold text-white group-hover:text-[#E6B447] transition-colors truncate">
-              {template.name}
-            </h3>
-            <div className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-zinc-500">
-              <span className={config.color}>{config.label}</span>
-              {template.metadata?.vertical && (
-                <>
-                  <span className="opacity-30">•</span>
-                  <span className="truncate">{template.metadata.vertical}</span>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-        
-        {scorecard && (
-          <div className={cn(
-            'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border border-white/[0.02]',
-            scorecard.overall >= 7.5 ? 'bg-[#E6B447]/10 text-[#E6B447]' :
-            scorecard.overall >= 6 ? 'bg-[#E6B447]/10 text-[#E6B447]' :
-            'bg-zinc-500/10 text-zinc-400'
-          )}>
-            <Star className="h-3 w-3 fill-current" />
-            {scorecard.overall.toFixed(1)}
-          </div>
-        )}
-      </div>
-
-      <p className="text-sm text-zinc-400 mb-6 line-clamp-2 leading-relaxed flex-1">
-        {template.description}
-      </p>
-
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-          <Layers className="h-3.5 w-3.5 text-zinc-500" />
-          <span className="text-xs text-zinc-300 font-medium">{stages} etapas</span>
-        </div>
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-          <Copy className="h-3.5 w-3.5 text-zinc-500" />
-          <span className="text-xs text-zinc-300 font-medium">{template.usageCount}x usado</span>
-        </div>
-      </div>
-
-      {template.metadata?.tags && template.metadata.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-6">
-          {template.metadata.tags.slice(0, 3).map((tag, index) => (
-            <span 
-              key={index}
-              className="px-2 py-0.5 bg-zinc-800/50 rounded text-[9px] uppercase font-bold tracking-tighter text-zinc-500"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
-
-      <Button
-        onClick={onUse}
-        className="w-full btn-accent h-10 group/btn shadow-lg shadow-[#E6B447]/10"
-      >
-        <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover/btn:scale-110" />
-        Usar Template
-      </Button>
-    </motion.div>
-  );
-}
-
+const FILTERS = ['all', 'leads', 'sales', 'calls', 'retention'] as const;
+const FILTER_LABELS: Record<string, string> = {
+  all: 'Todos', leads: 'Leads', sales: 'Vendas', calls: 'Calls', retention: 'Retenção',
+};
 
 export default function LibraryPage() {
   const router = useRouter();
   const [templates, setTemplates] = useState<LibraryTemplate[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<string>('all');
 
   useEffect(() => {
-    loadTemplates();
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/library');
+        const data = await res.json();
+        setTemplates(data.templates || []);
+      } catch (e) { console.error('Error loading templates:', e); }
+      finally { setLoading(false); }
+    })();
   }, []);
 
-  const loadTemplates = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch('/api/library');
-      const data = await response.json();
-      setTemplates(data.templates || []);
-    } catch (error) {
-      console.error('Error loading templates:', error);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleUse = (t: LibraryTemplate) => {
+    router.push(`/funnels/new?templateId=${t.id}&name=${encodeURIComponent(t.name)}`);
   };
 
-  const handleUseTemplate = (template: LibraryTemplate) => {
-    // Navigate to new funnel page with template data
-    const params = new URLSearchParams({
-      templateId: template.id,
-      name: template.name,
-    });
-    router.push(`/funnels/new?${params.toString()}`);
-  };
-
-  // Filter templates
-  const filteredTemplates = templates.filter(template => {
-    const matchesSearch = !searchQuery || 
-      template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      template.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesFilter = activeFilter === 'all' || 
-      template.metadata?.objective === activeFilter;
-
-    return matchesSearch && matchesFilter;
+  const filtered = templates.filter(t => {
+    const matchSearch = !search || t.name.toLowerCase().includes(search.toLowerCase()) || t.description?.toLowerCase().includes(search.toLowerCase());
+    const matchFilter = filter === 'all' || t.metadata?.objective === filter;
+    return matchSearch && matchFilter;
   });
 
-  // Group by objective for stats
   const stats = {
     total: templates.length,
     leads: templates.filter(t => t.metadata?.objective === 'leads').length,
@@ -189,157 +55,178 @@ export default function LibraryPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header
-        title="Biblioteca"
-        subtitle="Templates de funis aprovados"
-        actions={
-          <Link href="/funnels/new">
-            <Button className="btn-accent">
-              <Target className="mr-2 h-4 w-4" />
-              Novo Funil
-            </Button>
-          </Link>
-        }
-      />
+    <div className="min-h-screen flex flex-col">
+      {/* ═══ HEADER ══════════════════════════════════════════════════════ */}
+      <header className="shrink-0 border-b border-white/[0.06]">
+        <div className="px-8 pt-8 pb-0 max-w-[1440px] mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-[42px] font-black tracking-[-0.02em] text-[#F5E8CE] leading-none">
+              Biblioteca
+            </h1>
+            <Link
+              href="/funnels/new"
+              className="text-[11px] font-mono font-bold tracking-wider text-[#0D0B09] bg-[#E6B447] hover:bg-[#F0C35C] px-4 py-2 transition-colors"
+            >
+              NOVO FUNIL →
+            </Link>
+          </div>
 
-      <div className="flex-1 p-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10"
-          >
+          {/* KPI bar */}
+          <div className="grid grid-cols-5 border border-white/[0.06] divide-x divide-white/[0.06] mb-8">
             {[
-              { label: 'Total', value: stats.total, icon: Library, color: 'text-zinc-400', bg: 'bg-zinc-500/5' },
-              { label: 'Leads', value: stats.leads, icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/5' },
-              { label: 'Vendas', value: stats.sales, icon: TrendingUp, color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/5' },
-              { label: 'Calls', value: stats.calls, icon: Zap, color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/5' },
-              { label: 'Retenção', value: stats.retention, icon: Target, color: 'text-[#E6B447]', bg: 'bg-[#E6B447]/5' },
-            ].map((stat, index) => (
-              <div key={stat.label} className={cn("card-premium p-4 text-center border-white/[0.03]", stat.bg)}>
-                <stat.icon className={cn('h-4 w-4 mx-auto mb-3', stat.color)} />
-                <div className="text-2xl font-bold text-white tracking-tight">{stat.value}</div>
-                <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-500 mt-1">{stat.label}</div>
+              { label: 'Total', value: stats.total },
+              { label: 'Leads', value: stats.leads },
+              { label: 'Vendas', value: stats.sales },
+              { label: 'Calls', value: stats.calls },
+              { label: 'Retenção', value: stats.retention },
+            ].map((s) => (
+              <div key={s.label} className="px-5 py-4 bg-[#0D0B09]">
+                <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-1">{s.label}</p>
+                <p className="text-[28px] font-mono font-black tabular-nums text-[#F5E8CE] leading-none">{s.value}</p>
               </div>
             ))}
-          </motion.div>
+          </div>
 
-          {/* Search & Filters */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex flex-col sm:flex-row gap-4 mb-6"
-          >
+          {/* Search + filters */}
+          <div className="flex items-center gap-4 border-b border-white/[0.06] pb-3 -mb-px">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+              <Search className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6B5D4A]" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Buscar templates..."
-                className="pl-10 input-premium"
+                className="w-full h-8 pl-7 bg-transparent text-sm text-[#F5E8CE] placeholder:text-[#6B5D4A] focus:outline-none font-mono"
               />
             </div>
-            
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
-              {FILTER_OPTIONS.map((filter) => (
-                <Button
-                  key={filter.id}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setActiveFilter(filter.id)}
+            <div className="flex gap-0">
+              {FILTERS.map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
                   className={cn(
-                    'whitespace-nowrap',
-                    activeFilter === filter.id
-                      ? 'bg-[#E6B447]/10 text-[#E6B447] hover:bg-[#E6B447]/20'
-                      : 'text-zinc-400 hover:text-white'
+                    'px-3 py-1.5 text-[10px] font-mono tracking-wider transition-colors',
+                    filter === f ? 'text-[#E6B447] bg-[#E6B447]/5' : 'text-[#6B5D4A] hover:text-[#CAB792]'
                   )}
                 >
-                  {filter.label}
-                </Button>
+                  {FILTER_LABELS[f]}
+                </button>
               ))}
             </div>
-          </motion.div>
+          </div>
+        </div>
+      </header>
 
-          {/* Templates Grid */}
-          {isLoading ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="card-premium p-5 animate-pulse">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="h-12 w-12 rounded-xl bg-zinc-800" />
-                    <div className="flex-1">
-                      <div className="h-4 w-32 bg-zinc-800 rounded mb-2" />
-                      <div className="h-3 w-24 bg-zinc-800 rounded" />
-                    </div>
-                  </div>
-                  <div className="h-3 w-full bg-zinc-800 rounded mb-2" />
-                  <div className="h-3 w-3/4 bg-zinc-800 rounded mb-4" />
-                  <div className="h-10 w-full bg-zinc-800 rounded" />
-                </div>
-              ))}
+      {/* ═══ CONTENT ═════════════════════════════════════════════════════ */}
+      <main className="flex-1 px-8 py-6 max-w-[1440px] mx-auto w-full">
+        {loading ? (
+          <div className="space-y-px">
+            {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-[#1A1612] animate-pulse border-b border-white/[0.04]" />)}
+          </div>
+        ) : filtered.length === 0 ? (
+          search || filter !== 'all' ? (
+            <div className="py-20 text-center">
+              <p className="text-[#6B5D4A] text-sm font-mono">Nenhum template encontrado.</p>
             </div>
-          ) : filteredTemplates.length === 0 ? (
+          ) : (
             <GuidedEmptyState
-              icon={FolderOpen}
+              icon={ChevronRight}
               title="Biblioteca vazia"
-              description="Você ainda não salvou nenhum template. Crie um funil e salve como template para reutilizar."
+              description="Crie um funil e salve como template para reutilizar."
               ctaLabel="Criar Primeiro Funil"
               ctaHref="/funnels/new"
               tips={[
                 'Templates salvam estrutura, copy e design',
-                'Funis aprovados podem virar templates com 1 clique',
+                'Funis aprovados viram templates com 1 clique',
               ]}
             />
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-            >
-              <AnimatePresence mode="popLayout">
-                {filteredTemplates.map((template, index) => (
-                  <TemplateCard
-                    key={template.id}
-                    template={template}
-                    onUse={() => handleUseTemplate(template)}
-                  />
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          )}
+          )
+        ) : (
+          <div className="border border-white/[0.06] divide-y divide-white/[0.04]">
+            {/* Table header */}
+            <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-[#1A1612]/50">
+              <div className="col-span-5 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A]">Template</div>
+              <div className="col-span-2 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A]">Objetivo</div>
+              <div className="col-span-1 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] text-center">Etapas</div>
+              <div className="col-span-1 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] text-center">Usos</div>
+              <div className="col-span-1 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] text-right">Score</div>
+              <div className="col-span-2 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] text-right">Ação</div>
+            </div>
 
-          {/* CTA */}
-          {templates.length > 0 && templates.length < 3 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="mt-12 card-premium p-8 text-center"
-            >
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E6B447]/10 mb-4">
-                <Sparkles className="h-7 w-7 text-[#E6B447]" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">
-                Cresça sua biblioteca
-              </h3>
-              <p className="text-zinc-400 mb-6 max-w-md mx-auto">
-                Cada funil aprovado pode virar um template. Quanto mais templates, 
-                mais rápido você cria novos funis no futuro.
-              </p>
-              <Link href="/funnels">
-                <Button variant="outline" className="btn-ghost">
-                  Ver Funis Aprovados
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </motion.div>
-          )}
-        </div>
-      </div>
+            {filtered.map((template) => {
+              const objective = OBJECTIVE_LABEL[(template.metadata?.objective as string) || ''] || 'Funil';
+              const metadata = template.metadata as Record<string, unknown> | undefined;
+              const scorecard = metadata?.scorecard as ProposalScorecard | undefined;
+              const stages = (metadata?.stages as number) || 0;
+
+              return (
+                <div key={template.id} className="grid grid-cols-12 gap-4 px-6 py-4 bg-[#0D0B09] hover:bg-[#1A1612] transition-colors group items-center">
+                  {/* Name + description */}
+                  <div className="col-span-5">
+                    <p className="text-[14px] font-bold text-[#F5E8CE] group-hover:text-[#E6B447] transition-colors truncate">
+                      {template.name}
+                    </p>
+                    <p className="text-[11px] text-[#6B5D4A] truncate mt-0.5">
+                      {template.description || '—'}
+                    </p>
+                  </div>
+
+                  {/* Objective */}
+                  <div className="col-span-2">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-[#AB8648]">{objective}</span>
+                  </div>
+
+                  {/* Stages */}
+                  <div className="col-span-1 text-center">
+                    <span className="text-sm font-mono font-bold text-[#F5E8CE]">{stages}</span>
+                  </div>
+
+                  {/* Usage count */}
+                  <div className="col-span-1 text-center">
+                    <span className="text-sm font-mono text-[#6B5D4A]">{template.usageCount}×</span>
+                  </div>
+
+                  {/* Score */}
+                  <div className="col-span-1 text-right">
+                    {scorecard ? (
+                      <span className={cn(
+                        "text-sm font-mono font-bold",
+                        scorecard.overall >= 7.5 ? "text-[#E6B447]" : scorecard.overall >= 6 ? "text-[#F5E8CE]" : "text-[#6B5D4A]"
+                      )}>
+                        {scorecard.overall.toFixed(1)}
+                      </span>
+                    ) : (
+                      <span className="text-[#6B5D4A] text-sm">—</span>
+                    )}
+                  </div>
+
+                  {/* Action */}
+                  <div className="col-span-2 text-right">
+                    <button
+                      onClick={() => handleUse(template)}
+                      className="text-[10px] font-mono font-bold tracking-wider text-[#AB8648] hover:text-[#E6B447] transition-colors"
+                    >
+                      USAR TEMPLATE →
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Grow CTA */}
+        {templates.length > 0 && templates.length < 3 && (
+          <div className="mt-8 border-l-2 border-[#E6B447] bg-[#0D0B09] p-6">
+            <p className="text-[10px] font-mono font-bold tracking-[0.2em] text-[#E6B447] mb-2">DICA</p>
+            <p className="text-[13px] text-[#CAB792] leading-relaxed">
+              Cada funil aprovado pode virar um template. Quanto mais templates, mais rápido você cria novos funis.
+            </p>
+            <Link href="/funnels" className="text-[10px] font-mono tracking-wider text-[#AB8648] hover:text-[#E6B447] transition-colors mt-2 inline-block">
+              VER FUNIS APROVADOS →
+            </Link>
+          </div>
+        )}
+      </main>
     </div>
   );
 }

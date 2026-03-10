@@ -1,58 +1,46 @@
 'use client';
 
 import { useState } from 'react';
-import { AppShell } from '@/components/layout/app-shell';
 import { SocialWizard } from '@/components/social/social-wizard';
 import { KnowledgeUploader } from '@/components/social/knowledge-uploader';
-import { Sparkles, BookOpen } from 'lucide-react';
 import { useBrandStore } from '@/lib/stores/brand-store';
 
 export default function SocialPage() {
   const { selectedBrand } = useBrandStore();
-  const [showKBUploader, setShowKBUploader] = useState(false);
+  const [showKB, setShowKB] = useState(false);
 
   return (
-    <AppShell>
-      <div className="flex flex-col gap-8 p-6 lg:p-10">
-        <div className="flex items-start justify-between">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-[#E6B447]">
-              <Sparkles className="h-5 w-5 fill-current" />
-              <span className="text-sm font-bold uppercase tracking-wider">Social</span>
+    <div className="min-h-screen flex flex-col">
+      <header className="shrink-0 border-b border-white/[0.06]">
+        <div className="px-8 pt-8 pb-6 max-w-[1440px] mx-auto">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-[42px] font-black tracking-[-0.02em] text-[#F5E8CE] leading-none">
+                Social
+              </h1>
+              <p className="text-sm text-[#6B5D4A] mt-2 font-mono max-w-xl">
+                Configure sua campanha, gere hooks estratégicos e receba avaliação calibrada dos especialistas.
+              </p>
             </div>
-            <h1 className="text-3xl font-bold text-zinc-100 sm:text-4xl tracking-tight">
-              Geração de Conteúdo Social
-            </h1>
-            <p className="text-zinc-400 max-w-2xl">
-              Configure sua campanha, gere hooks estratégicos, assista ao debate do Social
-              e receba uma avaliação calibrada com frameworks reais dos 4 especialistas.
-            </p>
+            <button
+              onClick={() => setShowKB(true)}
+              className="text-[11px] font-mono font-bold tracking-wider text-[#0D0B09] bg-[#E6B447] hover:bg-[#F0C35C] px-4 py-2 transition-colors"
+            >
+              ADICIONAR CONHECIMENTO →
+            </button>
           </div>
-          <button
-            onClick={() => setShowKBUploader(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-sm font-medium transition-colors border border-zinc-700"
-          >
-            <BookOpen className="h-4 w-4 text-[#E6B447]" />
-            Adicionar Conhecimento
-          </button>
         </div>
+      </header>
 
-        <div className="w-full">
-          <SocialWizard />
-        </div>
-      </div>
+      <main className="flex-1 px-8 py-6 max-w-[1440px] mx-auto w-full">
+        <SocialWizard />
+      </main>
 
       <KnowledgeUploader
         brandId={selectedBrand?.id}
-        open={showKBUploader}
-        onOpenChange={setShowKBUploader}
+        open={showKB}
+        onOpenChange={setShowKB}
       />
-    </AppShell>
+    </div>
   );
 }
-
-
-
-
-
-

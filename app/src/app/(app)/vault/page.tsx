@@ -2,48 +2,25 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Library,
-  Sparkles,
-  History,
-  Settings2,
-  Plus,
-  Database,
-  CheckCircle2,
-  Loader2,
-  Play,
-  Clock,
-  Zap,
-  Dna,
-  Upload,
-  FileText,
-  PenLine,
-  Bell,
+  Loader2, Play, Clock, Dna, Upload, PenLine, Bell, CheckCircle2,
 } from 'lucide-react';
-import { Header } from '@/components/layout/header';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ApprovalWorkspace } from '@/components/vault/approval-workspace';
 import { VaultExplorer } from '@/components/vault/vault-explorer';
 import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import {
-  queryVaultLibrary,
-  getBrandDNA,
-  getVaultAssets,
-  saveVaultContent
+  queryVaultLibrary, getBrandDNA, getVaultAssets, saveVaultContent
 } from '@/lib/firebase/vault';
 import { collection, query, where, orderBy, limit, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { VaultContent, CopyDNA, VaultAsset } from '@/types/vault';
 import { DNAWizard } from '@/components/vault/dna-wizard';
+import { cn } from '@/lib/utils';
 
 interface VaultSettings {
   autoApproveThreshold?: number;
@@ -51,12 +28,18 @@ interface VaultSettings {
   autopilotEnabled?: boolean;
 }
 
+const TABS = [
+  { id: 'review', label: 'Review Queue' },
+  { id: 'explorer', label: 'Explorer' },
+  { id: 'settings', label: 'Config' },
+] as const;
+
 export default function VaultPage() {
   const activeBrand = useActiveBrand();
   const { user } = useAuthStore();
   const router = useRouter();
   const brandId = activeBrand?.id;
-  const [activeTab, setActiveTab] = useState('review');
+  const [tab, setTab] = useState('review');
   const [reviewItems, setReviewItems] = useState<VaultContent[]>([]);
   const [libraryItems, setLibraryItems] = useState<VaultContent[]>([]);
   const [dnaItems, setDnaItems] = useState<CopyDNA[]>([]);
@@ -64,13 +47,10 @@ export default function VaultPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [runningAutopilot, setRunningAutopilot] = useState(false);
   const [showDNAWizard, setShowDNAWizard] = useState(false);
-  // V2: New Asset popover
   const [showNewAssetMenu, setShowNewAssetMenu] = useState(false);
-  // V3: History
   const [showHistory, setShowHistory] = useState(false);
   const [historyItems, setHistoryItems] = useState<VaultContent[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
-  // V5: Settings
   const [vaultSettings, setVaultSettings] = useState<VaultSettings>({});
   const [savingSettings, setSavingSettings] = useState(false);
 
@@ -78,503 +58,246 @@ export default function VaultPage() {
     if (!brandId) return;
     try {
       setIsLoading(true);
-      const [approved, dna, media] = await Promise.all([
-        queryVaultLibrary(brandId, 'approved'),
-        getBrandDNA(brandId),
-        getVaultAssets(brandId)
-      ]);
-
-      setLibraryItems(approved);
-      setDnaItems(dna);
-      setAssets(media);
-    } catch (error) {
-      console.error('Error loading vault data:', error);
-    } finally {
-      setIsLoading(false);
-    }
+      const [approved, dna, media] = await Promise.all([queryVaultLibrary(brandId, 'approved'), getBrandDNA(brandId), getVaultAssets(brandId)]);
+      setLibraryItems(approved); setDnaItems(dna); setAssets(media);
+    } catch (e) { console.error('Error loading vault:', e); }
+    finally { setIsLoading(false); }
   }, [brandId]);
 
-  useEffect(() => {
-    if (brandId) {
-      loadVaultData();
-    }
-  }, [brandId, loadVaultData]);
+  useEffect(() => { if (brandId) loadVaultData(); }, [brandId, loadVaultData]);
 
   const handleApprove = async (platform: string, copy: string) => {
     if (!brandId) return;
     try {
-      const contentToApprove = reviewItems[0];
-
-      await saveVaultContent(brandId, {
-        ...contentToApprove,
-        status: 'approved',
-        approvalChain: {
-          approvedBy: user?.uid || 'unknown',
-          approvedAt: { seconds: Date.now() / 1000, nanoseconds: 0 } as any
-        }
-      });
-
-      toast.success("Conteúdo Aprovado!", {
-        description: `O post para ${platform} foi movido para a biblioteca.`,
-      });
-
-      setReviewItems([]);
-      loadVaultData();
-    } catch (error) {
-      toast.error("Erro ao aprovar", {
-        description: "Não foi possível salvar a aprovação no Firestore.",
-      });
-    }
+      const item = reviewItems[0];
+      await saveVaultContent(brandId, { ...item, status: 'approved', approvalChain: { approvedBy: user?.uid || 'unknown', approvedAt: { seconds: Date.now() / 1000, nanoseconds: 0 } as any } });
+      toast.success('Conteúdo aprovado!'); setReviewItems([]); loadVaultData();
+    } catch { toast.error('Erro ao aprovar.'); }
   };
 
-  const handleEdit = (platform: string, copy: string) => {
-    toast.info("Modo de Edição", {
-      description: `Abrindo editor para ${platform}...`,
-    });
-  };
+  const handleEdit = (platform: string, copy: string) => { toast.info(`Abrindo editor para ${platform}...`); };
 
-  // N-5.2: Manual Autopilot trigger
   const handleRunAutopilot = async () => {
-    if (!brandId) {
-      toast.error('Selecione uma marca ativa primeiro.');
-      return;
-    }
+    if (!brandId) { toast.error('Selecione uma marca.'); return; }
     setRunningAutopilot(true);
     try {
-      const headers = await getAuthHeaders();
-      const res = await fetch('/api/content/autopilot', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ brandId }),
-      });
+      const h = await getAuthHeaders();
+      const res = await fetch('/api/content/autopilot', { method: 'POST', headers: h, body: JSON.stringify({ brandId }) });
       const data = await res.json();
-      if (res.ok) {
-        const adapted = data.data?.adapted || 0;
-        toast.success(`Autopilot concluído! ${adapted} conteúdo(s) gerado(s).`);
-        if (adapted > 0) {
-          loadVaultData();
-        }
-      } else {
-        toast.error(data.error || 'Erro ao executar autopilot');
-      }
-    } catch {
-      toast.error('Erro de conexão ao executar autopilot');
-    } finally {
-      setRunningAutopilot(false);
-    }
+      if (res.ok) { toast.success(`Autopilot: ${data.data?.adapted || 0} conteúdo(s) gerado(s).`); if (data.data?.adapted > 0) loadVaultData(); }
+      else toast.error(data.error || 'Erro no autopilot.');
+    } catch { toast.error('Erro de conexão.'); }
+    finally { setRunningAutopilot(false); }
   };
 
-  // V3: Load history items from vault library
   const loadHistory = useCallback(async () => {
     if (!brandId) return;
     setLoadingHistory(true);
     try {
-      const libraryRef = collection(db, 'brands', brandId, 'vault_library');
-      const q = query(
-        libraryRef,
-        where('status', 'in', ['approved', 'rejected']),
-        orderBy('createdAt', 'desc'),
-        limit(50)
-      );
-      const snap = await getDocs(q);
-      setHistoryItems(snap.docs.map((d) => ({ id: d.id, ...d.data() } as VaultContent)));
-    } catch (error) {
-      console.error('[Vault] Error loading history:', error);
-    } finally {
-      setLoadingHistory(false);
-    }
+      const snap = await getDocs(query(collection(db, 'brands', brandId, 'vault_library'), where('status', 'in', ['approved', 'rejected']), orderBy('createdAt', 'desc'), limit(50)));
+      setHistoryItems(snap.docs.map(d => ({ id: d.id, ...d.data() } as VaultContent)));
+    } catch (e) { console.error('[Vault] History error:', e); }
+    finally { setLoadingHistory(false); }
   }, [brandId]);
 
-  const handleHistory = () => {
-    setShowHistory(true);
-    loadHistory();
-  };
-
-  // V5: Load vault settings from brand doc
   useEffect(() => {
     if (!brandId) return;
-    const loadSettings = async () => {
-      try {
-        const brandDoc = await getDoc(doc(db, 'brands', brandId));
-        if (brandDoc.exists()) {
-          setVaultSettings(brandDoc.data()?.vaultSettings || {});
-        }
-      } catch (err) {
-        console.error('[Vault] Error loading settings:', err);
-      }
-    };
-    loadSettings();
+    (async () => { try { const d = await getDoc(doc(db, 'brands', brandId)); if (d.exists()) setVaultSettings(d.data()?.vaultSettings || {}); } catch {} })();
   }, [brandId]);
 
-  const saveVaultSettings = async (updated: VaultSettings) => {
+  const saveSettings = async (updated: VaultSettings) => {
     if (!brandId) return;
     setSavingSettings(true);
-    try {
-      await updateDoc(doc(db, 'brands', brandId), { vaultSettings: updated });
-      setVaultSettings(updated);
-      toast.success('Configurações salvas!');
-    } catch (err) {
-      toast.error('Erro ao salvar configurações.');
-      console.error('[Vault] Error saving settings:', err);
-    } finally {
-      setSavingSettings(false);
-    }
+    try { await updateDoc(doc(db, 'brands', brandId), { vaultSettings: updated }); setVaultSettings(updated); toast.success('Salvo!'); }
+    catch { toast.error('Erro ao salvar.'); }
+    finally { setSavingSettings(false); }
   };
 
-  const toggleSetting = (key: keyof VaultSettings, value: boolean) => {
-    const updated = { ...vaultSettings, [key]: value };
-    saveVaultSettings(updated);
-  };
+  const toggleSetting = (key: keyof VaultSettings, value: boolean | number) => saveSettings({ ...vaultSettings, [key]: value });
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header
-        title="Creative Vault"
-        subtitle="Inteligência Criativa & Ativos de Marca"
-        actions={
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              className="btn-ghost border-white/[0.05]"
-              onClick={handleRunAutopilot}
-              disabled={runningAutopilot}
-            >
-              {runningAutopilot ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Play className="mr-2 h-4 w-4" />
-              )}
-              {runningAutopilot ? 'Processando...' : 'Run Autopilot'}
-            </Button>
-            <Button variant="outline" className="btn-ghost border-white/[0.05]" onClick={handleHistory}>
-              <History className="mr-2 h-4 w-4" />
-              Histórico
-            </Button>
-            <Button
-              variant="outline"
-              className="btn-ghost border-white/[0.05]"
-              onClick={() => setShowDNAWizard(true)}
-            >
-              <Dna className="mr-2 h-4 w-4" />
-              Novo DNA
-            </Button>
-            <Popover open={showNewAssetMenu} onOpenChange={setShowNewAssetMenu}>
-              <PopoverTrigger asChild>
-                <Button className="btn-accent">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Novo Ativo
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="w-56 bg-zinc-900 border-white/[0.05] p-1">
-                <button
-                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
-                  onClick={() => { setShowNewAssetMenu(false); setShowDNAWizard(true); }}
-                >
-                  <Dna className="h-4 w-4 text-blue-400" />
-                  DNA Template
-                </button>
-                <button
-                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
-                  onClick={() => { setShowNewAssetMenu(false); router.push('/assets'); }}
-                >
-                  <Upload className="h-4 w-4 text-[#E6B447]" />
-                  Upload de Mídia
-                </button>
-                <button
-                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
-                  onClick={async () => {
-                    setShowNewAssetMenu(false);
-                    if (!brandId) { toast.error('Selecione uma marca ativa.'); return; }
-                    try {
-                      await saveVaultContent(brandId, {
-                        id: '',
-                        sourceInsightId: '',
-                        status: 'draft' as const,
-                        variants: [{ platform: 'instagram' as any, copy: '', mediaRefs: [], metadata: {} }],
-                        approvalChain: {},
-                      });
-                      toast.success('Rascunho criado na Review Queue.');
-                      loadVaultData();
-                    } catch {
-                      toast.error('Erro ao criar rascunho.');
-                    }
-                  }}
-                >
-                  <PenLine className="h-4 w-4 text-[#E6B447]" />
-                  Post Manual
-                </button>
-              </PopoverContent>
-            </Popover>
+    <div className="min-h-screen flex flex-col">
+      {/* ═══ HEADER ══════════════════════════════════════════════════════ */}
+      <header className="shrink-0 border-b border-white/[0.06]">
+        <div className="px-8 pt-8 pb-0 max-w-[1440px] mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-[42px] font-black tracking-[-0.02em] text-[#F5E8CE] leading-none">
+              Vault
+            </h1>
+            <div className="flex items-center gap-2">
+              <button onClick={handleRunAutopilot} disabled={runningAutopilot} className="text-[11px] font-mono font-bold tracking-wider text-[#CAB792] border border-white/[0.06] hover:text-[#F5E8CE] px-3 py-2 transition-colors disabled:opacity-50 flex items-center gap-2">
+                {runningAutopilot ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
+                {runningAutopilot ? 'PROCESSANDO' : 'AUTOPILOT'}
+              </button>
+              <button onClick={() => { setShowHistory(true); loadHistory(); }} className="text-[11px] font-mono font-bold tracking-wider text-[#CAB792] border border-white/[0.06] hover:text-[#F5E8CE] px-3 py-2 transition-colors">
+                HISTÓRICO
+              </button>
+              <button onClick={() => setShowDNAWizard(true)} className="text-[11px] font-mono font-bold tracking-wider text-[#CAB792] border border-white/[0.06] hover:text-[#F5E8CE] px-3 py-2 transition-colors">
+                NOVO DNA
+              </button>
+              <Popover open={showNewAssetMenu} onOpenChange={setShowNewAssetMenu}>
+                <PopoverTrigger asChild>
+                  <button className="text-[11px] font-mono font-bold tracking-wider text-[#0D0B09] bg-[#E6B447] hover:bg-[#F0C35C] px-4 py-2 transition-colors">
+                    + NOVO ATIVO
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-48 bg-[#1A1612] border-white/[0.06] p-1">
+                  <button className="flex items-center gap-2 w-full px-3 py-2 text-[11px] font-mono text-[#CAB792] hover:text-[#F5E8CE] hover:bg-white/[0.04] transition-colors" onClick={() => { setShowNewAssetMenu(false); setShowDNAWizard(true); }}>
+                    DNA Template
+                  </button>
+                  <button className="flex items-center gap-2 w-full px-3 py-2 text-[11px] font-mono text-[#CAB792] hover:text-[#F5E8CE] hover:bg-white/[0.04] transition-colors" onClick={() => { setShowNewAssetMenu(false); router.push('/assets'); }}>
+                    Upload de Mídia
+                  </button>
+                  <button className="flex items-center gap-2 w-full px-3 py-2 text-[11px] font-mono text-[#CAB792] hover:text-[#F5E8CE] hover:bg-white/[0.04] transition-colors" onClick={async () => {
+                    setShowNewAssetMenu(false); if (!brandId) { toast.error('Selecione uma marca.'); return; }
+                    try { await saveVaultContent(brandId, { id: '', sourceInsightId: '', status: 'draft' as const, variants: [{ platform: 'instagram' as any, copy: '', mediaRefs: [], metadata: {} }], approvalChain: {} }); toast.success('Rascunho criado.'); loadVaultData(); } catch { toast.error('Erro.'); }
+                  }}>
+                    Post Manual
+                  </button>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
-        }
-      />
 
-      <main className="flex-1 p-6 sm:p-8">
-        <div className="max-w-7xl mx-auto flex flex-col gap-8">
+          {/* KPI bar */}
+          <div className="grid grid-cols-3 border border-white/[0.06] divide-x divide-white/[0.06] mb-8">
+            <div className="px-6 py-4 bg-[#0D0B09]">
+              <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-1">Aprovados</p>
+              <p className="text-[28px] font-mono font-black tabular-nums text-[#E6B447] leading-none">{libraryItems.length}</p>
+            </div>
+            <div className="px-6 py-4 bg-[#0D0B09]">
+              <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-1">DNA Templates</p>
+              <p className="text-[28px] font-mono font-black tabular-nums text-[#F5E8CE] leading-none">{dnaItems.length}</p>
+            </div>
+            <div className="px-6 py-4 bg-[#0D0B09]">
+              <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-1">Review</p>
+              <p className="text-[28px] font-mono font-black tabular-nums text-[#F5E8CE] leading-none">{reviewItems.length}</p>
+            </div>
+          </div>
 
-          {/* Tabs Principais */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="flex items-center justify-between mb-8 border-b border-white/[0.03] pb-4">
-              <TabsList className="bg-zinc-900/50 border border-white/[0.05]">
-                <TabsTrigger value="review" className="data-[state=active]:bg-[#E6B447]/10 data-[state=active]:text-[#E6B447]">
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Review Queue
-                  {reviewItems.length > 0 && (
-                    <Badge className="ml-2 bg-[#E6B447] text-white border-none h-5 w-5 p-0 flex items-center justify-center text-[10px]">
-                      {reviewItems.length}
-                    </Badge>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="explorer" className="data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-400">
-                  <Database className="h-4 w-4 mr-2" />
-                  Vault Explorer
-                </TabsTrigger>
-                <TabsTrigger value="settings" className="data-[state=active]:bg-zinc-800">
-                  <Settings2 className="h-4 w-4 mr-2" />
-                  Configurações
-                </TabsTrigger>
-              </TabsList>
+          {/* Tabs */}
+          <nav className="flex gap-0 -mb-px">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={cn(
+                  'px-5 py-3 text-[11px] font-mono tracking-wider transition-colors border-b-2',
+                  tab === t.id ? 'text-[#E6B447] border-[#E6B447] font-bold' : 'text-[#6B5D4A] border-transparent hover:text-[#CAB792]'
+                )}
+              >
+                {t.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+      </header>
 
-              <div className="hidden md:flex items-center gap-6 text-xs font-medium text-zinc-500 uppercase tracking-widest">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-[#E6B447]" />
-                  {libraryItems.length} Aprovados
+      {/* ═══ CONTENT ═════════════════════════════════════════════════════ */}
+      <main className="flex-1 px-8 py-6 max-w-[1440px] mx-auto w-full">
+        {tab === 'review' && (
+          reviewItems.length > 0 ? (
+            <ApprovalWorkspace content={reviewItems[0]} insightText="" onApprove={handleApprove} onEdit={handleEdit} />
+          ) : (
+            <div className="border border-white/[0.06] bg-[#0D0B09] py-16 text-center">
+              <p className="text-lg font-bold text-[#F5E8CE] mb-1">Tudo em ordem</p>
+              <p className="text-sm text-[#6B5D4A] max-w-md mx-auto mb-6">
+                Nenhum conteúdo aguardando revisão. Use o Autopilot para gerar novos.
+              </p>
+              <div className="flex justify-center gap-3">
+                <button onClick={() => setTab('explorer')} className="text-[11px] font-mono font-bold tracking-wider text-[#CAB792] border border-white/[0.06] hover:text-[#F5E8CE] px-4 py-2 transition-colors">
+                  EXPLORAR BIBLIOTECA
+                </button>
+                <button onClick={handleRunAutopilot} disabled={runningAutopilot} className="text-[11px] font-mono font-bold tracking-wider text-[#0D0B09] bg-[#E6B447] hover:bg-[#F0C35C] px-4 py-2 transition-colors disabled:opacity-50 flex items-center gap-2">
+                  {runningAutopilot && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  RUN AUTOPILOT
+                </button>
+              </div>
+            </div>
+          )
+        )}
+
+        {tab === 'explorer' && (
+          <VaultExplorer dnaItems={dnaItems} libraryItems={libraryItems} assets={assets} onUseItem={() => toast.info('Preparando conteúdo...')} />
+        )}
+
+        {tab === 'settings' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/[0.04] border border-white/[0.06]">
+            {/* Autopilot */}
+            <div className="bg-[#0D0B09] p-6 space-y-4">
+              <p className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A]">Content Autopilot</p>
+              <p className="text-[13px] text-[#CAB792]">
+                Coleta insights do Social Monitor, Spy Agent e Keywords Miner para gerar conteúdo adaptado.
+              </p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between py-3 border-b border-white/[0.04]">
+                  <span className="text-[12px] text-[#F5E8CE]">Execução Manual</span>
+                  <span className="text-[10px] font-mono text-[#E6B447]">ATIVO</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-blue-500" />
-                  {dnaItems.length} DNA Templates
+                <button onClick={() => toggleSetting('autopilotEnabled', !vaultSettings.autopilotEnabled)} disabled={savingSettings} className="flex items-center justify-between w-full py-3 border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors text-left">
+                  <span className="text-[12px] text-[#F5E8CE]">CRON Automático (6h)</span>
+                  <span className={cn("text-[10px] font-mono", vaultSettings.autopilotEnabled ? "text-[#E6B447]" : "text-[#6B5D4A]")}>
+                    {vaultSettings.autopilotEnabled ? 'ATIVO' : 'OFF'}
+                  </span>
+                </button>
+              </div>
+              <p className="text-[10px] text-[#6B5D4A]">2 créditos por conteúdo adaptado.</p>
+            </div>
+
+            {/* Preferences */}
+            <div className="bg-[#0D0B09] p-6 space-y-4">
+              <p className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A]">Preferências</p>
+              <div className="space-y-2">
+                <button onClick={() => toggleSetting('autoApproveThreshold', !vaultSettings.autoApproveThreshold ? 80 as any : 0 as any)} disabled={savingSettings} className="flex items-center justify-between w-full py-3 border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors text-left">
+                  <span className="text-[12px] text-[#F5E8CE]">
+                    Aprovação automática {Number(vaultSettings.autoApproveThreshold) > 0 ? `(≥${vaultSettings.autoApproveThreshold}%)` : ''}
+                  </span>
+                  <span className={cn("text-[10px] font-mono", Number(vaultSettings.autoApproveThreshold) > 0 ? "text-[#E6B447]" : "text-[#6B5D4A]")}>
+                    {Number(vaultSettings.autoApproveThreshold) > 0 ? 'ATIVO' : 'OFF'}
+                  </span>
+                </button>
+                <button onClick={() => toggleSetting('notifyOnNewContent', !vaultSettings.notifyOnNewContent)} disabled={savingSettings} className="flex items-center justify-between w-full py-3 border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors text-left">
+                  <span className="text-[12px] text-[#F5E8CE]">Notificar novo conteúdo</span>
+                  <span className={cn("text-[10px] font-mono", vaultSettings.notifyOnNewContent ? "text-[#E6B447]" : "text-[#6B5D4A]")}>
+                    {vaultSettings.notifyOnNewContent ? 'ATIVO' : 'OFF'}
+                  </span>
+                </button>
+                <div className="flex items-center justify-between py-3 border-b border-white/[0.04] opacity-40">
+                  <span className="text-[12px] text-[#F5E8CE]">Publicação direta</span>
+                  <span className="text-[10px] font-mono text-[#6B5D4A]">REQUER OAUTH</span>
                 </div>
               </div>
             </div>
-
-            <AnimatePresence mode="wait">
-              <TabsContent value="review" className="m-0 outline-none">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {reviewItems.length > 0 ? (
-                    <ApprovalWorkspace
-                      content={reviewItems[0]}
-                      insightText=""
-                      onApprove={handleApprove}
-                      onEdit={handleEdit}
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-20 bg-zinc-900/20 rounded-3xl border border-dashed border-white/[0.05]">
-                      <div className="h-16 w-16 rounded-2xl bg-[#E6B447]/10 flex items-center justify-center mb-4">
-                        <CheckCircle2 className="h-8 w-8 text-[#E6B447]" />
-                      </div>
-                      <h3 className="text-xl font-bold text-white mb-2">Tudo em ordem!</h3>
-                      <p className="text-zinc-500 text-center max-w-md">
-                        Não há novos conteúdos aguardando revisão. Use o botão &ldquo;Run Autopilot&rdquo; para gerar novos conteúdos a partir de insights.
-                      </p>
-                      <div className="flex gap-3 mt-8">
-                        <Button
-                          variant="outline"
-                          className="btn-ghost border-white/[0.05]"
-                          onClick={() => setActiveTab('explorer')}
-                        >
-                          Explorar Biblioteca
-                        </Button>
-                        <Button
-                          className="bg-[#E6B447] text-[#0D0B09] hover:bg-[#F0C35C]"
-                          onClick={handleRunAutopilot}
-                          disabled={runningAutopilot}
-                        >
-                          {runningAutopilot ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}
-                          Run Autopilot
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              </TabsContent>
-
-              <TabsContent value="explorer" className="m-0 outline-none">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <VaultExplorer
-                    dnaItems={dnaItems}
-                    libraryItems={libraryItems}
-                    assets={assets}
-                    onUseItem={(item) => {
-                      toast.info("Item Selecionado", {
-                        description: "Preparando conteúdo para uso...",
-                      });
-                    }}
-                  />
-                </motion.div>
-              </TabsContent>
-
-              {/* N-5.4: Settings Tab */}
-              <TabsContent value="settings" className="m-0 outline-none">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card className="bg-zinc-900/50 border-zinc-800">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base">
-                          <Zap className="w-4 h-4 text-[#E6B447]" />
-                          Content Autopilot
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <p className="text-sm text-zinc-400">
-                          O Autopilot coleta insights do Social Monitor, Spy Agent e Keywords Miner para gerar conteúdo adaptado automaticamente.
-                        </p>
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-950 border border-zinc-800">
-                            <div className="flex items-center gap-2">
-                              <Play className="w-4 h-4 text-zinc-500" />
-                              <span className="text-sm text-zinc-300">Execução Manual</span>
-                            </div>
-                            <Badge variant="outline" className="text-[#E6B447] border-[#E6B447]/30">Ativo</Badge>
-                          </div>
-                          <button
-                            onClick={() => toggleSetting('autopilotEnabled', !vaultSettings.autopilotEnabled)}
-                            disabled={savingSettings}
-                            className="flex items-center justify-between w-full p-3 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-zinc-700 transition-colors text-left"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Clock className="w-4 h-4 text-zinc-500" />
-                              <span className="text-sm text-zinc-300">CRON Automático (6h)</span>
-                            </div>
-                            <Badge variant="outline" className={vaultSettings.autopilotEnabled
-                              ? 'text-[#E6B447] border-[#E6B447]/30'
-                              : 'text-zinc-500 border-zinc-700'
-                            }>
-                              {vaultSettings.autopilotEnabled ? 'Ativo' : 'Desativado'}
-                            </Badge>
-                          </button>
-                        </div>
-                        <p className="text-[11px] text-zinc-600">
-                          Cada execução do Autopilot consome 2 créditos por conteúdo adaptado.
-                        </p>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="bg-zinc-900/50 border-zinc-800">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base">
-                          <Library className="w-4 h-4 text-blue-400" />
-                          Preferências do Vault
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <p className="text-sm text-zinc-400">
-                          Configurações de aprovação automática e integração com redes sociais.
-                        </p>
-                        <div className="space-y-3">
-                          <button
-                            onClick={() => toggleSetting('autoApproveThreshold', !vaultSettings.autoApproveThreshold ? 80 as any : 0 as any)}
-                            disabled={savingSettings}
-                            className="flex items-center justify-between w-full p-3 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-zinc-700 transition-colors text-left"
-                          >
-                            <span className="text-sm text-zinc-300">Aprovação automática {vaultSettings.autoApproveThreshold ? `(≥${vaultSettings.autoApproveThreshold}%)` : ''}</span>
-                            <Badge variant="outline" className={Number(vaultSettings.autoApproveThreshold) > 0
-                              ? 'text-[#E6B447] border-[#E6B447]/30'
-                              : 'text-zinc-500 border-zinc-700'
-                            }>
-                              {Number(vaultSettings.autoApproveThreshold) > 0 ? 'Ativa' : 'Desativada'}
-                            </Badge>
-                          </button>
-                          <button
-                            onClick={() => toggleSetting('notifyOnNewContent', !vaultSettings.notifyOnNewContent)}
-                            disabled={savingSettings}
-                            className="flex items-center justify-between w-full p-3 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-zinc-700 transition-colors text-left"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Bell className="w-4 h-4 text-zinc-500" />
-                              <span className="text-sm text-zinc-300">Notificar novo conteúdo</span>
-                            </div>
-                            <Badge variant="outline" className={vaultSettings.notifyOnNewContent
-                              ? 'text-[#E6B447] border-[#E6B447]/30'
-                              : 'text-zinc-500 border-zinc-700'
-                            }>
-                              {vaultSettings.notifyOnNewContent ? 'Ativa' : 'Desativada'}
-                            </Badge>
-                          </button>
-                          <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-950 border border-zinc-800 opacity-50 cursor-not-allowed" title="Requer OAuth (Sprint L)">
-                            <span className="text-sm text-zinc-300">Publicação direta</span>
-                            <Badge variant="outline" className="text-zinc-500 border-zinc-700">Requer OAuth</Badge>
-                          </div>
-                        </div>
-                        <p className="text-[11px] text-zinc-600">
-                          Publicação direta para Instagram/LinkedIn será habilitada após integração OAuth (Sprint L).
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </motion.div>
-              </TabsContent>
-            </AnimatePresence>
-          </Tabs>
-
-        </div>
+          </div>
+        )}
       </main>
 
-      {/* X-2.1: DNA Wizard Modal */}
-      {showDNAWizard && (
-        <DNAWizard
-          onClose={() => setShowDNAWizard(false)}
-          onSaved={() => loadVaultData()}
-        />
-      )}
+      {showDNAWizard && <DNAWizard onClose={() => setShowDNAWizard(false)} onSaved={() => loadVaultData()} />}
 
-      {/* V3: History Sheet */}
       <Sheet open={showHistory} onOpenChange={setShowHistory}>
-        <SheetContent className="bg-zinc-950 border-zinc-800 w-full sm:max-w-lg">
+        <SheetContent className="bg-[#0D0B09] border-white/[0.06] w-full sm:max-w-lg">
           <SheetHeader>
-            <SheetTitle className="text-white flex items-center gap-2">
-              <History className="h-5 w-5 text-zinc-400" />
-              Histórico de Aprovações
-            </SheetTitle>
+            <SheetTitle className="text-[#F5E8CE] text-sm font-mono uppercase tracking-wider">Histórico</SheetTitle>
           </SheetHeader>
-          <div className="mt-6 space-y-3 overflow-y-auto max-h-[calc(100vh-120px)] pr-2">
+          <div className="mt-6 space-y-1 overflow-y-auto max-h-[calc(100vh-120px)]">
             {loadingHistory ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
-              </div>
+              <div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-[#6B5D4A]" /></div>
             ) : historyItems.length === 0 ? (
-              <p className="text-sm text-zinc-500 text-center py-12">Nenhum item no histórico.</p>
+              <p className="text-sm text-[#6B5D4A] text-center py-12">Nenhum item.</p>
             ) : (
               historyItems.map((item) => (
-                <div key={item.id} className="p-3 rounded-lg bg-zinc-900/50 border border-zinc-800">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-sm font-medium text-white truncate max-w-[200px]">
-                      {item.variants?.[0]?.copy?.slice(0, 60) || 'Conteúdo sem texto'}
-                      {(item.variants?.[0]?.copy?.length || 0) > 60 ? '...' : ''}
+                <div key={item.id} className="px-4 py-3 border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[13px] text-[#F5E8CE] truncate max-w-[240px]">
+                      {item.variants?.[0]?.copy?.slice(0, 60) || 'Sem texto'}{(item.variants?.[0]?.copy?.length || 0) > 60 ? '...' : ''}
                     </span>
-                    <Badge variant="outline" className={
-                      item.status === 'approved'
-                        ? 'text-[#E6B447] border-[#E6B447]/30'
-                        : 'text-red-400 border-red-500/30'
-                    }>
+                    <span className={cn("text-[9px] font-mono uppercase tracking-wider", item.status === 'approved' ? 'text-[#E6B447]' : 'text-[#C45B3A]')}>
                       {item.status === 'approved' ? 'Aprovado' : 'Rejeitado'}
-                    </Badge>
+                    </span>
                   </div>
-                  <div className="flex items-center gap-3 text-[10px] text-zinc-500">
-                    <span>{item.createdAt?.seconds
-                      ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('pt-BR')
-                      : '-'}</span>
-                    <div className="flex gap-1">
-                      {item.variants?.map((v) => (
-                        <Badge key={v.platform} variant="outline" className="text-[8px] h-4 border-zinc-700 text-zinc-400">
-                          {v.platform}
-                        </Badge>
-                      ))}
-                    </div>
+                  <div className="flex items-center gap-2 mt-1 text-[10px] text-[#6B5D4A] font-mono">
+                    <span>{item.createdAt?.seconds ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : '-'}</span>
+                    {item.variants?.map(v => <span key={v.platform} className="uppercase">{v.platform}</span>)}
                   </div>
                 </div>
               ))

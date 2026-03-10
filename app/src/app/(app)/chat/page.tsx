@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Header } from '@/components/layout/header';
 import { useConversations, useConversation } from '@/lib/hooks/use-conversations';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import { useUser } from '@/lib/hooks/use-user';
@@ -182,11 +181,14 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Header 
-        title={modeConfig.title} 
-        subtitle={modeConfig.subtitle} 
-        actions={<ActiveContextIndicator brandId={activeBrand?.id} />}
-      />
+      {/* Compact Bloomberg header for chat */}
+      <div className="shrink-0 flex items-center justify-between px-6 py-3 border-b border-white/[0.06]">
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-lg font-black text-[#F5E8CE] tracking-tight">{modeConfig.title}</h1>
+          <span className="text-[10px] font-mono text-[#6B5D4A] tracking-wider">{modeConfig.subtitle}</span>
+        </div>
+        <ActiveContextIndicator brandId={activeBrand?.id} />
+      </div>
 
       <div className="flex flex-1 overflow-hidden">
         <ChatSidebar 
