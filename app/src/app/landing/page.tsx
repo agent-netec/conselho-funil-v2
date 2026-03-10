@@ -15,9 +15,11 @@ import {
   LandingFooter,
 } from '@/components/landing';
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mkthoney.com';
+
 // SEO Metadata
 export const metadata: Metadata = {
-  metadataBase: new URL('https://mkthoney.com'),
+  metadataBase: new URL(BASE_URL),
   title: 'MKTHONEY — Marketing Autônomo com IA | 23 Especialistas 24/7',
   description:
     'Plataforma SaaS que reúne 23 conselheiros de IA baseados em lendas do marketing. Estratégia, conteúdo, funis e automação — tudo numa tela, na sua mão.',
@@ -52,7 +54,7 @@ export const metadata: Metadata = {
     description: 'Pare de contratar. Comece a operar. 23 especialistas de IA, 24/7.',
     type: 'website',
     locale: 'pt_BR',
-    url: 'https://mkthoney.com',
+    url: BASE_URL,
     siteName: 'MKTHONEY',
   },
   twitter: {
@@ -62,7 +64,7 @@ export const metadata: Metadata = {
     creator: '@mkthoney',
   },
   alternates: {
-    canonical: 'https://mkthoney.com',
+    canonical: BASE_URL,
   },
 };
 
@@ -75,7 +77,7 @@ const schemaOrg = {
       name: 'MKTHONEY',
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
-      url: 'https://mkthoney.com',
+      url: BASE_URL,
       description:
         'Plataforma SaaS de marketing autônomo com 23 conselheiros de IA baseados em lendas do marketing.',
       offers: [
@@ -87,7 +89,7 @@ const schemaOrg = {
     {
       '@type': 'Organization',
       name: 'MKTHONEY',
-      url: 'https://mkthoney.com',
+      url: BASE_URL,
       description: 'Marketing autônomo com inteligência artificial.',
       foundingDate: '2026',
     },

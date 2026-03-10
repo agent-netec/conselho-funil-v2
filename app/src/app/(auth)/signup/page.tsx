@@ -1,7 +1,7 @@
 'use client';
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { signupWithEmail } from '@/lib/firebase/auth';
+import { signupWithEmail, signInWithGoogle } from '@/lib/firebase/auth';
 import { createUser } from '@/lib/firebase/firestore';
 import {
   Ripple,
@@ -68,6 +68,7 @@ export default function SignupPage() {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement>,
@@ -120,6 +121,32 @@ export default function SignupPage() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setGoogleLoading(true);
+    try {
+      const result = await signInWithGoogle();
+      if (result.error) {
+        setError(result.error);
+      } else if (result.user) {
+        try {
+          await createUser(result.user.uid, {
+            email: result.user.email || '',
+            name: result.user.displayName || '',
+            role: 'admin',
+          });
+        } catch {
+          // User doc may already exist (returning Google user)
+        }
+        router.push('/welcome');
+      }
+    } catch {
+      setError('Erro ao conectar com Google. Tente novamente.');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
   const handleGoToLogin = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     router.push('/login');
@@ -157,6 +184,8 @@ export default function SignupPage() {
     submitButton: isLoading ? 'Criando...' : 'Criar Conta',
     textVariantButton: 'Ja tem conta? Fazer login',
     errorField: error,
+    onGoogleSignIn: handleGoogleSignIn,
+    googleLoading,
   };
 
   return (

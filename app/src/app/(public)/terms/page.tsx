@@ -10,12 +10,14 @@ export const metadata: Metadata = {
  * Standard SaaS terms for Brazilian market.
  * [PLACEHOLDERS] for company data.
  */
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mkthoney.com';
+
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://mkthoney.com' },
-    { '@type': 'ListItem', position: 2, name: 'Termos de Uso', item: 'https://mkthoney.com/terms' },
+    { '@type': 'ListItem', position: 1, name: 'Home', item: BASE_URL },
+    { '@type': 'ListItem', position: 2, name: 'Termos de Uso', item: `${BASE_URL}/terms` },
   ],
 };
 

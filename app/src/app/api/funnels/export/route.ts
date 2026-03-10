@@ -166,7 +166,7 @@ ${ctx.channel?.secondary || ctx.channels?.secondary ? `- **Secundário:** ${ctx.
 ---
 
 *Documento gerado pelo MKTHONEY*
-*https://mkthoney.com*
+*${process.env.NEXT_PUBLIC_APP_URL || 'https://mkthoney.com'}*
 `;
 
   return md;

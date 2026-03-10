@@ -77,7 +77,7 @@ function generateMarkdown(funnel: Funnel, proposals: Proposal[]): string {
     });
   }
 
-  md += `\n*Gerado por [MKTHONEY](https://mkthoney.com) em ${new Date().toLocaleDateString('pt-BR')}*\n`;
+  md += `\n*Gerado por [MKTHONEY](${process.env.NEXT_PUBLIC_APP_URL || 'https://mkthoney.com'}) em ${new Date().toLocaleDateString('pt-BR')}*\n`;
   
   return md;
 }

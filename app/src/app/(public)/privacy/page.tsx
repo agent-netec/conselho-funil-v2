@@ -10,12 +10,14 @@ export const metadata: Metadata = {
  * LGPD compliant with data processors listed.
  * [PLACEHOLDERS] for company data.
  */
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mkthoney.com';
+
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://mkthoney.com' },
-    { '@type': 'ListItem', position: 2, name: 'Política de Privacidade', item: 'https://mkthoney.com/privacy' },
+    { '@type': 'ListItem', position: 1, name: 'Home', item: BASE_URL },
+    { '@type': 'ListItem', position: 2, name: 'Política de Privacidade', item: `${BASE_URL}/privacy` },
   ],
 };
 

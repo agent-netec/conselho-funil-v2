@@ -62,6 +62,8 @@ const tiers = [
   },
 ];
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mkthoney.com';
+
 const pricingSchema = {
   '@context': 'https://schema.org',
   '@type': 'Product',
@@ -76,7 +78,7 @@ const pricingSchema = {
       priceCurrency: 'BRL',
       priceValidUntil: '2027-12-31',
       availability: 'https://schema.org/InStock',
-      url: 'https://mkthoney.com/pricing',
+      url: `${BASE_URL}/pricing`,
       description: 'Para quem está começando no marketing autônomo. 5 marcas, 50 gerações/mês.',
     },
     {
@@ -86,7 +88,7 @@ const pricingSchema = {
       priceCurrency: 'BRL',
       priceValidUntil: '2027-12-31',
       availability: 'https://schema.org/InStock',
-      url: 'https://mkthoney.com/pricing',
+      url: `${BASE_URL}/pricing`,
       description: 'Para profissionais que querem o arsenal completo. 15 marcas, 200 gerações/mês.',
     },
     {
@@ -96,7 +98,7 @@ const pricingSchema = {
       priceCurrency: 'BRL',
       priceValidUntil: '2027-12-31',
       availability: 'https://schema.org/InStock',
-      url: 'https://mkthoney.com/pricing',
+      url: `${BASE_URL}/pricing`,
       description: 'Para agências e operações de escala. Marcas e gerações ilimitadas.',
     },
   ],
@@ -106,8 +108,8 @@ const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://mkthoney.com' },
-    { '@type': 'ListItem', position: 2, name: 'Planos', item: 'https://mkthoney.com/pricing' },
+    { '@type': 'ListItem', position: 1, name: 'Home', item: BASE_URL },
+    { '@type': 'ListItem', position: 2, name: 'Planos', item: `${BASE_URL}/pricing` },
   ],
 };
 

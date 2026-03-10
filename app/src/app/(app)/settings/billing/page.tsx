@@ -68,6 +68,7 @@ export default function BillingPage() {
   const [loadingInvoices, setLoadingInvoices] = useState(true);
   const [canceling, setCanceling] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   // Check for success param (redirect from Stripe checkout)
   useEffect(() => {
@@ -188,6 +189,41 @@ export default function BillingPage() {
     }
   };
 
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    try {
+      const currentUser = auth?.currentUser;
+      if (!currentUser) {
+        toast.error('Sessao expirada. Faca login novamente.');
+        return;
+      }
+
+      const idToken = await currentUser.getIdToken();
+      const response = await fetch('/api/payments/portal', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error || 'Erro ao abrir portal');
+        return;
+      }
+
+      if (data.data?.url) {
+        window.location.href = data.data.url;
+      }
+    } catch (error) {
+      console.error('Portal error:', error);
+      toast.error('Erro ao abrir portal de assinatura');
+    } finally {
+      setPortalLoading(false);
+    }
+  };
+
   const tierInfo = TIER_DISPLAY[tier] || TIER_DISPLAY.free;
   const TierIcon = tierInfo.icon;
 
@@ -287,13 +323,27 @@ export default function BillingPage() {
             {/* Actions */}
             {isPaid && (
               <div className="mt-6 pt-6 border-t border-white/[0.06] flex items-center justify-between">
-                <Button
-                  variant="ghost"
-                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                  onClick={() => setShowCancelConfirm(true)}
-                >
-                  Cancelar Assinatura
-                </Button>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                    onClick={() => setShowCancelConfirm(true)}
+                  >
+                    Cancelar Assinatura
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleManageSubscription}
+                    disabled={portalLoading}
+                  >
+                    {portalLoading ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <CreditCard className="mr-2 h-4 w-4" />
+                    )}
+                    Gerenciar Assinatura
+                  </Button>
+                </div>
                 {tier !== 'agency' && (
                   <Button
                     onClick={() => handleUpgrade(tier === 'starter' ? 'pro' : 'agency')}

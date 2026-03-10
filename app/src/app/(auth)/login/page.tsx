@@ -1,7 +1,7 @@
 'use client';
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { loginWithEmail, sendPasswordReset } from '@/lib/firebase/auth';
+import { loginWithEmail, sendPasswordReset, signInWithGoogle } from '@/lib/firebase/auth';
 import {
   Ripple,
   AuthTabs,
@@ -66,6 +66,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement>,
@@ -92,6 +93,23 @@ export default function LoginPage() {
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setGoogleLoading(true);
+    try {
+      const result = await signInWithGoogle();
+      if (result.error) {
+        setError(result.error);
+      } else {
+        router.push('/');
+      }
+    } catch {
+      setError('Erro ao conectar com Google. Tente novamente.');
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -145,6 +163,8 @@ export default function LoginPage() {
     successField: success,
     secondaryLinkText: 'Esqueci minha senha',
     onSecondaryLink: handleForgotPassword,
+    onGoogleSignIn: handleGoogleSignIn,
+    googleLoading,
   };
 
   return (
