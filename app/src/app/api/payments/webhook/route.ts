@@ -98,7 +98,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   try {
     const user = await getUser(userId);
     if (user?.email) {
-      const name = user.displayName || 'Usuario';
+      const name = user.name || 'Usuario';
       await sendWelcomeEmail(user.email, name);
 
       const amountTotal = session.amount_total;
@@ -140,7 +140,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   await updateSubscriptionStatus(
     userId,
     status,
-    subscription.current_period_end
+    (subscription as any).current_period_end
   );
 
   return { success: true, userId, newTier, status };
@@ -167,9 +167,9 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   try {
     const user = await getUser(userId);
     if (user?.email) {
-      const name = user.displayName || 'Usuario';
-      const endDate = subscription.current_period_end
-        ? new Date(subscription.current_period_end * 1000).toLocaleDateString('pt-BR')
+      const name = user.name || 'Usuario';
+      const endDate = (subscription as any).current_period_end
+        ? new Date((subscription as any).current_period_end * 1000).toLocaleDateString('pt-BR')
         : new Date().toLocaleDateString('pt-BR');
       await sendCancellationEmail(user.email, name, endDate);
     }
@@ -210,7 +210,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
   try {
     const user = await getUser(userId);
     if (user?.email) {
-      const name = user.displayName || 'Usuario';
+      const name = user.name || 'Usuario';
       const hostedInvoiceUrl = invoice.hosted_invoice_url;
       const retryUrl = hostedInvoiceUrl || `${process.env.NEXT_PUBLIC_APP_URL || 'https://mkthoney.com'}/settings/billing`;
       await sendPaymentFailedEmail(user.email, name, retryUrl);

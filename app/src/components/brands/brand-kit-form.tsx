@@ -46,8 +46,8 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
     logoLock: {
       variants: {
         primary: brand.brandKit?.logoLock?.variants?.primary || { url: '', storagePath: '', format: 'png' },
-        horizontal: brand.brandKit?.logoLock?.variants?.horizontal || null,
-        icon: brand.brandKit?.logoLock?.variants?.icon || null,
+        horizontal: brand.brandKit?.logoLock?.variants?.horizontal || undefined,
+        icon: brand.brandKit?.logoLock?.variants?.icon || undefined,
       },
       locked: brand.brandKit?.logoLock?.locked ?? false,
     },

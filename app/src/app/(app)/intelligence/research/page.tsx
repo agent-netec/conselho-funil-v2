@@ -397,7 +397,7 @@ export default function ResearchPage() {
                     </p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {SECTION_KEYS.map(key => {
-                        const sectionValue = (selected.sections as Record<string, unknown>)?.[key];
+                        const sectionValue = (selected.sections as unknown as Record<string, unknown>)?.[key];
                         const hasContent = Array.isArray(sectionValue)
                           ? sectionValue.length > 0
                           : typeof sectionValue === 'string' && sectionValue.trim().length > 0;
@@ -421,7 +421,7 @@ export default function ResearchPage() {
                       })}
                     </div>
                     {SECTION_KEYS.every(key => {
-                      const v = (selected.sections as Record<string, unknown>)?.[key];
+                      const v = (selected.sections as unknown as Record<string, unknown>)?.[key];
                       return Array.isArray(v) ? v.length === 0 : !v || (typeof v === 'string' && !v.trim());
                     }) && (
                       <p className="text-[10px] text-[#E6B447]/80">Este dossiê não tem seções com conteúdo para adicionar ao MKTHONEY.</p>

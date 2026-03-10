@@ -79,7 +79,7 @@ export function calculateBrandCompleteness(
   assetCount: number = 0
 ): CompletenessResult {
   const completedFields: string[] = [];
-  const missingFields: { key: string; label: string; href?: string }[] = [];
+  const missingFields: { key: string; label: string; href?: string; modalKey?: ModalKey }[] = [];
   let score = 0;
 
   for (const field of FIELDS) {

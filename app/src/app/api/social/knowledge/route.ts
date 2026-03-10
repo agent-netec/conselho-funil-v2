@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    await upsertToPinecone(records, 'knowledge');
+    await upsertToPinecone(records, { namespace: 'knowledge' });
 
     console.log(`[Social/KB] Uploaded ${records.length} chunks: ${docType}/${aiChannel}/${title} [AI: ${aiType}, tags: ${aiTags.join(', ')}]`);
 

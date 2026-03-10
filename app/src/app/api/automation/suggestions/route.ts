@@ -48,7 +48,8 @@ export async function POST(req: NextRequest) {
       // Count triggers in last 2 weeks
       const recentLogs = logs.filter(log => {
         if (log.ruleId !== rule.id) return false;
-        const logTime = log.timestamp?.toMillis?.() ?? (log.timestamp as any)?.seconds * 1000 ?? 0;
+        const ts = log.timestamp as any;
+        const logTime = ts?.toMillis?.() ?? (ts?.seconds ? ts.seconds * 1000 : 0);
         return logTime >= twoWeeksAgo;
       });
 

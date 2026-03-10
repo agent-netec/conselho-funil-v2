@@ -100,9 +100,10 @@ export async function POST(req: NextRequest) {
       const latestInvoice = canceledSubscription.latest_invoice as string;
       if (latestInvoice) {
         const invoice = await stripeClient.invoices.retrieve(latestInvoice);
-        if (invoice.payment_intent) {
+        const paymentIntent = (invoice as any).payment_intent;
+        if (paymentIntent) {
           await stripeClient.refunds.create({
-            payment_intent: invoice.payment_intent as string,
+            payment_intent: paymentIntent as string,
           });
         }
       }
@@ -139,7 +140,7 @@ export async function POST(req: NextRequest) {
       updatedAt: Timestamp.now(),
     });
 
-    const effectiveDate = new Date(updatedSubscription.current_period_end * 1000);
+    const effectiveDate = new Date(((updatedSubscription as any).current_period_end || 0) * 1000);
 
     console.log(`[Cancel] User ${userId} subscription set to cancel at ${effectiveDate.toISOString()}`);
 

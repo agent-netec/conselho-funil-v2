@@ -139,7 +139,7 @@ export async function GET(req: NextRequest) {
 
         try {
           if (test.platform === 'instagram') {
-            variant.metrics = await fetchMediaInsights(brandId, variant.externalId);
+            variant.metrics = await fetchMediaInsights(brandId, variant.externalId) as unknown as Record<string, number>;
             metricsUpdated = true;
           } else if (test.platform === 'linkedin') {
             const liMetrics = await fetchLinkedInPostMetrics(brandId, variant.externalId);

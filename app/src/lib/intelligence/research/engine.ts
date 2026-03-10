@@ -188,8 +188,8 @@ export class ResearchEngine {
     );
 
     return results
-      .filter((r): r is PromiseFulfilledResult<ResearchSource | null> => r.status === 'fulfilled')
-      .map(r => r.value)
+      .filter((r) => r.status === 'fulfilled')
+      .map(r => (r as PromiseFulfilledResult<ResearchSource | null>).value)
       .filter((s): s is ResearchSource => s !== null);
   }
 

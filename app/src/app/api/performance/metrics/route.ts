@@ -52,7 +52,7 @@ async function handleGET(req: NextRequest) {
     }
 
     // S30-PERF-01: Fetch real com hybrid cache (shared module)
-    const result = await fetchMetricsWithCache(brandId, { forceFresh, period, startDate, endDate });
+    const result = await fetchMetricsWithCache(brandId, { forceFresh, period });
 
     if (!result) {
       return createApiError(502, 'APIs externas indisponíveis e sem cache disponível.');

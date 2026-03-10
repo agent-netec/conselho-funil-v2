@@ -312,7 +312,8 @@ function isInCooldown(
   return recentLogs.some(log => {
     if (log.ruleId !== ruleId) return false;
     if (log.context.entityId !== entityId) return false;
-    const logTime = log.timestamp?.toMillis?.() ?? (log.timestamp as unknown as { seconds: number })?.seconds * 1000 ?? 0;
+    const ts = log.timestamp as any;
+    const logTime = ts?.toMillis?.() ?? (ts?.seconds ? ts.seconds * 1000 : 0);
     return (now - logTime) < cooldownMs;
   });
 }

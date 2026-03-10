@@ -6,6 +6,7 @@ export interface OfferComponent {
   value: number;
   price?: number;
   description?: string;
+  complementarityScore?: number;
 }
 
 export interface OfferQualityInsight {

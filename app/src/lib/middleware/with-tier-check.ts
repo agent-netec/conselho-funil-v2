@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDb } from '@/lib/firebase/admin';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { Tier, Feature, checkTierAccess, meetsMinimumTier, isTrialExpired as checkTrialExpired } from '@/lib/tier-system';
 
 // ============================================
@@ -62,7 +62,7 @@ export function withTierCheck(
       }
 
       // Get user document
-      const userDoc = await adminDb.collection('users').doc(uid).get();
+      const userDoc = await getAdminFirestore().collection('users').doc(uid).get();
 
       if (!userDoc.exists) {
         return NextResponse.json(
@@ -131,7 +131,7 @@ export function withFeatureCheck(
         );
       }
 
-      const userDoc = await adminDb.collection('users').doc(uid).get();
+      const userDoc = await getAdminFirestore().collection('users').doc(uid).get();
 
       if (!userDoc.exists) {
         return NextResponse.json(

@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     const chunks: { id: string; text: string; section: string }[] = [];
 
     for (const sectionKey of sections) {
-      const value = (dossier.sections as Record<string, unknown>)[sectionKey];
+      const value = (dossier.sections as unknown as Record<string, unknown>)[sectionKey];
       if (!value) continue;
 
       let text = '';

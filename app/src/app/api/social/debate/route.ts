@@ -191,8 +191,7 @@ O Veredito Final deve consolidar as opiniões e recomendar o hook final com just
       }
     }
     return createApiError(500, 'Erro interno no servidor', {
-      details: error?.message || String(error),
-      stage: 'debate_generation',
+      details: `[debate_generation] ${error?.message || String(error)}`,
     });
   }
 }

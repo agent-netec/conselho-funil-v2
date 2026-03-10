@@ -10,12 +10,13 @@ export const onRequestError: Instrumentation.onRequestError = async (
   context
 ) => {
   // Structured JSON log — captured automatically by Vercel Logs
+  const err = error as Error & { digest?: string };
   console.error(JSON.stringify({
     level: 'error',
     timestamp: new Date().toISOString(),
-    message: error.message,
-    digest: error.digest,
-    stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    message: err.message,
+    digest: err.digest,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
     request: {
       method: request.method,
       path: request.path,
@@ -35,7 +36,7 @@ export const onRequestError: Instrumentation.onRequestError = async (
       const { alerts } = await import('@/lib/utils/slack-alert');
       await alerts.serverError(
         request.path,
-        error.message
+        err.message
       );
     } catch {
       // Silent failure — don't throw while reporting errors

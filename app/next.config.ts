@@ -73,7 +73,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   distDir: '.next',
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
 };
 

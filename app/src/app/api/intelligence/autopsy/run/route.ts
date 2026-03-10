@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
 
     const autopsyRef = doc(db, 'brands', safeBrandId, 'autopsies', response.id);
     // Firestore rejects undefined values — strip screenshotUrl if absent
-    if (autopsyDoc.result?.metadata?.screenshotUrl === undefined) {
+    if (autopsyDoc.result?.metadata?.screenshotUrl === undefined && autopsyDoc.result?.metadata) {
       delete autopsyDoc.result.metadata.screenshotUrl;
     }
 

@@ -203,13 +203,9 @@ export default function IntelligencePage() {
         {tab === "dossier" && (
           <section className="border border-white/[0.06] bg-[#0D0B09] p-6">
             <SectionLabel>Dossiê</SectionLabel>
-            {viewingDossier ? (
-              <DossierView dossier={undefined} />
-            ) : (
-              <div className="py-20 text-center">
-                <p className="text-[#6B5D4A] text-sm">Selecione um concorrente e gere o dossiê.</p>
-              </div>
-            )}
+            <div className="py-20 text-center">
+              <p className="text-[#6B5D4A] text-sm">Selecione um concorrente e gere o dossiê.</p>
+            </div>
           </section>
         )}
       </main>

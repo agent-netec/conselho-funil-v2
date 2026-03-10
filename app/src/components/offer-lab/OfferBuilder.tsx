@@ -59,7 +59,6 @@ export const OfferBuilder: React.FC<OfferBuilderProps> = ({ initialData, onSave 
       id: `bonus_${Date.now()}`,
       name: '',
       value: 0,
-      complementarityScore: 50,
     };
     setOffer({
       ...offer,

@@ -41,7 +41,9 @@ export async function POST(req: NextRequest) {
 
       // Only measure logs executed 24h+ ago
       const executedAt = log.executionResult.timestamp;
-      const execMs = executedAt?.toMillis?.() ?? (executedAt as any)?.seconds * 1000 ?? 0;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ts = executedAt as any;
+      const execMs = ts?.toMillis?.() ?? (ts?.seconds ? ts.seconds * 1000 : 0);
       const hoursSinceExec = (Date.now() - execMs) / (1000 * 60 * 60);
       return hoursSinceExec >= 24;
     });

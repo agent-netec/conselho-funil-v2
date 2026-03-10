@@ -106,6 +106,8 @@ export default function JourneyPage() {
       // Fetch heatmap
       setLoadingHeatmap(true);
       try {
+        const token = await (user as any).getIdToken?.();
+        const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
         const res = await fetch(`/api/intelligence/journey/heatmap?brandId=${brandId}`, { headers });
         if (res.ok) {
           const json = await res.json();

@@ -64,6 +64,8 @@ export interface GenerateAdsOptions {
   ragContext?: string;
   /** Sprint H: Brand context from brand assets */
   brandContext?: string;
+  /** Keyword context for ad generation */
+  keywordContext?: string;
   /** Sprint I: Skip heavy post-processing (CPS scoring + brand voice) to stay within serverless timeout */
   lightMode?: boolean;
 }
