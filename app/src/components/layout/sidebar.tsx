@@ -106,7 +106,7 @@ function DesktopSidebar() {
   return (
     <aside
       className={cn(
-        'fixed left-0 top-0 z-40 hidden h-screen flex-col md:flex',
+        'fixed left-0 top-0 z-40 hidden h-screen flex-col md:flex overflow-hidden',
         'bg-[#0D0B09] border-r border-white/[0.04]',
         'transition-[width] duration-200 ease-in-out'
       )}
@@ -118,7 +118,7 @@ function DesktopSidebar() {
       <SidebarLogo expanded={isExpanded} />
       <Separator className="bg-white/[0.04]" />
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="py-3">
           <SidebarNav expanded={isExpanded} />
         </div>
