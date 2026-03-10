@@ -20,6 +20,7 @@ import {
   PanelLeftOpen,
   RefreshCw,
   Crown,
+  Shield,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -45,6 +46,7 @@ import { CONFIG } from '@/lib/config';
 import { setCredits } from '@/lib/firebase/firestore';
 import { useBranding } from '@/components/providers/branding-provider';
 import { useTier } from '@/lib/hooks/use-tier';
+import { useUser } from '@/lib/hooks/use-user';
 import { meetsMinimumTier, getTierDisplayName } from '@/lib/tier-system';
 import type { Tier } from '@/lib/tier-system';
 import { toast } from 'sonner';
@@ -281,6 +283,7 @@ function SidebarNav({ expanded, onNavigate }: { expanded: boolean; onNavigate?: 
   const pathname = usePathname();
   const router = useRouter();
   const { effectiveTier } = useTier();
+  const { user: firestoreUser } = useUser();
   const { selectedBrand } = useBrandStore();
   const [expandedGroups, setExpandedGroups] = useState<string[]>(
     NAV_GROUPS.map((g) => g.id)
@@ -387,6 +390,83 @@ function SidebarNav({ expanded, onNavigate }: { expanded: boolean; onNavigate?: 
           </div>
         );
       })}
+
+      {/* Admin Link - Only visible for admin users */}
+      {firestoreUser?.role === 'admin' && (
+        <>
+          <Separator className="my-2 bg-white/[0.03]" />
+          {expanded ? (
+            <Link href="/admin" onClick={onNavigate} className="w-full">
+              <div
+                className={cn(
+                  'relative flex items-center rounded-lg transition-all duration-200',
+                  'h-9 px-2.5 gap-3 w-full',
+                  pathname.startsWith('/admin')
+                    ? 'bg-[#E6B447]/[0.08]'
+                    : 'hover:bg-white/[0.03]'
+                )}
+              >
+                {pathname.startsWith('/admin') && (
+                  <div className="absolute left-0 w-[3px] h-5 bg-[#E6B447] rounded-r-full" />
+                )}
+                <Shield
+                  className={cn(
+                    'h-[18px] w-[18px] shrink-0 transition-all duration-200',
+                    pathname.startsWith('/admin')
+                      ? 'text-[#E6B447] drop-shadow-[0_0_8px_rgba(230,180,71,0.5)]'
+                      : 'text-zinc-500'
+                  )}
+                  strokeWidth={pathname.startsWith('/admin') ? 2 : 1.5}
+                />
+                <span
+                  className={cn(
+                    'text-[13px] font-medium truncate flex-1',
+                    pathname.startsWith('/admin') ? 'text-[#E6B447]' : 'text-zinc-400'
+                  )}
+                >
+                  Admin
+                </span>
+              </div>
+            </Link>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="/admin" onClick={onNavigate} className="w-full">
+                  <div
+                    className={cn(
+                      'relative flex items-center rounded-lg transition-all duration-200',
+                      'h-10 w-10 justify-center',
+                      pathname.startsWith('/admin')
+                        ? 'bg-[#E6B447]/[0.08]'
+                        : 'hover:bg-white/[0.03]'
+                    )}
+                  >
+                    {pathname.startsWith('/admin') && (
+                      <div className="absolute left-0 w-[3px] h-5 bg-[#E6B447] rounded-r-full" />
+                    )}
+                    <Shield
+                      className={cn(
+                        'h-5 w-5 transition-all duration-200',
+                        pathname.startsWith('/admin')
+                          ? 'text-[#E6B447] drop-shadow-[0_0_8px_rgba(230,180,71,0.5)]'
+                          : 'text-zinc-500'
+                      )}
+                      strokeWidth={pathname.startsWith('/admin') ? 2 : 1.5}
+                    />
+                  </div>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                sideOffset={12}
+                className="bg-zinc-900 border-zinc-800 text-zinc-100 text-sm font-medium px-3 py-1.5"
+              >
+                Admin
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </>
+      )}
     </nav>
   );
 }
