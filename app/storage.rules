@@ -1,16 +1,18 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // R-1.2: Brand assets — isolated by brandId path segment
+    // R-1.2: Brand assets — isolated by brandId, owner-only writes
     match /brand-assets/{brandId}/{allPaths=**} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null;
+      allow write: if request.auth != null
+        && firestore.get(/databases/(default)/documents/brands/$(brandId)).data.userId == request.auth.uid;
     }
 
-    // R-1.2: Brand kit (logos, vault) — isolated by brandId
+    // R-1.2: Brand kit (logos, vault) — isolated by brandId, owner-only writes
     match /brands/{brandId}/{allPaths=**} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null;
+      allow write: if request.auth != null
+        && firestore.get(/databases/(default)/documents/brands/$(brandId)).data.userId == request.auth.uid;
     }
 
     // Legacy flat paths (brand-assets without brandId segment) — read only for migration

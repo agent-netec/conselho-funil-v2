@@ -121,9 +121,9 @@ service cloud.firestore {
       }
     }
 
-    // Knowledge base (Public Read, Admin Write via custom claims)
+    // Knowledge base (Authenticated Read, Admin Write via custom claims)
     match /knowledge/{chunkId} {
-      allow read: if true;
+      allow read: if isAuthenticated();
       allow write: if isAuthenticated() && isAgencyAdmin(request.auth.token.agencyId);
     }
 

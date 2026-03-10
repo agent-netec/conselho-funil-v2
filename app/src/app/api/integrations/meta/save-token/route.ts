@@ -25,9 +25,17 @@ export async function POST(req: NextRequest) {
     await requireBrandAccess(req, brandId);
 
     // 1. Validate token by checking /me/permissions
-    const permRes = await fetch(
-      `${META_API.BASE_URL}/me/permissions?access_token=${accessToken}`
-    );
+    const permController = new AbortController();
+    const permTimeout = setTimeout(() => permController.abort(), 10000);
+    let permRes: Response;
+    try {
+      permRes = await fetch(
+        `${META_API.BASE_URL}/me/permissions?access_token=${accessToken}`,
+        { signal: permController.signal }
+      );
+    } finally {
+      clearTimeout(permTimeout);
+    }
     const permData = await permRes.json();
 
     if (permData.error) {
@@ -48,9 +56,17 @@ export async function POST(req: NextRequest) {
 
     // 2. Validate ad account access
     const normalizedAdAccount = adAccountId.startsWith('act_') ? adAccountId.replace('act_', '') : adAccountId;
-    const insightsCheck = await fetch(
-      `${META_API.BASE_URL}/act_${normalizedAdAccount}?fields=name,account_status&access_token=${accessToken}`
-    );
+    const insightsController = new AbortController();
+    const insightsTimeout = setTimeout(() => insightsController.abort(), 10000);
+    let insightsCheck: Response;
+    try {
+      insightsCheck = await fetch(
+        `${META_API.BASE_URL}/act_${normalizedAdAccount}?fields=name,account_status&access_token=${accessToken}`,
+        { signal: insightsController.signal }
+      );
+    } finally {
+      clearTimeout(insightsTimeout);
+    }
     const insightsData = await insightsCheck.json();
 
     if (insightsData.error) {
@@ -59,7 +75,6 @@ export async function POST(req: NextRequest) {
 
     // 3. Save to vault
     const appId = process.env.META_APP_ID || '';
-    const appSecret = (process.env.META_APP_SECRET || '').trim();
 
     await MonaraTokenVault.saveToken(brandId, {
       brandId,
@@ -70,7 +85,6 @@ export async function POST(req: NextRequest) {
       metadata: {
         adAccountId: `act_${normalizedAdAccount}`,
         appId,
-        appSecret,
       },
     });
 

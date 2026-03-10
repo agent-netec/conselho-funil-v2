@@ -3,8 +3,13 @@ import { Check } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Preços | MKTHONEY',
-  description: 'Planos MKTHONEY: Starter R$97, Pro R$297, Agency R$597. 14 dias grátis.',
+  title: 'Planos — MKTHONEY',
+  description: 'Escolha o plano ideal para escalar seu marketing com IA. Starter R$97, Pro R$297, Agency R$597. 14 dias grátis.',
+  openGraph: {
+    title: 'Planos — MKTHONEY',
+    description: 'Escolha o plano ideal para escalar seu marketing com IA. 14 dias grátis, sem cartão.',
+    type: 'website',
+  },
 };
 
 const tiers = [

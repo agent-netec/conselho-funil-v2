@@ -27,8 +27,11 @@ export const metadata: Metadata = {
   description: 'Plataforma de inteligência estratégica de marketing com IA. Funis, copy, ads e social — tudo com conselheiros especializados.',
   metadataBase: new URL('https://mkthoney.com'),
   openGraph: {
+    title: 'MKTHONEY — Marketing Autônomo com IA',
+    description: 'Plataforma de inteligência estratégica de marketing com IA. Funis, copy, ads e social — tudo com conselheiros especializados.',
     type: 'website',
     locale: 'pt_BR',
+    url: 'https://mkthoney.com',
     siteName: 'MKTHONEY',
   },
   twitter: {

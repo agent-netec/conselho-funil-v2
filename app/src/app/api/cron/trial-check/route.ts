@@ -33,9 +33,9 @@ export async function GET(req: NextRequest) {
     const authHeader = req.headers.get('Authorization');
     const cronSecret = (process.env.CRON_SECRET || '').trim();
 
-    if (!cronSecret) {
-      logger.error('CRON_SECRET env var not configured', { route: '/api/cron/trial-check' });
-      return createApiError(500, 'Cron configuration error');
+    if (!cronSecret || cronSecret.length < 8) {
+      logger.error('Invalid cron auth config', { route: '/api/cron/trial-check' });
+      return createApiError(500, 'Internal error');
     }
 
     if (authHeader !== `Bearer ${cronSecret}`) {

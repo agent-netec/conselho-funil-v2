@@ -16,9 +16,8 @@ export async function GET(req: NextRequest) {
     const authHeader = req.headers.get('Authorization');
     const cronSecret = (process.env.CRON_SECRET || '').trim();
 
-    if (!cronSecret) {
-      console.error('[Cron] CRON_SECRET env var not configured');
-      return createApiError(500, 'Cron configuration error');
+    if (!cronSecret || cronSecret.length < 8) {
+      return createApiError(500, 'Internal error');
     }
 
     if (authHeader !== `Bearer ${cronSecret}`) {

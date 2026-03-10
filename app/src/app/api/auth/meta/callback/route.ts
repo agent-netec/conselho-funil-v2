@@ -36,7 +36,14 @@ export async function GET(req: NextRequest) {
   try {
     // Step 1: Exchange code for short-lived token
     const tokenUrl = `${META_API.BASE_URL}/oauth/access_token?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&client_secret=${appSecret}&code=${code}`;
-    const tokenRes = await fetch(tokenUrl);
+    const tokenController = new AbortController();
+    const tokenTimeout = setTimeout(() => tokenController.abort(), 10000);
+    let tokenRes: Response;
+    try {
+      tokenRes = await fetch(tokenUrl, { signal: tokenController.signal });
+    } finally {
+      clearTimeout(tokenTimeout);
+    }
     const tokenData = await tokenRes.json();
 
     if (tokenData.error) {
@@ -46,7 +53,14 @@ export async function GET(req: NextRequest) {
 
     // Step 2: Exchange for long-lived token
     const longLivedUrl = `${META_API.BASE_URL}/oauth/access_token?grant_type=fb_exchange_token&client_id=${appId}&client_secret=${appSecret}&fb_exchange_token=${tokenData.access_token}`;
-    const longLivedRes = await fetch(longLivedUrl);
+    const longLivedController = new AbortController();
+    const longLivedTimeout = setTimeout(() => longLivedController.abort(), 10000);
+    let longLivedRes: Response;
+    try {
+      longLivedRes = await fetch(longLivedUrl, { signal: longLivedController.signal });
+    } finally {
+      clearTimeout(longLivedTimeout);
+    }
     const longLivedData = await longLivedRes.json();
 
     if (longLivedData.error) {
@@ -55,7 +69,14 @@ export async function GET(req: NextRequest) {
     }
 
     // Step 3: Get user info (ad accounts)
-    const meRes = await fetch(`${META_API.BASE_URL}/me?fields=id,name,adaccounts{account_id,name}&access_token=${longLivedData.access_token}`);
+    const meController = new AbortController();
+    const meTimeout = setTimeout(() => meController.abort(), 10000);
+    let meRes: Response;
+    try {
+      meRes = await fetch(`${META_API.BASE_URL}/me?fields=id,name,adaccounts{account_id,name}&access_token=${longLivedData.access_token}`, { signal: meController.signal });
+    } finally {
+      clearTimeout(meTimeout);
+    }
     const meData = await meRes.json();
 
     const firstAdAccount = meData.adaccounts?.data?.[0]?.account_id || '';
@@ -70,7 +91,6 @@ export async function GET(req: NextRequest) {
       metadata: {
         adAccountId: firstAdAccount ? `act_${firstAdAccount}` : '',
         appId,
-        appSecret,
       },
     });
 

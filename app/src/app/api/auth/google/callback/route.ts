@@ -35,17 +35,25 @@ export async function GET(req: NextRequest) {
 
   try {
     // Exchange code for tokens
-    const tokenRes = await fetch(GOOGLE_ADS_API.TOKEN_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        code,
-        client_id: clientId,
-        client_secret: clientSecret,
-        redirect_uri: redirectUri,
-        grant_type: 'authorization_code',
-      }).toString(),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    let tokenRes: Response;
+    try {
+      tokenRes = await fetch(GOOGLE_ADS_API.TOKEN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          code,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+          grant_type: 'authorization_code',
+        }).toString(),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
 
     const tokenData = await tokenRes.json();
 
@@ -66,7 +74,6 @@ export async function GET(req: NextRequest) {
         customerId: '', // User must fill this in the integration form
         developerToken: process.env.GOOGLE_DEVELOPER_TOKEN || '',
         clientId,
-        clientSecret,
       },
     });
 
