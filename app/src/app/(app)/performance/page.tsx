@@ -5,24 +5,13 @@ import { WarRoomDashboard } from '@/components/performance/war-room-dashboard';
 import { AlertCenter } from '@/components/performance/alert-center';
 import { SegmentFilter } from '@/components/performance/segment-filter';
 import { SegmentBreakdown } from '@/components/performance/segment-breakdown';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {
-  LayoutDashboard,
-  RefreshCcw,
-  Calendar,
-  Download,
-  Zap,
-  Activity,
-  WifiOff,
-  Settings
-} from "lucide-react";
+import { RefreshCcw, WifiOff, Settings } from "lucide-react";
 import { PerformanceMetric, PerformanceAnomaly } from '@/types/performance';
 import { useSegmentPerformance } from '@/lib/hooks/use-segment-performance';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
+import Link from 'next/link';
 
 export default function PerformanceWarRoomPage() {
   const { selectedBrand } = useBrandStore();
@@ -37,51 +26,29 @@ export default function PerformanceWarRoomPage() {
   const [showFullAnalysis, setShowFullAnalysis] = useState(false);
   const [hasIntegration, setHasIntegration] = useState<boolean | null>(null);
   const [diagnostic, setDiagnostic] = useState<any>(null);
-  // Sprint T-2.1/T-3: Real LTV/Payback from cohort API
   const [ltvData, setLtvData] = useState<{ totalLtv: number; avgPaybackMonths: number } | null>(null);
   const { breakdown, loading: segmentLoading, selectedSegment, setSelectedSegment } = useSegmentPerformance(
     selectedBrand?.id || null
   );
 
-  // Process blended metrics from the metrics array
   const blendedMetrics = metrics.find(m => m.source === 'aggregated')?.data || {
-    spend: 0,
-    revenue: 0,
-    roas: 0,
-    cac: 0,
-    ctr: 0,
-    cpc: 0,
-    cpa: 0,
-    conversions: 0,
-    clicks: 0,
-    impressions: 0,
+    spend: 0, revenue: 0, roas: 0, cac: 0, ctr: 0, cpc: 0, cpa: 0, conversions: 0, clicks: 0, impressions: 0,
   };
 
   const platformMetrics = metrics
     .filter(m => m.source !== 'aggregated')
-    .map(m => ({
-      ...m.data,
-      platform: m.source as any,
-      cpa: m.data.cac
-    }));
+    .map(m => ({ ...m.data, platform: m.source as any, cpa: m.data.cac }));
 
   const segmentDataForAdvisor = React.useMemo(() => {
     if (!breakdown) return null;
     if (selectedSegment === 'all') return breakdown;
-    return {
-      selectedSegment,
-      metrics: breakdown[selectedSegment],
-    };
+    return { selectedSegment, metrics: breakdown[selectedSegment] };
   }, [breakdown, selectedSegment]);
 
   const extractAdvisorSummary = (payload: unknown): string | null => {
     if (!payload || typeof payload !== 'object') return null;
-    const dataPayload = payload as { data?: { summary?: string }; summary?: string };
-    if (typeof dataPayload.summary === 'string') return dataPayload.summary;
-    if (dataPayload.data && typeof dataPayload.data.summary === 'string') {
-      return dataPayload.data.summary;
-    }
-    return null;
+    const d = payload as { data?: { summary?: string }; summary?: string };
+    return typeof d.summary === 'string' ? d.summary : d.data?.summary ?? null;
   };
 
   const fetchData = async (forceFresh = false) => {
@@ -89,414 +56,330 @@ export default function PerformanceWarRoomPage() {
     if (!bid) return;
     setLoading(true);
     try {
-      const authHeaders = await getAuthHeaders();
+      const h = await getAuthHeaders();
       const freshParam = forceFresh ? '&fresh=true' : '';
-      const metricsRes = await fetch(`/api/performance/metrics?brandId=${bid}${freshParam}`, { headers: authHeaders });
-      const anomaliesRes = await fetch(`/api/performance/anomalies?brandId=${bid}`, { headers: authHeaders });
-
-      const metricsJson = await metricsRes.json();
-      const anomaliesJson = await anomaliesRes.json();
-
-      const metricsData = metricsJson.data?.metrics ?? metricsJson.data ?? [];
-      const anomaliesData = anomaliesJson.data?.anomalies ?? anomaliesJson.data ?? [];
-
-      setMetrics(Array.isArray(metricsData) ? metricsData : []);
-      setAnomalies(Array.isArray(anomaliesData) ? anomaliesData : []);
-
-      // Sprint T-3.5: Detect if integration exists
-      // API returns 200 when tokens found (even if no campaign data yet)
-      // API returns 502 when no tokens available and no cache
-      setHasIntegration(metricsRes.ok);
-      setDiagnostic(metricsJson.data?.diagnostic || null);
-    } catch (error) {
-      console.error('Error fetching performance data:', error);
+      const [mRes, aRes] = await Promise.all([
+        fetch(`/api/performance/metrics?brandId=${bid}${freshParam}`, { headers: h }),
+        fetch(`/api/performance/anomalies?brandId=${bid}`, { headers: h }),
+      ]);
+      const mJson = await mRes.json();
+      const aJson = await aRes.json();
+      setMetrics(Array.isArray(mJson.data?.metrics ?? mJson.data) ? (mJson.data?.metrics ?? mJson.data) : []);
+      setAnomalies(Array.isArray(aJson.data?.anomalies ?? aJson.data) ? (aJson.data?.anomalies ?? aJson.data) : []);
+      setHasIntegration(mRes.ok);
+      setDiagnostic(mJson.data?.diagnostic || null);
+    } catch (e) {
+      console.error('Error fetching performance data:', e);
     } finally {
       setLoading(false);
       setIsRefreshing(false);
     }
   };
 
-  // Sprint T-3: Fetch real LTV data for sidebar cards
   const fetchLtvSummary = async () => {
     const bid = selectedBrand?.id;
     if (!bid) return;
     try {
-      const headers = await getAuthHeaders();
-      const res = await fetch(`/api/intelligence/ltv/cohorts?brandId=${bid}`, { headers });
+      const h = await getAuthHeaders();
+      const res = await fetch(`/api/intelligence/ltv/cohorts?brandId=${bid}`, { headers: h });
       if (res.ok) {
         const json = await res.json();
-        const summary = json.data?.summary ?? json.summary;
-        if (summary) {
-          setLtvData({
-            totalLtv: summary.totalLtv || 0,
-            avgPaybackMonths: summary.avgPaybackMonths || 0,
-          });
-        }
+        const s = json.data?.summary ?? json.summary;
+        if (s) setLtvData({ totalLtv: s.totalLtv || 0, avgPaybackMonths: s.avgPaybackMonths || 0 });
       }
     } catch (err) {
-      console.warn('[Performance] LTV summary unavailable:', err instanceof Error ? err.message : err);
+      console.warn('[Performance] LTV unavailable:', err instanceof Error ? err.message : err);
     }
   };
 
-  useEffect(() => {
-    fetchData();
-    fetchLtvSummary();
-  }, [selectedBrand?.id]);
+  useEffect(() => { fetchData(); fetchLtvSummary(); }, [selectedBrand?.id]);
 
   useEffect(() => {
-    const fetchAdvisorInsight = async () => {
+    const run = async () => {
       if (!breakdown || metrics.length === 0) return;
       setAdvisorLoading(true);
       try {
-        const authHeaders = await getAuthHeaders();
-        const response = await fetch('/api/reporting/generate', {
-          method: 'POST',
-          headers: authHeaders,
+        const h = await getAuthHeaders();
+        const res = await fetch('/api/reporting/generate', {
+          method: 'POST', headers: h,
           body: JSON.stringify({
             metrics,
             context: {
-              brandId: selectedBrand?.id ?? 'TEST',
-              targetRoas: blendedMetrics.roas ?? 0,
-              alerts: anomalies,
-              segmentData: segmentDataForAdvisor,
-              selectedSegment,
+              brandId: selectedBrand?.id ?? 'TEST', targetRoas: blendedMetrics.roas ?? 0,
+              alerts: anomalies, segmentData: segmentDataForAdvisor, selectedSegment,
             },
           }),
         });
-        const payload = await response.json();
+        const payload = await res.json();
         const summary = extractAdvisorSummary(payload);
-        if (summary) {
-          setAdvisorSummary(summary);
-        } else if (!response.ok) {
-          setAdvisorSummary('Insight indisponível no momento.');
-        }
-        // Store full analysis data (insights + recommendations)
+        if (summary) setAdvisorSummary(summary);
+        else if (!res.ok) setAdvisorSummary('Insight indisponível no momento.');
         const d = payload?.data || payload;
         setAdvisorInsights(Array.isArray(d?.insights) ? d.insights : []);
         setAdvisorRecommendations(Array.isArray(d?.recommendations) ? d.recommendations : []);
-      } catch (error) {
-        console.error('Error fetching advisor insight:', error);
-        setAdvisorSummary('Insight indisponível no momento.');
-      } finally {
-        setAdvisorLoading(false);
-      }
+      } catch { setAdvisorSummary('Insight indisponível no momento.'); }
+      finally { setAdvisorLoading(false); }
     };
-
-    fetchAdvisorInsight();
+    run();
   }, [segmentDataForAdvisor, selectedSegment, metrics, anomalies, selectedBrand?.id, blendedMetrics.roas]);
 
-  // Sprint T-3.2: SYNC DATA forces fresh fetch bypassing 15min cache
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await fetchData(true);
-  };
+  const handleRefresh = async () => { setIsRefreshing(true); await fetchData(true); };
 
-  // Sprint T-3: Real LTV display values
-  const formatCurrency = (cents: number) =>
-    (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  const ltvDisplay = ltvData ? formatCurrency(ltvData.totalLtv) : 'N/A';
-  const paybackDisplay = ltvData && ltvData.avgPaybackMonths > 0
-    ? `${Math.round(ltvData.avgPaybackMonths * 30)} Days`
-    : 'N/A';
+  const fmtCurrency = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const ltvDisplay = ltvData ? fmtCurrency(ltvData.totalLtv) : 'N/A';
+  const paybackDays = ltvData && ltvData.avgPaybackMonths > 0 ? Math.round(ltvData.avgPaybackMonths * 30) : null;
 
   return (
-    <div className="min-h-screen bg-black text-zinc-100 p-6 space-y-8">
-      {/* War Room Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-zinc-800 pb-8">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="flex -space-x-1">
-              <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-              <div className="w-2 h-2 rounded-full bg-rose-500/50 animate-pulse delay-75" />
+    <div className="min-h-screen flex flex-col">
+      {/* ═══ HEADER ══════════════════════════════════════════════════════ */}
+      <header className="shrink-0 border-b border-white/[0.06]">
+        <div className="px-8 pt-8 pb-0 max-w-[1440px] mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-baseline gap-4">
+              <h1 className="text-[42px] font-black tracking-[-0.02em] text-[#F5E8CE] leading-none">
+                Performance
+              </h1>
+              <div className="flex items-center gap-2">
+                <span className="inline-block h-[6px] w-[6px] rounded-full bg-[#C45B3A] shadow-[0_0_12px_rgba(196,91,58,0.8)] animate-pulse" />
+                <span className="text-[11px] font-mono text-[#C45B3A] tracking-wider">WAR ROOM</span>
+              </div>
             </div>
-            <Badge variant="outline" className="bg-rose-500/10 text-rose-500 border-rose-500/20 px-2 font-black tracking-tighter uppercase text-[10px]">
-              Live Ops
-            </Badge>
-            <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">Performance War Room</span>
-          </div>
-          <h1 className="text-4xl font-black tracking-tighter text-white flex items-center gap-3">
-            <Activity className="w-10 h-10 text-rose-600" />
-            COMMAND CENTER
-          </h1>
-          <p className="text-zinc-500 text-sm font-medium max-w-md">
-            Monitoramento em tempo real de ROAS, CAC e anomalias críticas multicanal.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="hidden lg:flex items-center gap-4 mr-4 px-4 py-2 bg-zinc-900/50 rounded-lg border border-zinc-800">
-            <div className="text-right">
-              <p className="text-[10px] text-zinc-500 font-bold uppercase">System Status</p>
-              <p className={`text-xs font-black ${hasIntegration === false ? 'text-[#E6B447]' : 'text-[#E6B447]'}`}>
-                {hasIntegration === false ? 'NO ADS CONNECTED' : 'ALL SYSTEMS NOMINAL'}
-              </p>
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] font-mono text-[#6B5D4A] tracking-wider">
+                {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </span>
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="text-[11px] font-mono font-bold tracking-wider text-[#0D0B09] bg-[#E6B447] hover:bg-[#F0C35C] px-4 py-2 transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                <RefreshCcw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                SYNC DATA
+              </button>
             </div>
-            <Zap className={`w-5 h-5 ${hasIntegration === false ? 'text-[#E6B447]' : 'text-[#E6B447]'}`} />
           </div>
 
-          <Button variant="outline" className="border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800 hover:text-white gap-2 h-11">
-            <Calendar size={18} />
-            {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-          </Button>
+          {/* KPI bar */}
+          <div className="grid grid-cols-4 border border-white/[0.06] divide-x divide-white/[0.06] mb-6">
+            <KPI label="ROAS" value={blendedMetrics.roas?.toFixed(2) ?? '0.00'} unit="x" />
+            <KPI label="Total Spend" value={`R$ ${((blendedMetrics.spend || 0) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`} isText />
+            <KPI label="CAC" value={`R$ ${((blendedMetrics.cac || 0) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`} isText />
+            <KPI label="Revenue" value={`R$ ${((blendedMetrics.revenue || 0) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`} isText highlight />
+          </div>
 
-          <Button
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="bg-rose-600 hover:bg-rose-500 text-white gap-2 h-11 px-6 font-bold shadow-lg shadow-rose-900/20"
-          >
-            <RefreshCcw size={18} className={isRefreshing ? 'animate-spin' : ''} />
-            SYNC DATA
-          </Button>
+          {/* Segment filter inline */}
+          <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 -mb-px">
+            <SegmentFilter value={selectedSegment} onChange={setSelectedSegment} />
+            <span className="text-[10px] font-mono text-[#6B5D4A] tracking-wider uppercase">
+              Segment: {selectedSegment}
+            </span>
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Sprint T-3.5: Empty state if no ads integration */}
-      {!loading && hasIntegration === false && (
-        <Card className="bg-zinc-900/40 border-zinc-800 border-dashed border-2">
-          <div className="py-16 text-center">
-            <WifiOff className="w-16 h-16 mx-auto mb-6 text-zinc-700" />
-            <h2 className="text-2xl font-black text-white mb-2">Conecte uma Plataforma de Ads</h2>
-            <p className="text-zinc-500 mb-6 max-w-md mx-auto">
+      {/* ═══ CONTENT ═════════════════════════════════════════════════════ */}
+      <main className="flex-1 px-8 py-6 max-w-[1440px] mx-auto w-full space-y-6">
+        {/* No integration state */}
+        {!loading && hasIntegration === false && (
+          <div className="border border-white/[0.06] bg-[#0D0B09] py-16 text-center">
+            <WifiOff className="w-10 h-10 mx-auto mb-4 text-[#6B5D4A]" />
+            <p className="text-lg font-bold text-[#F5E8CE] mb-1">Conecte uma Plataforma de Ads</p>
+            <p className="text-sm text-[#6B5D4A] mb-6 max-w-md mx-auto">
               O War Room precisa de dados de Meta Ads ou Google Ads para exibir métricas reais.
-              Configure sua integração para ativar o monitoramento.
             </p>
-            <Button
-              variant="outline"
-              className="border-zinc-700 text-zinc-300 hover:text-white"
-              onClick={() => window.location.href = '/integrations'}
+            <Link
+              href="/integrations"
+              className="text-[11px] font-mono font-bold tracking-wider text-[#E6B447] hover:text-[#F0C35C] transition-colors"
             >
-              <Settings size={16} className="mr-2" />
-              Ir para Integrações
-            </Button>
+              IR PARA INTEGRAÇÕES →
+            </Link>
           </div>
-        </Card>
-      )}
+        )}
 
-      {/* Diagnostic panel: shows when integration found but no real spend */}
-      {!loading && hasIntegration && diagnostic && blendedMetrics.spend === 0 && (
-        <Card className="bg-[#E6B447]/5 border-[#E6B447]/20 p-6">
-          <h3 className="text-sm font-black text-[#E6B447] uppercase tracking-widest mb-3">
-            Diagnóstico da Conexão
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <p className="text-zinc-500 text-xs">Meta Token</p>
-              <p className={diagnostic.metaTokenFound ? 'text-[#E6B447]' : 'text-red-400'}>
-                {diagnostic.metaTokenFound ? 'Encontrado' : 'Não encontrado'}
-              </p>
+        {/* Diagnostic */}
+        {!loading && hasIntegration && diagnostic && blendedMetrics.spend === 0 && (
+          <div className="border-l-2 border-[#E6B447] bg-[#0D0B09] p-6">
+            <p className="text-[10px] font-mono font-bold tracking-[0.2em] text-[#E6B447] mb-3">DIAGNÓSTICO</p>
+            <div className="grid grid-cols-4 gap-4 text-sm">
+              <div>
+                <p className="text-[9px] font-mono uppercase tracking-wider text-[#6B5D4A]">Meta Token</p>
+                <p className={diagnostic.metaTokenFound ? 'text-[#7A9B5A] font-mono text-xs' : 'text-[#C45B3A] font-mono text-xs'}>
+                  {diagnostic.metaTokenFound ? 'Encontrado' : 'Não encontrado'}
+                </p>
+              </div>
+              <div>
+                <p className="text-[9px] font-mono uppercase tracking-wider text-[#6B5D4A]">Ad Account</p>
+                <p className="text-[#CAB792] font-mono text-xs">{diagnostic.metaAdAccountId || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-mono uppercase tracking-wider text-[#6B5D4A]">Campanhas</p>
+                <p className="text-[#CAB792] font-mono text-xs">{diagnostic.metaCampaigns ?? 0}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-mono uppercase tracking-wider text-[#6B5D4A]">Período</p>
+                <p className="text-[#CAB792] font-mono text-xs">{diagnostic.dateRange?.start} → {diagnostic.dateRange?.end}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-zinc-500 text-xs">Ad Account</p>
-              <p className="text-zinc-300 font-mono text-xs">{diagnostic.metaAdAccountId || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-zinc-500 text-xs">Campanhas (365 dias)</p>
-              <p className="text-zinc-300">{diagnostic.metaCampaigns ?? 0}</p>
-            </div>
-            <div>
-              <p className="text-zinc-500 text-xs">Período</p>
-              <p className="text-zinc-300 text-xs">{diagnostic.dateRange?.start} → {diagnostic.dateRange?.end}</p>
-            </div>
-          </div>
-          {/* Token permissions diagnostic */}
-          {diagnostic.metaPermissions && diagnostic.metaPermissions.length > 0 && (
-            <div className="mt-3 p-3 bg-zinc-900/50 rounded border border-zinc-700/30">
-              <p className="text-xs text-zinc-400 font-bold mb-2">Permissões do Token:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {diagnostic.metaPermissions.map((p: { permission: string; status: string }, i: number) => (
-                  <span
-                    key={i}
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
-                      p.status === 'granted'
-                        ? 'bg-[#E6B447]/15 text-[#E6B447] border border-[#E6B447]/20'
-                        : p.status === 'declined'
-                        ? 'bg-red-500/15 text-red-400 border border-red-500/20'
-                        : 'bg-zinc-700/30 text-zinc-500 border border-zinc-600/20'
-                    }`}
-                  >
-                    {p.permission}: {p.status}
-                  </span>
+            {diagnostic.metaPermissions?.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-white/[0.04]">
+                <p className="text-[9px] font-mono uppercase tracking-wider text-[#6B5D4A] mb-2">Permissões</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {diagnostic.metaPermissions.map((p: { permission: string; status: string }, i: number) => (
+                    <span key={i} className={`text-[10px] font-mono px-2 py-0.5 ${
+                      p.status === 'granted' ? 'text-[#7A9B5A] bg-[#7A9B5A]/10' :
+                      p.status === 'declined' ? 'text-[#C45B3A] bg-[#C45B3A]/10' :
+                      'text-[#6B5D4A] bg-white/[0.03]'
+                    }`}>
+                      {p.permission}: {p.status}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {diagnostic.errors?.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-[#C45B3A]/20">
+                {diagnostic.errors.map((err: string, i: number) => (
+                  <p key={i} className="text-xs text-[#C45B3A] font-mono">{err}</p>
                 ))}
               </div>
-              {!diagnostic.metaPermissions.some((p: { permission: string; status: string }) => p.permission === 'ads_read' && p.status === 'granted') && (
-                <p className="mt-2 text-xs text-red-400">
-                  ads_read NÃO concedido! Use &quot;Token Manual&quot; em Integrações para resolver.
+            )}
+          </div>
+        )}
+
+        {/* Main grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left: metrics + LTV + segments */}
+          <div className="lg:col-span-8 space-y-6">
+            <WarRoomDashboard blended={blendedMetrics} platforms={platformMetrics} loading={loading} />
+
+            {/* LTV / Payback */}
+            <div className="grid grid-cols-2 gap-px bg-white/[0.04] border border-white/[0.06]">
+              <div className="bg-[#0D0B09] p-6">
+                <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-2">LTV Total</p>
+                <p className="text-[32px] font-mono font-black tabular-nums text-[#F5E8CE] leading-none">
+                  {ltvDisplay}
                 </p>
-              )}
-            </div>
-          )}
-          {diagnostic.errors?.length > 0 && (
-            <div className="mt-3 p-3 bg-red-950/30 rounded border border-red-500/20">
-              <p className="text-xs text-red-400 font-bold mb-1">Erros:</p>
-              {diagnostic.errors.map((err: string, i: number) => (
-                <p key={i} className="text-xs text-red-300 font-mono">{err}</p>
-              ))}
-            </div>
-          )}
-          {diagnostic.metaTokenFound && diagnostic.metaCampaigns === 0 && diagnostic.errors?.length === 0 && (
-            <p className="mt-3 text-xs text-[#E6B447]/70">
-              Token válido mas nenhuma campanha encontrada nos últimos 365 dias. Verifique se a conta de anúncios (Ad Account) está correta.
-            </p>
-          )}
-        </Card>
-      )}
-
-      <div className="flex items-center justify-between">
-        <SegmentFilter value={selectedSegment} onChange={setSelectedSegment} />
-        <span className="text-xs text-zinc-500">Segment insights: {selectedSegment.toUpperCase()}</span>
-      </div>
-
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Metrics & Comparison */}
-        <div className="lg:col-span-8 space-y-6">
-          <WarRoomDashboard
-            blended={blendedMetrics}
-            platforms={platformMetrics}
-            loading={loading}
-          />
-
-          {/* Sprint T-3: Real LTV & Payback (replaces hardcoded values) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="bg-zinc-900/40 border-zinc-800 p-6">
-              <h3 className="text-sm font-black text-zinc-500 uppercase tracking-widest mb-4">LTV Total (All Cohorts)</h3>
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-black text-white">{ltvDisplay}</span>
                 {ltvData && (
-                  <Badge className="bg-[#E6B447]/10 text-[#E6B447] border-none">Real</Badge>
+                  <span className="text-[9px] font-mono uppercase tracking-wider text-[#7A9B5A] mt-1 inline-block">REAL DATA</span>
                 )}
               </div>
-              <div className="mt-4 h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
-                <div className="h-full bg-[#E6B447] w-[75%]" />
+              <div className="bg-[#0D0B09] p-6">
+                <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-2">CAC Payback</p>
+                <p className="text-[32px] font-mono font-black tabular-nums text-[#F5E8CE] leading-none">
+                  {paybackDays ? `${paybackDays}` : 'N/A'}
+                  {paybackDays && <span className="text-[11px] font-normal text-[#6B5D4A] ml-1">dias</span>}
+                </p>
+                <div className="flex justify-between text-[9px] font-mono text-[#6B5D4A] uppercase tracking-wider mt-1">
+                  <span>Target: 90d</span>
+                  {paybackDays && (
+                    <span className={paybackDays <= 90 ? 'text-[#7A9B5A]' : 'text-[#E6B447]'}>
+                      {paybackDays <= 90 ? 'OPTIMAL' : 'MONITOR'}
+                    </span>
+                  )}
+                </div>
               </div>
-            </Card>
-
-            <Card className="bg-zinc-900/40 border-zinc-800 p-6">
-              <h3 className="text-sm font-black text-zinc-500 uppercase tracking-widest mb-4">CAC Payback Period</h3>
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-black text-white">{paybackDisplay}</span>
-                {ltvData && ltvData.avgPaybackMonths > 0 && (
-                  <Badge className="bg-[#E6B447]/10 text-[#E6B447] border-none">
-                    {Math.round(ltvData.avgPaybackMonths * 30) <= 90 ? 'Optimal' : 'Monitor'}
-                  </Badge>
-                )}
-              </div>
-              <div className="mt-4 flex justify-between text-[10px] font-bold text-zinc-600 uppercase">
-                <span>Target: 90 Days</span>
-                <span>Current: {paybackDisplay}</span>
-              </div>
-            </Card>
-          </div>
-
-          <div className="space-y-3">
-            <h3 className="text-xs uppercase text-zinc-500 font-bold tracking-widest">Segment Breakdown</h3>
-            <SegmentBreakdown
-              data={breakdown}
-              loading={segmentLoading}
-              selectedSegment={selectedSegment}
-            />
-          </div>
-        </div>
-
-        {/* Right Column: Alerts & Intelligence */}
-        <div className="lg:col-span-4 space-y-6">
-          <AlertCenter
-            alerts={anomalies.map(a => ({
-              id: a.id,
-              severity: a.severity,
-              status: a.status === 'new' ? 'active' : 'acknowledged',
-              message: a.aiInsight?.explanation || `Anomalia detectada em ${a.metricType}`,
-              metricType: a.metricType,
-              createdAt: a.detectedAt,
-              context: {
-                platform: 'Aggregated',
-                deviation: a.deviationPercentage,
-                entityName: selectedBrand?.name || 'Brand'
-              }
-            })) as any}
-            onAcknowledge={(id) => console.log('Acknowledge alert:', id)}
-          />
-
-          <Card className="bg-zinc-900/40 border-zinc-800 p-6 border-l-4 border-l-[#E6B447]">
-            <div className="flex items-center gap-2 mb-4">
-              <Zap className="w-5 h-5 text-[#E6B447]" />
-              <h3 className="text-sm font-black text-white uppercase tracking-widest">AI Strategic Insight</h3>
             </div>
-            <p className="text-sm text-zinc-400 leading-relaxed">
-              {advisorLoading
-                ? 'Gerando insight com base no segmento selecionado...'
-                : advisorSummary || 'Insight indisponível no momento.'}
-            </p>
-            <Button
-              variant="link"
-              className="text-[#E6B447] p-0 h-auto mt-4 text-xs font-bold uppercase tracking-tighter"
-              onClick={() => setShowFullAnalysis(true)}
-              disabled={advisorLoading || (!advisorSummary && advisorInsights.length === 0)}
-            >
-              Ver análise completa →
-            </Button>
-          </Card>
+
+            <div>
+              <p className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-4">Segment Breakdown</p>
+              <SegmentBreakdown data={breakdown} loading={segmentLoading} selectedSegment={selectedSegment} />
+            </div>
+          </div>
+
+          {/* Right: alerts + insight */}
+          <div className="lg:col-span-4 space-y-6">
+            <AlertCenter
+              alerts={anomalies.map(a => ({
+                id: a.id, severity: a.severity,
+                status: a.status === 'new' ? 'active' : 'acknowledged',
+                message: a.aiInsight?.explanation || `Anomalia em ${a.metricType}`,
+                metricType: a.metricType, createdAt: a.detectedAt,
+                context: { platform: 'Aggregated', deviation: a.deviationPercentage, entityName: selectedBrand?.name || 'Brand' }
+              })) as any}
+              onAcknowledge={(id) => console.log('Acknowledge:', id)}
+            />
+
+            {/* AI Insight — pull-quote style */}
+            <div className="border-l-2 border-[#E6B447] bg-[#0D0B09] p-5">
+              <p className="text-[10px] font-mono font-bold tracking-[0.2em] text-[#E6B447] mb-3">
+                AI STRATEGIC INSIGHT
+              </p>
+              <p className="text-[13px] text-[#CAB792] leading-relaxed">
+                {advisorLoading
+                  ? 'Gerando insight com base no segmento selecionado...'
+                  : advisorSummary || 'Insight indisponível no momento.'}
+              </p>
+              <button
+                className="text-[10px] font-mono tracking-wider text-[#AB8648] hover:text-[#E6B447] transition-colors mt-3 disabled:opacity-30"
+                onClick={() => setShowFullAnalysis(true)}
+                disabled={advisorLoading || (!advisorSummary && advisorInsights.length === 0)}
+              >
+                VER ANÁLISE COMPLETA →
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
 
       {/* Full Analysis Dialog */}
       <Dialog open={showFullAnalysis} onOpenChange={setShowFullAnalysis}>
-        <DialogContent className="bg-zinc-900 border-zinc-700 text-zinc-100 max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="bg-[#1A1612] border-white/[0.08] text-[#F5E8CE] max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-white">
-              <Zap className="w-5 h-5 text-[#E6B447]" />
+            <DialogTitle className="text-[#F5E8CE] font-mono text-sm uppercase tracking-wider">
               AI Strategic Insight — Análise Completa
             </DialogTitle>
           </DialogHeader>
-
           <div className="space-y-6 mt-4">
-            {/* Summary */}
             {advisorSummary && (
               <div>
-                <h4 className="text-xs font-black text-[#E6B447] uppercase tracking-widest mb-2">Resumo</h4>
-                <p className="text-sm text-zinc-300 leading-relaxed">{advisorSummary}</p>
+                <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#E6B447] mb-2">Resumo</p>
+                <p className="text-sm text-[#CAB792] leading-relaxed">{advisorSummary}</p>
               </div>
             )}
-
-            {/* Insights */}
             {advisorInsights.length > 0 && (
               <div>
-                <h4 className="text-xs font-black text-[#E6B447] uppercase tracking-widest mb-2">Insights</h4>
+                <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#E6B447] mb-2">Insights</p>
                 <ul className="space-y-2">
-                  {advisorInsights.map((insight, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
-                      <span className="text-[#E6B447] mt-0.5">•</span>
-                      <span>{insight}</span>
+                  {advisorInsights.map((s, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#CAB792]">
+                      <span className="text-[#E6B447] mt-0.5">•</span><span>{s}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             )}
-
-            {/* Recommendations */}
             {advisorRecommendations.length > 0 && (
               <div>
-                <h4 className="text-xs font-black text-[#E6B447] uppercase tracking-widest mb-2">Recomendações</h4>
+                <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#E6B447] mb-2">Recomendações</p>
                 <ul className="space-y-2">
-                  {advisorRecommendations.map((rec, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
-                      <span className="text-[#E6B447] mt-0.5">{i + 1}.</span>
-                      <span>{rec}</span>
+                  {advisorRecommendations.map((r, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#CAB792]">
+                      <span className="text-[#E6B447] mt-0.5 font-mono">{i + 1}.</span><span>{r}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             )}
-
-            {/* Empty state */}
-            {!advisorSummary && advisorInsights.length === 0 && advisorRecommendations.length === 0 && (
-              <p className="text-sm text-zinc-500 text-center py-4">
-                Análise não disponível. Aguarde os dados de performance.
-              </p>
+            {!advisorSummary && advisorInsights.length === 0 && (
+              <p className="text-sm text-[#6B5D4A] text-center py-4">Análise não disponível.</p>
             )}
           </div>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function KPI({ label, value, unit, isText, highlight }: {
+  label: string; value: string; unit?: string; isText?: boolean; highlight?: boolean;
+}) {
+  return (
+    <div className="px-6 py-5 bg-[#0D0B09]">
+      <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-1">{label}</p>
+      <p className={`leading-none ${isText ? 'text-lg font-bold truncate' : 'text-[36px] font-mono font-black tabular-nums'} ${highlight ? 'text-[#E6B447]' : 'text-[#F5E8CE]'}`}>
+        {value}
+        {unit && <span className="text-[11px] font-normal text-[#6B5D4A] ml-1">{unit}</span>}
+      </p>
     </div>
   );
 }
