@@ -9,7 +9,7 @@ interface SidebarState {
 export const useSidebarStore = create<SidebarState>()(
   persist(
     (set) => ({
-      isExpanded: false,
+      isExpanded: true,
       toggle: () => set((state) => ({ isExpanded: !state.isExpanded })),
     }),
     { name: 'mkthoney-sidebar' }

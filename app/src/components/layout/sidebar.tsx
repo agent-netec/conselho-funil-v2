@@ -61,11 +61,11 @@ export const SIDEBAR_WIDTH = {
 
 // War Room monospace group labels
 const GROUP_SHORT_LABELS: Record<string, string> = {
-  intelligence: 'INTEL',
-  strategy: 'STRATEGY',
-  execution: 'OPS',
-  management: 'ASSETS',
-  system: 'SYSTEM',
+  main: 'PRINCIPAL',
+  strategy: 'ESTRATÉGIA',
+  content: 'CONTEÚDO',
+  analysis: 'ANÁLISE',
+  config: 'CONFIG',
 };
 
 // Validate icon mappings in dev
