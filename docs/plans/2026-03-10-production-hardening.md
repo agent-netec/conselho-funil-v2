@@ -21,11 +21,11 @@
 ### SEC-1: Storage Rules — Validação de ownership
 - [x] **SEC-1.1** Editar `app/storage.rules` — ownership validation via Firestore get() em brand-assets e brands paths
 - [x] **SEC-1.2** Verificado: user-uploads já usa path-based isolation
-- [ ] **SEC-1.3** Deploy das rules: `firebase deploy --only storage`
+- [x] **SEC-1.3** Deploy das rules: `firebase deploy --only storage`
 
 ### SEC-2: Firestore Rules — Knowledge base pública
 - [x] **SEC-2.1** `allow read: if true` → `allow read: if isAuthenticated()` em `/knowledge/{chunkId}`
-- [ ] **SEC-2.2** Deploy das rules: `firebase deploy --only firestore:rules`
+- [x] **SEC-2.2** Deploy das rules: `firebase deploy --only firestore:rules`
 
 ### SEC-3: Meta OAuth — Secret salvo em Firestore
 - [x] **SEC-3.1** Removido `appSecret` de meta callback, google callback, e save-token (3 arquivos)
