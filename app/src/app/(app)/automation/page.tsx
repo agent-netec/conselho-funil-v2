@@ -1,9 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Zap, 
-  History, 
+import {
   BrainCircuit,
   AlertTriangle,
   RefreshCw,
@@ -314,36 +312,33 @@ export default function AutomationPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
+      <h1 className="text-[42px] font-black tracking-[-0.02em] text-[#F5E8CE] leading-none mb-6">Automation</h1>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <div className="flex items-center justify-between border-b border-white/[0.03] pb-1">
           <TabsList className="bg-transparent border-none gap-8 h-12 p-0">
-            <TabsTrigger 
-              value="v2" 
-              className="data-[state=active]:bg-transparent data-[state=active]:text-[#E6B447] data-[state=active]:border-b-2 data-[state=active]:border-[#E6B447] rounded-none h-full px-2 font-bold text-xs uppercase tracking-widest transition-all"
+            <TabsTrigger
+              value="v2"
+              className="px-4 py-2.5 text-[11px] font-mono tracking-wider data-[state=active]:text-[#E6B447] data-[state=active]:border-b-2 data-[state=active]:border-[#E6B447] rounded-none bg-transparent data-[state=active]:bg-transparent text-[#6B5D4A]"
             >
-              <Zap className="mr-2 h-4 w-4" />
-              Automation V2
+              AUTOMATION V2
             </TabsTrigger>
-            <TabsTrigger 
-              value="legacy" 
-              className="data-[state=active]:bg-transparent data-[state=active]:text-zinc-400 data-[state=active]:border-b-2 data-[state=active]:border-zinc-400 rounded-none h-full px-2 font-bold text-xs uppercase tracking-widest transition-all"
+            <TabsTrigger
+              value="legacy"
+              className="px-4 py-2.5 text-[11px] font-mono tracking-wider data-[state=active]:text-[#E6B447] data-[state=active]:border-b-2 data-[state=active]:border-[#E6B447] rounded-none bg-transparent data-[state=active]:bg-transparent text-[#6B5D4A]"
             >
-              <History className="mr-2 h-4 w-4" />
-              Legacy View
+              LEGACY VIEW
             </TabsTrigger>
-            <TabsTrigger 
-              value="refactor" 
-              className="data-[state=active]:bg-transparent data-[state=active]:text-[#E6B447] data-[state=active]:border-b-2 data-[state=active]:border-[#E6B447] rounded-none h-full px-2 font-bold text-xs uppercase tracking-widest transition-all"
+            <TabsTrigger
+              value="refactor"
+              className="px-4 py-2.5 text-[11px] font-mono tracking-wider data-[state=active]:text-[#E6B447] data-[state=active]:border-b-2 data-[state=active]:border-[#E6B447] rounded-none bg-transparent data-[state=active]:bg-transparent text-[#6B5D4A]"
             >
-              <BrainCircuit className="mr-2 h-4 w-4" />
-              Refatoração
+              REFATORACAO
             </TabsTrigger>
-            <TabsTrigger 
-              value="deadletter" 
-              className="data-[state=active]:bg-transparent data-[state=active]:text-rose-400 data-[state=active]:border-b-2 data-[state=active]:border-rose-400 rounded-none h-full px-2 font-bold text-xs uppercase tracking-widest transition-all"
+            <TabsTrigger
+              value="deadletter"
+              className="px-4 py-2.5 text-[11px] font-mono tracking-wider data-[state=active]:text-[#E6B447] data-[state=active]:border-b-2 data-[state=active]:border-[#E6B447] rounded-none bg-transparent data-[state=active]:bg-transparent text-[#6B5D4A]"
             >
-              <AlertTriangle className="mr-2 h-4 w-4" />
-              Dead Letter
+              DEAD LETTER
               {dlqItems.length > 0 && (
                 <span className="ml-2 bg-rose-500 text-white text-[10px] rounded-full px-1.5 py-0.5 min-w-[1.25rem] text-center">
                   {dlqItems.length}

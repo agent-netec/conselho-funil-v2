@@ -1,22 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Header } from '@/components/layout/header';
 import { useAssetMetrics } from '@/lib/hooks/use-asset-metrics';
 import { AssetMetricsSummary } from '@/components/assets/metrics-summary';
 import { AssetMetricsTable } from '@/components/assets/metrics-table';
-import { 
-  RefreshCw, 
-  Filter, 
+import {
+  RefreshCw,
+  Filter,
   Search,
   LayoutGrid,
   List,
-  ChevronDown,
   Plus,
   Loader2,
-  FileText,
-  Globe,
   ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -34,7 +29,6 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { uploadBrandAsset } from '@/lib/firebase/storage';
 import { createAsset } from '@/lib/firebase/assets';
 import { Timestamp } from 'firebase/firestore';
-import { Button } from '@/components/ui/button';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 export default function AssetsPage() {
@@ -48,7 +42,7 @@ export default function AssetsPage() {
 
   const filteredAssets = assets.filter(asset => {
     const matchesType = filterType === 'all' || asset.namespace === filterType;
-    const matchesSearch = searchQuery === '' || 
+    const matchesSearch = searchQuery === '' ||
       (asset.name || asset.assetType).toLowerCase().includes(searchQuery.toLowerCase()) ||
       (asset.strategicAdvice || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchesType && matchesSearch;
@@ -86,7 +80,7 @@ export default function AssetsPage() {
 
     try {
       const { url } = await uploadBrandAsset(file, activeBrand.id, user.uid);
-      
+
       const assetId = await createAsset({
         brandId: activeBrand.id,
         userId: user.uid,
@@ -225,98 +219,99 @@ export default function AssetsPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header title="Ativos & Performance" />
+    <div className="flex min-h-screen flex-col bg-[#0D0B09]">
+      {/* Bloomberg inline header */}
+      <header className="shrink-0 border-b border-white/[0.06]">
+        <div className="px-8 pt-8 pb-6 max-w-[1440px] mx-auto">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-[42px] font-bold tracking-tight text-[#F5E8CE] leading-none">
+                Ativos & Performance
+              </h1>
+              <p className="mt-2 text-[13px] font-mono text-[#6B5D4A]">
+                {activeBrand
+                  ? `Monitorando performance da marca ${activeBrand.name}`
+                  : 'Selecione uma marca para ver as métricas'
+                }
+              </p>
+            </div>
 
-      <div className="flex-1 p-8">
-        {/* Page Header */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
-            <h2 className="text-2xl font-bold tracking-tight text-white">
-              Inteligência de Ativos
-            </h2>
-            <p className="text-sm text-zinc-400">
-              {activeBrand 
-                ? `Monitorando performance da marca ${activeBrand.name}`
-                : 'Selecione uma marca para ver as métricas'
-              }
-            </p>
-          </motion.div>
+            <div className="flex items-center gap-3">
+              <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
+                <DialogTrigger asChild>
+                  <button
+                    disabled={!activeBrand}
+                    className="text-[11px] font-mono font-bold tracking-wider text-[#0D0B09] bg-[#E6B447] hover:bg-[#F0C35C] px-4 py-2 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    ADICIONAR ATIVO
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="bg-[#1A1612] border-white/[0.06] sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle className="text-[#F5E8CE] flex items-center gap-2">
+                      <ShieldCheck className="h-5 w-5 text-[#E6B447]" />
+                      Alimentar Inteligência
+                    </DialogTitle>
+                    <DialogDescription className="sr-only">
+                      Faça upload de arquivos ou adicione URLs para enriquecer a inteligência da marca.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="mt-4">
+                    <AssetUploader
+                      brandId={activeBrand?.id || ''}
+                      onUploadFile={handleUploadFile}
+                      onAddUrl={handleAddUrl}
+                    />
+                    {isProcessing && (
+                      <div className="mt-4 p-4 bg-[#E6B447]/10 border border-[#E6B447]/20 flex items-center gap-3">
+                        <Loader2 className="h-5 w-5 text-[#E6B447] animate-spin" />
+                        <p className="text-sm text-[#E6B447]/70 font-mono">Processando conhecimento...</p>
+                      </div>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
 
-          <div className="flex items-center gap-3">
-            <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
-              <DialogTrigger asChild>
-                <button 
-                  disabled={!activeBrand}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#E6B447] text-sm font-bold text-black hover:bg-[#E6B447] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Adicionar Ativo</span>
-                </button>
-              </DialogTrigger>
-              <DialogContent className="bg-zinc-950 border-white/[0.05] sm:max-w-[500px]">
-                <DialogHeader>
-                  <DialogTitle className="text-white flex items-center gap-2">
-                    <ShieldCheck className="h-5 w-5 text-[#E6B447]" />
-                    Alimentar Inteligência
-                  </DialogTitle>
-                  <DialogDescription className="sr-only">
-                    Faça upload de arquivos ou adicione URLs para enriquecer a inteligência da marca.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="mt-4">
-                  <AssetUploader 
-                    brandId={activeBrand?.id || ''}
-                    onUploadFile={handleUploadFile}
-                    onAddUrl={handleAddUrl}
-                  />
-                  {isProcessing && (
-                    <div className="mt-4 p-4 rounded-xl bg-[#E6B447]/10 border border-[#E6B447]/20 flex items-center gap-3">
-                      <Loader2 className="h-5 w-5 text-[#E6B447] animate-spin" />
-                      <p className="text-sm text-[#E6B447]/30">Processando conhecimento...</p>
-                    </div>
-                  )}
-                </div>
-              </DialogContent>
-            </Dialog>
+              <div className="h-6 w-px bg-white/[0.06]" />
 
-            <div className="h-8 w-px bg-white/[0.05] mx-1" />
-
-            <button 
-              onClick={async () => {
-                const id = toast.loading('Sincronizando ativos...');
-                await refresh();
-                toast.success('Ativos atualizados', { id });
-              }}
-              disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all border border-white/[0.05]"
-            >
-              <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
-              <span>Sincronizar</span>
-            </button>
-            <button 
-              onClick={handleExport}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all border border-white/[0.05]"
-            >
-              <span>Exportar</span>
-            </button>
+              <button
+                onClick={async () => {
+                  const id = toast.loading('Sincronizando ativos...');
+                  await refresh();
+                  toast.success('Ativos atualizados', { id });
+                }}
+                disabled={isLoading}
+                className="text-[11px] font-mono font-bold tracking-wider text-[#CAB792] border border-white/[0.06] hover:text-[#F5E8CE] px-3 py-2 transition-colors flex items-center gap-2"
+              >
+                <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
+                SINCRONIZAR
+              </button>
+              <button
+                onClick={handleExport}
+                className="text-[11px] font-mono font-bold tracking-wider text-[#CAB792] border border-white/[0.06] hover:text-[#F5E8CE] px-3 py-2 transition-colors"
+              >
+                EXPORTAR
+              </button>
+            </div>
           </div>
         </div>
+      </header>
 
+      <div className="flex-1 px-8 py-6 max-w-[1440px] mx-auto w-full">
         {/* Summary Stats */}
         <AssetMetricsSummary summary={summary} isLoading={isLoading} />
 
         {/* Filters & Actions Bar */}
         <div className="mb-6 flex flex-col lg:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-zinc-900/80 border border-white/[0.04]">
+          <div className="flex items-center gap-0">
             <button
               onClick={() => setFilterType('all')}
               className={cn(
-                "px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all",
-                filterType === 'all' ? "bg-zinc-800 text-white shadow-lg" : "text-zinc-500 hover:text-zinc-300"
+                "px-4 py-1.5 text-[11px] font-mono font-bold uppercase tracking-wider transition-colors border border-white/[0.06]",
+                filterType === 'all'
+                  ? "bg-white/[0.06] text-[#F5E8CE]"
+                  : "text-[#6B5D4A] hover:text-[#CAB792]"
               )}
             >
               Todos
@@ -324,8 +319,10 @@ export default function AssetsPage() {
             <button
               onClick={() => setFilterType('visual')}
               className={cn(
-                "px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all",
-                filterType === 'visual' ? "bg-[#E6B447]/20 text-[#E6B447]" : "text-zinc-500 hover:text-zinc-300"
+                "px-4 py-1.5 text-[11px] font-mono font-bold uppercase tracking-wider transition-colors border border-white/[0.06] -ml-px",
+                filterType === 'visual'
+                  ? "bg-[#E6B447]/10 text-[#E6B447]"
+                  : "text-[#6B5D4A] hover:text-[#CAB792]"
               )}
             >
               Visual
@@ -333,8 +330,10 @@ export default function AssetsPage() {
             <button
               onClick={() => setFilterType('knowledge')}
               className={cn(
-                "px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all",
-                filterType === 'knowledge' ? "bg-blue-500/20 text-blue-400" : "text-zinc-500 hover:text-zinc-300"
+                "px-4 py-1.5 text-[11px] font-mono font-bold uppercase tracking-wider transition-colors border border-white/[0.06] -ml-px",
+                filterType === 'knowledge'
+                  ? "bg-[#AB8648]/10 text-[#AB8648]"
+                  : "text-[#6B5D4A] hover:text-[#CAB792]"
               )}
             >
               Conhecimento
@@ -343,52 +342,52 @@ export default function AssetsPage() {
 
           <div className="flex flex-1 items-center gap-3 w-full lg:max-w-md">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-              <input 
+              <Search className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6B5D4A]" />
+              <input
                 type="text"
                 placeholder="Buscar por nome ou heurística..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-10 pr-4 rounded-xl bg-zinc-900 border border-white/[0.05] text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-[#E6B447]/50"
+                className="w-full h-10 pl-6 pr-4 bg-transparent border-b border-white/[0.06] text-sm font-mono text-[#F5E8CE] placeholder:text-[#6B5D4A]/60 focus:outline-none focus:border-[#E6B447]/50 transition-colors"
               />
             </div>
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 border border-white/[0.05] text-zinc-400 hover:text-white">
+            <button className="flex h-10 w-10 items-center justify-center text-[#6B5D4A] hover:text-[#CAB792] transition-colors">
               <Filter className="h-4 w-4" />
             </button>
           </div>
         </div>
 
         {/* Main Content Area */}
-        <div className="card-premium overflow-hidden">
-          <div className="flex items-center justify-between p-5 border-b border-white/[0.04] bg-white/[0.01]">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Ativos Vectorizados</h3>
-              <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-[10px] text-zinc-400 font-mono">
+        <div className="border border-white/[0.06] bg-[#1A1612]/50 overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06]">
+            <div className="flex items-center gap-3">
+              <h3 className="text-[11px] font-mono font-bold text-[#CAB792] uppercase tracking-widest">Ativos Vectorizados</h3>
+              <span className="text-[10px] font-mono text-[#6B5D4A]">
                 {filteredAssets.length}
               </span>
             </div>
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => setViewMode('list')}
-              className={cn(
-                "p-1.5 rounded-md transition-all",
-                viewMode === 'list' ? "bg-zinc-800 text-white" : "text-zinc-500 hover:text-white"
-              )}
-            >
-              <List className="h-4 w-4" />
-            </button>
-            <button 
-              onClick={() => setViewMode('grid')}
-              className={cn(
-                "p-1.5 rounded-md transition-all",
-                viewMode === 'grid' ? "bg-zinc-800 text-white" : "text-zinc-500 hover:text-white"
-              )}
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setViewMode('list')}
+                className={cn(
+                  "p-1.5 transition-colors",
+                  viewMode === 'list' ? "text-[#E6B447]" : "text-[#6B5D4A] hover:text-[#CAB792]"
+                )}
+              >
+                <List className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={cn(
+                  "p-1.5 transition-colors",
+                  viewMode === 'grid' ? "text-[#E6B447]" : "text-[#6B5D4A] hover:text-[#CAB792]"
+                )}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+            </div>
           </div>
-          </div>
-          
+
           <div className="p-2">
             <AssetMetricsTable
               assets={filteredAssets}

@@ -5,31 +5,33 @@ import { SocialInteraction, BrandVoiceSuggestion } from '@/types/social-inbox';
 import { InteractionCard } from '@/components/social-inbox/interaction-card';
 import { ResponseEditor } from '@/components/social-inbox/response-editor';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { 
-  Search, 
-  Filter, 
-  RefreshCw, 
-  LayoutDashboard, 
+import {
+  Search,
+  Filter,
+  RefreshCw,
   MessageSquare,
   Instagram,
   Phone,
   Twitter,
-  Linkedin
 } from 'lucide-react';
 import { notify } from '@/lib/stores/notification-store';
 import { cn } from '@/lib/utils';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import {
   DropdownMenu,
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+
+const SIDEBAR_TABS = [
+  { id: 'all', label: 'TUDO' },
+  { id: 'pending', label: 'PENDENTES' },
+  { id: 'mentions', label: 'MENCOES' },
+] as const;
 
 export default function SocialInboxPage() {
   const activeBrand = useActiveBrand();
@@ -151,89 +153,93 @@ export default function SocialInboxPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-background">
-      <header className="flex items-center justify-between p-4 border-b">
-        <div className="flex items-center gap-2">
-          <LayoutDashboard className="h-5 w-5 text-primary" />
-          <h1 className="text-xl font-bold tracking-tight">Social Command Center</h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="relative w-64">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Buscar por keyword..." 
-              className="pl-9 h-9 text-sm"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && fetchInteractions()}
-            />
-          </div>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Filter className="h-4 w-4" />
-                {platformFilter ? platformFilter.toUpperCase() : 'Plataformas'}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setPlatformFilter(null)}>Todas</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setPlatformFilter('instagram')} className="gap-2">
-                <Instagram className="h-4 w-4" /> Instagram
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setPlatformFilter('whatsapp')} className="gap-2">
-                <Phone className="h-4 w-4" /> WhatsApp
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setPlatformFilter('x')} className="gap-2">
-                <Twitter className="h-4 w-4" /> X (Twitter)
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <div className="min-h-screen flex flex-col">
+      <header className="shrink-0 border-b border-white/[0.06]">
+        <div className="px-8 pt-8 pb-6 max-w-[1440px] mx-auto flex items-end justify-between">
+          <h1 className="text-[42px] font-black tracking-[-0.02em] text-[#F5E8CE] leading-none">Social Inbox</h1>
+          <div className="flex items-center gap-3 pb-1">
+            <div className="relative w-64">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[#6B5D4A]" />
+              <Input
+                placeholder="Buscar por keyword..."
+                className="pl-9 h-9 text-sm bg-transparent border-white/[0.06] text-[#F5E8CE] placeholder:text-[#6B5D4A]"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && fetchInteractions()}
+              />
+            </div>
 
-          <Button variant="outline" size="sm" className="gap-2" onClick={fetchInteractions}>
-            <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
-            Sincronizar
-          </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2 border-white/[0.06] text-[#CAB792] hover:text-[#F5E8CE]">
+                  <Filter className="h-4 w-4" />
+                  {platformFilter ? platformFilter.toUpperCase() : 'Plataformas'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setPlatformFilter(null)}>Todas</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setPlatformFilter('instagram')} className="gap-2">
+                  <Instagram className="h-4 w-4" /> Instagram
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setPlatformFilter('whatsapp')} className="gap-2">
+                  <Phone className="h-4 w-4" /> WhatsApp
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setPlatformFilter('x')} className="gap-2">
+                  <Twitter className="h-4 w-4" /> X (Twitter)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button variant="outline" size="sm" className="gap-2 border-white/[0.06] text-[#CAB792] hover:text-[#F5E8CE]" onClick={fetchInteractions}>
+              <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
+              Sincronizar
+            </Button>
+          </div>
         </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className="w-80 border-r bg-muted/10 flex flex-col">
-          <Tabs defaultValue="all" className="w-full" onValueChange={setStatusFilter}>
-            <div className="px-4 pt-4">
-              <TabsList className="grid grid-cols-3 w-full h-8">
-                <TabsTrigger value="all" className="text-[10px]">TUDO</TabsTrigger>
-                <TabsTrigger value="pending" className="text-[10px]">PENDENTES</TabsTrigger>
-                <TabsTrigger value="mentions" className="text-[10px]">MENÇÕES</TabsTrigger>
-              </TabsList>
-            </div>
-            
-            <TabsContent value={statusFilter} className="m-0">
-              <ScrollArea className="h-[calc(100vh-12rem)] p-4">
-                {filteredInteractions.length > 0 ? (
-                  filteredInteractions.map((item) => (
-                    <InteractionCard 
-                      key={item.id} 
-                      interaction={item}
-                      isActive={selectedInteraction?.id === item.id}
-                      onClick={handleSelectInteraction}
-                    />
-                  ))
-                ) : (
-                  <div className="text-center py-12 text-muted-foreground text-xs">
-                    Nenhuma interação encontrada.
-                  </div>
+        <aside className="w-80 border-r border-white/[0.06] flex flex-col">
+          <nav className="flex gap-0 -mb-px px-4 pt-4 border-b border-white/[0.06]">
+            {SIDEBAR_TABS.map(t => (
+              <button
+                key={t.id}
+                onClick={() => setStatusFilter(t.id)}
+                className={cn(
+                  'px-5 py-3 text-[11px] font-mono tracking-wider transition-colors border-b-2',
+                  statusFilter === t.id
+                    ? 'text-[#E6B447] border-[#E6B447] font-bold'
+                    : 'text-[#6B5D4A] border-transparent hover:text-[#CAB792]'
                 )}
-              </ScrollArea>
-            </TabsContent>
-          </Tabs>
+              >
+                {t.label}
+              </button>
+            ))}
+          </nav>
+
+          <ScrollArea className="flex-1 p-4">
+            {filteredInteractions.length > 0 ? (
+              filteredInteractions.map((item) => (
+                <InteractionCard
+                  key={item.id}
+                  interaction={item}
+                  isActive={selectedInteraction?.id === item.id}
+                  onClick={handleSelectInteraction}
+                />
+              ))
+            ) : (
+              <div className="text-center py-12 text-[#6B5D4A] text-xs font-mono">
+                Nenhuma interacao encontrada.
+              </div>
+            )}
+          </ScrollArea>
         </aside>
 
-        <main className="flex-1 bg-background p-6 overflow-y-auto">
+        <main className="flex-1 px-8 py-6 overflow-y-auto">
           {selectedInteraction ? (
             <div className="max-w-4xl mx-auto h-full">
-              <ResponseEditor 
+              <ResponseEditor
                 interaction={selectedInteraction}
                 suggestions={suggestions}
                 onSend={handleSendResponse}
@@ -243,9 +249,9 @@ export default function SocialInboxPage() {
               />
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+            <div className="flex flex-col items-center justify-center h-full text-[#6B5D4A]">
               <MessageSquare className="h-12 w-12 mb-4 opacity-20" />
-              <p className="text-sm">Selecione uma interação na lista ao lado para começar.</p>
+              <p className="text-sm font-mono">Selecione uma interacao na lista ao lado para comecar.</p>
             </div>
           )}
         </main>

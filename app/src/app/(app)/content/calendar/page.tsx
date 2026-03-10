@@ -318,12 +318,9 @@ export default function ContentCalendarPage() {
     <div className="flex flex-col gap-6 p-6 max-w-[1400px] mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Calendar className="h-6 w-6 text-[#E6B447]" />
-          <div>
-            <h1 className="text-xl font-bold text-white">Calendario Editorial</h1>
-            <p className="text-sm text-zinc-400">Gerencie e agende seu conteudo</p>
-          </div>
+        <div>
+          <h1 className="text-[42px] font-black tracking-[-0.02em] text-[#F5E8CE] leading-none">Calendario</h1>
+          <p className="text-[11px] font-mono tracking-wider text-[#6B5D4A] mt-2 uppercase">Editorial / Conteudo</p>
         </div>
 
         <div className="flex items-center gap-2">

@@ -11,7 +11,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { ReviewCard } from '@/components/content/review-card';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
-import { ClipboardCheck, Inbox } from 'lucide-react';
+import { Inbox } from 'lucide-react';
 import type { CalendarItem } from '@/types/content';
 
 export default function ContentReviewPage() {
@@ -107,48 +107,46 @@ export default function ContentReviewPage() {
   }, [selectedBrand?.id]);
 
   return (
-    <div className="flex flex-col gap-6 p-6 max-w-[1000px] mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <ClipboardCheck className="h-6 w-6 text-[#E6B447]" />
-        <div>
-          <h1 className="text-xl font-bold text-white">Aprovacoes</h1>
-          <p className="text-sm text-zinc-400">
+    <div className="min-h-screen flex flex-col">
+      <header className="shrink-0 border-b border-white/[0.06]">
+        <div className="px-8 pt-8 pb-6 max-w-[1440px] mx-auto">
+          <h1 className="text-[42px] font-black tracking-[-0.02em] text-[#F5E8CE] leading-none">Aprovacoes</h1>
+          <p className="text-sm text-[#6B5D4A] font-mono mt-2">
             {items.length > 0
               ? `${items.length} ${items.length === 1 ? 'item aguardando' : 'items aguardando'} revisao`
               : 'Nenhum item pendente'}
           </p>
         </div>
-      </div>
+      </header>
 
-      {/* Content */}
-      {loading ? (
-        <div className="flex items-center justify-center h-64 text-zinc-500">
-          Carregando...
-        </div>
-      ) : !selectedBrand?.id ? (
-        <div className="flex flex-col items-center justify-center h-64 text-zinc-500">
-          <ClipboardCheck className="h-12 w-12 mb-3 opacity-30" />
-          <p className="text-sm">Selecione uma marca para ver aprovacoes pendentes</p>
-        </div>
-      ) : items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 text-zinc-500 bg-zinc-900/30 border border-zinc-800/50 rounded-xl">
-          <Inbox className="h-12 w-12 mb-3 opacity-30" />
-          <p className="text-sm font-medium">Tudo limpo!</p>
-          <p className="text-xs mt-1 opacity-70">Nao ha conteudo aguardando revisao</p>
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {items.map((item) => (
-            <ReviewCard
-              key={item.id}
-              item={item}
-              onApprove={handleApprove}
-              onReject={handleReject}
-            />
-          ))}
-        </div>
-      )}
+      <main className="flex-1 px-8 py-6 max-w-[1440px] mx-auto w-full">
+        {loading ? (
+          <div className="flex items-center justify-center h-64 text-[#6B5D4A] font-mono text-sm">
+            Carregando...
+          </div>
+        ) : !selectedBrand?.id ? (
+          <div className="flex flex-col items-center justify-center h-64 text-[#6B5D4A]">
+            <p className="text-sm font-mono">Selecione uma marca para ver aprovacoes pendentes</p>
+          </div>
+        ) : items.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 text-[#6B5D4A] border border-white/[0.06] rounded-lg">
+            <Inbox className="h-10 w-10 mb-3 opacity-30" />
+            <p className="text-sm font-mono">Tudo limpo!</p>
+            <p className="text-xs mt-1 opacity-70 font-mono">Nao ha conteudo aguardando revisao</p>
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {items.map((item) => (
+              <ReviewCard
+                key={item.id}
+                item={item}
+                onApprove={handleApprove}
+                onReject={handleReject}
+              />
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

@@ -1,19 +1,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Header } from '@/components/layout/header';
-import { Button } from '@/components/ui/button';
 import { Plus, Sparkles } from 'lucide-react';
 import { useBrands } from '@/lib/hooks/use-brands';
 import { BrandCard } from '@/components/brands/brand-card';
-import { motion } from 'framer-motion';
 import { GuidedEmptyState } from '@/components/ui/guided-empty-state';
 
 /**
- * Página de Gerenciamento de Marcas
- * 
- * Permite ao usuário visualizar, editar e excluir marcas existentes.
- * Exibe estado de loading e empty state com CTA para criar primeira marca.
+ * Brand management page — Bloomberg terminal pattern
+ *
+ * Allows user to view, edit and delete existing brands.
+ * Shows loading state and empty state with CTA to create first brand.
  */
 export default function BrandsPage() {
   const router = useRouter();
@@ -21,7 +18,7 @@ export default function BrandsPage() {
 
   const handleDelete = async (brandId: string, brandName: string) => {
     const confirmed = confirm(
-      `Tem certeza que deseja excluir a marca "${brandName}"?\n\n⚠️ Esta ação não pode ser desfeita.`
+      `Tem certeza que deseja excluir a marca "${brandName}"?\n\nEsta ação não pode ser desfeita.`
     );
 
     if (confirmed) {
@@ -35,37 +32,39 @@ export default function BrandsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950">
-      <Header showBrandSelector={false} />
-      
-      <main className="mx-auto max-w-6xl px-6 py-12">
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Minhas Marcas
-            </h1>
-            <p className="text-zinc-500">
-              Gerencie o contexto das suas marcas para personalizar as análises
-            </p>
-          </div>
-          
-          <Button
-            onClick={() => router.push('/brands/new')}
-            className="bg-[#E6B447] text-[#0D0B09] hover:bg-[#F0C35C]"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Nova Marca
-          </Button>
-        </div>
+    <div className="min-h-screen bg-[#0D0B09]">
+      {/* Bloomberg inline header */}
+      <header className="shrink-0 border-b border-white/[0.06]">
+        <div className="px-8 pt-8 pb-6 max-w-[1440px] mx-auto">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-[42px] font-bold tracking-tight text-[#F5E8CE] leading-none">
+                Minhas Marcas
+              </h1>
+              <p className="mt-2 text-[13px] font-mono text-[#6B5D4A]">
+                Gerencie o contexto das suas marcas para personalizar as análises
+              </p>
+            </div>
 
+            <button
+              onClick={() => router.push('/brands/new')}
+              className="text-[11px] font-mono font-bold tracking-wider text-[#0D0B09] bg-[#E6B447] hover:bg-[#F0C35C] px-4 py-2 transition-colors flex items-center gap-2"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              NOVA MARCA
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-[1440px] px-8 py-8">
         {/* Loading State */}
         {isLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-64 rounded-xl border border-white/[0.06] bg-white/[0.02] animate-pulse"
+                className="h-64 border border-white/[0.06] bg-[#1A1612]/50 animate-pulse"
               />
             ))}
           </div>
@@ -89,11 +88,7 @@ export default function BrandsPage() {
 
         {/* Brands Grid */}
         {!isLoading && brands.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {brands.map((brand, index) => (
               <BrandCard
                 key={brand.id}
@@ -103,7 +98,7 @@ export default function BrandsPage() {
                 delay={index * 0.1}
               />
             ))}
-          </motion.div>
+          </div>
         )}
       </main>
     </div>
