@@ -109,8 +109,19 @@ export async function GET() {
     checkWithTimeout(checkPinecone),
   ]);
 
-  const services = { firebase, gemini, pinecone };
-  const allOk = Object.values(services).every((s) => s === 'ok');
+  // ERR-10: Return structured objects per service
+  const toServiceStatus = (result: string) => ({
+    status: result === 'ok' ? 'ok' as const : result === 'timeout' ? 'timeout' as const : 'error' as const,
+    available: result === 'ok',
+    ...(result !== 'ok' ? { detail: result } : {}),
+  });
+
+  const services = {
+    firebase: toServiceStatus(firebase),
+    gemini: toServiceStatus(gemini),
+    pinecone: toServiceStatus(pinecone),
+  };
+  const allOk = Object.values(services).every((s) => s.available);
 
   return NextResponse.json(
     {

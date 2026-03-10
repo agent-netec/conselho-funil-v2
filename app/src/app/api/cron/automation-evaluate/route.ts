@@ -42,6 +42,12 @@ export async function GET(req: NextRequest) {
 
     const totalLogsCreated = results.reduce((sum, r) => sum + r.logsCreated, 0);
 
+    // ERR-9: Return 500 if failure rate > 50%
+    const totalAttempted = results.length + errors.length;
+    if (totalAttempted > 0 && errors.length / totalAttempted > 0.5) {
+      return createApiError(500, `High failure rate: ${errors.length}/${totalAttempted} failed`);
+    }
+
     return createApiSuccess({
       brandsProcessed: results.length,
       brandsErrored: errors.length,

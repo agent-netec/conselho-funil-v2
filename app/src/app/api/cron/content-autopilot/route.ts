@@ -114,6 +114,12 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    // ERR-9: Return 500 if failure rate > 50%
+    const totalProcessed = totalAdapted + totalErrors;
+    if (totalProcessed > 0 && totalErrors / totalProcessed > 0.5) {
+      return createApiError(500, `High failure rate: ${totalErrors}/${totalProcessed} failed`);
+    }
+
     return createApiSuccess({
       brandsProcessed: activeBrands.length,
       totalJobs,

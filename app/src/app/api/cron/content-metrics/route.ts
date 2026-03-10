@@ -97,6 +97,12 @@ export async function GET(req: NextRequest) {
       meta: { brandsProcessed: brandIds.length, totalUpdated, totalErrors },
     });
 
+    // ERR-9: Return 500 if failure rate > 50%
+    const totalProcessed = totalUpdated + totalErrors;
+    if (totalProcessed > 0 && totalErrors / totalProcessed > 0.5) {
+      return createApiError(500, `High failure rate: ${totalErrors}/${totalProcessed} failed`);
+    }
+
     return createApiSuccess({
       brandsProcessed: brandIds.length,
       totalUpdated,

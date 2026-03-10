@@ -49,6 +49,7 @@ export async function GET(req: NextRequest) {
 
     const NURTURE_SCHEDULE = [1, 3, 5, 7, 10, 12] as const;
     let emailsSent = 0;
+    let emailsFailed = 0;
 
     for (const userDoc of trialUsersSnapshot.docs) {
       const user = { id: userDoc.id, ...userDoc.data() } as User;
@@ -99,6 +100,7 @@ export async function GET(req: NextRequest) {
           emailsSent++;
         }
       } catch (err) {
+        emailsFailed++;
         logger.error('Nurture email failed', { route: '/api/cron/trial-check', userId: user.id, error: (err as Error).message, meta: { trialDay } });
       }
     }
@@ -136,6 +138,12 @@ export async function GET(req: NextRequest) {
       } catch (emailErr) {
         logger.error('Trial expired email failed', { route: '/api/cron/trial-check', userId: uid, error: (emailErr as Error).message });
       }
+    }
+
+    // ERR-9: Return 500 if failure rate > 50%
+    const totalEmailAttempts = emailsSent + emailsFailed;
+    if (totalEmailAttempts > 0 && emailsFailed / totalEmailAttempts > 0.5) {
+      return createApiError(500, `High failure rate: ${emailsFailed}/${totalEmailAttempts} failed`);
     }
 
     return createApiSuccess({

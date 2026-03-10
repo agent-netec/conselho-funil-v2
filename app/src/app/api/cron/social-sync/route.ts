@@ -122,6 +122,12 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    // ERR-9: Return 500 if failure rate > 50%
+    const failedCount = results.filter(r => r.error).length;
+    if (results.length > 0 && failedCount / results.length > 0.5) {
+      return createApiError(500, `High failure rate: ${failedCount}/${results.length} failed`);
+    }
+
     return createApiSuccess({
       brandsProcessed: results.length,
       totalFound,
