@@ -84,8 +84,11 @@ export default function VaultPage() {
       const h = await getAuthHeaders();
       const res = await fetch('/api/content/autopilot', { method: 'POST', headers: h, body: JSON.stringify({ brandId }) });
       const data = await res.json();
-      if (res.ok) { toast.success(`Autopilot: ${data.data?.adapted || 0} conteúdo(s) gerado(s).`); if (data.data?.adapted > 0) loadVaultData(); }
-      else toast.error(data.error || 'Erro no autopilot.');
+      if (res.ok) {
+        toast.success(`Autopilot: ${data.data?.contentAdapted || data.data?.adapted || 0} conteúdo(s) gerado(s).`);
+        if (data.data?.creditWarning) toast.warning(data.data.creditWarning);
+        if (data.data?.contentAdapted > 0 || data.data?.adapted > 0) loadVaultData();
+      } else toast.error(data.error || 'Erro no autopilot.');
     } catch { toast.error('Erro de conexão.'); }
     finally { setRunningAutopilot(false); }
   };

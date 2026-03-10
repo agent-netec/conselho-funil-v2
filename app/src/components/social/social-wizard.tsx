@@ -157,7 +157,10 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
         }),
       });
 
-      if (!response.ok) throw new Error('Falha ao gerar hooks');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Falha ao gerar hooks');
+      }
 
       const data = await response.json();
       setResult(data.data);
@@ -165,7 +168,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
       notify.success('Hooks gerados com sucesso!');
     } catch (error) {
       console.error('Error:', error);
-      notify.error('Erro ao gerar hooks. Tente novamente.');
+      notify.error(error instanceof Error ? error.message : 'Erro ao gerar hooks. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -186,14 +189,17 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
         }),
       });
 
-      if (!response.ok) throw new Error('Falha ao gerar estrutura');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Falha ao gerar estrutura');
+      }
 
       const data = await response.json();
       setStructure(data.data);
       notify.success('Estrutura gerada!');
     } catch (error) {
       console.error('Error:', error);
-      notify.error('Erro ao gerar estrutura.');
+      notify.error(error instanceof Error ? error.message : 'Erro ao gerar estrutura.');
     } finally {
       setIsGeneratingStructure(false);
     }
@@ -217,7 +223,10 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
         }),
       });
 
-      if (!response.ok) throw new Error('Falha ao gerar debate');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Falha ao gerar debate');
+      }
 
       const data = await response.json();
       setDebate(data.data?.debate);
@@ -225,7 +234,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
       notify.success('Debate dos especialistas gerado!');
     } catch (error) {
       console.error('Error:', error);
-      notify.error('Erro ao gerar debate. Tente novamente.');
+      notify.error(error instanceof Error ? error.message : 'Erro ao gerar debate. Tente novamente.');
     } finally {
       setIsDebating(false);
     }
@@ -248,7 +257,10 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
         }),
       });
 
-      if (!response.ok) throw new Error('Falha ao gerar scorecard');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Falha ao gerar scorecard');
+      }
 
       const data = await response.json();
       setScorecard(data.data);
@@ -256,7 +268,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
       notify.success('Avaliação calibrada gerada!');
     } catch (error) {
       console.error('Error:', error);
-      notify.error('Erro ao avaliar conteúdo.');
+      notify.error(error instanceof Error ? error.message : 'Erro ao avaliar conteúdo.');
     } finally {
       setIsEvaluating(false);
     }

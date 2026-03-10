@@ -50,7 +50,10 @@ export function CopyLabModal({ creative, isOpen, onClose, brandId }: CopyLabModa
         })
       });
 
-      if (!response.ok) throw new Error('Falha na geração');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Falha na geração');
+      }
       const data = await response.json();
       setVariants(data.variants);
       
@@ -59,7 +62,7 @@ export function CopyLabModal({ creative, isOpen, onClose, brandId }: CopyLabModa
       });
     } catch (error) {
       toast.error("Erro na Geração", {
-        description: "Não foi possível conectar ao motor de IA.",
+        description: error instanceof Error ? error.message : "Não foi possível conectar ao motor de IA.",
       });
     } finally {
       setIsGenerating(false);

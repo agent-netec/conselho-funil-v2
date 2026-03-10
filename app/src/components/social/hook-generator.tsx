@@ -85,14 +85,17 @@ export function HookGenerator() {
         }),
       });
 
-      if (!response.ok) throw new Error('Falha ao gerar hooks');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Falha ao gerar hooks');
+      }
 
       const data = await response.json();
       setResult(data.data);
       notify.success('Hooks gerados com sucesso!');
     } catch (error) {
       console.error('Error:', error);
-      notify.error('Erro ao gerar hooks. Tente novamente.');
+      notify.error(error instanceof Error ? error.message : 'Erro ao gerar hooks. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -120,7 +123,10 @@ export function HookGenerator() {
         }),
       });
 
-      if (!response.ok) throw new Error('Falha ao gerar estrutura');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Falha ao gerar estrutura');
+      }
 
       const data = await response.json();
       setStructure(data.data);
@@ -128,11 +134,11 @@ export function HookGenerator() {
 
       // Auto-generate scorecard after structure
       handleGenerateScorecard(data.data);
-      
+
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       console.error('Error:', error);
-      notify.error('Erro ao gerar estrutura. Tente novamente.');
+      notify.error(error instanceof Error ? error.message : 'Erro ao gerar estrutura. Tente novamente.');
     } finally {
       setIsGeneratingStructure(false);
     }
@@ -152,13 +158,16 @@ export function HookGenerator() {
         }),
       });
 
-      if (!response.ok) throw new Error('Falha ao gerar scorecard');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Falha ao gerar scorecard');
+      }
 
       const data = await response.json();
       setScorecard(data.data);
     } catch (error) {
       console.error('Error:', error);
-      notify.error('Erro ao avaliar conteúdo.');
+      notify.error(error instanceof Error ? error.message : 'Erro ao avaliar conteúdo.');
     } finally {
       setIsGeneratingScorecard(false);
     }

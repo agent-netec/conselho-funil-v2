@@ -169,9 +169,10 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
       }
     } catch (err) {
       console.error('Generation Error:', err);
-      setError(String(err));
+      const errMsg = err instanceof Error ? err.message : String(err);
+      setError(errMsg);
       setStatus('error');
-      toast.error('Erro ao gerar criativo. Tente novamente.');
+      toast.error(errMsg || 'Erro ao gerar criativo. Tente novamente.');
     }
   };
 
