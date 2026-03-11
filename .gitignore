@@ -59,6 +59,9 @@ tsc-output*.txt
 test-baseline.txt
 test-full.txt
 
+# mcp config (contains API keys)
+.mcp.json
+
 # claude code
 .claude/
 landpage-1/
