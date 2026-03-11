@@ -77,23 +77,50 @@ service cloud.firestore {
       }
     }
 
+    // Conversations
+    match /conversations/{conversationId} {
+      allow list: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow get: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
     // Legacy/Global Collections (Migrar para agency/client path no futuro)
     // Por enquanto, bloqueamos acesso global se não for admin do sistema ou se não houver vínculo explícito
-    
+
     match /tenants/{tenantId} {
       allow read, write: if isAuthenticated() && (resource == null || resource.data.ownerId == request.auth.uid);
     }
     
     match /funnels/{funnelId} {
-      // Se o funil tiver agencyId/clientId, validamos. Se não, apenas o dono (userId)
-      allow read, write: if isAuthenticated() && (
+      // list (collection query): query-safe — só checa userId
+      allow list: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      // get (single doc): checa userId ou agency membership
+      allow get: if isAuthenticated() && (
+        (resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId)) ||
+        (resource.data.userId == request.auth.uid)
+      );
+      // create: resource é null, usa request.resource
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      // update/delete: checa recurso existente
+      allow update, delete: if isAuthenticated() && (
         (resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId)) ||
         (resource.data.userId == request.auth.uid)
       );
     }
 
     match /brands/{brandId} {
-      allow read, write: if isAuthenticated() && (
+      // list (collection query): query-safe — só checa userId
+      allow list: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      // get (single doc): checa userId ou agency membership
+      allow get: if isAuthenticated() && (
+        (resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId)) ||
+        (resource.data.userId == request.auth.uid)
+      );
+      // create: resource é null, usa request.resource
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      // update/delete: checa recurso existente
+      allow update, delete: if isAuthenticated() && (
         (resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId)) ||
         (resource.data.userId == request.auth.uid)
       );
@@ -118,6 +145,19 @@ service cloud.firestore {
                 )))
             : get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid
         );
+      }
+    }
+
+    // Brand Assets
+    match /brand_assets/{assetId} {
+      allow list: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow get: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      match /chunks/{chunkId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brand_assets/$(assetId)).data.userId == request.auth.uid;
       }
     }
 

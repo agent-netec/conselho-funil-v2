@@ -1,22 +1,24 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { useAuthStore } from '@/lib/stores/auth-store';
 import type { BrandAsset } from '@/types/database';
 
 /**
  * Hook para monitorar assets de uma marca em tempo real.
- * 
+ *
  * @param brandId - O ID da marca para buscar os assets.
  * @returns { assets: BrandAsset[], isLoading: boolean }
  */
 export function useBrandAssets(brandId: string | undefined) {
+  const { user } = useAuthStore();
   const [assets, setAssets] = useState<BrandAsset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!brandId) {
+    if (!brandId || !user) {
       setAssets([]);
       setIsLoading(false);
       return;
@@ -24,9 +26,11 @@ export function useBrandAssets(brandId: string | undefined) {
 
     setIsLoading(true);
 
+    // userId filter is required so Firestore security rules can validate ownership
     const q = query(
       collection(db, 'brand_assets'),
-      where('brandId', '==', brandId)
+      where('brandId', '==', brandId),
+      where('userId', '==', user.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
