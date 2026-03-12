@@ -70,3 +70,23 @@ export async function getUserCreditsAdmin(userId: string): Promise<number> {
   if (!snap.exists) return 100; // default
   return (snap.data()?.credits as number) ?? 100;
 }
+
+export async function getUserAdmin(userId: string): Promise<{ id: string; email: string; name?: string; stripeCustomerId?: string } | null> {
+  const db = getAdminFirestore();
+  const snap = await db.collection('users').doc(userId).get();
+  if (!snap.exists) return null;
+  const data = snap.data()!;
+  return { id: snap.id, email: data.email, name: data.name, stripeCustomerId: data.stripeCustomerId };
+}
+
+export async function getUserStripeCustomerIdAdmin(userId: string): Promise<string | null> {
+  const db = getAdminFirestore();
+  const snap = await db.collection('users').doc(userId).get();
+  if (!snap.exists) return null;
+  return (snap.data()?.stripeCustomerId as string) ?? null;
+}
+
+export async function setUserStripeCustomerIdAdmin(userId: string, stripeCustomerId: string): Promise<void> {
+  const db = getAdminFirestore();
+  await db.collection('users').doc(userId).set({ stripeCustomerId }, { merge: true });
+}

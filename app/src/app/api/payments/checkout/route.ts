@@ -8,7 +8,7 @@
 import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { ApiError } from '@/lib/utils/api-security';
-import { getUser } from '@/lib/firebase/firestore';
+import { getUserAdmin } from '@/lib/firebase/firestore-server';
 import {
   stripe,
   getPriceId,
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     const userId = await getUserIdFromToken(req);
 
     // 2. Get user data
-    const user = await getUser(userId);
+    const user = await getUserAdmin(userId);
     if (!user) {
       return createApiError(404, 'Usuário não encontrado');
     }

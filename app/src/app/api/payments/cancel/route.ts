@@ -8,7 +8,7 @@
 import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { ApiError } from '@/lib/utils/api-security';
-import { getUser, getUserStripeCustomerId } from '@/lib/firebase/firestore';
+import { getUserAdmin, getUserStripeCustomerIdAdmin } from '@/lib/firebase/firestore-server';
 import { getStripeClient, getActiveSubscription, isWithinRefundPeriod } from '@/lib/stripe';
 import { doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
@@ -53,13 +53,13 @@ export async function POST(req: NextRequest) {
     const userId = await getUserIdFromToken(req);
 
     // 2. Get user data
-    const user = await getUser(userId);
+    const user = await getUserAdmin(userId);
     if (!user) {
       return createApiError(404, 'Usuário não encontrado');
     }
 
     // 3. Get Stripe customer ID
-    const customerId = await getUserStripeCustomerId(userId);
+    const customerId = await getUserStripeCustomerIdAdmin(userId);
     if (!customerId) {
       return createApiError(400, 'Nenhuma assinatura ativa encontrada');
     }
