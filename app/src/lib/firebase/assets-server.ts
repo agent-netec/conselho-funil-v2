@@ -59,10 +59,12 @@ export async function processAssetText(assetId: string, text: string, namespace?
       },
     }));
 
-    // Firestore
-    await saveAssetChunks(assetId, chunkPayloads);
+    // Firestore (backup secundário — não bloqueia o Pinecone em caso de falha)
+    saveAssetChunks(assetId, chunkPayloads).catch((err) => {
+      console.warn(`[processAssetText] Firestore chunks backup failed (non-critical):`, err);
+    });
 
-    // Pinecone
+    // Pinecone (crítico para RAG — deve rodar independente do Firestore)
     const pineconeRecords = chunkPayloads.map(chunk => ({
       id: chunk.id,
       values: chunk.embedding ?? [],
