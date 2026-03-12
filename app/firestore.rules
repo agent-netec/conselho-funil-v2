@@ -160,6 +160,12 @@ service cloud.firestore {
         (resource.data.userId == request.auth.uid)
       );
 
+      // Notifications subcollection (unread count badge)
+      match /notifications/{notifId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+      }
+
       // Offer Lab — subcollection de ofertas da brand
       match /offers/{offerId} {
         allow read: if isAuthenticated() && (
