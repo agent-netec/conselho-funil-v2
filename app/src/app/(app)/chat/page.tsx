@@ -17,6 +17,7 @@ import { CHAT_MODES } from '@/lib/constants';
 import { PaywallModal } from '@/components/modals/paywall-modal';
 import { CONFIG } from '@/lib/config';
 import { toast } from 'sonner';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 export default function ChatPage() {
   const router = useRouter();
@@ -105,9 +106,10 @@ export default function ChatPage() {
         router.replace(`/chat?id=${newConversationId}`);
 
         // 3. Call the verdict API
+        const verdictHeaders = await getAuthHeaders();
         const response = await fetch('/api/chat/verdict', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: verdictHeaders,
           body: JSON.stringify({
             conversationId: newConversationId,
             brandId: activeBrand.id,
