@@ -474,3 +474,13 @@
   letter-spacing: 0.15em;
   text-transform: uppercase;
 }
+
+/* LoadingScreen animations — CSS-only to avoid framer-motion hook issues on unmount */
+@keyframes logo-glow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(230, 180, 71, 0.2)); }
+  50%       { filter: drop-shadow(0 0 20px rgba(230, 180, 71, 0.5)); }
+}
+@keyframes progress-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}

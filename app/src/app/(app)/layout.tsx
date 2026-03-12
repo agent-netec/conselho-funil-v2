@@ -18,25 +18,10 @@ function LoadingScreen() {
     <div className="fixed inset-0 flex items-center justify-center bg-[#09090b]">
       <div className="absolute inset-0 bg-dot-pattern opacity-30" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(230,180,71,0.1),transparent)]" />
-      <motion.div
-        className="flex flex-col items-center gap-6"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-      >
+      <div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in-90 duration-300">
         <div className="relative">
           <div className="absolute inset-0 rounded-2xl bg-[#E6B447]/20 blur-2xl animate-pulse" />
-          <motion.div
-            className="relative flex h-16 w-16 items-center justify-center"
-            animate={{
-              filter: [
-                'drop-shadow(0 0 8px rgba(230, 180, 71, 0.2))',
-                'drop-shadow(0 0 20px rgba(230, 180, 71, 0.5))',
-                'drop-shadow(0 0 8px rgba(230, 180, 71, 0.2))',
-              ],
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
+          <div className="relative flex h-16 w-16 items-center justify-center [animation:logo-glow_2s_ease-in-out_infinite]">
             <Image
               src="/logo-mkthoney-icon.svg"
               alt="MKTHONEY"
@@ -45,18 +30,13 @@ function LoadingScreen() {
               priority
               className="h-14 w-auto"
             />
-          </motion.div>
+          </div>
         </div>
         <div className="w-32 h-1 rounded-full bg-zinc-800 overflow-hidden">
-          <motion.div
-            className="h-full bg-[#E6B447] rounded-full"
-            initial={{ x: '-100%' }}
-            animate={{ x: '100%' }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
-          />
+          <div className="h-full bg-[#E6B447] rounded-full [animation:progress-sweep_1s_ease-in-out_infinite]" />
         </div>
         <p className="text-sm text-zinc-500 font-medium">Carregando...</p>
-      </motion.div>
+      </div>
     </div>
   );
 }
