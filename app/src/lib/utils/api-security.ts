@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHmac, timingSafeEqual } from 'crypto';
-import { getUser } from '@/lib/firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 
 /**
  * Erro customizado para falhas de autenticação/autorização em APIs
@@ -103,18 +103,21 @@ export async function verifyAdminRole(request: NextRequest) {
       throw new ApiError(401, 'Usuário não encontrado no provedor de auth');
     }
 
-    // Busca a role no Firestore usando o UID validado
-    const user = await getUser(uid);
-    
-    if (!user) {
+    // Busca a role no Firestore usando Admin SDK (server-side safe)
+    const db = getAdminFirestore();
+    const snap = await db.collection('users').doc(uid).get();
+
+    if (!snap.exists) {
       throw new ApiError(403, 'Perfil de usuário não encontrado no banco de dados');
     }
 
-    if (user.role !== 'admin') {
+    const userData = snap.data()!;
+
+    if (userData.role !== 'admin') {
       throw new ApiError(403, 'Acesso negado: Requer privilégios de administrador');
     }
 
-    return user;
+    return { id: uid, ...userData } as any;
   } catch (error) {
     if (error instanceof ApiError) throw error;
     
