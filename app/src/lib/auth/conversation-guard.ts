@@ -15,7 +15,7 @@
 
 import { NextRequest } from 'next/server';
 import { ApiError } from '@/lib/utils/api-security';
-import { getConversation } from '@/lib/firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 
 interface ConversationAccessResult {
   userId: string;
@@ -82,16 +82,17 @@ export async function requireConversationAccess(
     throw new ApiError(401, 'Falha na validação do token de autenticação');
   }
 
-  // 3. Verificar se a conversa existe e se o usuário é dono
+  // 3. Verificar se a conversa existe e se o usuário é dono (via Admin SDK)
   try {
-    const conversation = await getConversation(conversationId);
+    const db = getAdminFirestore();
+    const snap = await db.collection('conversations').doc(conversationId).get();
 
-    if (!conversation) {
+    if (!snap.exists) {
       throw new ApiError(404, 'Conversa não encontrada');
     }
 
-    // Verificar ownership
-    if (conversation.userId !== userId) {
+    const data = snap.data();
+    if (data?.userId !== userId) {
       throw new ApiError(403, 'Acesso negado: você não é o dono desta conversa');
     }
 

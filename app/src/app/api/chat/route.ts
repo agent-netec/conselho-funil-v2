@@ -13,18 +13,20 @@ import {
   isGeminiConfigured,
   PRO_GEMINI_MODEL
 } from '@/lib/ai/gemini';
-import { 
-  addMessage, 
-  updateConversation, 
-  getFunnel, 
-  getFunnelProposals, 
-  getConversation,
-  getUserCredits,
+import {
+  getFunnel,
+  getFunnelProposals,
   updateUserUsage,
   getUserFunnels,
   getCampaign
 } from '@/lib/firebase/firestore';
-import { getBrand } from '@/lib/firebase/brands';
+import {
+  getConversationAdmin,
+  addMessageAdmin,
+  updateConversationAdmin,
+  getBrandAdmin,
+  getUserCreditsAdmin,
+} from '@/lib/firebase/firestore-server';
 import type { Funnel, Proposal, Brand } from '@/types/database';
 import {
   buildChatPrompt,
@@ -99,14 +101,14 @@ async function handlePOST(request: NextRequest) {
     }
 
     // ST-11.24 Optimization: Fetch conversation first to get userId
-    const conversation = await getConversation(conversationId);
+    const conversation = await getConversationAdmin(conversationId);
 
     if (!conversation) {
       return createApiError(404, 'Conversation not found');
     }
 
     const userId = conversation.userId;
-    const credits = await getUserCredits(userId);
+    const credits = await getUserCreditsAdmin(userId);
 
     // Só bloqueia se o limite estiver ativado
     if (CONFIG.ENABLE_CREDIT_LIMIT && credits <= 0) {
@@ -200,7 +202,7 @@ async function handlePOST(request: NextRequest) {
           // Em um ambiente real de API, o cache seria Redis, mas aqui vamos simular
           // o comportamento de evitar chamadas repetitivas ao Pinecone se os dados forem idênticos.
 
-          const brand = await getBrand(conversation.brandId!);
+          const brand = await getBrandAdmin(conversation.brandId!);
           if (brand) {
             const bContext = formatBrandContextForChat(brand);
             const bChunks = await retrieveBrandChunks(conversation.brandId!, message, 5);
@@ -411,7 +413,7 @@ async function handlePOST(request: NextRequest) {
         else if (effectiveMode === 'design') activeCounselors = ['design_director'];
       }
 
-      const saveMessagePromise = addMessage(conversationId, {
+      const saveMessagePromise = addMessageAdmin(conversationId, {
         role: 'assistant',
         content: assistantResponse,
         metadata: {
@@ -420,11 +422,11 @@ async function handlePOST(request: NextRequest) {
         },
       });
 
-      const usagePromise = CONFIG.ENABLE_CREDIT_LIMIT 
+      const usagePromise = CONFIG.ENABLE_CREDIT_LIMIT
         ? updateUserUsage(userId, -1)
         : Promise.resolve();
 
-      const titlePromise = updateConversation(conversationId, {
+      const titlePromise = updateConversationAdmin(conversationId, {
         title: message.slice(0, 50) + (message.length > 50 ? '...' : ''),
       });
 
