@@ -56,8 +56,8 @@ export default function AdminDashboardPage() {
         const headers = await getAuthHeaders();
         const res = await fetch('/api/admin/stats', { headers });
         if (!res.ok) throw new Error('Falha ao carregar estatisticas');
-        const data = await res.json();
-        setStats(data);
+        const json = await res.json();
+        setStats(json.data);
       } catch (err) {
         console.error('[Admin] Error fetching stats:', err);
         toast.error('Erro ao carregar estatisticas do admin');

@@ -49,8 +49,8 @@ export async function GET(request: NextRequest) {
     return createApiSuccess({
       totalUsers,
       byTier,
-      signupsLast7,
-      signupsLast30,
+      signups7d: signupsLast7,
+      signups30d: signupsLast30,
     });
   } catch (error) {
     if (error instanceof ApiError) {
