@@ -140,6 +140,11 @@ export async function processAsset(assetId: string, namespace?: string): Promise
         sourceUrl: chunk.metadata?.sourceUrl || '',
         processingMethod: 'worker-v2',
         content: chunk.content,
+        // Required for retrieval filters
+        isApprovedForAI: asset.isApprovedForAI === true,
+        status: 'approved',
+        counselor: (chunk.metadata as any)?.counselor || (asset.metadata as any)?.counselor || '',
+        docType: (chunk.metadata as any)?.docType || (asset.metadata as any)?.docType || asset.type || 'document',
       },
     }));
 

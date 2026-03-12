@@ -166,6 +166,34 @@ service cloud.firestore {
           get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
       }
 
+      // Spy Intelligence: Competitors
+      match /competitors/{competitorId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+
+        match /assets/{assetId} {
+          allow read, write: if isAuthenticated() &&
+            get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+        }
+      }
+
+      // Intelligence documents and keyword configs
+      match /intelligence/{docId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+
+        match /{nestedId=**} {
+          allow read, write: if isAuthenticated() &&
+            get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+        }
+      }
+
+      // Keywords Miner data
+      match /keywords/{keywordId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+      }
+
       // Offer Lab — subcollection de ofertas da brand
       match /offers/{offerId} {
         allow read: if isAuthenticated() && (
@@ -213,6 +241,13 @@ service cloud.firestore {
       allow read: if true;
       allow create: if isAuthenticated();
       allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // Embedding cache — written by server-side API routes (no user auth context)
+    // Keys are SHA-256 hashes of text; values are embedding vectors (not sensitive)
+    match /query_cache/{cacheKey} {
+      allow read: if true;
+      allow write: if true;
     }
 
     // Bloqueio Global de Segurança (NUNCA deixar allow true aqui)

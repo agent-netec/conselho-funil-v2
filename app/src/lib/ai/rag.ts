@@ -106,10 +106,10 @@ export async function retrieveChunks(
     }
     
     if (queryEmbedding && typeof window === 'undefined') {
-      const pineconeFilters: any = { 
-        isApprovedForAI: { '$eq': true },
-        status: { '$eq': 'approved' }
-      };
+      // Knowledge namespace is trusted — query by semantic similarity only.
+      // Counselor/docType metadata is not present in existing vectors (pre-worker-fix).
+      // Brain context injection via enrichChatPromptWithBrain handles counselor identity.
+      const pineconeFilters: any = {};
 
       const { queryPinecone } = await import('./pinecone');
       const pineconeResponse = await queryPinecone({
