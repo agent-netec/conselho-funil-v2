@@ -169,11 +169,10 @@ export default function ChatPage() {
       const newId = await createConversation('Nova conversa', activeBrand?.id);
       let url = funnelId ? `/chat?id=${newId}&funnelId=${funnelId}` : `/chat?id=${newId}`;
       if (campaignId) url += `&campaignId=${campaignId}`;
-      
+
       router.push(url);
-      setTimeout(() => {
-        sendMessage(message, apiMode as any, funnelId || undefined, partyOptions, campaignId || undefined);
-      }, 500);
+      // Pass newId directly — sendMessage from the current render has conversationId=null
+      await sendMessage(message, apiMode as any, funnelId || undefined, partyOptions, campaignId || undefined, newId);
       return;
     }
     await sendMessage(message, apiMode as any, funnelId || undefined, partyOptions, campaignId || undefined);

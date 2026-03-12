@@ -97,20 +97,22 @@ export function useConversation(conversationId: string | null) {
   }, [conversationId]);
 
   const sendMessage = async (
-    content: string, 
+    content: string,
     mode: 'general' | 'funnel_creation' | 'funnel_evaluation' | 'copy' | 'social' | 'funnel_review' | 'ads' | 'design' | 'party' = 'general',
     funnelId?: string,
     partyOptions?: { selectedAgents?: string[], intensity?: 'debate' | 'consensus' },
-    campaignId?: string
+    campaignId?: string,
+    overrideConversationId?: string
   ) => {
-    if (!conversationId) return;
+    const activeConversationId = overrideConversationId || conversationId;
+    if (!activeConversationId) return;
 
     setIsSending(true);
     setError(null);
 
     try {
       // Add user message to Firestore
-      await addMessage(conversationId, {
+      await addMessage(activeConversationId, {
         role: 'user',
         content,
       });
@@ -122,7 +124,7 @@ export function useConversation(conversationId: string | null) {
         headers,
         body: JSON.stringify({
           message: content,
-          conversationId,
+          conversationId: activeConversationId,
           mode,
           ...(funnelId ? { funnelId } : {}),
           ...(campaignId ? { campaignId } : {}), // ST-11.15: Contexto da Linha de Ouro
@@ -140,11 +142,11 @@ export function useConversation(conversationId: string | null) {
         if (response.status === 403 && errorData.error === 'insufficient_credits') {
           const insufficientCreditsMsg = '❌ **Saldo de créditos insuficiente.**\n\nSeu saldo de créditos acabou. Faça upgrade para continuar consultando o MKTHONEY.';
           
-          await addMessage(conversationId, {
+          await addMessage(activeConversationId, {
             role: 'assistant',
             content: insufficientCreditsMsg,
           });
-          
+
           throw new Error('Saldo de créditos insuficiente');
         }
 
@@ -159,7 +161,7 @@ export function useConversation(conversationId: string | null) {
 
       // ERR-4: Separate try/catch for error message persistence
       try {
-        await addMessage(conversationId, {
+        await addMessage(activeConversationId, {
           role: 'assistant',
           content: `⚠️ Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.\n\n*Erro: ${err instanceof Error ? err.message : 'Erro desconhecido'}*`,
         });
