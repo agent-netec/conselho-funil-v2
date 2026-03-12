@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { Sidebar } from '@/components/layout/sidebar';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useSidebarStore } from '@/lib/stores/sidebar-store';
+import { useBrandStore } from '@/lib/stores/brand-store';
 import { sendEmailVerification } from '@/lib/firebase/auth';
 import { EmailVerificationBanner } from '@/components/auth/email-verification-banner';
 import { BrandingProvider } from '@/components/providers/branding-provider';
@@ -65,6 +66,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const auth = useAuthStore();
   const { isExpanded } = useSidebarStore();
+
+  // Hydrate brand store from localStorage (skipHydration=true requires manual call)
+  useEffect(() => {
+    useBrandStore.persist.rehydrate();
+  }, []);
 
   const user = auth?.user;
   const isLoading = auth?.isLoading;

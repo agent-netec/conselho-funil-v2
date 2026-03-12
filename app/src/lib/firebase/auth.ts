@@ -97,7 +97,10 @@ export function getCurrentUser() {
 
 // Action URL settings for Firebase email links
 function getActionCodeSettings() {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
+  // Use current origin in browser so the URL is always whitelisted (matches the deployed domain)
+  const baseUrl = typeof window !== 'undefined'
+    ? window.location.origin
+    : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001');
   return {
     url: `${baseUrl}/auth/action`,
     handleCodeInApp: false,
