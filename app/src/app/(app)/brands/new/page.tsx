@@ -97,7 +97,7 @@ export default function NewBrandPage() {
     try {
       // 1. Create brand with core data
       const brandId = await create({
-        userId: '',
+        userId: user?.uid ?? '',
         name: formData.name,
         vertical: formData.vertical,
         positioning: formData.positioning,
