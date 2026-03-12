@@ -83,6 +83,12 @@ service cloud.firestore {
       allow get: if isAuthenticated() && resource.data.userId == request.auth.uid;
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Messages subcollection
+      match /messages/{messageId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/conversations/$(conversationId)).data.userId == request.auth.uid;
+      }
     }
 
     // Legacy/Global Collections (Migrar para agency/client path no futuro)
