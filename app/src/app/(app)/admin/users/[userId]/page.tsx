@@ -92,7 +92,8 @@ export default function AdminUserDetailPage() {
         const headers = await getAuthHeaders();
         const res = await fetch(`/api/admin/users/${userId}`, { headers });
         if (!res.ok) throw new Error('Falha ao carregar usuario');
-        const data: UserDetail = await res.json();
+        const json = await res.json();
+        const data: UserDetail = json.data;
         setUserData(data);
         setSelectedTier(data.tier);
         setSelectedRole(data.role);
@@ -127,7 +128,8 @@ export default function AdminUserDetailPage() {
         throw new Error(err.message || 'Falha na operacao');
       }
 
-      const updated: UserDetail = await res.json();
+      const updatedJson = await res.json();
+      const updated: UserDetail = updatedJson.data;
       setUserData(updated);
       setSelectedTier(updated.tier);
       setSelectedRole(updated.role);

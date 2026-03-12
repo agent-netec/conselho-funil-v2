@@ -69,7 +69,8 @@ export default function AdminUsersPage() {
 
       const res = await fetch(`/api/admin/users?${params}`, { headers });
       if (!res.ok) throw new Error('Falha ao carregar usuarios');
-      const data: UsersResponse = await res.json();
+      const json = await res.json();
+      const data: UsersResponse = json.data;
       setUsers(data.users);
       setTotal(data.total);
     } catch (err) {
