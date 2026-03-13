@@ -26,14 +26,18 @@ if (!isBuildPhase && firebaseConfig.apiKey) {
     appInstance = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     authInstance = getAuth(appInstance);
     
-    // No servidor usamos getFirestore (mais leve), no cliente usamos a versão completa
-    // NOTE: experimentalForceLongPolling removed — it delays auth token delivery to
-    // Firestore's credentialsProvider and amplifies the onAuthStateChanged race condition.
-    // See: firebase/firebase-js-sdk#8176, #1981
+    // No servidor usamos getFirestore (mais leve), no cliente usamos a versão completa.
+    // NOTE: Do NOT use experimentalForceLongPolling or experimentalAutoDetectLongPolling.
+    // Both flags delay/disrupt Firestore's credentialsProvider token delivery:
+    //   - Long polling uses HTTP polling intervals; token only updates on next poll cycle
+    //   - This creates a race window between onAuthStateChanged and Firestore reads
+    // Default WebChannel (gRPC-web) handles token changes gracefully: onIdTokenChanged
+    // (Firestore's internal observer) fires BEFORE onAuthStateChanged (our observer),
+    // so by the time our code runs, Firestore already has the auth token.
+    // See: firebase/firebase-js-sdk#8176, #1981, #6964
     dbInstance = isServer
       ? getFirestore(appInstance)
       : initializeFirestore(appInstance, {
-          experimentalAutoDetectLongPolling: true,
           cacheSizeBytes: CACHE_SIZE_UNLIMITED,
         });
         
