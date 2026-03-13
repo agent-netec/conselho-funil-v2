@@ -18,6 +18,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 import { withResilience } from './resilience';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { encryptSensitiveFields } from '../utils/encryption';
 import type {
   User,
@@ -49,25 +50,19 @@ import type { CampaignContext } from '@/types/campaign';
  * @returns O ID do usuário criado.
  */
 export async function createUser(userId: string, data: Omit<User, 'id' | 'createdAt' | 'lastLogin' | 'credits' | 'usage'>) {
-  const userRef = doc(db, 'users', userId);
-  const now = Timestamp.now();
-
-  // R6.3: Calculate trial expiration (14 days from now)
-  const trialExpiresAt = new Date();
-  trialExpiresAt.setDate(trialExpiresAt.getDate() + 14);
-
-  await setDoc(userRef, {
-    ...data,
-    credits: 10, // Default: 10 credits (US-16.1)
-    usage: 0,
-    onboardingCompleted: false, // L-4: Post-signup onboarding
-    // R6.3: Initialize trial tier
-    tier: 'trial',
-    trialExpiresAt: Timestamp.fromDate(trialExpiresAt),
-    createdAt: now,
-    lastLogin: now,
+  // Use API route (Admin SDK) to avoid client-side Firestore auth race condition.
+  // This is called right when onAuthStateChanged fires — Firestore credentialsProvider
+  // may not yet have received the token at this point.
+  const headers = await getAuthHeaders();
+  const res = await fetch('/api/users', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data),
   });
-
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new Error(json.error || 'Failed to create user');
+  }
   return userId;
 }
 
@@ -138,8 +133,16 @@ export async function getUser(userId: string): Promise<User | null> {
  * @param userId - O ID do usuário.
  */
 export async function updateUserLastLogin(userId: string) {
-  const userRef = doc(db, 'users', userId);
-  await updateDoc(userRef, { lastLogin: Timestamp.now() });
+  // Use API route (Admin SDK) — called right after onAuthStateChanged, race condition window.
+  const headers = await getAuthHeaders();
+  const res = await fetch('/api/users', {
+    method: 'PATCH',
+    headers,
+  });
+  if (!res.ok) {
+    // Non-critical — don't throw, just warn
+    console.warn('[updateUserLastLogin] Failed to update last login');
+  }
 }
 
 /**
@@ -152,25 +155,19 @@ export async function getUserPreferences(userId: string): Promise<UserPreference
 
 /**
  * Atualiza as preferências do usuário (merge parcial).
+ * Uses API route + Admin SDK to avoid client-side Firestore auth race condition.
  */
 export async function updateUserPreferences(userId: string, prefs: Partial<UserPreferences>) {
-  const userRef = doc(db, 'users', userId);
-  // Flatten nested fields for Firestore dot-notation merge
-  const updates: Record<string, any> = {};
-  if (prefs.theme !== undefined) {
-    updates['preferences.theme'] = prefs.theme;
+  const headers = await getAuthHeaders();
+  const res = await fetch('/api/users/preferences', {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify(prefs),
+  });
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new Error(json.error || 'Failed to update preferences');
   }
-  if (prefs.notifications !== undefined) {
-    updates['preferences.notifications'] = prefs.notifications;
-  }
-  if (prefs.branding !== undefined) {
-    updates['preferences.branding'] = prefs.branding;
-  }
-  // Sprint R2.1: Onboarding wizard completion flag
-  if (prefs.onboardingPhase1AComplete !== undefined) {
-    updates['preferences.onboardingPhase1AComplete'] = prefs.onboardingPhase1AComplete;
-  }
-  await updateDoc(userRef, updates);
 }
 
 // ============================================

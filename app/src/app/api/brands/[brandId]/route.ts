@@ -15,10 +15,11 @@ export const runtime = 'nodejs';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { brandId: string } }
+  { params }: { params: Promise<{ brandId: string }> }
 ) {
   try {
-    await requireBrandAccess(request, params.brandId);
+    const { brandId } = await params;
+    await requireBrandAccess(request, brandId);
 
     const body = await request.json().catch(() => null);
     if (!body) {
@@ -26,7 +27,7 @@ export async function PATCH(
     }
 
     const adminDb = getAdminFirestore();
-    await adminDb.collection('brands').doc(params.brandId).update({
+    await adminDb.collection('brands').doc(brandId).update({
       ...body,
       updatedAt: Timestamp.now(),
     });
