@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiSuccess, createApiError } from '@/lib/utils/api-response';
@@ -121,8 +121,8 @@ Responda APENAS em JSON válido.`;
       createdAt: Timestamp.now(),
     };
 
-    const assetsRef = collection(db, 'brands', brandId, 'assets');
-    const docRef = await addDoc(assetsRef, assetData);
+    const adminDb = getAdminFirestore();
+    const docRef = await adminDb.collection('brands').doc(brandId).collection('assets').add(assetData as any);
 
     // Embed for RAG
     try {

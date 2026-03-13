@@ -4,8 +4,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/firebase/config';
-import { doc, getDoc, addDoc, collection, getDocs, Timestamp } from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiSuccess, createApiError } from '@/lib/utils/api-response';
@@ -26,36 +26,38 @@ export async function POST(
     const { brandId } = await params;
     const { userId } = await requireBrandAccess(req, brandId);
 
-    // Read original brand
-    const brandRef = doc(db, 'brands', brandId);
-    const brandSnap = await getDoc(brandRef);
+    const adminDb = getAdminFirestore();
 
-    if (!brandSnap.exists()) {
+    // Read original brand
+    const brandRef = adminDb.collection('brands').doc(brandId);
+    const brandSnap = await brandRef.get();
+
+    if (!brandSnap.exists) {
       return createApiError(404, 'Brand não encontrada');
     }
 
-    const original = brandSnap.data();
+    const original = brandSnap.data() as any;
     const now = Timestamp.now();
 
     // Create new brand (copy + rename)
-    const newBrandRef = await addDoc(collection(db, 'brands'), {
+    const newBrandRef = await adminDb.collection('brands').add({
       ...original,
       name: `${original.name} (Cópia)`,
       userId,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: now as any,
+      updatedAt: now as any,
     });
 
     // Copy subcollections
     for (const sub of SUBCOLLECTIONS_TO_COPY) {
-      const subRef = collection(db, 'brands', brandId, sub);
-      const snapshot = await getDocs(subRef);
-      const newSubRef = collection(db, 'brands', newBrandRef.id, sub);
+      const subRef = adminDb.collection('brands').doc(brandId).collection(sub);
+      const snapshot = await subRef.get();
+      const newSubRef = adminDb.collection('brands').doc(newBrandRef.id).collection(sub);
 
       for (const docSnap of snapshot.docs) {
-        await addDoc(newSubRef, {
+        await newSubRef.add({
           ...docSnap.data(),
-          createdAt: now,
+          createdAt: now as any,
         });
       }
     }

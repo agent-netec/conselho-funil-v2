@@ -18,8 +18,7 @@ import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { updateUserUsage } from '@/lib/firebase/firestore';
 import { SOCIAL_COUNSELOR_IDS } from '@/lib/ai/prompts/social-brain-context';
 import { retrieveSocialKnowledge } from '@/lib/ai/rag';
-import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -70,12 +69,11 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
 
     // 1b. OL-5.4: Enrich with Offer Lab structured data
     try {
-      const offersRef = collection(db, 'brands', brandId, 'offers');
-      const activeSnap = await getDocs(
-        query(offersRef, where('status', '==', 'active'), orderBy('updatedAt', 'desc'), limit(1))
-      );
+      const adminDb = getAdminFirestore();
+      const offersRef = adminDb.collection('brands').doc(brandId).collection('offers');
+      const activeSnap = await offersRef.where('status', '==', 'active').orderBy('updatedAt', 'desc').limit(1).get();
       const offerSnap = activeSnap.empty
-        ? await getDocs(query(offersRef, orderBy('updatedAt', 'desc'), limit(1)))
+        ? await offersRef.orderBy('updatedAt', 'desc').limit(1).get()
         : activeSnap;
       if (!offerSnap.empty) {
         const o = offerSnap.docs[0].data();

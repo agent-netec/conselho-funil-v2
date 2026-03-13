@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
-import { doc, updateDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { withResilience } from '@/lib/firebase/resilience';
 import { validateWebhookSignature } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
@@ -62,12 +62,13 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Atualizar Campaign no Firestore
-    const campaignRef = doc(db, 'campaigns', campaign_id);
-    
+    const adminDb = getAdminFirestore();
+    const campaignRef = adminDb.collection('campaigns').doc(campaign_id);
+
     // Atualização das métricas reais para o feedback loop da IA
     // Implementa resiliência via retry para suportar picos de carga (ST-11.23)
     await withResilience(async () => {
-      await updateDoc(campaignRef, {
+      await campaignRef.update({
         metrics: {
           clicks: Number(clicks || 0),
           impressions: Number(impressions || 0),

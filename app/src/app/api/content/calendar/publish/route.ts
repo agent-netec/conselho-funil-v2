@@ -16,7 +16,7 @@ import { handleSecurityError } from '@/lib/utils/api-security';
 import { updateCalendarItem } from '@/lib/firebase/content-calendar';
 import { publishToInstagram } from '@/lib/integrations/social/instagram-graph';
 import { publishToLinkedIn } from '@/lib/integrations/social/linkedin-graph';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 
 interface PublishRequest {
   brandId: string;

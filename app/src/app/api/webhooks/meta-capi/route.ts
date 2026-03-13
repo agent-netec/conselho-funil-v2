@@ -2,8 +2,8 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { Timestamp, addDoc, collection } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
 /**
  * POST /api/webhooks/meta-capi
@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
       return createApiError(401, 'Invalid webhook secret');
     }
 
+    const adminDb = getAdminFirestore();
     const processed: string[] = [];
     const errors: string[] = [];
 
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
         const { event_name, event_time, user_data, custom_data } = event;
 
         // Store conversion event
-        await addDoc(collection(db, 'brands', brandId, 'conversion_events'), {
+        await adminDb.collection('brands').doc(brandId).collection('conversion_events').add({
           platform: 'meta',
           eventName: event_name || 'unknown',
           eventTime: event_time ? Timestamp.fromMillis(event_time * 1000) : Timestamp.now(),
@@ -75,7 +76,8 @@ export async function POST(req: NextRequest) {
     // DLQ: store failed webhook for retry
     try {
       const rawBody = JSON.stringify(await req.clone().json()).substring(0, 10240);
-      await addDoc(collection(db, 'brands', 'system', 'dead_letter_queue'), {
+      const adminDb = getAdminFirestore();
+      await adminDb.collection('brands').doc('system').collection('dead_letter_queue').add({
         webhookType: 'meta',
         payload: rawBody,
         error: error instanceof Error ? error.message : 'Unknown error',

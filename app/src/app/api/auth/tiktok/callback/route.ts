@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { MonaraTokenVault } from '@/lib/firebase/vault';
 
 /**
@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
       brandId,
       provider: 'tiktok',
       accessToken: access_token,
-      expiresAt: Timestamp.fromMillis(Date.now() + 24 * 60 * 60 * 1000), // 24h
+      expiresAt: Timestamp.fromMillis(Date.now() + 24 * 60 * 60 * 1000) as any, // 24h
       scopes: ['ad.read', 'ad.write'],
       metadata: {
         advertiserId: firstAdvertiserId,

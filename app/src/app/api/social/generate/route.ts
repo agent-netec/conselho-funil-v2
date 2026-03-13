@@ -6,8 +6,7 @@ import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { updateUserUsage } from '@/lib/firebase/firestore';
-import { db } from '@/lib/firebase/config';
-import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { loadBrain } from '@/lib/intelligence/brains/loader';
 import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
 import type { CounselorId } from '@/types';
@@ -107,12 +106,11 @@ export async function POST(request: NextRequest) {
     // Load Offer Lab context if available
     let offerSection = '';
     try {
-      const offersRef = collection(db, 'brands', brandId, 'offers');
-      const activeSnap = await getDocs(
-        query(offersRef, where('status', '==', 'active'), orderBy('updatedAt', 'desc'), limit(1))
-      );
+      const adminDb = getAdminFirestore();
+      const activeSnap = await adminDb.collection('brands').doc(brandId).collection('offers')
+        .where('status', '==', 'active').orderBy('updatedAt', 'desc').limit(1).get();
       const offerSnap = activeSnap.empty
-        ? await getDocs(query(offersRef, orderBy('updatedAt', 'desc'), limit(1)))
+        ? await adminDb.collection('brands').doc(brandId).collection('offers').orderBy('updatedAt', 'desc').limit(1).get()
         : activeSnap;
       if (!offerSnap.empty) {
         const o = offerSnap.docs[0].data();

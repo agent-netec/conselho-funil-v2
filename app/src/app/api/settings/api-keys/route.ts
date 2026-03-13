@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { collection, addDoc, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { createApiSuccess, createApiError } from '@/lib/utils/api-response';
 import { requireUser } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
@@ -29,9 +29,8 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const keysRef = collection(db, 'users', userId, 'api_keys');
-    const q = query(keysRef, orderBy('createdAt', 'desc'));
-    const snap = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const snap = await adminDb.collection('users').doc(userId).collection('api_keys').orderBy('createdAt', 'desc').get();
 
     const keys = snap.docs.map(doc => {
       const data = doc.data();
@@ -90,8 +89,8 @@ export async function POST(req: NextRequest) {
       keyData.expiresAt = expiresAt;
     }
 
-    const keysRef = collection(db, 'users', userId, 'api_keys');
-    const docRef = await addDoc(keysRef, keyData);
+    const adminDb = getAdminFirestore();
+    const docRef = await adminDb.collection('users').doc(userId).collection('api_keys').add(keyData);
 
     // Return the raw key ONLY on creation (never again)
     return createApiSuccess({

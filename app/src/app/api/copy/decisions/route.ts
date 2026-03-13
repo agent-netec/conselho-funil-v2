@@ -6,20 +6,8 @@ export const dynamic = 'force-dynamic';
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  limit,
-  Timestamp,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { updateCampaignManifesto } from '@/lib/firebase/firestore';
 import type { CopyDecision } from '@/types/database';
 import type { CampaignContext } from '@/types/campaign';
@@ -32,11 +20,12 @@ export const runtime = 'nodejs';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { funnelId, campaignId, copyProposalId, type, userId, feedback, adjustments } = body;
+    // TASK 3.3: userId comes from verified token, NOT from body
+    const { funnelId, campaignId, copyProposalId, type, feedback, adjustments } = body;
 
-    // Validate required fields
-    if (!funnelId || !copyProposalId || !type || !userId) {
-      return createApiError(400, 'funnelId, copyProposalId, type, and userId are required');
+    // Validate required fields (userId removed — extracted from token below)
+    if (!funnelId || !copyProposalId || !type) {
+      return createApiError(400, 'funnelId, copyProposalId, and type are required');
     }
 
     // Validate type
@@ -44,13 +33,17 @@ export async function POST(request: NextRequest) {
       return createApiError(400, 'type must be approve, adjust, or kill');
     }
 
-    // Auth guard: derive brandId from funnel, then verify access
-    const funnelGuardSnap = await getDoc(doc(db, 'funnels', funnelId));
-    if (funnelGuardSnap.exists()) {
+    const adminDb = getAdminFirestore();
+
+    // Auth guard: derive brandId from funnel, then verify access; get userId from token
+    let userId: string = '';
+    const funnelGuardSnap = await adminDb.collection('funnels').doc(funnelId).get();
+    if (funnelGuardSnap.exists) {
       const funnelBrandId = (funnelGuardSnap.data() as any).brandId;
       if (funnelBrandId) {
         try {
-          await requireBrandAccess(request, funnelBrandId);
+          const access = await requireBrandAccess(request, funnelBrandId);
+          userId = access.userId;
         } catch (err: any) {
           return handleSecurityError(err);
         }
@@ -58,16 +51,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify copy proposal exists
-    const copyProposalRef = doc(db, 'funnels', funnelId, 'copyProposals', copyProposalId);
-    const copyProposalSnap = await getDoc(copyProposalRef);
+    const copyProposalRef = adminDb.collection('funnels').doc(funnelId).collection('copyProposals').doc(copyProposalId);
+    const copyProposalSnap = await copyProposalRef.get();
     
-    if (!copyProposalSnap.exists()) {
+    if (!copyProposalSnap.exists) {
       return createApiError(404, 'Copy proposal not found');
     }
 
     // Update copy proposal status
     const newStatus = type === 'approve' ? 'approved' : type === 'kill' ? 'rejected' : 'pending';
-    await updateDoc(copyProposalRef, { 
+    await copyProposalRef.update({
       status: newStatus,
       updatedAt: Timestamp.now(),
     });
@@ -80,7 +73,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create decision record (Firestore does NOT accept undefined values)
-    const decisionData: Omit<CopyDecision, 'id'> & Record<string, unknown> = {
+    // Using Record<string, unknown> to avoid Admin/Client Timestamp type conflict
+    const decisionData: Record<string, unknown> = {
       funnelId,
       copyProposalId,
       type,
@@ -94,12 +88,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Save decision
-    const decisionsRef = collection(db, 'copyDecisions');
-    const newDecision = await addDoc(decisionsRef, decisionData);
+    const decisionsRef = adminDb.collection('copyDecisions');
+    const newDecision = await decisionsRef.add(decisionData);
 
     // If adjusting, trigger regeneration (fire and forget)
     if (type === 'adjust' && adjustments && adjustments.length > 0) {
-      const copyProposal = copyProposalSnap.data();
+      const copyProposal = copyProposalSnap.data() as any;
       
       fetch(`${request.nextUrl.origin}/api/copy/generate`, {
         method: 'POST',
@@ -120,25 +114,26 @@ export async function POST(request: NextRequest) {
     // If approved, update the Golden Thread (CampaignContext)
     if (type === 'approve') {
       try {
-        const copyProposal = copyProposalSnap.data();
+        const copyProposal = copyProposalSnap.data() as any;
         const docId = campaignId || funnelId;
-        const campaignRef = doc(db, 'campaigns', docId);
-        
+        const campaignRef = adminDb.collection('campaigns').doc(docId);
+
         // ST-11.12: Full Handoff - Get funnel data to populate campaign if it's new
-        const funnelRef = doc(db, 'funnels', funnelId);
-        const funnelSnap = await getDoc(funnelRef);
-        const funnelData = funnelSnap.exists() ? funnelSnap.data() : {};
+        const funnelSnap = await adminDb.collection('funnels').doc(funnelId).get();
+        const funnelData: any = funnelSnap.exists ? funnelSnap.data() : {};
 
         // Load active offer from Offer Lab (if any)
         let offerData: CampaignContext['offer'] | undefined;
         if (funnelData.brandId) {
           try {
-            const offersRef = collection(db, 'brands', funnelData.brandId, 'offers');
-            const activeSnap = await getDocs(
-              query(offersRef, where('status', '==', 'active'), orderBy('updatedAt', 'desc'), limit(1))
-            );
+            const offersRef = adminDb.collection('brands').doc(funnelData.brandId).collection('offers');
+            const activeSnap = await offersRef
+              .where('status', '==', 'active')
+              .orderBy('updatedAt', 'desc')
+              .limit(1)
+              .get();
             const offerSnap = activeSnap.empty
-              ? await getDocs(query(offersRef, orderBy('updatedAt', 'desc'), limit(1)))
+              ? await offersRef.orderBy('updatedAt', 'desc').limit(1).get()
               : activeSnap;
             if (!offerSnap.empty) {
               const o = offerSnap.docs[0].data();
@@ -177,12 +172,12 @@ export async function POST(request: NextRequest) {
             keyBenefits: [], 
             counselor_reference: copyProposal.copywriterInsights?.[0]?.copywriterName || 'Copywriting',
           },
-          updatedAt: Timestamp.now(),
+          updatedAt: Timestamp.now() as any,
         };
 
         // Ensure createdAt exists
-        const campaignSnap = await getDoc(campaignRef);
-        if (!campaignSnap.exists()) {
+        const campaignSnap = await campaignRef.get();
+        if (!campaignSnap.exists) {
           (campaignData as any).createdAt = Timestamp.now();
         }
 

@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { MonaraTokenVault } from '@/lib/firebase/vault';
 
 /**
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
       provider: 'linkedin',
       accessToken: tokenData.access_token,
       refreshToken: tokenData.refresh_token,
-      expiresAt: Timestamp.fromMillis(Date.now() + (tokenData.expires_in || 5184000) * 1000),
+      expiresAt: Timestamp.fromMillis(Date.now() + (tokenData.expires_in || 5184000) * 1000) as any,
       scopes: tokenData.scope?.split(',') || ['r_ads', 'r_ads_reporting'],
       metadata: {
         accountId: '',

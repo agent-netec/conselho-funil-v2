@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/firebase/config';
-import { collection, query, where, getDocs, deleteDoc } from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,11 +28,10 @@ export async function POST(req: NextRequest) {
 
     if (metaUserId) {
       // Delete any integrations linked to this Meta user ID
-      const integrationsRef = collection(db, 'integrations');
-      const q = query(integrationsRef, where('metaUserId', '==', metaUserId));
-      const snap = await getDocs(q);
+      const adminDb = getAdminFirestore();
+      const snap = await adminDb.collection('integrations').where('metaUserId', '==', metaUserId).get();
       for (const docSnap of snap.docs) {
-        await deleteDoc(docSnap.ref);
+        await docSnap.ref.delete();
       }
     }
 

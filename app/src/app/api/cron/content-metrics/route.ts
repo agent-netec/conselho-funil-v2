@@ -11,8 +11,8 @@ export const maxDuration = 60;
 
 import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { collection, getDocs, query, where, doc, updateDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { fetchMediaInsights } from '@/lib/integrations/social/instagram-graph';
 import { fetchLinkedInPostMetrics } from '@/lib/integrations/social/linkedin-graph';
 import { logger } from '@/lib/utils/logger';
@@ -31,9 +31,10 @@ export async function GET(req: NextRequest) {
     }
 
     const startTime = Date.now();
+    const adminDb = getAdminFirestore();
 
     // Find all brands
-    const brandsSnap = await getDocs(collection(db, 'brands'));
+    const brandsSnap = await adminDb.collection('brands').get();
     const brandIds = brandsSnap.docs.map((d) => d.id);
 
     let totalUpdated = 0;
@@ -42,9 +43,12 @@ export async function GET(req: NextRequest) {
     for (const brandId of brandIds) {
       try {
         // Find published calendar items with externalId
-        const calendarRef = collection(db, 'brands', brandId, 'content_calendar');
-        const q = query(calendarRef, where('status', '==', 'published'));
-        const snap = await getDocs(q);
+        const snap = await adminDb
+          .collection('brands')
+          .doc(brandId)
+          .collection('content_calendar')
+          .where('status', '==', 'published')
+          .get();
 
         for (const d of snap.docs) {
           const item = d.data();
@@ -67,10 +71,14 @@ export async function GET(req: NextRequest) {
             }
 
             // Update calendar item with metrics
-            const itemRef = doc(db, 'brands', brandId, 'content_calendar', d.id);
-            await updateDoc(itemRef, {
+            const itemRef = adminDb
+              .collection('brands')
+              .doc(brandId)
+              .collection('content_calendar')
+              .doc(d.id);
+            await itemRef.update({
               'metadata.metrics': metrics,
-              'metadata.metricsUpdatedAt': Timestamp.now(),
+              'metadata.metricsUpdatedAt': Timestamp.now() as any,
             });
             totalUpdated++;
           } catch (err) {

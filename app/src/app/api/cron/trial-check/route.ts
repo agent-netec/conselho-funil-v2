@@ -11,8 +11,7 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 import { NextRequest } from 'next/server';
-import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { logger } from '@/lib/utils/logger';
 import { getExpiredTrialUsers, downgradeUsersToFree, getUser } from '@/lib/firebase/firestore';
@@ -42,10 +41,13 @@ export async function GET(req: NextRequest) {
       return createApiError(401, 'Unauthorized');
     }
 
+    const adminDb = getAdminFirestore();
+
     // 2. Send nurturing emails to active trial users
-    const trialUsersSnapshot = await getDocs(
-      query(collection(db, 'users'), where('tier', '==', 'trial'))
-    );
+    const trialUsersSnapshot = await adminDb
+      .collection('users')
+      .where('tier', '==', 'trial')
+      .get();
 
     const NURTURE_SCHEDULE = [1, 3, 5, 7, 10, 12] as const;
     let emailsSent = 0;
@@ -96,7 +98,7 @@ export async function GET(req: NextRequest) {
         }
 
         if (sent) {
-          await updateDoc(doc(db, 'users', user.id), { lastTrialEmailDay: trialDay });
+          await adminDb.collection('users').doc(user.id).update({ lastTrialEmailDay: trialDay });
           emailsSent++;
         }
       } catch (err) {

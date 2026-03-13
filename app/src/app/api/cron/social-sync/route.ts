@@ -11,8 +11,8 @@ export const maxDuration = 60;
 
 import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { collection, getDocs, query, where, doc, setDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { fetchAllInteractions } from '@/lib/integrations/social/instagram-graph';
 import { analyzeSentimentBatch } from '@/lib/ai/sentiment-analyzer';
 import { logger } from '@/lib/utils/logger';
@@ -63,19 +63,18 @@ export async function GET(req: NextRequest) {
         const toAnalyze = interactions.slice(0, 20);
         const enriched = await analyzeSentimentBatch(toAnalyze, 3);
 
+        const adminDb = getAdminFirestore();
+
         // 3. Save to Firestore
         let saved = 0;
         for (const interaction of enriched) {
           try {
-            const interactionRef = doc(
-              db,
-              'brands',
-              brandId,
-              'social_interactions',
-              interaction.id
-            );
-            await setDoc(
-              interactionRef,
+            const interactionRef = adminDb
+              .collection('brands')
+              .doc(brandId)
+              .collection('social_interactions')
+              .doc(interaction.id);
+            await interactionRef.set(
               {
                 ...interaction,
                 syncedAt: Timestamp.now(),
@@ -147,10 +146,13 @@ export async function GET(req: NextRequest) {
 // ─── Helpers ───
 
 async function getBrandsWithInstagram(): Promise<string[]> {
-  // Check tenants/{tenantId}/integrations/{provider} for meta or instagram
-  const integrationsRef = collection(db, 'integrations');
-  const q = query(integrationsRef, where('provider', 'in', ['meta', 'instagram']));
-  const snap = await getDocs(q);
+  // TASK 2.5 FIX: data lives in tenants/{tenantId}/integrations/{integrationId}
+  // Use collectionGroup to query across all tenants without enumerating them
+  const adminDb = getAdminFirestore();
+  const snap = await adminDb
+    .collectionGroup('integrations')
+    .where('provider', 'in', ['meta', 'instagram'])
+    .get();
 
   const brandIds = new Set<string>();
   for (const d of snap.docs) {

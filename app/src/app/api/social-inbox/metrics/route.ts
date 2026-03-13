@@ -11,8 +11,8 @@ import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
-import { collection, getDocs, query, where, orderBy, limit, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
 export async function GET(req: NextRequest) {
   try {
@@ -34,12 +34,9 @@ export async function GET(req: NextRequest) {
     );
 
     // Fetch all interactions for this brand
-    const interactionsRef = collection(db, 'brands', brandId, 'social_interactions');
-    const q = query(
-      interactionsRef,
-      where('syncedAt', '>=', sinceTimestamp)
-    );
-    const snap = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const snap = await adminDb.collection('brands').doc(brandId).collection('social_interactions')
+      .where('syncedAt', '>=', sinceTimestamp).get();
 
     const interactions = snap.docs.map((d) => d.data());
 

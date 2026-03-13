@@ -16,8 +16,8 @@ import { MonaraTokenVault, type MetaTokenMetadata, type GoogleTokenMetadata } fr
 import { fetchWithRetry } from '@/lib/integrations/ads/api-helpers';
 import { META_API, GOOGLE_ADS_API } from '@/lib/integrations/ads/constants';
 import { createVaultAsset } from '@/lib/firebase/vault';
-import { doc, setDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
 // ─── Types ───
 
@@ -106,6 +106,8 @@ export async function POST(req: NextRequest) {
     const imported: Array<{ creativeId: string; assetId: string }> = [];
     const errors: Array<{ creativeId: string; error: string }> = [];
 
+    const adminDb = getAdminFirestore();
+
     for (const creative of selectedCreatives) {
       try {
         // Create vault asset
@@ -127,14 +129,12 @@ export async function POST(req: NextRequest) {
 
         // V-4.3: Associate asset with campaign metrics
         if (creative.metrics && creative.campaignId) {
-          const linkRef = doc(
-            db,
-            'brands',
-            brandId,
-            'asset_campaign_links',
-            `${assetId}_${creative.campaignId}`
-          );
-          await setDoc(linkRef, {
+          const linkRef = adminDb
+            .collection('brands')
+            .doc(brandId)
+            .collection('asset_campaign_links')
+            .doc(`${assetId}_${creative.campaignId}`);
+          await linkRef.set({
             assetId,
             campaignId: creative.campaignId,
             campaignName: creative.campaignName,

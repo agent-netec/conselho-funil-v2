@@ -3,8 +3,8 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { ingestJourneyEvent } from '@/lib/intelligence/journey/bridge';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { doc, runTransaction, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { logger } from '@/lib/utils/logger';
 
 /**
@@ -150,14 +150,15 @@ function sanitizePayload(payload?: Record<string, unknown>): Record<string, unkn
 
 /** Firestore-based rate limiter for tracking events */
 async function checkRateLimit(brandId: string, eventCount: number): Promise<boolean> {
-  const rateLimitRef = doc(db, 'brands', brandId, 'rate_limits', 'tracking_ingest');
+  const adminDb = getAdminFirestore();
+  const rateLimitRef = adminDb.collection('brands').doc(brandId).collection('rate_limits').doc('tracking_ingest');
   const now = Timestamp.now();
 
   try {
-    return await runTransaction(db, async (transaction) => {
+    return await adminDb.runTransaction(async (transaction) => {
       const snap = await transaction.get(rateLimitRef);
 
-      if (!snap.exists()) {
+      if (!snap.exists) {
         transaction.set(rateLimitRef, { count: eventCount, windowStart: now });
         return true;
       }

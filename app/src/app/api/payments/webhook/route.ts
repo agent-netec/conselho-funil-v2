@@ -21,8 +21,8 @@ import Stripe from 'stripe';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { getStripeClient, getTierFromPriceId } from '@/lib/stripe';
 import { updateUserTier, getUser } from '@/lib/firebase/firestore';
-import { doc, updateDoc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import {
   sendWelcomeEmail,
   sendReceiptEmail,
@@ -47,7 +47,8 @@ async function updateSubscriptionStatus(
   status: 'active' | 'past_due' | 'canceled' | 'trialing',
   currentPeriodEnd?: number
 ) {
-  const userRef = doc(db, 'users', userId);
+  const adminDb = getAdminFirestore();
+  const userRef = adminDb.collection('users').doc(userId);
   const updates: Record<string, any> = {
     subscriptionStatus: status,
     updatedAt: Timestamp.now(),
@@ -57,7 +58,7 @@ async function updateSubscriptionStatus(
     updates.subscriptionCurrentPeriodEnd = Timestamp.fromMillis(currentPeriodEnd * 1000);
   }
 
-  await updateDoc(userRef, updates);
+  await userRef.update(updates);
 }
 
 /**
@@ -254,9 +255,10 @@ export async function POST(req: NextRequest) {
   }
 
   // ERR-6: Idempotency check — skip already-processed events
-  const eventRef = doc(db, 'stripe_events', event.id);
-  const eventSnap = await getDoc(eventRef);
-  if (eventSnap.exists()) {
+  const adminDb = getAdminFirestore();
+  const eventRef = adminDb.collection('stripe_events').doc(event.id);
+  const eventSnap = await eventRef.get();
+  if (eventSnap.exists) {
     console.log(`[Webhook] Duplicate event ${event.id}, skipping`);
     return createApiSuccess({ received: true, duplicate: true, eventId: event.id });
   }
@@ -298,7 +300,7 @@ export async function POST(req: NextRequest) {
 
   // ERR-6: Mark event as processed for idempotency
   try {
-    await setDoc(eventRef, {
+    await eventRef.set({
       eventType: event.type,
       processedAt: Timestamp.now(),
     });

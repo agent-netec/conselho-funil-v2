@@ -11,8 +11,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { db } from '@/lib/firebase/config';
-import { doc, getDoc } from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { ApiError } from '@/lib/utils/api-security';
 
 /**
@@ -150,14 +149,14 @@ export async function requireBrandAccess(
 
   // 3. Verificar se o usuário tem acesso à brand
   try {
-    const brandRef = doc(db, 'brands', safeBrandId);
-    const brandSnap = await getDoc(brandRef);
+    const adminDb = getAdminFirestore();
+    const brandSnap = await adminDb.collection('brands').doc(safeBrandId).get();
 
-    if (!brandSnap.exists()) {
+    if (!brandSnap.exists) {
       throw new ApiError(404, `Brand não encontrada: ${brandId}`);
     }
 
-    const brandData = brandSnap.data();
+    const brandData = brandSnap.data() as any; // exists check above guarantees non-null
 
     // Verificar ownership ou membership
     // Brands usam campo 'userId' (criação) ou 'ownerId' (multi-tenant)

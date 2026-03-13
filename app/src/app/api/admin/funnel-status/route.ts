@@ -1,13 +1,13 @@
 /**
  * API Admin para gerenciar status de funis
- * 
+ *
  * PATCH /api/admin/funnel-status
  * Body: { funnelId: string, status: string }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { doc, updateDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 
 const VALID_STATUSES = [
   'draft',
-  'generating', 
+  'generating',
   'review',
   'approved',
   'adjusting',
@@ -43,7 +43,8 @@ export async function PATCH(request: NextRequest) {
 
     console.log(`🔧 Admin: Updating funnel ${funnelId} status to ${status}`);
 
-    await updateDoc(doc(db, 'funnels', funnelId), {
+    const adminDb = getAdminFirestore();
+    await adminDb.collection('funnels').doc(funnelId).update({
       status,
       updatedAt: Timestamp.now(),
     });
@@ -68,14 +69,14 @@ export async function GET(request: NextRequest) {
       return createApiError(400, 'funnelId query param required');
     }
 
-    const { getDoc } = await import('firebase/firestore');
-    const funnelDoc = await getDoc(doc(db, 'funnels', funnelId));
+    const adminDb = getAdminFirestore();
+    const funnelDoc = await adminDb.collection('funnels').doc(funnelId).get();
 
-    if (!funnelDoc.exists()) {
+    if (!funnelDoc.exists) {
       return createApiError(404, 'Funnel not found');
     }
 
-    const data = funnelDoc.data();
+    const data = funnelDoc.data() as any;
     return createApiSuccess({
       id: funnelDoc.id,
       name: data.name,

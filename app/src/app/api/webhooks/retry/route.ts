@@ -3,8 +3,8 @@ export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard'; // DT-01 FIX
-import { doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { EventNormalizer } from '@/lib/automation/normalizer';
 
 const MAX_RETRY_COUNT = 3;
@@ -30,32 +30,34 @@ export async function POST(req: NextRequest) {
 
     await requireBrandAccess(req, brandId);
 
-    // 1. Buscar DLQ item
-    const dlqRef = doc(db, 'brands', brandId, 'dead_letter_queue', dlqItemId);
-    const dlqSnap = await getDoc(dlqRef);
+    const adminDb = getAdminFirestore();
 
-    if (!dlqSnap.exists()) {
+    // 1. Buscar DLQ item
+    const dlqRef = adminDb.collection('brands').doc(brandId).collection('dead_letter_queue').doc(dlqItemId);
+    const dlqSnap = await dlqRef.get();
+
+    if (!dlqSnap.exists) {
       return createApiError(404, 'DLQ item not found');
     }
 
-    const dlqItem = dlqSnap.data();
+    const dlqItem = dlqSnap.data() as any;
 
     // 2. Verificar retry count (CS-31.16)
     if (dlqItem.retryCount >= MAX_RETRY_COUNT) {
-      await updateDoc(dlqRef, { status: 'abandoned' });
+      await dlqRef.update({ status: 'abandoned' });
       return createApiError(422, `Max retry count (${MAX_RETRY_COUNT}) exceeded. Item abandoned.`);
     }
 
     // 3. DT-11 (PA-06): Verificar timestamp vs lead.lastInteraction
-    const leadRef = doc(db, 'brands', brandId, 'leads', dlqItem.leadId || '');
-    const leadSnap = await getDoc(leadRef);
-    if (leadSnap.exists()) {
-      const lead = leadSnap.data();
+    const leadRef = adminDb.collection('brands').doc(brandId).collection('leads').doc(dlqItem.leadId || '');
+    const leadSnap = await leadRef.get();
+    if (leadSnap.exists) {
+      const lead = leadSnap.data() as any;
       const leadLastInteraction = lead?.lastInteraction?.timestamp;
       if (leadLastInteraction && dlqItem.timestamp &&
           leadLastInteraction.toMillis() > dlqItem.timestamp.toMillis()) {
         // Lead já tem interação mais recente — skip re-processamento
-        await updateDoc(dlqRef, { status: 'resolved', resolvedAt: Timestamp.now() });
+        await dlqRef.update({ status: 'resolved', resolvedAt: Timestamp.now() });
         return createApiSuccess({
           message: 'DLQ item resolved (lead already has newer interaction)',
           dlqItemId,
@@ -80,7 +82,7 @@ export async function POST(req: NextRequest) {
       await PersonalizationMaestro.processInteraction(brandId, leadId, interaction);
 
       // 5. Sucesso → marcar como resolved
-      await updateDoc(dlqRef, {
+      await dlqRef.update({
         status: 'resolved',
         resolvedAt: Timestamp.now(),
       });
@@ -89,7 +91,7 @@ export async function POST(req: NextRequest) {
     } catch (retryError) {
       // 6. Falha → incrementar retry count
       const errorMsg = retryError instanceof Error ? retryError.message : 'Unknown error';
-      await updateDoc(dlqRef, {
+      await dlqRef.update({
         retryCount: dlqItem.retryCount + 1,
         error: errorMsg,
         timestamp: Timestamp.now(),

@@ -8,19 +8,8 @@ export const dynamic = 'force-dynamic';
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  doc, 
-  getDoc, 
-  collection, 
-  addDoc, 
-  Timestamp,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  limit,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { updateUserUsage } from '@/lib/firebase/firestore';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM, retrieveResearchContext } from '@/lib/ai/rag';
@@ -102,14 +91,15 @@ export async function POST(request: NextRequest) {
       return createApiError(400, 'funnelId, proposalId, and copyType are required');
     }
 
+    const adminDb = getAdminFirestore();
+
     // Get funnel and brand
-    const funnelRef = doc(db, 'funnels', funnelId);
-    const funnelSnap = await getDoc(funnelRef);
-    
-    if (!funnelSnap.exists()) {
+    const funnelSnap = await adminDb.collection('funnels').doc(funnelId).get();
+
+    if (!funnelSnap.exists) {
       return createApiError(404, 'Funnel not found');
     }
-    
+
     const funnel = { id: funnelSnap.id, ...funnelSnap.data() } as Funnel;
 
     // Auth guard: derive brandId from funnel, then verify access
@@ -132,13 +122,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Get proposal
-    const proposalRef = doc(db, 'funnels', funnelId, 'proposals', proposalId);
-    const proposalSnap = await getDoc(proposalRef);
-    
-    if (!proposalSnap.exists()) {
+    const proposalSnap = await adminDb.collection('funnels').doc(funnelId).collection('proposals').doc(proposalId).get();
+
+    if (!proposalSnap.exists) {
       return createApiError(404, 'Proposal not found');
     }
-    
+
     const proposal = { id: proposalSnap.id, ...proposalSnap.data() } as Proposal;
 
     // --- ENRIQUECIMENTO DE CONTEXTO (RAG) ---
@@ -178,15 +167,15 @@ export async function POST(request: NextRequest) {
     let offerContext = '';
     if (funnel.brandId) {
       try {
-        const offersRef = collection(db, 'brands', funnel.brandId, 'offers');
-        const offersSnap = await getDocs(
-          query(offersRef, where('status', '==', 'active'), orderBy('updatedAt', 'desc'), limit(1))
-        );
+        const offersRef = adminDb.collection('brands').doc(funnel.brandId).collection('offers');
+        const offersSnap = await offersRef
+          .where('status', '==', 'active')
+          .orderBy('updatedAt', 'desc')
+          .limit(1)
+          .get();
         if (offersSnap.empty) {
           // Fallback: most recent draft
-          const draftSnap = await getDocs(
-            query(offersRef, orderBy('updatedAt', 'desc'), limit(1))
-          );
+          const draftSnap = await offersRef.orderBy('updatedAt', 'desc').limit(1).get();
           if (!draftSnap.empty) {
             const offer = draftSnap.docs[0].data();
             offerContext = formatOfferForPrompt(offer);
@@ -223,8 +212,9 @@ export async function POST(request: NextRequest) {
     // 5. Contexto de Anexos do Chat (Busca no histórico da conversa)
     let attachmentsContext = '';
     if (conversationId) {
-      const messagesRef = collection(db, 'conversations', conversationId, 'messages');
-      const messagesSnap = await getDocs(query(messagesRef, orderBy('createdAt', 'desc'), limit(20)));
+      const messagesSnap = await adminDb
+        .collection('conversations').doc(conversationId).collection('messages')
+        .orderBy('createdAt', 'desc').limit(20).get();
       
       const attachmentMessages = messagesSnap.docs
         .map(doc => doc.data().content as string)
@@ -323,12 +313,14 @@ export async function POST(request: NextRequest) {
     // F2-2: Boost offer score using real Offer Lab data
     if (offerContext) {
       try {
-        const offersRef = collection(db, 'brands', funnel.brandId!, 'offers');
-        const activeSnap = await getDocs(
-          query(offersRef, where('status', '==', 'active'), orderBy('updatedAt', 'desc'), limit(1))
-        );
+        const offersRef = adminDb.collection('brands').doc(funnel.brandId!).collection('offers');
+        const activeSnap = await offersRef
+          .where('status', '==', 'active')
+          .orderBy('updatedAt', 'desc')
+          .limit(1)
+          .get();
         const offerSnap = activeSnap.empty
-          ? (await getDocs(query(offersRef, orderBy('updatedAt', 'desc'), limit(1)))).docs[0]
+          ? (await offersRef.orderBy('updatedAt', 'desc').limit(1).get()).docs[0]
           : activeSnap.docs[0];
 
         if (offerSnap) {
@@ -365,8 +357,8 @@ export async function POST(request: NextRequest) {
     };
 
     // Save to Firestore
-    const copyProposalsRef = collection(db, 'funnels', funnelId, 'copyProposals');
-    const newCopyDoc = await addDoc(copyProposalsRef, copyProposalData);
+    const copyProposalsRef = adminDb.collection('funnels').doc(funnelId).collection('copyProposals');
+    const newCopyDoc = await copyProposalsRef.add(copyProposalData);
 
     console.log(`✅ Copy gerado com sucesso: ${newCopyDoc.id}`);
 
@@ -410,9 +402,11 @@ export async function GET(request: NextRequest) {
       return createApiError(400, 'funnelId is required');
     }
 
+    const adminDb = getAdminFirestore();
+
     // Auth guard: derive brandId from funnel, then verify access
-    const funnelDocSnap = await getDoc(doc(db, 'funnels', funnelId));
-    if (funnelDocSnap.exists()) {
+    const funnelDocSnap = await adminDb.collection('funnels').doc(funnelId).get();
+    if (funnelDocSnap.exists) {
       const funnelBrandId = (funnelDocSnap.data() as any).brandId;
       if (funnelBrandId) {
         try {
@@ -423,16 +417,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const copyProposalsRef = collection(db, 'funnels', funnelId, 'copyProposals');
-    
-    let q;
-    if (proposalId) {
-      q = query(copyProposalsRef, where('proposalId', '==', proposalId));
-    } else {
-      q = copyProposalsRef;
-    }
-
-    const snapshot = await getDocs(q);
+    const copyProposalsRef = adminDb.collection('funnels').doc(funnelId).collection('copyProposals');
+    const snapshot = await (proposalId
+      ? copyProposalsRef.where('proposalId', '==', proposalId).get()
+      : copyProposalsRef.get());
     const copyProposals = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),

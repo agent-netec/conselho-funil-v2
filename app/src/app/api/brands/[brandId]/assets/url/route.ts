@@ -1,13 +1,13 @@
 /**
  * API Route: POST /api/brands/[brandId]/assets/url
  * Adiciona uma URL como fonte de contexto para a marca
- * 
+ *
  * US-13.7: Extração de Contexto via URL
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { extractContentFromUrl } from '@/lib/ai/url-scraper';
 import { processAssetText } from '@/lib/firebase/assets-server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
@@ -55,8 +55,9 @@ export async function POST(
       return createApiError(400, 'Não foi possível extrair conteúdo útil desta URL');
     }
 
+    const adminDb = getAdminFirestore();
+
     // Criar asset no Firestore (coleção única para compatibilidade com RAG/assets UI)
-    const assetsRef = collection(db, 'brand_assets');
     const assetData = {
       brandId,
       userId,
@@ -70,10 +71,10 @@ export async function POST(
       extractedText: scraped.content,
       status: 'processing' as const,
       isApprovedForAI: false, // US-18.3: Adicionado flag de aprovação
-      createdAt: serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
     };
 
-    const assetDoc = await addDoc(assetsRef, assetData);
+    const assetDoc = await adminDb.collection('brand_assets').add(assetData);
     const assetId = assetDoc.id;
 
     console.log('[URL Asset] Asset criado:', assetId);
@@ -97,4 +98,3 @@ export async function POST(
     return createApiError(500, 'Erro interno ao processar URL');
   }
 }
-

@@ -1,24 +1,15 @@
 /**
  * API Route para upload da base de conhecimento
- * 
+ *
  * Esta rota permite fazer upload dos chunks processados para o Firestore
- * usando o Firebase Client SDK (não requer service account)
- * 
+ * usando o Firebase Admin SDK (server-side, bypasses security rules)
+ *
  * POST /api/admin/upload-knowledge
  * Body: { chunks: ProcessedChunk[], clear?: boolean }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  collection, 
-  doc, 
-  writeBatch,
-  getDocs,
-  deleteDoc,
-  query,
-  limit,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
@@ -53,12 +44,12 @@ function generateEmbedding(text: string): number[] {
   const vector = new Array(768).fill(0);
   const normalized = text.toLowerCase().replace(/[^\w\s]/g, '');
   const words = normalized.split(/\s+/).filter(w => w.length > 2);
-  
+
   const wordCounts: Record<string, number> = {};
   words.forEach(word => {
     wordCounts[word] = (wordCounts[word] || 0) + 1;
   });
-  
+
   const hashString = (str: string): number => {
     let hash = 5381;
     for (let i = 0; i < str.length; i++) {
@@ -66,34 +57,34 @@ function generateEmbedding(text: string): number[] {
     }
     return hash;
   };
-  
+
   Object.entries(wordCounts).forEach(([word, count]) => {
     const hash1 = hashString(word);
     const hash2 = hashString(word + '_secondary');
     const hash3 = hashString(word + '_tertiary');
-    
+
     const indices = [
       Math.abs(hash1) % 768,
       Math.abs(hash2) % 768,
       Math.abs(hash3) % 768,
     ];
-    
+
     const weight = Math.log(1 + count) / Math.log(1 + words.length);
     indices.forEach(idx => {
       vector[idx] += weight;
     });
   });
-  
+
   words.slice(0, 10).forEach((word, i) => {
     const idx = Math.abs(hashString(word + '_pos')) % 768;
     vector[idx] += (10 - i) * 0.05;
   });
-  
+
   const magnitude = Math.sqrt(vector.reduce((sum, v) => sum + v * v, 0));
   if (magnitude > 0) {
     return vector.map(v => v / magnitude);
   }
-  
+
   return vector;
 }
 
@@ -125,23 +116,24 @@ export async function POST(request: NextRequest) {
 
     console.log(`📤 Iniciando upload de ${chunks.length} chunks...`);
 
+    const adminDb = getAdminFirestore();
+
     // Clear existing knowledge if requested
     if (clear) {
       console.log('🗑️ Limpando base existente...');
       let deleted = 0;
       let hasMore = true;
-      
+
       while (hasMore) {
-        const q = query(collection(db, 'knowledge'), limit(100));
-        const snapshot = await getDocs(q);
-        
+        const snapshot = await adminDb.collection('knowledge').limit(100).get();
+
         if (snapshot.empty) {
           hasMore = false;
           break;
         }
-        
-        const deletePromises = snapshot.docs.map(docSnap => 
-          deleteDoc(doc(db, 'knowledge', docSnap.id))
+
+        const deletePromises = snapshot.docs.map(docSnap =>
+          adminDb.collection('knowledge').doc(docSnap.id).delete()
         );
         await Promise.all(deletePromises);
         deleted += snapshot.docs.length;
@@ -157,15 +149,14 @@ export async function POST(request: NextRequest) {
 
     for (let i = 0; i < chunks.length; i += batchSize) {
       const batchChunks = chunks.slice(i, i + batchSize);
-      
+
       const uploadPromises = batchChunks.map(async (chunk) => {
         try {
           const embedding = generateEmbedding(chunk.content);
           const docId = createDocId(chunk);
-          const docRef = doc(db, 'knowledge', docId);
-          
-          const { setDoc } = await import('firebase/firestore');
-          await setDoc(docRef, {
+          const docRef = adminDb.collection('knowledge').doc(docId);
+
+          await docRef.set({
             content: chunk.content,
             embedding: embedding,
             metadata: {
@@ -177,7 +168,7 @@ export async function POST(request: NextRequest) {
             createdAt: new Date(),
             updatedAt: new Date(),
           });
-          
+
           return true;
         } catch (error) {
           console.error(`Error uploading chunk:`, error);
@@ -188,9 +179,9 @@ export async function POST(request: NextRequest) {
       const results = await Promise.all(uploadPromises);
       uploaded += results.filter(Boolean).length;
       errors += results.filter(r => !r).length;
-      
+
       console.log(`  Batch ${Math.floor(i / batchSize) + 1}: ${results.filter(Boolean).length} chunks`);
-      
+
       // Small delay between batches
       if (i + batchSize < chunks.length) {
         await new Promise(resolve => setTimeout(resolve, 200));
@@ -211,13 +202,12 @@ export async function GET(request: NextRequest) {
     // Hardening: Verificar role de admin
     await verifyAdminRole(request);
 
-    const q = query(collection(db, 'knowledge'), limit(1));
-    const snapshot = await getDocs(q);
-    
+    const adminDb = getAdminFirestore();
+    const snapshot = await adminDb.collection('knowledge').limit(1).get();
+
     // Count total (limited check)
-    const countQuery = query(collection(db, 'knowledge'), limit(500));
-    const countSnapshot = await getDocs(countQuery);
-    
+    const countSnapshot = await adminDb.collection('knowledge').limit(500).get();
+
     return createApiSuccess({
       status: 'ok',
       hasDocuments: !snapshot.empty,
@@ -233,4 +223,3 @@ export async function GET(request: NextRequest) {
     return handleSecurityError(error);
   }
 }
-

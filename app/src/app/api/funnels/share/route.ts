@@ -1,13 +1,13 @@
 /**
  * API Route para Compartilhamento de Funis
- * 
+ *
  * POST /api/funnels/share - Criar/atualizar link de compartilhamento
  * DELETE /api/funnels/share - Remover compartilhamento
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { NextRequest } from 'next/server';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
@@ -44,11 +44,13 @@ export async function POST(request: NextRequest) {
       return handleSecurityError(error);
     }
 
+    const adminDb = getAdminFirestore();
+
     // Verify funnel exists
-    const funnelRef = doc(db, 'funnels', funnelId);
-    const funnelSnap = await getDoc(funnelRef);
-    
-    if (!funnelSnap.exists()) {
+    const funnelRef = adminDb.collection('funnels').doc(funnelId);
+    const funnelSnap = await funnelRef.get();
+
+    if (!funnelSnap.exists) {
       return createApiError(404, 'Funnel not found');
     }
 
@@ -58,7 +60,7 @@ export async function POST(request: NextRequest) {
       : null;
 
     // Update funnel with share settings
-    await updateDoc(funnelRef, {
+    await funnelRef.update({
       sharing: {
         enabled: true,
         token: shareToken,
@@ -91,9 +93,10 @@ export async function DELETE(request: NextRequest) {
       return createApiError(400, 'funnelId is required');
     }
 
-    const funnelRef = doc(db, 'funnels', funnelId);
-    
-    await updateDoc(funnelRef, {
+    const adminDb = getAdminFirestore();
+    const funnelRef = adminDb.collection('funnels').doc(funnelId);
+
+    await funnelRef.update({
       sharing: {
         enabled: false,
         token: null,
@@ -109,6 +112,5 @@ export async function DELETE(request: NextRequest) {
     return createApiError(500, 'Failed to remove share link', { details: String(error) });
   }
 }
-
 
 

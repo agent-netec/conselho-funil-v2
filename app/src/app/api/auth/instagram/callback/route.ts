@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { MonaraTokenVault } from '@/lib/firebase/vault';
 import { META_API } from '@/lib/integrations/ads/constants';
 
@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
       brandId,
       provider: 'instagram',
       accessToken,
-      expiresAt: Timestamp.fromMillis(Date.now() + expiresIn * 1000),
+      expiresAt: Timestamp.fromMillis(Date.now() + expiresIn * 1000) as any,
       scopes: ['instagram_basic', 'instagram_manage_insights', 'pages_show_list'],
       metadata: {
         instagramAccountId: igAccountId,

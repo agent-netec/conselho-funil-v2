@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server';
-import { collection, getDocs, query, where, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiSuccess, createApiError } from '@/lib/utils/api-response';
@@ -29,9 +28,13 @@ export async function POST(req: NextRequest) {
 
   try {
     // Find visual assets that need re-analysis
-    const assetsRef = collection(db, 'brands', brandId, 'assets');
-    const q = query(assetsRef, where('type', '==', 'image'));
-    const snap = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const snap = await adminDb
+      .collection('brands')
+      .doc(brandId)
+      .collection('assets')
+      .where('type', '==', 'image')
+      .get();
 
     const assetIds = snap.docs.map(d => d.id);
 

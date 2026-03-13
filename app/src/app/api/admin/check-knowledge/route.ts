@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { collection, getDocs, query, limit, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiSuccess } from '@/lib/utils/api-response';
 
@@ -12,17 +11,16 @@ export async function GET(request: NextRequest) {
     // Hardening: Verificar role de admin
     await verifyAdminRole(request);
 
+    const adminDb = getAdminFirestore();
+
     // Get all chunks (limited)
-    const allQuery = query(collection(db, 'knowledge'), limit(100));
-    const allSnapshot = await getDocs(allQuery);
-    
+    const allSnapshot = await adminDb.collection('knowledge').limit(100).get();
+
     // Get approved chunks only
-    const approvedQuery = query(
-      collection(db, 'knowledge'),
-      where('metadata.status', '==', 'approved'),
-      limit(100)
-    );
-    const approvedSnapshot = await getDocs(approvedQuery);
+    const approvedSnapshot = await adminDb.collection('knowledge')
+      .where('metadata.status', '==', 'approved')
+      .limit(100)
+      .get();
 
     // Analyze the chunks
     const analysis = {
@@ -45,23 +43,23 @@ export async function GET(request: NextRequest) {
 
     allSnapshot.docs.forEach((doc) => {
       const data = doc.data();
-      
+
       // By source file
       const sourceFile = data.source?.file || 'unknown';
       analysis.bySource[sourceFile] = (analysis.bySource[sourceFile] || 0) + 1;
-      
+
       // By counselor
       const counselor = data.metadata?.counselor || 'none';
       analysis.byCounselor[counselor] = (analysis.byCounselor[counselor] || 0) + 1;
-      
+
       // By status
       const status = data.metadata?.status || 'undefined';
       analysis.byStatus[status] = (analysis.byStatus[status] || 0) + 1;
-      
+
       // By doc type
       const docType = data.metadata?.docType || 'undefined';
       analysis.byDocType[docType] = (analysis.byDocType[docType] || 0) + 1;
-      
+
       // Sample chunks (first 5)
       if (analysis.sampleChunks.length < 5) {
         analysis.sampleChunks.push({

@@ -6,18 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  collection,
-  getDocs,
-  addDoc,
-  query,
-  orderBy,
-  where,
-  Timestamp,
-  doc,
-  getDoc,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import type { LibraryTemplate, Funnel, Proposal } from '@/types/database';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
@@ -34,12 +24,8 @@ export async function GET(request: NextRequest) {
     const vertical = searchParams.get('vertical');
     const objective = searchParams.get('objective');
 
-    let q = query(
-      collection(db, 'library'),
-      orderBy('usageCount', 'desc')
-    );
-
-    const snapshot = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const snapshot = await adminDb.collection('library').orderBy('usageCount', 'desc').get();
     let templates = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
@@ -76,9 +62,11 @@ export async function POST(request: NextRequest) {
       return createApiError(400, 'funnelId and proposalId are required');
     }
 
+    const adminDb = getAdminFirestore();
+
     // Get funnel data
-    const funnelDoc = await getDoc(doc(db, 'funnels', funnelId));
-    if (!funnelDoc.exists()) {
+    const funnelDoc = await adminDb.collection('funnels').doc(funnelId).get();
+    if (!funnelDoc.exists) {
       return createApiError(404, 'Funnel not found');
     }
     const funnel = { id: funnelDoc.id, ...funnelDoc.data() } as Funnel;
@@ -93,8 +81,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get proposal data
-    const proposalDoc = await getDoc(doc(db, 'funnels', funnelId, 'proposals', proposalId));
-    if (!proposalDoc.exists()) {
+    const proposalDoc = await adminDb.collection('funnels').doc(funnelId).collection('proposals').doc(proposalId).get();
+    if (!proposalDoc.exists) {
       return createApiError(404, 'Proposal not found');
     }
     const proposal = { id: proposalDoc.id, ...proposalDoc.data() } as Proposal;
@@ -130,7 +118,7 @@ export async function POST(request: NextRequest) {
       template.createdBy = funnel.userId;
     }
 
-    const templateRef = await addDoc(collection(db, 'library'), template);
+    const templateRef = await adminDb.collection('library').add(template);
 
     console.log(`📚 Template salvo: ${templateRef.id}`);
 

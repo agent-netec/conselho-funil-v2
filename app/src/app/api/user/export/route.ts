@@ -4,8 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/firebase/config';
-import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 
 async function getUserIdFromToken(req: NextRequest): Promise<string> {
@@ -45,19 +44,16 @@ export async function GET(req: NextRequest) {
       _type: 'user-data-export',
     };
 
+    const adminDb = getAdminFirestore();
+
     // User profile
-    const userRef = doc(db, 'users', userId);
-    const userSnap = await getDoc(userRef);
-    exportData.user = userSnap.exists()
+    const userSnap = await adminDb.collection('users').doc(userId).get();
+    exportData.user = userSnap.exists
       ? { id: userSnap.id, ...userSnap.data() }
       : null;
 
     // User's brands
-    const brandsQuery = query(
-      collection(db, 'brands'),
-      where('userId', '==', userId)
-    );
-    const brandsSnap = await getDocs(brandsQuery);
+    const brandsSnap = await adminDb.collection('brands').where('userId', '==', userId).get();
     exportData.brands = brandsSnap.docs.map((d) => ({
       id: d.id,
       ...d.data(),

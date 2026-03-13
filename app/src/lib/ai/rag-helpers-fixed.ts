@@ -11,7 +11,7 @@ export async function searchSimilarChunks(
       brandId: { '$eq': brandId }
     };
     
-    if (filters?.funnelStage) pineconeFilters.funnelStage = { '$eq': filters.funnelStage };
+    // TASK 3.1: funnelStage removed — field never stored in Pinecone upsert (silent [] bug)
     if (filters?.channel) pineconeFilters.channel = { '$eq': filters.channel };
 
     const namespace = `brand_${brandId}`;

@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic';
-import { NextRequest, NextResponse } from 'next/server';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { NextRequest } from 'next/server';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { migrateChunksToPinecone } from '@/lib/ai/pinecone-migration';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { verifyAdminRole, handleSecurityError, ApiError } from '@/lib/utils/api-security';
@@ -12,19 +11,22 @@ export const runtime = 'nodejs';
  * Busca chunks da coleção brand_assets (subcoleções chunks)
  */
 async function fetchApprovedBrandChunks(): Promise<any[]> {
-  const assetsSnap = await getDocs(
-    query(
-      collection(db, 'brand_assets'),
-      where('status', '==', 'ready'),
-      where('isApprovedForAI', '==', true)
-    )
-  );
+  const adminDb = getAdminFirestore();
+  const assetsSnap = await adminDb
+    .collection('brand_assets')
+    .where('status', '==', 'ready')
+    .where('isApprovedForAI', '==', true)
+    .get();
 
   const allChunks: any[] = [];
 
   for (const assetDoc of assetsSnap.docs) {
     const assetData = assetDoc.data();
-    const chunksSnap = await getDocs(collection(db, 'brand_assets', assetDoc.id, 'chunks'));
+    const chunksSnap = await adminDb
+      .collection('brand_assets')
+      .doc(assetDoc.id)
+      .collection('chunks')
+      .get();
 
     chunksSnap.docs.forEach((chunkDoc) => {
       const chunkData = chunkDoc.data();
@@ -44,12 +46,11 @@ async function fetchApprovedBrandChunks(): Promise<any[]> {
  * Busca chunks da coleção universal knowledge
  */
 async function fetchApprovedKnowledgeChunks(): Promise<any[]> {
-  const knowledgeSnap = await getDocs(
-    query(
-      collection(db, 'knowledge'),
-      where('metadata.isApprovedForAI', '==', true)
-    )
-  );
+  const adminDb = getAdminFirestore();
+  const knowledgeSnap = await adminDb
+    .collection('knowledge')
+    .where('metadata.isApprovedForAI', '==', true)
+    .get();
 
   return knowledgeSnap.docs.map(doc => ({
     ...doc.data(),

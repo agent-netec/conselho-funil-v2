@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { doc, setDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { getServiceAccountToken, getServiceAccountEmail } from '@/lib/integrations/ads/google-service-account';
@@ -75,8 +75,8 @@ export async function POST(req: NextRequest) {
     const customerName = customerData?.customer?.descriptiveName || customerId;
 
     // Save integration to Firestore
-    await setDoc(
-      doc(db, 'brands', brandId, 'integrations', 'google'),
+    const adminDb = getAdminFirestore();
+    await adminDb.collection('brands').doc(brandId).collection('integrations').doc('google').set(
       {
         provider: 'google',
         method: 'service_account',

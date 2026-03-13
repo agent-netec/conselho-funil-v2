@@ -4,8 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/firebase/config';
-import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 
@@ -30,11 +29,13 @@ export async function GET(
     const { brandId } = await params;
     await requireBrandAccess(req, brandId);
 
-    // Export brand document
-    const brandRef = doc(db, 'brands', brandId);
-    const brandSnap = await getDoc(brandRef);
+    const adminDb = getAdminFirestore();
 
-    if (!brandSnap.exists()) {
+    // Export brand document
+    const brandRef = adminDb.collection('brands').doc(brandId);
+    const brandSnap = await brandRef.get();
+
+    if (!brandSnap.exists) {
       return NextResponse.json({ error: 'Brand não encontrada' }, { status: 404 });
     }
 
@@ -46,8 +47,8 @@ export async function GET(
 
     // Export subcollections
     for (const sub of SUBCOLLECTIONS) {
-      const subRef = collection(db, 'brands', brandId, sub);
-      const snapshot = await getDocs(subRef);
+      const subRef = adminDb.collection('brands').doc(brandId).collection(sub);
+      const snapshot = await subRef.get();
       exportData[sub] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
     }
 

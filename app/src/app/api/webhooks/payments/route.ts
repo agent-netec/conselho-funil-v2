@@ -15,8 +15,8 @@ import {
   type PaymentProvider,
 } from '@/lib/webhooks/payment-adapters';
 import { logger } from '@/lib/utils/logger';
-import { Timestamp, doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
 /**
  * POST /api/webhooks/payments?brandId=XXX
@@ -88,8 +88,8 @@ export async function POST(request: NextRequest) {
       status: normalized.status,
       payment: normalized.payment,
       webhookEventId: normalized.webhookEventId,
-      processedAt: Timestamp.now(),
-      createdAt: Timestamp.now(),
+      processedAt: Timestamp.now() as any,
+      createdAt: Timestamp.now() as any,
     });
 
     // 2. Update lead metrics if transaction is approved
@@ -107,8 +107,8 @@ export async function POST(request: NextRequest) {
             totalLtv: newTotalLtv,
             transactionCount: newTxCount,
             averageTicket: Math.round(newTotalLtv / newTxCount),
-            lastPurchaseAt: Timestamp.now(),
-            firstPurchaseAt: lead.metrics?.firstPurchaseAt || Timestamp.now(),
+            lastPurchaseAt: Timestamp.now() as any,
+            firstPurchaseAt: lead.metrics?.firstPurchaseAt || Timestamp.now() as any,
           },
         });
       } else {
@@ -193,8 +193,8 @@ async function validateProviderSignature(
   brandId: string
 ): Promise<boolean> {
   // Load webhook secrets from brand config
-  const brandRef = doc(db, 'brands', brandId);
-  const brandSnap = await getDoc(brandRef);
+  const adminDb = getAdminFirestore();
+  const brandSnap = await adminDb.collection('brands').doc(brandId).get();
   const brandData = brandSnap.data() as Record<string, unknown> | undefined;
   const webhookSecrets = (brandData?.webhookSecrets || {}) as Record<string, string>;
 
@@ -235,13 +235,13 @@ async function validateProviderSignature(
 /** Check if webhookEventId has already been processed (idempotency) */
 async function checkIdempotency(brandId: string, webhookEventId: string): Promise<boolean> {
   try {
-    const idempRef = doc(db, 'brands', brandId, 'webhook_idempotency', webhookEventId);
-    const snap = await getDoc(idempRef);
-    if (snap.exists()) return true;
+    const adminDb = getAdminFirestore();
+    const idempRef = adminDb.collection('brands').doc(brandId).collection('webhook_idempotency').doc(webhookEventId);
+    const snap = await idempRef.get();
+    if (snap.exists) return true;
 
     // Store the idempotency key
-    const { setDoc } = await import('firebase/firestore');
-    await setDoc(idempRef, { processedAt: Timestamp.now() });
+    await idempRef.set({ processedAt: Timestamp.now() });
     return false;
   } catch {
     // Fail-open: process the event if idempotency check fails

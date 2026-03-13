@@ -6,7 +6,7 @@ import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { createAutomationLog, createInAppNotification, setKillSwitchState } from '@/lib/firebase/automation';
 import { sendSlackNotification, isValidSlackWebhookUrl } from '@/lib/notifications/slack';
 import { requireBrandAccess } from '@/lib/auth/brand-guard'; // DT-01 FIX: path CORRETO
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 
 /**
  * Endpoint para disparar o Kill-Switch de tráfego.
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
             type: entity.type,
           },
         },
-        timestamp: Timestamp.now(), // P-08: Timestamp, NUNCA Date
+        timestamp: Timestamp.now() as any, // P-08: Timestamp, NUNCA Date
       });
       logIds.push(logId);
     }
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
       title: 'Kill-Switch Acionado',
       message: `${body.reason} — ${body.affectedAdEntities.length} entidades afetadas`,
       isRead: false,
-      createdAt: Timestamp.now(),
+      createdAt: Timestamp.now() as any,
     }).catch(err => console.error('[Kill-Switch] In-App notification failed:', err));
 
     return createApiSuccess({

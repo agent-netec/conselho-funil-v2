@@ -5,8 +5,8 @@ import { MonaraTokenVault } from '@/lib/firebase/vault';
 import { EventNormalizer } from '@/lib/automation/normalizer';
 import { PersonalizationMaestro } from '@/lib/intelligence/personalization/maestro';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { addDoc, collection, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
 /**
  * Webhook Dispatcher (ST-20.3)
@@ -71,11 +71,11 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error(`[Webhook Error] ${platform}:`, error);
-    
+
     // S31-DLQ-01: Persistir na DLQ (fire-and-forget — P-10)
     if (brandId) {
-      const dlqRef = collection(db, 'brands', brandId, 'dead_letter_queue'); // DT-04: underscores
-      addDoc(dlqRef, {
+      const adminDb = getAdminFirestore();
+      adminDb.collection('brands').doc(brandId).collection('dead_letter_queue').add({ // DT-04: underscores
         webhookType: platform,
         payload: rawBody.substring(0, 10240), // P-13: Truncar a 10KB
         error: errorMessage,

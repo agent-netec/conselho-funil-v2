@@ -134,10 +134,31 @@ service cloud.firestore {
         allow read, write: if isAuthenticated() &&
           get(/databases/$(database)/documents/funnels/$(funnelId)).data.userId == request.auth.uid;
       }
+      // Copy proposals — generated copy variants per funnel
+      match /copyProposals/{copyProposalId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/funnels/$(funnelId)).data.userId == request.auth.uid;
+      }
     }
 
     // Root decisions collection (API routes)
     match /decisions/{decisionId} {
+      allow list: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow get: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // Campaigns — created by API routes, read by client
+    match /campaigns/{campaignId} {
+      allow list: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow get: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // Copy Decisions — feedback/decisions about generated copy
+    match /copyDecisions/{copyDecisionId} {
       allow list: if isAuthenticated() && resource.data.userId == request.auth.uid;
       allow get: if isAuthenticated() && resource.data.userId == request.auth.uid;
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
@@ -194,6 +215,12 @@ service cloud.firestore {
           get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
       }
 
+      // Generated ads — output of AI ad generation
+      match /generated_ads/{adId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+      }
+
       // Offer Lab — subcollection de ofertas da brand
       match /offers/{offerId} {
         allow read: if isAuthenticated() && (
@@ -214,6 +241,55 @@ service cloud.firestore {
                 )))
             : get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid
         );
+      }
+
+      // TASK 1.5: Content Calendar — used by content-calendar.ts, approval-engine.ts, API routes
+      match /content_calendar/{entryId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+
+        // Approval history subcollection
+        match /history/{historyId} {
+          allow read, write: if isAuthenticated() &&
+            get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+        }
+      }
+
+      // TASK 1.6: Copy DNA — used by content/analytics route
+      match /copy_dna/{dnaId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+      }
+
+      // TASK 1.7: Performance Metrics — read by client hook; write only via Admin SDK (cron ads-sync)
+      match /performance_metrics/{metricId} {
+        allow read: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+        allow write: if false; // Admin SDK only (cron bypasses rules)
+      }
+
+      // TASK 1.8: Social Interactions — read/write by social-inbox routes and engagement-scorer
+      match /social_interactions/{interactionId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+      }
+
+      // TASK 1.9 (brand path): Leads subcollection — used by intelligence engines and automation adapters
+      match /leads/{leadId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+
+        // Lead events subcollection
+        match /events/{eventId} {
+          allow read, write: if isAuthenticated() &&
+            get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+        }
+      }
+
+      // TASK 1.10 (brand path): Transactions subcollection — used by attribution/bridge.ts
+      match /transactions/{transactionId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
       }
     }
 
@@ -241,6 +317,37 @@ service cloud.firestore {
       allow read: if true;
       allow create: if isAuthenticated();
       allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // TASK 1.9 (root): Leads — filtered by brandId in all queries; brandId must belong to the caller
+    // NOTE: uses get() in list rule — required until API routes migrate to Admin SDK (Fase 2)
+    match /leads/{leadId} {
+      allow list: if isAuthenticated() &&
+        get(/databases/$(database)/documents/brands/$(resource.data.brandId)).data.userId == request.auth.uid;
+      allow get: if isAuthenticated() &&
+        get(/databases/$(database)/documents/brands/$(resource.data.brandId)).data.userId == request.auth.uid;
+      allow create: if isAuthenticated(); // created by automation/cron via server routes
+      allow update, delete: if isAuthenticated() &&
+        get(/databases/$(database)/documents/brands/$(resource.data.brandId)).data.userId == request.auth.uid;
+
+      // Lead events subcollection (root path)
+      match /events/{eventId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/leads/$(leadId)).data != null &&
+          get(/databases/$(database)/documents/brands/$(get(/databases/$(database)/documents/leads/$(leadId)).data.brandId)).data.userId == request.auth.uid;
+      }
+    }
+
+    // TASK 1.10 (root): Transactions — filtered by brandId; used by attribution hook and journey.ts
+    // NOTE: uses get() in list rule — required until API routes migrate to Admin SDK (Fase 2)
+    match /transactions/{transactionId} {
+      allow list: if isAuthenticated() &&
+        get(/databases/$(database)/documents/brands/$(resource.data.brandId)).data.userId == request.auth.uid;
+      allow get: if isAuthenticated() &&
+        get(/databases/$(database)/documents/brands/$(resource.data.brandId)).data.userId == request.auth.uid;
+      allow create: if isAuthenticated(); // created by journey.ts (server-side)
+      allow update, delete: if isAuthenticated() &&
+        get(/databases/$(database)/documents/brands/$(resource.data.brandId)).data.userId == request.auth.uid;
     }
 
     // Embedding cache — written by server-side API routes (no user auth context)

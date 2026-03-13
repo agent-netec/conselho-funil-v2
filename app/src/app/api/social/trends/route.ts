@@ -19,7 +19,6 @@ import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { ExaAdapter } from '@/lib/mcp/adapters/exa';
 import { FirecrawlAdapter } from '@/lib/mcp/adapters/firecrawl';
 import { updateUserUsage } from '@/lib/firebase/firestore';
-import { Timestamp } from 'firebase/firestore';
 
 export async function POST(req: NextRequest) {
   try {

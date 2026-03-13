@@ -7,11 +7,10 @@
  */
 
 import { NextRequest } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { generateWithGemini, isGeminiConfigured, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { getBrand } from '@/lib/firebase/brands';
-import { db } from '@/lib/firebase/config';
-import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { createCalendarItem } from '@/lib/firebase/content-calendar';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
@@ -76,6 +75,8 @@ export async function POST(req: NextRequest) {
       return createApiError(500, 'Gemini API not configured');
     }
 
+    const adminDb = getAdminFirestore();
+
     // 1. Load brand context + Offer Lab data
     let brandContext = 'Nenhuma marca selecionada.';
     try {
@@ -93,12 +94,22 @@ export async function POST(req: NextRequest) {
 
         // Enrich with Offer Lab structured data
         try {
-          const offersRef = collection(db, 'brands', brandId, 'offers');
-          const activeSnap = await getDocs(
-            query(offersRef, where('status', '==', 'active'), orderBy('updatedAt', 'desc'), limit(1))
-          );
+          const activeSnap = await adminDb
+            .collection('brands')
+            .doc(brandId)
+            .collection('offers')
+            .where('status', '==', 'active')
+            .orderBy('updatedAt', 'desc')
+            .limit(1)
+            .get();
           const offerSnap = activeSnap.empty
-            ? await getDocs(query(offersRef, orderBy('updatedAt', 'desc'), limit(1)))
+            ? await adminDb
+                .collection('brands')
+                .doc(brandId)
+                .collection('offers')
+                .orderBy('updatedAt', 'desc')
+                .limit(1)
+                .get()
             : activeSnap;
           if (!offerSnap.empty) {
             const o = offerSnap.docs[0].data();
@@ -166,7 +177,7 @@ export async function POST(req: NextRequest) {
         title: post.title,
         format: validateFormat(post.format),
         platform: validatePlatform(post.platform),
-        scheduledDate: Timestamp.fromDate(scheduledDate),
+        scheduledDate: Timestamp.fromDate(scheduledDate) as any,
         content: `${post.hook}\n\n${post.content}`,
         metadata: {
           generatedBy: 'ai',

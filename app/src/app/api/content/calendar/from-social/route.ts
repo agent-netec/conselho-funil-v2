@@ -6,7 +6,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
           title: `[${titlePrefix}] ${titleSnippet}${contentStr.length > 60 ? '...' : ''}`,
           format: mapFormat(hook?.postType),
           platform: mapPlatform(hook?.platform || ''),
-          scheduledDate: Timestamp.fromDate(scheduledDate),
+          scheduledDate: Timestamp.fromDate(scheduledDate) as any,
           content: contentStr,
           metadata: {
             generatedBy: 'ai',

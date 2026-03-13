@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { analyzeMultimodalWithGemini, isGeminiConfigured } from '@/lib/ai/gemini';
 import { extractContentFromUrl, ScrapedContent } from '@/lib/ai/url-scraper';
 import { createAsset, updateAssetStatus } from '@/lib/firebase/assets';
@@ -38,7 +38,7 @@ function buildAssetPayload(params: {
   scraped: { title?: string; content: string; method?: string };
 }): Omit<BrandAsset, 'id'> {
   const { brandId, userId, url, scraped } = params;
-  const now = Timestamp.now();
+  const now = Timestamp.now() as any;
 
   return {
     brandId,

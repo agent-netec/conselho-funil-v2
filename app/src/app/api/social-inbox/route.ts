@@ -2,8 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
 import { InboxAggregator } from '@/lib/agents/engagement/inbox-aggregator';
 import { generateSocialResponse } from '@/lib/agents/engagement/response-engine';
-import { db } from '@/lib/firebase/config';
-import { doc, getDoc, collection, getDocs, query, orderBy, limit as firestoreLimit } from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { Brand } from '@/types/database';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import type { SocialInteraction } from '@/types/social-inbox';
@@ -38,11 +37,12 @@ export async function GET(request: Request) {
   }
 
   try {
-    // 1. Buscar Marca
-    const brandRef = doc(db, 'brands', brandId);
-    const brandSnap = await getDoc(brandRef);
+    const adminDb = getAdminFirestore();
 
-    if (!brandSnap.exists()) {
+    // 1. Buscar Marca
+    const brandSnap = await adminDb.collection('brands').doc(brandId).get();
+
+    if (!brandSnap.exists) {
       return createApiError(404, 'Marca não encontrada');
     }
 
@@ -52,10 +52,8 @@ export async function GET(request: Request) {
     let interactions: SocialInteraction[] = [];
 
     try {
-      const interactionsRef = collection(db, 'brands', brandId, 'social_interactions');
-      const q = query(interactionsRef, orderBy('syncedAt', 'desc'), firestoreLimit(50));
-
-      const snap = await getDocs(q);
+      const snap = await adminDb.collection('brands').doc(brandId).collection('social_interactions')
+        .orderBy('syncedAt', 'desc').limit(50).get();
       interactions = snap.docs.map((d) => d.data() as SocialInteraction);
 
       // Apply filters in-memory

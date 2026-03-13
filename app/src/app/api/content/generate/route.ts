@@ -7,7 +7,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
@@ -62,14 +62,14 @@ export async function POST(req: NextRequest) {
           format,
           platform,
           scheduledDate: scheduledDate
-            ? Timestamp.fromMillis(Number(scheduledDate))
-            : Timestamp.now(),
+            ? (Timestamp.fromMillis(Number(scheduledDate)) as any)
+            : (Timestamp.now() as any),
           content: JSON.stringify(result.content),
           metadata: {
             generatedBy: 'ai',
             promptParams: { topic, tone: tone || '', platform },
             generationModel: DEFAULT_GEMINI_MODEL,
-            generatedAt: Timestamp.now(),
+            generatedAt: Timestamp.now() as any,
           },
         });
         return createApiSuccess({ ...result, calendarItem });

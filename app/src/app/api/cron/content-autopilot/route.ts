@@ -14,8 +14,7 @@ export const maxDuration = 60;
 
 import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { ContentCurationEngine } from '@/lib/agents/publisher/curation-engine';
 import { AdaptationPipeline } from '@/lib/agents/publisher/adaptation-pipeline';
 import { getBrandDNA } from '@/lib/firebase/vault';
@@ -36,9 +35,10 @@ export async function GET(req: NextRequest) {
     }
 
     const startTime = Date.now();
+    const adminDb = getAdminFirestore();
 
     // Find all active brands (exclude archived)
-    const brandsSnap = await getDocs(collection(db, 'brands'));
+    const brandsSnap = await adminDb.collection('brands').get();
     const activeBrands = brandsSnap.docs
       .filter((d) => d.data().status !== 'archived')
       .map((d) => ({ id: d.id, data: d.data() }));

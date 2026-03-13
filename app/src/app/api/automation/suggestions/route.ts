@@ -5,7 +5,7 @@ import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { getAutomationRules, getAutomationLogs, createInAppNotification } from '@/lib/firebase/automation';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 
 /**
  * POST /api/automation/suggestions
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
             message: `Esta regra disparou ${triggerCount}x recentemente. Considere torná-la automática.`,
             ruleId: rule.id,
             isRead: false,
-            createdAt: Timestamp.now(),
+            createdAt: Timestamp.now() as any,
           }).catch(err => console.error('[Suggestions] Notification failed:', err));
         }
       }

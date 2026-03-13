@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/firebase/config';
-import { collection, doc, setDoc, Timestamp } from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
@@ -17,12 +17,12 @@ export async function POST(request: NextRequest) {
       return createApiError(400, 'chunks array is required');
     }
 
-    const knowledgeCollection = collection(db, 'knowledge_chunks');
+    const adminDb = getAdminFirestore();
     let count = 0;
 
     for (const chunk of chunks) {
-      const docRef = doc(knowledgeCollection);
-      await setDoc(docRef, {
+      const docRef = adminDb.collection('knowledge_chunks').doc();
+      await docRef.set({
         ...chunk,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),

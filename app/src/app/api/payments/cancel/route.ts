@@ -10,8 +10,8 @@ import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { ApiError } from '@/lib/utils/api-security';
 import { getUserAdmin, getUserStripeCustomerIdAdmin } from '@/lib/firebase/firestore-server';
 import { getStripeClient, getActiveSubscription, isWithinRefundPeriod } from '@/lib/stripe';
-import { doc, updateDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
 /**
  * Validates the ID token and returns the user ID.
@@ -78,6 +78,8 @@ export async function POST(req: NextRequest) {
       // No body or invalid JSON - proceed with default
     }
 
+    const adminDb = getAdminFirestore();
+
     // 6. Check if refund is requested and eligible (CDC Art. 49 - 7 days)
     if (body.requestRefund) {
       const eligible = isWithinRefundPeriod(subscription.created);
@@ -109,8 +111,8 @@ export async function POST(req: NextRequest) {
       }
 
       // Update user to free tier immediately
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, {
+      const userRef = adminDb.collection('users').doc(userId);
+      await userRef.update({
         tier: 'free',
         stripeSubscriptionId: null,
         subscriptionStatus: 'canceled',
@@ -134,8 +136,8 @@ export async function POST(req: NextRequest) {
     });
 
     // Update user subscription status
-    const userRef = doc(db, 'users', userId);
-    await updateDoc(userRef, {
+    const userRef = adminDb.collection('users').doc(userId);
+    await userRef.update({
       subscriptionStatus: 'canceled',
       updatedAt: Timestamp.now(),
     });

@@ -2,8 +2,8 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { Timestamp, addDoc, collection } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
 /**
  * POST /api/webhooks/google-conversions
@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
       return createApiError(401, 'Invalid webhook secret');
     }
 
+    const adminDb = getAdminFirestore();
     const processed: string[] = [];
     const errors: string[] = [];
 
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
       try {
         const { conversionAction, conversionDateTime, conversionValue, currencyCode, gclid } = conversion;
 
-        await addDoc(collection(db, 'brands', brandId, 'conversion_events'), {
+        await adminDb.collection('brands').doc(brandId).collection('conversion_events').add({
           platform: 'google',
           eventName: conversionAction || 'unknown',
           eventTime: conversionDateTime ? Timestamp.fromDate(new Date(conversionDateTime)) : Timestamp.now(),
@@ -73,7 +74,8 @@ export async function POST(req: NextRequest) {
 
     try {
       const rawBody = JSON.stringify(await req.clone().json()).substring(0, 10240);
-      await addDoc(collection(db, 'brands', 'system', 'dead_letter_queue'), {
+      const adminDb = getAdminFirestore();
+      await adminDb.collection('brands').doc('system').collection('dead_letter_queue').add({
         webhookType: 'google',
         payload: rawBody,
         error: error instanceof Error ? error.message : 'Unknown error',

@@ -4,8 +4,8 @@ import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
-import { collection, getDocs, query, where, addDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { generateEmbedding } from '@/lib/ai/embeddings';
 import { upsertToPinecone } from '@/lib/ai/pinecone';
 
@@ -32,10 +32,15 @@ export async function POST(req: NextRequest) {
       return handleSecurityError(error);
     }
 
+    const adminDb = getAdminFirestore();
+
     // 1. Fetch published content with metrics
-    const calendarRef = collection(db, 'brands', brandId, 'content_calendar');
-    const q = query(calendarRef, where('status', '==', 'published'));
-    const snap = await getDocs(q);
+    const snap = await adminDb
+      .collection('brands')
+      .doc(brandId)
+      .collection('content_calendar')
+      .where('status', '==', 'published')
+      .get();
 
     const items = snap.docs.map(d => ({ id: d.id, ...d.data() } as any));
 
@@ -67,21 +72,24 @@ export async function POST(req: NextRequest) {
       // W-5.1: High performance → save as CopyDNA template
       if (engagement > highThreshold) {
         try {
-          const dnaRef = collection(db, 'brands', brandId, 'copy_dna');
-          await addDoc(dnaRef, {
-            brandId,
-            name: `Auto-Template: ${item.title || item.copy?.slice(0, 40) || 'High Performer'}`,
-            type: 'template',
-            content: item.copy || item.content || '',
-            platform_optimization: item.platform ? [item.platform] : [],
-            performance_metrics: {
-              avg_engagement: engagement,
-              usage_count: 0,
-            },
-            tags: ['auto-generated', 'high-performer', item.platform || 'unknown'].filter(Boolean),
-            updatedAt: Timestamp.now(),
-            sourcePostId: item.id,
-          });
+          await adminDb
+            .collection('brands')
+            .doc(brandId)
+            .collection('copy_dna')
+            .add({
+              brandId,
+              name: `Auto-Template: ${item.title || item.copy?.slice(0, 40) || 'High Performer'}`,
+              type: 'template',
+              content: item.copy || item.content || '',
+              platform_optimization: item.platform ? [item.platform] : [],
+              performance_metrics: {
+                avg_engagement: engagement,
+                usage_count: 0,
+              },
+              tags: ['auto-generated', 'high-performer', item.platform || 'unknown'].filter(Boolean),
+              updatedAt: Timestamp.now() as any,
+              sourcePostId: item.id,
+            });
           templatesCreated++;
         } catch (err) {
           console.error('[ContentAnalytics] Template creation failed:', err);
@@ -91,13 +99,17 @@ export async function POST(req: NextRequest) {
       // W-5.1: Low performance → flag for review
       if (engagement < lowThreshold) {
         try {
-          await addDoc(collection(db, 'brands', brandId, 'notifications'), {
-            type: 'automation',
-            title: 'Post com baixo desempenho',
-            message: `"${item.title || item.copy?.slice(0, 50) || 'Post'}" teve engagement ${engagement.toFixed(1)} (média: ${avgEngagement.toFixed(1)}). Revise a estratégia.`,
-            isRead: false,
-            createdAt: Timestamp.now(),
-          });
+          await adminDb
+            .collection('brands')
+            .doc(brandId)
+            .collection('notifications')
+            .add({
+              type: 'automation',
+              title: 'Post com baixo desempenho',
+              message: `"${item.title || item.copy?.slice(0, 50) || 'Post'}" teve engagement ${engagement.toFixed(1)} (média: ${avgEngagement.toFixed(1)}). Revise a estratégia.`,
+              isRead: false,
+              createdAt: Timestamp.now() as any,
+            });
           flaggedCount++;
         } catch (err) {
           console.error('[ContentAnalytics] Flag notification failed:', err);

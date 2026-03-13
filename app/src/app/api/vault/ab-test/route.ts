@@ -14,8 +14,8 @@ import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
-import { doc, setDoc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { publishToInstagram } from '@/lib/integrations/social/instagram-graph';
 import { publishToLinkedIn } from '@/lib/integrations/social/linkedin-graph';
 import { fetchMediaInsights } from '@/lib/integrations/social/instagram-graph';
@@ -82,8 +82,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Save test to Firestore
-    const testRef = doc(db, 'brands', brandId, 'ab_tests', testId);
-    await setDoc(testRef, {
+    const adminDb = getAdminFirestore();
+    const testRef = adminDb.collection('brands').doc(brandId).collection('ab_tests').doc(testId);
+    await testRef.set({
       id: testId,
       brandId,
       platform,
@@ -120,14 +121,15 @@ export async function GET(req: NextRequest) {
       return handleSecurityError(error);
     }
 
-    const testRef = doc(db, 'brands', brandId, 'ab_tests', testId);
-    const testSnap = await getDoc(testRef);
+    const adminDb = getAdminFirestore();
+    const testRef = adminDb.collection('brands').doc(brandId).collection('ab_tests').doc(testId);
+    const testSnap = await testRef.get();
 
-    if (!testSnap.exists()) {
+    if (!testSnap.exists) {
       return createApiError(404, 'A/B test not found');
     }
 
-    const test = testSnap.data();
+    const test = testSnap.data() as any;
 
     // If test is still running, fetch latest metrics
     if (test.status === 'running') {
@@ -164,7 +166,7 @@ export async function GET(req: NextRequest) {
             ? Math.abs(engagementA - engagementB) / (engagementA + engagementB)
             : 0;
 
-        await updateDoc(testRef, {
+        await testRef.update({
           variants,
           status: 'completed',
           winner,
@@ -183,7 +185,7 @@ export async function GET(req: NextRequest) {
 
       // Update metrics but keep running
       if (metricsUpdated) {
-        await updateDoc(testRef, { variants });
+        await testRef.update({ variants });
       }
 
       return createApiSuccess({

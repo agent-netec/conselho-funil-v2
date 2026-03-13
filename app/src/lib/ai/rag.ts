@@ -102,14 +102,17 @@ export async function retrieveChunks(
     try {
       queryEmbedding = await generateEmbedding(queryText);
     } catch (embedError) {
-      console.warn('[RAG] Fallback para busca local');
+      console.error('[RAG] Embedding generation failed:', embedError);
     }
     
     if (queryEmbedding && typeof window === 'undefined') {
-      // Knowledge namespace is trusted — query by semantic similarity only.
-      // Counselor/docType metadata is not present in existing vectors (pre-worker-fix).
-      // Brain context injection via enrichChatPromptWithBrain handles counselor identity.
+      // Build metadata filters from config — knowledge namespace was re-indexed with
+      // full metadata (counselor, docType, status, isApprovedForAI) via /api/pinecone/migrate.
       const pineconeFilters: any = {};
+      if (finalConfig.filters?.docType) pineconeFilters.docType = { '$eq': finalConfig.filters.docType };
+      if (finalConfig.filters?.counselor) pineconeFilters.counselor = { '$eq': finalConfig.filters.counselor };
+      if (finalConfig.filters?.channel) pineconeFilters.channel = { '$eq': finalConfig.filters.channel };
+      if (finalConfig.filters?.scope) pineconeFilters.scope = { '$eq': finalConfig.filters.scope };
 
       const { queryPinecone } = await import('./pinecone');
       const pineconeResponse = await queryPinecone({
@@ -118,6 +121,14 @@ export async function retrieveChunks(
         namespace: 'knowledge',
         filter: pineconeFilters
       });
+
+      if (!pineconeResponse.matches?.length) {
+        console.warn('[RAG] Zero matches from Pinecone', {
+          queryText: queryText.slice(0, 100),
+          filters: pineconeFilters,
+          namespace: 'knowledge',
+        });
+      }
 
       if (pineconeResponse.matches?.length) {
         const semanticCandidates: RetrievedChunk[] = pineconeResponse.matches.map(match => {

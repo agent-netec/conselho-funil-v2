@@ -19,8 +19,7 @@ import {
 } from '@/lib/firebase/vault';
 import { publishToInstagram } from '@/lib/integrations/social/instagram-graph';
 import { publishToLinkedIn } from '@/lib/integrations/social/linkedin-graph';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 
 interface PublishVaultRequest {
   brandId: string;
@@ -44,15 +43,16 @@ export async function POST(req: NextRequest) {
       return handleSecurityError(error);
     }
 
-    // Fetch content from vault library
-    const contentRef = doc(db, 'brands', brandId, 'vault_library', contentId);
-    const contentSnap = await getDoc(contentRef);
+    const adminDb = getAdminFirestore();
 
-    if (!contentSnap.exists()) {
+    // Fetch content from vault library
+    const contentSnap = await adminDb.collection('brands').doc(brandId).collection('vault_library').doc(contentId).get();
+
+    if (!contentSnap.exists) {
       return createApiError(404, 'Vault content not found');
     }
 
-    const vaultContent = contentSnap.data();
+    const vaultContent = contentSnap.data() as any;
     const variants = vaultContent.variants || [];
 
     // Create publisher job
@@ -91,10 +91,9 @@ export async function POST(req: NextRequest) {
           // Fetch asset URL if we have a media reference
           let imageUrl: string | undefined;
           if (mediaRef) {
-            const assetRef = doc(db, 'brands', brandId, 'vault_assets', mediaRef);
-            const assetSnap = await getDoc(assetRef);
-            if (assetSnap.exists()) {
-              imageUrl = assetSnap.data().url;
+            const assetSnap = await adminDb.collection('brands').doc(brandId).collection('vault_assets').doc(mediaRef).get();
+            if (assetSnap.exists) {
+              imageUrl = (assetSnap.data() as any).url;
             }
           }
 

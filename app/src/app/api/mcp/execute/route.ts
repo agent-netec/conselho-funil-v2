@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { stripPII } from '@/lib/intelligence/pii-stripper';
-import { db } from '@/lib/firebase/config';
-import { doc, getDoc, increment, updateDoc } from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { createApiError } from '@/lib/utils/api-response';
 import { requireBrandAccess, requireUser } from '@/lib/auth/brand-guard';
 import { ApiError } from '@/lib/utils/api-security';
@@ -39,23 +39,24 @@ export async function POST(req: NextRequest) {
 
     // 2. Budget Lock (Controle de Custos)
     if (brandId) {
-      const brandRef = doc(db, 'brands', brandId);
-      const brandSnap = await getDoc(brandRef);
-      
-      if (brandSnap.exists()) {
-        const brandData = brandSnap.data();
+      const adminDb = getAdminFirestore();
+      const brandRef = adminDb.collection('brands').doc(brandId);
+      const brandSnap = await brandRef.get();
+
+      if (brandSnap.exists) {
+        const brandData = brandSnap.data() as any;
         const credits = brandData.credits ?? 0;
-        
+
         // Custo fixo por operação (1 crédito)
-        const operationCost = 1; 
-        
+        const operationCost = 1;
+
         if (credits < operationCost) {
           return createApiError(402, 'Insufficient credits for this operation', { code: 'BUDGET_EXCEEDED' });
         }
 
         // Deduzir crédito (atômico)
-        await updateDoc(brandRef, {
-          credits: increment(-operationCost)
+        await brandRef.update({
+          credits: FieldValue.increment(-operationCost)
         });
       }
     }

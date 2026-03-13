@@ -12,8 +12,8 @@ import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { replyToComment } from '@/lib/integrations/social/instagram-graph';
-import { doc, updateDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
 export async function POST(req: NextRequest) {
   try {
@@ -45,14 +45,9 @@ export async function POST(req: NextRequest) {
 
     // Update interaction status in Firestore
     try {
-      const interactionRef = doc(
-        db,
-        'brands',
-        brandId,
-        'social_interactions',
-        interactionId
-      );
-      await updateDoc(interactionRef, {
+      const adminDb = getAdminFirestore();
+      const interactionRef = adminDb.collection('brands').doc(brandId).collection('social_interactions').doc(interactionId);
+      await interactionRef.update({
         status: 'responded',
         response: {
           text: responseText,

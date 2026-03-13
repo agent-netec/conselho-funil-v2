@@ -12,6 +12,9 @@ import {
   ArrowRight,
   Loader2,
   ShieldX,
+  Database,
+  CheckCircle2,
+  XCircle,
 } from 'lucide-react';
 import { Header } from '@/components/layout/header';
 import { useUser } from '@/lib/hooks/use-user';
@@ -39,10 +42,48 @@ const TIER_CONFIG: Record<string, { label: string; color: string; bg: string }> 
   agency: { label: 'Agency', color: 'text-purple-400', bg: 'bg-purple-500/10' },
 };
 
+interface MigrationResult {
+  namespace: string;
+  sourceStats: Record<string, number>;
+  attempted: number;
+  upserted: number;
+  skipped: number;
+  errors: Array<{ id: string; reason: string }>;
+}
+
 export default function AdminDashboardPage() {
   const { user, isLoading: userLoading } = useUser();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [migrating, setMigrating] = useState(false);
+  const [migrationResult, setMigrationResult] = useState<MigrationResult | null>(null);
+  const [migrationError, setMigrationError] = useState<string | null>(null);
+
+  async function handleReindexKnowledge() {
+    setMigrating(true);
+    setMigrationResult(null);
+    setMigrationError(null);
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/pinecone/migrate', {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ collections: ['knowledge'], namespace: 'knowledge' }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        throw new Error(json.error || 'Falha na migração');
+      }
+      setMigrationResult(json.data);
+      toast.success(`Re-indexação concluída: ${json.data.upserted} vetores`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro desconhecido';
+      setMigrationError(msg);
+      toast.error(`Erro na re-indexação: ${msg}`);
+    } finally {
+      setMigrating(false);
+    }
+  }
 
   useEffect(() => {
     if (userLoading || !user) return;
@@ -206,6 +247,7 @@ export default function AdminDashboardPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
+              className="space-y-3"
             >
               <Link
                 href="/admin/users"
@@ -224,6 +266,76 @@ export default function AdminDashboardPage() {
                 </div>
                 <ArrowRight className="h-5 w-5 text-zinc-600 group-hover:text-[#E6B447] transition-colors" />
               </Link>
+
+              {/* Pinecone Re-indexação */}
+              <div className="card-premium p-5 border border-white/[0.05]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10">
+                      <Database className="h-5 w-5 text-purple-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">Re-indexar Pinecone (knowledge)</p>
+                      <p className="text-xs text-zinc-500">
+                        Sincroniza vetores do namespace knowledge com metadata completo
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleReindexKnowledge}
+                    disabled={migrating}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-mono hover:bg-purple-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {migrating ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Migrando...
+                      </>
+                    ) : (
+                      <>
+                        <Database className="h-3.5 w-3.5" />
+                        Executar
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Result */}
+                {migrationResult && (
+                  <div className="mt-4 rounded-lg bg-green-500/5 border border-green-500/20 p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-400" />
+                      <span className="text-xs font-semibold text-green-400">Concluido</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 font-mono text-xs">
+                      <div>
+                        <p className="text-zinc-500">Tentados</p>
+                        <p className="text-white">{migrationResult.attempted}</p>
+                      </div>
+                      <div>
+                        <p className="text-zinc-500">Indexados</p>
+                        <p className="text-green-400">{migrationResult.upserted}</p>
+                      </div>
+                      <div>
+                        <p className="text-zinc-500">Pulados</p>
+                        <p className="text-zinc-400">{migrationResult.skipped}</p>
+                      </div>
+                    </div>
+                    {migrationResult.errors.length > 0 && (
+                      <p className="mt-2 text-[10px] text-amber-400 font-mono">
+                        {migrationResult.errors.length} erro(s) — ver console
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {migrationError && (
+                  <div className="mt-4 rounded-lg bg-red-500/5 border border-red-500/20 p-3 flex items-center gap-2">
+                    <XCircle className="h-4 w-4 text-red-400 shrink-0" />
+                    <p className="text-xs text-red-400 font-mono">{migrationError}</p>
+                  </div>
+                )}
+              </div>
             </motion.div>
           </>
         ) : (

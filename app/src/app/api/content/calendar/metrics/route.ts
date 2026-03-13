@@ -12,8 +12,7 @@ import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
-import { collection, getDocs, query, where, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 
 export async function GET(req: NextRequest) {
   try {
@@ -30,10 +29,15 @@ export async function GET(req: NextRequest) {
       return handleSecurityError(error);
     }
 
+    const adminDb = getAdminFirestore();
+
     // Fetch published items with metrics
-    const calendarRef = collection(db, 'brands', brandId, 'content_calendar');
-    const q = query(calendarRef, where('status', '==', 'published'));
-    const snap = await getDocs(q);
+    const snap = await adminDb
+      .collection('brands')
+      .doc(brandId)
+      .collection('content_calendar')
+      .where('status', '==', 'published')
+      .get();
 
     const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 

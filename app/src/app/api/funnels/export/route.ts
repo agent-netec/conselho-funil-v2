@@ -1,12 +1,11 @@
 /**
  * API Route para Exportar Funil
- * 
+ *
  * GET /api/funnels/export?funnelId=xxx&format=markdown|pdf
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { doc, getDoc, collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import type { Funnel, Proposal } from '@/types/database';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
@@ -37,9 +36,11 @@ export async function GET(request: NextRequest) {
       return handleSecurityError(error);
     }
 
+    const adminDb = getAdminFirestore();
+
     // Load funnel
-    const funnelDoc = await getDoc(doc(db, 'funnels', funnelId));
-    if (!funnelDoc.exists()) {
+    const funnelDoc = await adminDb.collection('funnels').doc(funnelId).get();
+    if (!funnelDoc.exists) {
       return createApiError(404, 'Funnel not found');
     }
     const funnel = { id: funnelDoc.id, ...funnelDoc.data() } as Funnel;
@@ -47,16 +48,12 @@ export async function GET(request: NextRequest) {
     // Load proposals
     let proposals: Proposal[] = [];
     if (proposalId) {
-      const propDoc = await getDoc(doc(db, 'funnels', funnelId, 'proposals', proposalId));
-      if (propDoc.exists()) {
+      const propDoc = await adminDb.collection('funnels').doc(funnelId).collection('proposals').doc(proposalId).get();
+      if (propDoc.exists) {
         proposals = [{ id: propDoc.id, ...propDoc.data() } as Proposal];
       }
     } else {
-      const propsQuery = query(
-        collection(db, 'funnels', funnelId, 'proposals'),
-        orderBy('version', 'desc')
-      );
-      const propsSnap = await getDocs(propsQuery);
+      const propsSnap = await adminDb.collection('funnels').doc(funnelId).collection('proposals').orderBy('version', 'desc').get();
       proposals = propsSnap.docs.map(d => ({ id: d.id, ...d.data() } as Proposal));
     }
 
@@ -279,6 +276,5 @@ ${proposal.assets.ctas.map(c => `- ${c}`).join('\n')}
   md += `---\n\n`;
   return md;
 }
-
 
 

@@ -7,7 +7,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       itemId: u.itemId,
       order: u.order,
       scheduledDate: u.scheduledDate
-        ? Timestamp.fromMillis(u.scheduledDate)
+        ? Timestamp.fromMillis(u.scheduledDate) as any
         : undefined,
     }));
 

@@ -10,7 +10,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
@@ -40,8 +40,8 @@ export async function GET(req: NextRequest) {
       return handleSecurityError(error);
     }
 
-    const startDate = Timestamp.fromMillis(Number(start));
-    const endDate = Timestamp.fromMillis(Number(end));
+    const startDate = Timestamp.fromMillis(Number(start)) as any;
+    const endDate = Timestamp.fromMillis(Number(end)) as any;
     const items = await getCalendarItems(brandId, startDate, endDate);
 
     return createApiSuccess({ items });
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       title,
       format,
       platform,
-      scheduledDate: Timestamp.fromMillis(Number(scheduledDate)),
+      scheduledDate: Timestamp.fromMillis(Number(scheduledDate)) as any,
       content: content || '',
       metadata: metadata || { generatedBy: 'manual' },
     });
@@ -99,7 +99,7 @@ export async function PUT(req: NextRequest) {
 
     // Converter scheduledDate se presente
     if (fields.scheduledDate && typeof fields.scheduledDate === 'number') {
-      fields.scheduledDate = Timestamp.fromMillis(fields.scheduledDate);
+      fields.scheduledDate = Timestamp.fromMillis(fields.scheduledDate) as any;
     }
 
     await updateCalendarItem(brandId, itemId, fields);

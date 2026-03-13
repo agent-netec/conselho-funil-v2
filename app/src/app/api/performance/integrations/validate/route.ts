@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
-import { doc, setDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
@@ -60,7 +59,7 @@ export async function POST(req: NextRequest) {
 async function validateMetaIntegration(brandId: string, accountId: string) {
   try {
     const token = await ensureFreshToken(brandId, 'meta');
-    
+
     const url = `${META_API.BASE_URL}/me?fields=id,name`;
     const response = await fetchWithRetry(url, {
       headers: { 'Authorization': `Bearer ${token.accessToken}` },
@@ -70,10 +69,10 @@ async function validateMetaIntegration(brandId: string, accountId: string) {
       const errorData = await response.json().catch(() => ({}));
       const errorMsg = errorData?.error?.message || response.statusText;
       console.error(`[Validate Meta] Failed for brand=${brandId}: ${errorMsg}`);
-      
+
       // Persistir status de erro
       await persistValidationStatus(brandId, 'meta_ads', 'error');
-      
+
       return createApiError(502, `Validação Meta falhou: ${errorMsg}`);
     }
 
@@ -123,7 +122,7 @@ async function validateGoogleIntegration(brandId: string, accountId: string) {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const errorMsg = JSON.stringify(errorData?.error || errorData);
-      
+
       // DT-11: Detectar developer token em modo test
       if (errorMsg.includes('DEVELOPER_TOKEN_NOT_APPROVED')) {
         await persistValidationStatus(brandId, 'google_ads', 'active');
@@ -160,13 +159,14 @@ async function validateGoogleIntegration(brandId: string, accountId: string) {
  * Persiste resultado da validação em brands/{brandId}/performance_configs (fire-and-forget).
  */
 async function persistValidationStatus(
-  brandId: string, 
+  brandId: string,
   platform: 'meta_ads' | 'google_ads',
   status: 'active' | 'error' | 'disconnected'
 ) {
   try {
-    const configRef = doc(db, 'brands', brandId, 'performance_configs', 'main');
-    await setDoc(configRef, {
+    const adminDb = getAdminFirestore();
+    const configRef = adminDb.collection('brands').doc(brandId).collection('performance_configs').doc('main');
+    await configRef.set({
       [`integrations.${platform}.status`]: status,
       [`integrations.${platform}.lastValidated`]: Timestamp.now(),
       updatedAt: Timestamp.now(),

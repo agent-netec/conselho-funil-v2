@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { MonaraTokenVault } from '@/lib/firebase/vault';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
       brandId,
       provider: 'meta',
       accessToken,
-      expiresAt: Timestamp.fromMillis(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days
+      expiresAt: Timestamp.fromMillis(Date.now() + 60 * 24 * 60 * 60 * 1000) as any, // 60 days
       scopes: grantedPerms,
       metadata: {
         adAccountId: `act_${normalizedAdAccount}`,

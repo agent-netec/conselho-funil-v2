@@ -6,7 +6,7 @@ import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { getAutomationLogs, updateAutomationLogImpact } from '@/lib/firebase/automation';
 import { fetchMetricsWithCache } from '@/lib/performance/fetch-and-cache';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import type { ImpactAnalysis } from '@/types/automation';
 import type { PerformanceMetric } from '@/types/performance';
 
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
         afterMetrics: currentMetrics,
         delta,
         summary,
-        measuredAt: Timestamp.now(),
+        measuredAt: Timestamp.now() as any,
       };
 
       await updateAutomationLogImpact(brandId, log.id, impactAnalysis);

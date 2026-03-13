@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SentryEngine } from '@/lib/performance/sentry-engine';
 import { PerformanceAnomaly } from '@/types/performance';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
  * Gera anomalias mockadas para desenvolvimento da UI (Victor/Beto).
  */
 function generateMockAnomalies(brandId: string): PerformanceAnomaly[] {
-  const now = Timestamp.now();
+  const now = Timestamp.now() as any;
   return [
     {
       id: 'anomaly_mock_1',

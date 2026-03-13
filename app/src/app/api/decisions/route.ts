@@ -6,19 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  collection,
-  getDocs,
-  addDoc,
-  query,
-  orderBy,
-  where,
-  Timestamp,
-  doc,
-  getDoc,
-  updateDoc,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import type { Funnel, Proposal } from '@/types/database';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
@@ -84,9 +73,11 @@ export async function GET(request: NextRequest) {
       return createApiError(400, 'funnelId is required');
     }
 
+    const adminDb = getAdminFirestore();
+
     // Auth guard: derive brandId from funnel, then verify access
-    const funnelSnap = await getDoc(doc(db, 'funnels', funnelId));
-    if (funnelSnap.exists()) {
+    const funnelSnap = await adminDb.collection('funnels').doc(funnelId).get();
+    if (funnelSnap.exists) {
       const funnelBrandId = (funnelSnap.data() as any).brandId;
       if (funnelBrandId) {
         try {
@@ -98,12 +89,7 @@ export async function GET(request: NextRequest) {
     }
 
     // ST-11.6: Simplified query to avoid composite index (INC-004)
-    const q = query(
-      collection(db, 'decisions'),
-      where('funnelId', '==', funnelId)
-    );
-
-    const snapshot = await getDocs(q);
+    const snapshot = await adminDb.collection('decisions').where('funnelId', '==', funnelId).get();
     const decisions = snapshot.docs.map(docSnap => ({
       id: docSnap.id,
       ...docSnap.data() as any,
@@ -144,9 +130,11 @@ export async function POST(request: NextRequest) {
       return createApiError(400, 'funnelId, proposalId, type, and userId are required');
     }
 
+    const adminDb = getAdminFirestore();
+
     // Get funnel data
-    const funnelDoc = await getDoc(doc(db, 'funnels', funnelId));
-    if (!funnelDoc.exists()) {
+    const funnelDoc = await adminDb.collection('funnels').doc(funnelId).get();
+    if (!funnelDoc.exists) {
       return createApiError(404, 'Funnel not found');
     }
     const funnel = funnelDoc.data() as Funnel;
@@ -161,8 +149,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get proposal data
-    const proposalDoc = await getDoc(doc(db, 'funnels', funnelId, 'proposals', proposalId));
-    if (!proposalDoc.exists()) {
+    const proposalDoc = await adminDb.collection('funnels').doc(funnelId).collection('proposals').doc(proposalId).get();
+    if (!proposalDoc.exists) {
       return createApiError(404, 'Proposal not found');
     }
     const proposal = proposalDoc.data() as Proposal;
@@ -243,19 +231,19 @@ export async function POST(request: NextRequest) {
     console.log('📦 Decision data to save:', JSON.stringify(sanitizedData, null, 2));
 
     // Save decision
-    const decisionRef = await addDoc(collection(db, 'decisions'), sanitizedData);
-    
+    const decisionRef = await adminDb.collection('decisions').add(sanitizedData);
+
     console.log('✅ Decision saved:', decisionRef.id);
 
     // Update funnel status
-    await updateDoc(doc(db, 'funnels', funnelId), {
+    await adminDb.collection('funnels').doc(funnelId).update({
       status: statusMap[type] || 'review',
       updatedAt: Timestamp.now(),
     });
 
     // Update proposal status
     const proposalStatus = type === 'execute' ? 'selected' : type === 'kill' ? 'rejected' : 'evaluated';
-    await updateDoc(doc(db, 'funnels', funnelId, 'proposals', proposalId), {
+    await adminDb.collection('funnels').doc(funnelId).collection('proposals').doc(proposalId).update({
       status: proposalStatus,
     });
 

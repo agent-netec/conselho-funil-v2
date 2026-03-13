@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { PerformanceMetric } from '@/types/performance';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
@@ -91,7 +91,7 @@ function generateMockMetrics(brandId: string, period: string): PerformanceMetric
         id: `metric_${brandId}_${source}_${date.getTime()}`,
         brandId,
         source,
-        timestamp: Timestamp.fromDate(date),
+        timestamp: Timestamp.fromDate(date) as any,
         period: period as any,
         data: {
           spend: source === 'organic' ? 0 : baseValue * variance,

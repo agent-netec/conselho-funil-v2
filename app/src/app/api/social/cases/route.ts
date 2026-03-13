@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiSuccess, createApiError } from '@/lib/utils/api-response';
@@ -46,8 +46,8 @@ export async function POST(req: NextRequest) {
     };
 
     // 1. Save to Firestore
-    const casesRef = collection(db, 'brands', brandId, 'social_cases');
-    const docRef = await addDoc(casesRef, caseData);
+    const adminDb = getAdminFirestore();
+    const docRef = await adminDb.collection('brands').doc(brandId).collection('social_cases').add(caseData);
 
     // 2. Embed for RAG
     try {

@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
-import { doc, getDoc, updateDoc, Timestamp, collection, addDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { CampaignContext } from '@/types/campaign';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { updateUserUsage } from '@/lib/firebase/firestore';
@@ -33,33 +33,29 @@ export async function POST(
   try {
     const { id: campaignId } = await params;
 
-    let userId: string | undefined;
-    try {
-      const body = await request.json();
-      userId = body?.userId;
-    } catch {
-      // No request body or invalid JSON
-    }
-
     if (!campaignId) {
       return createApiError(400, 'Campaign ID is required');
     }
 
-    // 1. Get campaign context
-    const campaignRef = doc(db, 'campaigns', campaignId);
-    const campaignSnap = await getDoc(campaignRef);
+    const adminDb = getAdminFirestore();
 
-    if (!campaignSnap.exists()) {
+    // 1. Get campaign context
+    const campaignRef = adminDb.collection('campaigns').doc(campaignId);
+    const campaignSnap = await campaignRef.get();
+
+    if (!campaignSnap.exists) {
       return createApiError(404, 'Campaign not found');
     }
 
     const campaign = { id: campaignSnap.id, ...campaignSnap.data() } as CampaignContext;
     const brandId = campaign.brandId;
 
-    // Auth guard: verify user has access to this brand
+    // Auth guard: verify user has access to this brand; userId comes from verified token
+    let userId: string | undefined;
     if (brandId) {
       try {
-        await requireBrandAccess(request, brandId);
+        const access = await requireBrandAccess(request, brandId);
+        userId = access.userId;
       } catch (err: any) {
         return handleSecurityError(err);
       }
@@ -132,7 +128,7 @@ export async function POST(
     );
 
     // 5. Update campaign doc with generated ads
-    await updateDoc(campaignRef, {
+    await campaignRef.update({
       ads: result.ads,
       adsMetadata: {
         totalGenerated: result.totalGenerated,
@@ -145,8 +141,8 @@ export async function POST(
     // 6. Also persist to brands/{brandId}/generated_ads (unified persistence)
     if (brandId) {
       try {
-        const generatedAdsRef = collection(db, 'brands', brandId, 'generated_ads');
-        await addDoc(generatedAdsRef, {
+        const generatedAdsRef = adminDb.collection('brands').doc(brandId).collection('generated_ads');
+        await generatedAdsRef.add({
           brandId,
           campaignId,
           ads: result.ads,

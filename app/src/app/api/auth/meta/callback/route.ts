@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { MonaraTokenVault } from '@/lib/firebase/vault';
 import { META_API } from '@/lib/integrations/ads/constants';
 
@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
       brandId,
       provider: 'meta',
       accessToken: longLivedData.access_token,
-      expiresAt: Timestamp.fromMillis(Date.now() + (longLivedData.expires_in || 5184000) * 1000),
+      expiresAt: Timestamp.fromMillis(Date.now() + (longLivedData.expires_in || 5184000) * 1000) as any,
       scopes: ['ads_read', 'read_insights', 'ads_management', 'leads_retrieval', 'pages_read_engagement'],
       metadata: {
         adAccountId: firstAdAccount ? `act_${firstAdAccount}` : '',

@@ -3,8 +3,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiSuccess } from '@/lib/utils/api-response';
 
@@ -16,13 +15,12 @@ export async function GET(request: NextRequest) {
     // Hardening: Verificar role de admin
     await verifyAdminRole(request);
 
-    const q = query(
-      collection(db, 'funnels'),
-      orderBy('updatedAt', 'desc'),
-      limit(20)
-    );
+    const adminDb = getAdminFirestore();
+    const snapshot = await adminDb.collection('funnels')
+      .orderBy('updatedAt', 'desc')
+      .limit(20)
+      .get();
 
-    const snapshot = await getDocs(q);
     const funnels = snapshot.docs.map(doc => ({
       id: doc.id,
       name: doc.data().name,

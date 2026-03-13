@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { MonaraTokenVault } from '@/lib/firebase/vault';
 import { GOOGLE_ADS_API } from '@/lib/integrations/ads/constants';
 
@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
       provider: 'google',
       accessToken: tokenData.access_token,
       refreshToken: tokenData.refresh_token,
-      expiresAt: Timestamp.fromMillis(Date.now() + (tokenData.expires_in || 3600) * 1000),
+      expiresAt: Timestamp.fromMillis(Date.now() + (tokenData.expires_in || 3600) * 1000) as any,
       scopes: tokenData.scope?.split(' ') || ['https://www.googleapis.com/auth/adwords'],
       metadata: {
         customerId: '', // User must fill this in the integration form

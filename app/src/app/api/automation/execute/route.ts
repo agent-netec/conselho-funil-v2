@@ -5,8 +5,8 @@ import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { updateAutomationLogExecution } from '@/lib/firebase/automation';
-import { Timestamp, doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { GuardrailManager } from '@/lib/automation/adapters/guardrails';
 import type { AutomationLog, AutomationRule } from '@/types/automation';
 
@@ -33,25 +33,27 @@ export async function POST(req: NextRequest) {
       return handleSecurityError(error);
     }
 
+    const adminDb = getAdminFirestore();
+
     // 1. Fetch the log
-    const logRef = doc(db, 'brands', brandId, 'automation_logs', logId);
-    const logSnap = await getDoc(logRef);
-    if (!logSnap.exists()) {
+    const logRef = adminDb.collection('brands').doc(brandId).collection('automation_logs').doc(logId);
+    const logSnap = await logRef.get();
+    if (!logSnap.exists) {
       return createApiError(404, 'Automation log not found');
     }
-    const logData = { id: logSnap.id, ...logSnap.data() } as AutomationLog;
+    const logData = { id: logSnap.id, ...logSnap.data() as any } as AutomationLog;
 
     if (logData.status !== 'pending_approval') {
       return createApiError(400, `Log status is "${logData.status}", expected "pending_approval"`);
     }
 
     // 2. Fetch the rule to get action details
-    const ruleRef = doc(db, 'brands', brandId, 'automation_rules', logData.ruleId);
-    const ruleSnap = await getDoc(ruleRef);
-    if (!ruleSnap.exists()) {
+    const ruleRef = adminDb.collection('brands').doc(brandId).collection('automation_rules').doc(logData.ruleId);
+    const ruleSnap = await ruleRef.get();
+    if (!ruleSnap.exists) {
       return createApiError(404, 'Associated automation rule not found');
     }
-    const rule = { id: ruleSnap.id, ...ruleSnap.data() } as AutomationRule;
+    const rule = { id: ruleSnap.id, ...ruleSnap.data() as any } as AutomationRule;
 
     // 3. Check guardrails
     const entityId = logData.context.entityId;
@@ -60,7 +62,7 @@ export async function POST(req: NextRequest) {
       await updateAutomationLogExecution(brandId, logId, {
         success: false,
         error: guardrailCheck.reason,
-        timestamp: Timestamp.now(),
+        timestamp: Timestamp.now() as any,
       }, userId);
       return createApiError(429, guardrailCheck.reason || 'Guardrail blocked');
     }
@@ -136,17 +138,16 @@ export async function POST(req: NextRequest) {
       externalId,
       platform,
       error: executionError,
-      timestamp: Timestamp.now(),
+      timestamp: Timestamp.now() as any,
     }, userId);
 
     if (!executionSuccess) {
       // DLQ: save failed execution for retry
-      const { addDoc, collection: col } = await import('firebase/firestore');
-      await addDoc(col(db, 'brands', brandId, 'dead_letter_queue'), {
+      adminDb.collection('brands').doc(brandId).collection('dead_letter_queue').add({
         webhookType: platform,
         payload: JSON.stringify({ logId, ruleId: rule.id, entityId, action: rule.action.type }).substring(0, 10240),
         error: executionError || 'Unknown execution error',
-        timestamp: Timestamp.now(),
+        timestamp: Timestamp.now() as any,
         retryCount: 0,
         status: 'pending',
       }).catch(err => console.error('[Execute] DLQ save failed:', err));
