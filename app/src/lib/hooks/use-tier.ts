@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { useEffect, useState, useCallback } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import {
@@ -76,60 +76,58 @@ export function useTier(): UseTierReturn {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Subscribe to user document for tier updates
-  useEffect(() => {
+  // Fetch user tier via getDoc with retry.
+  // onSnapshot is NOT used here because permission-denied errors on a watch stream
+  // permanently kill the listener (no auto-retry). getDoc allows explicit retry.
+  // Tier data changes rarely (Stripe webhooks) so one-time read is sufficient.
+  const fetchTier = useCallback(async (retries = 0) => {
     if (!user?.uid) {
       setTier('trial');
       setIsLoading(false);
       return;
     }
-
-    const unsubscribe = onSnapshot(
-      doc(db, 'users', user.uid),
-      (snapshot) => {
-        if (snapshot.exists()) {
-          const data = snapshot.data();
-
-          // Read tier (default to 'trial' for existing users without tier field)
-          const userTier = (data.tier as Tier) || 'trial';
-          setTier(userTier);
-
-          // Read trial expiration
-          if (data.trialExpiresAt) {
-            setTrialExpiresAt(data.trialExpiresAt.toDate());
-          } else if (userTier === 'trial') {
-            // If trial but no expiration, set default 14 days from now
-            const defaultExpiry = new Date();
-            defaultExpiry.setDate(defaultExpiry.getDate() + 14);
-            setTrialExpiresAt(defaultExpiry);
-          }
-
-          // Read usage from user document (if tracked there)
-          if (data.usage) {
-            setUsage({
-              brands: data.usage.brands || 0,
-              activeFunnels: data.usage.activeFunnels || 0,
-              totalAssets: data.usage.totalAssets || 0,
-              ragDocs: data.usage.ragDocs || 0,
-              monthlyQueries: data.usage.monthlyQueries || 0,
-              monthlyPageForensics: data.usage.monthlyPageForensics || 0,
-            });
-          }
+    try {
+      const snapshot = await getDoc(doc(db, 'users', user.uid));
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        const userTier = (data.tier as Tier) || 'trial';
+        setTier(userTier);
+        if (data.trialExpiresAt) {
+          setTrialExpiresAt(data.trialExpiresAt.toDate());
+        } else if (userTier === 'trial') {
+          const defaultExpiry = new Date();
+          defaultExpiry.setDate(defaultExpiry.getDate() + 14);
+          setTrialExpiresAt(defaultExpiry);
         }
-        setIsLoading(false);
-      },
-      (error) => {
-        // Firestore permission errors on listeners can happen during the auth race
-        // condition window. The getIdToken() prime in auth-store should prevent this,
-        // but if it still occurs, log as warning (not error) since tier defaults to trial.
-        console.warn('[useTier] Listener permission error (auth race?):', error.message);
+        if (data.usage) {
+          setUsage({
+            brands: data.usage.brands || 0,
+            activeFunnels: data.usage.activeFunnels || 0,
+            totalAssets: data.usage.totalAssets || 0,
+            ragDocs: data.usage.ragDocs || 0,
+            monthlyQueries: data.usage.monthlyQueries || 0,
+            monthlyPageForensics: data.usage.monthlyPageForensics || 0,
+          });
+        }
+      }
+      setIsLoading(false);
+    } catch (error: any) {
+      if (error?.code === 'permission-denied' && retries < 4) {
+        // Auth token not yet propagated to Firestore — retry with backoff
+        const delay = 300 * Math.pow(2, retries); // 300ms, 600ms, 1200ms, 2400ms
+        setTimeout(() => fetchTier(retries + 1), delay);
+      } else {
+        console.warn('[useTier] Could not read tier, defaulting to trial:', error?.message);
         setTier('trial');
         setIsLoading(false);
       }
-    );
-
-    return () => unsubscribe();
+    }
   }, [user?.uid]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetchTier(0);
+  }, [fetchTier]);
 
   // Calculate effective tier
   const isTrial = tier === 'trial';
