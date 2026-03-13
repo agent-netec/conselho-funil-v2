@@ -12,6 +12,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db, auth } from './config';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import type { Brand, BrandKit } from '@/types/database';
 
 // ============================================
@@ -27,26 +28,27 @@ import type { Brand, BrandKit } from '@/types/database';
 export async function createBrand(
   data: Omit<Brand, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<string> {
-  // Ensure Firestore receives a fresh auth token (race: onAuthStateChanged fires
-  // before Firestore's onIdTokenChanged, leaving request.auth=null briefly)
-  if (auth?.currentUser) {
-    try {
-      await auth.currentUser.getIdToken(/* forceRefresh */ false);
-    } catch (e) {
-      console.warn('[createBrand] getIdToken failed:', e);
-    }
-  } else {
-    console.warn('[createBrand] auth.currentUser is null — Firestore write will be unauthenticated');
-  }
-
-  const now = Timestamp.now();
-  const brandRef = await addDoc(collection(db, 'brands'), {
-    ...data,
-    createdAt: now,
-    updatedAt: now,
+  // Use API route (Admin SDK) to bypass client-side Firestore auth race condition
+  const headers = await getAuthHeaders();
+  const res = await fetch('/api/brands', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      name: data.name,
+      vertical: data.vertical,
+      positioning: data.positioning,
+      voiceTone: data.voiceTone,
+      audience: data.audience,
+      offer: data.offer,
+    }),
   });
 
-  return brandRef.id;
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.error || 'Failed to create brand');
+  }
+
+  return json.data.brandId;
 }
 
 /**
@@ -95,9 +97,6 @@ export async function getUserBrands(userId: string): Promise<Brand[]> {
  * @param data - Objeto parcial com os dados a serem atualizados.
  */
 export async function updateBrand(brandId: string, data: Partial<Omit<Brand, 'id' | 'userId' | 'createdAt'>>) {
-  if (!auth?.currentUser) {
-    console.warn('[updateBrand] auth.currentUser is null — Firestore write will be unauthenticated');
-  }
   const brandRef = doc(db, 'brands', brandId);
   await updateDoc(brandRef, {
     ...data,
