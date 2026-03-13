@@ -43,13 +43,14 @@ export function useBrands() {
       userId: user.uid,
     });
 
-    await loadBrands();
+    // Don't let loadBrands failure propagate — brand was already created
+    loadBrands().catch(err => console.warn('[useBrands] loadBrands after create failed:', err));
     return brandId;
   };
 
   const update = async (brandId: string, data: Partial<Omit<Brand, 'id' | 'userId' | 'createdAt'>>) => {
     await updateBrand(brandId, data);
-    await loadBrands();
+    loadBrands().catch(err => console.warn('[useBrands] loadBrands after update failed:', err));
   };
 
   const remove = async (brandId: string) => {

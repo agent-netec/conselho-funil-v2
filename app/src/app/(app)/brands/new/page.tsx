@@ -178,7 +178,7 @@ export default function NewBrandPage() {
       toast.success('Marca criada com sucesso!');
       router.push(`/brands/${brandId}`);
     } catch (error) {
-      console.error('Error creating brand:', error);
+      console.error('Error creating brand:', error, { userId: user?.uid });
       toast.error('Erro ao criar marca. Tente novamente.');
     } finally {
       setIsSubmitting(false);
