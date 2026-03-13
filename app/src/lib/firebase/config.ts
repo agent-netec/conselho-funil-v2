@@ -27,10 +27,13 @@ if (!isBuildPhase && firebaseConfig.apiKey) {
     authInstance = getAuth(appInstance);
     
     // No servidor usamos getFirestore (mais leve), no cliente usamos a versão completa
-    dbInstance = isServer 
+    // NOTE: experimentalForceLongPolling removed — it delays auth token delivery to
+    // Firestore's credentialsProvider and amplifies the onAuthStateChanged race condition.
+    // See: firebase/firebase-js-sdk#8176, #1981
+    dbInstance = isServer
       ? getFirestore(appInstance)
       : initializeFirestore(appInstance, {
-          experimentalForceLongPolling: true,
+          experimentalAutoDetectLongPolling: true,
           cacheSizeBytes: CACHE_SIZE_UNLIMITED,
         });
         
