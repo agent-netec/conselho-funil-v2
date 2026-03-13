@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type { User } from 'firebase/auth';
 import { onAuthChange, signOut as authSignOut } from '@/lib/firebase/auth';
+import { getDoc, doc } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 
 // R5.2: Cookie name for auth presence detection (matches middleware.ts)
 const AUTH_COOKIE = 'mkthoney_auth';
@@ -73,18 +75,28 @@ export const useAuthStore = create<AuthState>((set) => ({
         // R5.2: Sync auth cookie with Firebase auth state
         if (user) {
           setAuthCookie();
-          // Wait for Firestore SDK's internal credentialsProvider to receive the auth token.
-          // Firebase Auth notifies observers in this order:
-          //   1. authStateObservers (our onAuthStateChanged callback — fires FIRST)
-          //   2. idTokenObservers (Firestore's internal observer — fires AFTER)
-          // Publishing the user immediately causes all hooks to set up Firestore queries
-          // before Firestore has the token → "Missing or insufficient permissions".
-          // getIdToken(false) returns instantly (cached), then we wait 150ms for
-          // Firestore's internal observer to process and update credentialsProvider.
-          // See: firebase/firebase-js-sdk#1981, #6964, #8201
+          // Probe Firestore to confirm credentialsProvider has received the auth token.
+          // Fixed delays are fragile; this adapts to actual system state:
+          //   - Fast path: Firestore already has the token → probe succeeds immediately
+          //   - Slow path: permission-denied → wait with backoff → retry
+          // Once probe succeeds, ALL subsequent reads/writes will work on first attempt.
+          // See: firebase/firebase-js-sdk#1981, #6964, #8201, #8773
           try {
-            await user.getIdToken(false);
-            await new Promise(resolve => setTimeout(resolve, 150));
+            await user.getIdToken(false); // warm the token cache
+            for (let attempt = 0; attempt < 6; attempt++) {
+              try {
+                await getDoc(doc(db, 'users', user.uid));
+                break; // Firestore has the token — safe to publish user
+              } catch (probeErr: any) {
+                const isPermErr = probeErr?.code === 'permission-denied' || probeErr?.code === 'unauthenticated';
+                if (isPermErr && attempt < 5) {
+                  // Token not yet propagated — wait with exponential backoff (100ms, 200ms, 400ms…)
+                  await new Promise(r => setTimeout(r, 100 * Math.pow(2, attempt)));
+                } else {
+                  break; // Non-permission error or max retries reached — proceed anyway
+                }
+              }
+            }
           } catch { /* ignore — still publish user */ }
         } else {
           removeAuthCookie();
