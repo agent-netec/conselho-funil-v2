@@ -97,11 +97,16 @@ export async function getUserBrands(userId: string): Promise<Brand[]> {
  * @param data - Objeto parcial com os dados a serem atualizados.
  */
 export async function updateBrand(brandId: string, data: Partial<Omit<Brand, 'id' | 'userId' | 'createdAt'>>) {
-  const brandRef = doc(db, 'brands', brandId);
-  await updateDoc(brandRef, {
-    ...data,
-    updatedAt: Timestamp.now(),
+  const headers = await getAuthHeaders();
+  const res = await fetch(`/api/brands/${brandId}`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify(data),
   });
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new Error(json.error || 'Failed to update brand');
+  }
 }
 
 /**
