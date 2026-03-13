@@ -68,11 +68,19 @@ export const useAuthStore = create<AuthState>((set) => ({
     }, 5000);
 
     try {
-      const unsubscribe = onAuthChange((user) => {
+      const unsubscribe = onAuthChange(async (user) => {
         clearTimeout(safetyTimeout);
         // R5.2: Sync auth cookie with Firebase auth state
         if (user) {
           setAuthCookie();
+          // Prime Firestore credentialsProvider BEFORE publishing user to store.
+          // onAuthStateChanged fires before Firestore's internal auth observer receives
+          // the token. Awaiting getIdToken() here creates an async gap that lets the
+          // Firestore SDK propagate the token to its credentialsProvider — preventing
+          // "Missing or insufficient permissions" on onSnapshot listeners set up by hooks
+          // that react to the user changing.
+          // See: firebase/firebase-js-sdk#1981, #6964, #8201
+          try { await user.getIdToken(false); } catch { /* ignore — still publish user */ }
         } else {
           removeAuthCookie();
         }

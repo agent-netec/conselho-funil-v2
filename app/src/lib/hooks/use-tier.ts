@@ -119,7 +119,10 @@ export function useTier(): UseTierReturn {
         setIsLoading(false);
       },
       (error) => {
-        console.error('[useTier] Error reading user tier:', error);
+        // Firestore permission errors on listeners can happen during the auth race
+        // condition window. The getIdToken() prime in auth-store should prevent this,
+        // but if it still occurs, log as warning (not error) since tier defaults to trial.
+        console.warn('[useTier] Listener permission error (auth race?):', error.message);
         setTier('trial');
         setIsLoading(false);
       }
