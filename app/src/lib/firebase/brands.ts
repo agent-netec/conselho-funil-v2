@@ -11,7 +11,7 @@ import {
   orderBy,
   Timestamp,
 } from 'firebase/firestore';
-import { db } from './config';
+import { db, auth } from './config';
 import type { Brand, BrandKit } from '@/types/database';
 
 // ============================================
@@ -27,13 +27,25 @@ import type { Brand, BrandKit } from '@/types/database';
 export async function createBrand(
   data: Omit<Brand, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<string> {
+  // Ensure Firestore receives a fresh auth token (race: onAuthStateChanged fires
+  // before Firestore's onIdTokenChanged, leaving request.auth=null briefly)
+  if (auth?.currentUser) {
+    try {
+      await auth.currentUser.getIdToken(/* forceRefresh */ false);
+    } catch (e) {
+      console.warn('[createBrand] getIdToken failed:', e);
+    }
+  } else {
+    console.warn('[createBrand] auth.currentUser is null — Firestore write will be unauthenticated');
+  }
+
   const now = Timestamp.now();
   const brandRef = await addDoc(collection(db, 'brands'), {
     ...data,
     createdAt: now,
     updatedAt: now,
   });
-  
+
   return brandRef.id;
 }
 
@@ -83,6 +95,9 @@ export async function getUserBrands(userId: string): Promise<Brand[]> {
  * @param data - Objeto parcial com os dados a serem atualizados.
  */
 export async function updateBrand(brandId: string, data: Partial<Omit<Brand, 'id' | 'userId' | 'createdAt'>>) {
+  if (!auth?.currentUser) {
+    console.warn('[updateBrand] auth.currentUser is null — Firestore write will be unauthenticated');
+  }
   const brandRef = doc(db, 'brands', brandId);
   await updateDoc(brandRef, {
     ...data,
