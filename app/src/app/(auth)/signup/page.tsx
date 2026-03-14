@@ -128,9 +128,9 @@ export default function SignupPage() {
       const result = await signInWithGoogle();
       if (result.error) {
         setError(result.error);
+      } else if (result.user) {
+        router.push('/welcome');
       }
-      // signInWithGoogle uses signInWithRedirect — page will redirect to Google.
-      // Auth result is handled in AuthProvider via handleGoogleRedirectResult().
     } catch {
       setError('Erro ao conectar com Google. Tente novamente.');
     } finally {
