@@ -81,42 +81,34 @@ Dores: ${brand.audience?.pain || 'N/A'}
       .replace('{{content}}', typeof content === 'string' ? content : JSON.stringify(content, null, 2))
       .replace('{{knowledgeContext}}', knowledgeContext || 'Use conhecimento geral sobre avaliação de performance em redes sociais.');
 
-    // 5. Generate with PRO model (45s timeout), fallback to Flash if PRO fails/hangs
+    // 5. Generate with PRO model (60s timeout), fallback to Flash
     let response: string;
     try {
-      response = await Promise.race([
-        generateWithGemini(fullPrompt, {
-          model: PRO_GEMINI_MODEL,
-          temperature: 0.2,
-        }),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('PRO model timeout (60s)')), 60_000)
-        ),
-      ]);
+      response = await generateWithGemini(fullPrompt, {
+        model: PRO_GEMINI_MODEL,
+        temperature: 0.2,
+        maxOutputTokens: 4096,
+        responseMimeType: 'application/json',
+        timeoutMs: 60_000,
+      });
     } catch (proErr: any) {
       console.warn(`[Social/Scorecard] PRO model failed: ${proErr?.message}. Falling back to Flash.`);
       response = await generateWithGemini(fullPrompt, {
         model: DEFAULT_GEMINI_MODEL,
         temperature: 0.2,
+        maxOutputTokens: 4096,
+        responseMimeType: 'application/json',
+        timeoutMs: 45_000,
       });
     }
 
-    // 6. Parse JSON
+    // 6. Parse JSON (responseMimeType ensures clean JSON, but keep fallback strip)
     let result;
     try {
-      let jsonStr = response.trim();
-      if (jsonStr.startsWith('```json')) {
-        jsonStr = jsonStr.slice(7);
-      }
-      if (jsonStr.startsWith('```')) {
-        jsonStr = jsonStr.slice(3);
-      }
-      if (jsonStr.endsWith('```')) {
-        jsonStr = jsonStr.slice(0, -3);
-      }
-      result = JSON.parse(jsonStr.trim());
+      const { parseAIJSON } = await import('@/lib/ai/formatters');
+      result = parseAIJSON(response);
     } catch (parseError) {
-      console.error('Error parsing AI response:', parseError);
+      console.error('Error parsing AI response:', parseError, response?.slice(0, 300));
       return createApiError(500, 'Erro ao processar avaliação do scorecard. Tente novamente.');
     }
 
