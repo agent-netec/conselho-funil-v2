@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { queryPinecone, getPineconeIndex } from '@/lib/ai/pinecone';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { getBrandAssets } from '@/lib/firebase/assets';
+import { getBrandAssetsAdmin } from '@/lib/firebase/assets-server';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     // --- 1. Firestore: source of truth for all assets ---
     let firestoreAssets: any[] = [];
     try {
-      const raw = await getBrandAssets(brandId);
+      const raw = await getBrandAssetsAdmin(brandId);
       firestoreAssets = raw.map(a => ({
         id: a.id,
         namespace: (a.type === 'image' ? 'visual' : 'knowledge') as 'visual' | 'knowledge',

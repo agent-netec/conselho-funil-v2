@@ -4,8 +4,7 @@ import type { AssetChunk, BrandAsset } from '../../types/database';
 import { createChunks } from './chunking';
 import { generateEmbeddingsBatch } from './embeddings';
 import { upsertToPinecone } from '@/lib/ai/pinecone';
-import { fetchBrandAsset, updateBrandAsset } from '../firebase/assets';
-import { saveAssetChunks } from '../firebase/assets-server';
+import { fetchBrandAssetAdmin, updateBrandAssetAdmin, saveAssetChunks } from '../firebase/assets-server';
 import { extractContentFromUrl } from './url-scraper';
 
 interface ProcessResult {
@@ -94,7 +93,7 @@ function buildPineconeRecords(chunks: AssetChunk[]) {
 }
 
 export async function processAsset(assetId: string, namespace?: string): Promise<ProcessResult> {
-  const asset = await fetchBrandAsset(assetId);
+  const asset = await fetchBrandAssetAdmin(assetId);
   if (!asset) throw new Error('Asset não encontrado.');
 
   if (asset.isApprovedForAI !== true) {
@@ -102,7 +101,7 @@ export async function processAsset(assetId: string, namespace?: string): Promise
   }
 
   // ST-11.23: Reset status para 'processing' limpando erros anteriores
-  await updateBrandAsset(asset.id, { 
+  await updateBrandAssetAdmin(asset.id, { 
     status: 'processing', 
     processingError: '' // Usar string vazia em vez de null para evitar problemas com alguns wrappers de Firestore
   });
@@ -152,7 +151,7 @@ export async function processAsset(assetId: string, namespace?: string): Promise
     const targetNamespace = namespace || `brand_${asset.brandId}`;
     const pineconeResult = await upsertToPinecone(pineconeRecords, { namespace: targetNamespace });
 
-    await updateBrandAsset(asset.id, {
+    await updateBrandAssetAdmin(asset.id, {
       status: 'ready',
       chunkCount: chunkPayloads.length,
       processedAt: Timestamp.now(),
@@ -166,7 +165,7 @@ export async function processAsset(assetId: string, namespace?: string): Promise
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Erro desconhecido no worker.';
-    await updateBrandAsset(asset.id, {
+    await updateBrandAssetAdmin(asset.id, {
       status: 'error',
       processingError: message,
       processedAt: Timestamp.now(),

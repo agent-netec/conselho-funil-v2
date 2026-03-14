@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getBrand, updateUserUsage } from '@/lib/firebase/firestore';
-import { getBrandAssets } from '@/lib/firebase/assets';
+import { getBrandAssetsAdmin } from '@/lib/firebase/assets-server';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Buscar até 3 fotos aprovadas (isApprovedForAI) – preparado para escalar até 14
-      const assets = await getBrandAssets(brandId);
+      const assets = await getBrandAssetsAdmin(brandId);
       const approvedImages = assets
         .filter(
           (a) =>

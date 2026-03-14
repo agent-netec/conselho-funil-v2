@@ -73,9 +73,10 @@ export default function BrandAssetsPage() {
 
   // Carrega assets da marca
   const loadAssets = async () => {
+    if (!user?.uid) return;
     try {
       setIsLoadingAssets(true);
-      const data = await getBrandAssets(brandId);
+      const data = await getBrandAssets(brandId, user.uid);
       setAssets(data);
     } catch (error) {
       console.error('Erro ao carregar assets:', error);
@@ -85,10 +86,10 @@ export default function BrandAssetsPage() {
   };
 
   useEffect(() => {
-    if (brandId) {
+    if (brandId && user?.uid) {
       loadAssets();
     }
-  }, [brandId]);
+  }, [brandId, user?.uid]);
 
   // Handler de upload completo
   const handleUploadComplete = (asset: BrandAsset) => {

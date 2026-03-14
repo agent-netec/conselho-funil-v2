@@ -45,14 +45,18 @@ export async function createAsset(data: Omit<BrandAsset, 'id'>): Promise<string>
 
 /**
  * Busca todos os assets de uma marca específica.
+ * userId é obrigatório para satisfazer a Security Rule:
+ *   allow list: if isAuthenticated() && resource.data.userId == request.auth.uid
+ * Sem o where('userId', '==', userId) o Firestore rejeita a query.
  */
-export async function getBrandAssets(brandId: string): Promise<BrandAsset[]> {
+export async function getBrandAssets(brandId: string, userId: string): Promise<BrandAsset[]> {
   const q = query(
     collection(db, 'brand_assets'),
     where('brandId', '==', brandId),
+    where('userId', '==', userId),
     orderBy('createdAt', 'desc')
   );
-  
+
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BrandAsset));
 }

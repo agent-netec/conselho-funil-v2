@@ -10,14 +10,31 @@ import { generateEmbeddingsBatch } from '../ai/embeddings';
 import type { AssetChunk, BrandAsset } from '../../types/database';
 
 // ---------------------------------------------------------------------------
-// Internal Admin helpers (replicate client-SDK functions without client SDK)
+// Admin helpers — use these in server-only code (API routes, workers)
 // ---------------------------------------------------------------------------
 
-async function adminGetAsset(assetId: string): Promise<BrandAsset | null> {
+export async function getBrandAssetsAdmin(brandId: string): Promise<BrandAsset[]> {
+  const db = getAdminFirestore();
+  const snap = await db.collection('brand_assets')
+    .where('brandId', '==', brandId)
+    .orderBy('createdAt', 'desc')
+    .get();
+  return snap.docs.map(d => ({ id: d.id, ...d.data() } as BrandAsset));
+}
+
+export async function fetchBrandAssetAdmin(assetId: string): Promise<BrandAsset | null> {
   const db = getAdminFirestore();
   const snap = await db.collection('brand_assets').doc(assetId).get();
   if (!snap.exists) return null;
   return { id: snap.id, ...snap.data() } as BrandAsset;
+}
+
+export async function updateBrandAssetAdmin(
+  assetId: string,
+  data: Partial<BrandAsset> & { status?: BrandAsset['status']; chunkCount?: number; processedAt?: any; processingError?: string | null }
+): Promise<void> {
+  const db = getAdminFirestore();
+  await db.collection('brand_assets').doc(assetId).update(data as Record<string, unknown>);
 }
 
 async function adminUpdateAssetStatus(
@@ -25,11 +42,10 @@ async function adminUpdateAssetStatus(
   status: BrandAsset['status'],
   error?: string
 ): Promise<void> {
-  const db = getAdminFirestore();
   const updates: Record<string, unknown> = { status };
   if (status === 'ready') updates.processedAt = FieldValue.serverTimestamp();
   if (error) updates.processingError = error;
-  await db.collection('brand_assets').doc(assetId).update(updates);
+  await updateBrandAssetAdmin(assetId, updates as any);
 }
 
 // ---------------------------------------------------------------------------
@@ -52,7 +68,7 @@ export async function processAssetText(
   try {
     const { upsertToPinecone } = await import('../ai/pinecone');
 
-    const asset = await adminGetAsset(assetId);
+    const asset = await fetchBrandAssetAdmin(assetId);
     if (!asset) throw new Error('Asset não encontrado');
 
     const targetNamespace = namespace || `brand_${asset.brandId}`;
