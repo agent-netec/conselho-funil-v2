@@ -230,6 +230,13 @@ export function ChatMessageBubble({
   const partySections = !isUser ? parsePartyResponse(message.content) : [];
   const interactions = !isUser ? getInteractionSummary(partySections) : [];
 
+  // Strip structured output tags from displayed content so they don't render as raw text
+  const cleanContent = !isUser ? message.content
+    .replace(/\[COUNCIL_OUTPUT\]:\s*\{[\s\S]*\}\s*$/m, '')
+    .replace(/\[ADS_STRATEGY\]:\s*\{[\s\S]*\}\s*$/m, '')
+    .trim()
+    : message.content;
+
   // Sprint R2.2: Detect verdict message
   const isVerdict = message.metadata?.type === 'verdict';
   const verdictData: VerdictOutput | null = isVerdict
@@ -428,7 +435,7 @@ export function ChatMessageBubble({
                   return <MarkdownRenderer key={idx} content={section.content} />;
                 })
               ) : (
-                <MarkdownRenderer content={message.content} />
+                <MarkdownRenderer content={cleanContent} />
               )}
 
               {nanobananaPrompts.length > 0 && (
