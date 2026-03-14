@@ -11,9 +11,10 @@
  */
 
 import { useState } from 'react';
-import { doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
+import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
+import { useAuthStore } from '@/lib/stores/auth-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -92,6 +93,7 @@ interface SocialWizardProps {
 
 export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
   const activeBrand = useActiveBrand();
+  const { user } = useAuthStore();
 
   // Step management
   const [currentStep, setCurrentStep] = useState(0);
@@ -337,24 +339,25 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
       setScheduledCount(count);
       notify.success(`${count} posts agendados no calendário!`);
 
-      // Save social data to campaign document (Golden Thread) — only if doc exists
-      if (campaignId) {
+      // Save social data to campaign document (Golden Thread)
+      // setDoc with merge=true: creates the doc if it doesn't exist yet,
+      // or merges into the existing one — satisfies both create and update rules
+      if (campaignId && user?.uid) {
         try {
-          const campRef = doc(db, 'campaigns', campaignId);
-          const campSnap = await getDoc(campRef);
-          if (campSnap.exists()) {
-            await updateDoc(campRef, {
-              social: {
-                hooks: result.hooks.map(h => ({ content: h.content, style: h.style })),
-                platforms: [platform],
-                campaignType,
-                scheduledCount: count,
-              },
-              updatedAt: Timestamp.now(),
-            });
-          }
+          await setDoc(doc(db, 'campaigns', campaignId), {
+            social: {
+              hooks: result.hooks.map(h => ({ content: h.content, style: h.style })),
+              platforms: [platform],
+              campaignType,
+              scheduledCount: count,
+            },
+            userId: user.uid,       // required for create rule
+            funnelId: campaignId,   // maintain Golden Thread link
+            updatedAt: Timestamp.now(),
+          }, { merge: true });
+          console.log('[SocialWizard] Campaign Golden Thread updated:', campaignId);
         } catch (campErr) {
-          console.warn('[SocialWizard] Failed to update campaign:', campErr);
+          console.warn('[SocialWizard] Failed to update campaign Golden Thread:', campErr);
         }
       }
     } catch (error: any) {
