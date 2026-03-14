@@ -29,12 +29,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { notify } from '@/lib/stores/notification-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/lib/stores/auth-store';
 
 import { MonitoringDashboard, Metric } from '@/components/campaigns/monitoring-dashboard';
 
 export default function CampaignCommandCenter() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuthStore();
   const [campaign, setCampaign] = useState<CampaignContext | null>(null);
   const [loading, setLoading] = useState(true);
   const [completedStages, setCompletedStages] = useState<string[]>([]);
@@ -45,7 +47,7 @@ export default function CampaignCommandCenter() {
   const [anomalies] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!params.id) return;
+    if (!params.id || !user?.uid) return;
 
     const funnelId = params.id as string;
 
@@ -158,7 +160,7 @@ export default function CampaignCommandCenter() {
     }
 
     return () => unsubCampaign();
-  }, [params.id]);
+  }, [params.id, user?.uid]);
 
   const [generatingAds, setGeneratingAds] = useState(false);
   const [briefText, setBriefText] = useState<string | null>(null);

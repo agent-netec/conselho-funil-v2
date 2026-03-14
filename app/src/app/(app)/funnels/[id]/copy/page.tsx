@@ -519,9 +519,9 @@ export default function CopyCouncilPage() {
     loadData();
   }, [funnelId, urlProposalId, router]);
 
-  // Subscribe to copy proposals
+  // Subscribe to copy proposals — guard with user.uid to avoid auth race condition
   useEffect(() => {
-    if (!funnelId) return;
+    if (!funnelId || !user?.uid) return;
 
     const copyProposalsRef = collection(db, 'funnels', funnelId, 'copyProposals');
     const q = activeProposalId 
@@ -537,7 +537,7 @@ export default function CopyCouncilPage() {
     });
 
     return () => unsubscribe();
-  }, [funnelId, activeProposalId]);
+  }, [funnelId, activeProposalId, user?.uid]);
 
   // Generate copy
   const handleGenerateCopy = async (copyType: CopyType) => {

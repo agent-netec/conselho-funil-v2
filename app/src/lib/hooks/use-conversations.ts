@@ -73,13 +73,14 @@ export function useConversations() {
 }
 
 export function useConversation(conversationId: string | null) {
+  const { user } = useAuthStore();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!conversationId) {
+    if (!conversationId || !user?.uid) {
       setMessages([]);
       setIsLoading(false);
       return;
@@ -87,14 +88,14 @@ export function useConversation(conversationId: string | null) {
 
     setIsLoading(true);
 
-    // Subscribe to real-time messages
+    // Guard with user.uid to avoid auth race condition that permanently kills the listener
     const unsubscribe = subscribeToMessages(conversationId, (newMessages) => {
       setMessages(newMessages);
       setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, [conversationId]);
+  }, [conversationId, user?.uid]);
 
   const sendMessage = async (
     content: string,

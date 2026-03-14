@@ -39,6 +39,7 @@ import { notify } from '@/lib/stores/notification-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { ShareDialog } from '@/components/funnels/share-dialog';
 import { ExportDialog } from '@/components/funnels/export-dialog';
+import { useAuthStore } from '@/lib/stores/auth-store';
 
 // Generate markdown from funnel data
 function generateFunnelMarkdown(funnel: Funnel, proposals: Proposal[]): string {
@@ -426,6 +427,7 @@ const GeneratingState = ({ isStuck, onReset }: { isStuck?: boolean; onReset?: ()
 export default function FunnelDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuthStore();
   const { remove, update } = useFunnels();
   const [funnel, setFunnel] = useState<Funnel | null>(null);
   const [proposals, setProposals] = useState<Proposal[]>([]);
@@ -475,9 +477,9 @@ export default function FunnelDetailPage() {
     }
   };
 
-  // Subscribe to funnel updates
+  // Subscribe to funnel updates — guard with user.uid to avoid auth race condition
   useEffect(() => {
-    if (!params.id) return;
+    if (!params.id || !user?.uid) return;
 
     const unsubscribe = onSnapshot(
       doc(db, 'funnels', params.id as string),
@@ -503,7 +505,7 @@ export default function FunnelDetailPage() {
     );
 
     return () => unsubscribe();
-  }, [params.id]);
+  }, [params.id, user?.uid]);
 
   // Load proposals
   const loadProposals = async (funnelId: string) => {
