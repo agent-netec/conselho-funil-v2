@@ -28,19 +28,37 @@ interface DebateViewerProps {
   debate: string;
 }
 
-/** Parse debate text into sections: counselor opinions + verdict */
+/** Resolve counselor name to ID */
+function resolveCounselorId(name: string): string {
+  const upper = name.toUpperCase();
+  return Object.entries(COUNSELOR_INFO).find(([, info]) =>
+    upper.includes(info.name.toUpperCase()) ||
+    upper.includes(info.name.split(' ')[1]?.toUpperCase() || '')
+  )?.[0] || '';
+}
+
+/** Parse debate text into sections: counselor opinions + verdict.
+ *  Accepts multiple AI output formats:
+ *  - **[Rachel Karten]**: ...  (canonical)
+ *  - **[RACHEL KARTEN]**: ...  (uppercase)
+ *  - **Rachel Karten**: ...    (no brackets)
+ *  - ### Rachel Karten         (heading style)
+ */
 function parseDebate(text: string) {
   const sections: { counselorId: string; name: string; content: string }[] = [];
   let verdict = '';
 
-  // Split by counselor headers **[NAME]**:
   const lines = text.split('\n');
   let currentSection: { counselorId: string; name: string; lines: string[] } | null = null;
   let inVerdict = false;
 
   for (const line of lines) {
-    // Check for verdict section
-    if (line.includes('Veredito do Conselho') || line.includes('Veredito Final') || line.includes('VEREDITO_DO_CONSELHO') || line.includes('Veredito do MKTHONEY')) {
+    // Verdict section markers
+    if (
+      line.includes('Veredito do Conselho') || line.includes('Veredito Final') ||
+      line.includes('VEREDITO_DO_CONSELHO') || line.includes('VEREDITO_FINAL') ||
+      line.includes('Veredito do MKTHONEY') || line.includes('⚖️')
+    ) {
       if (currentSection) {
         sections.push({ ...currentSection, content: currentSection.lines.join('\n').trim() });
         currentSection = null;
@@ -54,20 +72,22 @@ function parseDebate(text: string) {
       continue;
     }
 
-    // Check for counselor header
-    const headerMatch = line.match(/\*\*\[([^\]]+)\]\*\*/);
+    // Pattern 1: **[NAME]**: or **[NAME]:**
+    let headerMatch = line.match(/\*\*\[([^\]]+)\]\*\*:?\s*/);
+    // Pattern 2: **NAME**: (no brackets, bold name followed by colon)
+    if (!headerMatch) headerMatch = line.match(/^\*\*([A-ZÀ-Ú][a-zA-ZÀ-Úà-ú\s]+[a-zA-ZÀ-Úà-ú])\*\*:\s*/);
+    // Pattern 3: ### NAME or ## NAME
+    if (!headerMatch) headerMatch = line.match(/^#{2,3}\s*(?:🎙️\s*)?([A-ZÀ-Ú][a-zA-ZÀ-Úà-ú\s]+[a-zA-ZÀ-Úà-ú])\s*$/);
+
     if (headerMatch) {
       if (currentSection) {
         sections.push({ ...currentSection, content: currentSection.lines.join('\n').trim() });
       }
-      const name = headerMatch[1].toUpperCase();
-      // Match to counselor
-      const counselorId = Object.entries(COUNSELOR_INFO).find(
-        ([, info]) => name.includes(info.name.toUpperCase()) || name.includes(info.name.split(' ')[1]?.toUpperCase() || '')
-      )?.[0] || '';
-      currentSection = { counselorId, name: headerMatch[1], lines: [] };
-      // Add the rest of the line after the header
-      const afterHeader = line.replace(/\*\*\[[^\]]+\]\*\*:?\s*/, '');
+      const capturedName = headerMatch[1];
+      const counselorId = resolveCounselorId(capturedName);
+      currentSection = { counselorId, name: capturedName, lines: [] };
+      // Add text after the header on the same line
+      const afterHeader = line.replace(headerMatch[0], '').trim();
       if (afterHeader) currentSection.lines.push(afterHeader);
     } else if (currentSection) {
       currentSection.lines.push(line);
@@ -136,9 +156,14 @@ export function DebateViewer({ debate }: DebateViewerProps) {
       )}
 
       {sections.length === 0 && (
-        <Card className="p-8 text-center bg-zinc-900/40 border-white/[0.04]">
-          <MessageSquare className="h-8 w-8 text-zinc-600 mx-auto mb-3" />
-          <p className="text-sm text-zinc-500">O debate será exibido aqui quando gerado.</p>
+        <Card className="p-6 bg-zinc-900/40 border-white/[0.04]">
+          <div className="flex items-center gap-2 mb-3">
+            <MessageSquare className="h-4 w-4 text-violet-400" />
+            <h3 className="text-sm font-bold text-violet-400 uppercase tracking-wider">Debate dos Especialistas</h3>
+          </div>
+          <div className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap max-h-[600px] overflow-y-auto pr-1 scrollbar-thin">
+            {debate}
+          </div>
         </Card>
       )}
     </div>

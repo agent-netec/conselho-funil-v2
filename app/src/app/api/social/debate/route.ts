@@ -147,25 +147,24 @@ O Veredito Final deve consolidar as opiniões e recomendar o hook final com just
       { intensity: 'debate', brainContext }
     );
 
-    // 6. Generate with PRO model (60s timeout), fallback to Flash if PRO fails/hangs
+    // 6. Generate with PRO model (120s timeout), fallback to Flash if PRO fails/hangs
     let response: string;
     let modelUsed = PRO_GEMINI_MODEL;
     try {
-      response = await Promise.race([
-        generateWithGemini(fullPrompt, {
-          model: PRO_GEMINI_MODEL,
-          temperature: 0.7,
-        }),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('PRO model timeout (90s)')), 90_000)
-        ),
-      ]);
+      response = await generateWithGemini(fullPrompt, {
+        model: PRO_GEMINI_MODEL,
+        temperature: 0.7,
+        maxOutputTokens: 8192,
+        timeoutMs: 120_000,
+      });
     } catch (proErr: any) {
       console.warn(`[Social/Debate] PRO model failed: ${proErr?.message}. Falling back to Flash.`);
       modelUsed = DEFAULT_GEMINI_MODEL;
       response = await generateWithGemini(fullPrompt, {
         model: DEFAULT_GEMINI_MODEL,
         temperature: 0.7,
+        maxOutputTokens: 8192,
+        timeoutMs: 90_000,
       });
     }
 
