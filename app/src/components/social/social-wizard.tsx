@@ -11,7 +11,7 @@
  */
 
 import { useState } from 'react';
-import { doc, updateDoc, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
@@ -337,18 +337,22 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
       setScheduledCount(count);
       notify.success(`${count} posts agendados no calendário!`);
 
-      // Save social data to campaign document (Golden Thread)
+      // Save social data to campaign document (Golden Thread) — only if doc exists
       if (campaignId) {
         try {
-          await updateDoc(doc(db, 'campaigns', campaignId), {
-            social: {
-              hooks: result.hooks.map(h => ({ content: h.content, style: h.style })),
-              platforms: [platform],
-              campaignType,
-              scheduledCount: count,
-            },
-            updatedAt: Timestamp.now(),
-          });
+          const campRef = doc(db, 'campaigns', campaignId);
+          const campSnap = await getDoc(campRef);
+          if (campSnap.exists()) {
+            await updateDoc(campRef, {
+              social: {
+                hooks: result.hooks.map(h => ({ content: h.content, style: h.style })),
+                platforms: [platform],
+                campaignType,
+                scheduledCount: count,
+              },
+              updatedAt: Timestamp.now(),
+            });
+          }
         } catch (campErr) {
           console.warn('[SocialWizard] Failed to update campaign:', campErr);
         }
