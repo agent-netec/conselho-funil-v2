@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getUserBrands, createBrand, updateBrand, deleteBrand, getBrand } from '@/lib/firebase/brands';
 import type { Brand } from '@/types/database';
@@ -11,7 +11,7 @@ export function useBrands() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadBrands = async () => {
+  const loadBrands = useCallback(async (retries = 0) => {
     if (!user) {
       setBrands([]);
       setIsLoading(false);
@@ -19,21 +19,25 @@ export function useBrands() {
     }
 
     try {
-      setIsLoading(true);
       const data = await getUserBrands(user.uid);
       setBrands(data);
       setError(null);
-    } catch (err) {
-      console.error('Error loading brands:', err);
-      setError('Erro ao carregar marcas');
-    } finally {
       setIsLoading(false);
+    } catch (err: any) {
+      if (err?.code === 'permission-denied' && retries < 4) {
+        setTimeout(() => loadBrands(retries + 1), 300 * Math.pow(2, retries));
+      } else {
+        console.error('Error loading brands:', err);
+        setError('Erro ao carregar marcas');
+        setIsLoading(false);
+      }
     }
-  };
+  }, [user?.uid]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    loadBrands();
-  }, [user]);
+    setIsLoading(true);
+    loadBrands(0);
+  }, [loadBrands]);
 
   const create = async (data: Omit<Brand, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (!user) throw new Error('User not authenticated');
@@ -44,18 +48,18 @@ export function useBrands() {
     });
 
     // Don't let loadBrands failure propagate — brand was already created
-    loadBrands().catch(err => console.warn('[useBrands] loadBrands after create failed:', err));
+    loadBrands(0).catch(err => console.warn('[useBrands] loadBrands after create failed:', err));
     return brandId;
   };
 
   const update = async (brandId: string, data: Partial<Omit<Brand, 'id' | 'userId' | 'createdAt'>>) => {
     await updateBrand(brandId, data);
-    loadBrands().catch(err => console.warn('[useBrands] loadBrands after update failed:', err));
+    loadBrands(0).catch(err => console.warn('[useBrands] loadBrands after update failed:', err));
   };
 
   const remove = async (brandId: string) => {
     await deleteBrand(brandId);
-    await loadBrands();
+    await loadBrands(0);
   };
 
   const getById = async (brandId: string) => {
@@ -70,7 +74,7 @@ export function useBrands() {
     update,
     remove,
     getById,
-    refresh: loadBrands,
+    refresh: () => loadBrands(0),
   };
 }
 

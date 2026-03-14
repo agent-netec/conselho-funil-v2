@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getUserFunnels, createFunnel, updateFunnel, deleteFunnel } from '@/lib/firebase/firestore';
 import type { Funnel, FunnelContext } from '@/types/database';
@@ -11,7 +11,7 @@ export function useFunnels() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadFunnels = async () => {
+  const loadFunnels = useCallback(async (retries = 0) => {
     if (!user) {
       setFunnels([]);
       setIsLoading(false);
@@ -19,21 +19,25 @@ export function useFunnels() {
     }
 
     try {
-      setIsLoading(true);
       const data = await getUserFunnels(user.uid);
       setFunnels(data);
       setError(null);
-    } catch (err) {
-      console.error('Error loading funnels:', err);
-      setError('Erro ao carregar funis');
-    } finally {
       setIsLoading(false);
+    } catch (err: any) {
+      if (err?.code === 'permission-denied' && retries < 4) {
+        setTimeout(() => loadFunnels(retries + 1), 300 * Math.pow(2, retries));
+      } else {
+        console.error('Error loading funnels:', err);
+        setError('Erro ao carregar funis');
+        setIsLoading(false);
+      }
     }
-  };
+  }, [user?.uid]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    loadFunnels();
-  }, [user]);
+    setIsLoading(true);
+    loadFunnels(0);
+  }, [loadFunnels]);
 
   const create = async (data: { name: string; context: FunnelContext; brandId?: string }) => {
     if (!user) throw new Error('User not authenticated');
@@ -45,18 +49,18 @@ export function useFunnels() {
       brandId: data.brandId, // Vincula à marca se fornecido
     });
 
-    await loadFunnels();
+    await loadFunnels(0);
     return funnelId;
   };
 
   const update = async (funnelId: string, data: Partial<Funnel>) => {
     await updateFunnel(funnelId, data);
-    await loadFunnels();
+    await loadFunnels(0);
   };
 
   const remove = async (funnelId: string) => {
     await deleteFunnel(funnelId);
-    await loadFunnels();
+    await loadFunnels(0);
   };
 
   return {
@@ -66,7 +70,7 @@ export function useFunnels() {
     create,
     update,
     remove,
-    refresh: loadFunnels,
+    refresh: () => loadFunnels(0),
   };
 }
 
