@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useBrands } from '@/lib/hooks/use-brands';
 import { useBrandStore } from '@/lib/stores/brand-store';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import type { Brand } from '@/types/database';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BrandKitForm } from '@/components/brands/brand-kit-form';
@@ -55,7 +56,7 @@ export default function BrandDetailPage() {
   const searchParams = useSearchParams();
   const brandId = params.id as string;
   const defaultTab = searchParams.get('tab') || 'overview';
-  const { getById, remove } = useBrands();
+  const { remove } = useBrands();
   const { selectedBrand, setSelectedBrand } = useBrandStore();
   const [brand, setBrand] = useState<Brand | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,19 +65,30 @@ export default function BrandDetailPage() {
     loadBrand();
   }, [brandId]);
 
-  const loadBrand = async (retries = 0) => {
+  const loadBrand = async () => {
     setIsLoading(true);
     try {
-      const data = await getById(brandId);
-      setBrand(data);
-      setIsLoading(false);
-    } catch (err: any) {
-      if (err?.code === 'permission-denied' && retries < 4) {
-        setTimeout(() => loadBrand(retries + 1), 300 * Math.pow(2, retries));
-      } else {
-        console.error('[BrandDetail] loadBrand failed:', err);
+      const headers = await getAuthHeaders();
+      const res = await fetch(`/api/brands/${brandId}`, { headers });
+
+      if (res.status === 404) {
+        setBrand(null);
         setIsLoading(false);
+        return;
       }
+
+      if (!res.ok) {
+        console.error('[BrandDetail] API error:', res.status);
+        setIsLoading(false);
+        return;
+      }
+
+      const json = await res.json();
+      setBrand(json.data.brand);
+      setIsLoading(false);
+    } catch (err) {
+      console.error('[BrandDetail] loadBrand failed:', err);
+      setIsLoading(false);
     }
   };
 

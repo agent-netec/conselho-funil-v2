@@ -128,18 +128,9 @@ export default function SignupPage() {
       const result = await signInWithGoogle();
       if (result.error) {
         setError(result.error);
-      } else if (result.user) {
-        try {
-          await createUser(result.user.uid, {
-            email: result.user.email || '',
-            name: result.user.displayName || '',
-            role: 'admin',
-          });
-        } catch {
-          // User doc may already exist (returning Google user)
-        }
-        router.push('/welcome');
       }
+      // signInWithGoogle uses signInWithRedirect — page will redirect to Google.
+      // Auth result is handled in AuthProvider via handleGoogleRedirectResult().
     } catch {
       setError('Erro ao conectar com Google. Tente novamente.');
     } finally {

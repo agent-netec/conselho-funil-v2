@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 /**
- * PATCH /api/brands/[brandId]
- * Updates a brand document using Admin SDK (bypasses Firestore Security Rules).
+ * GET    /api/brands/[brandId] — fetches brand via Admin SDK (no Security Rules race)
+ * PATCH  /api/brands/[brandId] — updates brand via Admin SDK
  */
 
 import { NextRequest } from 'next/server';
@@ -10,6 +10,31 @@ import { getAdminFirestore } from '@/lib/firebase/admin';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ brandId: string }> }
+) {
+  try {
+    const { brandId } = await params;
+    const { brandId: safeBrandId } = await requireBrandAccess(request, brandId);
+
+    const adminDb = getAdminFirestore();
+    const snap = await adminDb.collection('brands').doc(safeBrandId).get();
+
+    if (!snap.exists) {
+      return createApiError(404, 'Brand not found');
+    }
+
+    return createApiSuccess({ brand: { id: snap.id, ...snap.data() } });
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return handleSecurityError(error);
+    }
+    console.error('[GET /api/brands/[brandId]] Error:', error);
+    return createApiError(500, 'Failed to fetch brand');
+  }
+}
 
 export const runtime = 'nodejs';
 
