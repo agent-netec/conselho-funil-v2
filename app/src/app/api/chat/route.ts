@@ -58,6 +58,7 @@ export const maxDuration = 90; // PRO model + RAG + council response
 interface ChatRequest {
   message: string;
   conversationId: string;
+  brandId?: string; // Active brand from client — fallback if conversation has no brandId
   mode?: 'general' | 'funnel_creation' | 'funnel_evaluation' | 'funnel_review' | 'copy' | 'social' | 'ads' | 'design' | 'party';
   partyMode?: boolean;
   counselor?: string;
@@ -75,12 +76,13 @@ async function handlePOST(request: NextRequest) {
     }
 
     const body = parsed.data;
-    const { 
-      message, 
-      conversationId, 
-      mode = 'general', 
+    const {
+      message,
+      conversationId,
+      brandId: requestBrandId,
+      mode = 'general',
       partyMode = false,
-      counselor, 
+      counselor,
       funnelId,
       campaignId,
       selectedAgents = [],
@@ -192,18 +194,20 @@ async function handlePOST(request: NextRequest) {
     }
 
     // 4. Brand Context and Brand Assets RAG
+    // Use conversation.brandId first; fall back to brandId sent in request (for older conversations without brandId)
+    const effectiveBrandId = conversation?.brandId || requestBrandId;
     let brandContextPromise = Promise.resolve({ context: '', brandChunks: [] as any[], brand: null as Brand | null });
-    if (conversation?.brandId) {
+    if (effectiveBrandId) {
       brandContextPromise = (async () => {
         try {
           // ST-12.5: RAG Caching via sessionStorage (simulated in API for consistency)
           // Em um ambiente real de API, o cache seria Redis, mas aqui vamos simular
           // o comportamento de evitar chamadas repetitivas ao Pinecone se os dados forem idênticos.
 
-          const brand = await getBrandAdmin(conversation.brandId!);
+          const brand = await getBrandAdmin(effectiveBrandId!);
           if (brand) {
             const bContext = formatBrandContextForChat(brand);
-            const bChunks = await retrieveBrandChunks(conversation.brandId!, message, 5);
+            const bChunks = await retrieveBrandChunks(effectiveBrandId!, message, 5);
             return { context: bContext, brandChunks: bChunks, brand };
           }
         } catch (err) {
@@ -264,10 +268,10 @@ async function handlePOST(request: NextRequest) {
 
     // 6. Keywords Intelligence (mineradas pelo Keywords Miner)
     let keywordsPromise = Promise.resolve('');
-    if (conversation?.brandId) {
+    if (effectiveBrandId) {
       keywordsPromise = (async () => {
         try {
-          const keywordStr = await getAllBrandKeywordsForPromptAdmin(conversation.brandId!, 10);
+          const keywordStr = await getAllBrandKeywordsForPromptAdmin(effectiveBrandId, 10);
           if (keywordStr) {
             return keywordStr;
           }

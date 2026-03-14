@@ -174,10 +174,10 @@ export default function ChatPage() {
 
       router.push(url);
       // Pass newId directly — sendMessage from the current render has conversationId=null
-      await sendMessage(message, apiMode as any, funnelId || undefined, partyOptions, campaignId || undefined, newId);
+      await sendMessage(message, apiMode as any, funnelId || undefined, partyOptions, campaignId || undefined, newId, activeBrand?.id);
       return;
     }
-    await sendMessage(message, apiMode as any, funnelId || undefined, partyOptions, campaignId || undefined);
+    await sendMessage(message, apiMode as any, funnelId || undefined, partyOptions, campaignId || undefined, undefined, activeBrand?.id);
   };
 
   return (

@@ -102,7 +102,8 @@ export function useConversation(conversationId: string | null) {
     funnelId?: string,
     partyOptions?: { selectedAgents?: string[], intensity?: 'debate' | 'consensus' },
     campaignId?: string,
-    overrideConversationId?: string
+    overrideConversationId?: string,
+    activeBrandId?: string
   ) => {
     const activeConversationId = overrideConversationId || conversationId;
     if (!activeConversationId) return;
@@ -126,11 +127,12 @@ export function useConversation(conversationId: string | null) {
           message: content,
           conversationId: activeConversationId,
           mode,
+          ...(activeBrandId ? { brandId: activeBrandId } : {}),
           ...(funnelId ? { funnelId } : {}),
           ...(campaignId ? { campaignId } : {}), // ST-11.15: Contexto da Linha de Ouro
-          ...(partyOptions ? { 
+          ...(partyOptions ? {
             selectedAgents: partyOptions.selectedAgents,
-            intensity: partyOptions.intensity 
+            intensity: partyOptions.intensity
           } : {}),
         }),
       });
