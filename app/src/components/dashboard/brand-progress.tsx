@@ -93,7 +93,7 @@ export function BrandProgress({ brand, assetCount, onOpenModal }: BrandProgressP
 
             if (field.href) {
               return (
-                <Link key={field.key} href={field.href}>
+                <Link key={field.key} href={`/brands/${brand.id}${field.href}`}>
                   {inner}
                 </Link>
               );
