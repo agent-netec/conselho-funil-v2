@@ -1,7 +1,8 @@
 'use client';
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginWithEmail, sendPasswordReset, signInWithGoogle } from '@/lib/firebase/auth';
+import { useAuthStore } from '@/lib/stores/auth-store';
 import {
   Ripple,
   AuthTabs,
@@ -59,6 +60,7 @@ type FormData = {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user, isInitialized } = useAuthStore();
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -67,6 +69,14 @@ export default function LoginPage() {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  // Redirect to dashboard when auth-store publishes the user
+  // (this handles the case where router.push('/') fires before the 300ms delay completes)
+  useEffect(() => {
+    if (isInitialized && user) {
+      router.push('/');
+    }
+  }, [user, isInitialized, router]);
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement>,
@@ -82,7 +92,7 @@ export default function LoginPage() {
 
     try {
       await loginWithEmail(formData.email, formData.password);
-      router.push('/');
+      // Navigation handled by the auth-state useEffect above
     } catch (err: any) {
       if (err.code === 'auth/invalid-credential') {
         setError('Email ou senha incorretos');
@@ -103,9 +113,8 @@ export default function LoginPage() {
       const result = await signInWithGoogle();
       if (result.error) {
         setError(result.error);
-      } else {
-        router.push('/');
       }
+      // On success: navigation handled by the auth-state useEffect above
     } catch {
       setError('Erro ao conectar com Google. Tente novamente.');
     } finally {
