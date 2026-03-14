@@ -4,7 +4,8 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   sendEmailVerification as firebaseSendEmailVerification,
   sendPasswordResetEmail as firebaseSendPasswordResetEmail,
   type User,
@@ -33,15 +34,28 @@ export async function signUp(email: string, password: string) {
   }
 }
 
-// Sign in with Google
+// Sign in with Google (redirect flow — avoids COOP popup issues)
 export async function signInWithGoogle() {
   if (!auth) throw new Error('Firebase Auth não inicializado.');
   try {
     const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    return { user: result.user, error: null };
+    await signInWithRedirect(auth, provider);
+    // Page will redirect to Google — this line is never reached
+    return { user: null, error: null };
   } catch (error: any) {
     return { user: null, error: getErrorMessage(error.code) };
+  }
+}
+
+// Call this once on app init to complete any pending Google redirect sign-in
+export async function handleGoogleRedirectResult() {
+  if (!auth) return null;
+  try {
+    const result = await getRedirectResult(auth);
+    return result?.user ?? null;
+  } catch (error: any) {
+    console.warn('[Auth] getRedirectResult error:', error.code);
+    return null;
   }
 }
 
