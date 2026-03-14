@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useBrands } from '@/lib/hooks/use-brands';
 import { useBrandStore } from '@/lib/stores/brand-store';
+import { useBrandAssets } from '@/lib/hooks/use-brand-assets';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import type { Brand } from '@/types/database';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -60,6 +61,7 @@ export default function BrandDetailPage() {
   const { selectedBrand, setSelectedBrand } = useBrandStore();
   const [brand, setBrand] = useState<Brand | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { assets: brandAssets } = useBrandAssets(brandId);
 
   useEffect(() => {
     loadBrand();
@@ -198,7 +200,7 @@ export default function BrandDetailPage() {
           )}
 
           {/* Brand Completeness */}
-          <BrandCompleteness brand={brand} mode="detailed" brandId={brandId} />
+          <BrandCompleteness brand={brand} mode="detailed" brandId={brandId} assetCount={brandAssets.length} />
 
           <Tabs defaultValue={defaultTab} className="space-y-6">
             <TabsList className="bg-white/5 border border-white/10 p-1">
