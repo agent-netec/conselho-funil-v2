@@ -36,6 +36,7 @@ export const FIELDS: FieldCheck[] = [
     weight: 15,
     label: 'Oferta principal',
     check: (b) => !!b.offer?.what && !!b.offer?.ticket,
+    href: '/edit',
   },
   {
     key: 'colors',
