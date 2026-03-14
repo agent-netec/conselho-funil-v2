@@ -60,6 +60,12 @@ export async function getBrandAdmin(brandId: string): Promise<Brand | null> {
   return { id: snap.id, ...snap.data() } as Brand;
 }
 
+export async function getUserBrandsAdmin(userId: string): Promise<Brand[]> {
+  const db = getAdminFirestore();
+  const snap = await db.collection('brands').where('userId', '==', userId).limit(10).get();
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }) as Brand);
+}
+
 // ---------------------------------------------------------------------------
 // Users / Credits
 // ---------------------------------------------------------------------------

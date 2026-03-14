@@ -18,6 +18,7 @@ import {
   addMessageAdmin,
   updateConversationAdmin,
   getBrandAdmin,
+  getUserBrandsAdmin,
   getUserCreditsAdmin,
   getFunnelAdmin,
   getFunnelProposalsAdmin,
@@ -194,8 +195,14 @@ async function handlePOST(request: NextRequest) {
     }
 
     // 4. Brand Context and Brand Assets RAG
-    // Use conversation.brandId first; fall back to brandId sent in request (for older conversations without brandId)
-    const effectiveBrandId = conversation?.brandId || requestBrandId;
+    // Priority: conversation.brandId → requestBrandId (from client store) → user's first brand (auto-fallback)
+    let effectiveBrandId = conversation?.brandId || requestBrandId;
+    if (!effectiveBrandId) {
+      try {
+        const userBrands = await getUserBrandsAdmin(userId);
+        if (userBrands.length > 0) effectiveBrandId = userBrands[0].id;
+      } catch { /* ignore */ }
+    }
     let brandContextPromise = Promise.resolve({ context: '', brandChunks: [] as any[], brand: null as Brand | null });
     if (effectiveBrandId) {
       brandContextPromise = (async () => {
