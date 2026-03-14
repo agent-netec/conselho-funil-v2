@@ -484,6 +484,8 @@ export default function FunnelDetailPage() {
     let active = true;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
     let currentUnsub: (() => void) | null = null;
+    let retryCount = 0;
+    const MAX_LISTENER_RETRIES = 5;
 
     const setupListener = () => {
       currentUnsub = onSnapshot(
@@ -504,10 +506,14 @@ export default function FunnelDetailPage() {
           setIsLoading(false);
         },
         (error) => {
-          // permission-denied: auth token not ready yet — retry after 2s
-          if (error.code === 'permission-denied' && active) {
-            console.warn('[FunnelPage] Snapshot permission-denied, retrying in 2s...');
+          // permission-denied: auth token not ready yet — retry up to 5x
+          if (error.code === 'permission-denied' && active && retryCount < MAX_LISTENER_RETRIES) {
+            retryCount++;
+            console.warn(`[FunnelPage] Snapshot permission-denied, retry ${retryCount}/${MAX_LISTENER_RETRIES}...`);
             retryTimer = setTimeout(setupListener, 2000);
+          } else if (error.code === 'permission-denied') {
+            console.error('[FunnelPage] Snapshot permission-denied after max retries — giving up.');
+            setIsLoading(false);
           }
         }
       );

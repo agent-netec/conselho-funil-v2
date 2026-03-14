@@ -55,6 +55,8 @@ export default function CampaignCommandCenter() {
     let active = true;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
     let currentUnsub: (() => void) | null = null;
+    let retryCount = 0;
+    const MAX_LISTENER_RETRIES = 5;
 
     const setupCampaignListener = () => {
     currentUnsub = onSnapshot(doc(db, 'campaigns', funnelId), async (docSnap) => {
@@ -88,9 +90,12 @@ export default function CampaignCommandCenter() {
         loadFromFunnelFallback();
       }
     }, (error) => {
-      if (error.code === 'permission-denied' && active) {
-        console.warn('[CampaignPage] Snapshot permission-denied, retrying in 2s...');
+      if (error.code === 'permission-denied' && active && retryCount < MAX_LISTENER_RETRIES) {
+        retryCount++;
+        console.warn(`[CampaignPage] Snapshot permission-denied, retry ${retryCount}/${MAX_LISTENER_RETRIES}...`);
         retryTimer = setTimeout(setupCampaignListener, 2000);
+      } else if (error.code === 'permission-denied') {
+        console.error('[CampaignPage] Snapshot permission-denied after max retries — giving up.');
       }
     });
     };

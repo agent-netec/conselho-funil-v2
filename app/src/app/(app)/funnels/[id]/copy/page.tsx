@@ -526,6 +526,8 @@ export default function CopyCouncilPage() {
     let active = true;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
     let currentUnsub: (() => void) | null = null;
+    let retryCount = 0;
+    const MAX_LISTENER_RETRIES = 5;
 
     const setupListener = () => {
       const copyProposalsRef = collection(db, 'funnels', funnelId, 'copyProposals');
@@ -540,9 +542,12 @@ export default function CopyCouncilPage() {
         })) as CopyProposal[];
         setCopyProposals(data.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
       }, (error) => {
-        if (error.code === 'permission-denied' && active) {
-          console.warn('[CopyPage] Snapshot permission-denied, retrying in 2s...');
+        if (error.code === 'permission-denied' && active && retryCount < MAX_LISTENER_RETRIES) {
+          retryCount++;
+          console.warn(`[CopyPage] Snapshot permission-denied, retry ${retryCount}/${MAX_LISTENER_RETRIES}...`);
           retryTimer = setTimeout(setupListener, 2000);
+        } else if (error.code === 'permission-denied') {
+          console.error('[CopyPage] Snapshot permission-denied after max retries — giving up.');
         }
       });
     };

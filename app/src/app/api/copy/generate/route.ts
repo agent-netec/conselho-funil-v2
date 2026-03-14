@@ -11,8 +11,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Timestamp } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { updateUserUsageAdmin, getBrandAdmin } from '@/lib/firebase/firestore-server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM, retrieveResearchContext } from '@/lib/ai/rag';
+import { generateWithGemini } from '@/lib/ai/gemini';
 import { getAllBrandKeywordsForPromptAdmin } from '@/lib/firebase/intelligence-server';
 import type {
   Funnel,
@@ -30,7 +30,6 @@ import { buildCopyPrompt } from '@/lib/ai/prompts';
 import { parseAIJSON } from '@/lib/ai/formatters';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { buildCopyBrainContext } from '@/lib/ai/prompts/copy-brain-context';
-import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 
@@ -66,9 +65,6 @@ function formatOfferForPrompt(offer: any): string {
 
   return parts.join('\n');
 }
-
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI((process.env.GOOGLE_AI_API_KEY || '').trim());
 
 // Map awareness from funnel context to copy awareness
 function mapAwareness(funnelAwareness: string): AwarenessStage {
@@ -257,19 +253,14 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    console.log(`\n✍️  Gerando ${copyType} enriquecido para funil "${funnel.name}"...`);
-
-    // Generate with Gemini (using model from env or default to gemini-2.0-flash)
-    const modelName = DEFAULT_GEMINI_MODEL;
-    const model = genAI.getGenerativeModel({
-      model: modelName,
-      generationConfig: {
-        temperature: brand?.aiConfiguration?.temperature || 0.8,
-        topP: brand?.aiConfiguration?.topP || 0.95,
-      },
+    // Generate with Gemini (shared client: timeout + retry on 429 + responseMimeType)
+    const responseText = await generateWithGemini(prompt, {
+      temperature: brand?.aiConfiguration?.temperature || 0.8,
+      topP: brand?.aiConfiguration?.topP || 0.95,
+      maxOutputTokens: 8192,
+      responseMimeType: 'application/json',
+      timeoutMs: 70_000, // 70s — below Vercel maxDuration of 90s
     });
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
 
     // Parse response
     let parsedResponse;
