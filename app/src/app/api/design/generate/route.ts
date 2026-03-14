@@ -239,7 +239,7 @@ Return ONLY the JSON array of strings.`;
       console.log('✨ Usando modo de geração única com brain context.');
     } else {
       try {
-        const flashModel = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+        const flashModel = genAI.getGenerativeModel({ model: 'gemini-3.1-pro-preview' });
         const flashResult = await flashModel.generateContent(promptRequest);
         const text = flashResult.response?.text?.();
         if (text) {
