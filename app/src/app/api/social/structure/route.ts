@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { ragQuery } from '@/lib/ai/rag';
 import { generateWithGemini, isGeminiConfigured, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
+import { parseAIJSON } from '@/lib/ai/formatters';
 import { getBrand } from '@/lib/firebase/brands';
 import { SOCIAL_STRUCTURE_PROMPT } from '@/lib/ai/prompts';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
@@ -75,20 +76,18 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
       model: DEFAULT_GEMINI_MODEL,
       temperature: 0.75,
       maxOutputTokens: 8192,
-      responseMimeType: 'application/json',
       timeoutMs: 50_000,
     });
 
     // 5. Parse JSON
     let result;
     try {
-      if (!response || !response.trim()) {
+      if (!response?.trim()) {
         return createApiError(500, 'A IA retornou uma resposta vazia. Tente novamente.');
       }
-      const { parseAIJSON } = await import('@/lib/ai/formatters');
       result = parseAIJSON(response);
     } catch (parseError) {
-      console.error('[Social/Structure] Error parsing AI response:', parseError, response?.substring(0, 300));
+      console.error('[Social/Structure] Parse error:', parseError, '| response[:300]:', response?.substring(0, 300));
       return createApiError(500, 'Erro ao processar estrutura do conteúdo. Tente novamente.');
     }
 

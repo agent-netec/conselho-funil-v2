@@ -9,6 +9,7 @@
 import { NextRequest } from 'next/server';
 import { Timestamp } from 'firebase-admin/firestore';
 import { generateWithGemini, isGeminiConfigured, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
+import { parseAIJSON } from '@/lib/ai/formatters';
 import { getBrand } from '@/lib/firebase/brands';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
@@ -146,17 +147,18 @@ export async function POST(req: NextRequest) {
       model: DEFAULT_GEMINI_MODEL,
       temperature: 0.8,
       maxOutputTokens: 8192,
-      responseMimeType: 'application/json',
       timeoutMs: 50_000,
     });
 
     // 4. Parse JSON
     let result;
     try {
-      const { parseAIJSON } = await import('@/lib/ai/formatters');
+      if (!response?.trim()) {
+        return createApiError(500, 'A IA retornou uma resposta vazia. Tente novamente.');
+      }
       result = parseAIJSON(response);
     } catch (parseError) {
-      console.error('Error parsing week generation:', parseError, response?.slice(0, 300));
+      console.error('[Calendar/GenerateWeek] Parse error:', parseError, '| response[:300]:', response?.slice(0, 300));
       return createApiError(500, 'Erro ao processar plano semanal.');
     }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ragQuery } from '@/lib/ai/rag';
 import { generateWithGemini, isGeminiConfigured, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
+import { parseAIJSON } from '@/lib/ai/formatters';
 import { getBrand } from '@/lib/firebase/brands';
 import { SOCIAL_HOOKS_PROMPT } from '@/lib/ai/prompts';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
@@ -79,17 +80,21 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
       temperature: brand?.aiConfiguration?.temperature || 0.85,
       topP: brand?.aiConfiguration?.topP || 0.95,
       maxOutputTokens: 8192,
-      responseMimeType: 'application/json',
       timeoutMs: 50_000,
+      // responseMimeType omitted: free-text prompt with embedded JSON instructions
+      // works better without constraint — parseAIJSON handles markdown wrapping
     });
 
     // 5. Parse JSON
     let result;
     try {
-      const { parseAIJSON } = await import('@/lib/ai/formatters');
+      if (!response?.trim()) {
+        console.error('[Social/Hooks] Empty response from Gemini');
+        return createApiError(500, 'A IA retornou uma resposta vazia. Tente novamente.');
+      }
       result = parseAIJSON(response);
     } catch (parseError) {
-      console.error('Error parsing AI response:', parseError, response?.slice(0, 300));
+      console.error('[Social/Hooks] Parse error:', parseError, '| response[:300]:', response?.slice(0, 300));
       return createApiError(500, 'Erro ao processar resposta da IA. Tente novamente.');
     }
 
