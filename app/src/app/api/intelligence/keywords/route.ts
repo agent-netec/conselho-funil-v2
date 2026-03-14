@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { KeywordMiner } from '@/lib/intelligence/keywords/miner';
 import { createIntelligenceDocument } from '@/lib/firebase/intelligence';
-import { db } from '@/lib/firebase/config';
 import { parseJsonBody } from '@/app/api/_utils/parse-json';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
@@ -58,9 +57,7 @@ export async function POST(req: NextRequest) {
     const savedIds: string[] = [];
     let saveError: string | null = null;
 
-    if (!db) {
-      saveError = 'Firebase não inicializado no ambiente';
-    } else if (keywords.length > 0) {
+    if (keywords.length > 0) {
       for (const kw of keywords) {
         try {
           const content: CreateIntelligenceInput['content'] = {

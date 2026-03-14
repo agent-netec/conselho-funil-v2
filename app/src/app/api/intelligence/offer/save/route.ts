@@ -3,8 +3,8 @@ import { NextRequest } from 'next/server';
 import { OfferLabEngine } from '@/lib/intelligence/offer/calculator';
 import { OfferDocument, OfferWizardState, OfferAIEvaluation } from '@/types/offer';
 import { v4 as uuidv4 } from 'uuid';
-import { doc, setDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
+    const adminDb = getAdminFirestore();
     const wizardState = state as OfferWizardState;
     const { total, analysis } = OfferLabEngine.calculateScore(wizardState);
 
@@ -49,8 +50,8 @@ export async function POST(req: NextRequest) {
         factors: wizardState.scoringFactors,
         analysis,
       },
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+      createdAt: Timestamp.now() as any,
+      updatedAt: Timestamp.now() as any,
     };
 
     // OL-3.8: Persist AI evaluation if provided
@@ -59,13 +60,13 @@ export async function POST(req: NextRequest) {
         overallQuality: aiEvaluation.overallQuality,
         insights: Array.isArray(aiEvaluation.insights) ? aiEvaluation.insights : [],
         summary: aiEvaluation.summary ?? '',
-        evaluatedAt: Timestamp.now(),
+        evaluatedAt: Timestamp.now() as any,
       };
     }
 
     // S29-FT-02: Persistir no Firestore — await porque semântica é de "save" (DT-12)
-    const offerRef = doc(db, 'brands', safeBrandId, 'offers', offerDoc.id);
-    await setDoc(offerRef, offerDoc);
+    const offerRef = adminDb.collection('brands').doc(safeBrandId).collection('offers').doc(offerDoc.id);
+    await offerRef.set(offerDoc);
 
     return createApiSuccess({ offer: offerDoc });
   } catch (error: unknown) {

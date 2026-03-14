@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SpyAgent } from '@/lib/agents/spy/spy-agent';
 import { DossierGenerator } from '@/lib/agents/spy/dossier-generator';
 import { analyzeCompetitorStrategy } from '@/lib/agents/spy/strategic-analysis';
-import { db } from '@/lib/firebase/config';
 import { getCompetitorProfile, updateCompetitorProfile, getCompetitorAssets } from '@/lib/firebase/intelligence';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { parseJsonBody } from '@/app/api/_utils/parse-json';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
@@ -78,10 +78,6 @@ async function handlePOST(req: NextRequest) {
       return createApiError(400, 'competitorId is required');
     }
 
-    if (!db) {
-      return createApiError(503, 'Firestore não inicializado no ambiente');
-    }
-
     const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
 
     // 1. Buscar perfil do concorrente
@@ -149,9 +145,9 @@ async function handlePOST(req: NextRequest) {
       await updateCompetitorProfile(safeBrandId, competitorId, {
         techStack: {
           ...result.techStack,
-          updatedAt: Timestamp.now(),
+          updatedAt: Timestamp.now() as any,
         } as CompetitorTechStack,
-        lastSpyScan: Timestamp.now(),
+        lastSpyScan: Timestamp.now() as any,
       });
     } catch (error: unknown) {
       persistError = getErrorMessage(error, 'Falha ao persistir tech stack');

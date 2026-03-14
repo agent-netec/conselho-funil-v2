@@ -18,8 +18,8 @@ import {
   BenchmarkComparison,
 } from '@/types/prediction';
 import { UXIntelligence } from '@/types/intelligence';
-import { db } from '@/lib/firebase/config';
-import { doc, getDoc, collection, addDoc, Timestamp, query, where, getDocs, limit } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 
 /**
  * POST /api/intelligence/predict/score
@@ -170,21 +170,19 @@ async function fetchExistingUXIntelligence(
   funnelUrl: string
 ): Promise<UXIntelligence | null> {
   try {
-    const intelligenceRef = collection(db, 'brands', brandId, 'intelligence');
-    const q = query(
-      intelligenceRef,
-      where('content.originalUrl', '==', funnelUrl),
-      where('status', '==', 'processed'),
-      limit(1)
-    );
-
-    const snapshot = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const intelligenceRef = adminDb.collection('brands').doc(brandId).collection('intelligence');
+    const snapshot = await intelligenceRef
+      .where('content.originalUrl', '==', funnelUrl)
+      .where('status', '==', 'processed')
+      .limit(1)
+      .get();
 
     if (snapshot.empty) {
       return null;
     }
 
-    const docData = snapshot.docs[0].data();
+    const docData = snapshot.docs[0].data() as any;
     return docData.uxIntelligence as UXIntelligence | null;
   } catch (error) {
     console.error('[PREDICT_SCORE] Erro ao buscar UXIntelligence existente:', error);
@@ -209,13 +207,14 @@ async function persistPrediction(
   benchmark: BenchmarkComparison
 ): Promise<string> {
   try {
+    const adminDb = getAdminFirestore();
     const now = Timestamp.now();
     const expiresAt = Timestamp.fromDate(
       new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
     );
 
-    const predictionsRef = collection(db, 'brands', brandId, 'predictions');
-    const docRef = await addDoc(predictionsRef, {
+    const predictionsRef = adminDb.collection('brands').doc(brandId).collection('predictions');
+    const docRef = await predictionsRef.add({
       brandId,
       funnelUrl: funnelUrl || null,
       score: scoringResult.score,
@@ -224,8 +223,8 @@ async function persistPrediction(
       recommendations,
       benchmark,
       inputType: funnelUrl ? 'url' : 'ux_intelligence',
-      createdAt: now,
-      expiresAt,
+      createdAt: now as any,
+      expiresAt: expiresAt as any,
     });
 
     return docRef.id;

@@ -4,8 +4,7 @@ import { NextRequest } from 'next/server';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { decryptSensitiveFields } from '@/lib/utils/encryption';
 import type { JourneyLead } from '@/types/journey';
 
@@ -25,16 +24,13 @@ export async function GET(request: NextRequest) {
 
     await requireBrandAccess(request, brandId);
 
+    const adminDb = getAdminFirestore();
     // Query leads by brandId, ordered by most recently updated
-    const leadsRef = collection(db, 'leads');
-    const q = query(
-      leadsRef,
-      where('brandId', '==', brandId),
-      orderBy('updatedAt', 'desc'),
-      limit(limitCount)
-    );
-
-    const snapshot = await getDocs(q);
+    const snapshot = await adminDb.collection('leads')
+      .where('brandId', '==', brandId)
+      .orderBy('updatedAt', 'desc')
+      .limit(limitCount)
+      .get();
     const leads: Array<{
       id: string;
       maskedEmail: string;

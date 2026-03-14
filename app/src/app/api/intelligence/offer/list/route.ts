@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest } from 'next/server';
-import { collection, getDocs, query, orderBy, doc, writeBatch } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
@@ -22,9 +21,10 @@ export async function GET(req: NextRequest) {
 
     const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
 
-    const offersRef = collection(db, 'brands', safeBrandId, 'offers');
-    const q = query(offersRef, orderBy('createdAt', 'desc'));
-    const snapshot = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const snapshot = await adminDb.collection('brands').doc(safeBrandId).collection('offers')
+      .orderBy('createdAt', 'desc')
+      .get();
 
     const offers = snapshot.docs.map(d => ({
       id: d.id,
@@ -58,11 +58,12 @@ export async function PATCH(req: NextRequest) {
 
     const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
 
+    const adminDb = getAdminFirestore();
+
     if (action === 'activate') {
       // Deactivate current active offers, then activate this one
-      const offersRef = collection(db, 'brands', safeBrandId, 'offers');
-      const allSnap = await getDocs(offersRef);
-      const batch = writeBatch(db);
+      const allSnap = await adminDb.collection('brands').doc(safeBrandId).collection('offers').get();
+      const batch = adminDb.batch();
 
       for (const d of allSnap.docs) {
         const data = d.data();
@@ -71,7 +72,7 @@ export async function PATCH(req: NextRequest) {
         }
       }
 
-      const targetRef = doc(db, 'brands', safeBrandId, 'offers', offerId);
+      const targetRef = adminDb.collection('brands').doc(safeBrandId).collection('offers').doc(offerId);
       batch.update(targetRef, { status: 'active', updatedAt: new Date() });
 
       await batch.commit();
@@ -79,25 +80,25 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (action === 'archive') {
-      const targetRef = doc(db, 'brands', safeBrandId, 'offers', offerId);
-      const { updateDoc, Timestamp } = await import('firebase/firestore');
-      await updateDoc(targetRef, { status: 'archived', updatedAt: Timestamp.now() });
+      const { Timestamp: AdminTimestamp } = await import('firebase-admin/firestore');
+      const targetRef = adminDb.collection('brands').doc(safeBrandId).collection('offers').doc(offerId);
+      await targetRef.update({ status: 'archived', updatedAt: AdminTimestamp.now() });
       return createApiSuccess({ status: 'archived' });
     }
 
     if (action === 'duplicate') {
-      const { getDoc, setDoc, Timestamp } = await import('firebase/firestore');
+      const { Timestamp: AdminTimestamp } = await import('firebase-admin/firestore');
       const { v4: uuidv4 } = await import('uuid');
-      const srcRef = doc(db, 'brands', safeBrandId, 'offers', offerId);
-      const srcSnap = await getDoc(srcRef);
+      const srcRef = adminDb.collection('brands').doc(safeBrandId).collection('offers').doc(offerId);
+      const srcSnap = await srcRef.get();
 
-      if (!srcSnap.exists()) {
+      if (!srcSnap.exists) {
         return createApiError(404, 'Oferta não encontrada.');
       }
 
-      const srcData = srcSnap.data();
+      const srcData = srcSnap.data() as any;
       const newId = `off_${uuidv4()}`;
-      const now = Timestamp.now();
+      const now = AdminTimestamp.now();
       const { aiEvaluation: _removed, ...srcDataClean } = srcData as Record<string, any>;
       const newDoc = {
         ...srcDataClean,
@@ -108,8 +109,8 @@ export async function PATCH(req: NextRequest) {
         updatedAt: now,
       };
 
-      const newRef = doc(db, 'brands', safeBrandId, 'offers', newId);
-      await setDoc(newRef, newDoc);
+      const newRef = adminDb.collection('brands').doc(safeBrandId).collection('offers').doc(newId);
+      await newRef.set(newDoc);
 
       return createApiSuccess({ offer: newDoc });
     }

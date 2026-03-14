@@ -13,8 +13,8 @@ import {
   TextInputType,
 } from '@/types/text-analysis';
 import { PredictScoreResponse } from '@/types/prediction';
-import { db } from '@/lib/firebase/config';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 
 /**
  * POST /api/intelligence/analyze/text
@@ -207,6 +207,7 @@ async function persistIntelligenceDocument(
   parserResult: Awaited<ReturnType<typeof parseText>>
 ): Promise<string | undefined> {
   try {
+    const adminDb = getAdminFirestore();
     const now = Timestamp.now();
     // TTL: 90 dias
     const expiresAt = Timestamp.fromDate(
@@ -216,8 +217,8 @@ async function persistIntelligenceDocument(
     // Gerar hash simples do texto para deduplicação
     const textHash = simpleHash(originalText);
 
-    const intelligenceRef = collection(db, 'brands', brandId, 'intelligence');
-    const docRef = await addDoc(intelligenceRef, {
+    const intelligenceRef = adminDb.collection('brands').doc(brandId).collection('intelligence');
+    const docRef = await intelligenceRef.add({
       brandId,
       type: 'mention',
       status: 'processed',
@@ -232,9 +233,9 @@ async function persistIntelligenceDocument(
         language: parserResult.detectedLanguage,
       },
       uxIntelligence: parserResult.uxIntelligence,
-      collectedAt: now,
-      processedAt: now,
-      expiresAt,
+      collectedAt: now as any,
+      processedAt: now as any,
+      expiresAt: expiresAt as any,
       version: 1,
     });
 

@@ -3,10 +3,10 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { AttributionBridgeService } from '@/lib/intelligence/attribution/bridge';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { db } from '@/lib/firebase/config';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
-import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { JourneyEvent } from '@/types/journey';
 /**
  * POST /api/intelligence/attribution/sync
@@ -32,18 +32,17 @@ export async function POST(request: NextRequest) {
       return handleSecurityError(err);
     }
 
+    const adminDb = getAdminFirestore();
     const now = Timestamp.now();
     const startDate = new Timestamp(now.seconds - (days * 24 * 60 * 60), 0);
 
     // Buscar eventos recentes da marca
-    const eventsRef = collection(db, 'events');
-    const qEvents = query(
-      eventsRef,
-      where('brandId', '==', brandId),
-      where('timestamp', '>=', startDate),
-      orderBy('timestamp', 'asc')
-    );
-    const eventSnap = await getDocs(qEvents);
+    const eventsRef = adminDb.collection('events');
+    const eventSnap = await eventsRef
+      .where('brandId', '==', brandId)
+      .where('timestamp', '>=', startDate)
+      .orderBy('timestamp', 'asc')
+      .get();
     const events = eventSnap.docs.map(d => ({ id: d.id, ...d.data() } as JourneyEvent));
 
     // Agrupar eventos por leadId e sincronizar cada ponte

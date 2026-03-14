@@ -4,8 +4,8 @@ import { AutopsyEngine } from '@/lib/intelligence/autopsy/engine';
 import { extractContentFromUrl } from '@/lib/ai/url-scraper';
 import { AutopsyRunRequest, AutopsyRunResponse, AutopsyDocument } from '@/types/autopsy';
 import { v4 as uuidv4 } from 'uuid';
-import { doc, setDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { parseJsonBody } from '@/app/api/_utils/parse-json';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
@@ -80,6 +80,7 @@ export async function POST(req: NextRequest) {
       report
     };
 
+    const adminDb = getAdminFirestore();
     // S29-FT-02: Persistir no Firestore (fire-and-forget — padrão PropensityEngine)
     const autopsyDoc: AutopsyDocument = {
       id: response.id,
@@ -88,12 +89,12 @@ export async function POST(req: NextRequest) {
       status: 'completed',
       request: body,
       result: report,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
-      expiresAt: Timestamp.fromMillis(Date.now() + 30 * 24 * 60 * 60 * 1000), // TTL 30 dias
+      createdAt: Timestamp.now() as any,
+      updatedAt: Timestamp.now() as any,
+      expiresAt: Timestamp.fromMillis(Date.now() + 30 * 24 * 60 * 60 * 1000) as any, // TTL 30 dias
     };
 
-    const autopsyRef = doc(db, 'brands', safeBrandId, 'autopsies', response.id);
+    const autopsyRef = adminDb.collection('brands').doc(safeBrandId).collection('autopsies').doc(response.id);
     // Firestore rejects undefined values — strip screenshotUrl if absent
     if (autopsyDoc.result?.metadata?.screenshotUrl === undefined && autopsyDoc.result?.metadata) {
       delete autopsyDoc.result.metadata.screenshotUrl;
@@ -102,7 +103,7 @@ export async function POST(req: NextRequest) {
     // ERR-3: await persistence instead of fire-and-forget
     let persistWarning: string | undefined;
     try {
-      await setDoc(autopsyRef, autopsyDoc);
+      await autopsyRef.set(autopsyDoc);
     } catch (err) {
       console.error('[Autopsy] Persist failed:', err);
       persistWarning = 'Análise concluída, mas houve erro ao salvar no histórico.';

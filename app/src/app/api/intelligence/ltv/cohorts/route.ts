@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
-import { collection, getDocs, query, where, orderBy, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { generateCohortId, calculateMonthsSinceEntry } from '@/lib/intelligence/ltv/cohort-engine';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
@@ -37,17 +37,15 @@ export async function GET(request: NextRequest) {
 
     const { brandId: safeBrandId } = await requireBrandAccess(request, brandId);
 
+    const adminDb = getAdminFirestore();
     // 1. Buscar todos os leads para agrupar por cohort
-    const leadsRef = collection(db, 'leads');
-    const leadsQuery = query(leadsRef, where('brandId', '==', safeBrandId));
-    const leadsSnap = await getDocs(leadsQuery);
+    const leadsSnap = await adminDb.collection('leads').where('brandId', '==', safeBrandId).get();
 
     // 2. Buscar gastos de Ads reais de performance_metrics
     let realAdSpendByMonth: Record<string, number> = {};
     let hasRealAdSpend = false;
     try {
-      const metricsRef = collection(db, 'brands', safeBrandId, 'performance_metrics');
-      const metricsSnap = await getDocs(metricsRef);
+      const metricsSnap = await adminDb.collection('brands').doc(safeBrandId).collection('performance_metrics').get();
 
       metricsSnap.docs.forEach(doc => {
         const data = doc.data();
@@ -64,16 +62,13 @@ export async function GET(request: NextRequest) {
     }
 
     // 3. Buscar transações reais para distribuição de LTV
-    let transactionsByLead: Record<string, Array<{ amount: number; processedAt: Timestamp }>> = {};
+    let transactionsByLead: Record<string, Array<{ amount: number; processedAt: any }>> = {};
     let hasRealTransactions = false;
     try {
-      const txRef = collection(db, 'transactions');
-      const txQuery = query(
-        txRef,
-        where('brandId', '==', safeBrandId),
-        where('status', '==', 'approved')
-      );
-      const txSnap = await getDocs(txQuery);
+      const txSnap = await adminDb.collection('transactions')
+        .where('brandId', '==', safeBrandId)
+        .where('status', '==', 'approved')
+        .get();
 
       txSnap.docs.forEach(doc => {
         const tx = doc.data();

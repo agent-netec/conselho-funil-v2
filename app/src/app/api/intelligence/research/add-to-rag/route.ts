@@ -11,8 +11,7 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 import { NextRequest } from 'next/server';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
@@ -130,8 +129,9 @@ export async function POST(req: NextRequest) {
 
     // Save chunk IDs to dossier for tracking
     try {
-      const dossierRef = doc(db, 'brands', brandId, 'research', dossierId);
-      await updateDoc(dossierRef, {
+      const adminDb = getAdminFirestore();
+      const dossierRef = adminDb.collection('brands').doc(brandId).collection('research').doc(dossierId);
+      await dossierRef.update({
         ragChunkIds: [...existingChunkIds, ...newChunkIds],
       });
     } catch (err) {

@@ -4,8 +4,7 @@ import { NextRequest } from 'next/server';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 
 /**
  * GET /api/intelligence/journey/heatmap?brandId=XXX
@@ -23,10 +22,9 @@ export async function GET(request: NextRequest) {
 
     await requireBrandAccess(request, brandId);
 
+    const adminDb = getAdminFirestore();
     // Count events by type for this brand
-    const eventsRef = collection(db, 'events');
-    const q = query(eventsRef, where('brandId', '==', brandId));
-    const snapshot = await getDocs(q);
+    const snapshot = await adminDb.collection('events').where('brandId', '==', brandId).get();
 
     const counts: Record<string, number> = {
       page_view: 0,
