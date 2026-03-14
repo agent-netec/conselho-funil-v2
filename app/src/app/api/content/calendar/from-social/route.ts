@@ -6,11 +6,11 @@
  */
 
 import { NextRequest } from 'next/server';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
-import { createCalendarItem } from '@/lib/firebase/content-calendar';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -63,7 +63,8 @@ export async function POST(req: NextRequest) {
     }
     console.log('[Calendar/FromSocial] Auth OK');
 
-    // Step 3: Create calendar items
+    // Step 3: Create calendar items via Admin SDK (bypasses security rules)
+    const adminDb = getAdminFirestore();
     const createdItems = [];
     const now = new Date();
 
@@ -78,15 +79,17 @@ export async function POST(req: NextRequest) {
 
       const titlePrefix = hook?.style || campaignType || 'Social';
       const titleSnippet = contentStr.slice(0, 60);
+      const nowTs = Timestamp.now();
 
       console.log(`[Calendar/FromSocial] Creating item ${i + 1}/${hooks.length}: [${titlePrefix}] ${titleSnippet.slice(0, 30)}...`);
 
       try {
-        const item = await createCalendarItem(brandId, {
+        const itemData = {
           title: `[${titlePrefix}] ${titleSnippet}${contentStr.length > 60 ? '...' : ''}`,
           format: mapFormat(hook?.postType),
           platform: mapPlatform(hook?.platform || ''),
-          scheduledDate: Timestamp.fromDate(scheduledDate) as any,
+          scheduledDate: Timestamp.fromDate(scheduledDate),
+          status: 'draft',
           content: contentStr,
           metadata: {
             generatedBy: 'ai',
@@ -98,9 +101,13 @@ export async function POST(req: NextRequest) {
           },
           order: i,
           createdBy: userId,
-        });
-        createdItems.push(item);
-        console.log(`[Calendar/FromSocial] Item ${i + 1} created: ${item.id}`);
+          createdAt: nowTs,
+          updatedAt: nowTs,
+        };
+        const colRef = adminDb.collection('brands').doc(brandId).collection('content_calendar');
+        const docRef = await colRef.add(itemData);
+        createdItems.push({ id: docRef.id, ...itemData });
+        console.log(`[Calendar/FromSocial] Item ${i + 1} created: ${docRef.id}`);
       } catch (itemErr: any) {
         console.error(`[Calendar/FromSocial] Failed to create item ${i + 1}:`, itemErr);
         return createApiError(500, `Failed to create calendar item ${i + 1}/${hooks.length}`, {
