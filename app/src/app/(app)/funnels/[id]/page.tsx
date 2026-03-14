@@ -481,30 +481,45 @@ export default function FunnelDetailPage() {
   useEffect(() => {
     if (!params.id || !user?.uid) return;
 
-    const unsubscribe = onSnapshot(
-      doc(db, 'funnels', params.id as string),
-      (docSnap) => {
-        if (docSnap.exists()) {
-          const data = { id: docSnap.id, ...docSnap.data() } as Funnel;
-          setFunnel(data);
-          
-          // Check if status changed from generating to review (proposals ready)
-          if (funnel?.status === 'generating' && data.status === 'review') {
-            notify.success('🎯 Propostas Prontas!', `O MKTHONEY terminou de analisar "${data.name}"`);
-          }
-          
-          // Load proposals for all statuses except draft and generating
-          if (data.status !== 'draft' && data.status !== 'generating') {
-            loadProposals(params.id as string);
-          }
-        } else {
-          setFunnel(null);
-        }
-        setIsLoading(false);
-      }
-    );
+    let active = true;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let currentUnsub: (() => void) | null = null;
 
-    return () => unsubscribe();
+    const setupListener = () => {
+      currentUnsub = onSnapshot(
+        doc(db, 'funnels', params.id as string),
+        (docSnap) => {
+          if (docSnap.exists()) {
+            const data = { id: docSnap.id, ...docSnap.data() } as Funnel;
+            setFunnel(data);
+            if (funnel?.status === 'generating' && data.status === 'review') {
+              notify.success('🎯 Propostas Prontas!', `O MKTHONEY terminou de analisar "${data.name}"`);
+            }
+            if (data.status !== 'draft' && data.status !== 'generating') {
+              loadProposals(params.id as string);
+            }
+          } else {
+            setFunnel(null);
+          }
+          setIsLoading(false);
+        },
+        (error) => {
+          // permission-denied: auth token not ready yet — retry after 2s
+          if (error.code === 'permission-denied' && active) {
+            console.warn('[FunnelPage] Snapshot permission-denied, retrying in 2s...');
+            retryTimer = setTimeout(setupListener, 2000);
+          }
+        }
+      );
+    };
+
+    setupListener();
+
+    return () => {
+      active = false;
+      if (retryTimer) clearTimeout(retryTimer);
+      if (currentUnsub) currentUnsub();
+    };
   }, [params.id, user?.uid]);
 
   // Load proposals

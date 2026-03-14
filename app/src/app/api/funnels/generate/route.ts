@@ -123,6 +123,7 @@ export async function POST(request: NextRequest) {
       topP: brand?.aiConfiguration?.topP || 0.95,
       maxOutputTokens: 16384,
       responseMimeType: 'application/json',
+      timeoutMs: 90_000, // 90s — funnel generation with 16k tokens needs more than the default 30s
     });
 
     // 5. Validate Gemini response is not empty

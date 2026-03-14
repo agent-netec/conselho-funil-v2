@@ -523,20 +523,37 @@ export default function CopyCouncilPage() {
   useEffect(() => {
     if (!funnelId || !user?.uid) return;
 
-    const copyProposalsRef = collection(db, 'funnels', funnelId, 'copyProposals');
-    const q = activeProposalId 
-      ? query(copyProposalsRef, where('proposalId', '==', activeProposalId))
-      : copyProposalsRef;
+    let active = true;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let currentUnsub: (() => void) | null = null;
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as CopyProposal[];
-      setCopyProposals(data.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
-    });
+    const setupListener = () => {
+      const copyProposalsRef = collection(db, 'funnels', funnelId, 'copyProposals');
+      const q = activeProposalId
+        ? query(copyProposalsRef, where('proposalId', '==', activeProposalId))
+        : copyProposalsRef;
 
-    return () => unsubscribe();
+      currentUnsub = onSnapshot(q, (snapshot) => {
+        const data = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as CopyProposal[];
+        setCopyProposals(data.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
+      }, (error) => {
+        if (error.code === 'permission-denied' && active) {
+          console.warn('[CopyPage] Snapshot permission-denied, retrying in 2s...');
+          retryTimer = setTimeout(setupListener, 2000);
+        }
+      });
+    };
+
+    setupListener();
+
+    return () => {
+      active = false;
+      if (retryTimer) clearTimeout(retryTimer);
+      if (currentUnsub) currentUnsub();
+    };
   }, [funnelId, activeProposalId, user?.uid]);
 
   // Generate copy

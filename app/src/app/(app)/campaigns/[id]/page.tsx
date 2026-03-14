@@ -51,8 +51,13 @@ export default function CampaignCommandCenter() {
 
     const funnelId = params.id as string;
 
-    // Monitora a Campanha (Manifesto da Linha de Ouro)
-    const unsubCampaign = onSnapshot(doc(db, 'campaigns', funnelId), async (docSnap) => {
+    // Monitora a Campanha (Manifesto da Linha de Ouro) — with retry on permission-denied
+    let active = true;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let currentUnsub: (() => void) | null = null;
+
+    const setupCampaignListener = () => {
+    currentUnsub = onSnapshot(doc(db, 'campaigns', funnelId), async (docSnap) => {
       if (docSnap.exists()) {
         const campaignData = { ...docSnap.data(), id: docSnap.id } as CampaignContext;
 
@@ -82,7 +87,14 @@ export default function CampaignCommandCenter() {
         // Se a campanha não existe, tenta carregar do Funil
         loadFromFunnelFallback();
       }
+    }, (error) => {
+      if (error.code === 'permission-denied' && active) {
+        console.warn('[CampaignPage] Snapshot permission-denied, retrying in 2s...');
+        retryTimer = setTimeout(setupCampaignListener, 2000);
+      }
     });
+    };
+    setupCampaignListener();
 
     // Fallback e Merge de Segurança
     async function loadFromFunnelFallback() {
@@ -159,7 +171,11 @@ export default function CampaignCommandCenter() {
       setLoading(false);
     }
 
-    return () => unsubCampaign();
+    return () => {
+      active = false;
+      if (retryTimer) clearTimeout(retryTimer);
+      if (currentUnsub) currentUnsub();
+    };
   }, [params.id, user?.uid]);
 
   const [generatingAds, setGeneratingAds] = useState(false);

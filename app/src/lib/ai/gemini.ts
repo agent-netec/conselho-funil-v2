@@ -197,6 +197,7 @@ export async function generateWithGemini(
     userId?: string;
     brandId?: string;
     feature?: string;
+    timeoutMs?: number;
   } = {}
 ): Promise<string> {
   const {
@@ -206,7 +207,8 @@ export async function generateWithGemini(
     responseMimeType = 'text/plain',
     userId = 'system',
     brandId,
-    feature = 'text_generation'
+    feature = 'text_generation',
+    timeoutMs = GEMINI_TIMEOUT_MS,
   } = options;
 
   // Budget Check
@@ -253,7 +255,7 @@ export async function generateWithGemini(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(bodyPayload),
-    });
+    }, timeoutMs);
 
   if (!response.ok) {
     const error = await response.text();
