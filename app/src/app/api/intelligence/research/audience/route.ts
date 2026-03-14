@@ -123,6 +123,7 @@ export async function POST(req: NextRequest) {
       maxOutputTokens: 4096,
       responseMimeType: 'application/json',
       feature: 'audience_analysis',
+      timeoutMs: 50_000,
     });
 
     // 3. Parse response (O-2.3)

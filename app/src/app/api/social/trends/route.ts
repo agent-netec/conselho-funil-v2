@@ -114,6 +114,7 @@ export async function POST(req: NextRequest) {
       maxOutputTokens: 4096,
       responseMimeType: 'application/json',
       feature: 'social_trends',
+      timeoutMs: 50_000,
     });
 
     let result: any;

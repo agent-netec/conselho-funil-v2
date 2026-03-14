@@ -394,7 +394,7 @@ async function handlePOST(request: NextRequest) {
 
         console.log(`Generating council response for mode: ${effectiveMode}`);
         // ST-11.6: Design usa 3.1-pro-preview; demais usam Pro para máxima qualidade
-        const model = effectiveMode === 'design' ? 'gemini-3.1-pro-preview' : PRO_GEMINI_MODEL;
+        const model = PRO_GEMINI_MODEL;
         // R1.5: Ler temperatura/topP da brand.aiConfiguration (se disponível)
         assistantResponse = await generateCouncilResponseWithGemini(message, enrichedContext, systemPrompt, model, {
           temperature: brand?.aiConfiguration?.temperature,

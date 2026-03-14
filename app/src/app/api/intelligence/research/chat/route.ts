@@ -12,8 +12,7 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 import { NextRequest } from 'next/server';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
@@ -111,6 +110,7 @@ export async function POST(req: NextRequest) {
       temperature: 0.5,
       maxOutputTokens: 4096,
       feature: 'research_chat',
+      timeoutMs: 50_000,
     });
 
     // Build updated chat history
@@ -122,8 +122,9 @@ export async function POST(req: NextRequest) {
 
     // O-3.2: Save chat history to dossier
     try {
-      const dossierRef = doc(db, 'brands', brandId, 'research', dossierId);
-      await updateDoc(dossierRef, { chatHistory: newHistory });
+      const adminDb = getAdminFirestore();
+      const dossierRef = adminDb.collection('brands').doc(brandId).collection('research').doc(dossierId);
+      await dossierRef.update({ chatHistory: newHistory });
     } catch (err) {
       console.warn('[Research/Chat] Failed to save history:', err);
     }

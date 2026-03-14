@@ -384,13 +384,14 @@ export async function generateCouncilResponseWithGemini(
   context: string,
   systemPrompt?: string,
   model?: string,
-  options?: { temperature?: number; topP?: number }
+  options?: { temperature?: number; topP?: number; timeoutMs?: number }
 ): Promise<string> {
   const fullPrompt = buildChatPrompt(query, context, systemPrompt);
   const response = await generateWithGemini(fullPrompt, {
     model,
     temperature: options?.temperature,
     topP: options?.topP,
+    timeoutMs: options?.timeoutMs ?? 75_000,
   });
   
   // US-1.5.3: Post-processing para garantir a tag [COUNCIL_OUTPUT]

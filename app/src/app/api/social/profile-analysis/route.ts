@@ -90,6 +90,7 @@ export async function POST(req: NextRequest) {
       maxOutputTokens: 4096,
       responseMimeType: 'application/json',
       feature: 'profile_analysis',
+      timeoutMs: 50_000,
     });
 
     let report: any;

@@ -54,6 +54,7 @@ Regras:
       model: DEFAULT_GEMINI_MODEL,
       temperature: 0.3,
       responseMimeType: 'application/json',
+      timeoutMs: 30_000,
     });
 
     return JSON.parse(response) as KBCategorization;
