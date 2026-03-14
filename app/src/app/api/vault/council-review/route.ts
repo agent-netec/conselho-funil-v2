@@ -7,7 +7,7 @@ import { buildPartyBrainContext } from '@/lib/ai/prompts/party-brain-context';
 
 export const dynamic = 'force-dynamic';
 
-const PRO_GEMINI_MODEL = process.env.GEMINI_PRO_MODEL || 'gemini-3-pro-preview';
+const PRO_GEMINI_MODEL = process.env.GEMINI_PRO_MODEL || 'gemini-2.5-pro';
 
 const SOCIAL_COUNSELORS = ['rachel_karten', 'lia_haberman', 'nikita_beer', 'justin_welsh'];
 

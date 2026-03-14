@@ -14,8 +14,8 @@ const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
 /** Modelo padrão (bulk): 2.5-flash. Override via GEMINI_MODEL. */
 export const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
-/** Modelo Pro (scoring, chat, autopsy): 3-pro. Override via GEMINI_PRO_MODEL. */
-export const PRO_GEMINI_MODEL = process.env.GEMINI_PRO_MODEL || 'gemini-3-pro-preview';
+/** Modelo Pro (scoring, chat, autopsy): 2.5-pro. Override via GEMINI_PRO_MODEL. */
+export const PRO_GEMINI_MODEL = process.env.GEMINI_PRO_MODEL || 'gemini-2.5-pro';
 
 /**
  * Get Gemini API Key - lê a variável de ambiente em tempo de execução
