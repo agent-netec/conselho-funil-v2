@@ -181,6 +181,12 @@ service cloud.firestore {
         (resource.data.userId == request.auth.uid)
       );
 
+      // Audit logs — written by client on brand governance actions
+      match /audit_logs/{logId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+      }
+
       // Notifications subcollection (unread count badge)
       match /notifications/{notifId} {
         allow read, write: if isAuthenticated() &&
