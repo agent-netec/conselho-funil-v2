@@ -57,6 +57,8 @@ Retorne APENAS um JSON válido neste formato:
     const result = await generateWithGemini(prompt, {
       responseMimeType: 'application/json',
       temperature: 0.4,
+      maxOutputTokens: 4096,
+      timeoutMs: 40_000,
       feature: 'keyword_related',
     });
 

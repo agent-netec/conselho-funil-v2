@@ -11,7 +11,6 @@ import { Timestamp } from 'firebase-admin/firestore';
 import { generateWithGemini, isGeminiConfigured, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { getBrand } from '@/lib/firebase/brands';
 import { getAdminFirestore } from '@/lib/firebase/admin';
-import { createCalendarItem } from '@/lib/firebase/content-calendar';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
@@ -146,51 +145,52 @@ export async function POST(req: NextRequest) {
     const response = await generateWithGemini(prompt, {
       model: DEFAULT_GEMINI_MODEL,
       temperature: 0.8,
+      maxOutputTokens: 8192,
+      responseMimeType: 'application/json',
+      timeoutMs: 50_000,
     });
 
     // 4. Parse JSON
     let result;
     try {
-      let jsonStr = response.trim();
-      if (jsonStr.startsWith('```json')) jsonStr = jsonStr.slice(7);
-      if (jsonStr.startsWith('```')) jsonStr = jsonStr.slice(3);
-      if (jsonStr.endsWith('```')) jsonStr = jsonStr.slice(0, -3);
-      result = JSON.parse(jsonStr.trim());
+      const { parseAIJSON } = await import('@/lib/ai/formatters');
+      result = parseAIJSON(response);
     } catch (parseError) {
-      console.error('Error parsing week generation:', parseError);
+      console.error('Error parsing week generation:', parseError, response?.slice(0, 300));
       return createApiError(500, 'Erro ao processar plano semanal.');
     }
 
-    // 5. Create calendar items
+    // 5. Create calendar items via Admin SDK (bypasses security rules)
     const weekStart = startDate ? new Date(startDate) : getNextMonday();
     const createdItems = [];
+    const colRef = adminDb.collection('brands').doc(brandId).collection('content_calendar');
 
     for (let i = 0; i < (result.posts || []).length; i++) {
       const post = result.posts[i];
       const scheduledDate = new Date(weekStart);
-      // dayOfWeek: 1=Monday, 7=Sunday; fallback to sequential days
       const dayOffset = (post.dayOfWeek || (i + 1)) - 1;
       scheduledDate.setDate(weekStart.getDate() + dayOffset);
       scheduledDate.setHours(10, 0, 0, 0);
 
-      const item = await createCalendarItem(brandId, {
+      const nowTs = Timestamp.now();
+      const itemData = {
         title: post.title,
         format: validateFormat(post.format),
         platform: validatePlatform(post.platform),
-        scheduledDate: Timestamp.fromDate(scheduledDate) as any,
+        scheduledDate: Timestamp.fromDate(scheduledDate),
+        status: 'draft',
         content: `${post.hook}\n\n${post.content}`,
         metadata: {
           generatedBy: 'ai',
-          promptParams: {
-            source: 'generate_week',
-            pillar: post.pillar || '',
-          },
+          promptParams: { source: 'generate_week', pillar: post.pillar || '' },
         },
         order: i,
         createdBy: userId,
-      });
-
-      createdItems.push(item);
+        createdAt: nowTs,
+        updatedAt: nowTs,
+      };
+      const docRef = await colRef.add(itemData);
+      createdItems.push({ id: docRef.id, ...itemData });
     }
 
     // 6. Debit 3 credits for batch generation

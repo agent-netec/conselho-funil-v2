@@ -70,34 +70,25 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
       .replaceAll('{{hook}}', hook)
       .replaceAll('{{knowledgeContext}}', knowledgeContext || 'Use conhecimento geral sobre estruturação de vídeos curtos e posts sociais.');
 
-    // 4. Gerar com Gemini (maxOutputTokens maior para JSONs de estrutura completa)
+    // 4. Gerar com Gemini
     const response = await generateWithGemini(fullPrompt, {
       model: DEFAULT_GEMINI_MODEL,
       temperature: 0.75,
       maxOutputTokens: 8192,
+      responseMimeType: 'application/json',
+      timeoutMs: 50_000,
     });
 
     // 5. Parse JSON
     let result;
     try {
       if (!response || !response.trim()) {
-        console.error('[Social/Structure] Gemini returned empty response');
         return createApiError(500, 'A IA retornou uma resposta vazia. Tente novamente.');
       }
-      let jsonStr = response.trim();
-      if (jsonStr.startsWith('```json')) {
-        jsonStr = jsonStr.slice(7);
-      }
-      if (jsonStr.startsWith('```')) {
-        jsonStr = jsonStr.slice(3);
-      }
-      if (jsonStr.endsWith('```')) {
-        jsonStr = jsonStr.slice(0, -3);
-      }
-      result = JSON.parse(jsonStr.trim());
+      const { parseAIJSON } = await import('@/lib/ai/formatters');
+      result = parseAIJSON(response);
     } catch (parseError) {
-      console.error('[Social/Structure] Error parsing AI response:', parseError);
-      console.error('[Social/Structure] Raw response (first 500 chars):', response?.substring(0, 500));
+      console.error('[Social/Structure] Error parsing AI response:', parseError, response?.substring(0, 300));
       return createApiError(500, 'Erro ao processar estrutura do conteúdo. Tente novamente.');
     }
 
