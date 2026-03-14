@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeMultimodalWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { buildVisionAnalysisPrompt } from '@/lib/ai/prompts/vision-heuristics';
-import { getBrand, updateUserUsage } from '@/lib/firebase/firestore';
+import { getBrandAdmin, updateUserUsageAdmin } from '@/lib/firebase/firestore-server';
 import { formatBrandContextForChat, parseAIJSON } from '@/lib/ai/formatters';
 import { generateEmbedding } from '@/lib/ai/embeddings';
 import { upsertToPinecone } from '@/lib/ai/pinecone';
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Carregar Contexto da Marca
-    const brand = await getBrand(brandId);
+    const brand = await getBrandAdmin(brandId);
     const brandContext = brand ? formatBrandContextForChat(brand) : '';
 
     // 2. Preparar Imagem (Fetch & Base64)
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
 
     // 6. Atualizar Uso de Créditos (ST-11.19: 2 créditos para análise multimodal)
     try {
-      await updateUserUsage(userId, -2);
+      await updateUserUsageAdmin(userId, -2);
       console.log(`[Vision] 2 créditos decrementados para usuário: ${userId}`);
     } catch (creditError) {
       console.error('[Vision] Erro ao atualizar créditos:', creditError);

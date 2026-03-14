@@ -4,13 +4,13 @@ import { Timestamp } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { CampaignContext } from '@/types/campaign';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { updateUserUsage } from '@/lib/firebase/firestore';
+import { updateUserUsageAdmin } from '@/lib/firebase/firestore-server';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { generateAds } from '@/lib/intelligence/creative-engine/ad-generator';
 import { buildAdsBrainContext } from '@/lib/ai/prompts/ads-brain-context';
 import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM } from '@/lib/ai/rag';
-import { getAllBrandKeywordsForPrompt } from '@/lib/firebase/intelligence';
+import { getAllBrandKeywordsForPromptAdmin } from '@/lib/firebase/intelligence-server';
 import { GENERATION_LIMITS } from '@/types/creative-ads';
 import type { UXIntelligence } from '@/types/intelligence';
 
@@ -100,7 +100,7 @@ export async function POST(
 
       // Sprint N-1.4: Inject brand keywords as SEO context
       try {
-        keywordContext = await getAllBrandKeywordsForPrompt(brandId, 10);
+        keywordContext = await getAllBrandKeywordsForPromptAdmin(brandId, 10);
         if (keywordContext) {
           console.log(`[Campaigns/GenerateAds] Keywords context loaded`);
         }
@@ -164,7 +164,7 @@ export async function POST(
     // 7. Sprint H: Decrementar 5 créditos (custo unificado)
     if (userId) {
       try {
-        await updateUserUsage(userId, -5);
+        await updateUserUsageAdmin(userId, -5);
         console.log(`[Campaigns/GenerateAds] 5 créditos decrementados para usuário: ${userId}`);
       } catch (creditError) {
         console.error('[Campaigns/GenerateAds] Erro ao atualizar créditos:', creditError);

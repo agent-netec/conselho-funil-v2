@@ -1,3 +1,4 @@
+// @client-only — NÃO importar em API routes. Use firestore-server.ts para código server-side.
 import {
   collection,
   doc,

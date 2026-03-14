@@ -10,8 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ragQuery, retrieveForFunnelCreation } from '@/lib/ai/rag';
 import { generateWithGemini, isGeminiConfigured, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
-import { updateFunnel, createProposal, getFunnel } from '@/lib/firebase/firestore';
-import { getBrand } from '@/lib/firebase/brands';
+import { updateFunnelAdmin, createProposalAdmin, getFunnelAdmin, getBrandAdmin } from '@/lib/firebase/firestore-server';
 import type { FunnelContext, Proposal, Brand } from '@/types/database';
 import {
   FUNNEL_GENERATION_PROMPT,
@@ -64,15 +63,15 @@ export async function POST(request: NextRequest) {
     console.log(`🎯 ${isAdjustment ? 'Regenerando com ajustes' : 'Gerando propostas'} para funil ${funnelId}...`);
 
     // Update funnel status to generating
-    await updateFunnel(funnelId, { status: 'generating' });
+    await updateFunnelAdmin(funnelId, { status: 'generating' });
 
     // Load brand context if funnel has brandId
     let brandContext = '';
     let brand: Brand | null = null;
     try {
-      const funnel = await getFunnel(funnelId);
+      const funnel = await getFunnelAdmin(funnelId);
       if (funnel?.brandId) {
-        brand = await getBrand(funnel.brandId);
+        brand = await getBrandAdmin(funnel.brandId);
         if (brand) {
           brandContext = formatBrandContextForFunnel(brand);
           console.log(`🏷️ Usando contexto da marca: ${brand.name}`);
@@ -129,7 +128,7 @@ export async function POST(request: NextRequest) {
     // 5. Validate Gemini response is not empty
     if (!response || response.trim().length === 0) {
       console.error('❌ Gemini returned empty response');
-      await updateFunnel(funnelId, { status: 'draft' });
+      await updateFunnelAdmin(funnelId, { status: 'draft' });
       return NextResponse.json(
         { error: 'AI returned empty response. Please try again.' },
         { status: 500 }
@@ -145,7 +144,7 @@ export async function POST(request: NextRequest) {
       console.log('Raw response (first 500):', response.substring(0, 500));
 
       // Update status to error
-      await updateFunnel(funnelId, { status: 'draft' });
+      await updateFunnelAdmin(funnelId, { status: 'draft' });
 
       return NextResponse.json(
         { error: 'Failed to parse AI response. Please try again.' },
@@ -156,7 +155,7 @@ export async function POST(request: NextRequest) {
     // 7. Validate proposals array
     if (!proposalsData?.proposals || !Array.isArray(proposalsData.proposals) || proposalsData.proposals.length === 0) {
       console.error('❌ Parsed response missing proposals array:', JSON.stringify(proposalsData).substring(0, 300));
-      await updateFunnel(funnelId, { status: 'draft' });
+      await updateFunnelAdmin(funnelId, { status: 'draft' });
       return NextResponse.json(
         { error: 'AI response missing proposals. Please try again.' },
         { status: 500 }
@@ -186,13 +185,13 @@ export async function POST(request: NextRequest) {
         } : {}),
       };
 
-      const proposalId = await createProposal(funnelId, proposalData);
+      const proposalId = await createProposalAdmin(funnelId, proposalData);
       savedProposals.push(proposalId);
       console.log(`💾 Proposta ${isAdjustment ? 'ajustada' : ''} v${version} salva: ${proposalId}`);
     }
 
     // 9. Update funnel status to review
-    await updateFunnel(funnelId, { status: 'review' });
+    await updateFunnelAdmin(funnelId, { status: 'review' });
 
     console.log(`✅ ${savedProposals.length} propostas geradas com sucesso!`);
 
@@ -216,7 +215,7 @@ export async function POST(request: NextRequest) {
 
     // Reset funnel status to draft so it doesn't get stuck in 'generating'
     if (_funnelId) {
-      try { await updateFunnel(_funnelId, { status: 'draft' }); } catch { /* best effort */ }
+      try { await updateFunnelAdmin(_funnelId, { status: 'draft' }); } catch { /* best effort */ }
     }
 
     if (error instanceof Error) {

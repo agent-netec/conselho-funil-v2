@@ -4,7 +4,7 @@ import { parseJsonBody } from '@/app/api/_utils/parse-json';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { createCaseStudy, getBrandCaseStudies, deleteCaseStudy } from '@/lib/firebase/case-studies';
+import { createCaseStudyAdmin, getBrandCaseStudiesAdmin, deleteCaseStudyAdmin } from '@/lib/firebase/case-studies-server';
 import type { CreateCaseStudyInput } from '@/types/case-studies';
 
 /**
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     await requireBrandAccess(req, data.brandId);
 
-    const id = await createCaseStudy(data);
+    const id = await createCaseStudyAdmin(data);
 
     return createApiSuccess({ id, message: 'Estudo de caso salvo com sucesso' });
   } catch (error: unknown) {
@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
 
     await requireBrandAccess(req, brandId);
 
-    const caseStudies = await getBrandCaseStudies(brandId);
+    const caseStudies = await getBrandCaseStudiesAdmin(brandId);
 
     return createApiSuccess({ caseStudies, count: caseStudies.length });
   } catch (error: unknown) {
@@ -72,7 +72,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     await requireBrandAccess(req, brandId);
-    await deleteCaseStudy(brandId, caseStudyId);
+    await deleteCaseStudyAdmin(brandId, caseStudyId);
 
     return createApiSuccess({ message: 'Estudo de caso removido' });
   } catch (error: unknown) {

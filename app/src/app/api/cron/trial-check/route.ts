@@ -14,7 +14,7 @@ import { NextRequest } from 'next/server';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { logger } from '@/lib/utils/logger';
-import { getExpiredTrialUsers, downgradeUsersToFree, getUser } from '@/lib/firebase/firestore';
+import { getExpiredTrialUsersAdmin, downgradeUsersToFreeAdmin, getUserAdmin } from '@/lib/firebase/firestore-server';
 import type { User } from '@/types/database';
 import {
   sendTrialDay1Email,
@@ -110,7 +110,8 @@ export async function GET(req: NextRequest) {
     console.log(`[Cron trial-check] Sent ${emailsSent} nurture emails`);
 
     // 3. Get users with expired trials
-    const expiredUserIds = await getExpiredTrialUsers();
+    const expiredUsers = await getExpiredTrialUsersAdmin();
+    const expiredUserIds = expiredUsers.map(u => u.id);
 
     if (expiredUserIds.length === 0) {
       console.log('[Cron trial-check] No expired trials found');
@@ -125,14 +126,14 @@ export async function GET(req: NextRequest) {
     console.log(`[Cron trial-check] Found ${expiredUserIds.length} expired trials`);
 
     // 4. Downgrade users to free tier
-    const downgradedCount = await downgradeUsersToFree(expiredUserIds);
+    const downgradedCount = await downgradeUsersToFreeAdmin(expiredUserIds);
 
     console.log(`[Cron trial-check] Downgraded ${downgradedCount} users to free tier`);
 
     // R6.5: Send trial expired emails (non-blocking per user)
     for (const uid of expiredUserIds) {
       try {
-        const user = await getUser(uid);
+        const user = await getUserAdmin(uid);
         if (user?.email) {
           const name = user.name || 'Usuario';
           await sendTrialExpiringEmail(user.email, name, 0);

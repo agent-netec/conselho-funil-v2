@@ -12,12 +12,12 @@ import {
   AdFormat,
   GENERATION_LIMITS,
 } from '@/types/creative-ads';
-import { db } from '@/lib/firebase/config';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { buildAdsBrainContext } from '@/lib/ai/prompts/ads-brain-context';
 import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM } from '@/lib/ai/rag';
-import { getAllBrandKeywordsForPrompt } from '@/lib/firebase/intelligence';
-import { updateUserUsage } from '@/lib/firebase/firestore';
+import { getAllBrandKeywordsForPromptAdmin } from '@/lib/firebase/intelligence-server';
+import { updateUserUsageAdmin } from '@/lib/firebase/firestore-server';
 
 /**
  * POST /api/intelligence/creative/generate-ads
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
 
     // Sprint N-1.4: Inject brand keywords as SEO context for ads
     try {
-      keywordContext = await getAllBrandKeywordsForPrompt(safeBrandId, 10);
+      keywordContext = await getAllBrandKeywordsForPromptAdmin(safeBrandId, 10);
       if (keywordContext) {
         console.log(`[GENERATE_ADS] Keywords context loaded for ads generation`);
       }
@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
 
     // 8. Sprint H: Decrementar 5 créditos (custo unificado)
     try {
-      await updateUserUsage(userId, -5);
+      await updateUserUsageAdmin(userId, -5);
       console.log(`[GENERATE_ADS] 5 créditos decrementados para usuário: ${userId}`);
     } catch (creditError) {
       console.error('[GENERATE_ADS] Erro ao atualizar créditos:', creditError);
@@ -208,13 +208,14 @@ async function persistGeneratedAds(
   result: import('@/lib/intelligence/creative-engine/ad-generator').GenerateAdsResult
 ): Promise<string> {
   try {
+    const adminDb = getAdminFirestore();
     const now = Timestamp.now();
     const expiresAt = Timestamp.fromDate(
       new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 dias
     );
 
-    const generatedAdsRef = collection(db, 'brands', brandId, 'generated_ads');
-    const docRef = await addDoc(generatedAdsRef, {
+    const generatedAdsRef = adminDb.collection('brands').doc(brandId).collection('generated_ads');
+    const docRef = await generatedAdsRef.add({
       brandId,
       sourceUrl: sourceUrl || null,
       ads: result.ads,
@@ -223,8 +224,8 @@ async function persistGeneratedAds(
         avgCPS: result.avgCPS,
         frameworksApplied: result.frameworksApplied,
       },
-      createdAt: now,
-      expiresAt,
+      createdAt: now as any,
+      expiresAt: expiresAt as any,
     });
 
     return docRef.id;

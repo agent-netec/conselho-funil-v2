@@ -3,7 +3,7 @@ export const maxDuration = 60;
 
 import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { getAllBrandIds } from '@/lib/firebase/firestore';
+import { getAllBrandIdsAdmin } from '@/lib/firebase/firestore-server';
 import { evaluateBrandRules, EvaluationResult } from '@/lib/automation/evaluate';
 
 /**
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       return createApiError(401, 'Unauthorized');
     }
 
-    const brandIds = await getAllBrandIds();
+    const brandIds = await getAllBrandIdsAdmin();
 
     const results: EvaluationResult[] = [];
     const errors: { brandId: string; error: string }[] = [];

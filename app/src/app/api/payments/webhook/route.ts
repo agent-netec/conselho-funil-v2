@@ -20,7 +20,7 @@ import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { getStripeClient, getTierFromPriceId } from '@/lib/stripe';
-import { updateUserTier, getUser } from '@/lib/firebase/firestore';
+import { updateUserTierAdmin, getUserAdmin } from '@/lib/firebase/firestore-server';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { Timestamp } from 'firebase-admin/firestore';
 import {
@@ -83,7 +83,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const customerId = session.customer as string;
 
   // Update user tier in Firestore
-  await updateUserTier(
+  await updateUserTierAdmin(
     userId,
     tier as 'starter' | 'pro' | 'agency',
     customerId,
@@ -97,7 +97,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   // R6.5: Send welcome + receipt emails (non-blocking)
   try {
-    const user = await getUser(userId);
+    const user = await getUserAdmin(userId);
     if (user?.email) {
       const name = user.name || 'Usuario';
       await sendWelcomeEmail(user.email, name);
@@ -129,7 +129,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const newTier = priceId ? getTierFromPriceId(priceId) : null;
 
   if (newTier) {
-    await updateUserTier(userId, newTier, subscription.customer as string, subscription.id);
+    await updateUserTierAdmin(userId, newTier, subscription.customer as string, subscription.id);
     console.log(`[Webhook] subscription.updated: User ${userId} tier updated to ${newTier}`);
   }
 
@@ -159,14 +159,14 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   }
 
   // Downgrade to free
-  await updateUserTier(userId, 'free');
+  await updateUserTierAdmin(userId, 'free');
   await updateSubscriptionStatus(userId, 'canceled');
 
   console.log(`[Webhook] subscription.deleted: User ${userId} downgraded to free`);
 
   // R6.5: Send cancellation email (non-blocking)
   try {
-    const user = await getUser(userId);
+    const user = await getUserAdmin(userId);
     if (user?.email) {
       const name = user.name || 'Usuario';
       const endDate = (subscription as any).current_period_end
@@ -209,7 +209,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
 
   // R6.5: Send payment failed email (non-blocking)
   try {
-    const user = await getUser(userId);
+    const user = await getUserAdmin(userId);
     if (user?.email) {
       const name = user.name || 'Usuario';
       const hostedInvoiceUrl = invoice.hosted_invoice_url;

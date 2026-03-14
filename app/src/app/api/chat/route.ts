@@ -6,7 +6,7 @@ import {
   retrieveBrandChunks,
   formatBrandContextForLLM
 } from '@/lib/ai/rag';
-import { getBrandKeywords, formatKeywordsForPrompt } from '@/lib/firebase/intelligence';
+import { getAllBrandKeywordsForPromptAdmin } from '@/lib/firebase/intelligence-server';
 import {
   generateCouncilResponseWithGemini,
   generatePartyResponseWithGemini,
@@ -14,18 +14,16 @@ import {
   PRO_GEMINI_MODEL
 } from '@/lib/ai/gemini';
 import {
-  getFunnel,
-  getFunnelProposals,
-  updateUserUsage,
-  getUserFunnels,
-  getCampaign
-} from '@/lib/firebase/firestore';
-import {
   getConversationAdmin,
   addMessageAdmin,
   updateConversationAdmin,
   getBrandAdmin,
   getUserCreditsAdmin,
+  getFunnelAdmin,
+  getFunnelProposalsAdmin,
+  updateUserUsageAdmin,
+  getUserFunnelsAdmin,
+  getCampaignAdmin,
 } from '@/lib/firebase/firestore-server';
 import type { Funnel, Proposal, Brand } from '@/types/database';
 import {
@@ -129,9 +127,9 @@ async function handlePOST(request: NextRequest) {
     if (funnelId) {
       funnelPromise = (async () => {
         try {
-          const funnel = await getFunnel(funnelId);
+          const funnel = await getFunnelAdmin(funnelId);
           if (funnel) {
-            const proposals = await getFunnelProposals(funnelId);
+            const proposals = await getFunnelProposalsAdmin(funnelId);
             return formatFunnelContextForChat(funnel, proposals);
           }
         } catch (err) {
@@ -146,7 +144,7 @@ async function handlePOST(request: NextRequest) {
     if (cleanCampaignId) {
       campaignPromise = (async () => {
         try {
-          const campaign = await getCampaign(cleanCampaignId);
+          const campaign = await getCampaignAdmin(cleanCampaignId);
           if (campaign) {
             let context = `## MANIFESTO DA CAMPANHA (LINHA DE OURO)\n` +
               `ID da Campanha: ${campaign.id || cleanCampaignId}\n` +
@@ -179,7 +177,7 @@ async function handlePOST(request: NextRequest) {
     if (isListingFunnels) {
       userFunnelsPromise = (async () => {
         try {
-          const userFunnels = await getUserFunnels(userId);
+          const userFunnels = await getUserFunnelsAdmin(userId);
           if (userFunnels.length > 0) {
             return `## SEUS FUNIS EXISTENTES (${userFunnels.length})\n\n` + 
               userFunnels.map(f => `- **${f.name}**: ${f.description || 'Sem descrição'} (Status: ${f.status}, ID: ${f.id})`).join('\n') +
@@ -269,9 +267,9 @@ async function handlePOST(request: NextRequest) {
     if (conversation?.brandId) {
       keywordsPromise = (async () => {
         try {
-          const keywords = await getBrandKeywords(conversation.brandId!, 10);
-          if (keywords.length > 0) {
-            return formatKeywordsForPrompt(keywords);
+          const keywordStr = await getAllBrandKeywordsForPromptAdmin(conversation.brandId!, 10);
+          if (keywordStr) {
+            return keywordStr;
           }
         } catch (err) {
           console.warn('[Chat API] Keywords fetch failed:', err);
@@ -423,7 +421,7 @@ async function handlePOST(request: NextRequest) {
       });
 
       const usagePromise = CONFIG.ENABLE_CREDIT_LIMIT
-        ? updateUserUsage(userId, -1)
+        ? updateUserUsageAdmin(userId, -1)
         : Promise.resolve();
 
       const titlePromise = updateConversationAdmin(conversationId, {

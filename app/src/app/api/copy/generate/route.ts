@@ -10,26 +10,25 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { Timestamp } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '@/lib/firebase/admin';
-import { updateUserUsage } from '@/lib/firebase/firestore';
+import { updateUserUsageAdmin, getBrandAdmin } from '@/lib/firebase/firestore-server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM, retrieveResearchContext } from '@/lib/ai/rag';
-import { getAllBrandKeywordsForPrompt } from '@/lib/firebase/intelligence';
-import type { 
-  Funnel, 
-  Proposal, 
-  CopyType, 
+import { getAllBrandKeywordsForPromptAdmin } from '@/lib/firebase/intelligence-server';
+import type {
+  Funnel,
+  Proposal,
+  CopyType,
   AwarenessStage,
   CopyScorecard,
   Brand,
 } from '@/types/database';
-import { 
-  AWARENESS_STAGES, 
-  COPY_TYPES 
+import {
+  AWARENESS_STAGES,
+  COPY_TYPES
 } from '@/lib/constants';
 import { buildCopyPrompt } from '@/lib/ai/prompts';
 import { parseAIJSON } from '@/lib/ai/formatters';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { getBrand } from '@/lib/firebase/brands';
 import { buildCopyBrainContext } from '@/lib/ai/prompts/copy-brain-context';
 import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
@@ -115,7 +114,7 @@ export async function POST(request: NextRequest) {
     let brand: Brand | null = null;
     if (funnel.brandId) {
       try {
-        brand = await getBrand(funnel.brandId);
+        brand = await getBrandAdmin(funnel.brandId);
       } catch (err) {
         console.warn('[Copy] Error loading brand for AI config:', err);
       }
@@ -154,7 +153,7 @@ export async function POST(request: NextRequest) {
     let keywordContext = '';
     if (funnel.brandId) {
       try {
-        keywordContext = await getAllBrandKeywordsForPrompt(funnel.brandId, 10);
+        keywordContext = await getAllBrandKeywordsForPromptAdmin(funnel.brandId, 10);
         if (keywordContext) {
           console.log(`[Copy] Keywords context loaded for copy generation`);
         }
@@ -365,7 +364,7 @@ export async function POST(request: NextRequest) {
     // ST-11.19: Decrementar 2 créditos por geração de copy (editorial completo com RAG + scorecard)
     if (userId) {
       try {
-        await updateUserUsage(userId, -2);
+        await updateUserUsageAdmin(userId, -2);
         console.log(`[Copy] 2 créditos decrementados para usuário: ${userId}`);
       } catch (creditError) {
         console.error('[Copy] Erro ao atualizar créditos:', creditError);
