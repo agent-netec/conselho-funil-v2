@@ -64,11 +64,20 @@ export default function BrandDetailPage() {
     loadBrand();
   }, [brandId]);
 
-  const loadBrand = async () => {
+  const loadBrand = async (retries = 0) => {
     setIsLoading(true);
-    const data = await getById(brandId);
-    setBrand(data);
-    setIsLoading(false);
+    try {
+      const data = await getById(brandId);
+      setBrand(data);
+      setIsLoading(false);
+    } catch (err: any) {
+      if (err?.code === 'permission-denied' && retries < 4) {
+        setTimeout(() => loadBrand(retries + 1), 300 * Math.pow(2, retries));
+      } else {
+        console.error('[BrandDetail] loadBrand failed:', err);
+        setIsLoading(false);
+      }
+    }
   };
 
   const handleDelete = async () => {
