@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     const userData: Record<string, unknown> = {
       email,
       name,
-      role: role ?? 'admin',
+      role: 'member',
       credits: 10,
       usage: 0,
       onboardingCompleted: false,

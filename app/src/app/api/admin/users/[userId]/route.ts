@@ -15,6 +15,7 @@ const ALLOWED_FIELDS = ['tier', 'role', 'credits', 'status'] as const;
 type AllowedField = (typeof ALLOWED_FIELDS)[number];
 
 const ADMIN_MASTER_UID = process.env.ADMIN_MASTER_UID || '';
+const ADMIN_MASTER_EMAIL = process.env.ADMIN_MASTER_EMAIL || 'phsedicias@gmail.com';
 
 // ---------- GET ----------
 
@@ -92,9 +93,11 @@ export async function PATCH(
 
     const userData = userDoc.data()!;
 
-    // Role guard: only ADMIN_MASTER_UID can promote to admin
+    // Role guard: only ADMIN_MASTER can promote to admin (check UID or email)
     if (field === 'role' && value === 'admin') {
-      if (!ADMIN_MASTER_UID || admin.id !== ADMIN_MASTER_UID) {
+      const isMasterByUid = ADMIN_MASTER_UID && admin.id === ADMIN_MASTER_UID;
+      const isMasterByEmail = ADMIN_MASTER_EMAIL && admin.email === ADMIN_MASTER_EMAIL;
+      if (!isMasterByUid && !isMasterByEmail) {
         return createApiError(403, 'Somente o admin master pode conceder role admin');
       }
     }

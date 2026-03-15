@@ -25,7 +25,7 @@ export function useUser() {
         const newUserData: any = {
           email: authUser.email || '',
           name: authUser.displayName || authUser.email?.split('@')[0] || 'Usuário',
-          role: 'admin',
+          role: 'member',
         };
         if (authUser.photoURL) {
           newUserData.avatar = authUser.photoURL;
