@@ -25,7 +25,7 @@ import {
 } from '@/types/creative-ads';
 import { UXIntelligence, UXAsset } from '@/types/intelligence';
 import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
-import { getBrand } from '@/lib/firebase/firestore';
+import { getBrandAdmin } from '@/lib/firebase/firestore-server';
 import { getPersonalityInstruction } from '@/lib/ai/formatters';
 import { AICostGuard } from '@/lib/ai/cost-guard';
 import { calculateCPS } from '@/lib/intelligence/predictor/scoring-engine';
@@ -299,7 +299,7 @@ export async function generateAds(
   const prompt = buildGenerationPrompt(assets, formats, maxVariations, options);
 
   // Fetch brand AI config for temperature/topP + personality
-  const brand = await getBrand(brandId);
+  const brand = await getBrandAdmin(brandId);
   const personalityNote = getPersonalityInstruction(brand?.aiConfiguration?.profile);
   const enrichedPrompt = personalityNote
     ? `${prompt}\n\n## Estilo de Personalidade da Marca\n${personalityNote}`
