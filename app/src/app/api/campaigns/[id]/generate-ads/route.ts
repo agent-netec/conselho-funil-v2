@@ -13,6 +13,7 @@ import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM } from '@/lib/a
 import { getAllBrandKeywordsForPromptAdmin } from '@/lib/firebase/intelligence-server';
 import { GENERATION_LIMITS } from '@/types/creative-ads';
 import type { UXIntelligence } from '@/types/intelligence';
+import { indexCampaignDecision } from '@/lib/ai/campaign-rag';
 
 export const runtime = 'nodejs';
 export const maxDuration = 90;
@@ -160,6 +161,15 @@ export async function POST(
     }
 
     console.log(`[Campaigns/GenerateAds] Ads generated for campaign ${campaignId}`);
+
+    // WS-4: Index ads decision into RAG (fire-and-forget)
+    if (brandId) {
+      indexCampaignDecision({
+        campaignId,
+        brandId,
+        section: 'ads',
+      }).catch(err => console.error('[Campaigns/GenerateAds] RAG indexing failed:', err));
+    }
 
     // 7. Sprint H: Decrementar 5 créditos (custo unificado)
     if (userId) {

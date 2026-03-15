@@ -25,6 +25,7 @@ import {
   updateUserUsageAdmin,
   getUserFunnelsAdmin,
   getCampaignAdmin,
+  getActiveCampaignForBrandAdmin,
 } from '@/lib/firebase/firestore-server';
 import type { Funnel, Proposal, Brand } from '@/types/database';
 import {
@@ -142,32 +143,54 @@ async function handlePOST(request: NextRequest) {
       })();
     }
 
-    // 2. Campaign Context
+    // 2. Campaign Context (auto-detect active campaign if not provided)
     let campaignPromise = Promise.resolve('');
+    const buildCampaignContextString = (campaign: any, autoDetected = false): string => {
+      const tag = autoDetected ? ' (auto-detectada)' : '';
+      let ctx = `## MANIFESTO DA CAMPANHA${tag} (LINHA DE OURO)\n` +
+        `ID da Campanha: ${campaign.id}\n` +
+        `Status: ${campaign.status || 'active'}\n` +
+        `Objetivo: ${campaign.funnel?.mainGoal || 'N/A'}\n` +
+        `Público: ${campaign.funnel?.targetAudience || 'N/A'}\n`;
+
+      if (campaign.copywriting) {
+        ctx += `\n[COPY APROVADA]\nBig Idea: ${campaign.copywriting.bigIdea}\n`;
+        if (campaign.copywriting.tone) ctx += `Tom: ${campaign.copywriting.tone}\n`;
+      }
+      if (campaign.social) {
+        ctx += `\n[ESTRATÉGIA SOCIAL]\n${campaign.social.hooks?.length || 0} Hooks aprovados.\n`;
+      }
+      if (campaign.design) {
+        ctx += `\n[ESTILO VISUAL]\n${campaign.design.visualStyle}\n`;
+      }
+      if (campaign.offer?.promise) {
+        ctx += `\n[OFERTA]\n${campaign.offer.promise}\n`;
+      }
+      return ctx;
+    };
+
     if (cleanCampaignId) {
       campaignPromise = (async () => {
         try {
           const campaign = await getCampaignAdmin(cleanCampaignId);
-          if (campaign) {
-            let context = `## MANIFESTO DA CAMPANHA (LINHA DE OURO)\n` +
-              `ID da Campanha: ${campaign.id || cleanCampaignId}\n` +
-              `Status: ${campaign.status || 'active'}\n` +
-              `Objetivo: ${campaign.funnel?.mainGoal || 'N/A'}\n` +
-              `Público: ${campaign.funnel?.targetAudience || 'N/A'}\n`;
-            
-            if (campaign.copywriting) {
-              context += `\n[COPY APROVADA]\nBig Idea: ${campaign.copywriting.bigIdea}\n`;
-            }
-            if (campaign.social) {
-              context += `\n[ESTRATÉGIA SOCIAL]\n${campaign.social.hooks?.length || 0} Hooks aprovados.\n`;
-            }
-            if (campaign.design) {
-              context += `\n[ESTILO VISUAL]\n${campaign.design.visualStyle}\n`;
-            }
-            return context;
-          }
+          if (campaign) return buildCampaignContextString(campaign);
         } catch (err) {
           logger.error('Error loading campaign', { route: '/api/chat', error: (err as Error).message });
+        }
+        return '';
+      })();
+    } else if (conversation?.brandId || requestBrandId) {
+      // WS-5: Auto-detect active campaign for this brand
+      const autoDetectBrandId = conversation?.brandId || requestBrandId;
+      campaignPromise = (async () => {
+        try {
+          const campaign = await getActiveCampaignForBrandAdmin(autoDetectBrandId!);
+          if (campaign) {
+            console.log(`[Chat API] Auto-detected active campaign: ${campaign.id}`);
+            return buildCampaignContextString(campaign, true);
+          }
+        } catch (err) {
+          logger.error('Error auto-detecting campaign', { route: '/api/chat', error: (err as Error).message });
         }
         return '';
       })();

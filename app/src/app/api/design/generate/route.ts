@@ -7,6 +7,7 @@ import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { buildDesignBrainContext } from '@/lib/ai/prompts/design-brain-context';
+import { loadCampaignContext } from '@/lib/ai/campaign-context';
 
 /**
  * API Proxy para Geração de Imagens via Google AI (Imagen/Nanobanana)
@@ -83,6 +84,7 @@ export async function POST(request: NextRequest) {
       editOf,
       copyHeadline,
       copyLanguage,
+      campaignId,
     } = body;
 
     const aspectRatio = normalizeAspectRatio(rawAspectRatio);
@@ -188,6 +190,25 @@ export async function POST(request: NextRequest) {
       designBrainContext = buildDesignBrainContext();
     } catch (brainErr) {
       console.warn('⚠️ Falha ao carregar brain context do design_director:', brainErr);
+    }
+
+    // Linha de Ouro: Load campaign brief for design context
+    let campaignBrief = '';
+    if (campaignId) {
+      try {
+        const campaignCtx = await loadCampaignContext(campaignId);
+        if (campaignCtx) {
+          const briefLines = ['[CAMPAIGN BRIEF]'];
+          if (campaignCtx.bigIdea) briefLines.push(`Big Idea: ${campaignCtx.bigIdea}`);
+          if (campaignCtx.targetAudience) briefLines.push(`Target: ${campaignCtx.targetAudience}`);
+          if (campaignCtx.hooks.length > 0) briefLines.push(`Main Hook: ${campaignCtx.hooks[0]}`);
+          if (campaignCtx.tone) briefLines.push(`Tone: ${campaignCtx.tone}`);
+          campaignBrief = briefLines.join('\n');
+          console.log(`[Design] Campaign brief loaded: ${campaignId}`);
+        }
+      } catch (campErr) {
+        console.warn('[Design] Campaign context load failed:', campErr);
+      }
     }
 
     // Sprint I: Build language + text overlay blocks ONCE, inject into ALL modes
@@ -393,7 +414,7 @@ Return ONLY the JSON array of strings.`;
 
     const generationPromises = promptVariants.map(async (promptVariant, index) => {
       try {
-        const finalPrompt = `${textOverlayBlock}\n${promptVariant}\n\n[LOGO_RULE]: ${logoInstruction}\n[REFERENCES]: ${imageReferences.join(', ')}`;
+        const finalPrompt = `${textOverlayBlock}\n${campaignBrief ? campaignBrief + '\n\n' : ''}${promptVariant}\n\n[LOGO_RULE]: ${logoInstruction}\n[REFERENCES]: ${imageReferences.join(', ')}`;
 
         // Fallback chain: tenta cada modelo em ordem
         let result: { data: any; modelUsed: string } | null = null;

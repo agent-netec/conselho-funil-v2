@@ -219,3 +219,25 @@ export async function getCampaignAdmin(campaignId: string): Promise<any | null> 
   if (!snap.exists) return null;
   return { id: snap.id, ...snap.data() };
 }
+
+/**
+ * Returns the most recently updated active campaign for a brand.
+ * Used by chat auto-detect (WS-5 — Linha de Ouro).
+ * Note: May require a composite index on (brandId, status, updatedAt).
+ */
+export async function getActiveCampaignForBrandAdmin(brandId: string): Promise<any | null> {
+  const db = getAdminFirestore();
+  try {
+    const snap = await db.collection('campaigns')
+      .where('brandId', '==', brandId)
+      .where('status', '==', 'active')
+      .orderBy('updatedAt', 'desc')
+      .limit(1)
+      .get();
+    if (snap.empty) return null;
+    return { id: snap.docs[0].id, ...snap.docs[0].data() };
+  } catch (err) {
+    console.warn('[getActiveCampaignForBrandAdmin] Query failed (may need composite index):', err);
+    return null;
+  }
+}

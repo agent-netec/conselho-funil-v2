@@ -8,6 +8,7 @@ import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { updateUserUsage } from '@/lib/firebase/firestore';
+import { loadCampaignContext } from '@/lib/ai/campaign-context';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -15,7 +16,7 @@ export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
-    const { brandId, platform, topic, campaignType, contentFormats } = await request.json();
+    const { brandId, platform, topic, campaignType, contentFormats, campaignId } = await request.json();
 
     if (!brandId) {
       return createApiError(400, 'brandId é obrigatório.');
@@ -57,6 +58,18 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
       console.warn('[Social/Hooks] Brand load failed:', brandErr);
     }
 
+    // 1b. Carregar contexto da campanha (Linha de Ouro)
+    let campaignContext = '';
+    try {
+      const campaign = await loadCampaignContext(campaignId);
+      if (campaign) {
+        campaignContext = `\n\n${campaign.text}`;
+        console.log(`[Social/Hooks] Campaign context loaded: ${campaignId}`);
+      }
+    } catch (campErr) {
+      console.warn('[Social/Hooks] Campaign context load failed:', campErr);
+    }
+
     // 2. Buscar heurísticas via RAG
     const queryText = `Heurísticas, ganchos e regras para ${platform}. Como viralizar e reter atenção no ${platform} com o tema ${topic}.`;
     const { context: knowledgeContext } = await ragQuery(queryText, {
@@ -72,7 +85,8 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
       .replace('{{campaignType}}', campaignType || 'organic')
       .replace('{{contentFormats}}', (contentFormats || []).join(', ') || 'Todos os formatos')
       .replace('{{topic}}', topic)
-      .replace('{{knowledgeContext}}', knowledgeContext || 'Use conhecimento geral sobre melhores práticas de redes sociais.');
+      .replace('{{knowledgeContext}}', knowledgeContext || 'Use conhecimento geral sobre melhores práticas de redes sociais.')
+      + campaignContext;
 
     // 4. Gerar com Gemini
     const response = await generateWithGemini(fullPrompt, {

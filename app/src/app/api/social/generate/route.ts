@@ -11,6 +11,7 @@ import { loadBrain } from '@/lib/intelligence/brains/loader';
 import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
 import type { CounselorId } from '@/types';
 import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
+import { loadCampaignContext } from '@/lib/ai/campaign-context';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -78,7 +79,7 @@ function buildSocialBrainContext(): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { funnelId, userId, brandId, context } = body;
+    const { funnelId, userId, brandId, context, campaignId } = body;
 
     if (!brandId) {
       return createApiError(400, 'brandId é obrigatório.');
@@ -90,7 +91,24 @@ export async function POST(request: NextRequest) {
       return handleSecurityError(error);
     }
 
-    if (!funnelId || !context?.copy) {
+    // Linha de Ouro: auto-load copy from campaign if not provided
+    let campaignCtx: Awaited<ReturnType<typeof loadCampaignContext>> = null;
+    if (campaignId) {
+      try {
+        campaignCtx = await loadCampaignContext(campaignId);
+      } catch (err) {
+        console.warn('[Social/Generate] Campaign context load failed:', err);
+      }
+    }
+
+    // Auto-fill copy from campaign if missing
+    if (!context?.copy && campaignCtx?.mainScript) {
+      if (!context) (body as any).context = {};
+      body.context.copy = campaignCtx.mainScript;
+      console.log('[Social/Generate] Auto-loaded copy from campaign:', campaignId);
+    }
+
+    if (!funnelId || !body.context?.copy) {
       return createApiError(400, 'Contexto de copy é obrigatório.');
     }
 
@@ -142,13 +160,16 @@ export async function POST(request: NextRequest) {
       ${brainContext}
 
       ## CONTEXTO ESTRATÉGICO
-      Objetivo: ${context.objective}
-      Público-alvo: ${context.targetAudience}
+      Objetivo: ${body.context.objective}
+      Público-alvo: ${body.context.targetAudience}
 
       ${offerSection}
 
+      ${campaignCtx ? `## LINHA DE OURO (Contexto da Campanha)
+      ${campaignCtx.text}` : ''}
+
       ## COPY DE REFERÊNCIA
-      ${context.copy}
+      ${body.context.copy}
 
       ## INSTRUÇÕES
       1. Crie 5 hooks diferentes focados em parar o scroll.

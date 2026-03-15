@@ -356,6 +356,19 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
             updatedAt: Timestamp.now(),
           }, { merge: true });
           console.log('[SocialWizard] Campaign Golden Thread updated:', campaignId);
+
+          // WS-4: Index social decision into RAG (fire-and-forget)
+          if (activeBrand?.id) {
+            fetch('/api/campaigns/index-decision', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                campaignId,
+                brandId: activeBrand.id,
+                section: 'social',
+              }),
+            }).catch(err => console.warn('[SocialWizard] RAG index failed:', err));
+          }
         } catch (campErr) {
           console.warn('[SocialWizard] Failed to update campaign Golden Thread:', campErr);
         }

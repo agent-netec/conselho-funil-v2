@@ -14,6 +14,7 @@ import type { CampaignContext } from '@/types/campaign';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
+import { indexCampaignDecision } from '@/lib/ai/campaign-rag';
 
 export const runtime = 'nodejs';
 
@@ -95,9 +96,13 @@ export async function POST(request: NextRequest) {
     if (type === 'adjust' && adjustments && adjustments.length > 0) {
       const copyProposal = copyProposalSnap.data() as any;
       
+      const authHeader = request.headers.get('Authorization');
       fetch(`${request.nextUrl.origin}/api/copy/generate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authHeader ? { 'Authorization': authHeader } : {}),
+        },
         body: JSON.stringify({
           funnelId,
           proposalId: copyProposal.proposalId,
@@ -183,6 +188,15 @@ export async function POST(request: NextRequest) {
 
         await updateCampaignManifesto(docId, campaignData);
         console.log(`[Golden Thread] Handoff completo: Campanha ${docId} sincronizada.`);
+
+        // WS-4: Index copy decision into RAG (fire-and-forget)
+        if (campaignData.brandId) {
+          indexCampaignDecision({
+            campaignId: docId,
+            brandId: campaignData.brandId,
+            section: 'copywriting',
+          }).catch(err => console.error('[Golden Thread] RAG indexing failed:', err));
+        }
       } catch (err) {
         console.error('[Golden Thread] Falha no handoff de copy para campanha:', err);
       }

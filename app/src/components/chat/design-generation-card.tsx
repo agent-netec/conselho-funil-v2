@@ -224,6 +224,19 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
       
       setIsSelected(true);
       toast.success('Criativo selecionado para a Linha de Ouro!');
+
+      // WS-4: Index design decision into RAG (fire-and-forget)
+      if (activeBrand?.id) {
+        fetch('/api/campaigns/index-decision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            campaignId,
+            brandId: activeBrand.id,
+            section: 'design',
+          }),
+        }).catch(err => console.warn('[DesignCard] RAG index failed:', err));
+      }
     } catch (err) {
       console.error('Error selecting for campaign:', err);
       toast.error('Erro ao selecionar para a campanha.');

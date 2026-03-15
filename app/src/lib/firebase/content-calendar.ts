@@ -9,19 +9,8 @@
  * DT-05 (BLOCKING): Reorder via writeBatch() para atomicidade. ZERO updates sequenciais.
  */
 
-import {
-  collection,
-  doc,
-  addDoc,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  writeBatch,
-  Timestamp,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import type { CalendarItem, CalendarItemMetadata, ReorderUpdate } from '@/types/content';
 
 /**
@@ -41,7 +30,8 @@ export async function createCalendarItem(
     createdBy?: string;
   }
 ): Promise<CalendarItem> {
-  const colRef = collection(db, 'brands', brandId, 'content_calendar');
+  const adminDb = getAdminFirestore();
+  const colRef = adminDb.collection('brands').doc(brandId).collection('content_calendar');
   const now = Timestamp.now();
 
   const itemData = {
@@ -59,9 +49,9 @@ export async function createCalendarItem(
     updatedAt: now,
   };
 
-  const docRef = await addDoc(colRef, itemData);
+  const docRef = await colRef.add(itemData);
 
-  return { id: docRef.id, ...itemData };
+  return { id: docRef.id, ...itemData } as CalendarItem;
 }
 
 /**
@@ -79,15 +69,14 @@ export async function getCalendarItems(
   startDate: Timestamp,
   endDate: Timestamp
 ): Promise<CalendarItem[]> {
-  const colRef = collection(db, 'brands', brandId, 'content_calendar');
+  const adminDb = getAdminFirestore();
+  const colRef = adminDb.collection('brands').doc(brandId).collection('content_calendar');
 
-  const q = query(
-    colRef,
-    where('scheduledDate', '>=', startDate),
-    where('scheduledDate', '<=', endDate)
-  );
+  const snapshot = await colRef
+    .where('scheduledDate', '>=', startDate)
+    .where('scheduledDate', '<=', endDate)
+    .get();
 
-  const snapshot = await getDocs(q);
   const items = snapshot.docs.map((d) => ({
     id: d.id,
     ...d.data(),
@@ -108,8 +97,9 @@ export async function updateCalendarItem(
   itemId: string,
   data: Partial<Omit<CalendarItem, 'id' | 'brandId' | 'createdAt'>>
 ): Promise<void> {
-  const docRef = doc(db, 'brands', brandId, 'content_calendar', itemId);
-  await updateDoc(docRef, {
+  const adminDb = getAdminFirestore();
+  const docRef = adminDb.collection('brands').doc(brandId).collection('content_calendar').doc(itemId);
+  await docRef.update({
     ...data,
     updatedAt: Timestamp.now(),
   });
@@ -122,8 +112,9 @@ export async function deleteCalendarItem(
   brandId: string,
   itemId: string
 ): Promise<void> {
-  const docRef = doc(db, 'brands', brandId, 'content_calendar', itemId);
-  await deleteDoc(docRef);
+  const adminDb = getAdminFirestore();
+  const docRef = adminDb.collection('brands').doc(brandId).collection('content_calendar').doc(itemId);
+  await docRef.delete();
 }
 
 /**
@@ -141,10 +132,11 @@ export async function reorderCalendarItems(
   brandId: string,
   updates: ReorderUpdate[]
 ): Promise<void> {
-  const batch = writeBatch(db);
+  const adminDb = getAdminFirestore();
+  const batch = adminDb.batch();
 
   for (const { itemId, order, scheduledDate } of updates) {
-    const ref = doc(db, 'brands', brandId, 'content_calendar', itemId);
+    const ref = adminDb.collection('brands').doc(brandId).collection('content_calendar').doc(itemId);
     const updateData: Record<string, unknown> = {
       order,
       updatedAt: Timestamp.now(),
