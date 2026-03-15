@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { doc, onSnapshot, getDoc, collection, query, where, getDocs, limit, orderBy, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, getDoc, collection, query, where, getDocs, limit, orderBy, updateDoc, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Header } from '@/components/layout/header';
 import { CampaignStepper } from '@/components/campaigns/campaign-stepper';
@@ -139,6 +139,28 @@ export default function CampaignCommandCenter() {
             createdAt: funnelData.createdAt,
             updatedAt: funnelData.updatedAt,
           };
+
+          // CRITICAL: Persist virtual campaign to Firestore so subsequent updates work
+          // Without this, the campaign only exists in UI and all update() calls fail
+          try {
+            const campaignDocData: Record<string, any> = {
+              funnelId: virtualCampaign.funnelId,
+              brandId: virtualCampaign.brandId,
+              userId: virtualCampaign.userId,
+              name: virtualCampaign.name,
+              status: virtualCampaign.status,
+              funnel: virtualCampaign.funnel,
+              updatedAt: Timestamp.now(),
+            };
+            if (virtualCampaign.copywriting) {
+              campaignDocData.copywriting = virtualCampaign.copywriting;
+            }
+            await setDoc(doc(db, 'campaigns', funnelId), campaignDocData, { merge: true });
+            console.log('[Campaign] Virtual campaign persisted to Firestore:', funnelId);
+          } catch (persistErr) {
+            console.warn('[Campaign] Failed to persist virtual campaign:', persistErr);
+          }
+
           updateUnifiedState(virtualCampaign);
         }
       } catch (err) {

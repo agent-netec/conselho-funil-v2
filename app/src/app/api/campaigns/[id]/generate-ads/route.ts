@@ -127,8 +127,8 @@ export async function POST(
       userId || 'system'
     );
 
-    // 5. Update campaign doc with generated ads
-    await campaignRef.update({
+    // 5. Update campaign doc with generated ads (set+merge to handle missing docs)
+    await campaignRef.set({
       ads: result.ads,
       adsMetadata: {
         totalGenerated: result.totalGenerated,
@@ -136,7 +136,7 @@ export async function POST(
         frameworksApplied: result.frameworksApplied,
       },
       updatedAt: Timestamp.now(),
-    });
+    }, { merge: true });
 
     // 6. Also persist to brands/{brandId}/generated_ads (unified persistence)
     if (brandId) {

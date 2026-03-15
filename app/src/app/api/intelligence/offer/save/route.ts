@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     if (campaignId) {
       try {
         const campaignRef = adminDb.collection('campaigns').doc(campaignId);
-        await campaignRef.update({
+        await campaignRef.set({
           offer: {
             offerId: offerDoc.id,
             name: offerDoc.components.coreProduct.name,
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
             promise: offerDoc.components.coreProduct.promise,
           },
           updatedAt: Timestamp.now(),
-        });
+        }, { merge: true });
         console.log(`[OfferSave] Offer ${offerDoc.id} linked to campaign ${campaignId}`);
       } catch (linkErr) {
         console.warn('[OfferSave] Failed to link offer to campaign:', linkErr);
