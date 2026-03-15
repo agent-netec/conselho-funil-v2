@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  queryIntelligence, 
-  getBrandKeywordsConfig 
+import {
+  queryIntelligence,
+  getBrandKeywordsConfig,
+  getSavedBrandKeywords
 } from '@/lib/firebase/intelligence';
-import { 
-  IntelligenceDocument, 
+import {
+  IntelligenceDocument,
   IntelligenceQueryFilter,
-  KeywordIntelligence
+  KeywordIntelligence,
+  SearchIntent
 } from '@/types/intelligence';
 import { useActiveBrand } from './use-active-brand';
 
@@ -47,6 +49,9 @@ export function useIntelligenceData(filters?: Partial<IntelligenceQueryFilter>) 
 
 /**
  * Hook específico para buscar keywords mineradas e calculadas.
+ * Lê de DUAS fontes: brands/{id}/keywords (salvas pelo usuário) +
+ * brands/{id}/intelligence type:keyword (mineradas pelo Miner).
+ * Deduplica por term (case-insensitive), priorizando a versão salva.
  */
 export function useKeywordIntelligence() {
   const activeBrand = useActiveBrand();
@@ -59,17 +64,56 @@ export function useKeywordIntelligence() {
     async function fetchKeywords() {
       setLoading(true);
       try {
-        const result = await queryIntelligence({
-          brandId: activeBrand!.id,
-          types: ['keyword'],
-          limit: 50,
-        });
-        
-        const kws = result.documents
-          .filter(doc => doc.content.keywordData)
-          .map(doc => doc.content.keywordData!);
-          
-        setKeywords(kws);
+        // Fetch from both collections in parallel
+        const [savedResult, intelligenceResult] = await Promise.allSettled([
+          getSavedBrandKeywords(activeBrand!.id, 100),
+          queryIntelligence({
+            brandId: activeBrand!.id,
+            types: ['keyword'],
+            limit: 50,
+          }),
+        ]);
+
+        const seen = new Set<string>();
+        const merged: KeywordIntelligence[] = [];
+
+        // 1. Keywords salvas pelo usuário (brands/{id}/keywords) — prioridade
+        if (savedResult.status === 'fulfilled') {
+          for (const kw of savedResult.value) {
+            const key = kw.term.toLowerCase();
+            if (seen.has(key)) continue;
+            seen.add(key);
+            merged.push({
+              term: kw.term,
+              intent: (kw.intent as SearchIntent) || 'informational',
+              metrics: {
+                volume: kw.volume ?? 0,
+                difficulty: kw.difficulty ?? 0,
+                opportunityScore: kw.opportunityScore ?? 0,
+              },
+              relatedTerms: [],
+              suggestedBy: 'manual',
+              suggestion: kw.suggestion,
+            });
+          }
+        }
+
+        // 2. Keywords da collection intelligence (mineradas pelo Miner)
+        if (intelligenceResult.status === 'fulfilled') {
+          const docs = intelligenceResult.value.documents
+            .filter(doc => doc.content.keywordData)
+            .map(doc => doc.content.keywordData!);
+          for (const kw of docs) {
+            const key = kw.term.toLowerCase();
+            if (seen.has(key)) continue;
+            seen.add(key);
+            merged.push(kw);
+          }
+        }
+
+        // Sort by opportunity score
+        merged.sort((a, b) => (b.metrics.opportunityScore ?? 0) - (a.metrics.opportunityScore ?? 0));
+        setKeywords(merged);
       } catch (err) {
         console.error('Error fetching keywords:', err);
       } finally {
