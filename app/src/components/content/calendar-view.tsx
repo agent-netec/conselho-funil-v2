@@ -103,7 +103,8 @@ export function CalendarView({
   const itemsByDate = useMemo(() => {
     const map = new Map<string, CalendarItem[]>();
     for (const item of items) {
-      const ms = item.scheduledDate?.toMillis?.() ?? item.scheduledDate?.seconds * 1000;
+      const sd = item.scheduledDate as any;
+      const ms = sd?.toMillis?.() ?? (sd?.seconds ?? sd?._seconds) * 1000;
       if (!ms) continue;
       const d = new Date(ms);
       const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;

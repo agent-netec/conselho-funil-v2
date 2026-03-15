@@ -959,7 +959,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
                   </Button>
                 </a>
               )}
-              <a href="/content/calendar">
+              <a href={`/content/calendar?jumpTo=${new Date(Date.now() + 86400000).toISOString().split('T')[0]}`}>
                 <Button variant="outline" className="border-[#E6B447]/20 text-[#E6B447] hover:bg-[#E6B447]/10 gap-2">
                   <CalendarPlus className="h-4 w-4" />
                   Ver no Calendário

@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { CalendarView } from '@/components/content/calendar-view';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
@@ -18,11 +19,22 @@ import type { CalendarItem, CalendarItemStatus, ContentTemplate } from '@/types/
 
 type ViewMode = 'week' | 'month';
 
+function getInitialDate(): Date {
+  if (typeof window === 'undefined') return new Date();
+  const params = new URLSearchParams(window.location.search);
+  const jumpTo = params.get('jumpTo');
+  if (jumpTo) {
+    const d = new Date(jumpTo + 'T00:00:00');
+    if (!isNaN(d.getTime())) return d;
+  }
+  return new Date();
+}
+
 export default function ContentCalendarPage() {
   const { selectedBrand } = useBrandStore();
   const [items, setItems] = useState<CalendarItem[]>([]);
   const [view, setView] = useState<ViewMode>('week');
-  const [referenceDate, setReferenceDate] = useState(new Date());
+  const [referenceDate, setReferenceDate] = useState(getInitialDate);
   const [loading, setLoading] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [selectedItem, setSelectedItem] = useState<CalendarItem | null>(null);
@@ -69,12 +81,16 @@ export default function ContentCalendarPage() {
 
       const headers = await getAuthHeaders();
       const res = await fetch(`/api/content/calendar?${params}`, { headers });
+      const json = await res.json();
       if (res.ok) {
-        const json = await res.json();
         setItems(json.data?.items ?? []);
+      } else {
+        console.error('[Calendar] API error:', res.status, json);
+        toast.error(`Erro ao carregar calendário: ${json.error || res.status}`);
       }
     } catch (err) {
       console.error('[Calendar] Fetch error:', err);
+      toast.error('Falha ao carregar calendário');
     } finally {
       setLoading(false);
     }

@@ -40,14 +40,27 @@ export async function GET(req: NextRequest) {
       return handleSecurityError(error);
     }
 
-    const startDate = Timestamp.fromMillis(Number(start)) as any;
-    const endDate = Timestamp.fromMillis(Number(end)) as any;
+    const startDate = Timestamp.fromMillis(Number(start));
+    const endDate = Timestamp.fromMillis(Number(end));
+    console.log(`[ContentCalendar] GET brandId=${brandId} range=${new Date(Number(start)).toISOString()} to ${new Date(Number(end)).toISOString()}`);
     const items = await getCalendarItems(brandId, startDate, endDate);
+    console.log(`[ContentCalendar] GET found ${items.length} items`);
 
-    return createApiSuccess({ items });
-  } catch (error) {
-    console.error('[ContentCalendar] GET error:', error);
-    return createApiError(500, 'Failed to fetch calendar items');
+    // Serialize Timestamps to { seconds, nanoseconds } for frontend compatibility
+    // Admin SDK Timestamps serialize as { _seconds, _nanoseconds } which breaks client code
+    const serialized = items.map(item => ({
+      ...item,
+      scheduledDate: { seconds: (item.scheduledDate as any)._seconds ?? (item.scheduledDate as any).seconds, nanoseconds: 0 },
+      createdAt: item.createdAt ? { seconds: (item.createdAt as any)._seconds ?? (item.createdAt as any).seconds, nanoseconds: 0 } : null,
+      updatedAt: item.updatedAt ? { seconds: (item.updatedAt as any)._seconds ?? (item.updatedAt as any).seconds, nanoseconds: 0 } : null,
+    }));
+
+    return createApiSuccess({ items: serialized });
+  } catch (error: any) {
+    console.error('[ContentCalendar] GET error:', error?.message, error?.code, error?.stack?.split('\n').slice(0, 3).join(' > '));
+    return createApiError(500, 'Failed to fetch calendar items', {
+      details: error?.message || String(error),
+    });
   }
 }
 

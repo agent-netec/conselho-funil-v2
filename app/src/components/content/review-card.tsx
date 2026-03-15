@@ -39,8 +39,9 @@ export function ReviewCard({ item, onApprove, onReject }: ReviewCardProps) {
 
   const FormatIcon = FORMAT_ICONS[item.format] ?? FileText;
 
-  const scheduledMs = item.scheduledDate?.toMillis?.()
-    ?? (item.scheduledDate?.seconds ? item.scheduledDate.seconds * 1000 : 0);
+  const sd = item.scheduledDate as any;
+  const scheduledMs = sd?.toMillis?.()
+    ?? ((sd?.seconds ?? sd?._seconds) ? (sd?.seconds ?? sd?._seconds) * 1000 : 0);
   const scheduledLabel = scheduledMs
     ? new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(scheduledMs))
     : '—';
