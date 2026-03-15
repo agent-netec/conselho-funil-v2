@@ -31,7 +31,7 @@ export function AudienceScanCard({ scan, onSelect, isSelected }: AudienceScanCar
               {scan.name}
             </CardTitle>
             <CardDescription>
-              Gerado em {format(metadata.createdAt.toDate(), "dd 'de' MMMM", { locale: ptBR })}
+              Gerado em {format(metadata.createdAt?.toDate?.() ?? new Date(((metadata.createdAt as any)?.seconds ?? 0) * 1000), "dd 'de' MMMM", { locale: ptBR })}
             </CardDescription>
           </div>
           <Badge variant={propensity.segment === 'hot' ? 'default' : propensity.segment === 'warm' ? 'secondary' : 'outline'} className="capitalize">

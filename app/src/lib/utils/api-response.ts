@@ -58,12 +58,44 @@ interface ApiSuccessOptions {
 }
 
 /**
+ * Serializa Timestamps do Admin SDK recursivamente.
+ * Admin SDK: { _seconds, _nanoseconds } → Frontend-safe: { seconds, nanoseconds }
+ * Também converte Date objects para { seconds, nanoseconds }.
+ */
+function serializeTimestamps(obj: unknown): unknown {
+  if (obj === null || obj === undefined) return obj;
+  if (typeof obj !== 'object') return obj;
+
+  // Admin SDK Timestamp: has _seconds property
+  const record = obj as Record<string, unknown>;
+  if ('_seconds' in record && '_nanoseconds' in record) {
+    return { seconds: record._seconds, nanoseconds: record._nanoseconds };
+  }
+
+  // Date object
+  if (obj instanceof Date) {
+    return { seconds: Math.floor(obj.getTime() / 1000), nanoseconds: 0 };
+  }
+
+  // Array
+  if (Array.isArray(obj)) {
+    return obj.map(serializeTimestamps);
+  }
+
+  // Plain object — recurse
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(record)) {
+    result[key] = serializeTimestamps(value);
+  }
+  return result;
+}
+
+/**
  * Cria resposta de sucesso padronizada.
  * Shape: { success: true, data: T, meta?: object }
  *
- * RETROCOMPATIBILIDADE:
- * - Campo `success: true` adicionado para uniformidade
- * - Campo `data` contém o payload
+ * Serializa automaticamente Timestamps do Admin SDK para formato
+ * compatível com o frontend ({ seconds, nanoseconds }).
  */
 export function createApiSuccess<T>(
   data: T,
@@ -74,7 +106,7 @@ export function createApiSuccess<T>(
   return NextResponse.json(
     {
       success: true as const,
-      data,
+      data: serializeTimestamps(data) as T,
       ...(meta && { meta }),
     },
     { status }

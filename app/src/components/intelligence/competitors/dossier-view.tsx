@@ -66,7 +66,7 @@ export function DossierView({ dossier, className }: DossierViewProps) {
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <Calendar className="h-4 w-4" />
-            Gerado em: {dossier.generatedAt.toDate().toLocaleDateString('pt-BR')}
+            Gerado em: {(dossier.generatedAt?.toDate?.() ?? new Date(((dossier.generatedAt as any)?.seconds ?? 0) * 1000)).toLocaleDateString('pt-BR')}
           </div>
           <Badge variant="outline" className="text-[10px] uppercase">v{dossier.version}.0</Badge>
         </div>

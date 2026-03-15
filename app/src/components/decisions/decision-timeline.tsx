@@ -64,7 +64,8 @@ function DecisionCard({ decision, isLast }: { decision: DecisionWithMetadata; is
   }
   const Icon = config.icon;
 
-  const createdAt = decision.createdAt?.toDate?.() || new Date();
+  const ca = decision.createdAt as any;
+  const createdAt = ca?.toDate?.() ?? (ca?.seconds || ca?._seconds ? new Date(((ca?.seconds ?? ca?._seconds) as number) * 1000) : new Date());
   const formattedDate = createdAt.toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'short',
@@ -219,7 +220,7 @@ export function DecisionTimeline({ funnelId, className }: DecisionTimelineProps)
         return;
       }
       const data = await response.json();
-      setDecisions(data.decisions || []);
+      setDecisions(data.data?.decisions || data.decisions || []);
     } catch (error) {
       console.error('Error loading decisions:', error);
     } finally {

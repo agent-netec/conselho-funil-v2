@@ -31,7 +31,7 @@ const statusConfig: Record<string, { label: string; color: string }> = {
 
 function formatDate(ts: any): string {
   if (!ts) return '—';
-  const date = ts.toDate ? ts.toDate() : new Date(ts.seconds * 1000);
+  const date = ts.toDate ? ts.toDate() : new Date(((ts.seconds ?? ts._seconds) || 0) * 1000);
   return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 

@@ -127,7 +127,7 @@ export default function LeadJourneyPage() {
                 )}
                 <div className="flex items-center gap-3 text-sm">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
-                  <span>Entrou em: {new Date(lead.createdAt.seconds * 1000).toLocaleDateString('pt-BR')}</span>
+                  <span>Entrou em: {new Date(((lead.createdAt as any)?.seconds ?? (lead.createdAt as any)?._seconds ?? 0) * 1000).toLocaleDateString('pt-BR')}</span>
                 </div>
               </div>
               

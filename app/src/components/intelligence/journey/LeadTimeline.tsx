@@ -89,7 +89,7 @@ export const LeadTimeline: React.FC<LeadTimelineProps> = ({ events }) => {
                       </Badge>
                     </div>
                     <time className="text-xs text-muted-foreground font-medium">
-                      {format(event.timestamp.toDate(), "dd 'de' MMM 'às' HH:mm", { locale: ptBR })}
+                      {format(event.timestamp?.toDate?.() ?? new Date(((event.timestamp as any)?.seconds ?? 0) * 1000), "dd 'de' MMM 'às' HH:mm", { locale: ptBR })}
                     </time>
                   </div>
 

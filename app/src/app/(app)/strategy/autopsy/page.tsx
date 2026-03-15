@@ -471,7 +471,7 @@ export default function FunnelAutopsyPage() {
                         </div>
                       )}
                       <div className="text-[9px] text-[#6B5D4A] font-mono">
-                        {new Date(cs.createdAt.seconds * 1000).toLocaleDateString('pt-BR')}
+                        {new Date(((cs.createdAt as any)?.seconds ?? (cs.createdAt as any)?._seconds ?? 0) * 1000).toLocaleDateString('pt-BR')}
                       </div>
                     </CardContent>
                   </Card>

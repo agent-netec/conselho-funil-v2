@@ -46,16 +46,7 @@ export async function GET(req: NextRequest) {
     const items = await getCalendarItems(brandId, startDate, endDate);
     console.log(`[ContentCalendar] GET found ${items.length} items`);
 
-    // Serialize Timestamps to { seconds, nanoseconds } for frontend compatibility
-    // Admin SDK Timestamps serialize as { _seconds, _nanoseconds } which breaks client code
-    const serialized = items.map(item => ({
-      ...item,
-      scheduledDate: { seconds: (item.scheduledDate as any)._seconds ?? (item.scheduledDate as any).seconds, nanoseconds: 0 },
-      createdAt: item.createdAt ? { seconds: (item.createdAt as any)._seconds ?? (item.createdAt as any).seconds, nanoseconds: 0 } : null,
-      updatedAt: item.updatedAt ? { seconds: (item.updatedAt as any)._seconds ?? (item.updatedAt as any).seconds, nanoseconds: 0 } : null,
-    }));
-
-    return createApiSuccess({ items: serialized });
+    return createApiSuccess({ items });
   } catch (error: any) {
     console.error('[ContentCalendar] GET error:', error?.message, error?.code, error?.stack?.split('\n').slice(0, 3).join(' > '));
     return createApiError(500, 'Failed to fetch calendar items', {

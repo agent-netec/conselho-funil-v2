@@ -107,9 +107,11 @@ export function ProjectList({ brandId }: ProjectListProps) {
                   <div className="flex items-center gap-3 mt-1">
                     <span className="text-xs text-zinc-500 flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {project.updatedAt?.toDate 
+                      {project.updatedAt?.toDate
                         ? new Date(project.updatedAt.toDate()).toLocaleDateString()
-                        : 'Recém criado'}
+                        : (project.updatedAt as any)?.seconds
+                          ? new Date((project.updatedAt as any).seconds * 1000).toLocaleDateString()
+                          : 'Recém criado'}
                     </span>
                     <span className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border ${
                       project.status === 'active' 

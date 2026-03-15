@@ -27,7 +27,7 @@ export function MentionCard({ mention }: MentionCardProps) {
         <div className="flex flex-col flex-1">
           <h3 className="font-semibold text-sm line-clamp-1">{mention.content.title || 'Menção sem título'}</h3>
           <p className="text-xs text-muted-foreground">
-            {mention.source.author || mention.source.platform} • {formatDistanceToNow(mention.collectedAt.toDate(), { addSuffix: true, locale: ptBR })}
+            {mention.source.author || mention.source.platform} • {formatDistanceToNow(mention.collectedAt?.toDate?.() ?? new Date(((mention.collectedAt as any)?.seconds ?? 0) * 1000), { addSuffix: true, locale: ptBR })}
           </p>
         </div>
         <Badge variant="outline" className={cn("capitalize", sentimentColor)}>

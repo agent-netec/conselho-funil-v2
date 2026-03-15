@@ -57,7 +57,7 @@ export function AudienceScanCard({ scan, onSelect, isSelected }: AudienceScanCar
             <CardDescription className="mt-1 space-y-0.5">
               <span className="block">
                 Gerado em{" "}
-                {format(metadata.createdAt.toDate(), "dd 'de' MMMM", {
+                {format(metadata.createdAt?.toDate?.() ?? new Date(((metadata.createdAt as any)?.seconds ?? 0) * 1000), "dd 'de' MMMM", {
                   locale: ptBR,
                 })}
               </span>

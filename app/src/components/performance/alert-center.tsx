@@ -101,7 +101,7 @@ function AlertItem({ alert, onAcknowledge }: { alert: PerformanceAlertDoc; onAck
             </span>
             <span className="text-[10px] text-zinc-600 font-bold flex items-center gap-1">
               <Clock className="w-3 h-3" />
-              {new Date((alert.createdAt as { seconds: number }).seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {new Date((((alert.createdAt as any)?.seconds ?? (alert.createdAt as any)?._seconds) || 0) * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
           <p className="text-sm font-bold leading-tight text-white">{alert.message}</p>

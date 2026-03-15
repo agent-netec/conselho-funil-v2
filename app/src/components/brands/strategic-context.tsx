@@ -258,7 +258,7 @@ export function StrategicContext({ brandId }: StrategicContextProps) {
                       <div className="flex items-center gap-3 mt-1 text-[11px] text-zinc-500">
                         <span className="capitalize">{asset.type}</span>
                         <span>•</span>
-                        <span>{formatDistanceToNow(asset.createdAt.toDate(), { addSuffix: true, locale: ptBR })}</span>
+                        <span>{formatDistanceToNow(asset.createdAt?.toDate?.() ?? new Date(((asset.createdAt as any)?.seconds ?? 0) * 1000), { addSuffix: true, locale: ptBR })}</span>
                         {asset.chunkCount && (
                           <>
                             <span>•</span>

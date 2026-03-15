@@ -52,8 +52,10 @@ const STATUS_BADGES: Record<IntelligenceAsset['status'], { label: string; classN
 
 function formatDate(ts: Timestamp | unknown): string {
   try {
-    if (ts instanceof Timestamp) {
-      return ts.toDate().toLocaleDateString('pt-BR', {
+    const obj = ts as any;
+    const date = obj?.toDate?.() ?? (obj?.seconds ? new Date(obj.seconds * 1000) : null);
+    if (date) {
+      return date.toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: 'short',
         year: 'numeric',

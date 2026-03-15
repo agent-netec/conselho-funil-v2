@@ -258,7 +258,7 @@ export default function ResearchPage() {
 
   const formatDate = (ts: any) => {
     if (!ts) return '';
-    const ms = ts?.toMillis?.() ?? ts?.seconds * 1000;
+    const ms = ts?.toMillis?.() ?? (ts?.seconds ?? ts?._seconds) * 1000;
     if (!ms) return '';
     return new Date(ms).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
   };
