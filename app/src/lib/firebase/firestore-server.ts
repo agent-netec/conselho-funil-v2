@@ -103,7 +103,10 @@ export async function setUserStripeCustomerIdAdmin(userId: string, stripeCustome
 
 export async function updateUserUsageAdmin(userId: string, delta: number): Promise<void> {
   const db = getAdminFirestore();
-  await db.collection('users').doc(userId).update({ credits: FieldValue.increment(delta) });
+  await db.collection('users').doc(userId).update({
+    credits: FieldValue.increment(delta),
+    usage: FieldValue.increment(Math.abs(delta)),
+  });
 }
 
 export async function updateUserTierAdmin(

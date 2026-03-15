@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { useAuthStore } from '@/lib/stores/auth-store';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import { Search, Plus, ChevronRight } from 'lucide-react';
 import { GuidedEmptyState } from '@/components/ui/guided-empty-state';
@@ -40,17 +41,19 @@ export default function CampaignsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const activeBrand = useActiveBrand();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     async function load() {
+      if (!user?.uid) return;
       try {
         const cSnap = await getDocs(
-          query(collection(db, 'campaigns'), where('status', 'in', ['planning', 'active', 'archived']))
+          query(collection(db, 'campaigns'), where('userId', '==', user.uid), where('status', 'in', ['planning', 'active', 'archived']))
         );
         const cData = cSnap.docs.map(d => ({ id: d.id, ...d.data() })) as CampaignContext[];
 
         const fSnap = await getDocs(
-          query(collection(db, 'funnels'), where('status', 'in', ['approved', 'executing', 'completed', 'review']))
+          query(collection(db, 'funnels'), where('userId', '==', user.uid), where('status', 'in', ['approved', 'executing', 'completed', 'review']))
         );
         const fData = fSnap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
 
@@ -73,7 +76,7 @@ export default function CampaignsPage() {
       }
     }
     load();
-  }, []);
+  }, [user?.uid]);
 
   const filtered = campaigns.filter(c => c.name?.toLowerCase().includes(search.toLowerCase()));
   const totalActive = campaigns.filter(c => c.status === 'active').length;

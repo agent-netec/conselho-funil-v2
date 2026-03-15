@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { getBrand, updateUserUsage } from '@/lib/firebase/firestore';
+import { getBrandAdmin } from '@/lib/firebase/firestore-server';
+import { updateUserUsageAdmin } from '@/lib/firebase/firestore-server';
 import { getBrandAssetsAdmin } from '@/lib/firebase/assets-server';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
@@ -125,7 +126,7 @@ export async function POST(request: NextRequest) {
 
     if (brandId) {
       console.log(`🔍 Buscando BrandKit e Assets para a marca: ${brandId}`);
-      brandData = await getBrand(brandId);
+      brandData = await getBrandAdmin(brandId);
 
       if (brandData?.brandKit) {
         const kit = brandData.brandKit;
@@ -484,7 +485,7 @@ Return ONLY the JSON array of strings.`;
 
     // ST-11.19: Decrementar 5 créditos por geração de imagem (Gemini 2.0 Flash)
     try {
-      await updateUserUsage(userId, -5);
+      await updateUserUsageAdmin(userId, -5);
       console.log(`[Design] 5 créditos decrementados para usuário: ${userId}`);
     } catch (creditError) {
       console.error('[Design] Erro ao atualizar créditos:', creditError);
