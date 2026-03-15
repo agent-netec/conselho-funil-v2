@@ -14,6 +14,7 @@ import Link from "next/link"
 
 const SocialVolumeChart = dynamic(() => import("@/components/intelligence/social-volume-chart").then(m => ({ default: m.SocialVolumeChart })), { ssr: false })
 import { useKeywordIntelligence, useIntelligenceStats } from "@/lib/hooks/use-intelligence"
+import { useActiveBrand } from "@/lib/hooks/use-active-brand"
 import { FileText } from "lucide-react"
 
 const NAV = [
@@ -31,6 +32,7 @@ export default function IntelligencePage() {
   const [viewingDossier, setViewingDossier] = React.useState(false)
   const [tab, setTab] = React.useState("overview")
 
+  const activeBrand = useActiveBrand()
   const { keywords, loading: lk } = useKeywordIntelligence()
   const { stats, loading: ls } = useIntelligenceStats()
 
@@ -126,7 +128,7 @@ export default function IntelligencePage() {
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-px bg-white/[0.04] border border-white/[0.06] overflow-hidden">
               <section className="lg:col-span-3 bg-[#0D0B09] p-6">
                 <SectionLabel>Keyword Ranking · KOS</SectionLabel>
-                {lk ? <Skeleton className="h-[360px] w-full" /> : <KeywordRanking keywords={keywords} />}
+                {lk ? <Skeleton className="h-[360px] w-full" /> : <KeywordRanking keywords={keywords} brandId={activeBrand?.id} />}
               </section>
 
               <div className="lg:col-span-2 bg-[#0D0B09] flex flex-col divide-y divide-white/[0.04]">
@@ -174,7 +176,7 @@ export default function IntelligencePage() {
         {tab === "keywords" && (
           <section className="border border-white/[0.06] bg-[#0D0B09] p-6">
             <SectionLabel>Inteligência de Palavras-Chave</SectionLabel>
-            {lk ? <Skeleton className="h-[600px] w-full" /> : <KeywordRanking keywords={keywords} />}
+            {lk ? <Skeleton className="h-[600px] w-full" /> : <KeywordRanking keywords={keywords} brandId={activeBrand?.id} />}
           </section>
         )}
 

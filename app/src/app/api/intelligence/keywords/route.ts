@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+export const maxDuration = 120;
 import { NextRequest, NextResponse } from 'next/server';
 import { KeywordMiner } from '@/lib/intelligence/keywords/miner';
 import { createIntelligenceDocument } from '@/lib/firebase/intelligence';
