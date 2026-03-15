@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+export const maxDuration = 120; // Scraping + Gemini analysis can take up to 90s
 import { NextRequest, NextResponse } from 'next/server';
 import { AutopsyEngine } from '@/lib/intelligence/autopsy/engine';
 import { extractContentFromUrl } from '@/lib/ai/url-scraper';
