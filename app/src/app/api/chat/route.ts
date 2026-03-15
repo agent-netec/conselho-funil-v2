@@ -55,7 +55,7 @@ import { logger } from '@/lib/utils/logger';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 90; // PRO model + RAG + council response
+export const maxDuration = 120; // PRO model + RAG + council response
 
 interface ChatRequest {
   message: string;

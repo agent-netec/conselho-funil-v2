@@ -101,7 +101,6 @@ export class AutopsyEngine {
       model: PRO_GEMINI_MODEL,
       temperature: 0.2,
       responseMimeType: 'application/json',
-      timeoutMs: 90_000, // Autopsy analysis is heavy (9 experts + up to 30K chars)
     });
 
     try {

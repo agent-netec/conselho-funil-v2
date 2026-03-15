@@ -9,7 +9,7 @@
  */
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 import { NextRequest } from 'next/server';
 import { getAdminFirestore } from '@/lib/firebase/admin';

@@ -6,6 +6,7 @@ import { buildPartyPrompt } from '@/lib/ai/prompts/party-mode';
 import { buildPartyBrainContext } from '@/lib/ai/prompts/party-brain-context';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 120;
 
 const PRO_GEMINI_MODEL = process.env.GEMINI_PRO_MODEL || 'gemini-2.5-pro';
 

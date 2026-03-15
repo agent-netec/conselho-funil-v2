@@ -15,7 +15,7 @@ import { loadCampaignContext } from '@/lib/ai/campaign-context';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 90; // Image generation can be slow (30-55s per model)
+export const maxDuration = 120; // Image generation can be slow (30-55s per model)
 
 /**
  * Maps app-side aspect ratios to Gemini Image API valid values.

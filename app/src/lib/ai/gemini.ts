@@ -36,10 +36,10 @@ function getGeminiApiKey(): string | undefined {
 
 import { AICostGuard } from './cost-guard';
 
-/** Default timeout for non-streaming Gemini calls (30s) */
-const GEMINI_TIMEOUT_MS = 30_000;
-/** Default timeout for streaming Gemini calls (60s) */
-const GEMINI_STREAM_TIMEOUT_MS = 60_000;
+/** Default timeout for non-streaming Gemini calls (90s — Pro models are slow) */
+const GEMINI_TIMEOUT_MS = 90_000;
+/** Default timeout for streaming Gemini calls (120s) */
+const GEMINI_STREAM_TIMEOUT_MS = 120_000;
 /** Max retries for 429 rate limit errors */
 const MAX_RETRIES = 2;
 
