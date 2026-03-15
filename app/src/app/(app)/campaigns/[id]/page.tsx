@@ -256,7 +256,7 @@ export default function CampaignCommandCenter() {
     } else if (stageId === 'offer') {
       // OL-5.5: Load active offer from brand or redirect to Offer Lab
       if (campaign.offer) {
-        router.push('/intelligence/offer-lab');
+        router.push(`/intelligence/offer-lab?campaignId=${campaign.id}`);
       } else if (campaign.brandId) {
         setLoadingOffer(true);
         try {
@@ -275,16 +275,16 @@ export default function CampaignCommandCenter() {
             toast.success('Oferta vinculada à campanha!');
           } else {
             toast.info('Nenhuma oferta encontrada. Crie uma no Offer Lab.');
-            router.push('/intelligence/offer-lab');
+            router.push(`/intelligence/offer-lab?campaignId=${campaign.id}`);
           }
         } catch (err) {
           console.warn('[Campaign] Offer load failed:', err);
-          router.push('/intelligence/offer-lab');
+          router.push(`/intelligence/offer-lab?campaignId=${campaign.id}`);
         } finally {
           setLoadingOffer(false);
         }
       } else {
-        router.push('/intelligence/offer-lab');
+        router.push(`/intelligence/offer-lab?campaignId=${campaign.id}`);
       }
     } else if (stageId === 'copy') {
       router.push(`/funnels/${campaign.funnelId}/copy?campaignId=${campaign.id}`);

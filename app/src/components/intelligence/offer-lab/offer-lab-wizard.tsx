@@ -30,6 +30,7 @@ import {
 import { OfferLabEngine } from '@/lib/intelligence/offer/calculator';
 import { toast } from 'sonner';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
+import { useRouter } from 'next/navigation';
 
 // AI evaluation result shape (matches evaluator.ts output)
 interface AIInsight {
@@ -224,7 +225,8 @@ const ValueEquationGuide = () => {
   );
 };
 
-export function OfferLabWizard({ brandId }: { brandId: string }) {
+export function OfferLabWizard({ brandId, onSaved, campaignId }: { brandId: string; onSaved?: () => void; campaignId?: string | null }) {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
   const [offer, setOffer] = useState<OfferWizardState>({
@@ -327,6 +329,7 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
       }
 
       setSaved(true);
+      onSaved?.();
       toast.success('Oferta salva com sucesso no Laboratório!');
     } catch (error: any) {
       toast.error(error?.message || 'Erro ao salvar oferta.');
@@ -485,6 +488,15 @@ export function OfferLabWizard({ brandId }: { brandId: string }) {
           </p>
         </div>
         <div className="flex gap-3 pt-4">
+          {campaignId && (
+            <Button
+              onClick={() => router.push(`/campaigns/${campaignId}`)}
+              className="bg-[#AB8648] hover:bg-[#E6B447] text-white px-8"
+            >
+              Voltar para Linha de Ouro
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={() => {

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { OfferLabWizard } from '@/components/intelligence/offer-lab/offer-lab-wizard';
 import { OfferList } from '@/components/intelligence/offer-lab/offer-list';
 import { OfferCompare } from '@/components/intelligence/offer-lab/offer-compare';
@@ -11,7 +12,10 @@ import type { OfferDocument } from '@/types/offer';
 
 export default function OfferLabPage() {
   const { selectedBrand } = useBrandStore();
+  const searchParams = useSearchParams();
+  const campaignId = searchParams.get('campaignId');
   const [compareOffers, setCompareOffers] = useState<[OfferDocument, OfferDocument] | null>(null);
+  const [listKey, setListKey] = useState(0);
 
   if (compareOffers) {
     return (
@@ -59,13 +63,14 @@ export default function OfferLabPage() {
 
       {/* Main Content */}
       <main className="mt-8">
-        <OfferLabWizard brandId={selectedBrand?.id || ''} />
+        <OfferLabWizard brandId={selectedBrand?.id || ''} campaignId={campaignId} onSaved={() => setListKey(k => k + 1)} />
       </main>
 
       {/* F4-1: Offer History + F4-2: Compare */}
       {selectedBrand?.id && (
         <section className="mt-12">
           <OfferList
+            key={listKey}
             brandId={selectedBrand.id}
             onCompare={(a, b) => setCompareOffers([a, b])}
           />
