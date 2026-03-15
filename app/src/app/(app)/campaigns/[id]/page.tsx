@@ -512,7 +512,7 @@ export default function CampaignCommandCenter() {
             title="A Oferta"
             description="Engenharia de Oferta Irresistível"
             icon={Sparkles}
-            status={campaign.offer ? 'approved' : campaign.funnel ? 'empty' : 'empty'}
+            status={campaign.offer ? 'approved' : campaign.funnel ? 'ready' : 'empty'}
             summary={campaign.offer ? [
               `Promessa: ${campaign.offer.promise?.slice(0, 50)}...`,
               `Score: ${campaign.offer.score}/100`,
