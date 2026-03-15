@@ -185,7 +185,7 @@ export default function CampaignCommandCenter() {
 
   const [generatingAds, setGeneratingAds] = useState(false);
   const [briefText, setBriefText] = useState<string | null>(null);
-  const [loadingOffer, setLoadingOffer] = useState(false);
+  const [loadingOffer] = useState(false);
 
   // K-2.1: Detect campaign complete
   const isCampaignComplete = !!(campaign?.funnel && campaign?.copywriting && campaign?.social && campaign?.design && campaign?.ads);
@@ -254,38 +254,8 @@ export default function CampaignCommandCenter() {
     if (stageId === 'funnel') {
       router.push(`/funnels/${campaign.funnelId}?campaignId=${campaign.id}`);
     } else if (stageId === 'offer') {
-      // OL-5.5: Load active offer from brand or redirect to Offer Lab
-      if (campaign.offer) {
-        router.push(`/intelligence/offer-lab?campaignId=${campaign.id}`);
-      } else if (campaign.brandId) {
-        setLoadingOffer(true);
-        try {
-          const offersRef = collection(db, 'brands', campaign.brandId, 'offers');
-          const activeSnap = await getDocs(
-            query(offersRef, where('status', '==', 'active'), orderBy('updatedAt', 'desc'), limit(1))
-          );
-          const offerSnap = activeSnap.empty
-            ? await getDocs(query(offersRef, orderBy('updatedAt', 'desc'), limit(1)))
-            : activeSnap;
-
-          if (!offerSnap.empty) {
-            const o = offerSnap.docs[0].data();
-            const offerRef = { offerId: o.id, name: o.name || o.components?.coreProduct?.promise?.substring(0, 50) || 'Oferta', score: o.scoring?.total ?? 0, promise: o.components?.coreProduct?.promise || '' };
-            await updateDoc(doc(db, 'campaigns', campaign.id), { offer: offerRef, updatedAt: new Date() });
-            toast.success('Oferta vinculada à campanha!');
-          } else {
-            toast.info('Nenhuma oferta encontrada. Crie uma no Offer Lab.');
-            router.push(`/intelligence/offer-lab?campaignId=${campaign.id}`);
-          }
-        } catch (err) {
-          console.warn('[Campaign] Offer load failed:', err);
-          router.push(`/intelligence/offer-lab?campaignId=${campaign.id}`);
-        } finally {
-          setLoadingOffer(false);
-        }
-      } else {
-        router.push(`/intelligence/offer-lab?campaignId=${campaign.id}`);
-      }
+      // Navigate to Offer Lab — save API auto-links offer to campaign via campaignId
+      router.push(`/intelligence/offer-lab?campaignId=${campaign.id}`);
     } else if (stageId === 'copy') {
       router.push(`/funnels/${campaign.funnelId}/copy?campaignId=${campaign.id}`);
     } else if (stageId === 'social') {

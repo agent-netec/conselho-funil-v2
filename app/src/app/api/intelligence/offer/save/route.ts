@@ -68,6 +68,26 @@ export async function POST(req: NextRequest) {
     const offerRef = adminDb.collection('brands').doc(safeBrandId).collection('offers').doc(offerDoc.id);
     await offerRef.set(offerDoc);
 
+    // Auto-link offer to campaign if campaignId is provided
+    const { campaignId } = body;
+    if (campaignId) {
+      try {
+        const campaignRef = adminDb.collection('campaigns').doc(campaignId);
+        await campaignRef.update({
+          offer: {
+            offerId: offerDoc.id,
+            name: offerDoc.components.coreProduct.name,
+            score: offerDoc.scoring.total,
+            promise: offerDoc.components.coreProduct.promise,
+          },
+          updatedAt: Timestamp.now(),
+        });
+        console.log(`[OfferSave] Offer ${offerDoc.id} linked to campaign ${campaignId}`);
+      } catch (linkErr) {
+        console.warn('[OfferSave] Failed to link offer to campaign:', linkErr);
+      }
+    }
+
     return createApiSuccess({ offer: offerDoc });
   } catch (error: unknown) {
     console.error('[OFFER_SAVE_API_ERROR]:', error);

@@ -320,7 +320,7 @@ export function OfferLabWizard({ brandId, onSaved, campaignId }: { brandId: stri
       const response = await fetch('/api/intelligence/offer/save', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ brandId, state: offer, aiEvaluation: aiEvaluation ?? undefined })
+        body: JSON.stringify({ brandId, state: offer, aiEvaluation: aiEvaluation ?? undefined, campaignId: campaignId || undefined })
       });
 
       if (!response.ok) {
