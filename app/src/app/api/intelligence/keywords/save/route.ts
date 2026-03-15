@@ -4,11 +4,65 @@ import { parseJsonBody } from '@/app/api/_utils/parse-json';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { saveBrandKeyword, saveBrandKeywordsBatch } from '@/lib/firebase/intelligence';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
+
+const MAX_KEYWORDS_PER_BRAND = 100;
+
+/**
+ * Save a single keyword via Admin SDK.
+ * Upserts by term (case-insensitive).
+ */
+async function saveBrandKeywordAdmin(
+  brandId: string,
+  keyword: {
+    term: string;
+    volume: number;
+    difficulty: number;
+    intent: string;
+    opportunityScore: number;
+    source: string;
+    suggestion?: string;
+  }
+): Promise<string> {
+  const adminDb = getAdminFirestore();
+  const keywordsRef = adminDb.collection('brands').doc(brandId).collection('keywords');
+
+  // Check limit
+  const existingSnap = await keywordsRef.count().get();
+  if (existingSnap.data().count >= MAX_KEYWORDS_PER_BRAND) {
+    throw new Error('Limite de 100 keywords por marca atingido.');
+  }
+
+  // Check if keyword already exists (by term, case-insensitive)
+  const termLower = keyword.term.toLowerCase();
+  const existingQuery = await keywordsRef.get();
+  const existing = existingQuery.docs.find(
+    d => (d.data().term as string).toLowerCase() === termLower
+  );
+
+  const data = {
+    ...keyword,
+    savedAt: Timestamp.now(),
+  };
+
+  // Strip undefined values (Firestore rejects them)
+  if (data.suggestion === undefined) {
+    delete (data as Record<string, unknown>).suggestion;
+  }
+
+  if (existing) {
+    await keywordsRef.doc(existing.id).set(data, { merge: true });
+    return existing.id;
+  }
+
+  const docRef = await keywordsRef.add(data);
+  return docRef.id;
+}
 
 /**
  * POST /api/intelligence/keywords/save
- * Save mined keywords to brands/{brandId}/keywords
+ * Save mined keywords to brands/{brandId}/keywords (Admin SDK)
  */
 export async function POST(req: NextRequest) {
   try {
@@ -46,7 +100,7 @@ export async function POST(req: NextRequest) {
 
     // Single keyword save
     if (keyword) {
-      const id = await saveBrandKeyword(brandId, {
+      const id = await saveBrandKeywordAdmin(brandId, {
         term: keyword.term,
         volume: keyword.volume,
         difficulty: keyword.difficulty,
@@ -60,22 +114,31 @@ export async function POST(req: NextRequest) {
 
     // Batch save
     if (keywords && keywords.length > 0) {
-      const batch = keywords.map(kw => ({
-        term: kw.term,
-        volume: kw.volume,
-        difficulty: kw.difficulty,
-        intent: kw.intent,
-        opportunityScore: kw.opportunityScore,
-        source: 'miner' as const,
-        ...(kw.suggestion != null && { suggestion: kw.suggestion }),
-      }));
-
-      const saved = await saveBrandKeywordsBatch(brandId, batch);
+      let saved = 0;
+      for (const kw of keywords) {
+        try {
+          await saveBrandKeywordAdmin(brandId, {
+            term: kw.term,
+            volume: kw.volume,
+            difficulty: kw.difficulty,
+            intent: kw.intent,
+            opportunityScore: kw.opportunityScore,
+            source: 'miner',
+            ...(kw.suggestion != null && { suggestion: kw.suggestion }),
+          });
+          saved++;
+        } catch (err) {
+          // If limit hit, stop but return what we saved
+          console.warn('[keywords/save] Batch stopped:', err instanceof Error ? err.message : err);
+          break;
+        }
+      }
       return createApiSuccess({ saved });
     }
 
     return createApiError(400, 'keyword ou keywords é obrigatório');
   } catch (error: unknown) {
+    console.error('[keywords/save] Error:', error);
     if (error instanceof ApiError) {
       return handleSecurityError(error);
     }

@@ -224,6 +224,18 @@ service cloud.firestore {
           get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
       }
 
+      // Autopsies subcollection (spy/forensic analysis)
+      match /autopsies/{autopsyId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+      }
+
+      // Audience Scans subcollection
+      match /audience_scans/{scanId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+      }
+
       // Generated ads — output of AI ad generation
       match /generated_ads/{adId} {
         allow read, write: if isAuthenticated() &&
