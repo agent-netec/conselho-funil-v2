@@ -1,13 +1,5 @@
-import { db } from '../config';
-import { 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  Timestamp,
-  doc,
-  setDoc
-} from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { AttributionBridge } from '../../../types/attribution';
 import { ChannelOverlapDoc } from '../../../types/cross-channel';
 
@@ -24,19 +16,18 @@ export class ChannelOverlapAnalyzer {
    * Gera um relatório de overlap para uma marca em um período específico
    */
   public static async analyze(brandId: string, startDate: Date, endDate: Date): Promise<ChannelOverlapDoc> {
+    const adminDb = getAdminFirestore();
     const startTs = Timestamp.fromDate(startDate);
     const endTs = Timestamp.fromDate(endDate);
 
     // 1. Buscar todas as pontes que tiveram atividade no período
     // Nota: Em um cenário real, filtraríamos por transações ocorridas no período
     // e buscaríamos as pontes desses leads.
-    const q = query(
-      collection(db, this.BRIDGE_COLLECTION),
-      where('lastSyncAt', '>=', startTs),
-      where('lastSyncAt', '<=', endTs)
-    );
+    const bridgeSnaps = await adminDb.collection(this.BRIDGE_COLLECTION)
+      .where('lastSyncAt', '>=', startTs)
+      .where('lastSyncAt', '<=', endTs)
+      .get();
 
-    const bridgeSnaps = await getDocs(q);
     const bridges = bridgeSnaps.docs.map(d => d.data() as AttributionBridge);
 
     const overlapMap: Record<string, { conversions: number; revenue: number; path: string[] }> = {};
@@ -77,15 +68,15 @@ export class ChannelOverlapAnalyzer {
     const result: ChannelOverlapDoc = {
       brandId,
       period: {
-        start: startTs,
-        end: endTs
+        start: startTs as any,
+        end: endTs as any
       },
       overlaps
     };
 
     // 5. Persistir o resultado da análise
     const docId = `overlap_${brandId}_${startDate.toISOString().split('T')[0]}`;
-    await setDoc(doc(db, this.OVERLAP_COLLECTION, docId), result);
+    await adminDb.collection(this.OVERLAP_COLLECTION).doc(docId).set(result);
 
     return result;
   }

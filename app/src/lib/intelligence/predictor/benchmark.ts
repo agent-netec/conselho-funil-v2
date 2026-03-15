@@ -12,15 +12,8 @@
  */
 
 import { BenchmarkComparison } from '@/types/prediction';
-import { db } from '@/lib/firebase/config';
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-  Timestamp,
-} from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
 // ═══════════════════════════════════════════════════════
 // CONSTANTES
@@ -144,10 +137,11 @@ async function readBenchmarkCache(
   brandId: string
 ): Promise<BenchmarkCache | null> {
   try {
-    const cacheRef = doc(db, 'brands', brandId, 'predictions', '_benchmark');
-    const snap = await getDoc(cacheRef);
+    const adminDb = getAdminFirestore();
+    const cacheRef = adminDb.collection('brands').doc(brandId).collection('predictions').doc('_benchmark');
+    const snap = await cacheRef.get();
 
-    if (!snap.exists()) return null;
+    if (!snap.exists) return null;
 
     return snap.data() as BenchmarkCache;
   } catch (error) {
@@ -174,8 +168,9 @@ async function saveBenchmarkCache(
   brandId: string,
   stats: BenchmarkCache
 ): Promise<void> {
-  const cacheRef = doc(db, 'brands', brandId, 'predictions', '_benchmark');
-  await setDoc(cacheRef, stats, { merge: false });
+  const adminDb = getAdminFirestore();
+  const cacheRef = adminDb.collection('brands').doc(brandId).collection('predictions').doc('_benchmark');
+  await cacheRef.set(stats);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -189,8 +184,9 @@ async function saveBenchmarkCache(
 async function computeBenchmarkStats(
   brandId: string
 ): Promise<BenchmarkCache> {
-  const predictionsRef = collection(db, 'brands', brandId, 'predictions');
-  const snapshot = await getDocs(predictionsRef);
+  const adminDb = getAdminFirestore();
+  const predictionsRef = adminDb.collection('brands').doc(brandId).collection('predictions');
+  const snapshot = await predictionsRef.get();
 
   // Extrair scores válidos (ignorar doc de cache e docs sem score)
   const scores: number[] = [];

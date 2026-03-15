@@ -97,6 +97,11 @@ export async function POST(request: NextRequest) {
 
     const funnel = { id: funnelSnap.id, ...funnelSnap.data() } as Funnel;
 
+    // Guard: funnel.context is required for copy generation
+    if (!funnel.context) {
+      return createApiError(400, 'Funnel context is missing. Please complete the funnel wizard first.');
+    }
+
     // Auth guard: derive brandId from funnel, then verify access
     if (funnel.brandId) {
       try {
@@ -129,8 +134,12 @@ export async function POST(request: NextRequest) {
     console.log('🔍 Buscando contexto estratégico para copy...');
     
     // 1. Contexto de Conhecimento Geral (Copywriting)
+    const market = funnel.context.market || 'digital';
+    const objective = funnel.context.objective || 'sales';
+    const offerWhat = funnel.context.offer?.what || 'produto/serviço';
+
     const { context: ragContext } = await ragQuery(
-      `Copywriting para ${copyType} no mercado de ${funnel.context.market}. Foco em ${funnel.context.objective}.`,
+      `Copywriting para ${copyType} no mercado de ${market}. Foco em ${objective}.`,
       { topK: 8, minSimilarity: 0.2, filters: { category: 'copywriting' } }
     );
 
@@ -139,7 +148,7 @@ export async function POST(request: NextRequest) {
     if (funnel.brandId) {
       const brandChunks = await retrieveBrandChunks(
         funnel.brandId,
-        `Copywriting ${copyType} para ${funnel.context.offer.what}. Voz e tom da marca.`,
+        `Copywriting ${copyType} para ${offerWhat}. Voz e tom da marca.`,
         { topK: 5, minSimilarity: 0.5 }
       );
       brandContext = formatBrandContextForLLM(brandChunks);
@@ -192,7 +201,7 @@ export async function POST(request: NextRequest) {
     if (funnel.brandId) {
       try {
         const { context } = await retrieveResearchContext(
-          `${copyType} para ${funnel.context.market} ${funnel.context.objective}`,
+          `${copyType} para ${market} ${objective}`,
           3
         );
         if (context) {
@@ -222,8 +231,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Determine awareness stage
-    const finalAwarenessStage: AwarenessStage = awarenessStage || 
-      mapAwareness(funnel.context.audience.awareness);
+    const finalAwarenessStage: AwarenessStage = awarenessStage ||
+      mapAwareness(funnel.context.audience?.awareness || 'problem');
 
     // Sprint F: Build brain context from identity cards for this awareness stage
     let brainContext = '';

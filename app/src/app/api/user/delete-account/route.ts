@@ -3,8 +3,7 @@ import { getAdminFirestore } from '@/lib/firebase/admin';
 import { requireUser } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { getPineconeIndex } from '@/lib/ai/pinecone';
-import { ref, deleteObject } from 'firebase/storage';
-import { storage } from '@/lib/firebase/config';
+import { getStorage } from 'firebase-admin/storage';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -43,6 +42,7 @@ export async function POST(req: NextRequest) {
     }
 
     const db = getAdminFirestore();
+    const bucket = getStorage().bucket();
     const deletionLog: string[] = [];
 
     // 3. Get all brands first (needed for Pinecone and Storage cleanup)
@@ -89,8 +89,7 @@ export async function POST(req: NextRequest) {
           try {
             // Try storagePath first, fallback to url
             const path = assetData.storagePath || assetData.url;
-            const storageRef = ref(storage, path);
-            await deleteObject(storageRef);
+            await bucket.file(path).delete();
             deletionLog.push(`Storage: ${path}`);
           } catch (err: any) {
             // File might not exist, continue
@@ -108,8 +107,7 @@ export async function POST(req: NextRequest) {
         const vaultData = vaultAsset.data();
         if (vaultData.storagePath) {
           try {
-            const storageRef = ref(storage, vaultData.storagePath);
-            await deleteObject(storageRef);
+            await bucket.file(vaultData.storagePath).delete();
           } catch {
             // Continue
           }

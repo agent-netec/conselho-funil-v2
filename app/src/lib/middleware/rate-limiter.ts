@@ -7,8 +7,8 @@
  * @story S32-RL-01
  */
 
-import { doc, runTransaction, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { createApiError } from '@/lib/utils/api-response';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -71,14 +71,15 @@ export function withRateLimit(
       return handler(req, ...args);
     }
 
-    const rateLimitRef = doc(db, 'brands', brandId, 'rate_limits', config.scope);
+    const adminDb = getAdminFirestore();
+    const rateLimitRef = adminDb.collection('brands').doc(brandId).collection('rate_limits').doc(config.scope);
     const now = Timestamp.now();
 
     try {
-      const allowed = await runTransaction(db, async (transaction) => {
+      const allowed = await adminDb.runTransaction(async (transaction) => {
         const snap = await transaction.get(rateLimitRef);
 
-        if (!snap.exists()) {
+        if (!snap.exists) {
           // Primeiro request — criar doc
           transaction.set(rateLimitRef, {
             count: 1,

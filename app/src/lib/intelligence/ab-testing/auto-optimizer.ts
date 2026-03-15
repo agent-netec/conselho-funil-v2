@@ -15,20 +15,15 @@
  * @story S34-AO-01
  */
 
-import {
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  orderBy,
-  limit as firestoreLimit,
-  Timestamp,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyTimestamp = any;
 import { getABTest, updateABTest } from '@/lib/firebase/ab-tests';
 import { calculateSignificance } from './significance';
 import { ABTestEngine } from './engine';
-import { createAutomationLog } from '@/lib/firebase/automation';
+import { createAutomationLog } from '@/lib/firebase/automation-server';
 import type {
   ABTest,
   ABTestVariant,
@@ -155,7 +150,7 @@ export class AutoOptimizer {
             severity: killSwitchActive ? 'paused' : 'executed',
           },
         },
-        timestamp: Timestamp.now(),
+        timestamp: Timestamp.now() as AnyTimestamp,
       });
     }
 
@@ -182,7 +177,7 @@ export class AutoOptimizer {
         significance,
       },
       executed: true,
-      timestamp: Timestamp.now(),
+      timestamp: Timestamp.now() as AnyTimestamp,
     };
   }
 
@@ -191,10 +186,12 @@ export class AutoOptimizer {
     testId: string,
     decision: OptimizationDecision
   ): Promise<void> {
-    const logRef = collection(
-      db, 'brands', brandId, 'ab_tests', testId, 'optimization_log'
-    );
-    await addDoc(logRef, decision);
+    const adminDb = getAdminFirestore();
+    const logRef = adminDb
+      .collection('brands').doc(brandId)
+      .collection('ab_tests').doc(testId)
+      .collection('optimization_log');
+    await logRef.add(decision);
   }
 
   private static async executeDecision(
@@ -234,11 +231,12 @@ export class AutoOptimizer {
     testId: string,
     maxEntries: number = 50
   ): Promise<OptimizationDecision[]> {
-    const logRef = collection(
-      db, 'brands', brandId, 'ab_tests', testId, 'optimization_log'
-    );
-    const q = query(logRef, orderBy('timestamp', 'desc'), firestoreLimit(maxEntries));
-    const snapshot = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const logRef = adminDb
+      .collection('brands').doc(brandId)
+      .collection('ab_tests').doc(testId)
+      .collection('optimization_log');
+    const snapshot = await logRef.orderBy('timestamp', 'desc').limit(maxEntries).get();
     return snapshot.docs.map((d) => ({
       id: d.id,
       ...d.data(),

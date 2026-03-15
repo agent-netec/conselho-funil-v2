@@ -68,23 +68,25 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   const startTime = Date.now();
   const cacheKey = await getCacheKey(text);
   
-  // 1. Check Cache (Firestore)
-  try {
-    const cacheRef = doc(db, 'query_cache', cacheKey);
-    const cacheSnap = await getDoc(cacheRef);
-    
-    if (cacheSnap.exists()) {
-      const data = cacheSnap.data();
-      const ttl = 30 * 24 * 60 * 60 * 1000; // 30 days
-      const isExpired = (Timestamp.now().toMillis() - data.createdAt.toMillis()) > ttl;
-      
-      if (!isExpired) {
-        console.log(`[Embeddings] Cache HIT for key: ${cacheKey.substring(0, 8)} (${Date.now() - startTime}ms)`);
-        return data.embedding;
+  // 1. Check Cache (Firestore) — skip if db unavailable (server-side)
+  if (db) {
+    try {
+      const cacheRef = doc(db, 'query_cache', cacheKey);
+      const cacheSnap = await getDoc(cacheRef);
+
+      if (cacheSnap.exists()) {
+        const data = cacheSnap.data();
+        const ttl = 30 * 24 * 60 * 60 * 1000; // 30 days
+        const isExpired = (Timestamp.now().toMillis() - data.createdAt.toMillis()) > ttl;
+
+        if (!isExpired) {
+          console.log(`[Embeddings] Cache HIT for key: ${cacheKey.substring(0, 8)} (${Date.now() - startTime}ms)`);
+          return data.embedding;
+        }
       }
+    } catch (cacheError) {
+      console.warn('[Embeddings] Cache read error:', cacheError);
     }
-  } catch (cacheError) {
-    console.warn('[Embeddings] Cache read error:', cacheError);
   }
 
   // 2. Cache MISS - Call API
@@ -117,13 +119,15 @@ export async function generateEmbedding(text: string): Promise<number[]> {
       throw new Error('Embedding API returned no values');
     }
     
-    // 3. Save to Cache (Async)
-    const cacheRef = doc(db, 'query_cache', cacheKey);
-    setDoc(cacheRef, {
-      query: text.substring(0, 500), // Store snippet for debugging
-      embedding,
-      createdAt: Timestamp.now(),
-    }).catch(err => console.error('[Embeddings] Cache write error:', err));
+    // 3. Save to Cache (Async) — skip if db unavailable (server-side)
+    if (db) {
+      const cacheRef = doc(db, 'query_cache', cacheKey);
+      setDoc(cacheRef, {
+        query: text.substring(0, 500), // Store snippet for debugging
+        embedding,
+        createdAt: Timestamp.now(),
+      }).catch(err => console.error('[Embeddings] Cache write error:', err));
+    }
 
     console.log(`[Embeddings] Cache MISS - API called (${Date.now() - startTime}ms)`);
     return embedding;
@@ -149,28 +153,30 @@ export async function generateEmbeddingsBatch(texts: string[]): Promise<number[]
   const ttl = 30 * 24 * 60 * 60 * 1000; // 30 days
   const nowMillis = Timestamp.now().toMillis();
 
-  // 1. Check Cache for each text
+  // 1. Check Cache for each text — skip if db unavailable (server-side)
   for (let i = 0; i < texts.length; i++) {
     const text = texts[i];
     const cacheKey = await getCacheKey(text);
-    
-    try {
-      const cacheRef = doc(db, 'query_cache', cacheKey);
-      const cacheSnap = await getDoc(cacheRef);
-      
-      if (cacheSnap.exists()) {
-        const data = cacheSnap.data();
-        const isExpired = (nowMillis - data.createdAt.toMillis()) > ttl;
-        
-        if (!isExpired) {
-          results[i] = data.embedding;
-          continue;
+
+    if (db) {
+      try {
+        const cacheRef = doc(db, 'query_cache', cacheKey);
+        const cacheSnap = await getDoc(cacheRef);
+
+        if (cacheSnap.exists()) {
+          const data = cacheSnap.data();
+          const isExpired = (nowMillis - data.createdAt.toMillis()) > ttl;
+
+          if (!isExpired) {
+            results[i] = data.embedding;
+            continue;
+          }
         }
+      } catch (err) {
+        // Ignore cache errors and treat as miss
       }
-    } catch (err) {
-      // Ignore cache errors and treat as miss
     }
-    
+
     missIndices.push(i);
     missTexts.push(text);
   }
@@ -238,12 +244,14 @@ export async function generateEmbeddingsBatch(texts: string[]): Promise<number[]
       results[originalIdx] = embedding;
       
       const cacheKey = await getCacheKey(text);
-      const cacheRef = doc(db, 'query_cache', cacheKey);
-      setDoc(cacheRef, {
-        query: text.substring(0, 500),
-        embedding,
-        createdAt: Timestamp.now(),
-      }).catch(err => console.error('[Embeddings] Cache write error:', err));
+      if (db) {
+        const cacheRef = doc(db, 'query_cache', cacheKey);
+        setDoc(cacheRef, {
+          query: text.substring(0, 500),
+          embedding,
+          createdAt: Timestamp.now(),
+        }).catch(err => console.error('[Embeddings] Cache write error:', err));
+      }
     }
 
     console.log(`[Embeddings] Batch completed (${Date.now() - startTime}ms)`);

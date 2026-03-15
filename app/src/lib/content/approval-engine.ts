@@ -11,17 +11,8 @@
  * @story S33-APR-01
  */
 
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  addDoc,
-  collection,
-  getDocs,
-  query,
-  Timestamp,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import type {
   CalendarItemStatus,
   CalendarItem,
@@ -92,11 +83,13 @@ export async function transitionStatus(
   comment?: string,
   userId?: string
 ): Promise<{ success: boolean; item?: CalendarItem; error?: string }> {
-  // 1. Ler status atual
-  const itemRef = doc(db, 'brands', brandId, 'content_calendar', itemId);
-  const snap = await getDoc(itemRef);
+  const adminDb = getAdminFirestore();
 
-  if (!snap.exists()) {
+  // 1. Ler status atual
+  const itemRef = adminDb.collection('brands').doc(brandId).collection('content_calendar').doc(itemId);
+  const snap = await itemRef.get();
+
+  if (!snap.exists) {
     return { success: false, error: 'Item not found' };
   }
 
@@ -122,19 +115,20 @@ export async function transitionStatus(
     return { success: false, error: 'Comment is required when rejecting' };
   }
 
-  const now = Timestamp.now();
+  const now = AdminTimestamp.now() as any;
 
   // 5a. Atualizar status do item
-  await updateDoc(itemRef, {
+  await itemRef.update({
     status: targetStatus,
     updatedAt: now,
   });
 
   // 5b. Registrar history log (append-only, imutavel)
-  const historyRef = collection(
-    db, 'brands', brandId, 'content_calendar', itemId, 'history'
-  );
-  await addDoc(historyRef, {
+  const historyRef = adminDb
+    .collection('brands').doc(brandId)
+    .collection('content_calendar').doc(itemId)
+    .collection('history');
+  await historyRef.add({
     fromStatus: currentStatus,
     toStatus: targetStatus,
     comment: comment || null,
@@ -162,11 +156,13 @@ export async function getApprovalHistory(
   brandId: string,
   itemId: string
 ): Promise<ApprovalHistoryEntry[]> {
-  const historyRef = collection(
-    db, 'brands', brandId, 'content_calendar', itemId, 'history'
-  );
+  const adminDb = getAdminFirestore();
+  const historyRef = adminDb
+    .collection('brands').doc(brandId)
+    .collection('content_calendar').doc(itemId)
+    .collection('history');
 
-  const snapshot = await getDocs(query(historyRef));
+  const snapshot = await historyRef.get();
   const entries = snapshot.docs.map((d) => d.data() as ApprovalHistoryEntry);
 
   // Sort in-memory por timestamp DESC
@@ -180,13 +176,13 @@ export async function getApprovalHistory(
 export async function countPendingReview(brandId: string): Promise<number> {
   const { getCalendarItems } = await import('@/lib/firebase/content-calendar');
   // Buscar items dos proximos 90 dias
-  const now = Timestamp.now();
+  const now = AdminTimestamp.now() as any;
   const futureMs = now.toMillis() + 90 * 24 * 60 * 60 * 1000;
   const pastMs = now.toMillis() - 30 * 24 * 60 * 60 * 1000;
   const items = await getCalendarItems(
     brandId,
-    Timestamp.fromMillis(pastMs),
-    Timestamp.fromMillis(futureMs)
+    AdminTimestamp.fromMillis(pastMs),
+    AdminTimestamp.fromMillis(futureMs)
   );
   return items.filter((item) => item.status === 'pending_review').length;
 }

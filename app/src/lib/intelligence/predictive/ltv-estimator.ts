@@ -1,13 +1,8 @@
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  Timestamp,
-  where,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyTimestamp = any;
 import type {
   LTVBatchResult,
   LTVEstimation,
@@ -38,14 +33,15 @@ export class LTVEstimator {
     const totalRevenue = cohorts.reduce((sum, c) => sum + c.totalRevenue, 0);
     const overallLTV = totalLeads > 0 ? totalRevenue / totalLeads : 0;
 
-    return { brandId, cohorts, overallLTV, calculatedAt: now };
+    return { brandId, cohorts, overallLTV, calculatedAt: now as AnyTimestamp };
   }
 
   private static async getMultipliers(brandId: string): Promise<LTVMultiplierConfig> {
     try {
-      const configRef = doc(db, 'brands', brandId, 'predictive_config', 'settings');
-      const configSnap = await getDoc(configRef);
-      if (!configSnap.exists()) return DEFAULT_MULTIPLIERS;
+      const adminDb = getAdminFirestore();
+      const configRef = adminDb.collection('brands').doc(brandId).collection('predictive_config').doc('settings');
+      const configSnap = await configRef.get();
+      if (!configSnap.exists) return DEFAULT_MULTIPLIERS;
 
       const cfg = configSnap.data() as PredictiveConfig;
       if (!cfg.ltvMultipliers) return DEFAULT_MULTIPLIERS;
@@ -61,8 +57,9 @@ export class LTVEstimator {
     multiplier: LTVMultiplierConfig['hot'],
     now: Timestamp
   ): Promise<LTVEstimation> {
-    const leadsRef = collection(db, 'brands', brandId, 'leads');
-    const leadsSnap = await getDocs(query(leadsRef, where('segment', '==', segment)));
+    const adminDb = getAdminFirestore();
+    const leadsRef = adminDb.collection('brands').doc(brandId).collection('leads');
+    const leadsSnap = await leadsRef.where('segment', '==', segment).get();
     const leadsInCohort = leadsSnap.size;
 
     let totalRevenue = 0;
@@ -71,10 +68,11 @@ export class LTVEstimator {
       for (let i = 0; i < leadIds.length; i += 10) {
         const group = leadIds.slice(i, i + 10);
         if (group.length === 0) continue;
-        const eventsRef = collection(db, 'brands', brandId, 'journey_events');
-        const purchaseSnap = await getDocs(
-          query(eventsRef, where('leadId', 'in', group), where('type', '==', 'purchase'))
-        );
+        const eventsRef = adminDb.collection('brands').doc(brandId).collection('journey_events');
+        const purchaseSnap = await eventsRef
+          .where('leadId', 'in', group)
+          .where('type', '==', 'purchase')
+          .get();
         for (const eventDoc of purchaseSnap.docs) {
           const eventData = eventDoc.data() as { revenue?: number };
           totalRevenue += eventData.revenue ?? 0;
@@ -104,7 +102,7 @@ export class LTVEstimator {
       projectedLTV,
       growthMultiplier: multiplier.m12,
       confidenceScore,
-      calculatedAt: now,
+      calculatedAt: now as AnyTimestamp,
     };
   }
 }

@@ -7,8 +7,8 @@
  * Cost: ~$12/month for 200 users
  */
 
-import { collection, doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 
 export interface DataForSEOKeywordData {
   keyword: string;
@@ -124,9 +124,10 @@ export async function getCachedKeywordData(
   keyword: string
 ): Promise<DataForSEOKeywordData | null> {
   try {
-    const cacheRef = doc(db, 'brands', brandId, 'seo_cache', keyword.toLowerCase().replace(/\s+/g, '_'));
-    const snap = await getDoc(cacheRef);
-    if (!snap.exists()) return null;
+    const adminDb = getAdminFirestore();
+    const cacheRef = adminDb.collection('brands').doc(brandId).collection('seo_cache').doc(keyword.toLowerCase().replace(/\s+/g, '_'));
+    const snap = await cacheRef.get();
+    if (!snap.exists) return null;
 
     const cached = snap.data() as CachedKeywordData;
     const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
@@ -147,8 +148,9 @@ export async function cacheKeywordData(
   data: DataForSEOKeywordData
 ): Promise<void> {
   try {
-    const cacheRef = doc(db, 'brands', brandId, 'seo_cache', keyword.toLowerCase().replace(/\s+/g, '_'));
-    await setDoc(cacheRef, {
+    const adminDb = getAdminFirestore();
+    const cacheRef = adminDb.collection('brands').doc(brandId).collection('seo_cache').doc(keyword.toLowerCase().replace(/\s+/g, '_'));
+    await cacheRef.set({
       data,
       cachedAt: Timestamp.now(),
     });

@@ -12,15 +12,8 @@
  * @module lib/automation/evaluate
  */
 
-import {
-  collection,
-  query,
-  orderBy,
-  limit,
-  getDocs,
-  Timestamp,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { AutomationEngine } from '@/lib/automation/engine';
 import {
   getAutomationRules,
@@ -29,7 +22,7 @@ import {
   getKillSwitchState,
   getMetricsHistory,
   saveMetricsSnapshot,
-} from '@/lib/firebase/automation';
+} from '@/lib/firebase/automation-server';
 import { fetchMetricsWithCache } from '@/lib/performance/fetch-and-cache';
 import type { AutomationLog, AutomationRule, CouncilDebateResult } from '@/types/automation';
 import type { PerformanceMetric } from '@/types/performance';
@@ -85,7 +78,7 @@ export async function evaluateBrandRules(brandId: string): Promise<EvaluationRes
   const today = new Date().toISOString().slice(0, 10);
   const alreadySaved = metricsHistory.some(s => s.date === today);
   if (!alreadySaved) {
-    saveMetricsSnapshot(brandId, { date: today, metrics, source: 'cron', timestamp: Timestamp.now() })
+    saveMetricsSnapshot(brandId, { date: today, metrics, source: 'cron', timestamp: AdminTimestamp.now() as any })
       .catch(err => console.error('[Evaluate] Failed to save metrics snapshot:', err));
   }
 
@@ -138,7 +131,7 @@ export async function evaluateBrandRules(brandId: string): Promise<EvaluationRes
       message: `Ação "${candidate.action}" sugerida. Aguardando aprovação.${councilSummary}`,
       ruleId: rule.id,
       isRead: false,
-      createdAt: Timestamp.now(),
+      createdAt: AdminTimestamp.now() as any,
     }).catch(err => console.error('[Evaluate] Notification failed:', err));
 
     result.logsCreated++;
@@ -331,8 +324,8 @@ function hasPendingDuplicate(
 }
 
 async function getRecentLogs(brandId: string, maxResults: number): Promise<AutomationLog[]> {
-  const logsRef = collection(db, 'brands', brandId, 'automation_logs');
-  const q = query(logsRef, orderBy('timestamp', 'desc'), limit(maxResults));
-  const snap = await getDocs(q);
+  const adminDb = getAdminFirestore();
+  const logsRef = adminDb.collection('brands').doc(brandId).collection('automation_logs');
+  const snap = await logsRef.orderBy('timestamp', 'desc').limit(maxResults).get();
   return snap.docs.map(d => ({ id: d.id, ...d.data() } as AutomationLog));
 }

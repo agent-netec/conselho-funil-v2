@@ -7,20 +7,11 @@
  * @arch DT-03 (subcollection pattern)
  */
 
-import {
-  collection,
-  doc,
-  addDoc,
-  getDoc,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  runTransaction,
-  Timestamp,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyTimestamp = any;
 import type { ABTest, ABTestVariant, ABTestStatus } from '@/types/ab-testing';
 
 /**
@@ -36,8 +27,9 @@ export async function createABTest(
     autoOptimize?: boolean;
   }
 ): Promise<ABTest> {
-  const colRef = collection(db, 'brands', brandId, 'ab_tests');
-  const now = Timestamp.now();
+  const adminDb = getAdminFirestore();
+  const colRef = adminDb.collection('brands').doc(brandId).collection('ab_tests');
+  const now = Timestamp.now() as AnyTimestamp;
   const variantCount = data.variants.length;
 
   const variants: ABTestVariant[] = data.variants.map((v, i) => ({
@@ -67,7 +59,7 @@ export async function createABTest(
     updatedAt: now,
   };
 
-  const docRef = await addDoc(colRef, testData);
+  const docRef = await colRef.add(testData);
   return { id: docRef.id, ...testData };
 }
 
@@ -78,9 +70,10 @@ export async function getABTests(
   brandId: string,
   status?: ABTestStatus
 ): Promise<ABTest[]> {
-  const colRef = collection(db, 'brands', brandId, 'ab_tests');
-  const q = status ? query(colRef, where('status', '==', status)) : query(colRef);
-  const snapshot = await getDocs(q);
+  const adminDb = getAdminFirestore();
+  const colRef = adminDb.collection('brands').doc(brandId).collection('ab_tests');
+  const q = status ? colRef.where('status', '==', status) : colRef;
+  const snapshot = await q.get();
   return snapshot.docs.map((d) => ({
     id: d.id,
     ...d.data(),
@@ -94,9 +87,10 @@ export async function getABTest(
   brandId: string,
   testId: string
 ): Promise<ABTest | null> {
-  const docRef = doc(db, 'brands', brandId, 'ab_tests', testId);
-  const snap = await getDoc(docRef);
-  if (!snap.exists()) return null;
+  const adminDb = getAdminFirestore();
+  const docRef = adminDb.collection('brands').doc(brandId).collection('ab_tests').doc(testId);
+  const snap = await docRef.get();
+  if (!snap.exists) return null;
   return { id: snap.id, ...snap.data() } as ABTest;
 }
 
@@ -108,10 +102,11 @@ export async function updateABTest(
   testId: string,
   data: Partial<Omit<ABTest, 'id' | 'brandId' | 'createdAt'>>
 ): Promise<void> {
-  const docRef = doc(db, 'brands', brandId, 'ab_tests', testId);
-  await updateDoc(docRef, {
+  const adminDb = getAdminFirestore();
+  const docRef = adminDb.collection('brands').doc(brandId).collection('ab_tests').doc(testId);
+  await docRef.update({
     ...data,
-    updatedAt: Timestamp.now(),
+    updatedAt: Timestamp.now() as AnyTimestamp,
   });
 }
 
@@ -122,8 +117,9 @@ export async function deleteABTest(
   brandId: string,
   testId: string
 ): Promise<void> {
-  const docRef = doc(db, 'brands', brandId, 'ab_tests', testId);
-  await deleteDoc(docRef);
+  const adminDb = getAdminFirestore();
+  const docRef = adminDb.collection('brands').doc(brandId).collection('ab_tests').doc(testId);
+  await docRef.delete();
 }
 
 /**
@@ -136,10 +132,11 @@ export async function updateVariantMetrics(
   variantId: string,
   delta: { impressions?: number; clicks?: number; conversions?: number; revenue?: number }
 ): Promise<void> {
-  const docRef = doc(db, 'brands', brandId, 'ab_tests', testId);
-  await runTransaction(db, async (transaction) => {
+  const adminDb = getAdminFirestore();
+  const docRef = adminDb.collection('brands').doc(brandId).collection('ab_tests').doc(testId);
+  await adminDb.runTransaction(async (transaction) => {
     const snap = await transaction.get(docRef);
-    if (!snap.exists()) throw new Error('AB Test not found');
+    if (!snap.exists) throw new Error('AB Test not found');
 
     const test = snap.data() as ABTest;
     const updatedVariants = test.variants.map((v) => {
@@ -162,7 +159,7 @@ export async function updateVariantMetrics(
       'metrics.totalImpressions': nextTotalImpressions,
       'metrics.totalConversions': nextTotalConversions,
       'metrics.totalRevenue': nextTotalRevenue,
-      updatedAt: Timestamp.now(),
+      updatedAt: Timestamp.now() as AnyTimestamp,
     });
   });
 }

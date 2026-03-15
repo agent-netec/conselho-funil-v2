@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
-import { getAutomationRules, getAutomationLogs, createInAppNotification } from '@/lib/firebase/automation';
+import { getAutomationRules, getAutomationLogs, createInAppNotification } from '@/lib/firebase/automation-server';
 import { Timestamp } from 'firebase-admin/firestore';
 
 /**

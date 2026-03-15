@@ -1,5 +1,5 @@
 /**
- * Content Templates & Recurrence — Firestore CRUD Helpers
+ * Content Templates & Recurrence — Firestore Admin SDK CRUD Helpers
  * Collection: brands/{brandId}/content_templates
  * Collection: brands/{brandId}/recurrence_rules
  * Collection: brands/{brandId}/content_pillars
@@ -7,18 +7,8 @@
  * Sprint M — M-4
  */
 
-import {
-  collection,
-  doc,
-  addDoc,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  Timestamp,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import type { ContentTemplate, RecurrenceRule, ContentPillar } from '@/types/content';
 
 // ═══════════════════════════════════════════
@@ -37,8 +27,9 @@ export async function createContentTemplate(
     createdBy?: string;
   }
 ): Promise<ContentTemplate> {
-  const colRef = collection(db, 'brands', brandId, 'content_templates');
-  const now = Timestamp.now();
+  const adminDb = getAdminFirestore();
+  const colRef = adminDb.collection('brands').doc(brandId).collection('content_templates');
+  const now = AdminTimestamp.now() as any;
 
   const templateData = {
     title: data.title,
@@ -53,19 +44,21 @@ export async function createContentTemplate(
     updatedAt: now,
   };
 
-  const docRef = await addDoc(colRef, templateData);
+  const docRef = await colRef.add(templateData);
   return { id: docRef.id, ...templateData } as ContentTemplate;
 }
 
 export async function getContentTemplates(brandId: string): Promise<ContentTemplate[]> {
-  const colRef = collection(db, 'brands', brandId, 'content_templates');
-  const snapshot = await getDocs(colRef);
+  const adminDb = getAdminFirestore();
+  const colRef = adminDb.collection('brands').doc(brandId).collection('content_templates');
+  const snapshot = await colRef.get();
   return snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as ContentTemplate[];
 }
 
 export async function deleteContentTemplate(brandId: string, templateId: string): Promise<void> {
-  const docRef = doc(db, 'brands', brandId, 'content_templates', templateId);
-  await deleteDoc(docRef);
+  const adminDb = getAdminFirestore();
+  const docRef = adminDb.collection('brands').doc(brandId).collection('content_templates').doc(templateId);
+  await docRef.delete();
 }
 
 // ═══════════════════════════════════════════
@@ -82,8 +75,9 @@ export async function createRecurrenceRule(
     pillar?: string;
   }
 ): Promise<RecurrenceRule> {
-  const colRef = collection(db, 'brands', brandId, 'recurrence_rules');
-  const now = Timestamp.now();
+  const adminDb = getAdminFirestore();
+  const colRef = adminDb.collection('brands').doc(brandId).collection('recurrence_rules');
+  const now = AdminTimestamp.now() as any;
 
   const ruleData = {
     templateId: data.templateId,
@@ -97,14 +91,14 @@ export async function createRecurrenceRule(
     updatedAt: now,
   };
 
-  const docRef = await addDoc(colRef, ruleData);
+  const docRef = await colRef.add(ruleData);
   return { id: docRef.id, ...ruleData } as RecurrenceRule;
 }
 
 export async function getActiveRecurrenceRules(brandId: string): Promise<RecurrenceRule[]> {
-  const colRef = collection(db, 'brands', brandId, 'recurrence_rules');
-  const q = query(colRef, where('active', '==', true));
-  const snapshot = await getDocs(q);
+  const adminDb = getAdminFirestore();
+  const colRef = adminDb.collection('brands').doc(brandId).collection('recurrence_rules');
+  const snapshot = await colRef.where('active', '==', true).get();
   return snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as RecurrenceRule[];
 }
 
@@ -113,13 +107,15 @@ export async function updateRecurrenceRule(
   ruleId: string,
   data: Partial<Pick<RecurrenceRule, 'active' | 'frequency' | 'dayOfWeek' | 'dayOfMonth' | 'lastCreatedAt'>>
 ): Promise<void> {
-  const docRef = doc(db, 'brands', brandId, 'recurrence_rules', ruleId);
-  await updateDoc(docRef, { ...data, updatedAt: Timestamp.now() });
+  const adminDb = getAdminFirestore();
+  const docRef = adminDb.collection('brands').doc(brandId).collection('recurrence_rules').doc(ruleId);
+  await docRef.update({ ...data, updatedAt: AdminTimestamp.now() as any });
 }
 
 export async function deleteRecurrenceRule(brandId: string, ruleId: string): Promise<void> {
-  const docRef = doc(db, 'brands', brandId, 'recurrence_rules', ruleId);
-  await deleteDoc(docRef);
+  const adminDb = getAdminFirestore();
+  const docRef = adminDb.collection('brands').doc(brandId).collection('recurrence_rules').doc(ruleId);
+  await docRef.delete();
 }
 
 // ═══════════════════════════════════════════
@@ -132,12 +128,13 @@ export async function saveContentPillars(
   brandId: string,
   pillars: { name: string; description: string; dayOfWeek?: number }[]
 ): Promise<ContentPillar[]> {
-  const colRef = collection(db, 'brands', brandId, 'content_pillars');
+  const adminDb = getAdminFirestore();
+  const colRef = adminDb.collection('brands').doc(brandId).collection('content_pillars');
 
   // Delete existing pillars first (replace strategy)
-  const existing = await getDocs(colRef);
+  const existing = await colRef.get();
   for (const d of existing.docs) {
-    await deleteDoc(d.ref);
+    await d.ref.delete();
   }
 
   const created: ContentPillar[] = [];
@@ -150,7 +147,7 @@ export async function saveContentPillars(
       dayOfWeek: p.dayOfWeek,
       brandId,
     };
-    const ref = await addDoc(colRef, data);
+    const ref = await colRef.add(data);
     created.push({ id: ref.id, ...data });
   }
 
@@ -158,7 +155,8 @@ export async function saveContentPillars(
 }
 
 export async function getContentPillars(brandId: string): Promise<ContentPillar[]> {
-  const colRef = collection(db, 'brands', brandId, 'content_pillars');
-  const snapshot = await getDocs(colRef);
+  const adminDb = getAdminFirestore();
+  const colRef = adminDb.collection('brands').doc(brandId).collection('content_pillars');
+  const snapshot = await colRef.get();
   return snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as ContentPillar[];
 }

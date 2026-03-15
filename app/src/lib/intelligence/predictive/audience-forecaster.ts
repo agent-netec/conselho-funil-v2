@@ -1,5 +1,10 @@
-import { collection, getDocs, query, Timestamp, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
+
+// Admin SDK Timestamp is structurally compatible with Client SDK Timestamp
+// but TS sees them as different types. Cast where needed for type interfaces.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyTimestamp = any;
 import { generateWithGemini } from '@/lib/ai/gemini';
 import { buildForecastPrompt, FORECAST_SYSTEM_PROMPT } from '@/lib/ai/prompts/predictive-forecast';
 import type { AudienceForecast } from '@/types/predictive';
@@ -20,18 +25,19 @@ export class AudienceForecaster {
       projections,
       migrationRates,
       trendsNarrative,
-      calculatedAt: now,
+      calculatedAt: now as AnyTimestamp,
     };
   }
 
   private static async getCurrentDistribution(
     brandId: string
   ): Promise<{ hot: number; warm: number; cold: number }> {
-    const leadsRef = collection(db, 'brands', brandId, 'leads');
+    const adminDb = getAdminFirestore();
+    const leadsRef = adminDb.collection('brands').doc(brandId).collection('leads');
     const [hot, warm, cold] = await Promise.all([
-      getDocs(query(leadsRef, where('segment', '==', 'hot'))),
-      getDocs(query(leadsRef, where('segment', '==', 'warm'))),
-      getDocs(query(leadsRef, where('segment', '==', 'cold'))),
+      leadsRef.where('segment', '==', 'hot').get(),
+      leadsRef.where('segment', '==', 'warm').get(),
+      leadsRef.where('segment', '==', 'cold').get(),
     ]);
     return { hot: hot.size, warm: warm.size, cold: cold.size };
   }
@@ -40,10 +46,11 @@ export class AudienceForecaster {
     brandId: string,
     currentDistribution: { hot: number; warm: number; cold: number }
   ): Promise<AudienceForecast['migrationRates']> {
-    const eventsRef = collection(db, 'brands', brandId, 'journey_events');
-    const recentEvents = await getDocs(
-      query(eventsRef, where('timestamp', '>=', Timestamp.fromMillis(Timestamp.now().toMillis() - 30 * 86400000)))
-    );
+    const adminDb = getAdminFirestore();
+    const eventsRef = adminDb.collection('brands').doc(brandId).collection('journey_events');
+    const recentEvents = await eventsRef
+      .where('timestamp', '>=', Timestamp.fromMillis(Timestamp.now().toMillis() - 30 * 86400000))
+      .get();
 
     const activityFactor = Math.min(recentEvents.size / Math.max(1, currentDistribution.hot + currentDistribution.warm), 1);
     const hotToWarm = Math.max(0.04, 0.12 - activityFactor * 0.05);

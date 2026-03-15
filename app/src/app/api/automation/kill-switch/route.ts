@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
 import { KillSwitchRequest } from '@/types/automation';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { createAutomationLog, createInAppNotification, setKillSwitchState } from '@/lib/firebase/automation';
+import { createAutomationLog, createInAppNotification, setKillSwitchState } from '@/lib/firebase/automation-server';
 import { sendSlackNotification, isValidSlackWebhookUrl } from '@/lib/notifications/slack';
 import { requireBrandAccess } from '@/lib/auth/brand-guard'; // DT-01 FIX: path CORRETO
 import { Timestamp } from 'firebase-admin/firestore';

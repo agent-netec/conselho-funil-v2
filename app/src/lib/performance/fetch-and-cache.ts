@@ -8,8 +8,8 @@
  * @module lib/performance/fetch-and-cache
  */
 
-import { Timestamp, doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { MetaMetricsAdapter } from '@/lib/performance/adapters/meta-adapter';
 import { GoogleMetricsAdapter } from '@/lib/performance/adapters/google-adapter';
 import { ensureFreshToken, tokenToCredentials } from '@/lib/integrations/ads/token-refresh';
@@ -50,20 +50,21 @@ export async function fetchMetricsWithCache(
   brandId: string,
   options?: { forceFresh?: boolean; period?: 'hourly' | 'daily' | 'weekly' }
 ): Promise<CacheResult | null> {
+  const adminDb = getAdminFirestore();
   const today = new Date().toISOString().split('T')[0];
   const period = options?.period || 'daily';
-  const cacheRef = doc(db, 'brands', brandId, 'performance_cache', today);
-  const cacheSnap = await getDoc(cacheRef);
+  const cacheRef = adminDb.collection('brands').doc(brandId).collection('performance_cache').doc(today);
+  const cacheSnap = await cacheRef.get();
 
   // 1. Check cache freshness
-  if (!options?.forceFresh && cacheSnap.exists()) {
+  if (!options?.forceFresh && cacheSnap.exists) {
     const cacheData = cacheSnap.data();
     const updatedAt = cacheData?.updatedAt?.toDate?.() || new Date(0);
     const cacheAge = Date.now() - updatedAt.getTime();
 
     if (cacheAge < CACHE_TTL_MS) {
       console.log(`[FetchAndCache] Cache hit for brand=${brandId} (age=${Math.round(cacheAge / 1000)}s)`);
-      return { metrics: cacheData.metrics, cached: true };
+      return { metrics: cacheData!.metrics, cached: true };
     }
   }
 
@@ -82,7 +83,7 @@ export async function fetchMetricsWithCache(
     console.error(`[FetchAndCache] Real fetch failed for brand=${brandId}:`, errMsg);
 
     // 3. Fallback to stale cache
-    if (cacheSnap.exists()) {
+    if (cacheSnap.exists) {
       const cacheData = cacheSnap.data();
       console.log(`[FetchAndCache] Returning stale cache for brand=${brandId}`);
       return {
@@ -94,10 +95,10 @@ export async function fetchMetricsWithCache(
 
     // 4. Try yesterday's cache as last resort
     const yesterday = new Date(Date.now() - 86400_000).toISOString().split('T')[0];
-    const yesterdayCacheRef = doc(db, 'brands', brandId, 'performance_cache', yesterday);
-    const yesterdaySnap = await getDoc(yesterdayCacheRef);
+    const yesterdayCacheRef = adminDb.collection('brands').doc(brandId).collection('performance_cache').doc(yesterday);
+    const yesterdaySnap = await yesterdayCacheRef.get();
 
-    if (yesterdaySnap.exists()) {
+    if (yesterdaySnap.exists) {
       const cacheData = yesterdaySnap.data();
       console.log(`[FetchAndCache] Returning yesterday cache for brand=${brandId}`);
       return {
@@ -228,7 +229,7 @@ export async function fetchRealMetrics(
         id: `metric_${brandId}_${source}_${raw.externalId}`,
         brandId,
         source,
-        timestamp: now,
+        timestamp: now as any, // Admin Timestamp compatible with client Timestamp at runtime
         period,
         data: normalized,
       });
@@ -251,7 +252,7 @@ export async function fetchRealMetrics(
     id: `metric_${brandId}_aggregated_${Date.now()}`,
     brandId,
     source: 'aggregated',
-    timestamp: now,
+    timestamp: now as any, // Admin Timestamp compatible with client Timestamp at runtime
     period,
     data: aggregated,
   });
@@ -259,8 +260,11 @@ export async function fetchRealMetrics(
   return { metrics, diagnostic };
 }
 
-async function persistCache(cacheRef: ReturnType<typeof doc>, metrics: PerformanceMetric[]): Promise<void> {
-  await setDoc(cacheRef, {
+async function persistCache(
+  cacheRef: FirebaseFirestore.DocumentReference,
+  metrics: PerformanceMetric[]
+): Promise<void> {
+  await cacheRef.set({
     metrics,
     updatedAt: Timestamp.now(),
   });

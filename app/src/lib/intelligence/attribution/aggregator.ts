@@ -1,14 +1,5 @@
-import { db } from '../config';
-import { 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  Timestamp,
-  doc,
-  setDoc,
-  orderBy
-} from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { AttributionBridgeService } from './bridge';
 import { PerformanceMetricDoc, AdPlatform, UnifiedAdsMetrics } from '../../../types/performance';
 import { CrossChannelMetricDoc } from '../../../types/cross-channel';
@@ -30,19 +21,18 @@ export class CrossChannelAggregator {
    * Executa a consolidação para uma marca em um período
    */
   public static async aggregate(brandId: string, startDate: Date, endDate: Date): Promise<CrossChannelMetricDoc> {
+    const adminDb = getAdminFirestore();
     const startTs = Timestamp.fromDate(startDate);
     const endTs = Timestamp.fromDate(endDate);
 
     // 1. Buscar métricas brutas de todas as plataformas no período
     // Collection: brands/{brandId}/performance_metrics
-    const metricsRef = collection(db, 'brands', brandId, this.METRICS_COLLECTION);
-    const q = query(
-      metricsRef,
-      where('timestamp', '>=', startTs),
-      where('timestamp', '<=', endTs)
-    );
+    const metricsRef = adminDb.collection('brands').doc(brandId).collection(this.METRICS_COLLECTION);
+    const metricSnaps = await metricsRef
+      .where('timestamp', '>=', startTs)
+      .where('timestamp', '<=', endTs)
+      .get();
 
-    const metricSnaps = await getDocs(q);
     const rawMetrics = metricSnaps.docs.map(d => adaptToPerformanceMetricDoc(d.data() as Record<string, unknown>));
 
     // 2. Agrupar métricas por plataforma
@@ -106,18 +96,18 @@ export class CrossChannelAggregator {
       id: `ccm_${brandId}_${startDate.toISOString().split('T')[0]}`,
       brandId,
       period: {
-        start: startTs,
-        end: endTs,
+        start: startTs as any,
+        end: endTs as any,
         type: 'daily'
       },
       totals: globalTotals,
       channels,
-      updatedAt: Timestamp.now()
+      updatedAt: Timestamp.now() as any
     };
 
     // 6. Persistir na subcoleção da marca
-    const crossChannelRef = doc(db, 'brands', brandId, this.CROSS_CHANNEL_COLLECTION, result.id);
-    await setDoc(crossChannelRef, result);
+    const crossChannelRef = adminDb.collection('brands').doc(brandId).collection(this.CROSS_CHANNEL_COLLECTION).doc(result.id);
+    await crossChannelRef.set(result);
 
     return result;
   }

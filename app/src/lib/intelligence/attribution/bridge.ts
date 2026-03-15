@@ -1,17 +1,5 @@
-import { db } from '../config';
-import { 
-  collection, 
-  doc, 
-  getDoc, 
-  setDoc, 
-  updateDoc, 
-  query, 
-  where, 
-  getDocs, 
-  Timestamp,
-  orderBy,
-  limit
-} from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { AttributionBridge, AttributionPoint, AttributionResult } from '../../../types/attribution';
 import { JourneyEvent, JourneyTransaction } from '../../../types/journey';
 import { AttributionEngine } from './engine';
@@ -28,10 +16,11 @@ export class AttributionBridgeService {
    * Obtém ou cria uma ponte de atribuição para um lead
    */
   public static async getBridge(leadId: string): Promise<AttributionBridge | null> {
-    const bridgeRef = doc(db, this.COLLECTION, leadId);
-    const bridgeSnap = await getDoc(bridgeRef);
+    const adminDb = getAdminFirestore();
+    const bridgeRef = adminDb.collection(this.COLLECTION).doc(leadId);
+    const bridgeSnap = await bridgeRef.get();
 
-    if (bridgeSnap.exists()) {
+    if (bridgeSnap.exists) {
       return bridgeSnap.data() as AttributionBridge;
     }
 
@@ -44,17 +33,18 @@ export class AttributionBridgeService {
    * @param events Lista de eventos recentes para processar
    */
   public static async syncEvents(leadId: string, events: JourneyEvent[]): Promise<void> {
-    const bridgeRef = doc(db, this.COLLECTION, leadId);
-    const bridgeSnap = await getDoc(bridgeRef);
-    
+    const adminDb = getAdminFirestore();
+    const bridgeRef = adminDb.collection(this.COLLECTION).doc(leadId);
+    const bridgeSnap = await bridgeRef.get();
+
     let bridge: AttributionBridge;
 
-    if (!bridgeSnap.exists()) {
+    if (!bridgeSnap.exists) {
       bridge = {
         leadId,
         externalIds: {},
         touchpoints: [],
-        lastSyncAt: Timestamp.now()
+        lastSyncAt: Timestamp.now() as any
       };
     } else {
       bridge = bridgeSnap.data() as AttributionBridge;
@@ -63,7 +53,7 @@ export class AttributionBridgeService {
     // Extrair novos IDs externos e touchpoints
     events.forEach(event => {
       const { utmSource, utmMedium, utmCampaign } = event.session;
-      
+
       // Mapeamento de IDs de Clique (Click IDs)
       const metadata = event.payload.metadata || {};
       const fbclid = metadata.fbclid || metadata.fbc;
@@ -88,8 +78,8 @@ export class AttributionBridgeService {
         };
 
         // Evitar duplicatas simples por timestamp e source
-        const isDuplicate = bridge.touchpoints.some(p => 
-          p.timestamp.toMillis() === point.timestamp.toMillis() && 
+        const isDuplicate = bridge.touchpoints.some(p =>
+          p.timestamp.toMillis() === point.timestamp.toMillis() &&
           p.source === point.source
         );
 
@@ -101,21 +91,20 @@ export class AttributionBridgeService {
 
     // Ordenar touchpoints por data
     bridge.touchpoints.sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
-    bridge.lastSyncAt = Timestamp.now();
+    bridge.lastSyncAt = Timestamp.now() as any;
 
-    await setDoc(bridgeRef, bridge);
+    await bridgeRef.set(bridge);
   }
 
   /**
    * Resolve um leadId a partir de um ID externo (ex: gclid)
    */
   public static async findLeadByExternalId(platform: 'meta' | 'google' | 'tiktok', externalId: string): Promise<string | null> {
-    const q = query(
-      collection(db, this.COLLECTION),
-      where(`externalIds.${platform}`, '==', externalId)
-    );
+    const adminDb = getAdminFirestore();
+    const querySnapshot = await adminDb.collection(this.COLLECTION)
+      .where(`externalIds.${platform}`, '==', externalId)
+      .get();
 
-    const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
       return querySnapshot.docs[0].id;
     }
@@ -127,7 +116,7 @@ export class AttributionBridgeService {
    * Atribui uma transação usando os touchpoints da ponte
    */
   public static async attributeTransaction(
-    transaction: JourneyTransaction, 
+    transaction: JourneyTransaction,
     model: 'linear' | 'time_decay' | 'u_shape' = 'u_shape'
   ): Promise<AttributionResult | null> {
     const bridge = await this.getBridge(transaction.leadId);
@@ -165,20 +154,20 @@ export class AttributionBridgeService {
    * Job de Integração: Busca transações recentes e processa a atribuição
    */
   public static async processRecentTransactions(brandId: string, limitCount: number = 50): Promise<void> {
-    const transactionsRef = collection(db, 'brands', brandId, 'transactions');
-    const q = query(transactionsRef, orderBy('createdAt', 'desc'), limit(limitCount));
-    const snap = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const transactionsRef = adminDb.collection('brands').doc(brandId).collection('transactions');
+    const snap = await transactionsRef.orderBy('createdAt', 'desc').limit(limitCount).get();
 
     for (const docSnap of snap.docs) {
       const transaction = docSnap.data() as JourneyTransaction;
       const result = await this.attributeTransaction(transaction);
-      
+
       if (result) {
         // Salvar resultado da atribuição para análise de MMM e Overlap
-        const resultRef = doc(db, 'brands', brandId, 'attribution_results', transaction.id);
-        await setDoc(resultRef, {
+        const resultRef = adminDb.collection('brands').doc(brandId).collection('attribution_results').doc(transaction.id);
+        await resultRef.set({
           ...result,
-          processedAt: Timestamp.now()
+          processedAt: Timestamp.now() as any
         });
       }
     }

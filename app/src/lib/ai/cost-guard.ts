@@ -6,8 +6,8 @@
 
 import { estimateTokens as _estimateTokens } from '@/lib/utils/ai-helpers';
 
-import { db } from '@/lib/firebase/config';
-import { collection, addDoc, Timestamp, doc, getDoc, updateDoc, increment } from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp, FieldValue } from 'firebase-admin/firestore';
 import { CONFIG } from '@/lib/config';
 
 // Preços aproximados por 1M tokens (USD) - Gemini 2.0 Flash
@@ -43,16 +43,16 @@ export class AICostGuard {
    */
   static async checkBudget(params: AIUsageParams): Promise<boolean> {
     if (!CONFIG.ENABLE_CREDIT_LIMIT) return true;
+    const adminDb = getAdminFirestore();
 
     if (params.brandId) {
-      const brandRef = doc(db, 'brands', params.brandId);
-      const brandSnap = await getDoc(brandRef);
-      
-      if (brandSnap.exists()) {
-        const data = brandSnap.data();
+      const brandSnap = await adminDb.collection('brands').doc(params.brandId).get();
+
+      if (brandSnap.exists) {
+        const data = brandSnap.data()!;
         const limit = data.usageLimit?.dailyLimit || 5.0; // Default $5/dia
         const current = data.usageLimit?.currentDailyUsage || 0;
-        
+
         if (current >= limit) {
           console.warn(`[AICostGuard] Brand ${params.brandId} exceeded daily budget limit.`);
           return false;
@@ -61,10 +61,9 @@ export class AICostGuard {
     }
 
     // Check user credits (legacy/global)
-    const userRef = doc(db, 'users', params.userId);
-    const userSnap = await getDoc(userRef);
-    if (userSnap.exists()) {
-      const userData = userSnap.data();
+    const userSnap = await adminDb.collection('users').doc(params.userId).get();
+    if (userSnap.exists) {
+      const userData = userSnap.data()!;
       if ((userData.credits || 0) <= 0) {
         return false;
       }
@@ -82,7 +81,8 @@ export class AICostGuard {
     provider: 'google' | 'jina' | 'firecrawl' = 'google'
   ) {
     try {
-      const costEstimate = provider === 'google' 
+      const adminDb = getAdminFirestore();
+      const costEstimate = provider === 'google'
         ? (usage.inputTokens * GEMINI_COSTS.input) + (usage.outputTokens * GEMINI_COSTS.output)
         : provider === 'firecrawl'
           ? FIRECRAWL_COST_PER_REQ
@@ -100,22 +100,20 @@ export class AICostGuard {
       };
       if (params.brandId) logData.brandId = params.brandId;
 
-      await addDoc(collection(db, 'usage_logs'), logData);
+      await adminDb.collection('usage_logs').add(logData);
 
       // 2. Atualizar acumuladores na Brand (se houver)
       if (params.brandId) {
-        const brandRef = doc(db, 'brands', params.brandId);
-        await updateDoc(brandRef, {
-          'usageLimit.currentDailyUsage': increment(costEstimate),
+        await adminDb.collection('brands').doc(params.brandId).update({
+          'usageLimit.currentDailyUsage': FieldValue.increment(costEstimate),
           'usageLimit.lastUsage': Timestamp.now(),
         });
       }
 
       // 3. Atualizar créditos do usuário (decremento simples por chamada por enquanto)
-      const userRef = doc(db, 'users', params.userId);
-      await updateDoc(userRef, {
-        usage: increment(1),
-        credits: increment(-1),
+      await adminDb.collection('users').doc(params.userId).update({
+        usage: FieldValue.increment(1),
+        credits: FieldValue.increment(-1),
       });
 
       console.log(`[AICostGuard] Logged usage for ${params.feature}: $${costEstimate.toFixed(6)}`);

@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AutoOptimizer } from '@/lib/intelligence/ab-testing/auto-optimizer';
+import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 import type { ABTest, ABTestVariant, OptimizationDecision } from '@/types/ab-testing';
 
 interface ABTestResultsProps {
@@ -52,7 +53,10 @@ export function ABTestResults({
     const loadLog = async () => {
       setLogLoading(true);
       try {
-        const data = await AutoOptimizer.getOptimizationLog(test.brandId, test.id);
+        const logRef = collection(db, 'brands', test.brandId, 'ab_tests', test.id, 'optimization_log');
+        const q = query(logRef, orderBy('timestamp', 'desc'), limit(50));
+        const snapshot = await getDocs(q);
+        const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as OptimizationDecision[];
         setOptimizationLog(data);
       } catch (error) {
         console.error('Erro ao carregar optimization log:', error);

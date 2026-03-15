@@ -17,8 +17,7 @@
  * @story S31-RT-02
  */
 
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { getPersonalizationRules } from '@/lib/firebase/personalization';
 import type { DynamicContentRule } from '@/types/personalization';
 
@@ -37,16 +36,18 @@ export class PersonalizationResolver {
    * @returns ResolveResult com segment, variations matched e flag fallback
    */
   static async resolve(brandId: string, leadId: string): Promise<ResolveResult> {
-    // 1. Buscar estado do lead
-    const leadRef = doc(db, 'brands', brandId, 'leads', leadId);
-    const leadSnap = await getDoc(leadRef);
+    const adminDb = getAdminFirestore();
 
-    if (!leadSnap.exists()) {
+    // 1. Buscar estado do lead
+    const leadRef = adminDb.collection('brands').doc(brandId).collection('leads').doc(leadId);
+    const leadSnap = await leadRef.get();
+
+    if (!leadSnap.exists) {
       return { segment: 'unknown', variations: [], fallback: true };
     }
 
     const lead = leadSnap.data();
-    const leadSegment = (lead.segment as string) || 'cold';
+    const leadSegment = (lead?.segment as string) || 'cold';
 
     // 2. Buscar rules ativas
     const allRules = await getPersonalizationRules(brandId);
@@ -61,14 +62,14 @@ export class PersonalizationResolver {
     const targetScanIds = [...new Set(activeRules.map(r => r.targetPersonaId))];
     const scanSnaps = await Promise.all(
       targetScanIds.map(id =>
-        getDoc(doc(db, 'brands', brandId, 'audience_scans', id))
+        adminDb.collection('brands').doc(brandId).collection('audience_scans').doc(id).get()
       )
     );
 
     // 4. Build map: scanId → segment
     const scanSegmentMap = new Map<string, string>();
     for (const snap of scanSnaps) {
-      if (snap.exists()) {
+      if (snap.exists) {
         const data = snap.data();
         const segment = data?.propensity?.segment as string;
         if (segment) {

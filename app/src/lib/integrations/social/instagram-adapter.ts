@@ -8,8 +8,8 @@
  * @story S32-IG-01
  */
 
-import { doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { decrypt, encrypt } from '@/lib/utils/encryption';
 import type { SocialInteraction } from '@/types/social-inbox';
 
@@ -28,13 +28,14 @@ interface InstagramCredentials {
  */
 async function getCredentials(brandId: string): Promise<InstagramCredentials | null> {
   try {
-    const secretsRef = doc(db, 'brands', brandId, 'secrets', 'instagram');
-    const snap = await getDoc(secretsRef);
-    if (!snap.exists()) {
+    const adminDb = getAdminFirestore();
+    const secretsRef = adminDb.collection('brands').doc(brandId).collection('secrets').doc('instagram');
+    const snap = await secretsRef.get();
+    if (!snap.exists) {
       console.warn(`[InstagramAdapter] No credentials found for brand ${brandId}`);
       return null;
     }
-    const data = snap.data();
+    const data = snap.data()!;
     return {
       accessToken: decrypt(data.accessToken),
       refreshToken: data.refreshToken ? decrypt(data.refreshToken) : undefined,
@@ -72,8 +73,9 @@ async function refreshAccessToken(
     const expiresIn = (data.expires_in as number) || 5184000; // default 60 dias
 
     // Persistir novo token no vault
-    const secretsRef = doc(db, 'brands', brandId, 'secrets', 'instagram');
-    await updateDoc(secretsRef, {
+    const adminDb = getAdminFirestore();
+    const secretsRef = adminDb.collection('brands').doc(brandId).collection('secrets').doc('instagram');
+    await secretsRef.update({
       accessToken: encrypt(newToken),
       tokenExpiresAt: Date.now() + expiresIn * 1000,
       updatedAt: Timestamp.now(),

@@ -21,14 +21,7 @@
 import { GeneratedAd, GENERATION_LIMITS } from '@/types/creative-ads';
 import { VoiceProfile } from '@/types/intelligence';
 import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
-import { db } from '@/lib/firebase/config';
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  limit as firestoreLimit,
-} from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 
 // ═══════════════════════════════════════════════════════
 // TIPOS
@@ -372,13 +365,12 @@ async function fetchVoiceProfile(
   brandId: string
 ): Promise<VoiceProfile | null> {
   try {
-    const voiceRef = collection(db, 'brands', brandId, 'voice_profiles');
-    const q = query(
-      voiceRef,
-      where('isDefault', '==', true),
-      firestoreLimit(1)
-    );
-    const snapshot = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const voiceRef = adminDb.collection('brands').doc(brandId).collection('voice_profiles');
+    const snapshot = await voiceRef
+      .where('isDefault', '==', true)
+      .limit(1)
+      .get();
 
     if (snapshot.empty) {
       return null;

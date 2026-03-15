@@ -6,8 +6,8 @@
  * Uses: ensureFreshToken, fetchWithRetry, META_API constants.
  */
 
-import { doc, setDoc, collection, addDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { ensureFreshToken } from './token-refresh';
 import { fetchWithRetry, sanitizeForLog } from './api-helpers';
 import { META_API } from './constants';
@@ -202,15 +202,16 @@ async function writeLeadToFirestore(
   lead: MetaLead,
   form: MetaLeadForm
 ): Promise<void> {
+  const adminDb = getAdminFirestore();
   const createdAt = Timestamp.fromDate(new Date(lead.created_time));
   const fieldMap: Record<string, string> = {};
   for (const field of lead.field_data || []) {
     fieldMap[field.name] = field.values?.[0] || '';
   }
 
-  const leadRef = doc(db, 'brands', brandId, 'leads', lead.id);
+  const leadRef = adminDb.collection('brands').doc(brandId).collection('leads').doc(lead.id);
 
-  await setDoc(leadRef, {
+  await leadRef.set({
     brandId,
     currentAwareness: 'PROBLEM_AWARE',
     lastInteraction: {
@@ -233,8 +234,8 @@ async function writeLeadToFirestore(
   }, { merge: true });
 
   // Create form submission event
-  const eventsRef = collection(db, 'brands', brandId, 'leads', lead.id, 'events');
-  await addDoc(eventsRef, {
+  const eventsRef = adminDb.collection('brands').doc(brandId).collection('leads').doc(lead.id).collection('events');
+  await eventsRef.add({
     type: 'ad_click',
     platform: 'meta',
     timestamp: createdAt,

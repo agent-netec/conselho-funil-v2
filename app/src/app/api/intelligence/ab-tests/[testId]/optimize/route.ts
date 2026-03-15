@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { AutoOptimizer } from '@/lib/intelligence/ab-testing/auto-optimizer';
-import { getKillSwitchState } from '@/lib/firebase/automation';
+import { getKillSwitchState } from '@/lib/firebase/automation-server';
 import { getABTest } from '@/lib/firebase/ab-tests';
 import { OptimizeRequestSchema } from '@/types/ab-testing';
 

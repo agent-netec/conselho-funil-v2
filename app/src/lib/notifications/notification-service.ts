@@ -1,5 +1,5 @@
-import { collection, addDoc, query, where, getDocs, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { Timestamp } from 'firebase-admin/firestore';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 
 export type NotificationType =
   | 'funnel_review'
@@ -31,8 +31,9 @@ export async function createNotification(payload: NotificationPayload): Promise<
       return null;
     }
 
-    const notificationsRef = collection(db, 'brands', payload.brandId, 'notifications');
-    const docRef = await addDoc(notificationsRef, {
+    const adminDb = getAdminFirestore();
+    const notificationsRef = adminDb.collection('brands').doc(payload.brandId).collection('notifications');
+    const docRef = await notificationsRef.add({
       ...payload,
       read: false,
       createdAt: Timestamp.now(),
@@ -51,11 +52,11 @@ export async function createNotification(payload: NotificationPayload): Promise<
  */
 async function checkNotificationPreference(userId: string, type: NotificationType): Promise<boolean> {
   try {
-    const { doc: docFn, getDoc } = await import('firebase/firestore');
-    const prefsRef = docFn(db, 'users', userId);
-    const snap = await getDoc(prefsRef);
+    const adminDb = getAdminFirestore();
+    const prefsRef = adminDb.collection('users').doc(userId);
+    const snap = await prefsRef.get();
 
-    if (!snap.exists()) return true;
+    if (!snap.exists) return true;
 
     const prefs = snap.data()?.preferences?.notifications;
     if (!prefs) return true;
@@ -80,9 +81,9 @@ async function checkNotificationPreference(userId: string, type: NotificationTyp
  */
 export async function getUnreadCount(brandId: string): Promise<number> {
   try {
-    const notificationsRef = collection(db, 'brands', brandId, 'notifications');
-    const q = query(notificationsRef, where('read', '==', false));
-    const snap = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const notificationsRef = adminDb.collection('brands').doc(brandId).collection('notifications');
+    const snap = await notificationsRef.where('read', '==', false).get();
     return snap.size;
   } catch {
     return 0;

@@ -7,8 +7,7 @@
  * @story S32-LI-01
  */
 
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { decrypt } from '@/lib/utils/encryption';
 import type { SocialInteraction } from '@/types/social-inbox';
 
@@ -25,13 +24,14 @@ interface LinkedInCredentials {
  */
 async function getCredentials(brandId: string): Promise<LinkedInCredentials | null> {
   try {
-    const secretsRef = doc(db, 'brands', brandId, 'secrets', 'linkedin');
-    const snap = await getDoc(secretsRef);
-    if (!snap.exists()) {
+    const adminDb = getAdminFirestore();
+    const secretsRef = adminDb.collection('brands').doc(brandId).collection('secrets').doc('linkedin');
+    const snap = await secretsRef.get();
+    if (!snap.exists) {
       console.warn(`[LinkedInAdapter] No credentials found for brand ${brandId}`);
       return null;
     }
-    const data = snap.data();
+    const data = snap.data()!;
     return {
       accessToken: decrypt(data.accessToken),
       organizationId: data.organizationId,

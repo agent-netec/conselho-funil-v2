@@ -2,15 +2,6 @@
  * RAG (Retrieval Augmented Generation) Pipeline
  */
 
-import { db } from '@/lib/firebase/config';
-import { 
-  collection, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
-  getDocs 
-} from 'firebase/firestore';
 import { generateEmbedding } from './embeddings';
 import { COUNSELORS_REGISTRY } from '@/lib/constants';
 import { CounselorId } from '@/types';

@@ -1,16 +1,8 @@
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  startAfter,
-  Timestamp,
-  where,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyTimestamp = any;
 import type { ChurnBatchResult, ChurnPrediction } from '@/types/predictive';
 
 const BATCH_LIMIT = 500;
@@ -22,19 +14,20 @@ type Trend = 'rising' | 'stable' | 'declining';
 
 export class ChurnPredictor {
   static async predictBatch(brandId: string, cursor?: string): Promise<ChurnBatchResult> {
+    const adminDb = getAdminFirestore();
     const now = Timestamp.now();
-    const leadsRef = collection(db, 'brands', brandId, 'leads');
+    const leadsRef = adminDb.collection('brands').doc(brandId).collection('leads');
 
-    let leadsQuery = query(leadsRef, orderBy('__name__'), limit(BATCH_LIMIT + 1));
+    let leadsQuery = leadsRef.orderBy('__name__').limit(BATCH_LIMIT + 1);
     if (cursor) {
-      const cursorRef = doc(db, 'brands', brandId, 'leads', cursor);
-      const cursorSnap = await getDoc(cursorRef);
-      if (cursorSnap.exists()) {
-        leadsQuery = query(leadsRef, orderBy('__name__'), startAfter(cursorSnap), limit(BATCH_LIMIT + 1));
+      const cursorRef = leadsRef.doc(cursor);
+      const cursorSnap = await cursorRef.get();
+      if (cursorSnap.exists) {
+        leadsQuery = leadsRef.orderBy('__name__').startAfter(cursorSnap).limit(BATCH_LIMIT + 1);
       }
     }
 
-    const leadsSnapshot = await getDocs(leadsQuery);
+    const leadsSnapshot = await leadsQuery.get();
     const docs = leadsSnapshot.docs;
     const hasMore = docs.length > BATCH_LIMIT;
     const leadsToProcess = hasMore ? docs.slice(0, BATCH_LIMIT) : docs;
@@ -83,14 +76,18 @@ export class ChurnPredictor {
       predictions,
       nextCursor,
       hasMore,
-      calculatedAt: now,
+      calculatedAt: now as AnyTimestamp,
     };
   }
 
   private static async getLastEventTimestamp(brandId: string, leadId: string): Promise<Timestamp | null> {
-    const eventsRef = collection(db, 'brands', brandId, 'journey_events');
-    const eventQuery = query(eventsRef, where('leadId', '==', leadId), orderBy('timestamp', 'desc'), limit(1));
-    const snap = await getDocs(eventQuery);
+    const adminDb = getAdminFirestore();
+    const eventsRef = adminDb.collection('brands').doc(brandId).collection('journey_events');
+    const snap = await eventsRef
+      .where('leadId', '==', leadId)
+      .orderBy('timestamp', 'desc')
+      .limit(1)
+      .get();
     if (snap.empty) return null;
     const eventData = snap.docs[0].data() as { timestamp?: Timestamp };
     return eventData.timestamp ?? null;
@@ -101,21 +98,20 @@ export class ChurnPredictor {
     leadId: string,
     now: Timestamp
   ): Promise<Trend> {
-    const eventsRef = collection(db, 'brands', brandId, 'journey_events');
+    const adminDb = getAdminFirestore();
+    const eventsRef = adminDb.collection('brands').doc(brandId).collection('journey_events');
     const sevenDaysAgo = Timestamp.fromMillis(now.toMillis() - 7 * 24 * 60 * 60 * 1000);
     const fourteenDaysAgo = Timestamp.fromMillis(now.toMillis() - 14 * 24 * 60 * 60 * 1000);
 
-    const recent = await getDocs(
-      query(eventsRef, where('leadId', '==', leadId), where('timestamp', '>=', sevenDaysAgo))
-    );
-    const older = await getDocs(
-      query(
-        eventsRef,
-        where('leadId', '==', leadId),
-        where('timestamp', '>=', fourteenDaysAgo),
-        where('timestamp', '<', sevenDaysAgo)
-      )
-    );
+    const recent = await eventsRef
+      .where('leadId', '==', leadId)
+      .where('timestamp', '>=', sevenDaysAgo)
+      .get();
+    const older = await eventsRef
+      .where('leadId', '==', leadId)
+      .where('timestamp', '>=', fourteenDaysAgo)
+      .where('timestamp', '<', sevenDaysAgo)
+      .get();
 
     if (recent.size > older.size) return 'rising';
     if (recent.size < older.size) return 'declining';
@@ -165,7 +161,7 @@ export class ChurnPredictor {
       daysSinceLastEvent: Math.round(daysSinceLastEvent),
       engagementTrend,
       factors,
-      predictedAt: now,
+      predictedAt: now as AnyTimestamp,
     };
   }
 }

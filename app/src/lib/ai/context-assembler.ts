@@ -6,16 +6,16 @@
 
 import { getPineconeIndex } from './pinecone';
 import { generateEmbedding } from './embeddings';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import { COUNSELORS_REGISTRY } from '@/lib/constants';
 import { estimateTokens } from '@/lib/utils/ai-helpers';
 import { sanitizeBrandId } from '@/lib/auth/brand-guard';
-import { 
-  AssembledContext, 
-  AssembleContextInput, 
-  ContextAssemblerConfig, 
-  DEFAULT_CONFIG, 
-  NAMESPACE_PRIORITY, 
+import {
+  AssembledContext,
+  AssembleContextInput,
+  ContextAssemblerConfig,
+  DEFAULT_CONFIG,
+  NAMESPACE_PRIORITY,
   DATA_TYPE_BOOST,
   TaskType,
   CounselorKnowledge,
@@ -28,7 +28,6 @@ import {
 import { ICPInsight, VoiceProfile } from '@/types/intelligence';
 import { MergedChunk, RetrievedChunk } from '@/types/retrieval';
 import { ScopeLevel } from '@/types/scoped-data';
-import { collection, query, where, limit, getDocs } from 'firebase/firestore';
 
 export { DEFAULT_CONFIG };
 export type { AssembleContextInput, AssembledContext };
@@ -257,7 +256,8 @@ export class ContextAssembler {
   }
 
   private async fetchBrandContext(brandId: string): Promise<BrandContext> {
-    const brandDoc = await getDocs(query(collection(db, 'brands'), where('id', '==', brandId), limit(1)));
+    const adminDb = getAdminFirestore();
+    const brandDoc = await adminDb.collection('brands').where('id', '==', brandId).limit(1).get();
     if (brandDoc.empty) return { brandId, brandName: 'Unknown Brand' };
     const data = brandDoc.docs[0].data();
     return {
@@ -270,31 +270,30 @@ export class ContextAssembler {
   }
 
   private async fetchICPInsights(brandId: string, funnelId?: string): Promise<ICPInsightsContext> {
+    const adminDb = getAdminFirestore();
     const insights: ICPInsight[] = [];
     let fromFunnel = 0;
     let fromBrand = 0;
-    
-    const brandQuery = query(
-      collection(db, 'brands', brandId, 'icp_insights'),
-      where('scope.level', '==', 'brand'),
-      where('isApprovedForAI', '==', true),
-      limit(20)
-    );
-    const brandSnap = await getDocs(brandQuery);
+
+    const brandSnap = await adminDb
+      .collection('brands').doc(brandId).collection('icp_insights')
+      .where('scope.level', '==', 'brand')
+      .where('isApprovedForAI', '==', true)
+      .limit(20)
+      .get();
     brandSnap.forEach(doc => {
       insights.push({ id: doc.id, ...doc.data() } as ICPInsight);
       fromBrand++;
     });
 
     if (funnelId) {
-      const funnelQuery = query(
-        collection(db, 'brands', brandId, 'icp_insights'),
-        where('scope.level', '==', 'funnel'),
-        where('scope.funnelId', '==', funnelId),
-        where('isApprovedForAI', '==', true),
-        limit(20)
-      );
-      const funnelSnap = await getDocs(funnelQuery);
+      const funnelSnap = await adminDb
+        .collection('brands').doc(brandId).collection('icp_insights')
+        .where('scope.level', '==', 'funnel')
+        .where('scope.funnelId', '==', funnelId)
+        .where('isApprovedForAI', '==', true)
+        .limit(20)
+        .get();
       funnelSnap.forEach(doc => {
         insights.push({ id: doc.id, ...doc.data() } as ICPInsight);
         fromFunnel++;
@@ -313,24 +312,23 @@ export class ContextAssembler {
   }
 
   private async fetchVoiceProfile(brandId: string, funnelId?: string): Promise<VoiceProfile | null> {
+    const adminDb = getAdminFirestore();
     if (funnelId) {
-      const q = query(
-        collection(db, 'brands', brandId, 'voice_profiles'),
-        where('scope.level', '==', 'funnel'),
-        where('scope.funnelId', '==', funnelId),
-        limit(1)
-      );
-      const snap = await getDocs(q);
+      const snap = await adminDb
+        .collection('brands').doc(brandId).collection('voice_profiles')
+        .where('scope.level', '==', 'funnel')
+        .where('scope.funnelId', '==', funnelId)
+        .limit(1)
+        .get();
       if (!snap.empty) return { id: snap.docs[0].id, ...snap.docs[0].data() } as VoiceProfile;
     }
 
-    const qBrand = query(
-      collection(db, 'brands', brandId, 'voice_profiles'),
-      where('scope.level', '==', 'brand'),
-      where('isDefault', '==', true),
-      limit(1)
-    );
-    const snapBrand = await getDocs(qBrand);
+    const snapBrand = await adminDb
+      .collection('brands').doc(brandId).collection('voice_profiles')
+      .where('scope.level', '==', 'brand')
+      .where('isDefault', '==', true)
+      .limit(1)
+      .get();
     if (!snapBrand.empty) return { id: snapBrand.docs[0].id, ...snapBrand.docs[0].data() } as VoiceProfile;
 
     return null;

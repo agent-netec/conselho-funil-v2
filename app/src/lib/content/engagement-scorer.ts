@@ -7,14 +7,7 @@
  * @arch DT-02
  */
 
-import {
-  collection,
-  getDocs,
-  query,
-  orderBy,
-  limit,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import type { SocialInteractionRecord } from '@/types/social';
 
 /**
@@ -33,15 +26,14 @@ export async function getTopEngagementExamples(
   topN: number = 5
 ): Promise<SocialInteractionRecord[]> {
   try {
-    const colRef = collection(db, 'brands', brandId, 'social_interactions');
-    const q = query(
-      colRef,
-      orderBy('engagementScore', 'desc'),
-      limit(topN)
-    );
+    const adminDb = getAdminFirestore();
+    const colRef = adminDb.collection('brands').doc(brandId).collection('social_interactions');
+    const snap = await colRef
+      .orderBy('engagementScore', 'desc')
+      .limit(topN)
+      .get();
 
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((d) => ({
+    return snap.docs.map((d) => ({
       id: d.id,
       ...d.data(),
     })) as SocialInteractionRecord[];
