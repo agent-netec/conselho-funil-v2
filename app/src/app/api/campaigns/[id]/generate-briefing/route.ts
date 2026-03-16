@@ -4,7 +4,7 @@ import { getAdminFirestore } from '@/lib/firebase/admin';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { updateUserUsageAdmin } from '@/lib/firebase/firestore-server';
-import { generateWithGemini, PRO_GEMINI_MODEL } from '@/lib/ai/gemini';
+import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { buildBriefingPrompt } from '@/lib/ai/prompts/briefing-prompt';
 import { fetchLogoAsBase64 } from '@/lib/briefing/logo-fetcher';
 import { buildBriefingPdfHtml } from '@/lib/briefing/briefing-pdf-html';
@@ -13,7 +13,7 @@ import type { CampaignContext } from '@/types/campaign';
 import type { BriefingSections, BriefingFormat } from '@/types/briefing';
 
 export const runtime = 'nodejs';
-export const maxDuration = 90;
+export const maxDuration = 60;
 
 /**
  * POST /api/campaigns/[id]/generate-briefing
@@ -102,15 +102,15 @@ export async function POST(
     let rawJson: string;
     try {
       rawJson = await generateWithGemini(userPrompt, {
-        model: PRO_GEMINI_MODEL,
+        model: DEFAULT_GEMINI_MODEL,
         temperature: 0.3,
-        maxOutputTokens: 8192,
+        maxOutputTokens: 4096,
         responseMimeType: 'application/json',
         systemPrompt,
         userId: userId || 'system',
         brandId,
         feature: 'campaign_briefing',
-        timeoutMs: 90_000,
+        timeoutMs: 60_000,
       });
     } catch (geminiErr) {
       console.error('[GenerateBriefing] Gemini call failed:', geminiErr);
