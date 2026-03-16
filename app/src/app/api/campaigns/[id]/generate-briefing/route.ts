@@ -120,19 +120,29 @@ export async function POST(
       );
     }
 
-    // Parse JSON response
+    // Parse JSON response — tolerant extraction
     let sections: BriefingSections;
     try {
       let jsonStr = rawJson.trim();
+      // Strip markdown fences
       if (jsonStr.startsWith('```json')) jsonStr = jsonStr.slice(7);
       if (jsonStr.startsWith('```')) jsonStr = jsonStr.slice(3);
       if (jsonStr.endsWith('```')) jsonStr = jsonStr.slice(0, -3);
-      sections = JSON.parse(jsonStr.trim()) as BriefingSections;
+      jsonStr = jsonStr.trim();
+      // If still not valid JSON, try to extract the first { ... } block
+      if (!jsonStr.startsWith('{')) {
+        const start = jsonStr.indexOf('{');
+        const end = jsonStr.lastIndexOf('}');
+        if (start !== -1 && end !== -1) {
+          jsonStr = jsonStr.slice(start, end + 1);
+        }
+      }
+      sections = JSON.parse(jsonStr) as BriefingSections;
     } catch (parseErr) {
       console.error('[GenerateBriefing] Failed to parse Gemini response:', parseErr);
-      console.error('[GenerateBriefing] Raw response:', rawJson.slice(0, 500));
+      console.error('[GenerateBriefing] Raw response (first 800 chars):', rawJson.slice(0, 800));
       return NextResponse.json(
-        { error: 'Falha ao processar resposta da IA. Tente novamente.' },
+        { error: 'Falha ao processar resposta da IA. Tente novamente.', debug: rawJson.slice(0, 300) },
         { status: 500 }
       );
     }
