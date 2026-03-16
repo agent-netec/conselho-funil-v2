@@ -268,13 +268,6 @@ export default function BillingPage() {
                     Apos o trial, sua conta sera convertida para o plano Free
                   </p>
                 </div>
-                <Button
-                  size="sm"
-                  onClick={() => handleUpgrade('pro')}
-                  className="bg-[#E6B447] hover:bg-[#AB8648] text-black font-medium"
-                >
-                  Assinar Pro
-                </Button>
               </div>
             )}
 
@@ -356,7 +349,7 @@ export default function BillingPage() {
               </div>
             )}
 
-            {!isPaid && !isTrial && (
+            {!isPaid && (
               <div className="mt-6 pt-6 border-t border-white/[0.06] flex items-center justify-center gap-4">
                 <Button onClick={() => handleUpgrade('starter')} variant="outline">
                   Starter - R$97/mes
