@@ -3,15 +3,12 @@ import {
   doc,
   getDoc,
   getDocs,
-  addDoc,
   updateDoc,
-  deleteDoc,
   query,
   where,
-  orderBy,
   Timestamp,
 } from 'firebase/firestore';
-import { db, auth } from './config';
+import { db } from './config';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import type { Brand, BrandKit } from '@/types/database';
 
@@ -125,51 +122,19 @@ export async function updateBrandKit(brandId: string, kit: BrandKit) {
 }
 
 /**
- * R-4.1: Cascade delete — remove brand and all subcollections.
- * Subcollections: content_calendar, automation_rules, automation_logs,
- * social_interactions, voice_profiles, funnels, conversations, proposals,
- * research, keywords, rate_limits, performance_metrics, performance_anomalies,
- * transactions, webhook_idempotency
+ * R-4.1: Cascade delete — remove brand and all subcollections via Admin SDK API route.
  */
-const BRAND_SUBCOLLECTIONS = [
-  'content_calendar',
-  'automation_rules',
-  'automation_logs',
-  'social_interactions',
-  'voice_profiles',
-  'funnels',
-  'conversations',
-  'proposals',
-  'research',
-  'keywords',
-  'rate_limits',
-  'performance_metrics',
-  'performance_anomalies',
-  'transactions',
-  'webhook_idempotency',
-];
-
-async function deleteSubcollection(brandId: string, subcollectionName: string) {
-  const subRef = collection(db, 'brands', brandId, subcollectionName);
-  const snapshot = await getDocs(subRef);
-  const deletions = snapshot.docs.map((d) => deleteDoc(d.ref));
-  await Promise.all(deletions);
-}
-
 export async function deleteBrand(brandId: string) {
-  // R-4.1: Delete all subcollections first
-  const results = await Promise.allSettled(
-    BRAND_SUBCOLLECTIONS.map((sub) => deleteSubcollection(brandId, sub))
-  );
+  const headers = await getAuthHeaders();
+  const res = await fetch(`/api/brands/${brandId}`, {
+    method: 'DELETE',
+    headers,
+  });
 
-  const failures = results.filter((r) => r.status === 'rejected');
-  if (failures.length > 0) {
-    console.error(`[deleteBrand] ${failures.length} subcollection(s) failed to delete for brand ${brandId}`);
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new Error(json.error || 'Failed to delete brand');
   }
-
-  // Delete the brand document itself
-  const brandRef = doc(db, 'brands', brandId);
-  await deleteDoc(brandRef);
 }
 
 

@@ -293,11 +293,11 @@ function SidebarNav({ expanded, onNavigate }: { expanded: boolean; onNavigate?: 
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    if (!selectedBrand?.id) return;
+    if (!selectedBrand?.id || !firestoreUser) return;
     getUnreadNotificationCount(selectedBrand.id)
       .then(setUnreadCount)
       .catch(() => setUnreadCount(0));
-  }, [selectedBrand?.id]);
+  }, [selectedBrand?.id, firestoreUser]);
 
   useEffect(() => {
     if (pathname === '/automation' && selectedBrand?.id && unreadCount > 0) {
