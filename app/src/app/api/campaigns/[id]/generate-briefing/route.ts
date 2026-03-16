@@ -4,7 +4,7 @@ import { getAdminFirestore } from '@/lib/firebase/admin';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { updateUserUsageAdmin } from '@/lib/firebase/firestore-server';
-import { generateWithGemini, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
+import { generateWithGemini } from '@/lib/ai/gemini';
 import { buildBriefingPrompt } from '@/lib/ai/prompts/briefing-prompt';
 import { fetchLogoAsBase64 } from '@/lib/briefing/logo-fetcher';
 import { buildBriefingPdfHtml } from '@/lib/briefing/briefing-pdf-html';
@@ -102,7 +102,7 @@ export async function POST(
     let rawJson: string;
     try {
       rawJson = await generateWithGemini(userPrompt, {
-        model: DEFAULT_GEMINI_MODEL,
+        model: 'gemini-2.0-flash',
         temperature: 0.3,
         maxOutputTokens: 8192,
         responseMimeType: 'application/json',
