@@ -215,6 +215,15 @@ export default function CampaignCommandCenter() {
   // Campaign Briefing (PDF / Slides) — abre HTML numa nova aba
   const downloadBriefing = async (format: 'pdf' | 'slides') => {
     if (!campaign || generatingBriefing) return;
+
+    // Abre a aba ANTES do fetch (no contexto do click) pra evitar bloqueio de popup
+    const newTab = window.open('', '_blank');
+    if (!newTab) {
+      toast.error('Popup bloqueado pelo navegador. Permita popups para este site.');
+      return;
+    }
+    newTab.document.write('<html><body style="background:#111;color:#999;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;"><p>Gerando briefing estratégico com IA... aguarde.</p></body></html>');
+
     setGeneratingBriefing(format);
     try {
       const authHeaders = await getAuthHeaders();
@@ -226,24 +235,22 @@ export default function CampaignCommandCenter() {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: 'Erro desconhecido' }));
+        newTab.document.write(`<p style="color:#f87171;">Erro: ${err.error || 'Falha ao gerar briefing'}</p>`);
         toast.error(err.error || 'Falha ao gerar briefing');
         return;
       }
 
       const { html } = await res.json();
 
-      // Abre o HTML numa nova aba
-      const newTab = window.open('', '_blank');
-      if (newTab) {
-        newTab.document.write(html);
-        newTab.document.close();
-      } else {
-        toast.error('Popup bloqueado pelo navegador. Permita popups para este site.');
-      }
+      // Substitui o conteúdo de loading pelo briefing
+      newTab.document.open();
+      newTab.document.write(html);
+      newTab.document.close();
 
       toast.success(format === 'slides' ? 'Apresentação gerada!' : 'Briefing gerado!');
     } catch (err) {
       console.error('[Briefing] Generation failed:', err);
+      newTab.document.write('<p style="color:#f87171;">Falha ao gerar briefing. Feche esta aba e tente novamente.</p>');
       toast.error('Falha ao gerar briefing. Tente novamente.');
     } finally {
       setGeneratingBriefing(null);
