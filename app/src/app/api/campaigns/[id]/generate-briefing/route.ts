@@ -104,7 +104,7 @@ export async function POST(
       rawJson = await generateWithGemini(userPrompt, {
         model: DEFAULT_GEMINI_MODEL,
         temperature: 0.3,
-        maxOutputTokens: 4096,
+        maxOutputTokens: 8192,
         responseMimeType: 'application/json',
         systemPrompt,
         userId: userId || 'system',

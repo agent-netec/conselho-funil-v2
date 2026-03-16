@@ -15,7 +15,7 @@ REGRAS:
 - Escreva TUDO em português brasileiro
 - Seja analítico e estratégico, NÃO faça dump de dados — interprete, conecte e recomende
 - Use linguagem profissional mas acessível
-- Cada campo deve ter entre 2-5 frases ricas e acionáveis
+- Cada campo string deve ter 1-2 frases CURTAS e diretas (máximo 50 palavras por campo)
 - O executionRoadmap deve ter exatamente 5 passos práticos
 - O riskAnalysis deve ter exatamente 3 riscos e 3 mitigações correspondentes
 - Responda APENAS com o JSON, sem markdown, sem comentários
