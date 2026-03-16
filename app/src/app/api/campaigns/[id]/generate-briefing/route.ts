@@ -99,17 +99,26 @@ export async function POST(
     // 6. Generate briefing sections via Gemini
     const { systemPrompt, userPrompt } = buildBriefingPrompt(campaign, brandName);
 
-    const rawJson = await generateWithGemini(userPrompt, {
-      model: PRO_GEMINI_MODEL,
-      temperature: 0.3,
-      maxOutputTokens: 8192,
-      responseMimeType: 'application/json',
-      systemPrompt,
-      userId: userId || 'system',
-      brandId,
-      feature: 'campaign_briefing',
-      timeoutMs: 90_000,
-    });
+    let rawJson: string;
+    try {
+      rawJson = await generateWithGemini(userPrompt, {
+        model: PRO_GEMINI_MODEL,
+        temperature: 0.3,
+        maxOutputTokens: 8192,
+        responseMimeType: 'application/json',
+        systemPrompt,
+        userId: userId || 'system',
+        brandId,
+        feature: 'campaign_briefing',
+        timeoutMs: 90_000,
+      });
+    } catch (geminiErr) {
+      console.error('[GenerateBriefing] Gemini call failed:', geminiErr);
+      return NextResponse.json(
+        { error: 'Falha ao gerar conteúdo do briefing via IA. Tente novamente.' },
+        { status: 502 }
+      );
+    }
 
     // Parse JSON response
     let sections: BriefingSections;
@@ -123,7 +132,7 @@ export async function POST(
       console.error('[GenerateBriefing] Failed to parse Gemini response:', parseErr);
       console.error('[GenerateBriefing] Raw response:', rawJson.slice(0, 500));
       return NextResponse.json(
-        { error: 'Failed to generate briefing content' },
+        { error: 'Falha ao processar resposta da IA. Tente novamente.' },
         { status: 500 }
       );
     }
