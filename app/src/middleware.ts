@@ -47,20 +47,20 @@ export function middleware(request: NextRequest) {
 
   const hasAuthCookie = request.cookies.has(AUTH_COOKIE);
 
-  // "/" -> rewrite to dashboard (auth) or landing (non-auth)
+  // "/" -> rewrite to dashboard (auth) or redirect to login (non-auth)
   if (pathname === '/') {
     if (hasAuthCookie) {
       return NextResponse.rewrite(new URL('/home', request.url));
     }
-    return NextResponse.rewrite(new URL('/landing', request.url));
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // "/landing" -> 301 redirect to "/"
+  // "/landing" -> redirect to main landing page
   if (pathname === '/landing') {
-    return NextResponse.redirect(new URL('/', request.url), 301);
+    return NextResponse.redirect(new URL('https://www.mkthoney.com', request.url), 301);
   }
 
-  // "/home" direct access -> 301 redirect to "/"
+  // "/home" direct access -> redirect to "/"
   if (pathname === '/home') {
     return NextResponse.redirect(new URL('/', request.url), 301);
   }
