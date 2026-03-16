@@ -52,16 +52,16 @@ export const STRIPE_PRICES: Record<
   { monthly: string; yearly: string }
 > = {
   starter: {
-    monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY || 'price_PLACEHOLDER_starter_monthly',
-    yearly: process.env.STRIPE_PRICE_STARTER_YEARLY || 'price_PLACEHOLDER_starter_yearly',
+    monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY || 'price_1T9uNcE1JUUQStpHZ10QJ30R',
+    yearly: process.env.STRIPE_PRICE_STARTER_YEARLY || 'price_1T9uOZE1JUUQStpHJqbcxU6m',
   },
   pro: {
-    monthly: process.env.STRIPE_PRICE_PRO_MONTHLY || 'price_PLACEHOLDER_pro_monthly',
-    yearly: process.env.STRIPE_PRICE_PRO_YEARLY || 'price_PLACEHOLDER_pro_yearly',
+    monthly: process.env.STRIPE_PRICE_PRO_MONTHLY || 'price_1T9uPIE1JUUQStpHL0GpeV7g',
+    yearly: process.env.STRIPE_PRICE_PRO_YEARLY || 'price_1T9uPjE1JUUQStpHkNWbNhig',
   },
   agency: {
-    monthly: process.env.STRIPE_PRICE_AGENCY_MONTHLY || 'price_PLACEHOLDER_agency_monthly',
-    yearly: process.env.STRIPE_PRICE_AGENCY_YEARLY || 'price_PLACEHOLDER_agency_yearly',
+    monthly: process.env.STRIPE_PRICE_AGENCY_MONTHLY || 'price_1T9uPtE1JUUQStpHR1F34Ovi',
+    yearly: process.env.STRIPE_PRICE_AGENCY_YEARLY || 'price_1T9uQ3E1JUUQStpH8kTTlMzb',
   },
 };
 
