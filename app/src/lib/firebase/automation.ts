@@ -25,7 +25,6 @@ import {
   limit,
   where,
   Timestamp,
-  getCountFromServer,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { AutomationRule, AutomationLog, DeadLetterItem, MetricsSnapshot, ExecutionResult, ImpactAnalysis } from '@/types/automation';
@@ -169,8 +168,8 @@ export async function createInAppNotification(
 export async function getUnreadNotificationCount(brandId: string): Promise<number> {
   const notifRef = collection(db, 'brands', brandId, 'notifications');
   const q = query(notifRef, where('isRead', '==', false));
-  const snap = await getCountFromServer(q);
-  return snap.data().count;
+  const snap = await getDocs(q);
+  return snap.size;
 }
 
 export async function markNotificationsAsRead(brandId: string): Promise<void> {
