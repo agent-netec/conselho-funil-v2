@@ -9,7 +9,6 @@ import {
   Calendar,
   FileText,
   Download,
-  AlertTriangle,
   CheckCircle2,
   Clock,
   Zap,
@@ -18,12 +17,14 @@ import {
   RefreshCw,
   Crown,
   X,
+  Check,
+  Star,
+  Building2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useTier } from '@/lib/hooks/use-tier';
 import { toast } from 'sonner';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { auth } from '@/lib/firebase/config';
 
@@ -43,17 +44,75 @@ interface Invoice {
   description: string;
 }
 
+type BillingPeriod = 'monthly' | 'yearly';
+
 // ============================================
-// CONSTANTS
+// PLAN DATA
 // ============================================
 
-const TIER_DISPLAY: Record<string, { name: string; color: string; icon: typeof Zap }> = {
-  free: { name: 'Free', color: 'text-zinc-400', icon: Zap },
-  trial: { name: 'Trial PRO', color: 'text-[#E6B447]', icon: Crown },
-  starter: { name: 'Starter', color: 'text-blue-400', icon: Zap },
-  pro: { name: 'Pro', color: 'text-[#E6B447]', icon: Crown },
-  agency: { name: 'Agency', color: 'text-[#E6B447]', icon: Crown },
-};
+const PLANS = [
+  {
+    id: 'starter' as const,
+    name: 'Starter',
+    description: 'Para quem esta comecando no marketing digital',
+    icon: Zap,
+    monthlyPrice: 97,
+    yearlyPrice: 970,
+    color: 'blue',
+    features: [
+      '1 marca',
+      '1 funil ativo',
+      '50 assets',
+      '50 consultas/mes',
+      '3 documentos RAG',
+      '3 forensics/mes',
+      '2 modos de chat',
+    ],
+  },
+  {
+    id: 'pro' as const,
+    name: 'Pro',
+    description: 'Acesso completo para profissionais de marketing',
+    icon: Crown,
+    monthlyPrice: 297,
+    yearlyPrice: 2970,
+    color: 'gold',
+    popular: true,
+    features: [
+      '3 marcas',
+      '5 funis ativos',
+      '500 assets',
+      '300 consultas/mes',
+      '20 documentos RAG',
+      '15 forensics/mes',
+      'Todos os modos de chat',
+      'Intelligence & Discovery',
+      'Campanhas & Ads',
+      'Social & Automacao',
+    ],
+  },
+  {
+    id: 'agency' as const,
+    name: 'Agency',
+    description: 'Para agencias e times de marketing',
+    icon: Building2,
+    monthlyPrice: 597,
+    yearlyPrice: 5970,
+    color: 'purple',
+    features: [
+      'Marcas ilimitadas',
+      'Funis ilimitados',
+      'Assets ilimitados',
+      '1.000 consultas/mes',
+      'RAG ilimitado',
+      'Forensics ilimitado',
+      'Todos os modos de chat',
+      'Intelligence & Discovery',
+      'Campanhas & Ads',
+      'Social & Automacao',
+    ],
+  },
+];
 
 // ============================================
 // COMPONENT
@@ -64,18 +123,19 @@ export default function BillingPage() {
   const { tier, effectiveTier, isTrial, trialDaysRemaining, limits, usage } = useTier();
   const searchParams = useSearchParams();
 
+  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loadingInvoices, setLoadingInvoices] = useState(true);
   const [canceling, setCanceling] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   // Check for success param (redirect from Stripe checkout)
   useEffect(() => {
     const success = searchParams.get('success');
     if (success === 'true') {
       toast.success('Pagamento confirmado! Seu plano foi atualizado.');
-      // Clean up URL
       window.history.replaceState({}, '', '/settings/billing');
     }
   }, [searchParams]);
@@ -89,15 +149,10 @@ export default function BillingPage() {
 
         const idToken = await currentUser.getIdToken();
         const response = await fetch('/api/payments/invoices', {
-          headers: {
-            Authorization: `Bearer ${idToken}`,
-          },
+          headers: { Authorization: `Bearer ${idToken}` },
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch invoices');
-        }
-
+        if (!response.ok) throw new Error('Failed to fetch invoices');
         const data = await response.json();
         setInvoices(data.data?.invoices || []);
       } catch (error) {
@@ -106,12 +161,12 @@ export default function BillingPage() {
         setLoadingInvoices(false);
       }
     }
-
     fetchInvoices();
   }, []);
 
-  // Handle checkout redirect
+  // Handle checkout
   const handleUpgrade = async (selectedTier: 'starter' | 'pro' | 'agency') => {
+    setCheckoutLoading(selectedTier);
     try {
       const currentUser = auth?.currentUser;
       if (!currentUser) {
@@ -126,30 +181,27 @@ export default function BillingPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${idToken}`,
         },
-        body: JSON.stringify({
-          tier: selectedTier,
-          billingPeriod: 'monthly',
-        }),
+        body: JSON.stringify({ tier: selectedTier, billingPeriod }),
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         toast.error(data.error || 'Erro ao iniciar checkout');
         return;
       }
 
-      // Redirect to Stripe Checkout
       if (data.data?.url) {
         window.location.href = data.data.url;
       }
     } catch (error) {
       console.error('Checkout error:', error);
       toast.error('Erro ao processar pagamento');
+    } finally {
+      setCheckoutLoading(null);
     }
   };
 
-  // Handle cancel subscription
+  // Handle cancel
   const handleCancel = async (requestRefund: boolean = false) => {
     setCanceling(true);
     try {
@@ -170,7 +222,6 @@ export default function BillingPage() {
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         toast.error(data.error || 'Erro ao cancelar assinatura');
         return;
@@ -178,8 +229,6 @@ export default function BillingPage() {
 
       toast.success(data.data?.message || 'Assinatura cancelada com sucesso');
       setShowCancelConfirm(false);
-
-      // Refresh page to update tier info
       window.location.reload();
     } catch (error) {
       console.error('Cancel error:', error);
@@ -189,6 +238,7 @@ export default function BillingPage() {
     }
   };
 
+  // Handle manage subscription
   const handleManageSubscription = async () => {
     setPortalLoading(true);
     try {
@@ -201,13 +251,10 @@ export default function BillingPage() {
       const idToken = await currentUser.getIdToken();
       const response = await fetch('/api/payments/portal', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${idToken}`,
-        },
+        headers: { Authorization: `Bearer ${idToken}` },
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         toast.error(data.error || 'Erro ao abrir portal');
         return;
@@ -224,265 +271,344 @@ export default function BillingPage() {
     }
   };
 
-  const tierInfo = TIER_DISPLAY[tier] || TIER_DISPLAY.free;
-  const TierIcon = tierInfo.icon;
-
   const isPaid = ['starter', 'pro', 'agency'].includes(tier);
 
   return (
     <div className="flex min-h-screen flex-col">
       <Header title="Cobranca & Assinatura" />
 
-      <div className="flex-1 p-8">
-        <div className="mx-auto max-w-4xl space-y-8">
-          {/* Current Plan Card */}
+      <div className="flex-1 p-6 md:p-8">
+        <div className="mx-auto max-w-5xl space-y-8">
+
+          {/* Current Plan Status */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="card-premium p-6"
           >
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-1">
-                  Plano Atual
-                </h3>
-                <p className="text-sm text-zinc-500">
-                  Gerencie sua assinatura e metodo de pagamento
-                </p>
-              </div>
-              <div className={cn('flex items-center gap-2 px-3 py-1.5 rounded-lg', tierInfo.color, 'bg-white/[0.04]')}>
-                <TierIcon className="h-4 w-4" />
-                <span className="font-semibold">{tierInfo.name}</span>
-              </div>
-            </div>
-
-            {/* Trial Badge */}
-            {isTrial && (
-              <div className="mb-6 flex items-center gap-3 p-4 rounded-xl bg-[#E6B447]/10 border border-[#E6B447]/20">
-                <Clock className="h-5 w-5 text-[#E6B447] flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-[#E6B447]">
-                    Trial PRO ativo - {trialDaysRemaining} dias restantes
-                  </p>
-                  <p className="text-xs text-[#E6B447]/70 mt-0.5">
-                    Apos o trial, sua conta sera convertida para o plano Free
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Plan Details Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Status */}
-              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                <div className="flex items-center gap-2 mb-2">
-                  {isPaid ? (
-                    <CheckCircle2 className="h-4 w-4 text-[#E6B447]" />
-                  ) : isTrial ? (
-                    <Clock className="h-4 w-4 text-[#E6B447]" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className={cn(
+                  'flex h-12 w-12 items-center justify-center rounded-xl',
+                  isPaid ? 'bg-[#E6B447]/10' : isTrial ? 'bg-[#E6B447]/10' : 'bg-zinc-800'
+                )}>
+                  {isPaid || isTrial ? (
+                    <Crown className="h-6 w-6 text-[#E6B447]" />
                   ) : (
-                    <AlertTriangle className="h-4 w-4 text-zinc-500" />
+                    <Zap className="h-6 w-6 text-zinc-400" />
                   )}
-                  <span className="text-sm text-zinc-400">Status</span>
                 </div>
-                <p className={cn('font-semibold', isPaid ? 'text-[#E6B447]' : isTrial ? 'text-[#E6B447]' : 'text-zinc-300')}>
-                  {isPaid ? 'Ativo' : isTrial ? 'Em Trial' : 'Gratuito'}
-                </p>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-white">
+                      {isPaid ? `Plano ${tier.charAt(0).toUpperCase() + tier.slice(1)}` : isTrial ? 'Trial PRO' : 'Plano Free'}
+                    </h3>
+                    <span className={cn(
+                      'px-2 py-0.5 rounded-md text-xs font-semibold',
+                      isPaid ? 'bg-[#E6B447]/15 text-[#E6B447]' : isTrial ? 'bg-[#E6B447]/15 text-[#E6B447]' : 'bg-zinc-800 text-zinc-400'
+                    )}>
+                      {isPaid ? 'Ativo' : isTrial ? `${trialDaysRemaining}d restantes` : 'Gratuito'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-zinc-500 mt-0.5">
+                    {isTrial
+                      ? 'Voce esta testando todas as funcionalidades PRO gratuitamente'
+                      : isPaid
+                        ? 'Gerencie sua assinatura e metodo de pagamento'
+                        : 'Faca upgrade para desbloquear mais recursos'}
+                  </p>
+                </div>
               </div>
 
-              {/* Next Billing */}
-              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                <div className="flex items-center gap-2 mb-2">
-                  <Calendar className="h-4 w-4 text-zinc-400" />
-                  <span className="text-sm text-zinc-400">Proxima cobranca</span>
-                </div>
-                <p className="font-semibold text-white">
-                  {isPaid ? 'Ver fatura' : isTrial ? `Em ${trialDaysRemaining} dias` : '-'}
-                </p>
-              </div>
-
-              {/* Payment Method */}
-              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                <div className="flex items-center gap-2 mb-2">
-                  <CreditCard className="h-4 w-4 text-zinc-400" />
-                  <span className="text-sm text-zinc-400">Metodo</span>
-                </div>
-                <p className="font-semibold text-white">
-                  {isPaid ? 'Cartao' : '-'}
-                </p>
-              </div>
-            </div>
-
-            {/* Actions */}
-            {isPaid && (
-              <div className="mt-6 pt-6 border-t border-white/[0.06] flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                    onClick={() => setShowCancelConfirm(true)}
-                  >
-                    Cancelar Assinatura
-                  </Button>
+              {isPaid && (
+                <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
+                    size="sm"
                     onClick={handleManageSubscription}
                     disabled={portalLoading}
                   >
                     {portalLoading ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
                     ) : (
-                      <CreditCard className="mr-2 h-4 w-4" />
+                      <CreditCard className="mr-2 h-3.5 w-3.5" />
                     )}
-                    Gerenciar Assinatura
+                    Gerenciar
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                    onClick={() => setShowCancelConfirm(true)}
+                  >
+                    Cancelar
                   </Button>
                 </div>
-                {tier !== 'agency' && (
-                  <Button
-                    onClick={() => handleUpgrade(tier === 'starter' ? 'pro' : 'agency')}
-                    className="btn-accent"
-                  >
-                    Fazer Upgrade
-                    <ArrowUpRight className="ml-2 h-4 w-4" />
-                  </Button>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Pricing Cards */}
+          {!isPaid && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              {/* Billing Toggle */}
+              <div className="flex items-center justify-center gap-3 mb-8">
+                <span className={cn('text-sm font-medium', billingPeriod === 'monthly' ? 'text-white' : 'text-zinc-500')}>
+                  Mensal
+                </span>
+                <button
+                  onClick={() => setBillingPeriod(billingPeriod === 'monthly' ? 'yearly' : 'monthly')}
+                  className={cn(
+                    'relative w-12 h-6 rounded-full transition-colors',
+                    billingPeriod === 'yearly' ? 'bg-[#E6B447]' : 'bg-zinc-700'
+                  )}
+                >
+                  <div className={cn(
+                    'absolute top-1 w-4 h-4 rounded-full bg-white transition-transform',
+                    billingPeriod === 'yearly' ? 'translate-x-7' : 'translate-x-1'
+                  )} />
+                </button>
+                <span className={cn('text-sm font-medium', billingPeriod === 'yearly' ? 'text-white' : 'text-zinc-500')}>
+                  Anual
+                </span>
+                {billingPeriod === 'yearly' && (
+                  <span className="px-2 py-0.5 rounded-md bg-[#E6B447]/15 text-[#E6B447] text-xs font-semibold">
+                    2 meses gratis
+                  </span>
                 )}
               </div>
-            )}
 
-            {!isPaid && (
-              <div className="mt-6 pt-6 border-t border-white/[0.06] flex items-center justify-center gap-4">
-                <Button onClick={() => handleUpgrade('starter')} variant="outline">
-                  Starter - R$97/mes
-                </Button>
-                <Button onClick={() => handleUpgrade('pro')} className="btn-accent">
-                  Pro - R$297/mes
-                </Button>
-                <Button onClick={() => handleUpgrade('agency')} variant="outline">
-                  Agency - R$597/mes
-                </Button>
-              </div>
-            )}
-          </motion.div>
+              {/* Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {PLANS.map((plan) => {
+                  const price = billingPeriod === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
+                  const monthlyEquivalent = billingPeriod === 'yearly' ? Math.round(plan.yearlyPrice / 12) : plan.monthlyPrice;
+                  const isCurrentTier = tier === plan.id;
+                  const PlanIcon = plan.icon;
 
-          {/* Usage Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="card-premium p-6"
-          >
-            <h3 className="text-lg font-semibold text-white mb-6">
-              Uso do Plano
-            </h3>
+                  const colorMap = {
+                    blue: {
+                      border: 'border-blue-500/20 hover:border-blue-500/40',
+                      iconBg: 'bg-blue-500/10',
+                      iconColor: 'text-blue-400',
+                      badge: 'bg-blue-500/15 text-blue-400',
+                    },
+                    gold: {
+                      border: 'border-[#E6B447]/30 hover:border-[#E6B447]/60',
+                      iconBg: 'bg-[#E6B447]/10',
+                      iconColor: 'text-[#E6B447]',
+                      badge: 'bg-[#E6B447]/15 text-[#E6B447]',
+                    },
+                    purple: {
+                      border: 'border-purple-500/20 hover:border-purple-500/40',
+                      iconBg: 'bg-purple-500/10',
+                      iconColor: 'text-purple-400',
+                      badge: 'bg-purple-500/15 text-purple-400',
+                    },
+                  };
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { label: 'Marcas', used: usage.brands, limit: limits.maxBrands },
-                { label: 'Funis Ativos', used: usage.activeFunnels, limit: limits.maxActiveFunnels },
-                { label: 'Assets', used: usage.totalAssets, limit: limits.maxAssetsTotal },
-                { label: 'Consultas/mes', used: usage.monthlyQueries, limit: limits.monthlyQueries },
-              ].map((item) => {
-                const percentage = Math.min((item.used / item.limit) * 100, 100);
-                const isWarning = percentage > 80;
-                const isExceeded = percentage >= 100;
+                  const colors = colorMap[plan.color as keyof typeof colorMap];
 
-                return (
-                  <div key={item.label} className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                    <p className="text-sm text-zinc-400 mb-2">{item.label}</p>
-                    <p className="text-lg font-semibold text-white mb-2">
-                      {item.used} <span className="text-zinc-500">/ {item.limit >= 100 ? '∞' : item.limit}</span>
-                    </p>
-                    <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                      <div
-                        className={cn(
-                          'h-full rounded-full transition-all',
-                          isExceeded ? 'bg-red-500' : isWarning ? 'bg-[#E6B447]' : 'bg-[#E6B447]'
-                        )}
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </motion.div>
-
-          {/* Invoices Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="card-premium p-6"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-white">
-                Historico de Faturas
-              </h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => window.location.reload()}
-                disabled={loadingInvoices}
-              >
-                <RefreshCw className={cn('h-4 w-4', loadingInvoices && 'animate-spin')} />
-              </Button>
-            </div>
-
-            {loadingInvoices ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
-              </div>
-            ) : invoices.length === 0 ? (
-              <div className="text-center py-8 text-zinc-500">
-                <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>Nenhuma fatura encontrada</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {invoices.map((invoice) => (
-                  <div
-                    key={invoice.id}
-                    className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 rounded-lg bg-white/[0.04]">
-                        <FileText className="h-4 w-4 text-zinc-400" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-white">
-                          Fatura #{invoice.number}
-                        </p>
-                        <p className="text-sm text-zinc-500">
-                          {new Date(invoice.date).toLocaleDateString('pt-BR')}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <p className="font-semibold text-white">{invoice.amount}</p>
-                        <p className={cn(
-                          'text-xs',
-                          invoice.status === 'paid' ? 'text-[#E6B447]' : 'text-[#E6B447]'
-                        )}>
-                          {invoice.status === 'paid' ? 'Paga' : 'Pendente'}
-                        </p>
-                      </div>
-                      {invoice.pdfUrl && (
-                        <a
-                          href={invoice.pdfUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 rounded-lg hover:bg-white/[0.04] transition-colors"
-                        >
-                          <Download className="h-4 w-4 text-zinc-400" />
-                        </a>
+                  return (
+                    <div
+                      key={plan.id}
+                      className={cn(
+                        'relative rounded-2xl border bg-white/[0.02] p-6 transition-all',
+                        colors.border,
+                        plan.popular && 'ring-1 ring-[#E6B447]/30'
                       )}
+                    >
+                      {plan.popular && (
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                          <span className="px-3 py-1 rounded-full bg-[#E6B447] text-black text-xs font-bold uppercase tracking-wider">
+                            Mais Popular
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="mb-5">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl', colors.iconBg)}>
+                            <PlanIcon className={cn('h-5 w-5', colors.iconColor)} />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold text-white">{plan.name}</h3>
+                          </div>
+                        </div>
+                        <p className="text-sm text-zinc-500">{plan.description}</p>
+                      </div>
+
+                      <div className="mb-6">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-3xl font-bold text-white">
+                            R${monthlyEquivalent}
+                          </span>
+                          <span className="text-zinc-500">/mes</span>
+                        </div>
+                        {billingPeriod === 'yearly' && (
+                          <p className="text-xs text-zinc-500 mt-1">
+                            R${price}/ano (cobrado anualmente)
+                          </p>
+                        )}
+                      </div>
+
+                      <Button
+                        className={cn(
+                          'w-full mb-6',
+                          plan.popular
+                            ? 'bg-[#E6B447] hover:bg-[#AB8648] text-black font-semibold'
+                            : ''
+                        )}
+                        variant={plan.popular ? 'default' : 'outline'}
+                        onClick={() => handleUpgrade(plan.id)}
+                        disabled={!!checkoutLoading || isCurrentTier}
+                      >
+                        {checkoutLoading === plan.id ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : isCurrentTier ? (
+                          <CheckCircle2 className="mr-2 h-4 w-4" />
+                        ) : (
+                          <ArrowUpRight className="mr-2 h-4 w-4" />
+                        )}
+                        {isCurrentTier ? 'Plano Atual' : 'Assinar'}
+                      </Button>
+
+                      <div className="space-y-2.5">
+                        {plan.features.map((feature) => (
+                          <div key={feature} className="flex items-start gap-2.5">
+                            <Check className={cn('h-4 w-4 mt-0.5 shrink-0', colors.iconColor)} />
+                            <span className="text-sm text-zinc-300">{feature}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
-            )}
-          </motion.div>
+            </motion.div>
+          )}
+
+          {/* Usage & Invoices Row */}
+          <div className={cn('grid gap-6', isPaid ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1')}>
+            {/* Usage Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="card-premium p-6"
+            >
+              <h3 className="text-base font-semibold text-white mb-4">
+                Uso do Plano
+              </h3>
+
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { label: 'Marcas', used: usage.brands, limit: limits.maxBrands },
+                  { label: 'Funis', used: usage.activeFunnels, limit: limits.maxActiveFunnels },
+                  { label: 'Assets', used: usage.totalAssets, limit: limits.maxAssetsTotal },
+                  { label: 'Consultas', used: usage.monthlyQueries, limit: limits.monthlyQueries },
+                ].map((item) => {
+                  const percentage = item.limit >= 100 ? 0 : Math.min((item.used / item.limit) * 100, 100);
+                  const isExceeded = percentage >= 100;
+
+                  return (
+                    <div key={item.label} className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]">
+                      <p className="text-xs text-zinc-500 mb-1">{item.label}</p>
+                      <p className="text-sm font-semibold text-white">
+                        {item.used} <span className="text-zinc-600 font-normal">/ {item.limit >= 100 ? '∞' : item.limit}</span>
+                      </p>
+                      <div className="h-1 bg-zinc-800 rounded-full overflow-hidden mt-2">
+                        <div
+                          className={cn(
+                            'h-full rounded-full transition-all',
+                            isExceeded ? 'bg-red-500' : 'bg-[#E6B447]'
+                          )}
+                          style={{ width: `${item.limit >= 100 ? 0 : percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+
+            {/* Invoices Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="card-premium p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base font-semibold text-white">
+                  Faturas
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => window.location.reload()}
+                  disabled={loadingInvoices}
+                >
+                  <RefreshCw className={cn('h-3.5 w-3.5', loadingInvoices && 'animate-spin')} />
+                </Button>
+              </div>
+
+              {loadingInvoices ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+                </div>
+              ) : invoices.length === 0 ? (
+                <div className="text-center py-8 text-zinc-600">
+                  <FileText className="h-6 w-6 mx-auto mb-2 opacity-40" />
+                  <p className="text-sm">Nenhuma fatura</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {invoices.map((invoice) => (
+                    <div
+                      key={invoice.id}
+                      className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText className="h-4 w-4 text-zinc-500" />
+                        <div>
+                          <p className="text-sm font-medium text-white">#{invoice.number}</p>
+                          <p className="text-xs text-zinc-500">
+                            {new Date(invoice.date).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <p className="text-sm font-semibold text-white">{invoice.amount}</p>
+                          <p className={cn(
+                            'text-xs',
+                            invoice.status === 'paid' ? 'text-emerald-400' : 'text-amber-400'
+                          )}>
+                            {invoice.status === 'paid' ? 'Paga' : 'Pendente'}
+                          </p>
+                        </div>
+                        {invoice.pdfUrl && (
+                          <a
+                            href={invoice.pdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 rounded-md hover:bg-white/[0.06] transition-colors"
+                          >
+                            <Download className="h-3.5 w-3.5 text-zinc-400" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </div>
 
           {/* Cancel Confirmation Modal */}
           {showCancelConfirm && (
