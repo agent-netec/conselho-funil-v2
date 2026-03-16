@@ -1,13 +1,44 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, TrendingUp, Users, Zap } from 'lucide-react';
 
 export function LandingHero() {
   return (
     <section id="hero" className="relative overflow-hidden min-h-[90vh] flex items-center">
-      {/* Background radial glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(230,180,71,0.08)_0%,transparent_60%)] pointer-events-none" />
+      {/* === BACKGROUND LAYERS === */}
 
-      {/* Floating proof cards */}
+      {/* Grid pattern texture */}
+      <div
+        className="absolute inset-0 z-[1] opacity-40 pointer-events-none"
+        style={{ backgroundImage: 'url(/texture-grid.png)', backgroundRepeat: 'repeat', backgroundSize: '300px' }}
+      />
+
+      {/* Film grain overlay */}
+      <div
+        className="absolute inset-0 z-[2] pointer-events-none opacity-[0.03]"
+        style={{ backgroundImage: 'url(/texture-grain.png)', backgroundRepeat: 'repeat', backgroundSize: '200px' }}
+      />
+
+      {/* Radial glow — abstract gold image */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[15%] w-full max-w-[1200px] h-[600px] z-[1] pointer-events-none">
+        <Image
+          src="/glow-abstract.png"
+          alt=""
+          fill
+          className="object-cover opacity-30 blur-sm"
+          aria-hidden="true"
+          priority
+        />
+      </div>
+
+      {/* Side accent glows */}
+      <div className="absolute top-1/3 -left-40 w-[400px] h-[400px] bg-[#E6B447]/[0.04] rounded-full blur-[120px] z-[1]" />
+      <div className="absolute top-1/2 -right-40 w-[400px] h-[400px] bg-[#AB8648]/[0.06] rounded-full blur-[120px] z-[1]" />
+
+      {/* Gradient overlay for depth */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0D0B09]/60 via-[#0D0B09]/30 to-[#0D0B09] z-[3]" />
+
+      {/* === FLOATING PROOF CARDS === */}
       <div className="absolute top-32 right-[12%] hidden lg:block z-10 animate-fade-in-up [animation-delay:600ms]">
         <div className="rounded-xl border border-[#E6B447]/20 bg-[#1A1612]/80 backdrop-blur-sm px-4 py-3 shadow-lg">
           <div className="flex items-center gap-2">
@@ -33,11 +64,12 @@ export function LandingHero() {
         </div>
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-6 lg:px-12 pt-32 pb-16 md:pt-44 md:pb-20 w-full">
+      {/* === CONTENT === */}
+      <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-12 pt-32 pb-16 md:pt-44 md:pb-20 w-full">
         <div className="text-center max-w-4xl mx-auto">
           {/* Badge */}
           <div className="mb-8 inline-block animate-fade-in-up">
-            <span className="inline-flex items-center gap-3 rounded-full border border-[#E6B447]/30 bg-[#E6B447]/[0.06] px-5 py-2 text-sm">
+            <span className="inline-flex items-center gap-3 rounded-full border border-[#E6B447]/30 bg-[#E6B447]/[0.06] px-5 py-2 text-sm backdrop-blur-sm">
               <span className="flex h-2 w-2 rounded-full bg-[#E6B447] animate-pulse" />
               <span className="text-[#E6B447] font-bold">OPERACIONAL</span>
               <span className="h-3 w-px bg-[#E6B447]/30" />
