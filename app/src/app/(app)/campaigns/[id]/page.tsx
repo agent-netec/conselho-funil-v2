@@ -20,10 +20,10 @@ import {
   TrendingUp,
   Trophy,
   FileText,
-  Copy,
-  Download,
+  Presentation,
   CheckSquare,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { notify } from '@/lib/stores/notification-store';
@@ -206,66 +206,48 @@ export default function CampaignCommandCenter() {
   }, [params.id, user?.uid]);
 
   const [generatingAds, setGeneratingAds] = useState(false);
-  const [briefText, setBriefText] = useState<string | null>(null);
+  const [generatingBriefing, setGeneratingBriefing] = useState<'pdf' | 'slides' | null>(null);
   const [loadingOffer] = useState(false);
 
   // K-2.1: Detect campaign complete
   const isCampaignComplete = !!(campaign?.funnel && campaign?.copywriting && campaign?.social && campaign?.design && campaign?.ads);
 
-  // K-2.3: Generate Campaign Brief
-  const generateBrief = () => {
-    if (!campaign) return;
-    const lines = [
-      '=== CAMPAIGN BRIEF ===',
-      `Nome: ${campaign.name}`,
-      '',
-      '--- FUNIL ---',
-      `Tipo: ${campaign.funnel?.type || '—'}`,
-      `Objetivo: ${campaign.funnel?.mainGoal || '—'}`,
-      `Público: ${campaign.funnel?.targetAudience || '—'}`,
-      `Resumo: ${campaign.funnel?.summary || '—'}`,
-      '',
-      '--- OFERTA ---',
-      `Promessa: ${campaign.offer?.promise || '—'}`,
-      `Score: ${campaign.offer?.score || '—'}`,
-      '',
-      '--- COPYWRITING ---',
-      `Big Idea: ${campaign.copywriting?.bigIdea || '—'}`,
-      `Tom: ${campaign.copywriting?.tone || '—'}`,
-      `Headlines: ${campaign.copywriting?.headlines?.join(', ') || '—'}`,
-      '',
-      '--- SOCIAL ---',
-      `Hooks: ${campaign.social?.hooks?.length || 0} hooks estratégicos`,
-      `Plataformas: ${campaign.social?.platforms?.join(', ') || '—'}`,
-      '',
-      '--- DESIGN ---',
-      `Estilo Visual: ${campaign.design?.visualStyle || '—'}`,
-      `Assets: ${campaign.design?.assetsUrl?.length || 0} criativos`,
-      '',
-      '--- ADS ---',
-      `Canais: ${campaign.ads?.channels?.join(', ') || '—'}`,
-      `Budget Sugerido: ${campaign.ads?.suggestedBudget || 'A definir'}`,
-      `Audiências: ${campaign.ads?.audiences?.length || 0} segmentações`,
-    ];
-    setBriefText(lines.join('\n'));
-  };
+  // Campaign Briefing (PDF / Slides) — abre HTML numa nova aba
+  const downloadBriefing = async (format: 'pdf' | 'slides') => {
+    if (!campaign || generatingBriefing) return;
+    setGeneratingBriefing(format);
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch(`/api/campaigns/${campaign.id}/generate-briefing`, {
+        method: 'POST',
+        headers: { ...authHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ format }),
+      });
 
-  // K-2.5: Export Brief
-  const copyBrief = async () => {
-    if (!briefText) return;
-    await navigator.clipboard.writeText(briefText);
-    toast.success('Brief copiado para a área de transferência!');
-  };
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Erro desconhecido' }));
+        toast.error(err.error || 'Falha ao gerar briefing');
+        return;
+      }
 
-  const downloadBrief = () => {
-    if (!briefText) return;
-    const blob = new Blob([briefText], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `campaign-brief-${campaign?.name?.replace(/\s+/g, '-').toLowerCase() || 'brief'}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+      const { html } = await res.json();
+
+      // Abre o HTML numa nova aba
+      const newTab = window.open('', '_blank');
+      if (newTab) {
+        newTab.document.write(html);
+        newTab.document.close();
+      } else {
+        toast.error('Popup bloqueado pelo navegador. Permita popups para este site.');
+      }
+
+      toast.success(format === 'slides' ? 'Apresentação gerada!' : 'Briefing gerado!');
+    } catch (err) {
+      console.error('[Briefing] Generation failed:', err);
+      toast.error('Falha ao gerar briefing. Tente novamente.');
+    } finally {
+      setGeneratingBriefing(null);
+    }
   };
 
   const handleAction = async (stageId: string) => {
@@ -421,31 +403,35 @@ export default function CampaignCommandCenter() {
 
                 <div className="flex flex-wrap gap-3">
                   <button
-                    onClick={generateBrief}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#AB8648] hover:bg-[#E6B447] text-white rounded-lg text-sm font-medium transition-colors"
+                    onClick={() => downloadBriefing('pdf')}
+                    disabled={generatingBriefing !== null}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#AB8648] hover:bg-[#E6B447] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
                   >
-                    <FileText className="h-4 w-4" />
-                    Gerar Campaign Brief
+                    {generatingBriefing === 'pdf' ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <FileText className="h-4 w-4" />
+                    )}
+                    {generatingBriefing === 'pdf' ? 'Gerando...' : 'Gerar Briefing PDF'}
                   </button>
-                  {briefText && (
-                    <>
-                      <button onClick={copyBrief} className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg text-sm font-medium transition-colors">
-                        <Copy className="h-4 w-4" />
-                        Copiar Brief
-                      </button>
-                      <button onClick={downloadBrief} className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg text-sm font-medium transition-colors">
-                        <Download className="h-4 w-4" />
-                        Download .txt
-                      </button>
-                    </>
-                  )}
+                  <button
+                    onClick={() => downloadBriefing('slides')}
+                    disabled={generatingBriefing !== null}
+                    className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-200 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    {generatingBriefing === 'slides' ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Presentation className="h-4 w-4" />
+                    )}
+                    {generatingBriefing === 'slides' ? 'Gerando...' : 'Gerar Apresentação'}
+                  </button>
                 </div>
 
-                {/* K-2.3: Brief text display */}
-                {briefText && (
-                  <pre className="mt-4 p-4 bg-zinc-950/80 border border-zinc-800 rounded-lg text-xs text-zinc-300 whitespace-pre-wrap max-h-64 overflow-y-auto font-mono">
-                    {briefText}
-                  </pre>
+                {generatingBriefing && (
+                  <p className="mt-3 text-xs text-zinc-500">
+                    Gerando briefing estratégico com IA... isso pode levar até 1 minuto.
+                  </p>
                 )}
 
                 {/* K-2.4: Next Steps */}
