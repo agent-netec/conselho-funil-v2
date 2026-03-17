@@ -61,9 +61,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('https://www.mkthoney.com', request.url), 301);
   }
 
-  // "/home" direct access -> redirect to "/"
+  // "/home" direct access -> pass through (app layout handles auth)
   if (pathname === '/home') {
-    return NextResponse.redirect(new URL('/', request.url), 301);
+    return NextResponse.next();
   }
 
   // Public routes pass through

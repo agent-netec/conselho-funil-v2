@@ -107,7 +107,7 @@ export default function SignupPage() {
       } catch (firestoreErr) {
         console.error('Failed to create Firestore user doc:', firestoreErr);
       }
-      router.push('/welcome');
+      router.push('/home');
     } catch (err: any) {
       if (err.code === 'auth/email-already-in-use') {
         setError('Este email ja esta em uso');
@@ -129,7 +129,7 @@ export default function SignupPage() {
       if (result.error) {
         setError(result.error);
       } else if (result.user) {
-        router.push('/welcome');
+        router.push('/home');
       }
     } catch {
       setError('Erro ao conectar com Google. Tente novamente.');
