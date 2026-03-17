@@ -258,10 +258,17 @@ export async function POST(request: NextRequest) {
         // Get funnel context for regeneration
         const funnelContext = funnel.context;
         
+        // Forward auth headers from original request
+        const authHeader = request.headers.get('authorization');
+        const cookieHeader = request.headers.get('cookie');
+        const regenHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (authHeader) regenHeaders['authorization'] = authHeader;
+        if (cookieHeader) regenHeaders['cookie'] = cookieHeader;
+
         // Call generate API with adjustments (fire and forget)
         fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/api/funnels/generate`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: regenHeaders,
           body: JSON.stringify({
             funnelId,
             context: funnelContext,
