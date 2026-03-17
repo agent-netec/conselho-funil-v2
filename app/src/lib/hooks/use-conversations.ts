@@ -156,8 +156,22 @@ export function useConversation(conversationId: string | null) {
         throw new Error(errorData.error || 'Failed to get response');
       }
 
-      // The response is automatically added to Firestore by the API
-      // and will be picked up by the real-time subscription
+      // Optimistic update: inject AI response into local state immediately
+      // so user doesn't wait for the Firestore listener round-trip
+      const data = await response.json();
+      const aiContent = data?.data?.response;
+      if (aiContent) {
+        setMessages(prev => {
+          // Avoid duplicate if listener already delivered it
+          if (prev.some(m => m.role === 'assistant' && m.content === aiContent)) return prev;
+          return [...prev, {
+            id: `optimistic-${Date.now()}`,
+            role: 'assistant',
+            content: aiContent,
+            timestamp: { toDate: () => new Date() } as any,
+          } as Message];
+        });
+      }
     } catch (err) {
       console.error('Error sending message:', err);
       setError(err instanceof Error ? err.message : 'Erro ao enviar mensagem');
