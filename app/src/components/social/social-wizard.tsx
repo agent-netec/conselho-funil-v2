@@ -438,11 +438,11 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
         }),
       });
       const data = await res.json();
-      if (res.ok && data.data) {
+      if (res.ok && data.data?.variations?.length > 0) {
         setAbVariations(data.data);
         notify.success('Variações A/B geradas!');
       } else {
-        notify.error(data.error || 'Erro ao gerar variações');
+        notify.error(data.error || 'Nenhuma variação gerada. Tente novamente.');
       }
     } catch {
       notify.error('Erro de conexão');
@@ -918,6 +918,9 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
               {isGeneratingAB ? 'Gerando...' : 'Gerar Variações'}
             </Button>
           </div>
+          {!abVariations && !isGeneratingAB && (
+            <p className="text-xs text-zinc-500 text-center py-3">Clique em &ldquo;Gerar Variações&rdquo; para criar alternativas A/B dos seus hooks.</p>
+          )}
           {abVariations?.variations?.map((group: any, gi: number) => (
             <div key={gi} className="mb-4">
               <p className="text-[10px] text-zinc-500 uppercase font-medium mb-2">Hook {group.originalHookIndex + 1}</p>

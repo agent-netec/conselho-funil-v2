@@ -95,9 +95,16 @@ Responda APENAS em JSON válido:
       const cleaned = jsonMatch ? jsonMatch[1].trim() : text.trim();
       const firstBrace = cleaned.indexOf('{');
       const lastBrace = cleaned.lastIndexOf('}');
+      if (firstBrace === -1 || lastBrace === -1) throw new Error('No JSON object found');
       parsed = JSON.parse(cleaned.substring(firstBrace, lastBrace + 1));
-    } catch {
-      parsed = { variations: [], rawText: text };
+    } catch (parseErr) {
+      console.error('[social/ab-variations] JSON parse failed:', parseErr, 'Raw text:', text.substring(0, 500));
+      return createApiError(502, 'A IA retornou um formato inválido. Tente novamente.');
+    }
+
+    if (!parsed.variations || !Array.isArray(parsed.variations) || parsed.variations.length === 0) {
+      console.error('[social/ab-variations] Empty variations:', JSON.stringify(parsed).substring(0, 300));
+      return createApiError(502, 'A IA não gerou variações. Tente novamente.');
     }
 
     return createApiSuccess(parsed);
