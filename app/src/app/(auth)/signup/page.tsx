@@ -1,6 +1,6 @@
 'use client';
-import { useState, ChangeEvent, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState, ChangeEvent, FormEvent } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { signupWithEmail, signInWithGoogle } from '@/lib/firebase/auth';
 import { createUser } from '@/lib/firebase/firestore';
 import {
@@ -60,7 +60,17 @@ type FormData = {
 };
 
 export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0D0B09]" />}>
+      <SignupContent />
+    </Suspense>
+  );
+}
+
+function SignupContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/home';
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -107,7 +117,7 @@ export default function SignupPage() {
       } catch (firestoreErr) {
         console.error('Failed to create Firestore user doc:', firestoreErr);
       }
-      router.push('/home');
+      router.push(redirectTo);
     } catch (err: any) {
       if (err.code === 'auth/email-already-in-use') {
         setError('Este email ja esta em uso');
@@ -129,7 +139,7 @@ export default function SignupPage() {
       if (result.error) {
         setError(result.error);
       } else if (result.user) {
-        router.push('/home');
+        router.push(redirectTo);
       }
     } catch {
       setError('Erro ao conectar com Google. Tente novamente.');
@@ -140,7 +150,8 @@ export default function SignupPage() {
 
   const handleGoToLogin = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    router.push('/login');
+    const redirect = searchParams.get('redirect');
+    router.push(redirect ? `/login?redirect=${encodeURIComponent(redirect)}` : '/login');
   };
 
   const formFields = {

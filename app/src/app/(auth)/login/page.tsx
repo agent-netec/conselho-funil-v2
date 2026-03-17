@@ -1,6 +1,6 @@
 'use client';
-import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState, ChangeEvent, FormEvent, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { loginWithEmail, sendPasswordReset, signInWithGoogle } from '@/lib/firebase/auth';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import {
@@ -59,7 +59,17 @@ type FormData = {
 };
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0D0B09]" />}>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/';
   const { user, isInitialized } = useAuthStore();
   const [formData, setFormData] = useState<FormData>({
     email: '',
@@ -74,9 +84,9 @@ export default function LoginPage() {
   // (this handles the case where router.push('/') fires before the 300ms delay completes)
   useEffect(() => {
     if (isInitialized && user) {
-      router.push('/');
+      router.push(redirectTo);
     }
-  }, [user, isInitialized, router]);
+  }, [user, isInitialized, router, redirectTo]);
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement>,
@@ -124,7 +134,8 @@ export default function LoginPage() {
 
   const handleGoToSignup = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    router.push('/signup');
+    const redirect = searchParams.get('redirect');
+    router.push(redirect ? `/signup?redirect=${encodeURIComponent(redirect)}` : '/signup');
   };
 
   const handleForgotPassword = async () => {

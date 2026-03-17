@@ -15,6 +15,7 @@ import { UserPreferences } from '@/types/database';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { BrandingSettings } from '@/components/agency/BrandingSettings';
 import { useBranding } from '@/components/providers/branding-provider';
 
@@ -28,6 +29,7 @@ type ThemePreference = 'dark' | 'light' | 'system';
 const TABS = [
   { id: 'profile', label: 'Perfil' },
   { id: 'business', label: 'Negócio' },
+  { id: 'billing', label: 'Planos e Pagamento', href: '/settings/billing' },
   { id: 'integrations', label: 'Integrações' },
   { id: 'notifications', label: 'Notificações' },
   { id: 'appearance', label: 'Aparência' },
@@ -35,6 +37,7 @@ const TABS = [
 ];
 
 export default function SettingsPage() {
+  const router = useRouter();
   const { user: authUser } = useAuthStore();
   const { user } = useUser();
   const [activeTab, setActiveTab] = useState('profile');
@@ -158,7 +161,10 @@ export default function SettingsPage() {
             {TABS.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  if ('href' in tab && tab.href) { router.push(tab.href); return; }
+                  setActiveTab(tab.id);
+                }}
                 className={cn(
                   'w-full text-left px-3 py-2.5 text-[12px] font-mono tracking-wider transition-colors border-l-2',
                   activeTab === tab.id

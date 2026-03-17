@@ -296,6 +296,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { id: 'brands', label: 'Marcas', href: '/brands', icon: 'Building', minTier: 'starter' },
       { id: 'integrations', label: 'Integrações', href: '/integrations', icon: 'PlugZap', minTier: 'starter' },
       { id: 'settings', label: 'Configurações', href: '/settings', icon: 'Settings', minTier: 'starter' },
+      { id: 'billing', label: 'Planos', href: '/settings/billing', icon: 'CreditCard', minTier: 'starter' },
     ],
   },
 ];
