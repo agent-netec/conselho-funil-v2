@@ -18,6 +18,7 @@ import { BrandCharactersSection } from './brand-characters-section';
 
 interface BrandKitFormProps {
   brand: Brand;
+  onSaved?: () => void;
 }
 
 const AI_PRESETS = {
@@ -27,7 +28,7 @@ const AI_PRESETS = {
   equilibrado: { temperature: 0.6, topP: 0.85, profile: 'equilibrado' as const },
 };
 
-export function BrandKitForm({ brand }: BrandKitFormProps) {
+export function BrandKitForm({ brand, onSaved }: BrandKitFormProps) {
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -85,6 +86,7 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
         updateBrand(brand.id, { aiConfiguration: aiConfig })
       ]);
       toast.success('Configurações salvas com sucesso');
+      onSaved?.();
     } catch (error) {
       console.error('Erro ao salvar configurações:', error);
       toast.error('Não foi possível salvar as alterações');
@@ -137,6 +139,7 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
       toast.success("Logo enviada e salva!", {
         description: "A logo foi vinculada à marca e o Logo Lock foi ativado.",
       });
+      onSaved?.();
     } catch (error) {
       console.error('[LogoUpload] FAILED at step:', error);
       toast.error("Erro no upload", {
@@ -264,7 +267,9 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
               onUpdate={(characters) => {
                 const updatedKit = { ...kit, characters };
                 setKit(updatedKit);
-                updateBrandKit(brand.id, sanitizeKit(updatedKit) as typeof kit).catch(console.error);
+                updateBrandKit(brand.id, sanitizeKit(updatedKit) as typeof kit)
+                  .then(() => onSaved?.())
+                  .catch(console.error);
               }}
             />
           </div>

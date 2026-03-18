@@ -342,7 +342,7 @@ export default function BrandDetailPage() {
         </TabsContent>
 
           <TabsContent value="brandhub">
-            <BrandKitForm brand={brand} />
+            <BrandKitForm brand={brand} onSaved={loadBrand} />
           </TabsContent>
 
           <TabsContent value="projects">
