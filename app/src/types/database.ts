@@ -206,6 +206,21 @@ export interface Brand {
     reason?: string;
   };
 
+  // Cliente Ideal (salvo do Deep Research)
+  idealClient?: {
+    name: string;
+    age: string;
+    tone: string;
+    pains: string[];
+    desires: string[];
+    questions: string[];
+    triggers: string[];
+    summary: string;
+    source: 'research' | 'manual';
+    dossierId?: string;
+    savedAt: string; // ISO date
+  };
+
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

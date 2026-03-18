@@ -51,6 +51,9 @@ export default function ResearchPage() {
   const [ragSections, setRagSections] = useState<Set<string>>(new Set());
   const [ragSaving, setRagSaving] = useState(false);
 
+  // Save persona as ideal client
+  const [savingIdealClient, setSavingIdealClient] = useState(false);
+
   const selected = useMemo(() => items.find((i) => i.id === selectedId) ?? null, [items, selectedId]);
 
   const loadList = async () => {
@@ -138,6 +141,35 @@ export default function ResearchPage() {
       toast.error('Erro ao salvar insights na marca.');
     } finally {
       setSavingInsights(false);
+    }
+  };
+
+  // Save persona as Ideal Client on brand
+  const handleSaveIdealClient = async () => {
+    if (!persona || !brandId) return;
+    setSavingIdealClient(true);
+    try {
+      await updateDoc(doc(db, 'brands', brandId), {
+        idealClient: {
+          name: persona.name,
+          age: persona.age,
+          tone: persona.tone,
+          pains: persona.pains,
+          desires: persona.desires,
+          questions: persona.questions,
+          triggers: persona.triggers,
+          summary: persona.summary,
+          source: 'research',
+          dossierId: selected?.id || '',
+          savedAt: new Date().toISOString(),
+        },
+      });
+      toast.success('Cliente ideal salvo na marca!');
+    } catch (err) {
+      console.error('[Research] Save ideal client error:', err);
+      toast.error('Erro ao salvar cliente ideal.');
+    } finally {
+      setSavingIdealClient(false);
     }
   };
 
@@ -551,6 +583,20 @@ export default function ResearchPage() {
                               <ul className="list-disc ml-4 mt-1 space-y-0.5">{persona.triggers.map((t, i) => <li key={i}>{t}</li>)}</ul>
                             </div>
                           </div>
+                          <Button
+                            size="sm"
+                            onClick={handleSaveIdealClient}
+                            disabled={savingIdealClient}
+                            className="w-full mt-2 bg-[#E6B447]/20 hover:bg-[#E6B447]/30 text-[#E6B447] border border-[#E6B447]/30"
+                          >
+                            {savingIdealClient ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" /> : <Save className="h-3.5 w-3.5 mr-2" />}
+                            Salvar como Cliente Ideal da Marca
+                          </Button>
+                          {selectedBrand?.idealClient && (
+                            <p className="text-[10px] text-zinc-500 text-center mt-1">
+                              Cliente ideal atual: {selectedBrand.idealClient.name} — será substituído
+                            </p>
+                          )}
                         </Card>
                       )}
                     </>
