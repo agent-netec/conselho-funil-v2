@@ -263,6 +263,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { id: 'funnels', label: 'Funis', href: '/funnels', icon: 'Target', minTier: 'starter' },
       { id: 'campaigns', label: 'Campanhas', href: '/campaigns', icon: 'Rocket', aliases: ['/campaign'], minTier: 'starter' },
       { id: 'intelligence', label: 'Intelligence', href: '/intelligence', icon: 'Brain', minTier: 'starter' },
+      { id: 'deep-research', label: 'Deep Research', href: '/intelligence/research', icon: 'Telescope', minTier: 'starter' },
       { id: 'discovery', label: 'Discovery', href: '/intelligence/discovery', icon: 'Search', minTier: 'pro' },
     ],
   },
