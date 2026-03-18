@@ -100,7 +100,7 @@ export default function DesignStudioPage() {
         const snap = await getDocs(q);
         const items = snap.docs
           .map(d => ({ id: d.id, ...d.data() }))
-          .filter((c: any) => c.copywriting);
+          .filter((c: any) => c.copywriting || c.social);
         setCampaigns(items);
       } catch (err) {
         console.error('[DesignStudio] Error loading campaigns:', err);
@@ -149,7 +149,7 @@ export default function DesignStudioPage() {
   // Analyze
   const handleAnalyze = async (campaign?: any) => {
     const camp = campaign || selectedCampaign;
-    if (!camp?.copywriting) return;
+    if (!camp?.copywriting && !camp?.social) return;
     setIsAnalyzing(true);
     try {
       const headers = await getAuthHeaders();
@@ -178,7 +178,7 @@ export default function DesignStudioPage() {
 
   // Plan
   const handlePlan = async () => {
-    if (!selectedCampaign?.copywriting) return;
+    if (!selectedCampaign?.copywriting && !selectedCampaign?.social) return;
     setIsPlanning(true);
     try {
       const headers = await getAuthHeaders();
@@ -195,7 +195,7 @@ export default function DesignStudioPage() {
           analysis,
           context: {
             objective: selectedFunnel?.context?.objective || '',
-            copy: selectedCampaign.copywriting.mainScript || selectedCampaign.copywriting.bigIdea || '',
+            copy: selectedCampaign.copywriting?.mainScript || selectedCampaign.copywriting?.bigIdea || selectedCampaign.social?.hooks?.[0]?.content || '',
             hooks: selectedCampaign.social?.hooks || [],
           }
         }),
@@ -217,7 +217,7 @@ export default function DesignStudioPage() {
 
   // Quick generate
   const handleQuickGenerate = async () => {
-    if (!selectedCampaign?.copywriting) return;
+    if (!selectedCampaign?.copywriting && !selectedCampaign?.social) return;
     setIsPlanning(true);
     try {
       const headers = await getAuthHeaders();
@@ -230,7 +230,7 @@ export default function DesignStudioPage() {
           brandId,
           context: {
             objective: selectedFunnel?.context?.objective || '',
-            copy: selectedCampaign.copywriting.mainScript || selectedCampaign.copywriting.bigIdea || '',
+            copy: selectedCampaign.copywriting?.mainScript || selectedCampaign.copywriting?.bigIdea || selectedCampaign.social?.hooks?.[0]?.content || '',
             hooks: selectedCampaign.social?.hooks || [],
           }
         }),
@@ -338,8 +338,8 @@ export default function DesignStudioPage() {
             {!isLoadingCampaigns && campaigns.length === 0 && (
               <div className="p-12 rounded-xl border border-white/[0.05] bg-white/[0.02] text-center">
                 <Sparkles className="h-12 w-12 text-zinc-700 mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-white mb-2">Nenhuma campanha com copy pronta</h3>
-                <p className="text-sm text-zinc-500 mb-4">O Design Studio precisa de uma campanha com copywriting aprovado.</p>
+                <h3 className="text-xl font-bold text-white mb-2">Nenhuma campanha disponível</h3>
+                <p className="text-sm text-zinc-500 mb-4">O Design Studio precisa de uma campanha com Copy ou Social aprovados.</p>
                 <Button asChild className="bg-[#E6B447] hover:bg-[#F0C35C]">
                   <Link href="/campaigns">Ir para Campanhas</Link>
                 </Button>
