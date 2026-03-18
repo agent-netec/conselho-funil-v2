@@ -317,6 +317,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Inject styleDirection + inspirationTraits into each prompt for the generate API
+    console.log(`[Design/Plan] styleContext length: ${styleContext.length}, selectedStyles: ${JSON.stringify(selectedStyles)}, selectedBrandRefs: ${JSON.stringify(selectedBrandRefs)}, freeStyleText: ${freeStyleText ? 'yes' : 'no'}`);
     const enrichedPrompts = (parsed.prompts || []).map((p: any) => ({
       ...p,
       styleDirection: styleContext || undefined,

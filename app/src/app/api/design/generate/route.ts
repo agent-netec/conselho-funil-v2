@@ -285,6 +285,8 @@ Return ONLY the JSON array of strings.`;
       // Scene only — textOverlayBlock is prepended at the final assembly point
       promptVariants = [`[SCENE]\n${basePrompt}\n\n${styleBlock}${brainBlock}${technicalBlock}`];
       console.log(`✨ Usando modo de geração única${styleDirection ? ' com style direction do usuário' : ' com brain context'}.`);
+      console.log(`[Design/Debug] styleDirection received:`, styleDirection ? styleDirection.substring(0, 200) : 'NONE');
+      console.log(`[Design/Debug] basePrompt:`, basePrompt.substring(0, 200));
     } else {
       try {
         const flashModel = genAI.getGenerativeModel({ model: process.env.GEMINI_PRO_MODEL || 'gemini-2.5-pro' });
