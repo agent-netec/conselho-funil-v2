@@ -294,13 +294,13 @@ export default function DesignCouncilPage() {
           preferredColors: brand?.brandKit?.colors ? [brand.brandKit.colors.primary, brand.brandKit.colors.secondary].filter(Boolean) : ['#E6B447', '#000000'],
           visualPrompts: prompts,
           aspectRatios: prompts.map((p: any) => p.aspectRatio || '1:1'),
-          analysis: analysis || undefined,
+          analysis: analysis || null,
           campaignSystem: campaignSystemEnabled ? {
             enabled: true,
             pieces: prompts.map((p: any, i: number) => ({ role: p.pieceRole || 'standalone', promptIndex: i })),
-          } : undefined,
-          inspirationRefs: inspirations.length > 0 ? inspirations : undefined,
-          selectedCharacterIds: selectedCharacterIds.length > 0 ? selectedCharacterIds : undefined,
+          } : null,
+          inspirationRefs: inspirations.length > 0 ? inspirations : [],
+          selectedCharacterIds: selectedCharacterIds.length > 0 ? selectedCharacterIds : [],
         }
       });
       notify.success('Sistema Visual Aprovado!');
