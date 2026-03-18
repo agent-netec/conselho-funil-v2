@@ -72,7 +72,8 @@ export class ResearchEngine {
         ...(input.customUrls?.length && { customUrls: input.customUrls }),
       };
       const adminDb = getAdminFirestore();
-      const docRef = await adminDb.collection('brands').doc(input.brandId).collection('research').add(toPlainObject(dossier));
+      const { id: _stripId, ...dossierData } = dossier;
+      const docRef = await adminDb.collection('brands').doc(input.brandId).collection('research').add(toPlainObject(dossierData));
       dossier.id = docRef.id;
       return dossier;
     } catch (error) {

@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
       .orderBy('generatedAt', 'desc')
       .limit(Number.isNaN(max) ? 20 : max)
       .get();
-    const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const items = snap.docs.map((d) => { const data = d.data(); delete data.id; return { id: d.id, ...data }; });
     return createApiSuccess(items);
   } catch (error: unknown) {
     if (error instanceof ApiError) return handleSecurityError(error);
