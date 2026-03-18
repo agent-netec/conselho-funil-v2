@@ -116,15 +116,15 @@ service cloud.firestore {
       // resource == null quando doc não existe ainda — permite sem vazar dados
       allow get: if isAuthenticated() && (
         resource == null ||
-        (resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId)) ||
-        (resource.data.userId == request.auth.uid)
+        resource.data.userId == request.auth.uid ||
+        ('agencyId' in resource.data && resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId))
       );
       // create: resource é null, usa request.resource
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       // update/delete: checa recurso existente
       allow update, delete: if isAuthenticated() && (
-        (resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId)) ||
-        (resource.data.userId == request.auth.uid)
+        resource.data.userId == request.auth.uid ||
+        ('agencyId' in resource.data && resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId))
       );
 
       // Proposals e Decisions subcollections
@@ -173,15 +173,16 @@ service cloud.firestore {
       allow list: if isAuthenticated() && resource.data.userId == request.auth.uid;
       // get (single doc): checa userId ou agency membership
       allow get: if isAuthenticated() && (
-        (resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId)) ||
-        (resource.data.userId == request.auth.uid)
+        resource.data.userId == request.auth.uid ||
+        ('agencyId' in resource.data && resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId))
       );
       // create: resource é null, usa request.resource
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       // update/delete: checa recurso existente
+      // Guard: check userId FIRST (most common), agency path only if agencyId field exists
       allow update, delete: if isAuthenticated() && (
-        (resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId)) ||
-        (resource.data.userId == request.auth.uid)
+        resource.data.userId == request.auth.uid ||
+        ('agencyId' in resource.data && resource.data.agencyId != null && canAccessClient(resource.data.agencyId, resource.data.clientId))
       );
 
       // Audit logs — written by client on brand governance actions
