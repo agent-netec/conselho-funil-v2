@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     
     // O Gemini 3 Pro Image não possui um endpoint de "upscale" tradicional em v1beta.
     // O upscale é feito pedindo uma edição da imagem original com maior resolução (4K).
-    const imageModelId = 'gemini-3-pro-image-preview';
+    const imageModelId = 'gemini-3.1-flash-image-preview';
     const imageEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${imageModelId}:generateContent?key=${apiKey}`;
 
     // Carregar imagem original para upscale

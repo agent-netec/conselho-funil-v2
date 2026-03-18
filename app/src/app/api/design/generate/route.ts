@@ -314,7 +314,8 @@ Return ONLY the JSON array of strings.`;
     // Tenta modelos em ordem de qualidade: Pro (3.0) → Flash (2.5)
     // Ref: contract 22-2, gemini-2.0-flash-exp is DEPRECATED
     const IMAGE_MODELS = [
-      { id: 'gemini-3-pro-image-preview', name: 'Nano Banana Pro' },
+      { id: 'gemini-3.1-flash-image-preview', name: 'Nano Banana 2 (3.1 Flash)' },
+      { id: 'gemini-3-pro-image-preview', name: 'Nano Banana Pro (3.0)' },
       { id: 'gemini-2.5-flash-image', name: 'Nano Banana (Flash 2.5)' },
     ];
     const BASE_IMAGE_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models';
