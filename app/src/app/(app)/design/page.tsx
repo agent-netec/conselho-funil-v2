@@ -90,17 +90,19 @@ export default function DesignStudioPage() {
         return;
       }
       try {
+        // Simple query without orderBy to avoid composite index requirement
         const q = query(
           collection(db, 'campaigns'),
           where('userId', '==', user.uid),
           where('brandId', '==', brandId),
-          orderBy('updatedAt', 'desc'),
-          limit(20)
+          limit(50)
         );
         const snap = await getDocs(q);
         const items = snap.docs
-          .map(d => ({ id: d.id, ...d.data() }))
-          .filter((c: any) => c.copywriting || c.social);
+          .map(d => ({ id: d.id, ...d.data() } as any))
+          .filter((c: any) => c.copywriting || c.social)
+          .sort((a: any, b: any) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0))
+          .slice(0, 20);
         setCampaigns(items);
       } catch (err) {
         console.error('[DesignStudio] Error loading campaigns:', err);
