@@ -119,6 +119,10 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
           brandContext: promptData.brandContext,
           copyHeadline: promptData.assets?.headline || '',
           copyLanguage: 'português brasileiro',
+          // Pass style context from plan to generate
+          styleDirection: promptData.styleDirection,
+          characterId: promptData.characterId,
+          inspirationTraits: promptData.inspirationTraits,
         }),
       });
 

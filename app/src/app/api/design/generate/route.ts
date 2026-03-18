@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
       // Design Director expansion
       characterId,
       inspirationTraits,
+      styleDirection,
     } = body;
 
     const aspectRatio = normalizeAspectRatio(rawAspectRatio);
@@ -125,7 +126,7 @@ export async function POST(request: NextRequest) {
     let brandData = null;
     let imageReferences: string[] = [];
     let brandColors: string[] = [];
-    let visualStyle = 'Professional and modern';
+    let visualStyle = styleDirection || 'Professional and modern';
     let isLogoLocked = false;
     let brandTypography = '';
 
@@ -272,11 +273,18 @@ Return ONLY the JSON array of strings.`;
       const brainBlock = designBrainContext
         ? `[VISUAL FRAMEWORK]\nApply C.H.A.P.E.U: High Contrast, Visual Hierarchy (eye journey), Human presence (anthropomorphism), Proof elements, Emotional structure with negative space for CTA, Visual urgency.\n`
         : '';
-      const technicalBlock = `[TECHNICAL]\n${seniorHeuristics.lighting} | ${seniorHeuristics.composition} | ${seniorHeuristics.sharpness} | ${logoInstruction}`;
 
-      // Scene only — textOverlayBlock is prepended at the final assembly point (line ~253)
-      promptVariants = [`[SCENE]\n${basePrompt}\n\n${brainBlock}${technicalBlock}`];
-      console.log('✨ Usando modo de geração única com brain context.');
+      // Use style direction from plan if available, otherwise fall back to technical heuristics
+      const styleBlock = styleDirection
+        ? `[STYLE DIRECTION — MANDATORY]\n${styleDirection}\nFollow this style direction strictly. Do NOT default to generic "professional modern" style.\n`
+        : '';
+      const technicalBlock = !styleDirection
+        ? `[TECHNICAL]\n${seniorHeuristics.lighting} | ${seniorHeuristics.composition} | ${seniorHeuristics.sharpness} | ${logoInstruction}`
+        : `[TECHNICAL]\n${seniorHeuristics.sharpness} | ${logoInstruction}`;
+
+      // Scene only — textOverlayBlock is prepended at the final assembly point
+      promptVariants = [`[SCENE]\n${basePrompt}\n\n${styleBlock}${brainBlock}${technicalBlock}`];
+      console.log(`✨ Usando modo de geração única${styleDirection ? ' com style direction do usuário' : ' com brain context'}.`);
     } else {
       try {
         const flashModel = genAI.getGenerativeModel({ model: process.env.GEMINI_PRO_MODEL || 'gemini-2.5-pro' });

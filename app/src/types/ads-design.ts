@@ -38,6 +38,8 @@ export const AdsDesignSchema = z.object({
   characterId: z.string().optional(),
   inspirationRefs: z.array(z.string()).optional(),
   campaignSystemId: z.string().optional(),
+  styleDirection: z.string().optional(),
+  inspirationTraits: z.array(z.string()).optional(),
 });
 
 export type AdsDesignContract = z.infer<typeof AdsDesignSchema>;

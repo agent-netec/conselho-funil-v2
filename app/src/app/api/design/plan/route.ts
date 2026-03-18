@@ -316,7 +316,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return createApiSuccess({ prompts: parsed.prompts || [] });
+    // Inject styleDirection + inspirationTraits into each prompt for the generate API
+    const enrichedPrompts = (parsed.prompts || []).map((p: any) => ({
+      ...p,
+      styleDirection: styleContext || undefined,
+      inspirationTraits: inspirationRefs?.flatMap((ref: any) => ref.extractedTraits || []) || [],
+    }));
+
+    return createApiSuccess({ prompts: enrichedPrompts });
 
   } catch (error) {
     console.error('Design plan error:', error);
