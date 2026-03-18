@@ -272,6 +272,7 @@ export const NAV_GROUPS: NavGroup[] = [
     icon: 'PencilLine',
     items: [
       { id: 'social', label: 'Social', href: '/social', icon: 'Share2', minTier: 'starter' },
+      { id: 'design-studio', label: 'Design Studio', href: '/design', icon: 'Palette', minTier: 'starter' },
       { id: 'vault', label: 'Creative Vault', href: '/vault', icon: 'Database', minTier: 'starter' },
       { id: 'content-calendar', label: 'Calendário', href: '/content/calendar', icon: 'Calendar', minTier: 'pro', comingSoon: true },
       { id: 'social-inbox', label: 'Social Inbox', href: '/social-inbox', icon: 'Inbox', minTier: 'pro', comingSoon: true },
