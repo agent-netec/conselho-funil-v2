@@ -106,11 +106,14 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
 
     setUploadingLogo(true);
     try {
+      console.log('[LogoUpload] Step 1: uploading to Storage...', { brandId: brand.id, userId: user.id });
       const url = await uploadLogo(file, brand.id, user.id);
-      const updatedKit: BrandKit = { 
-        ...kit, 
-        logoLock: { 
-          ...kit.logoLock, 
+      console.log('[LogoUpload] Step 1 OK. URL:', url?.slice(0, 80));
+
+      const updatedKit: BrandKit = {
+        ...kit,
+        logoLock: {
+          ...kit.logoLock,
           variants: {
             ...kit.logoLock.variants,
             primary: {
@@ -119,21 +122,23 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
               format: file.type.split('/')[1] as any || 'png'
             }
           },
-          locked: true // Trava automaticamente ao subir logo oficial
+          locked: true
         },
         updatedAt: Timestamp.now()
       };
-      
+
       setKit(updatedKit);
 
-      // AUTO-SAVE: sanitize to remove undefined values (Firestore rejects them)
-      await updateBrandKit(brand.id, sanitizeKit(updatedKit) as typeof kit);
-      
+      const cleanKit = sanitizeKit(updatedKit);
+      console.log('[LogoUpload] Step 2: saving to Firestore...', { brandId: brand.id, kitKeys: Object.keys(cleanKit) });
+      await updateBrandKit(brand.id, cleanKit as typeof kit);
+      console.log('[LogoUpload] Step 2 OK — saved!');
+
       toast.success("Logo enviada e salva!", {
         description: "A logo foi vinculada à marca e o Logo Lock foi ativado.",
       });
     } catch (error) {
-      console.error('Error uploading logo:', error);
+      console.error('[LogoUpload] FAILED at step:', error);
       toast.error("Erro no upload", {
         description: "Não foi possível enviar a logo.",
       });
