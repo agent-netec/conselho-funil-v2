@@ -6,7 +6,7 @@ import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ResearchEngine } from '@/lib/intelligence/research/engine';
-import { listResearch } from '@/lib/firebase/research';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import type { ResearchDepth } from '@/types/research';
 
 export async function POST(req: NextRequest) {
@@ -53,7 +53,15 @@ export async function GET(req: NextRequest) {
 
     const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
     const max = Number(limitParam ?? 20);
-    const items = await listResearch(safeBrandId, Number.isNaN(max) ? 20 : max);
+    const adminDb = getAdminFirestore();
+    const snap = await adminDb
+      .collection('brands')
+      .doc(safeBrandId)
+      .collection('research')
+      .orderBy('generatedAt', 'desc')
+      .limit(Number.isNaN(max) ? 20 : max)
+      .get();
+    const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     return createApiSuccess(items);
   } catch (error: unknown) {
     if (error instanceof ApiError) return handleSecurityError(error);

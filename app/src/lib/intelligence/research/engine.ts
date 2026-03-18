@@ -2,7 +2,7 @@ import { Timestamp } from 'firebase/firestore';
 import { ExaAdapter } from '@/lib/mcp/adapters/exa';
 import { FirecrawlAdapter } from '@/lib/mcp/adapters/firecrawl';
 import { DossierGenerator } from '@/lib/intelligence/research/dossier-generator';
-import { getCachedResearch, saveResearch } from '@/lib/firebase/research';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 import type { MarketDossier, ResearchDepth, ResearchQuery, ResearchSource } from '@/types/research';
 
 const DEPTH_CONFIG: Record<ResearchDepth, { exaResults: number; enrichTop: number }> = {
@@ -20,9 +20,21 @@ function isValidSourceUrl(value: string): boolean {
 export class ResearchEngine {
   static async generateDossier(input: ResearchQuery): Promise<MarketDossier> {
     const now = Timestamp.now();
+    // Check cache via admin SDK
     let cached: MarketDossier | null = null;
     try {
-      cached = await getCachedResearch(input.brandId, input.topic);
+      const adminDb = getAdminFirestore();
+      const cacheSnap = await adminDb
+        .collection('brands').doc(input.brandId).collection('research')
+        .where('topic', '==', input.topic)
+        .where('expiresAt', '>', Timestamp.now())
+        .orderBy('generatedAt', 'desc')
+        .limit(1)
+        .get();
+      if (!cacheSnap.empty) {
+        const d = cacheSnap.docs[0];
+        cached = { id: d.id, ...d.data() } as MarketDossier;
+      }
     } catch {
       // Composite index may not exist yet — skip cache gracefully
     }
@@ -58,8 +70,9 @@ export class ResearchEngine {
         ...(input.templateId && { templateId: input.templateId }),
         ...(input.customUrls?.length && { customUrls: input.customUrls }),
       };
-      const savedId = await saveResearch(input.brandId, dossier);
-      dossier.id = savedId;
+      const adminDb = getAdminFirestore();
+      const docRef = await adminDb.collection('brands').doc(input.brandId).collection('research').add(dossier);
+      dossier.id = docRef.id;
       return dossier;
     } catch (error) {
       return this.failed(

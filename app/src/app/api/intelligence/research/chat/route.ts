@@ -17,7 +17,7 @@ import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { generateWithGemini, PRO_GEMINI_MODEL } from '@/lib/ai/gemini';
-import { getResearch } from '@/lib/firebase/research';
+// getResearch replaced by admin SDK inline (client SDK fails server-side)
 import { updateUserUsage } from '@/lib/firebase/firestore';
 import type { ResearchChatMessage } from '@/types/research';
 
@@ -63,11 +63,13 @@ export async function POST(req: NextRequest) {
       return handleSecurityError(error);
     }
 
-    // Load dossier for context
-    const dossier = await getResearch(brandId, dossierId);
-    if (!dossier) {
+    // Load dossier for context (admin SDK)
+    const adminDb = getAdminFirestore();
+    const dossierSnap = await adminDb.collection('brands').doc(brandId).collection('research').doc(dossierId).get();
+    if (!dossierSnap.exists) {
       return createApiError(404, 'Dossiê não encontrado');
     }
+    const dossier = { id: dossierSnap.id, ...dossierSnap.data() } as any;
 
     // Build context from dossier sections (null-safe)
     const s = dossier.sections || {} as any;
