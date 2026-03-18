@@ -10,7 +10,7 @@
 
 import { useMemo, useCallback, type DragEvent } from 'react';
 import type { CalendarItem, CalendarItemStatus } from '@/types/content';
-import { FileText, Image, Layers, Film } from 'lucide-react';
+import { FileText, Image, Layers, Film, Instagram, Linkedin, Twitter, Music2, Clock } from 'lucide-react';
 
 // === Format Icons ===
 
@@ -19,6 +19,20 @@ const FORMAT_ICONS: Record<string, typeof FileText> = {
   story: Image,
   carousel: Layers,
   reel: Film,
+};
+
+const PLATFORM_ICONS: Record<string, typeof FileText> = {
+  instagram: Instagram,
+  linkedin: Linkedin,
+  x: Twitter,
+  tiktok: Music2,
+};
+
+const PLATFORM_COLORS: Record<string, string> = {
+  instagram: 'text-pink-400',
+  linkedin: 'text-blue-400',
+  x: 'text-zinc-300',
+  tiktok: 'text-cyan-400',
 };
 
 // === Status Colors ===
@@ -179,7 +193,18 @@ export function CalendarView({
               <div className="space-y-1">
                 {dayItems.map((item) => {
                   const FormatIcon = FORMAT_ICONS[item.format] ?? FileText;
+                  const PlatformIcon = PLATFORM_ICONS[item.platform] ?? FileText;
+                  const platformColor = PLATFORM_COLORS[item.platform] ?? 'text-zinc-400';
                   const statusClass = STATUS_COLORS[item.status] ?? STATUS_COLORS.draft;
+
+                  // Extract time from scheduledDate
+                  const sd = item.scheduledDate as any;
+                  const ms = sd?.toMillis?.() ?? (sd?.seconds ?? sd?._seconds) * 1000;
+                  const itemDate = ms ? new Date(ms) : null;
+                  const timeStr = itemDate ? itemDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : null;
+
+                  // Content preview (first 60 chars)
+                  const contentPreview = item.content ? (item.content.length > 60 ? item.content.slice(0, 60) + '…' : item.content) : null;
 
                   return (
                     <div
@@ -194,13 +219,31 @@ export function CalendarView({
                         ${statusClass}
                       `}
                     >
+                      {/* Row 1: Platform icon + Title */}
                       <div className="flex items-center gap-1.5">
-                        <FormatIcon className="h-3 w-3 flex-shrink-0" />
+                        <PlatformIcon className={`h-3 w-3 flex-shrink-0 ${platformColor}`} />
                         <span className="truncate font-medium">{item.title}</span>
                       </div>
-                      <div className="mt-0.5 text-[10px] opacity-70">
-                        {STATUS_LABELS[item.status]}
+                      {/* Row 2: Format + Time + Status */}
+                      <div className="mt-1 flex items-center gap-1.5 text-[10px] opacity-80">
+                        <FormatIcon className="h-2.5 w-2.5 flex-shrink-0" />
+                        <span className="capitalize">{item.format}</span>
+                        {timeStr && (
+                          <>
+                            <span className="text-zinc-600">·</span>
+                            <Clock className="h-2.5 w-2.5 flex-shrink-0" />
+                            <span>{timeStr}</span>
+                          </>
+                        )}
+                        <span className="text-zinc-600">·</span>
+                        <span>{STATUS_LABELS[item.status]}</span>
                       </div>
+                      {/* Row 3: Content preview (week view only) */}
+                      {view === 'week' && contentPreview && (
+                        <div className="mt-1 text-[10px] opacity-60 line-clamp-2 leading-tight">
+                          {contentPreview}
+                        </div>
+                      )}
                     </div>
                   );
                 })}

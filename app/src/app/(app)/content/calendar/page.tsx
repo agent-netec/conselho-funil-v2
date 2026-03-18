@@ -573,38 +573,65 @@ export default function ContentCalendarPage() {
 
             {/* Item Details */}
             <div className="space-y-3 mb-6">
-              <div className="grid grid-cols-2 gap-3 text-sm">
+              {/* Row 1: Platform + Format + Status */}
+              <div className="grid grid-cols-3 gap-3 text-sm">
+                <div className="p-3 bg-zinc-800/50 rounded-lg">
+                  <span className="text-zinc-500 text-xs block mb-1">Plataforma</span>
+                  <span className="text-white capitalize">{selectedItem.platform}</span>
+                </div>
                 <div className="p-3 bg-zinc-800/50 rounded-lg">
                   <span className="text-zinc-500 text-xs block mb-1">Formato</span>
                   <span className="text-white capitalize">{selectedItem.format}</span>
                 </div>
                 <div className="p-3 bg-zinc-800/50 rounded-lg">
-                  <span className="text-zinc-500 text-xs block mb-1">Plataforma</span>
-                  <span className="text-white capitalize">{selectedItem.platform}</span>
+                  <span className="text-zinc-500 text-xs block mb-1">Status</span>
+                  <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded ${
+                    selectedItem.status === 'approved' ? 'bg-[#E6B447]/20 text-[#E6B447]' :
+                    selectedItem.status === 'published' ? 'bg-blue-500/20 text-blue-400' :
+                    selectedItem.status === 'pending_review' ? 'bg-[#E6B447]/20 text-[#E6B447]' :
+                    selectedItem.status === 'scheduled' ? 'bg-[#E6B447]/20 text-[#E6B447]' :
+                    selectedItem.status === 'rejected' ? 'bg-red-500/20 text-red-400' :
+                    'bg-zinc-500/20 text-zinc-400'
+                  }`}>
+                    {selectedItem.status === 'draft' ? 'Rascunho' :
+                     selectedItem.status === 'pending_review' ? 'Em Revisão' :
+                     selectedItem.status === 'approved' ? 'Aprovado' :
+                     selectedItem.status === 'scheduled' ? 'Agendado' :
+                     selectedItem.status === 'published' ? 'Publicado' :
+                     selectedItem.status === 'rejected' ? 'Rejeitado' : selectedItem.status}
+                  </span>
                 </div>
               </div>
-              <div className="p-3 bg-zinc-800/50 rounded-lg">
-                <span className="text-zinc-500 text-xs block mb-1">Status</span>
-                <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded ${
-                  selectedItem.status === 'approved' ? 'bg-[#E6B447]/20 text-[#E6B447]' :
-                  selectedItem.status === 'published' ? 'bg-blue-500/20 text-blue-400' :
-                  selectedItem.status === 'pending_review' ? 'bg-[#E6B447]/20 text-[#E6B447]' :
-                  selectedItem.status === 'scheduled' ? 'bg-[#E6B447]/20 text-[#E6B447]' :
-                  selectedItem.status === 'rejected' ? 'bg-red-500/20 text-red-400' :
-                  'bg-zinc-500/20 text-zinc-400'
-                }`}>
-                  {selectedItem.status === 'draft' ? 'Rascunho' :
-                   selectedItem.status === 'pending_review' ? 'Em Revisão' :
-                   selectedItem.status === 'approved' ? 'Aprovado' :
-                   selectedItem.status === 'scheduled' ? 'Agendado' :
-                   selectedItem.status === 'published' ? 'Publicado' :
-                   selectedItem.status === 'rejected' ? 'Rejeitado' : selectedItem.status}
-                </span>
+              {/* Row 2: Scheduled date/time + Origin */}
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="p-3 bg-zinc-800/50 rounded-lg">
+                  <span className="text-zinc-500 text-xs block mb-1">Data/Hora Agendada</span>
+                  <span className="text-white">
+                    {(() => {
+                      const sd = selectedItem.scheduledDate as any;
+                      const ms = sd?.toMillis?.() ?? (sd?.seconds ?? sd?._seconds) * 1000;
+                      if (!ms) return 'Não definido';
+                      const d = new Date(ms);
+                      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }) + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                    })()}
+                  </span>
+                </div>
+                <div className="p-3 bg-zinc-800/50 rounded-lg">
+                  <span className="text-zinc-500 text-xs block mb-1">Origem</span>
+                  <span className="text-white flex items-center gap-1.5">
+                    {selectedItem.metadata?.generatedBy === 'ai' ? (
+                      <><Sparkles className="h-3.5 w-3.5 text-[#E6B447]" /> Gerado por IA</>
+                    ) : (
+                      <><User className="h-3.5 w-3.5 text-zinc-400" /> Criação manual</>
+                    )}
+                  </span>
+                </div>
               </div>
+              {/* Content */}
               {selectedItem.content && (
                 <div className="p-3 bg-zinc-800/50 rounded-lg">
-                  <span className="text-zinc-500 text-xs block mb-1">Conteudo</span>
-                  <p className="text-sm text-zinc-300 whitespace-pre-wrap">{selectedItem.content}</p>
+                  <span className="text-zinc-500 text-xs block mb-1">Conteúdo</span>
+                  <p className="text-sm text-zinc-300 whitespace-pre-wrap max-h-[300px] overflow-y-auto">{selectedItem.content}</p>
                 </div>
               )}
             </div>
