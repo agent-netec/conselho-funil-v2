@@ -792,10 +792,27 @@ export async function updateCampaignManifesto(
     throw new Error('campaignId inválido para updateCampaignManifesto');
   }
   const campaignRef = doc(db, 'campaigns', campaignId);
-  
+
+  // Deep-strip undefined values — Firestore rejects them at any nesting level
+  function stripUndefined(obj: any): any {
+    if (obj === null || obj === undefined) return obj;
+    if (obj instanceof Timestamp) return obj;
+    if (Array.isArray(obj)) return obj.map(stripUndefined);
+    if (typeof obj === 'object') {
+      const cleaned: any = {};
+      for (const [key, value] of Object.entries(obj)) {
+        if (value !== undefined) {
+          cleaned[key] = stripUndefined(value);
+        }
+      }
+      return cleaned;
+    }
+    return obj;
+  }
+
   return await withResilience(async () => {
     await setDoc(campaignRef, {
-      ...data,
+      ...stripUndefined(data),
       updatedAt: Timestamp.now(),
     }, { merge: true });
   });

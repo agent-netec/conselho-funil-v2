@@ -294,11 +294,11 @@ export default function DesignCouncilPage() {
           preferredColors: brand?.brandKit?.colors ? [brand.brandKit.colors.primary, brand.brandKit.colors.secondary].filter(Boolean) : ['#E6B447', '#000000'],
           visualPrompts: prompts,
           aspectRatios: prompts.map((p: any) => p.aspectRatio || '1:1'),
-          analysis: analysis || null,
+          analysis: analysis || undefined,
           campaignSystem: campaignSystemEnabled ? {
             enabled: true,
             pieces: prompts.map((p: any, i: number) => ({ role: p.pieceRole || 'standalone', promptIndex: i })),
-          } : null,
+          } : undefined,
           inspirationRefs: inspirations.length > 0 ? inspirations : [],
           selectedCharacterIds: selectedCharacterIds.length > 0 ? selectedCharacterIds : [],
         }
