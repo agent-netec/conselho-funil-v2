@@ -10,6 +10,11 @@ const DEPTH_CONFIG: Record<ResearchDepth, { exaResults: number; enrichTop: numbe
   deep: { exaResults: 10, enrichTop: 3 },
 };
 
+/** Strip custom prototypes so Firestore admin SDK can serialize */
+function toPlainObject(obj: unknown): any {
+  return JSON.parse(JSON.stringify(obj));
+}
+
 function isValidSourceUrl(value: string): boolean {
   if (!(value.startsWith('http://') || value.startsWith('https://'))) return false;
   if (value.includes('localhost')) return false;
@@ -67,7 +72,7 @@ export class ResearchEngine {
         ...(input.customUrls?.length && { customUrls: input.customUrls }),
       };
       const adminDb = getAdminFirestore();
-      const docRef = await adminDb.collection('brands').doc(input.brandId).collection('research').add(dossier);
+      const docRef = await adminDb.collection('brands').doc(input.brandId).collection('research').add(toPlainObject(dossier));
       dossier.id = docRef.id;
       return dossier;
     } catch (error) {
