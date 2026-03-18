@@ -38,6 +38,13 @@ export async function POST(request: NextRequest) {
       selectedCharacterIds,
       inspirationRefs,
       analysis,
+      // User creative controls
+      selectedStyles,      // string[] — general style IDs
+      selectedBrandRefs,   // string[] — brand reference IDs
+      freeStyleText,       // string — free-form style description
+      selectedStyle,       // legacy single style (backward compat)
+      selectedFormats,
+      customPalette,
     } = body;
 
     if (!brandId) {
@@ -113,6 +120,76 @@ export async function POST(request: NextRequest) {
       chapeuProfileContext = getChapeuProfilePrompt(analysis.chapeuProfile);
     }
 
+    // Build style direction from user selections
+    const STYLE_DIRECTIONS: Record<string, string> = {
+      'photography': 'Fotografia realista, editorial quality, lifestyle shots, natural lighting, real textures. Evite qualquer aparência de IA/CGI.',
+      'minimal': 'Design minimalista, espaço negativo abundante, tipografia como elemento principal, máximo 3 cores, clean e sofisticado.',
+      'bold': 'Design impactante, cores vibrantes e saturadas, tipografia grande e ousada, contraste máximo, elementos gráficos fortes.',
+      'illustration': 'Ilustração flat design ou vetorial, personagens estilizados, cores sólidas, formas geométricas, estilo cartoon profissional.',
+      '3d-render': 'Render 3D fotorrealista, objetos com profundidade, gradientes modernos, iluminação volumétrica, estética futurista/tech.',
+      'collage': 'Colagem criativa, mix de fotos e texturas, layers sobrepostos, estética editorial moderna, recortes e justaposição.',
+      'cinematic': 'Luz dramática cinematográfica, paleta escura com pontos de luz, composição widescreen, mood intenso, grain sutil.',
+      'neon': 'Estética neon/cyber, fundo escuro com luzes neon vibrantes, glow effects, cores fluorescentes, atmosfera noturna urbana.',
+    };
+
+    const BRAND_REF_DIRECTIONS: Record<string, string> = {
+      'apple': 'Estilo Apple: produto isolado em fundo clean (branco ou preto puro), tipografia San Francisco fina e leve, muito espaço negativo, composição centrada, iluminação studio perfeita, sem elementos decorativos desnecessários.',
+      'nike': 'Estilo Nike: alto contraste preto e branco com acentos de cor, tipografia bold condensada (Futura-like), atleta em ação/movimento, ângulos dinâmicos, composição assimétrica agressiva, energia e velocidade.',
+      'nubank': 'Estilo Nubank: paleta roxa (#820AD1) com acentos em branco, ilustrações geométricas flat, personagens simpáticos, cantos arredondados, vibe friendly e acessível, layout arejado.',
+      'luxury': 'Estilo Luxury/Premium: dourado com preto ou creme, tipografia serif elegante (Didot/Bodoni), texturas sutis (mármore, linho), minimalismo sofisticado, composição equilibrada, sensação de exclusividade.',
+      'fitness': 'Estilo Fitness Agressivo: vermelho/preto dominante, tipografia ultra-bold distressed, ângulos oblíquos, gradientes dramáticos, fotos de alta energia, antes/depois, números de resultado em destaque.',
+      'tech-saas': 'Estilo Tech/SaaS: gradientes modernos (azul-violeta), glassmorphism, mockups de dashboard/interface, sombras suaves, formas geométricas fluidas, sensação de inovação e modernidade.',
+      'organic': 'Estilo Orgânico/Natural: paleta terrosa (verde-sage, terracota, creme, marrom), texturas naturais (papel kraft, madeira, linho), tipografia handwritten ou serif orgânico, fotos de natureza, composição relaxada.',
+    };
+
+    // Assemble style context from all 3 blocks
+    const styleBlocks: string[] = [];
+
+    // Block 1: General styles (multi-select)
+    const stylesArr = selectedStyles?.length > 0 ? selectedStyles : (selectedStyle ? [selectedStyle] : []);
+    if (stylesArr.length > 0) {
+      const directions = stylesArr
+        .map((s: string) => STYLE_DIRECTIONS[s])
+        .filter(Boolean);
+      if (directions.length > 0) {
+        styleBlocks.push(`Estilos gerais: ${stylesArr.join(' + ')}\n${directions.join('\n')}`);
+      }
+    }
+
+    // Block 2: Brand references
+    if (selectedBrandRefs?.length > 0) {
+      const refDirections = selectedBrandRefs
+        .map((r: string) => BRAND_REF_DIRECTIONS[r])
+        .filter(Boolean);
+      if (refDirections.length > 0) {
+        styleBlocks.push(`Referências de marca:\n${refDirections.join('\n')}`);
+      }
+    }
+
+    // Block 3: Free-text style
+    if (freeStyleText?.trim()) {
+      styleBlocks.push(`Descrição livre do usuário: "${freeStyleText.trim()}"`);
+    }
+
+    let styleContext = '';
+    if (styleBlocks.length > 0) {
+      styleContext = `\n[ESTILO VISUAL — ESCOLHIDO PELO USUÁRIO — OBRIGATÓRIO]\n${styleBlocks.join('\n\n')}\n\nCOMBINE todos os estilos acima em uma direção visual coesa. TODOS os criativos DEVEM seguir esta direção. NÃO gere estilo genérico "Professional and modern".\n`;
+    }
+
+    // Build format instructions from user selection
+    let formatContext = '';
+    if (selectedFormats?.length > 0) {
+      formatContext = `\n[FORMATOS SOLICITADOS PELO USUÁRIO]\n${selectedFormats.map((f: any, i: number) =>
+        `${i + 1}. ${f.label} — Ratio: ${f.ratio} — Plataforma: ${f.platform}${f.multi ? ' (CARROSSEL: gere 3-5 slides interconectados com progressão narrativa)' : ''}`
+      ).join('\n')}\nGere EXATAMENTE ${selectedFormats.length} criativo(s), um para cada formato solicitado.\n`;
+    }
+
+    // Build custom palette context
+    let paletteContext = '';
+    if (customPalette?.length > 0) {
+      paletteContext = `\n[PALETA DE CORES PERSONALIZADA — USE ESTAS CORES]\nCores definidas pelo usuário: ${customPalette.join(', ')}\nUse ESTAS cores como paleta principal, não as do BrandKit.\n`;
+    }
+
     // Determine pieces to generate
     const isSystemMode = campaignSystemEnabled && analysis?.recommendedPieces?.length;
     let pieceInstructions = '';
@@ -137,6 +214,9 @@ export async function POST(request: NextRequest) {
 
       Cada prompt DEVE incluir "pieceRole" no JSON.
       `;
+    } else if (selectedFormats?.length > 0) {
+      // User selected specific formats — generate one per format
+      pieceInstructions = formatContext;
     } else {
       pieceInstructions = `Planeje EXATAMENTE 2 criativos diferentes (um para Feed e outro para Stories/Reels).`;
     }
@@ -170,6 +250,8 @@ export async function POST(request: NextRequest) {
       Objetivo: ${context.objective}
       Copy aprovada: ${context.copy}
       Hooks aprovados: ${JSON.stringify(context.hooks)}
+      ${styleContext}
+      ${paletteContext}
       ${characterContext}
       ${inspirationContext}
       ${chapeuProfileContext}
