@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
+import type { DesignAnalysis, InspirationRef } from './design-system';
 
 export type CampaignStatus = 'planning' | 'active' | 'archived';
 
@@ -68,6 +69,14 @@ export interface CampaignContext {
     visualPrompts: string[];
     aspectRatios: string[];
     assetsUrl?: string[];
+    // Design Director expansion
+    analysis?: DesignAnalysis;
+    campaignSystem?: {
+      enabled: boolean;
+      pieces: { role: string; promptIndex: number }[];
+    };
+    inspirationRefs?: InspirationRef[];
+    selectedCharacterIds?: string[];
   };
 
   // Passo 5: A Escala (Ads)

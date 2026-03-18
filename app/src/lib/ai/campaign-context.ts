@@ -19,6 +19,12 @@ export interface CampaignContextData {
   visualStyle: string;
   offerPromise: string;
   mainScript: string;
+  /** Awareness stage from funnel or audience data */
+  awareness: string;
+  /** Key benefits from copywriting */
+  keyBenefits: string[];
+  /** Detailed social hooks with platform, content, and style */
+  socialHooks: Array<{ platform: string; content: string; style: string }>;
   /** Pre-formatted text block ready for prompt injection */
   text: string;
 }
@@ -53,16 +59,37 @@ export async function loadCampaignContext(
     const offerPromise = campaign.offer?.promise || '';
     const mainScript = campaign.copywriting?.mainScript || '';
 
+    // Fase 2: Additional context fields
+    const awareness: string =
+      campaign.funnel?.awareness ||
+      campaign.audience?.awareness ||
+      '';
+    const keyBenefits: string[] = campaign.copywriting?.keyBenefits || [];
+    const socialHooks: Array<{ platform: string; content: string; style: string }> =
+      (campaign.social?.hooks || []).map((h: any) => ({
+        platform: typeof h === 'string' ? '' : h.platform || '',
+        content: typeof h === 'string' ? h : h.content || '',
+        style: typeof h === 'string' ? '' : h.style || '',
+      }));
+
     // Build formatted text block
     const lines: string[] = ['## Contexto da Campanha (Linha de Ouro)'];
     if (bigIdea) lines.push(`**Big Idea:** ${bigIdea}`);
     if (tone) lines.push(`**Tom:** ${tone}`);
     if (targetAudience) lines.push(`**Público-Alvo:** ${targetAudience}`);
     if (mainGoal) lines.push(`**Objetivo:** ${mainGoal}`);
+    if (awareness) lines.push(`**Estágio de Consciência:** ${awareness}`);
     if (offerPromise) lines.push(`**Promessa da Oferta:** ${offerPromise}`);
     if (headlines.length > 0) lines.push(`**Headlines:** ${headlines.slice(0, 5).join(' | ')}`);
     if (hooks.length > 0) lines.push(`**Hooks Aprovados:** ${hooks.slice(0, 5).join(' | ')}`);
+    if (keyBenefits.length > 0) lines.push(`**Benefícios-Chave:** ${keyBenefits.slice(0, 5).join(' | ')}`);
     if (visualStyle) lines.push(`**Estilo Visual:** ${visualStyle}`);
+    if (socialHooks.length > 0) {
+      const hooksSummary = socialHooks.slice(0, 5).map(
+        sh => `[${sh.platform || '?'}] ${sh.content}`
+      ).join(' | ');
+      lines.push(`**Social Hooks:** ${hooksSummary}`);
+    }
 
     return {
       id: campaignId,
@@ -75,6 +102,9 @@ export async function loadCampaignContext(
       visualStyle,
       offerPromise,
       mainScript,
+      awareness,
+      keyBenefits,
+      socialHooks,
       text: lines.join('\n'),
     };
   } catch (err) {

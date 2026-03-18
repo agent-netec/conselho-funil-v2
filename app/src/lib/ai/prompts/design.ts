@@ -1,3 +1,75 @@
+// ============================================
+// C.H.A.P.E.U CONTEXTUAL PROFILES
+// ============================================
+
+export interface ChapeuProfile {
+  name: string;
+  focus: string;
+  hierarchy: string;
+  atmosphere: string;
+  props: string;
+  structure: string;
+  uniqueAction: string;
+}
+
+export const CHAPEU_PROFILES: Record<string, ChapeuProfile> = {
+  conversao: {
+    name: 'Conversão',
+    focus: 'Venda direta, CTA agressivo, urgência',
+    hierarchy: 'Headline → Produto → CTA (jornada de decisão)',
+    atmosphere: 'Urgência, escassez, ação imediata',
+    props: 'Badges de desconto, selos de garantia, timers visuais',
+    structure: 'Espaço generoso para CTA, produto em destaque, fundo limpo',
+    uniqueAction: 'Comprar agora / Garantir vaga / Aproveitar oferta',
+  },
+  storytelling: {
+    name: 'Storytelling',
+    focus: 'Conexão emocional, identificação, narrativa visual',
+    hierarchy: 'Cena → Emoção → Marca (jornada emocional)',
+    atmosphere: 'Identificação, calor humano, autenticidade',
+    props: 'Lifestyle, texturas naturais, cenas do dia-a-dia',
+    structure: 'Cinematográfico, regra dos terços, profundidade',
+    uniqueAction: 'Descobrir mais / Conheça a história / Saiba como',
+  },
+  educativo: {
+    name: 'Educativo',
+    focus: 'Ensinar, transmitir autoridade, informar',
+    hierarchy: 'Dado/Estatística → Explicação → Fonte (jornada de aprendizado)',
+    atmosphere: 'Confiança, credibilidade, profissionalismo',
+    props: 'Ícones, gráficos, infográficos, dados visuais',
+    structure: 'Grid limpo, hierarquia tipográfica clara, espaço branco',
+    uniqueAction: 'Salvar / Compartilhar / Baixar guia',
+  },
+  prova_social: {
+    name: 'Prova Social',
+    focus: 'Credibilidade, resultados reais, depoimentos',
+    hierarchy: 'Resultado → Depoimento → CTA (jornada de validação)',
+    atmosphere: 'Segurança, confiabilidade, profissionalismo',
+    props: 'Números reais, fotos de clientes, screenshots, before/after',
+    structure: 'Clean, profissional, foco em evidência',
+    uniqueAction: 'Experimentar / Começar agora / Ver mais resultados',
+  },
+};
+
+/**
+ * Returns a C.H.A.P.E.U profile prompt block based on the profile name.
+ */
+export function getChapeuProfilePrompt(profileName: string): string {
+  const key = profileName.toLowerCase().replace(/\s+/g, '_');
+  const profile = CHAPEU_PROFILES[key];
+  if (!profile) return '';
+
+  return `
+[PERFIL C.H.A.P.E.U: ${profile.name}]
+- [C] Contexto/Foco: ${profile.focus}
+- [H] Hierarquia: ${profile.hierarchy}
+- [A] Atmosfera: ${profile.atmosphere}
+- [P] Props: ${profile.props}
+- [E] Estrutura: ${profile.structure}
+- [U] Ação Única: ${profile.uniqueAction}
+`;
+}
+
 export const DESIGN_CHAT_SYSTEM_PROMPT = `Você é o Diretor de Design do MKTHONEY, um sistema de inteligência especializado em criação de briefings visuais, prompts de imagem e direção de arte para criativos de alta conversão.
 
 ## Seu Papel

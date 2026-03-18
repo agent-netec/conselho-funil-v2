@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
+import type { BrandCharacter } from './design-system';
 
 // ============================================
 // USER
@@ -135,6 +136,7 @@ export interface BrandKit {
     };
     locked: boolean; // Trava global de governança
   };
+  characters?: BrandCharacter[];
   updatedAt: Timestamp;
 }
 

@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { Loader2, Lock, Unlock, Upload, Check, Palette, BrainCircuit, Sparkles, Zap, ShieldCheck, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { BrandCharactersSection } from './brand-characters-section';
 
 interface BrandKitFormProps {
   brand: Brand;
@@ -51,6 +52,7 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
       },
       locked: brand.brandKit?.logoLock?.locked ?? false,
     },
+    characters: brand.brandKit?.characters || [],
     updatedAt: brand.brandKit?.updatedAt || Timestamp.now(),
   }));
 
@@ -245,6 +247,19 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* PERSONAGENS DA MARCA */}
+          <div className="pt-4 border-t">
+            <BrandCharactersSection
+              brandId={brand.id}
+              characters={kit.characters || []}
+              onUpdate={(characters) => {
+                const updatedKit = { ...kit, characters };
+                setKit(updatedKit);
+                updateBrandKit(brand.id, updatedKit).catch(console.error);
+              }}
+            />
           </div>
 
           {/* CONFIGURAÇÃO DE IA (ST-12.3) */}

@@ -31,6 +31,7 @@ import { cn } from '@/lib/utils';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import { createAsset } from '@/lib/firebase/assets';
 import { updateCampaignManifesto } from '@/lib/firebase/firestore';
+import { recordDesignSelection } from '@/lib/firebase/design-preferences';
 import { Timestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
@@ -221,7 +222,17 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
         },
         status: 'active' // Garante que a campanha está ativa para prosseguir
       });
-      
+
+      // Fire-and-forget: record design preference
+      if (activeBrand?.userId && activeBrand?.id) {
+        recordDesignSelection(activeBrand.userId, activeBrand.id, {
+          selectedStyle: promptData.strategy?.unityTheme || promptData.brandContext?.style || 'unknown',
+          rejectedStyles: [],  // Will be populated when multiple options are shown
+          platform: promptData.platform || 'universal',
+          composition: promptData.strategy?.balanceType || 'asymmetrical',
+        }).catch(err => console.warn('[DesignCard] Preference recording failed:', err));
+      }
+
       setIsSelected(true);
       toast.success('Criativo selecionado para a Linha de Ouro!');
 

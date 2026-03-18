@@ -85,6 +85,9 @@ export async function POST(request: NextRequest) {
       copyHeadline,
       copyLanguage,
       campaignId,
+      // Design Director expansion
+      characterId,
+      inspirationTraits,
     } = body;
 
     const aspectRatio = normalizeAspectRatio(rawAspectRatio);
@@ -160,6 +163,21 @@ export async function POST(request: NextRequest) {
         .map((a) => a.url);
 
       imageReferences = [...imageReferences, ...approvedImages];
+
+      // Design Director: Add character photo as reference if selected
+      if (characterId && brandData?.brandKit?.characters) {
+        const character = (brandData.brandKit as any).characters.find((c: any) => c.id === characterId);
+        if (character?.photoUrl) {
+          imageReferences.unshift(character.photoUrl); // Priority reference
+          console.log(`[Design] Character reference added: ${character.name}`);
+        }
+      }
+    }
+
+    // Design Director: Build inspiration traits injection
+    let inspirationBlock = '';
+    if (inspirationTraits?.length > 0) {
+      inspirationBlock = `\n[INSPIRATION STYLE]\nThe user wants a style inspired by: ${inspirationTraits.join(', ')}.\nAdapt the visual direction to incorporate these elements while maintaining brand consistency.\n`;
     }
 
     console.log(
@@ -414,7 +432,7 @@ Return ONLY the JSON array of strings.`;
 
     const generationPromises = promptVariants.map(async (promptVariant, index) => {
       try {
-        const finalPrompt = `${textOverlayBlock}\n${campaignBrief ? campaignBrief + '\n\n' : ''}${promptVariant}\n\n[LOGO_RULE]: ${logoInstruction}\n[REFERENCES]: ${imageReferences.join(', ')}`;
+        const finalPrompt = `${textOverlayBlock}\n${campaignBrief ? campaignBrief + '\n\n' : ''}${inspirationBlock}${promptVariant}\n\n[LOGO_RULE]: ${logoInstruction}\n[REFERENCES]: ${imageReferences.join(', ')}`;
 
         // Fallback chain: tenta cada modelo em ordem
         let result: { data: any; modelUsed: string } | null = null;

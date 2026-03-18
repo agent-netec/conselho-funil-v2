@@ -33,6 +33,11 @@ export const AdsDesignSchema = z.object({
     balanceType: z.enum(['symmetrical', 'asymmetrical']),
     unityTheme: z.string(),
   }),
+  // Design Director expansion fields
+  pieceRole: z.enum(['hook', 'development', 'proof', 'retargeting', 'standalone']).optional(),
+  characterId: z.string().optional(),
+  inspirationRefs: z.array(z.string()).optional(),
+  campaignSystemId: z.string().optional(),
 });
 
 export type AdsDesignContract = z.infer<typeof AdsDesignSchema>;
