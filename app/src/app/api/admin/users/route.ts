@@ -15,8 +15,9 @@ export async function GET(request: NextRequest) {
     await verifyAdminRole(request);
 
     const { searchParams } = new URL(request.url);
-    const limitParam = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
-    const offset = parseInt(searchParams.get('offset') || '0', 10);
+    const pageSize = Math.min(parseInt(searchParams.get('pageSize') || searchParams.get('limit') || '20', 10), 100);
+    const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1);
+    const offset = (page - 1) * pageSize;
     const tierFilter = searchParams.get('tier');
     const roleFilter = searchParams.get('role');
     const search = searchParams.get('search');
@@ -68,13 +69,13 @@ export async function GET(request: NextRequest) {
     const total = users.length;
 
     // Apply pagination
-    const paginated = users.slice(offset, offset + limitParam);
+    const paginated = users.slice(offset, offset + pageSize);
 
     return createApiSuccess({
       users: paginated,
       total,
-      limit: limitParam,
-      offset,
+      page,
+      pageSize,
     });
   } catch (error) {
     if (error instanceof ApiError) {

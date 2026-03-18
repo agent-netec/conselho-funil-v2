@@ -28,13 +28,33 @@ export async function GET(
 
     const { userId } = await params;
     const db = getAdminFirestore();
-    const userDoc = await db.collection('users').doc(userId).get();
+    const userRef = db.collection('users').doc(userId);
+    const userDoc = await userRef.get();
 
     if (!userDoc.exists) {
       return createApiError(404, 'Usuario nao encontrado');
     }
 
     const data = userDoc.data()!;
+
+    // Fetch audit log
+    const auditSnap = await userRef.collection('auditLog')
+      .orderBy('timestamp', 'desc')
+      .limit(20)
+      .get();
+    const auditLog = auditSnap.docs.map(d => {
+      const a = d.data();
+      return {
+        action: a.field,
+        field: a.field,
+        oldValue: String(a.oldValue ?? ''),
+        newValue: String(a.newValue ?? ''),
+        reason: a.reason ?? '',
+        by: a.adminId ?? '',
+        at: a.timestamp?.toDate?.()?.toISOString() ?? '',
+      };
+    });
+
     return createApiSuccess({
       id: userDoc.id,
       email: data.email ?? '',
@@ -42,12 +62,13 @@ export async function GET(
       tier: data.tier ?? 'free',
       role: data.role ?? 'member',
       credits: data.credits ?? 0,
-      active: data.active ?? true,
+      status: data.active ?? true,
       stripeCustomerId: data.stripeCustomerId ?? null,
       stripeSubscriptionId: data.stripeSubscriptionId ?? null,
       subscriptionStatus: data.subscriptionStatus ?? null,
       createdAt: data.createdAt ?? null,
       lastLogin: data.lastLogin ?? null,
+      auditLog,
     });
   } catch (error) {
     if (error instanceof ApiError) {
@@ -104,27 +125,76 @@ export async function PATCH(
 
     // Map field → Firestore update
     const firestoreField = field === 'status' ? 'active' : field;
-    const firestoreValue = field === 'status' ? value === 'active' : value;
-    const oldValue = field === 'status' ? userData.active : userData[field];
+    let firestoreValue: unknown;
+    let oldValue: unknown;
+
+    if (field === 'status') {
+      // Frontend sends boolean true/false
+      firestoreValue = typeof value === 'boolean' ? value : value === 'active';
+      oldValue = userData.active;
+    } else if (field === 'credits') {
+      // Increment credits, not replace
+      const amount = typeof value === 'number' ? value : parseInt(String(value), 10);
+      if (isNaN(amount) || amount <= 0) {
+        return createApiError(400, 'Quantidade de creditos deve ser um numero positivo');
+      }
+      firestoreValue = FieldValue.increment(amount);
+      oldValue = userData.credits ?? 0;
+    } else {
+      firestoreValue = value;
+      oldValue = userData[field];
+    }
 
     // Perform update
     await userRef.update({ [firestoreField]: firestoreValue });
 
     // Write audit log
+    const auditNewValue = field === 'credits'
+      ? (oldValue as number) + (typeof value === 'number' ? value : parseInt(String(value), 10))
+      : firestoreValue;
+
     await userRef.collection('auditLog').add({
       adminId: admin.id,
       field,
       oldValue: oldValue ?? null,
-      newValue: firestoreValue,
+      newValue: auditNewValue,
       reason: reason || null,
       timestamp: FieldValue.serverTimestamp(),
     });
 
+    // Return full updated user data (frontend expects UserDetail)
+    const updatedDoc = await userRef.get();
+    const updated = updatedDoc.data()!;
+
+    // Fetch audit log
+    const auditSnap = await userRef.collection('auditLog')
+      .orderBy('timestamp', 'desc')
+      .limit(20)
+      .get();
+    const auditLog = auditSnap.docs.map(d => {
+      const a = d.data();
+      return {
+        action: a.field,
+        field: a.field,
+        oldValue: String(a.oldValue ?? ''),
+        newValue: String(a.newValue ?? ''),
+        reason: a.reason ?? '',
+        by: a.adminId ?? '',
+        at: a.timestamp?.toDate?.()?.toISOString() ?? '',
+      };
+    });
+
     return createApiSuccess({
-      userId,
-      field,
-      oldValue: oldValue ?? null,
-      newValue: firestoreValue,
+      id: userId,
+      email: updated.email ?? '',
+      name: updated.name ?? '',
+      tier: updated.tier ?? 'free',
+      role: updated.role ?? 'member',
+      credits: updated.credits ?? 0,
+      status: updated.active ?? true,
+      createdAt: updated.createdAt ?? null,
+      lastLogin: updated.lastLogin ?? null,
+      auditLog,
     });
   } catch (error) {
     if (error instanceof ApiError) {

@@ -16,6 +16,7 @@ import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { generateWithGemini, PRO_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { FirecrawlAdapter } from '@/lib/mcp/adapters/firecrawl';
+import { loadBrandContext, formatBrandContextForPrompt } from '@/lib/intelligence/research/brand-context';
 import { updateUserUsage } from '@/lib/firebase/firestore';
 import type { AudiencePersona } from '@/types/research';
 
@@ -100,12 +101,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Load brand context for prompt enrichment
+    const brandContext = await loadBrandContext(brandId);
+    const brandBlock = brandContext ? formatBrandContextForPrompt(brandContext) : '';
+
     // 2. Gemini analysis of active voice (O-2.2)
     const sourcesBlock = scrapedContent.length > 0
       ? scrapedContent.map((c, i) => `## Fonte ${i + 1}\n${c}`).join('\n\n---\n\n')
-      : 'Nenhuma fonte social foi coletada. Gere a analise baseada no topico fornecido.';
+      : 'Nenhuma fonte social foi coletada. Gere a analise baseada no topico fornecido e no contexto da marca.';
 
     const prompt = [
+      brandBlock,
+      '',
       `# Analise de Audiencia — Voz Ativa`,
       `Topico: ${topic}`,
       `URLs analisadas: ${urls?.join(', ') || 'nenhuma'}`,
@@ -114,6 +121,9 @@ export async function POST(req: NextRequest) {
       sourcesBlock,
       '',
       '# INSTRUCOES',
+      brandContext
+        ? `A persona deve ser construida considerando o publico-alvo da marca "${brandContext.name}" (${brandContext.vertical}), que vende "${brandContext.offer.what}" para "${brandContext.audience.who}". O tom da persona deve refletir como esse publico especifico se comunica.\n\n`
+        : '',
       AUDIENCE_ANALYSIS_PROMPT,
     ].join('\n');
 

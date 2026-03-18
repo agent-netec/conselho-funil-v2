@@ -2,6 +2,7 @@ import { generateWithGemini } from '@/lib/ai/gemini';
 import { RESEARCH_SYSTEM_PROMPT } from '@/lib/ai/prompts/research-synthesis';
 import { loadBrain } from '@/lib/intelligence/brains/loader';
 import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
+import { loadBrandContext, formatBrandContextForPrompt } from '@/lib/intelligence/research/brand-context';
 import type { CounselorId } from '@/types';
 import type { MarketDossierSections, ResearchQuery, ResearchSource } from '@/types/research';
 
@@ -74,6 +75,10 @@ export class DossierGenerator {
   static async synthesize(sources: ResearchSource[], query: ResearchQuery): Promise<MarketDossierSections> {
     const brainContext = buildResearchBrainContext();
 
+    // Load brand context for contextualized synthesis
+    const brandContext = await loadBrandContext(query.brandId);
+    const brandBlock = brandContext ? formatBrandContextForPrompt(brandContext) : '';
+
     const sourcesBlock = sources
       .map((s, i) => [
         `## Fonte ${i + 1}: ${s.title}`,
@@ -84,6 +89,8 @@ export class DossierGenerator {
       .join('\n\n---\n\n');
 
     const prompt = [
+      brandBlock,
+      '',
       `# Dossie de Mercado`,
       `Topico: ${query.topic}`,
       `Segmento: ${query.marketSegment ?? 'nao informado'}`,
@@ -96,7 +103,9 @@ export class DossierGenerator {
         ? `# PERSPECTIVA DOS ESPECIALISTAS\n${brainContext}\n\nConsidere os frameworks acima ao avaliar oportunidades, ameacas e recomendacoes. Identifique o nivel de consciencia do mercado (Schwartz) e oportunidades na escada de valor (Brunson).\n`
         : '',
       '# INSTRUCOES',
-      'Analise TODAS as fontes acima e gere um dossie de mercado completo.',
+      brandContext
+        ? `Analise TODAS as fontes acima e gere um dossie de mercado completo PARA A MARCA "${brandContext.name}" (${brandContext.vertical}). As recomendacoes devem ser especificas para o posicionamento, publico-alvo e oferta desta marca.`
+        : 'Analise TODAS as fontes acima e gere um dossie de mercado completo.',
       'Retorne JSON com EXATAMENTE estes campos:',
       '{"marketOverview":"visao geral do mercado (2-3 paragrafos)","marketSize":"tamanho estimado e potencial","trends":["tendencia 1","tendencia 2",...],"competitors":[{"name":"nome","strengths":["..."],"weaknesses":["..."]}],"opportunities":["oportunidade 1",...],"threats":["ameaca 1",...],"recommendations":["recomendacao acionavel 1",...]}',
       'Escreva em PT-BR com foco executivo. Seja especifico com dados e numeros das fontes.',
