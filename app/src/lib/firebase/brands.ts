@@ -114,9 +114,28 @@ export async function updateBrand(brandId: string, data: Partial<Omit<Brand, 'id
  * @param kit - O objeto BrandKit completo.
  */
 export async function updateBrandKit(brandId: string, kit: BrandKit) {
+  // Deep-remove undefined values — Firestore rejects them at any nesting level
+  // Preserves Timestamps and other special Firestore types
+  function stripUndefined(obj: any): any {
+    if (obj === null || obj === undefined) return obj;
+    if (obj instanceof Timestamp) return obj;
+    if (Array.isArray(obj)) return obj.map(stripUndefined);
+    if (typeof obj === 'object') {
+      const cleaned: any = {};
+      for (const [key, value] of Object.entries(obj)) {
+        if (value !== undefined) {
+          cleaned[key] = stripUndefined(value);
+        }
+      }
+      return cleaned;
+    }
+    return obj;
+  }
+
+  const clean = stripUndefined(kit);
   const brandRef = doc(db, 'brands', brandId);
   await updateDoc(brandRef, {
-    brandKit: kit,
+    brandKit: clean,
     updatedAt: Timestamp.now(),
   });
 }
