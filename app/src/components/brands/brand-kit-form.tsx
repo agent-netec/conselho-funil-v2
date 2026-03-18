@@ -62,20 +62,23 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
     profile: 'equilibrado' as const
   });
 
+  // Filter out undefined/null values before saving to Firestore (Firestore rejects undefined)
+  const sanitizeKit = (raw: typeof kit) => ({
+    ...raw,
+    logoLock: {
+      ...raw.logoLock,
+      variants: Object.fromEntries(
+        Object.entries(raw.logoLock.variants).filter(([_, v]) => v !== undefined && v !== null)
+      ),
+    },
+    characters: raw.characters || [],
+  });
+
   const handleSave = async () => {
     if (!brand?.id) return;
     setLoading(true);
     try {
-      // Filter out undefined/null variant values before saving to Firestore
-      const cleanKit = {
-        ...kit,
-        logoLock: {
-          ...kit.logoLock,
-          variants: Object.fromEntries(
-            Object.entries(kit.logoLock.variants).filter(([_, v]) => v !== undefined && v !== null)
-          ),
-        },
-      };
+      const cleanKit = sanitizeKit(kit);
       const { updateBrand } = await import('@/lib/firebase/brands');
       await Promise.all([
         updateBrandKit(brand.id, cleanKit as typeof kit),
@@ -122,10 +125,9 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
       };
       
       setKit(updatedKit);
-      
-      // AUTO-SAVE (Dandara/Darllyson): Salvando automaticamente no Firestore 
-      // para evitar que o usuário perca o upload ao navegar ou atualizar a página.
-      await updateBrandKit(brand.id, updatedKit);
+
+      // AUTO-SAVE: sanitize to remove undefined values (Firestore rejects them)
+      await updateBrandKit(brand.id, sanitizeKit(updatedKit) as typeof kit);
       
       toast.success("Logo enviada e salva!", {
         description: "A logo foi vinculada à marca e o Logo Lock foi ativado.",
@@ -257,7 +259,7 @@ export function BrandKitForm({ brand }: BrandKitFormProps) {
               onUpdate={(characters) => {
                 const updatedKit = { ...kit, characters };
                 setKit(updatedKit);
-                updateBrandKit(brand.id, updatedKit).catch(console.error);
+                updateBrandKit(brand.id, sanitizeKit(updatedKit) as typeof kit).catch(console.error);
               }}
             />
           </div>
