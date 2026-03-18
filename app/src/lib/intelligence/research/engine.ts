@@ -1,4 +1,3 @@
-import { Timestamp } from 'firebase/firestore';
 import { ExaAdapter } from '@/lib/mcp/adapters/exa';
 import { FirecrawlAdapter } from '@/lib/mcp/adapters/firecrawl';
 import { DossierGenerator } from '@/lib/intelligence/research/dossier-generator';
@@ -19,7 +18,7 @@ function isValidSourceUrl(value: string): boolean {
 
 export class ResearchEngine {
   static async generateDossier(input: ResearchQuery): Promise<MarketDossier> {
-    const now = Timestamp.now();
+    const now = new Date();
     // Check cache via admin SDK
     let cached: MarketDossier | null = null;
     try {
@@ -27,7 +26,7 @@ export class ResearchEngine {
       const cacheSnap = await adminDb
         .collection('brands').doc(input.brandId).collection('research')
         .where('topic', '==', input.topic)
-        .where('expiresAt', '>', Timestamp.now())
+        .where('expiresAt', '>', now)
         .orderBy('generatedAt', 'desc')
         .limit(1)
         .get();
@@ -62,11 +61,8 @@ export class ResearchEngine {
         status: 'completed',
         sections,
         sources,
-        generatedAt: now,
-        expiresAt:
-          typeof Timestamp.fromMillis === 'function'
-            ? Timestamp.fromMillis(now.toMillis() + 24 * 60 * 60 * 1000)
-            : now,
+        generatedAt: now as any,
+        expiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000) as any,
         ...(input.templateId && { templateId: input.templateId }),
         ...(input.customUrls?.length && { customUrls: input.customUrls }),
       };
@@ -93,7 +89,7 @@ export class ResearchEngine {
     const exa = new ExaAdapter();
     const firecrawl = new FirecrawlAdapter();
     const task = {
-      id: `research-${queryInput.brandId}-${Timestamp.now().toMillis()}`,
+      id: `research-${queryInput.brandId}-${Date.now()}`,
       brandId: queryInput.brandId,
       type: 'semantic_search',
       input: {
@@ -125,7 +121,7 @@ export class ResearchEngine {
           snippet: entry.snippet ?? '',
           relevanceScore: typeof entry.score === 'number' ? entry.score : 0,
           source: 'exa',
-          fetchedAt: Timestamp.now(),
+          fetchedAt: new Date() as any,
         }));
     } catch {
       sources = [];
@@ -160,7 +156,7 @@ export class ResearchEngine {
           const { url, markdown } = result.value;
           const idx = sources.findIndex((s) => s.url === url);
           if (idx >= 0) {
-            sources[idx] = { ...sources[idx], snippet: markdown.slice(0, 3000), source: 'firecrawl', fetchedAt: Timestamp.now() };
+            sources[idx] = { ...sources[idx], snippet: markdown.slice(0, 3000), source: 'firecrawl', fetchedAt: new Date() as any };
           }
         }
         // graceful degradation: fontes que falharam mantém snippet original do Exa
@@ -193,7 +189,7 @@ export class ResearchEngine {
             snippet: (data.markdown || '').slice(0, 3000),
             relevanceScore: 0.95,
             source: 'firecrawl' as const,
-            fetchedAt: Timestamp.now(),
+            fetchedAt: new Date() as any,
           };
         }
         return null;
@@ -209,7 +205,7 @@ export class ResearchEngine {
   private static failed(
     brandId: string,
     topic: string,
-    now: Timestamp,
+    now: Date,
     message: string,
     sources: ResearchSource[] = []
   ): MarketDossier {
@@ -228,8 +224,8 @@ export class ResearchEngine {
         recommendations: [],
       },
       sources,
-      generatedAt: now,
-      expiresAt: now,
+      generatedAt: now as any,
+      expiresAt: now as any,
     };
   }
 }
