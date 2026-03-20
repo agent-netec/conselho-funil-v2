@@ -20,11 +20,9 @@ const nextConfig: NextConfig = {
         destination: '/performance',
         permanent: true,
       },
-      {
-        source: '/strategy/autopsy',
-        destination: '/funnels',
-        permanent: false,
-      },
+      // Sprint 04.3: Old funnel routes → campaign namespace
+      // Note: These only match when funnelId equals campaignId (legacy virtual campaigns)
+      // New campaigns have unique IDs, so these won't match for new data
     ];
   },
 

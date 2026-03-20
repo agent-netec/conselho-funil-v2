@@ -52,16 +52,16 @@ export const STRIPE_PRICES: Record<
   { monthly: string; yearly: string }
 > = {
   starter: {
-    monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY || 'price_1T9uNcE1JUUQStpHZ10QJ30R',
-    yearly: process.env.STRIPE_PRICE_STARTER_YEARLY || 'price_1T9uOZE1JUUQStpHJqbcxU6m',
+    monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY || 'price_1TD2qWE1JUUQStpHtToDqKR1',
+    yearly: process.env.STRIPE_PRICE_STARTER_YEARLY || 'price_1TD2qZE1JUUQStpHiKsjic4h',
   },
   pro: {
-    monthly: process.env.STRIPE_PRICE_PRO_MONTHLY || 'price_1T9uPIE1JUUQStpHL0GpeV7g',
-    yearly: process.env.STRIPE_PRICE_PRO_YEARLY || 'price_1T9uPjE1JUUQStpHkNWbNhig',
+    monthly: process.env.STRIPE_PRICE_PRO_MONTHLY || 'price_1TD2qhE1JUUQStpHrjhKPNKI',
+    yearly: process.env.STRIPE_PRICE_PRO_YEARLY || 'price_1TD2qvE1JUUQStpH6CRTAXDA',
   },
   agency: {
-    monthly: process.env.STRIPE_PRICE_AGENCY_MONTHLY || 'price_1T9uPtE1JUUQStpHR1F34Ovi',
-    yearly: process.env.STRIPE_PRICE_AGENCY_YEARLY || 'price_1T9uQ3E1JUUQStpH8kTTlMzb',
+    monthly: process.env.STRIPE_PRICE_AGENCY_MONTHLY || 'price_1TD2qyE1JUUQStpHQgRil5GF',
+    yearly: process.env.STRIPE_PRICE_AGENCY_YEARLY || 'price_1TD2r2E1JUUQStpHcJTKb5U1',
   },
 };
 
@@ -73,16 +73,16 @@ export const TIER_PRICES_BRL: Record<
   { monthly: number; yearly: number }
 > = {
   starter: {
-    monthly: 9700, // R$97
-    yearly: 97000, // R$970 (10 months)
+    monthly: 14700, // R$147
+    yearly: 140400, // R$1.404 (R$117/mês × 12)
   },
   pro: {
-    monthly: 29700, // R$297
-    yearly: 297000, // R$2970 (10 months)
+    monthly: 49700, // R$497
+    yearly: 476400, // R$4.764 (R$397/mês × 12)
   },
   agency: {
-    monthly: 59700, // R$597
-    yearly: 597000, // R$5970 (10 months)
+    monthly: 99700, // R$997
+    yearly: 956400, // R$9.564 (R$797/mês × 12)
   },
 };
 

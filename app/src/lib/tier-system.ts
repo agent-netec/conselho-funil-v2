@@ -10,12 +10,25 @@
 export type Tier = 'free' | 'trial' | 'starter' | 'pro' | 'agency';
 
 export type Feature =
-  // Navigation sections
+  // Core (Free tier)
+  | 'dashboard'
+  | 'chat_general'
+  | 'brands'
+  | 'funnels'
+  | 'settings'
+  | 'billing'
+  // Starter tier
+  | 'campaigns_basic'
+  | 'social_quick'
+  | 'calendar_basic'
+  | 'chat_funnel'
+  | 'chat_copy'
+  | 'chat_social'
+  // Pro tier
   | 'intelligence'
   | 'execution'
   | 'vault'
   | 'integrations'
-  // Specific features
   | 'party_mode'
   | 'offer_lab'
   | 'ab_testing'
@@ -23,9 +36,6 @@ export type Feature =
   | 'deep_research'
   | 'journey_tracking'
   | 'creative_analysis'
-  | 'personalization'
-  | 'attribution'
-  | 'cross_channel'
   | 'campaigns'
   | 'ads_traffic'
   | 'social'
@@ -33,12 +43,14 @@ export type Feature =
   | 'automation'
   | 'calendar'
   | 'approvals'
-  // Chat modes
-  | 'chat_funnel'
-  | 'chat_copy'
-  | 'chat_social'
   | 'chat_ads'
-  | 'chat_design';
+  | 'chat_design'
+  | 'design_generate'
+  // Agency tier
+  | 'personalization'
+  | 'attribution'
+  | 'cross_channel'
+  | 'performance';
 
 // ============================================
 // TIER LIMITS
@@ -47,65 +59,74 @@ export type Feature =
 export interface TierLimits {
   maxBrands: number;
   maxActiveFunnels: number;
+  maxMonthlyCredits: number;
   maxAssetsTotal: number;
   maxRagDocs: number;
   maxRagSizeMB: number;
-  monthlyQueries: number;
-  monthlyPageForensics: number;
-  chatModes: number; // Number of chat modes available (general + N)
+  /** Daily chat limit for Free tier (0 = unlimited) */
+  dailyChatLimit: number;
+  /** Daily funnel creation limit for Free tier (0 = unlimited) */
+  dailyFunnelLimit: number;
+  /** Max campaigns per brand per day for Starter (0 = unlimited) */
+  maxCampaignsPerBrandPerDay: number;
 }
 
 export const TIER_LIMITS: Record<Tier, TierLimits> = {
   free: {
     maxBrands: 1,
     maxActiveFunnels: 1,
+    maxMonthlyCredits: 0,
     maxAssetsTotal: 10,
     maxRagDocs: 1,
     maxRagSizeMB: 1,
-    monthlyQueries: 10,
-    monthlyPageForensics: 1,
-    chatModes: 1, // Only general
+    dailyChatLimit: 1,
+    dailyFunnelLimit: 1,
+    maxCampaignsPerBrandPerDay: 0,
   },
   trial: {
-    // Trial = Pro features for 14 days
-    maxBrands: 3,
-    maxActiveFunnels: 5,
+    // Trial = Pro features for 7 days
+    maxBrands: 5,
+    maxActiveFunnels: 10,
+    maxMonthlyCredits: 500,
     maxAssetsTotal: 500,
     maxRagDocs: 20,
     maxRagSizeMB: 25,
-    monthlyQueries: 300,
-    monthlyPageForensics: 15,
-    chatModes: 6, // All modes
+    dailyChatLimit: 0,
+    dailyFunnelLimit: 0,
+    maxCampaignsPerBrandPerDay: 0,
   },
   starter: {
-    maxBrands: 1,
-    maxActiveFunnels: 1,
-    maxAssetsTotal: 50,
-    maxRagDocs: 3,
-    maxRagSizeMB: 5,
-    monthlyQueries: 50,
-    monthlyPageForensics: 3,
-    chatModes: 2, // General + 1
+    maxBrands: 3,
+    maxActiveFunnels: 3,
+    maxMonthlyCredits: 100,
+    maxAssetsTotal: 100,
+    maxRagDocs: 5,
+    maxRagSizeMB: 10,
+    dailyChatLimit: 0,
+    dailyFunnelLimit: 0,
+    maxCampaignsPerBrandPerDay: 1,
   },
   pro: {
-    maxBrands: 3,
-    maxActiveFunnels: 5,
+    maxBrands: 5,
+    maxActiveFunnels: 10,
+    maxMonthlyCredits: 500,
     maxAssetsTotal: 500,
     maxRagDocs: 20,
     maxRagSizeMB: 25,
-    monthlyQueries: 300,
-    monthlyPageForensics: 15,
-    chatModes: 6, // All modes
+    dailyChatLimit: 0,
+    dailyFunnelLimit: 0,
+    maxCampaignsPerBrandPerDay: 0,
   },
   agency: {
-    maxBrands: 100, // "10+" in UI, but 100 for practical limit
-    maxActiveFunnels: 1000, // Unlimited = high number
-    maxAssetsTotal: 10000, // Unlimited
-    maxRagDocs: 1000, // Unlimited
-    maxRagSizeMB: 1000, // Unlimited
-    monthlyQueries: 1000,
-    monthlyPageForensics: 1000, // Unlimited
-    chatModes: 6, // All modes
+    maxBrands: 25,
+    maxActiveFunnels: 999,
+    maxMonthlyCredits: 2000,
+    maxAssetsTotal: 10000,
+    maxRagDocs: 1000,
+    maxRagSizeMB: 1000,
+    dailyChatLimit: 0,
+    dailyFunnelLimit: 0,
+    maxCampaignsPerBrandPerDay: 0,
   },
 };
 
@@ -117,97 +138,44 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
  * Features enabled for each tier.
  * Trial inherits from Pro.
  */
+/**
+ * Features enabled for each tier.
+ * Use '*' sentinel in the array to mean "all features" (checked in checkTierAccess).
+ */
+const ALL_PRO_FEATURES: Feature[] = [
+  // Core
+  'dashboard', 'chat_general', 'brands', 'funnels', 'settings', 'billing',
+  // Starter
+  'campaigns_basic', 'social_quick', 'calendar_basic',
+  'chat_funnel', 'chat_copy', 'chat_social',
+  // Pro
+  'intelligence', 'execution', 'vault', 'integrations',
+  'party_mode', 'offer_lab', 'ab_testing', 'ltv_analysis',
+  'deep_research', 'journey_tracking', 'creative_analysis',
+  'campaigns', 'ads_traffic', 'social', 'social_inbox',
+  'automation', 'calendar', 'approvals',
+  'chat_ads', 'chat_design', 'design_generate',
+];
+
+const ALL_AGENCY_FEATURES: Feature[] = [
+  ...ALL_PRO_FEATURES,
+  'personalization', 'attribution', 'cross_channel', 'performance',
+];
+
 export const TIER_FEATURES: Record<Tier, Feature[]> = {
-  free: [],
-  trial: [
-    // All Pro features during trial
-    'intelligence',
-    'execution',
-    'vault',
-    'integrations',
-    'party_mode',
-    'offer_lab',
-    'ab_testing',
-    'ltv_analysis',
-    'deep_research',
-    'journey_tracking',
-    'creative_analysis',
-    'personalization',
-    'attribution',
-    'cross_channel',
-    'campaigns',
-    'ads_traffic',
-    'social',
-    'social_inbox',
-    'automation',
-    'calendar',
-    'approvals',
-    'chat_funnel',
-    'chat_copy',
-    'chat_social',
-    'chat_ads',
-    'chat_design',
+  free: [
+    'dashboard', 'chat_general', 'brands', 'funnels', 'settings', 'billing',
   ],
+  trial: ALL_PRO_FEATURES,
   starter: [
-    // Starter only gets one extra chat mode (user's choice)
-    'chat_funnel', // Default extra mode for starter
+    // Core
+    'dashboard', 'chat_general', 'brands', 'funnels', 'settings', 'billing',
+    // Starter-specific
+    'campaigns_basic', 'social_quick', 'calendar_basic',
+    'chat_funnel', 'chat_copy', 'chat_social',
   ],
-  pro: [
-    'intelligence',
-    'execution',
-    'vault',
-    'integrations',
-    'party_mode',
-    'offer_lab',
-    'ab_testing',
-    'ltv_analysis',
-    'deep_research',
-    'journey_tracking',
-    'creative_analysis',
-    'personalization',
-    'attribution',
-    'cross_channel',
-    'campaigns',
-    'ads_traffic',
-    'social',
-    'social_inbox',
-    'automation',
-    'calendar',
-    'approvals',
-    'chat_funnel',
-    'chat_copy',
-    'chat_social',
-    'chat_ads',
-    'chat_design',
-  ],
-  agency: [
-    'intelligence',
-    'execution',
-    'vault',
-    'integrations',
-    'party_mode',
-    'offer_lab',
-    'ab_testing',
-    'ltv_analysis',
-    'deep_research',
-    'journey_tracking',
-    'creative_analysis',
-    'personalization',
-    'attribution',
-    'cross_channel',
-    'campaigns',
-    'ads_traffic',
-    'social',
-    'social_inbox',
-    'automation',
-    'calendar',
-    'approvals',
-    'chat_funnel',
-    'chat_copy',
-    'chat_social',
-    'chat_ads',
-    'chat_design',
-  ],
+  pro: ALL_PRO_FEATURES,
+  agency: ALL_AGENCY_FEATURES,
 };
 
 // ============================================
@@ -216,11 +184,21 @@ export const TIER_FEATURES: Record<Tier, Feature[]> = {
 
 export const TIER_ORDER: Record<Tier, number> = {
   free: 0,
-  trial: 2, // Trial = Pro level access
   starter: 1,
+  trial: 2, // Trial = Pro level access
   pro: 2,
   agency: 3,
 };
+
+// ============================================
+// TIER PRICES (BRL)
+// ============================================
+
+export const TIER_PRICES = {
+  starter: { monthly: 147, annual: 117 },
+  pro:     { monthly: 497, annual: 397 },
+  agency:  { monthly: 997, annual: 797 },
+} as const;
 
 // ============================================
 // HELPER FUNCTIONS
@@ -263,15 +241,13 @@ export function getTierDisplayName(tier: Tier): string {
 
 /**
  * Get the minimum tier required for a feature.
- * Returns 'starter' as default if feature is not locked.
+ * Checks TIER_FEATURES from lowest tier upward.
  */
 export function getMinimumTierForFeature(feature: Feature): Tier {
-  // Features available in starter
-  const starterFeatures: Feature[] = ['chat_funnel'];
-  if (starterFeatures.includes(feature)) return 'starter';
-
-  // All other features require pro
-  return 'pro';
+  if (TIER_FEATURES.free.includes(feature)) return 'free';
+  if (TIER_FEATURES.starter.includes(feature)) return 'starter';
+  if (TIER_FEATURES.pro.includes(feature)) return 'pro';
+  return 'agency';
 }
 
 /**

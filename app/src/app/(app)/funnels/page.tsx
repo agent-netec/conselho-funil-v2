@@ -224,9 +224,16 @@ export default function FunnelsPage() {
                             </div>
 
                             {/* Status text */}
-                            <p className="text-[9px] font-mono uppercase tracking-[0.15em] text-[#AB8648] mt-1.5">
-                              {STATUS_LABEL[funnel.status] || funnel.status}
-                            </p>
+                            <div className="flex items-center justify-between mt-1.5">
+                              <p className="text-[9px] font-mono uppercase tracking-[0.15em] text-[#AB8648]">
+                                {STATUS_LABEL[funnel.status] || funnel.status}
+                              </p>
+                              {(funnel.status === 'approved' || funnel.status === 'executing') && (
+                                <span className="text-[8px] font-mono font-bold uppercase tracking-wider text-[#E6B447] bg-[#E6B447]/10 px-1.5 py-0.5 rounded">
+                                  Iniciar Campanha →
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </Link>
                       );

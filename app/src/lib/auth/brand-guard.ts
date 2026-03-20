@@ -13,6 +13,7 @@
 import { NextRequest } from 'next/server';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { ApiError } from '@/lib/utils/api-security';
+import { Tier, TIER_ORDER, TIER_LIMITS, getTierDisplayName } from '@/lib/tier-system';
 
 /**
  * Sanitiza um brandId removendo caracteres perigosos.
@@ -79,6 +80,41 @@ export async function requireUser(req: NextRequest): Promise<string> {
 interface BrandAccessResult {
   userId: string;
   brandId: string;
+  tier: Tier;
+  effectiveTier: Tier;
+}
+
+/**
+ * Computes effective tier considering trial expiration.
+ * Trial ativo = pro. Trial expirado = free.
+ */
+function computeEffectiveTier(userData: Record<string, any>): Tier {
+  const tier = (userData.tier as Tier) || 'trial';
+  if (tier === 'trial') {
+    const trialExpiresAt = userData.trialExpiresAt;
+    if (trialExpiresAt) {
+      const expiresDate = typeof trialExpiresAt.toDate === 'function'
+        ? trialExpiresAt.toDate()
+        : new Date(trialExpiresAt);
+      if (expiresDate < new Date()) return 'free';
+    }
+    return 'pro'; // Trial ativo = Pro
+  }
+  return tier;
+}
+
+/**
+ * Asserts that the user's effective tier meets the minimum required tier.
+ * Throws ApiError(403) with a user-friendly upgrade message if not.
+ */
+export function requireMinTier(effectiveTier: Tier, minTier: Tier): void {
+  if (TIER_ORDER[effectiveTier] < TIER_ORDER[minTier]) {
+    const tierName = getTierDisplayName(minTier);
+    throw new ApiError(
+      403,
+      `Essa feature requer o plano ${tierName}. Faça upgrade em /settings/billing`
+    );
+  }
 }
 
 /**
@@ -147,19 +183,21 @@ export async function requireBrandAccess(
     throw new ApiError(400, 'brandId inválido');
   }
 
-  // 3. Verificar se o usuário tem acesso à brand
+  // 3. Verificar acesso à brand + carregar user doc em paralelo
   try {
     const adminDb = getAdminFirestore();
-    const brandSnap = await adminDb.collection('brands').doc(safeBrandId).get();
+    const [brandSnap, userSnap] = await Promise.all([
+      adminDb.collection('brands').doc(safeBrandId).get(),
+      adminDb.collection('users').doc(userId).get(),
+    ]);
 
     if (!brandSnap.exists) {
       throw new ApiError(404, `Brand não encontrada: ${brandId}`);
     }
 
-    const brandData = brandSnap.data() as any; // exists check above guarantees non-null
+    const brandData = brandSnap.data() as any;
 
     // Verificar ownership ou membership
-    // Brands usam campo 'userId' (criação) ou 'ownerId' (multi-tenant)
     const isOwner = brandData.userId === userId || brandData.ownerId === userId;
     const isMember = Array.isArray(brandData.members) && brandData.members.includes(userId);
 
@@ -167,7 +205,12 @@ export async function requireBrandAccess(
       throw new ApiError(403, 'Acesso negado: brandId não pertence ao usuário');
     }
 
-    return { userId, brandId: safeBrandId };
+    // Compute tier from user doc
+    const userData = userSnap.exists ? (userSnap.data() as Record<string, any>) : {};
+    const tier = (userData.tier as Tier) || 'trial';
+    const effectiveTier = computeEffectiveTier(userData);
+
+    return { userId, brandId: safeBrandId, tier, effectiveTier };
   } catch (error) {
     if (error instanceof ApiError) throw error;
     throw new ApiError(500, 'Erro ao verificar acesso à brand');

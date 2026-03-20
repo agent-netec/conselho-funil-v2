@@ -3,11 +3,12 @@ export const maxDuration = 60;
 
 import { NextRequest } from 'next/server';
 import { parseJsonBody } from '@/app/api/_utils/parse-json';
-import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { generateWithGemini } from '@/lib/ai/gemini';
 import { updateUserUsage } from '@/lib/firebase/firestore';
+import { consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
 
 /**
  * POST /api/intelligence/keywords/related
@@ -32,7 +33,9 @@ export async function POST(req: NextRequest) {
       return createApiError(400, 'brandId e seedTerm são obrigatórios');
     }
 
-    await requireBrandAccess(req, brandId);
+    const { userId: authUserId, effectiveTier } = await requireBrandAccess(req, brandId);
+    requireMinTier(effectiveTier, 'pro');
+    await consumeCredits(authUserId, CREDIT_COSTS.keywords_miner, 'keywords_miner');
 
     const prompt = `Você é um especialista em SEO semântico no Brasil.
 

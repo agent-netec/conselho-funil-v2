@@ -25,6 +25,10 @@ export interface CampaignContextData {
   keyBenefits: string[];
   /** Detailed social hooks with platform, content, and style */
   socialHooks: Array<{ platform: string; content: string; style: string }>;
+  /** Sprint 04.2 — Campos expandidos do funil */
+  pain: string;
+  objection: string;
+  differentiator: string;
   /** Pre-formatted text block ready for prompt injection */
   text: string;
 }
@@ -72,6 +76,13 @@ export async function loadCampaignContext(
         style: typeof h === 'string' ? '' : h.style || '',
       }));
 
+    // Sprint 04.2: Expanded funnel fields
+    const painRaw = campaign.funnel?.pain;
+    const pain: string = Array.isArray(painRaw) ? painRaw.join('; ') : (painRaw || '');
+    const objectionRaw = campaign.funnel?.objection;
+    const objection: string = Array.isArray(objectionRaw) ? objectionRaw.join('; ') : (objectionRaw || '');
+    const differentiator: string = campaign.funnel?.differentiator || '';
+
     // Build formatted text block
     const lines: string[] = ['## Contexto da Campanha (Linha de Ouro)'];
     if (bigIdea) lines.push(`**Big Idea:** ${bigIdea}`);
@@ -90,6 +101,10 @@ export async function loadCampaignContext(
       ).join(' | ');
       lines.push(`**Social Hooks:** ${hooksSummary}`);
     }
+    // Sprint 04.2: expanded fields
+    if (pain) lines.push(`**Dor Principal:** ${pain}`);
+    if (objection) lines.push(`**Objeção Principal:** ${objection}`);
+    if (differentiator) lines.push(`**Diferencial:** ${differentiator}`);
 
     return {
       id: campaignId,
@@ -105,6 +120,9 @@ export async function loadCampaignContext(
       awareness,
       keyBenefits,
       socialHooks,
+      pain,
+      objection,
+      differentiator,
       text: lines.join('\n'),
     };
   } catch (err) {

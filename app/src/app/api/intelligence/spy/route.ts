@@ -7,12 +7,13 @@ import { getCompetitorProfile, updateCompetitorProfile, getCompetitorAssets } fr
 import { Timestamp } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { parseJsonBody } from '@/app/api/_utils/parse-json';
-import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { withRateLimit } from '@/lib/middleware/rate-limiter';
 import { extractContentFromUrl } from '@/lib/ai/url-scraper';
 import { updateUserUsage } from '@/lib/firebase/firestore';
+import { consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
 import type { CompetitorTechStack, SpyScanResult } from '@/types/competitors';
 
 const getErrorMessage = (error: unknown, fallback: string) =>
@@ -42,7 +43,9 @@ async function handlePOST(req: NextRequest) {
 
     // N-3: Support direct URL analysis without competitorId
     if (action === 'analyze' && directUrl) {
-      const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
+      const { userId: authUserId, brandId: safeBrandId, effectiveTier } = await requireBrandAccess(req, brandId);
+      requireMinTier(effectiveTier, 'pro');
+      await consumeCredits(authUserId, CREDIT_COSTS.spy_agent, 'spy_agent');
 
       try {
         // 1. Scrape the URL
@@ -78,7 +81,9 @@ async function handlePOST(req: NextRequest) {
       return createApiError(400, 'competitorId is required');
     }
 
-    const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
+    const { userId: authUserId, brandId: safeBrandId, effectiveTier } = await requireBrandAccess(req, brandId);
+    requireMinTier(effectiveTier, 'pro');
+    await consumeCredits(authUserId, CREDIT_COSTS.spy_agent, 'spy_agent');
 
     // 1. Buscar perfil do concorrente
     let competitor;

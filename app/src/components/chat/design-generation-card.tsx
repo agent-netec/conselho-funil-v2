@@ -24,7 +24,9 @@ import {
   Linkedin,
   Instagram,
   Search,
-  ArrowRight
+  ArrowRight,
+  Eye,
+  Lightbulb
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -69,7 +71,11 @@ const platformColors = {
 export function DesignGenerationCard({ promptData, conversationId, campaignId }: DesignGenerationCardProps) {
   const [status, setStatus] = useState<'idle' | 'generating' | 'success' | 'error' | 'upscaling'>('idle');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [allImages, setAllImages] = useState<{ url: string; processId: string }[]>([]);
+  const [selectedVariation, setSelectedVariation] = useState(0);
   const [isUpscaled, setIsUpscaled] = useState(false);
+  const [evaluation, setEvaluation] = useState<{ score: number; feedback: string; sugestoes?: string[]; breakdown?: Record<string, number> } | null>(null);
+  const [isEvaluating, setIsEvaluating] = useState(false);
   const [isSelecting, setIsSelecting] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -140,6 +146,12 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
         const finalImageUrl = payload.imageUrl;
         const isStorageUrl = !finalImageUrl?.startsWith('data:');
 
+        // Sprint 06.4: Store all variation images
+        const images = (payload.images || []).filter((img: any) => img?.url);
+        if (images.length > 1) {
+          setAllImages(images.map((img: any) => ({ url: img.url, processId: img.processId })));
+        }
+
         // Definimos a URL primeiro e DEPOIS mudamos o status para garantir renderização imediata
         setImageUrl(finalImageUrl);
         setStatus('success');
@@ -203,6 +215,35 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
     } catch (err) {
       console.error('Download error:', err);
       toast.error('Erro ao baixar imagem. Tente abrir em uma nova aba.');
+    }
+  };
+
+  // Sprint 06.5: Evaluate with Design Director
+  const handleEvaluate = async () => {
+    if (!imageUrl || isEvaluating) return;
+    setIsEvaluating(true);
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch('/api/design/evaluate', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          imageUrl,
+          prompt: promptData.visualPrompt || promptData.prompt || '',
+          campaignId,
+          brandId: activeBrand?.id,
+        }),
+      });
+      const data = await response.json();
+      if (data.success && data.data) {
+        setEvaluation(data.data);
+      } else {
+        toast.error(data.error || 'Erro ao avaliar criativo');
+      }
+    } catch {
+      toast.error('Falha ao conectar com o Diretor de Arte');
+    } finally {
+      setIsEvaluating(false);
     }
   };
 
@@ -323,7 +364,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                   )}
                 >
                   <Sparkles className="w-2.5 h-2.5" />
-                  C.H.A.P.E.U
+                  Estratégia Visual
                 </button>
               </div>
             </div>
@@ -379,10 +420,29 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
 
         {status === 'success' && imageUrl && (
           <div className="space-y-3">
+            {/* Variation Picker (Sprint 06.4) */}
+            {allImages.length > 1 && (
+              <div className="flex items-center gap-2 mb-1">
+                {allImages.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => { setSelectedVariation(i); setImageUrl(img.url); }}
+                    className={cn(
+                      'flex-1 py-1.5 px-3 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all',
+                      selectedVariation === i
+                        ? 'bg-[#E6B447]/15 border-[#E6B447]/40 text-[#E6B447]'
+                        : 'bg-white/[0.02] border-white/[0.05] text-zinc-500 hover:text-white hover:bg-white/[0.04]'
+                    )}
+                  >
+                    V{i + 1} {i === 0 ? '— Fiel' : '— Criativa'}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="relative group rounded-lg overflow-hidden border border-[#E6B447]/30 shadow-lg">
               <Image
                 src={imageUrl}
-                alt="Criativo Gerado"
+                alt={`Criativo Gerado${allImages.length > 1 ? ` — Variação ${selectedVariation + 1}` : ''}`}
                 width={800}
                 height={800}
                 className="w-full object-cover"
@@ -486,9 +546,9 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
+                  <Button
+                    size="sm"
+                    variant="outline"
                     className={cn(
                       "h-7 text-[9px] border-white/20 text-white hover:bg-white/10",
                       showSafeZones && "bg-[#E6B447]/20 border-[#E6B447]/50 text-[#E6B447]/60"
@@ -498,10 +558,54 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                     <Shield className="mr-1 h-3 w-3" />
                     Zonas de Segurança
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className={cn(
+                      "h-7 text-[9px] border-white/20 text-white hover:bg-white/10",
+                      evaluation && "bg-green-500/20 border-green-500/50 text-green-400"
+                    )}
+                    onClick={handleEvaluate}
+                    disabled={isEvaluating}
+                  >
+                    {isEvaluating ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Eye className="mr-1 h-3 w-3" />}
+                    {evaluation ? `${evaluation.score}/100` : 'Avaliar'}
+                  </Button>
                 </div>
               </div>
             </div>
             
+            {/* Evaluation Result (Sprint 06.5) */}
+            {evaluation && (
+              <div className="p-3 rounded-lg border border-white/[0.05] bg-white/[0.02] space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className={cn(
+                      'text-2xl font-black',
+                      evaluation.score >= 80 ? 'text-green-400' :
+                      evaluation.score >= 60 ? 'text-[#E6B447]' :
+                      'text-red-400'
+                    )}>
+                      {evaluation.score}
+                    </span>
+                    <span className="text-[10px] text-zinc-500 font-bold">/100</span>
+                  </div>
+                  <span className="text-[8px] text-zinc-600 uppercase font-bold">Avaliação do Director</span>
+                </div>
+                <p className="text-[11px] text-zinc-300 leading-relaxed">{evaluation.feedback}</p>
+                {evaluation.sugestoes && evaluation.sugestoes.length > 0 && (
+                  <div className="space-y-1 pt-1 border-t border-white/[0.05]">
+                    {evaluation.sugestoes.map((s, i) => (
+                      <p key={i} className="text-[10px] text-zinc-400 flex items-start gap-1.5">
+                        <Lightbulb className="w-3 h-3 text-[#E6B447] shrink-0 mt-0.5" />
+                        {s}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Copy Reveal (ST-11.11) */}
             {promptData.assets && (
               <div className="rounded-lg bg-black/40 border border-white/5 overflow-hidden shadow-lg shadow-black/40">
@@ -511,7 +615,7 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                 >
                   <div className="flex items-center gap-2">
                     <Type className="w-3.5 h-3.5 text-[#E6B447]" />
-                    COPYWRITING PARA {promptData.platform?.toUpperCase() || 'AD'}
+                    TEXTO PARA SOBREPOR ({promptData.platform?.toUpperCase() || 'AD'})
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[8px] px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-zinc-500 font-medium">
@@ -650,30 +754,17 @@ export function DesignGenerationCard({ promptData, conversationId, campaignId }:
                 </Button>
               ) : null}
 
-              {!isUpscaled && (
-                <Button 
-                  onClick={handleUpscale}
-                  className={cn(
-                    "bg-zinc-800 hover:bg-zinc-700 text-[#E6B447] border border-[#E6B447]/20 h-8 text-[10px]",
-                    isSelected && "opacity-50 pointer-events-none"
-                  )}
-                >
-                  <Sparkles className="mr-1.5 h-3 w-3" />
-                  UPSCALE HD
-                </Button>
-              )}
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => {
                   setStatus('idle');
-                  setIsUpscaled(false);
                   setImageUrl(null);
+                  setAllImages([]);
+                  setSelectedVariation(0);
                   setIsSelected(false);
+                  setEvaluation(null);
                 }}
-                className={cn(
-                  "border-[#E6B447]/30 text-[#E6B447] hover:bg-[#E6B447]/10 h-8 text-[10px]",
-                  isUpscaled ? "col-span-2" : ""
-                )}
+                className="border-[#E6B447]/30 text-[#E6B447] hover:bg-[#E6B447]/10 h-8 text-[10px]"
               >
                 NOVA VARIAÇÃO
               </Button>

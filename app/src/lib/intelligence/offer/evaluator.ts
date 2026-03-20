@@ -1,6 +1,7 @@
 import { loadBrain } from '@/lib/intelligence/brains/loader';
 import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
 import { generateWithGemini, PRO_GEMINI_MODEL } from '@/lib/ai/gemini';
+import { loadBrandIntelligence } from '@/lib/intelligence/research/brand-context';
 import type { CounselorId } from '@/types';
 import type { OfferQualityInsight } from '@/types/offer';
 
@@ -56,16 +57,41 @@ function buildOfferBrainContext(): string {
  * Uses PRO_GEMINI_MODEL (gemini-3-pro-preview) for critical evaluation.
  */
 export async function evaluateOfferQuality(
-  offerData: { components: any; scoring: any }
+  offerData: { components: any; scoring: any },
+  brandId?: string
 ): Promise<OfferQualityResult> {
   const brainContext = buildOfferBrainContext();
+
+  // Sprint 07: Load persona for contextual evaluation
+  let personaSection = '';
+  if (brandId) {
+    try {
+      const intel = await loadBrandIntelligence(brandId);
+      if (intel?.persona) {
+        const p = intel.persona;
+        personaSection = `\n## PERSONA REAL DO PÚBLICO
+Dores: ${p.pains.join('; ')}
+Objeções: ${p.objections.join('; ')}
+Desejos: ${p.desires.join('; ')}
+Gatilhos de compra: ${p.triggers.join('; ')}
+
+SUGESTÕES BASEADAS NA PERSONA:
+- Bônus que resolvam a objeção: "${p.objections[0] || 'preço'}"
+- Garantia que neutralize o medo: "${p.pains[0] || 'perder dinheiro'}"
+- Prova social que valide o desejo: "${p.desires[0] || 'resultado rápido'}"
+`;
+      }
+    } catch (err) {
+      console.warn('[OfferEvaluator] Brand intelligence failed:', err);
+    }
+  }
 
   const prompt = `Voce e um consultor senior de ofertas irresistiveis.
 Use os frameworks dos especialistas abaixo para avaliar a oferta.
 
 ## FRAMEWORKS DOS ESPECIALISTAS
 ${brainContext}
-
+${personaSection}
 ## DADOS DA OFERTA
 - Produto principal: ${offerData.components.coreProduct.name}
 - Promessa: ${offerData.components.coreProduct.promise}

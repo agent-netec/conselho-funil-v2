@@ -212,28 +212,7 @@ export function StatsCards({ stats, isLoading }: { stats: any; isLoading: boolea
         ))}
       </div>
 
-      {/* Benchmarks Section */}
-      {stats?.performance_benchmarks?.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Activity className="h-3.5 w-3.5 text-[#AB8648]" />
-            <span className="font-mono text-[10px] font-bold text-[#AB8648] uppercase tracking-[0.15em]">
-              Benchmarks 2026
-            </span>
-          </div>
-          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {stats.performance_benchmarks.map((bench: any, i: number) => (
-              <BenchmarkCard
-                key={i}
-                metric={bench.metric}
-                value={bench.value}
-                benchmark={bench.benchmark_2026}
-                status={bench.status}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Benchmarks removed — was using fake sparklines with hardcoded SVG points */}
     </div>
   );
 }

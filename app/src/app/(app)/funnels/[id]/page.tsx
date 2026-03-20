@@ -28,7 +28,7 @@ import {
   FileText,
   Share2,
 } from 'lucide-react';
-import { doc, onSnapshot, collection, getDocs, orderBy, query, setDoc, updateDoc, Timestamp } from 'firebase/firestore';
+import { doc, onSnapshot, collection, getDocs, getDoc, orderBy, query, setDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Funnel, Proposal, ProposalScorecard } from '@/types/database';
 import { useFunnels } from '@/lib/hooks/use-funnels';
@@ -681,18 +681,34 @@ export default function FunnelDetailPage() {
 
   const handleActivateGoldenThread = async () => {
     if (!funnel) return;
-    
+
     setIsLoading(true);
     try {
-      // US-21: Garantir CampaignId único (funnelId + timestamp + random)
+      // Sprint 04.1: ID único — NUNCA igual ao funnelId
       const timestamp = Date.now();
       const shortId = Math.random().toString(36).substring(2, 7);
-      const campaignId = `${funnel.id}_${timestamp}_${shortId}`;
-      
+      const campaignId = `campaign_${timestamp}_${shortId}`;
+
       const campaignRef = doc(db, 'campaigns', campaignId);
-      
+
       // Busca a proposta selecionada para injetar o contexto inicial
       const selectedProposal = proposals.find(p => p.status === 'selected') || proposals[0];
+
+      // Sprint 04.1: Carregar nome real da brand (não usar funnel.name)
+      let brandName = funnel.context.company || '';
+      let brandTone = '';
+      if (funnel.brandId) {
+        try {
+          const brandSnap = await getDoc(doc(db, 'brands', funnel.brandId));
+          if (brandSnap.exists()) {
+            const brandData = brandSnap.data();
+            brandName = brandData.name || brandName;
+            brandTone = brandData.brandKit?.voiceTone || brandData.voiceTone || '';
+          }
+        } catch (err) {
+          console.warn('[GoldenThread] Failed to load brand:', err);
+        }
+      }
 
       const campaignData: any = {
         id: campaignId,
@@ -706,9 +722,35 @@ export default function FunnelDetailPage() {
           architecture: selectedProposal?.strategy?.rationale || '',
           targetAudience: funnel.context.audience?.who || '',
           mainGoal: funnel.context.objective || '',
-          stages: selectedProposal?.architecture?.stages?.map(s => s.name) || [],
+          stages: selectedProposal?.architecture?.stages?.map((s: any) => s.name) || [],
           summary: selectedProposal?.summary || '',
+          // Sprint 04.2 — Campos expandidos
+          awareness: funnel.context.audience?.awareness || '',
+          pain: funnel.context.audience?.pain || '',
+          objection: funnel.context.audience?.objection || '',
+          differentiator: (funnel.context.offer as any)?.differentiator || '',
+          proposalName: selectedProposal?.name || '',
+          proposalVersion: selectedProposal?.version || 1,
+          scorecard: selectedProposal?.scorecard || null,
+          primaryChannel: funnel.context.channel?.main || '',
+          secondaryChannel: funnel.context.channel?.secondary || '',
         },
+        // Brand context snapshot (nome real da brand, não do funil)
+        brand: {
+          name: brandName,
+          vertical: funnel.context.market || '',
+          tone: brandTone,
+          offerPromise: funnel.context.offer?.what || '',
+        },
+        stages: {
+          offer: null,
+          copy: null,
+          social: null,
+          design: null,
+          ads: null,
+          launch: null,
+        },
+        progress: 0,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
       };

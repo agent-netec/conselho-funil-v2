@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const now = Timestamp.now();
 
     const trialExpiresAt = new Date();
-    trialExpiresAt.setDate(trialExpiresAt.getDate() + 14);
+    trialExpiresAt.setDate(trialExpiresAt.getDate() + 7);
 
     const userData: Record<string, unknown> = {
       email,

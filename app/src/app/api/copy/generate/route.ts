@@ -32,6 +32,7 @@ import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { buildCopyBrainContext } from '@/lib/ai/prompts/copy-brain-context';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
+import { loadBrandIntelligence } from '@/lib/intelligence/research/brand-context';
 
 export const runtime = 'nodejs';
 export const maxDuration = 90; // Aumentado para lidar com RAG
@@ -213,6 +214,38 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // 4b. Sprint 07 — Brand Intelligence (persona + spy insights for copy)
+    let personaContext = '';
+    if (funnel.brandId) {
+      try {
+        const intel = await loadBrandIntelligence(funnel.brandId);
+        if (intel) {
+          const parts: string[] = [];
+          if (intel.persona) {
+            parts.push(`## PERSONA ATIVA (${intel.persona.source})`);
+            parts.push(`Nome: ${intel.persona.name}${intel.persona.age ? `, ${intel.persona.age}` : ''}`);
+            if (intel.persona.pains.length > 0) parts.push(`Dores reais: ${intel.persona.pains.join('; ')}`);
+            if (intel.persona.desires.length > 0) parts.push(`Desejos: ${intel.persona.desires.join('; ')}`);
+            if (intel.persona.objections.length > 0) parts.push(`Objeções: ${intel.persona.objections.join('; ')}`);
+            if (intel.persona.triggers.length > 0) parts.push(`Gatilhos de compra: ${intel.persona.triggers.join('; ')}`);
+          }
+          if (intel.spyInsights.length > 0) {
+            parts.push(`\n## CONCORRENTES (use para diferenciar a copy)`);
+            for (const spy of intel.spyInsights.slice(0, 2)) {
+              if (spy.emulate.length > 0) parts.push(`${spy.competitorName} — Emular: ${spy.emulate.join('; ')}`);
+              if (spy.avoid.length > 0) parts.push(`${spy.competitorName} — Evitar: ${spy.avoid.join('; ')}`);
+            }
+          }
+          if (parts.length > 0) {
+            personaContext = parts.join('\n');
+            console.log(`[Copy] Brand intelligence injected (persona + spy)`);
+          }
+        }
+      } catch (err) {
+        console.warn('[Copy] Brand intelligence fetch failed:', err);
+      }
+    }
+
     // 5. Contexto de Anexos do Chat (Busca no histórico da conversa)
     let attachmentsContext = '';
     if (conversationId) {
@@ -259,6 +292,7 @@ export async function POST(request: NextRequest) {
         attachmentsContext,
         brainContext,
         offerContext,
+        personaContext,
       }
     );
 

@@ -10,7 +10,7 @@ import { ChatSidebar } from '@/components/chat/chat-sidebar';
 import { ChatInputArea } from '@/components/chat/chat-input-area';
 import { ChatMessageList } from '@/components/chat/chat-message-list';
 import { ChatEmptyState } from '@/components/chat/chat-empty-state';
-import { ChatMode } from '@/components/chat/chat-mode-selector';
+import { ChatMode, mapLegacyMode } from '@/components/chat/chat-mode-selector';
 import { MessageData } from '@/components/chat/chat-message-bubble';
 import { ActiveContextIndicator } from '@/components/chat/active-context-indicator';
 import { CHAT_MODES } from '@/lib/constants';
@@ -23,16 +23,20 @@ export default function ChatPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const conversationId = searchParams.get('id');
+
+  // Sprint 05.2: Only 1 optional param — campaignId (for campaign mode)
+  const rawCampaignId = searchParams.get('campaignId') || searchParams.get('campaign');
+  const campaignId = (rawCampaignId === 'undefined' || !rawCampaignId) ? null : rawCampaignId;
+
+  // Legacy compat: funnelId still accepted for old links
   const funnelId = searchParams.get('funnelId');
-  const rawCampaignId = searchParams.get('campaignId');
 
   // Sprint R2.2: Detect if coming from onboarding
   const fromOnboarding = searchParams.get('from') === 'onboarding';
 
-  // Limpeza de campaignId "undefined" vindo da URL (ST-11.6)
-  const campaignId = (rawCampaignId === 'undefined' || !rawCampaignId) ? null : rawCampaignId;
-  const urlMode = searchParams.get('mode') as ChatMode | null;
-  const activeBrand = useActiveBrand(); // Marca ativa para vincular conversas
+  // Sprint 05.1: Map legacy URL modes to new 3-mode system
+  const urlMode = searchParams.get('mode');
+  const activeBrand = useActiveBrand();
   const { user } = useUser();
 
   const [chatMode, setChatMode] = useState<ChatMode>('general');
@@ -41,12 +45,16 @@ export default function ChatPage() {
   const [isGeneratingVerdict, setIsGeneratingVerdict] = useState(false);
   const verdictGeneratedRef = useRef(false);
 
-  // US-20.2: Sincronizar modo da URL
+  // Sprint 05.1: Sync mode from URL — map legacy modes
   useEffect(() => {
-    if (urlMode && ['general', 'funnel', 'copy', 'social', 'ads', 'design'].includes(urlMode)) {
-      setChatMode(urlMode);
+    if (urlMode) {
+      setChatMode(mapLegacyMode(urlMode));
+    } else if (campaignId) {
+      // Auto-switch to campaign mode when campaignId present
+      setChatMode('campaign');
     }
-  }, [urlMode]);
+  }, [urlMode, campaignId]);
+
   const [isCreating, setIsCreating] = useState(false);
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -62,7 +70,7 @@ export default function ChatPage() {
     create: createConversation,
     remove: removeConversation,
   } = useConversations();
-  
+
   const {
     messages,
     isSending,
@@ -87,7 +95,6 @@ export default function ChatPage() {
   // Sprint R2.2: Generate proactive verdict after onboarding
   useEffect(() => {
     async function generateVerdict() {
-      // Only run if coming from onboarding, have a brand, and haven't generated yet
       if (!fromOnboarding || !activeBrand?.id || verdictGeneratedRef.current || isGeneratingVerdict) {
         return;
       }
@@ -96,16 +103,12 @@ export default function ChatPage() {
       setIsGeneratingVerdict(true);
 
       try {
-        // 1. Create a new conversation for the verdict
         const newConversationId = await createConversation(
           `Veredito - ${activeBrand.name}`,
           activeBrand.id
         );
-
-        // 2. Navigate to the new conversation (remove ?from=onboarding)
         router.replace(`/chat?id=${newConversationId}`);
 
-        // 3. Call the verdict API
         const verdictHeaders = await getAuthHeaders();
         const response = await fetch('/api/chat/verdict', {
           method: 'POST',
@@ -120,13 +123,10 @@ export default function ChatPage() {
           const errorData = await response.json();
           throw new Error(errorData.error || 'Erro ao gerar veredito');
         }
-
-        // The verdict is saved as a message, it will appear via real-time listener
-        console.log('[Chat] Verdict generated successfully');
       } catch (error) {
         console.error('[Chat] Error generating verdict:', error);
         toast.error('Erro ao gerar veredito. Tente novamente.');
-        verdictGeneratedRef.current = false; // Allow retry
+        verdictGeneratedRef.current = false;
       } finally {
         setIsGeneratingVerdict(false);
       }
@@ -158,22 +158,18 @@ export default function ChatPage() {
   };
 
   const handleSend = async (message: string, partyOptions?: { selectedAgents?: string[], intensity?: 'debate' | 'consensus' }) => {
-    const apiMode = 
-      chatMode === 'funnel' ? 'funnel_creation' : 
-      chatMode === 'copy' ? 'copy' : 
-      chatMode === 'social' ? 'social' : 
-      chatMode === 'ads' ? 'ads' : 
-      chatMode === 'design' ? 'design' :
+    // Sprint 05.1: Map UI modes to API modes
+    const apiMode =
+      chatMode === 'campaign' ? 'campaign' :
       chatMode === 'party' ? 'party' :
       'general';
-    
+
     if (!conversationId) {
       const newId = await createConversation('Nova conversa', activeBrand?.id);
-      let url = funnelId ? `/chat?id=${newId}&funnelId=${funnelId}` : `/chat?id=${newId}`;
+      let url = `/chat?id=${newId}`;
       if (campaignId) url += `&campaignId=${campaignId}`;
 
       router.push(url);
-      // Pass newId directly — sendMessage from the current render has conversationId=null
       await sendMessage(message, apiMode as any, funnelId || undefined, partyOptions, campaignId || undefined, newId, activeBrand?.id);
       return;
     }
@@ -192,7 +188,7 @@ export default function ChatPage() {
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        <ChatSidebar 
+        <ChatSidebar
           conversations={conversations}
           isLoading={conversationsLoading}
           conversationId={conversationId}
@@ -211,82 +207,31 @@ export default function ChatPage() {
                   <ChatEmptyState onSuggestionClick={handleSend} mode={chatMode} />
                 </div>
               ) : (
-                <ChatMessageList 
-                  messages={messages as MessageData[]} 
-                  isSending={isSending} 
-                  accentColor={accentColor} 
+                <ChatMessageList
+                  messages={messages as MessageData[]}
+                  isSending={isSending}
+                  accentColor={accentColor}
                   campaignId={campaignId}
+                  onFollowUpSelect={handleSend}
                 />
               )}
             </div>
           </div>
 
-          {/* CTA contextual: guia o usuário para a página dedicada da etapa */}
-          {funnelId && (chatMode === 'design' || chatMode === 'social') && messages.length > 0 && (
-            <div className="border-t border-white/[0.06] bg-zinc-950/80 backdrop-blur-sm px-4 py-2.5">
-              <Link
-                href={
-                  chatMode === 'design'
-                    ? `/funnels/${funnelId}/design${campaignId ? `?campaignId=${campaignId}` : ''}`
-                    : `/funnels/${funnelId}/social${campaignId ? `?campaignId=${campaignId}` : ''}`
-                }
-                className="flex items-center justify-between gap-3 rounded-lg border border-[#E6B447]/20 bg-[#E6B447]/5 px-4 py-2.5 transition-all hover:bg-[#E6B447]/10 hover:border-[#E6B447]/40 group"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-lg">{chatMode === 'design' ? '\uD83C\uDFA8' : '\uD83D\uDD17'}</span>
-                  <div>
-                    <p className="text-sm font-semibold text-white">
-                      {chatMode === 'design' ? 'Gerar Criativos Visuais' : 'Gerar Hooks Sociais'}
-                    </p>
-                    <p className="text-[11px] text-zinc-500">
-                      {chatMode === 'design'
-                        ? 'Ir para a p\u00e1gina de Design para criar imagens com NanoBanana AI'
-                        : 'Ir para a p\u00e1gina Social para gerar hooks estrat\u00e9gicos'}
-                    </p>
-                  </div>
-                </div>
-                <span className="text-zinc-500 group-hover:text-[#E6B447] transition-colors text-lg">\u2192</span>
-              </Link>
-            </div>
-          )}
-
-          {/* CTA Ads: último passo acionável da Linha de Ouro — volta ao Command Center */}
-          {campaignId && chatMode === 'ads' && messages.length > 0 && (
-            <div className="border-t border-white/[0.06] bg-zinc-950/80 backdrop-blur-sm px-4 py-2.5">
-              <Link
-                href={`/campaigns/${campaignId}`}
-                className="flex items-center justify-between gap-3 rounded-lg border border-[#E6B447]/20 bg-[#E6B447]/5 px-4 py-2.5 transition-all hover:bg-[#E6B447]/10 hover:border-[#E6B447]/40 group"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-lg">{'\u2705'}</span>
-                  <div>
-                    <p className="text-sm font-semibold text-white">
-                      Finalizar Linha de Ouro
-                    </p>
-                    <p className="text-[11px] text-zinc-500">
-                      Voltar ao Command Center para ver o resumo completo da campanha
-                    </p>
-                  </div>
-                </div>
-                <span className="text-zinc-500 group-hover:text-[#E6B447] transition-colors text-lg">{'\u2192'}</span>
-              </Link>
-            </div>
-          )}
-
           <ChatInputArea
             onSend={handleSend}
             isLoading={isSending}
             disabled={isBlocked}
-            disabledMessage="Saldo de cr\u00e9ditos insuficiente"
+            disabledMessage="Saldo de créditos insuficiente"
             mode={chatMode}
             onModeChange={setChatMode}
           />
         </div>
       </div>
 
-      <PaywallModal 
-        isOpen={isPaywallOpen} 
-        onOpenChange={setIsPaywallOpen} 
+      <PaywallModal
+        isOpen={isPaywallOpen}
+        onOpenChange={setIsPaywallOpen}
       />
     </div>
   );

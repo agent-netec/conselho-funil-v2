@@ -11,6 +11,11 @@ import { VerdictCard } from './verdict-card';
 import { AssetPreview } from '../council/asset-preview';
 import { cn } from '@/lib/utils';
 import { parsePartyResponse, PartySection, getInteractionSummary } from '@/lib/utils/party-parser';
+import { parseFollowUps } from '@/lib/utils/follow-up-parser';
+import { FollowUpSuggestions } from './follow-up-suggestions';
+import { CounselorMessageHeader } from './counselor-message-header';
+import { CounselorIntroCard } from './counselor-intro-card';
+import { getCounselorMeta } from '@/data/counselor-metadata';
 import { COUNSELORS_REGISTRY } from '@/lib/constants';
 import { parseVerdictOutput, VerdictOutput } from '@/lib/ai/prompts/verdict-prompt';
 
@@ -34,12 +39,14 @@ interface ChatMessageBubbleProps {
   message: MessageData;
   index: number;
   campaignId?: string | null;
+  onFollowUpSelect?: (suggestion: string) => void;
 }
 
-export function ChatMessageBubble({ 
-  message, 
+export function ChatMessageBubble({
+  message,
   index,
-  campaignId
+  campaignId,
+  onFollowUpSelect
 }: ChatMessageBubbleProps) {
   const [copied, setCopied] = useState(false);
   const isUser = message.role === 'user';
@@ -224,18 +231,26 @@ export function ChatMessageBubble({
     return null;
   };
 
-  const nanobananaPrompts = !isUser ? detectNanobananaPrompts(message.content) : [];
-  const adsStrategy = !isUser ? detectAdsStrategy(message.content) : null;
-  const councilOutput = !isUser ? detectCouncilOutput(message.content) : null;
-  const partySections = !isUser ? parsePartyResponse(message.content) : [];
+  // Sprint 05.5: Parse follow-ups BEFORE other detections
+  const { cleanContent: contentWithoutFollowUps, followUps } = !isUser
+    ? parseFollowUps(message.content)
+    : { cleanContent: message.content, followUps: [] };
+
+  const nanobananaPrompts = !isUser ? detectNanobananaPrompts(contentWithoutFollowUps) : [];
+  const adsStrategy = !isUser ? detectAdsStrategy(contentWithoutFollowUps) : null;
+  const councilOutput = !isUser ? detectCouncilOutput(contentWithoutFollowUps) : null;
+  const partySections = !isUser ? parsePartyResponse(contentWithoutFollowUps) : [];
   const interactions = !isUser ? getInteractionSummary(partySections) : [];
 
   // Strip structured output tags from displayed content so they don't render as raw text
-  const cleanContent = !isUser ? message.content
+  const cleanContent = !isUser ? contentWithoutFollowUps
     .replace(/\[COUNCIL_OUTPUT\]:\s*\{[\s\S]*\}\s*$/m, '')
     .replace(/\[ADS_STRATEGY\]:\s*\{[\s\S]*\}\s*$/m, '')
     .trim()
     : message.content;
+
+  // Sprint 05.3/05.4: Primary counselor for avatar + identity
+  const primaryCounselorId = !isUser && message.metadata?.counselors?.[0] || null;
 
   // Sprint R2.2: Detect verdict message
   const isVerdict = message.metadata?.type === 'verdict';
@@ -249,6 +264,39 @@ export function ChatMessageBubble({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Sprint 05.4: Inline counselor avatar for message bubbles (image + fallback)
+  function CounselorAvatarInline({ counselorId }: { counselorId: string }) {
+    const meta = getCounselorMeta(counselorId);
+    const [imgError, setImgError] = useState(false);
+
+    if (meta.avatarUrl && !imgError) {
+      return (
+        <img
+          src={meta.avatarUrl}
+          alt={meta.name}
+          onError={() => setImgError(true)}
+          className="h-6 w-6 sm:h-8 sm:w-8 rounded-lg object-cover shadow-sm"
+          style={{ border: `2px solid ${meta.accentColor}40` }}
+          title={`${meta.name} — ${meta.specialty}`}
+        />
+      );
+    }
+
+    return (
+      <div
+        className="flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-lg text-[10px] sm:text-xs font-bold shadow-sm"
+        style={{
+          backgroundColor: `${meta.accentColor}25`,
+          color: meta.accentColor,
+          border: `1px solid ${meta.accentColor}30`,
+        }}
+        title={`${meta.name} — ${meta.specialty}`}
+      >
+        {meta.initials}
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -259,12 +307,14 @@ export function ChatMessageBubble({
         isUser ? 'bg-transparent' : 'bg-white/[0.01]'
       )}
     >
-      {/* Avatar */}
+      {/* Avatar — counselor-specific when available */}
       <div className="flex-shrink-0 pt-0.5">
         {isUser ? (
           <div className="flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-zinc-800 text-sm font-medium text-zinc-300 shadow-sm">
             <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </div>
+        ) : primaryCounselorId ? (
+          <CounselorAvatarInline counselorId={primaryCounselorId} />
         ) : (
           <div className="flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-lg shadow-[#E6B447]/10">
             <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
@@ -276,9 +326,13 @@ export function ChatMessageBubble({
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2 mb-1 sm:mb-2">
           <div className="flex items-center gap-2">
-            <span className="text-[13px] sm:text-sm font-semibold text-zinc-300">
-              {isUser ? 'Você' : 'MKTHONEY'}
-            </span>
+            {isUser ? (
+              <span className="text-[13px] sm:text-sm font-semibold text-zinc-300">Você</span>
+            ) : message.metadata?.counselors && message.metadata.counselors.length > 0 ? (
+              <CounselorMessageHeader counselorIds={message.metadata.counselors} />
+            ) : (
+              <span className="text-[13px] sm:text-sm font-semibold text-zinc-300">MKTHONEY</span>
+            )}
             {message.createdAt && (
               <span className="text-[10px] sm:text-xs text-zinc-600 font-medium">
                 {message.createdAt.toDate?.().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
@@ -287,6 +341,11 @@ export function ChatMessageBubble({
           </div>
         </div>
         
+        {/* Sprint 05.8: Intro card on first interaction with counselor */}
+        {primaryCounselorId && index === 0 && (
+          <CounselorIntroCard counselorId={primaryCounselorId} />
+        )}
+
         {/* Message Content - Markdown or Text */}
         <div className="text-[15px] sm:text-base leading-relaxed text-zinc-200">
           {isUser ? (
@@ -468,6 +527,13 @@ export function ChatMessageBubble({
 
               {councilOutput && (
                 <AssetPreview data={councilOutput} />
+              )}
+
+              {followUps.length > 0 && onFollowUpSelect && (
+                <FollowUpSuggestions
+                  suggestions={followUps}
+                  onSelect={onFollowUpSelect}
+                />
               )}
             </div>
           )}

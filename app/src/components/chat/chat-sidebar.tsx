@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Plus, MessageSquare, Trash2, Menu } from 'lucide-react';
@@ -10,6 +11,8 @@ import { useMobile } from '@/lib/hooks/use-mobile';
 interface Conversation {
   id: string;
   title: string;
+  brandId?: string;
+  brandName?: string;
 }
 
 interface ChatSidebarProps {
@@ -35,6 +38,59 @@ export function ChatSidebar({
 }: ChatSidebarProps) {
   const isMobile = useMobile();
 
+  // Sprint 05.10: Group conversations by brand when 5+ exist
+  const grouped = useMemo(() => {
+    if (conversations.length < 5) return null; // flat list for few convos
+    const groups: Record<string, Conversation[]> = {};
+    for (const conv of conversations) {
+      const key = conv.brandName || conv.brandId || '__general';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(conv);
+    }
+    // Only group if there are at least 2 brands
+    const keys = Object.keys(groups);
+    if (keys.length < 2) return null;
+    return groups;
+  }, [conversations]);
+
+  const renderConvItem = (conv: Conversation) => (
+    <motion.div
+      key={conv.id}
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -10 }}
+      onClick={() => onSelectConversation(conv.id)}
+      className={cn(
+        'group flex items-center gap-3 rounded-xl px-3 py-3 cursor-pointer transition-all min-h-[48px] border border-transparent',
+        conv.id === conversationId
+          ? accentColor === 'amber'
+            ? 'bg-amber-500/10 text-white border-amber-500/20 shadow-sm shadow-amber-500/5'
+            : 'bg-[#E6B447]/10 text-white border-[#E6B447]/20 shadow-sm shadow-[#E6B447]/5'
+          : 'text-zinc-500 hover:bg-white/[0.02] hover:text-zinc-300 hover:border-white/[0.05]'
+      )}
+    >
+      <div className={cn(
+        "p-1.5 rounded-lg transition-colors",
+        conv.id === conversationId
+          ? (accentColor === 'amber' ? "bg-amber-500/20 text-amber-400" : "bg-[#E6B447]/20 text-[#E6B447]")
+          : "bg-zinc-900 text-zinc-600 group-hover:text-zinc-400"
+      )}>
+        <MessageSquare className="h-3.5 w-3.5 flex-shrink-0" />
+      </div>
+      <span className="flex-1 truncate text-[13px] font-medium tracking-tight">{conv.title}</span>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onDeleteConversation(conv.id, e);
+        }}
+        className="p-1.5 opacity-0 group-hover:opacity-100 hover:bg-red-500/10 rounded-lg transition-all"
+        aria-label="Delete conversation"
+      >
+        <Trash2 className="h-3.5 w-3.5 text-zinc-600 hover:text-red-400" />
+      </button>
+    </motion.div>
+  );
+
   const SidebarContent = () => (
     <div className="flex h-full flex-col bg-[#0a0a0c] overflow-hidden">
       {/* New Chat */}
@@ -43,10 +99,8 @@ export function ChatSidebar({
           onClick={onNewConversation}
           disabled={isCreating}
           className={cn(
-            'w-full justify-center h-11 shadow-lg shadow-black/20', 
-            accentColor === 'indigo' 
-              ? 'bg-indigo-500 hover:bg-indigo-400' 
-              : accentColor === 'amber'
+            'w-full justify-center h-11 shadow-lg shadow-black/20',
+            accentColor === 'amber'
               ? 'bg-amber-500 hover:bg-amber-400'
               : 'btn-accent'
           )}
@@ -56,11 +110,10 @@ export function ChatSidebar({
         </Button>
       </div>
 
-      {/* Conversations Container with elegant scroll and mask */}
+      {/* Conversations Container */}
       <div className="flex-1 relative overflow-hidden group/sidebar">
-        {/* Top Fade Mask */}
         <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-[#0a0a0c] to-transparent z-10 pointer-events-none opacity-0 group-hover/sidebar:opacity-100 transition-opacity" />
-        
+
         <div className="absolute inset-0 overflow-y-auto custom-scrollbar px-3 pb-8 scroll-smooth">
           <AnimatePresence>
             {isLoading ? (
@@ -78,53 +131,29 @@ export function ChatSidebar({
                   Inicie sua primeira<br />consultoria
                 </p>
               </div>
-            ) : (
-              <div className="space-y-1 py-2">
-                {conversations.map((conv) => (
-                  <motion.div
-                    key={conv.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    onClick={() => onSelectConversation(conv.id)}
-                    className={cn(
-                      'group flex items-center gap-3 rounded-xl px-3 py-3 cursor-pointer transition-all min-h-[48px] border border-transparent',
-                      conv.id === conversationId
-                        ? accentColor === 'indigo'
-                          ? 'bg-indigo-500/10 text-white border-indigo-500/20 shadow-sm shadow-indigo-500/5'
-                          : accentColor === 'amber'
-                          ? 'bg-amber-500/10 text-white border-amber-500/20 shadow-sm shadow-amber-500/5'
-                          : 'bg-[#E6B447]/10 text-white border-[#E6B447]/20 shadow-sm shadow-[#E6B447]/5'
-                        : 'text-zinc-500 hover:bg-white/[0.02] hover:text-zinc-300 hover:border-white/[0.05]'
-                    )}
-                  >
-                    <div className={cn(
-                      "p-1.5 rounded-lg transition-colors",
-                      conv.id === conversationId 
-                        ? (accentColor === 'indigo' ? "bg-indigo-500/20 text-indigo-400" : accentColor === 'amber' ? "bg-amber-500/20 text-amber-400" : "bg-[#E6B447]/20 text-[#E6B447]")
-                        : "bg-zinc-900 text-zinc-600 group-hover:text-zinc-400"
-                    )}>
-                      <MessageSquare className="h-3.5 w-3.5 flex-shrink-0" />
+            ) : grouped ? (
+              /* Sprint 05.10: Grouped by brand */
+              <div className="space-y-4 py-2">
+                {Object.entries(grouped).map(([key, convs]) => (
+                  <div key={key}>
+                    <p className="text-[9px] font-mono font-bold uppercase tracking-[0.15em] text-[#6B5D4A] px-3 mb-1">
+                      {key === '__general' ? 'Geral' : key}
+                    </p>
+                    <div className="space-y-1">
+                      {convs.map(renderConvItem)}
                     </div>
-                    <span className="flex-1 truncate text-[13px] font-medium tracking-tight">{conv.title}</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteConversation(conv.id, e);
-                      }}
-                      className="p-1.5 opacity-0 group-hover:opacity-100 hover:bg-red-500/10 rounded-lg transition-all"
-                      aria-label="Delete conversation"
-                    >
-                      <Trash2 className="h-3.5 w-3.5 text-zinc-600 hover:text-red-400" />
-                    </button>
-                  </motion.div>
+                  </div>
                 ))}
+              </div>
+            ) : (
+              /* Flat list for < 5 conversations */
+              <div className="space-y-1 py-2">
+                {conversations.map(renderConvItem)}
               </div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Bottom Fade Mask */}
         <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#0a0a0c] to-transparent z-10 pointer-events-none" />
       </div>
     </div>

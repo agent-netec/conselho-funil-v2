@@ -10,6 +10,7 @@ interface ChatMessageListProps {
   isSending: boolean;
   accentColor: string;
   campaignId?: string | null;
+  onFollowUpSelect?: (suggestion: string) => void;
 }
 
 export function ChatMessageList({
@@ -17,6 +18,7 @@ export function ChatMessageList({
   isSending,
   accentColor,
   campaignId,
+  onFollowUpSelect,
 }: ChatMessageListProps) {
   return (
     <div className="flex flex-col w-full pb-32">
@@ -26,6 +28,7 @@ export function ChatMessageList({
           message={message}
           index={index}
           campaignId={campaignId}
+          onFollowUpSelect={onFollowUpSelect}
         />
       ))}
       
@@ -37,9 +40,7 @@ export function ChatMessageList({
         >
           <div className={cn(
             'flex h-8 w-8 items-center justify-center rounded-lg',
-            accentColor === 'indigo'
-              ? 'bg-gradient-to-br from-indigo-500 to-indigo-600'
-              : accentColor === 'amber'
+            accentColor === 'amber'
               ? 'bg-gradient-to-br from-amber-500 to-amber-600'
               : 'bg-gradient-to-br from-[#E6B447] to-[#AB8648]'
           )}>
@@ -57,7 +58,7 @@ export function ChatMessageList({
                   transition={{ duration: 0.6, repeat: Infinity, delay }}
                   className={cn(
                     'h-1.5 w-1.5 rounded-full',
-                    accentColor === 'indigo' ? 'bg-indigo-500/50' : accentColor === 'amber' ? 'bg-amber-500/50' : 'bg-[#E6B447]/50'
+                    accentColor === 'amber' ? 'bg-amber-500/50' : 'bg-[#E6B447]/50'
                   )}
                 />
               ))}

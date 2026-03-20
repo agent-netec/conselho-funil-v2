@@ -1,23 +1,29 @@
 'use client';
 
 /**
- * Sprint O — O-4.2: TrendPanel component
- * Cards with tags, growth indicators, and source links.
+ * Sprint O — O-4.2 + Sprint 01.6: TrendPanel component
+ * Cards with tags, growth indicators, source links.
+ * Persists results in Firestore, loads saved trends on mount.
+ * "Gerar posts sobre isso" button navigates to quick mode with topic pre-filled.
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  TrendingUp, ArrowUpRight, ExternalLink, Loader2, Search,
-  Flame, Zap, Minus,
+  TrendingUp, ExternalLink, Loader2, Search,
+  Flame, Zap, Minus, Sparkles, RefreshCw,
 } from 'lucide-react';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { notify } from '@/lib/stores/notification-store';
 import { cn } from '@/lib/utils';
+import {
+  collection, query, orderBy, limit, getDocs, addDoc, serverTimestamp, Timestamp,
+} from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 
 interface TrendItem {
   title: string;
@@ -28,18 +34,58 @@ interface TrendItem {
   sourceUrl: string;
 }
 
+interface SavedTrendDoc {
+  topic: string;
+  platform: string;
+  trends: TrendItem[];
+  createdAt: Timestamp;
+  expiresAt: Timestamp;
+}
+
 const GROWTH_CONFIG: Record<string, { icon: React.ElementType; color: string; label: string }> = {
   alto: { icon: Flame, color: 'text-red-400', label: 'Alto' },
   médio: { icon: Zap, color: 'text-amber-400', label: 'Médio' },
   baixo: { icon: Minus, color: 'text-zinc-400', label: 'Baixo' },
 };
 
-export function TrendPanel() {
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+interface TrendPanelProps {
+  onGenerateAboutTrend?: (topic: string) => void;
+}
+
+export function TrendPanel({ onGenerateAboutTrend }: TrendPanelProps) {
   const activeBrand = useActiveBrand();
   const [loading, setLoading] = useState(false);
   const [trends, setTrends] = useState<TrendItem[]>([]);
   const [vertical, setVertical] = useState('');
   const [platform, setPlatform] = useState('Instagram');
+  const [hasSavedTrends, setHasSavedTrends] = useState(false);
+
+  // Load saved trends on mount
+  const loadSavedTrends = useCallback(async () => {
+    if (!activeBrand?.id) return;
+    try {
+      const colRef = collection(db, 'brands', activeBrand.id, 'trends');
+      const q = query(colRef, orderBy('createdAt', 'desc'), limit(1));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const data = snap.docs[0].data() as SavedTrendDoc;
+        // Check TTL (7 days)
+        const expiresMs = data.expiresAt?.toMillis?.() ?? 0;
+        if (expiresMs > Date.now()) {
+          setTrends(data.trends || []);
+          setHasSavedTrends(true);
+        }
+      }
+    } catch (err) {
+      console.warn('[TrendPanel] Failed to load saved trends:', err);
+    }
+  }, [activeBrand?.id]);
+
+  useEffect(() => {
+    loadSavedTrends();
+  }, [loadSavedTrends]);
 
   const handleSearch = async () => {
     if (!activeBrand?.id) {
@@ -60,8 +106,26 @@ export function TrendPanel() {
       });
       if (!res.ok) throw new Error('Falha na pesquisa');
       const data = await res.json();
-      setTrends(data.data?.trends || []);
-      notify.success(`${data.data?.trends?.length || 0} tendências encontradas!`);
+      const newTrends = data.data?.trends || [];
+      setTrends(newTrends);
+      setHasSavedTrends(false);
+      notify.success(`${newTrends.length} tendências encontradas!`);
+
+      // Persist to Firestore
+      if (newTrends.length > 0) {
+        try {
+          const colRef = collection(db, 'brands', activeBrand.id, 'trends');
+          await addDoc(colRef, {
+            topic: vertical || activeBrand.vertical || 'marketing digital',
+            platform,
+            trends: newTrends,
+            createdAt: serverTimestamp(),
+            expiresAt: Timestamp.fromMillis(Date.now() + SEVEN_DAYS_MS),
+          });
+        } catch (saveErr) {
+          console.warn('[TrendPanel] Failed to persist trends:', saveErr);
+        }
+      }
     } catch {
       notify.error('Erro na pesquisa de tendências.');
     } finally {
@@ -69,11 +133,31 @@ export function TrendPanel() {
     }
   };
 
+  const handleGenerateAbout = (trend: TrendItem) => {
+    if (onGenerateAboutTrend) {
+      onGenerateAboutTrend(trend.title);
+    } else {
+      // Navigate to create tab with topic pre-filled
+      window.location.href = `/social?topic=${encodeURIComponent(trend.title)}`;
+    }
+  };
+
   return (
     <Card className="p-4 bg-zinc-900/50 border-white/[0.04] space-y-4">
-      <div className="flex items-center gap-2">
-        <TrendingUp className="h-5 w-5 text-rose-400" />
-        <h3 className="text-sm font-bold text-zinc-100">Tendências Sociais</h3>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-rose-400" />
+          <h3 className="text-sm font-bold text-zinc-100">Tendências Sociais</h3>
+          {hasSavedTrends && (
+            <Badge variant="outline" className="text-[9px] border-zinc-700 text-zinc-500">Salvas</Badge>
+          )}
+        </div>
+        {hasSavedTrends && (
+          <button onClick={handleSearch} disabled={loading} className="text-[10px] text-zinc-500 hover:text-rose-400 flex items-center gap-1 transition-colors">
+            <RefreshCw className={cn('h-3 w-3', loading && 'animate-spin')} />
+            Atualizar
+          </button>
+        )}
       </div>
 
       <div className="flex gap-2">
@@ -128,6 +212,13 @@ export function TrendPanel() {
                       ))}
                     </div>
                   )}
+                  <button
+                    onClick={() => handleGenerateAbout(trend)}
+                    className="mt-2 flex items-center gap-1.5 text-[11px] text-rose-400 hover:text-rose-300 transition-colors"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    Gerar posts sobre isso
+                  </button>
                 </div>
                 <div className={cn('flex items-center gap-1 shrink-0', gc.color)}>
                   <GrowthIcon className="h-4 w-4" />

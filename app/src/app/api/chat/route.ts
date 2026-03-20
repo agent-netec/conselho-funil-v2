@@ -7,6 +7,7 @@ import {
   formatBrandContextForLLM
 } from '@/lib/ai/rag';
 import { getAllBrandKeywordsForPromptAdmin } from '@/lib/firebase/intelligence-server';
+import { loadBrandIntelligence, formatBrandIntelligenceForPrompt } from '@/lib/intelligence/research/brand-context';
 import {
   generateCouncilResponseWithGemini,
   generatePartyResponseWithGemini,
@@ -39,9 +40,13 @@ import {
 } from '@/lib/ai/prompts';
 import { buildChatBrainContext } from '@/lib/ai/prompts/chat-brain-context';
 import { buildPartyBrainContext } from '@/lib/ai/prompts/party-brain-context';
+import { detectCrossDomain, buildCrossDomainHint } from '@/lib/ai/prompts/cross-domain-detector';
 import { CONFIG } from '@/lib/config';
 import { COUNSELORS_REGISTRY } from '@/lib/constants';
 import { CounselorId } from '@/types';
+import { consumeCredits, checkDailyLimit, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Tier } from '@/lib/tier-system';
 import { 
   formatBrandContextForChat, 
   formatFunnelContextForChat 
@@ -61,7 +66,8 @@ interface ChatRequest {
   message: string;
   conversationId: string;
   brandId?: string; // Active brand from client — fallback if conversation has no brandId
-  mode?: 'general' | 'funnel_creation' | 'funnel_evaluation' | 'funnel_review' | 'copy' | 'social' | 'ads' | 'design' | 'party';
+  // Sprint 05.1: Simplified to 3 modes (general, campaign, party) + legacy compat
+  mode?: 'general' | 'campaign' | 'party' | 'funnel_creation' | 'funnel_evaluation' | 'funnel_review' | 'copy' | 'social' | 'ads' | 'design';
   partyMode?: boolean;
   counselor?: string;
   funnelId?: string;
@@ -110,15 +116,71 @@ async function handlePOST(request: NextRequest) {
     }
 
     const userId = conversation.userId;
-    const credits = await getUserCreditsAdmin(userId);
 
-    // Só bloqueia se o limite estiver ativado
-    if (CONFIG.ENABLE_CREDIT_LIMIT && credits <= 0) {
-      return createApiError(403, 'insufficient_credits', { details: 'Saldo de créditos insuficiente. Faça upgrade para continuar.' });
-    }
-
+    // Sprint 02: Tier + Credit enforcement
     const isPartyMode = mode === 'party' || partyMode === true;
-    const effectiveMode = isPartyMode ? 'party' : mode;
+    try {
+      // Load user tier
+      const adminDb = getAdminFirestore();
+      const userSnap = await adminDb.collection('users').doc(userId).get();
+      const userData = userSnap.exists ? (userSnap.data() as Record<string, any>) : {};
+      const userTier = (userData.tier as Tier) || 'trial';
+
+      // Compute effective tier (trial handling)
+      let effectiveUserTier: Tier = userTier;
+      if (userTier === 'trial') {
+        const trialExp = userData.trialExpiresAt;
+        if (trialExp) {
+          const expDate = typeof trialExp.toDate === 'function' ? trialExp.toDate() : new Date(trialExp);
+          if (expDate < new Date()) effectiveUserTier = 'free';
+          else effectiveUserTier = 'pro';
+        } else {
+          effectiveUserTier = 'pro';
+        }
+      }
+
+      // Free tier: daily limit check
+      if (effectiveUserTier === 'free') {
+        await checkDailyLimit(userId, 'chat');
+      }
+
+      // Party mode requires Pro
+      if (isPartyMode && effectiveUserTier !== 'pro' && effectiveUserTier !== 'agency') {
+        return createApiError(403, 'Party Mode requer plano Pro. Faça upgrade em /settings/billing');
+      }
+
+      // Consume credits (paid tiers)
+      if (effectiveUserTier !== 'free') {
+        const creditCost = isPartyMode ? CREDIT_COSTS.chat_party : CREDIT_COSTS.chat;
+        await consumeCredits(userId, creditCost, isPartyMode ? 'chat_party' : 'chat');
+      }
+    } catch (err: any) {
+      if (err.statusCode === 429) {
+        return createApiError(429, err.message);
+      }
+      if (err.statusCode === 402) {
+        return createApiError(402, err.message);
+      }
+      // Non-credit errors: log and continue (don't block chat for credit system errors)
+      console.warn('[Chat API] Credit check error (non-blocking):', err.message);
+    }
+    let effectiveMode = isPartyMode ? 'party' : mode;
+
+    // Sprint 05.7: Cross-domain detection — auto-route general messages
+    let crossDomainHint = '';
+    if (effectiveMode === 'general' || !effectiveMode) {
+      const detection = detectCrossDomain(message);
+      if (detection.confidence >= 0.3 && detection.primaryDomain !== 'funnel') {
+        if (detection.primaryDomain === 'multi') {
+          effectiveMode = 'campaign'; // Load all contexts for multi-domain
+          console.log(`[Chat API] Cross-domain detected: multi-domain → campaign mode`);
+        } else {
+          effectiveMode = detection.primaryDomain;
+          console.log(`[Chat API] Cross-domain detected: ${detection.primaryDomain} (confidence: ${detection.confidence.toFixed(2)})`);
+        }
+      }
+      crossDomainHint = buildCrossDomainHint(detection);
+    }
 
     // Fix campaignId if it comes as "undefined" string
     const cleanCampaignId = campaignId === 'undefined' ? undefined : campaignId;
@@ -256,9 +318,20 @@ async function handlePOST(request: NextRequest) {
     };
     
     // Choose system prompt based on mode
+    // Sprint 05.1: 'campaign' mode loads ALL brain contexts (funnel + copy + social + ads)
     // Sprint D: Enrich with brain context (identity cards)
     let systemPrompt = CHAT_SYSTEM_PROMPT;
-    if (effectiveMode === 'copy') {
+    if (effectiveMode === 'campaign') {
+      // Campaign mode: all 23 counselors with full context
+      const allBrainContext = [
+        buildChatBrainContext('funnel'),
+        buildChatBrainContext('copy'),
+        buildChatBrainContext('social'),
+        buildChatBrainContext('ads'),
+      ].filter(Boolean).join('\n\n---\n\n');
+      systemPrompt = enrichChatPromptWithBrain(CHAT_SYSTEM_PROMPT, allBrainContext);
+      retrievalConfig.topK = 15;
+    } else if (effectiveMode === 'copy') {
       systemPrompt = enrichChatPromptWithBrain(COPY_CHAT_SYSTEM_PROMPT, buildChatBrainContext('copy'));
       retrievalConfig.filters.docType = 'copywriting';
     } else if (effectiveMode === 'social') {
@@ -276,6 +349,11 @@ async function handlePOST(request: NextRequest) {
     } else if (effectiveMode !== 'party') {
       // general / funnel_creation / funnel_evaluation / funnel_review → funnel council
       systemPrompt = enrichChatPromptWithBrain(CHAT_SYSTEM_PROMPT, buildChatBrainContext('funnel'));
+    }
+
+    // Sprint 05.7: Inject cross-domain hint into system prompt
+    if (crossDomainHint) {
+      systemPrompt += crossDomainHint;
     }
 
     switch (effectiveMode) {
@@ -312,6 +390,52 @@ async function handlePOST(request: NextRequest) {
       })();
     }
 
+    // 6b. Brand Intelligence (persona + offer lab + research + spy) — Sprint 07
+    let brandIntelPromise = Promise.resolve('');
+    if (effectiveBrandId) {
+      brandIntelPromise = (async () => {
+        try {
+          const intel = await loadBrandIntelligence(effectiveBrandId!);
+          if (intel) {
+            // Only include enriched sections (persona, activeOffer, research, spy)
+            // Base brand context is already handled by formatBrandContextForChat
+            const parts: string[] = [];
+            if (intel.persona) {
+              parts.push(`## PERSONA ATIVA (fonte: ${intel.persona.source})`);
+              parts.push(`Nome: ${intel.persona.name}${intel.persona.age ? `, ${intel.persona.age}` : ''}`);
+              if (intel.persona.pains.length > 0) parts.push(`Dores: ${intel.persona.pains.join('; ')}`);
+              if (intel.persona.desires.length > 0) parts.push(`Desejos: ${intel.persona.desires.join('; ')}`);
+              if (intel.persona.triggers.length > 0) parts.push(`Gatilhos: ${intel.persona.triggers.join('; ')}`);
+              if (intel.persona.segments) {
+                parts.push(`Segmentos: HOT=${intel.persona.segments.hot} | WARM=${intel.persona.segments.warm} | COLD=${intel.persona.segments.cold}`);
+              }
+            }
+            if (intel.activeOffer) {
+              parts.push(`\n## OFERTA ATIVA (Offer Lab — Score: ${intel.activeOffer.scoring.total}/100)`);
+              parts.push(`Promessa: ${intel.activeOffer.promise}`);
+              if (intel.activeOffer.guarantee) parts.push(`Garantia: ${intel.activeOffer.guarantee}`);
+              if (intel.activeOffer.bonuses.length > 0) parts.push(`Bônus: ${intel.activeOffer.bonuses.join('; ')}`);
+            }
+            if (intel.researchInsights.trends.length > 0 || intel.researchInsights.opportunities.length > 0) {
+              parts.push(`\n## INSIGHTS DE MERCADO`);
+              if (intel.researchInsights.trends.length > 0) parts.push(`Tendências: ${intel.researchInsights.trends.join('; ')}`);
+              if (intel.researchInsights.opportunities.length > 0) parts.push(`Oportunidades: ${intel.researchInsights.opportunities.join('; ')}`);
+            }
+            if (intel.spyInsights.length > 0) {
+              parts.push(`\n## CONCORRENTES ANALISADOS`);
+              for (const spy of intel.spyInsights.slice(0, 3)) {
+                parts.push(`**${spy.competitorName}**: Emular: ${spy.emulate.join('; ')}. Evitar: ${spy.avoid.join('; ')}`);
+              }
+            }
+            return parts.length > 0 ? parts.join('\n') : '';
+          }
+        } catch (err) {
+          console.warn('[Chat API] Brand intelligence fetch failed:', err);
+        }
+        return '';
+      })();
+    }
+
     // Wait for everything in parallel
     console.log('[Chat API] Starting parallel context retrieval...');
     const [
@@ -320,14 +444,16 @@ async function handlePOST(request: NextRequest) {
       userFunnelsContext,
       brandResult,
       chunks,
-      keywordContext
+      keywordContext,
+      brandIntelContext
     ] = await Promise.all([
       funnelPromise,
       campaignPromise,
       userFunnelsPromise,
       brandContextPromise,
       knowledgePromise,
-      keywordsPromise
+      keywordsPromise,
+      brandIntelPromise
     ]);
     console.log('[Chat API] Context retrieval completed.');
 
@@ -375,6 +501,9 @@ async function handlePOST(request: NextRequest) {
     }
     if (keywordContext) {
       context = `${keywordContext}\n\n---\n\n${context}`;
+    }
+    if (brandIntelContext) {
+      context = `${brandIntelContext}\n\n---\n\n${context}`;
     }
 
     // ST-12.5: Otimização de Resiliência - Context Truncation/Summarization
@@ -454,9 +583,8 @@ async function handlePOST(request: NextRequest) {
         },
       });
 
-      const usagePromise = CONFIG.ENABLE_CREDIT_LIMIT
-        ? updateUserUsageAdmin(userId, -1)
-        : Promise.resolve();
+      // Legacy usage tracking (credits now handled by consumeCredits above)
+      const usagePromise = Promise.resolve();
 
       const titlePromise = updateConversationAdmin(conversationId, {
         title: message.slice(0, 50) + (message.length > 50 ? '...' : ''),

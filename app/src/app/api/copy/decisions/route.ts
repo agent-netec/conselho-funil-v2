@@ -154,6 +154,31 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        // Sprint 04.4: Extract structured copy + keyBenefits from proposal
+        const proposalStructure = copyProposal.content?.structure;
+        const structured = proposalStructure ? {
+          headline: proposalStructure.headline || '',
+          subheadline: proposalStructure.subheadline || '',
+          body: copyProposal.content.primary || '',
+          cta: proposalStructure.cta || '',
+          proof: proposalStructure.proof || proposalStructure.guarantee || '',
+        } : undefined;
+
+        // Extract key benefits from structure bullets or variations
+        const extractedBenefits: string[] = proposalStructure?.bullets
+          || copyProposal.content?.variations?.slice(0, 5).map((v: any) => typeof v === 'string' ? v.slice(0, 100) : v.headline || v.content || '')
+          || [];
+
+        // Map copy scorecard (1-10 scale) to campaign format (0-100 scale)
+        const proposalScorecard = copyProposal.scorecard;
+        const copyScorecard = proposalScorecard ? {
+          persuasion: Math.round((proposalScorecard.headlines || 7) * 10),
+          clarity: Math.round((proposalScorecard.structure || 7) * 10),
+          emotional: Math.round((proposalScorecard.benefits || 7) * 10),
+          credibility: Math.round((proposalScorecard.proof || 7) * 10),
+          actionability: Math.round((proposalScorecard.offer || 7) * 10),
+        } : undefined;
+
         const campaignData: Partial<CampaignContext> = {
           funnelId, // ST-11.21: Vínculo obrigatório com funil de origem
           brandId: funnelData.brandId || '',
@@ -174,8 +199,11 @@ export async function POST(request: NextRequest) {
             headlines: copyProposal.content.headlines || [],
             mainScript: copyProposal.content.primary || '',
             tone: copyProposal.awarenessStage || 'problem_aware',
-            keyBenefits: [], 
+            keyBenefits: extractedBenefits.filter(Boolean),
             counselor_reference: copyProposal.copywriterInsights?.[0]?.copywriterName || 'Copywriting',
+            // Sprint 04.4: Campos estruturados
+            ...(structured ? { structured } : {}),
+            ...(copyScorecard ? { scorecard: copyScorecard } : {}),
           },
           updatedAt: Timestamp.now() as any,
         };

@@ -77,6 +77,6 @@ export function buildDesignBrainContext(): string {
   if (parts.length === 0) return '';
 
   return `\n## DIREÇÃO DE ARTE — BRAIN CONTEXT (Identity Card)\n\n` +
-    `Aplique rigorosamente os frameworks e principios abaixo do Diretor de Arte:\n\n` +
+    `Considere os frameworks e princípios abaixo do Diretor de Arte ao criar a direção visual:\n\n` +
     parts.join('\n\n---\n\n');
 }

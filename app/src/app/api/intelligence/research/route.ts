@@ -4,7 +4,8 @@ export const maxDuration = 60;
 import { NextRequest } from 'next/server';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
+import { consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
 import { ResearchEngine } from '@/lib/intelligence/research/engine';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import type { ResearchDepth } from '@/types/research';
@@ -25,7 +26,9 @@ export async function POST(req: NextRequest) {
       return createApiError(400, 'brandId e topic são obrigatórios');
     }
 
-    const { brandId } = await requireBrandAccess(req, body.brandId);
+    const { userId, brandId, effectiveTier } = await requireBrandAccess(req, body.brandId);
+    requireMinTier(effectiveTier, 'pro');
+    await consumeCredits(userId, CREDIT_COSTS.deep_research, 'deep_research');
     const dossier = await ResearchEngine.generateDossier({
       brandId,
       topic: body.topic,
@@ -51,7 +54,8 @@ export async function GET(req: NextRequest) {
       return createApiError(400, 'brandId é obrigatório');
     }
 
-    const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
+    const { brandId: safeBrandId, effectiveTier } = await requireBrandAccess(req, brandId);
+    requireMinTier(effectiveTier, 'pro');
     const max = Number(limitParam ?? 20);
     const adminDb = getAdminFirestore();
     const snap = await adminDb

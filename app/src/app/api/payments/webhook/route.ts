@@ -29,6 +29,7 @@ import {
   sendPaymentFailedEmail,
   sendCancellationEmail,
 } from '@/lib/email/resend';
+import { TIER_LIMITS, Tier } from '@/lib/tier-system';
 
 /**
  * Extracts userId from Stripe metadata.
@@ -90,6 +91,19 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     subscriptionId
   );
 
+  // Sprint 02: Initialize monthly credits on upgrade
+  const tierKey = tier as Tier;
+  const monthlyCredits = TIER_LIMITS[tierKey]?.maxMonthlyCredits ?? 0;
+  const nextMonth = new Date();
+  nextMonth.setMonth(nextMonth.getMonth() + 1);
+
+  const adminDb = getAdminFirestore();
+  await adminDb.collection('users').doc(userId).update({
+    monthlyCredits,
+    creditsUsed: 0,
+    creditResetDate: Timestamp.fromDate(nextMonth),
+  });
+
   // Update subscription status
   await updateSubscriptionStatus(userId, 'active');
 
@@ -131,6 +145,18 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   if (newTier) {
     await updateUserTierAdmin(userId, newTier, subscription.customer as string, subscription.id);
     console.log(`[Webhook] subscription.updated: User ${userId} tier updated to ${newTier}`);
+
+    // Sprint 02: Reset credits on plan change or renewal
+    const tierKey = newTier as Tier;
+    const monthlyCredits = TIER_LIMITS[tierKey]?.maxMonthlyCredits ?? 0;
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    const adminDb = getAdminFirestore();
+    await adminDb.collection('users').doc(userId).update({
+      monthlyCredits,
+      creditsUsed: 0,
+      creditResetDate: Timestamp.fromDate(nextMonth),
+    });
   }
 
   // Update subscription status
@@ -161,6 +187,14 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   // Downgrade to free
   await updateUserTierAdmin(userId, 'free');
   await updateSubscriptionStatus(userId, 'canceled');
+
+  // Sprint 02: Clear credits on cancellation
+  const adminDb2 = getAdminFirestore();
+  await adminDb2.collection('users').doc(userId).update({
+    monthlyCredits: 0,
+    creditsUsed: 0,
+    creditResetDate: null,
+  });
 
   console.log(`[Webhook] subscription.deleted: User ${userId} downgraded to free`);
 

@@ -18,18 +18,34 @@ interface FieldCheck {
   modalKey?: ModalKey;
 }
 
+/**
+ * Sprint 03.8 — Completeness recalculated:
+ * Steps 1-3 (obrigatórios) = 70% do peso
+ * Steps 4+ (opcionais) = 30% do peso
+ * Completing the wizard gives >= 70% (not 45%)
+ */
 export const FIELDS: FieldCheck[] = [
+  // === OBRIGATÓRIOS (70%) ===
   {
     key: 'name',
-    weight: 15,
+    weight: 10,
     label: 'Nome da marca',
     check: (b) => !!b.name,
+    href: '/edit',
+  },
+  {
+    key: 'vertical',
+    weight: 10,
+    label: 'Vertical / segmento',
+    check: (b) => !!b.vertical,
+    href: '/edit',
   },
   {
     key: 'audience',
     weight: 15,
-    label: 'Publico-alvo',
-    check: (b) => !!b.audience?.who && !!b.audience?.pain,
+    label: 'Público-alvo',
+    check: (b) => !!b.audience?.who,
+    href: '/edit',
   },
   {
     key: 'offer',
@@ -39,11 +55,33 @@ export const FIELDS: FieldCheck[] = [
     href: '/edit',
   },
   {
-    key: 'colors',
+    key: 'awareness',
     weight: 10,
+    label: 'Nível de consciência',
+    check: (b) => !!b.audience?.awareness,
+    href: '/edit',
+  },
+  {
+    key: 'objections',
+    weight: 10,
+    label: 'Objeções do público',
+    check: (b) => (b.audience?.objections?.length || 0) >= 1,
+    href: '/edit',
+  },
+  // === OPCIONAIS (30%) ===
+  {
+    key: 'colors',
+    weight: 8,
     label: 'Paleta de cores',
     check: (b) => !!b.brandKit?.colors?.primary,
     modalKey: 'visual',
+  },
+  {
+    key: 'logo',
+    weight: 7,
+    label: 'Logo oficial',
+    check: (b) => !!b.brandKit?.logoLock?.variants?.primary?.url,
+    modalKey: 'logo',
   },
   {
     key: 'typography',
@@ -53,23 +91,16 @@ export const FIELDS: FieldCheck[] = [
     modalKey: 'visual',
   },
   {
-    key: 'logo',
-    weight: 15,
-    label: 'Logo oficial',
-    check: (b) => !!b.brandKit?.logoLock?.variants?.primary?.url,
-    modalKey: 'logo',
-  },
-  {
-    key: 'aiConfig',
-    weight: 10,
-    label: 'Configuracao de IA',
-    check: (b) => !!b.aiConfiguration?.profile,
-    modalKey: 'ai',
+    key: 'voiceTone',
+    weight: 5,
+    label: 'Tom de voz',
+    check: (b) => !!b.voiceTone,
+    href: '/edit',
   },
   {
     key: 'assets',
-    weight: 15,
-    label: 'Assets RAG',
+    weight: 5,
+    label: 'Documentos / Assets',
     check: () => false, // Overridden by assetCount param
     modalKey: 'rag',
   },

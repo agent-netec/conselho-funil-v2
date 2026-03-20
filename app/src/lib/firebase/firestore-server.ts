@@ -3,8 +3,9 @@
  * Use these functions inside Next.js API routes instead of client SDK equivalents.
  * Admin SDK bypasses security rules — authorized by service account credentials.
  */
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { getAdminFirestore } from './admin';
+import { Tier, TIER_LIMITS } from '@/lib/tier-system';
 import type { Conversation, Message, Brand, Funnel } from '../../types/database';
 
 // ---------------------------------------------------------------------------
@@ -109,6 +110,162 @@ export async function updateUserUsageAdmin(userId: string, delta: number): Promi
   });
 }
 
+// ---------------------------------------------------------------------------
+// Credits — Monthly system with auto-reset (Sprint 02.3)
+// ---------------------------------------------------------------------------
+
+/** Credit cost per operation */
+export const CREDIT_COSTS: Record<string, number> = {
+  chat: 1,
+  chat_party: 2,
+  social_quick: 1,
+  social_strategic: 2,
+  design_generate: 5,
+  design_plan: 2,
+  design_analyze: 0,  // informational, free
+  deep_research: 3,
+  keywords_miner: 1,
+  spy_agent: 2,
+  predict_analyze: 3,
+  predict_generate: 5,
+  offer_lab: 2,
+};
+
+function getNextResetDate(current: Date): Date {
+  const next = new Date(current);
+  next.setMonth(next.getMonth() + 1);
+  return next;
+}
+
+/**
+ * Consume credits atomically using a Firestore transaction.
+ * Auto-resets credits if the reset date has passed (use-it-or-lose-it).
+ *
+ * @throws ApiError(402) if insufficient credits
+ */
+export async function consumeCredits(
+  userId: string,
+  amount: number,
+  feature: string
+): Promise<{ remaining: number; resetDate: Date }> {
+  const db = getAdminFirestore();
+  const userRef = db.collection('users').doc(userId);
+
+  return db.runTransaction(async (t) => {
+    const doc = await t.get(userRef);
+    if (!doc.exists) {
+      // Should not happen — user doc must exist
+      throw Object.assign(new Error('User not found'), { statusCode: 404 });
+    }
+    const data = doc.data()!;
+    const tier = (data.tier as Tier) || 'trial';
+    const monthlyCredits = data.monthlyCredits ?? TIER_LIMITS[tier]?.maxMonthlyCredits ?? 0;
+    let creditsUsed = data.creditsUsed ?? 0;
+    let creditResetDate = data.creditResetDate;
+
+    // Check if reset is needed (anniversary passed)
+    const now = new Date();
+    if (creditResetDate) {
+      const resetDate = typeof creditResetDate.toDate === 'function'
+        ? creditResetDate.toDate()
+        : new Date(creditResetDate);
+      if (resetDate <= now) {
+        // Reset + consume
+        const nextReset = getNextResetDate(resetDate);
+        t.update(userRef, {
+          creditsUsed: amount,
+          creditResetDate: Timestamp.fromDate(nextReset),
+        });
+        return { remaining: monthlyCredits - amount, resetDate: nextReset };
+      }
+    } else {
+      // No reset date set — initialize it (first use after migration)
+      const nextReset = getNextResetDate(now);
+      t.update(userRef, {
+        monthlyCredits,
+        creditsUsed: amount,
+        creditResetDate: Timestamp.fromDate(nextReset),
+      });
+      return { remaining: monthlyCredits - amount, resetDate: nextReset };
+    }
+
+    // Check sufficient credits
+    const remaining = monthlyCredits - creditsUsed;
+    if (remaining < amount) {
+      const resetDate = typeof creditResetDate.toDate === 'function'
+        ? creditResetDate.toDate()
+        : new Date(creditResetDate);
+      const daysUntilReset = Math.ceil((resetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      throw Object.assign(
+        new Error(`Créditos insuficientes. ${remaining} restantes, ${amount} necessários. Reset em ${daysUntilReset} dias.`),
+        { statusCode: 402 }
+      );
+    }
+
+    // Consume
+    t.update(userRef, {
+      creditsUsed: FieldValue.increment(amount),
+    });
+
+    const resetDate = typeof creditResetDate.toDate === 'function'
+      ? creditResetDate.toDate()
+      : new Date(creditResetDate);
+    return { remaining: remaining - amount, resetDate };
+  });
+}
+
+/**
+ * Check and enforce daily limits for Free tier.
+ * @throws ApiError(429) if daily limit exceeded
+ */
+export async function checkDailyLimit(
+  userId: string,
+  limitType: 'chat' | 'funnel'
+): Promise<void> {
+  const db = getAdminFirestore();
+  const userRef = db.collection('users').doc(userId);
+  const snap = await userRef.get();
+  if (!snap.exists) return;
+
+  const data = snap.data()!;
+  const today = new Date().toISOString().split('T')[0];
+
+  if (limitType === 'chat') {
+    const lastDate = data.lastChatDate || '';
+    const count = data.dailyChatCount || 0;
+
+    if (lastDate === today && count >= 1) {
+      throw Object.assign(
+        new Error('Limite diário atingido. No plano Free você tem 1 consulta por dia. Volte amanhã ou faça upgrade!'),
+        { statusCode: 429 }
+      );
+    }
+
+    // Increment or reset
+    if (lastDate !== today) {
+      await userRef.update({ dailyChatCount: 1, lastChatDate: today });
+    } else {
+      await userRef.update({ dailyChatCount: FieldValue.increment(1) });
+    }
+  } else {
+    const lastDate = data.lastFunnelDate || '';
+    const count = data.dailyFunnelCount || 0;
+
+    if (lastDate === today && count >= 1) {
+      throw Object.assign(
+        new Error('Limite diário atingido. No plano Free você tem 1 funil por dia. Volte amanhã ou faça upgrade!'),
+        { statusCode: 429 }
+      );
+    }
+
+    if (lastDate !== today) {
+      await userRef.update({ dailyFunnelCount: 1, lastFunnelDate: today });
+    } else {
+      await userRef.update({ dailyFunnelCount: FieldValue.increment(1) });
+    }
+  }
+}
+
 export async function updateUserTierAdmin(
   userId: string,
   tier: string,
@@ -132,22 +289,32 @@ export async function getExpiredTrialUsersAdmin(): Promise<{ id: string; email: 
   const snap = await db
     .collection('users')
     .where('tier', '==', 'trial')
-    .where('trialEndsAt', '<=', now)
+    .where('trialExpiresAt', '<=', now)
     .get();
   return snap.docs.map(d => ({ id: d.id, email: d.data().email as string }));
 }
 
-export async function downgradeUsersToFreeAdmin(userIds: string[]): Promise<void> {
-  if (!userIds.length) return;
+export async function downgradeUsersToFreeAdmin(userIds: string[]): Promise<number> {
+  if (!userIds.length) return 0;
   const db = getAdminFirestore();
   const BATCH_SIZE = 500;
+  let downgraded = 0;
   for (let i = 0; i < userIds.length; i += BATCH_SIZE) {
     const batch = db.batch();
-    userIds.slice(i, i + BATCH_SIZE).forEach(uid => {
-      batch.update(db.collection('users').doc(uid), { tier: 'free' });
+    const chunk = userIds.slice(i, i + BATCH_SIZE);
+    chunk.forEach(uid => {
+      batch.update(db.collection('users').doc(uid), {
+        tier: 'free',
+        dailyChatCount: 0,
+        lastChatDate: null,
+        dailyFunnelCount: 0,
+        lastFunnelDate: null,
+      });
     });
     await batch.commit();
+    downgraded += chunk.length;
   }
+  return downgraded;
 }
 
 export async function getAllBrandIdsAdmin(): Promise<string[]> {

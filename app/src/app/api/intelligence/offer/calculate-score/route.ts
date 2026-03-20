@@ -24,8 +24,8 @@ export async function POST(req: NextRequest) {
 
     const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
 
-    // AI evaluation with Brain Council (Pro model)
-    const aiEvaluation = await evaluateOfferQuality(offerData);
+    // AI evaluation with Brain Council (Pro model) + persona context (Sprint 07)
+    const aiEvaluation = await evaluateOfferQuality(offerData, safeBrandId);
 
     return createApiSuccess({
       brandId: safeBrandId,

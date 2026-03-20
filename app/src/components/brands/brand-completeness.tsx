@@ -57,33 +57,34 @@ function CompactView({ result }: { result: CompletenessResult }) {
 }
 
 function DetailedView({ result, brandId }: { result: CompletenessResult; brandId: string }) {
-  if (result.score >= 100) return null;
+  // Score >= 70%: marca está suficientemente completa — não mostrar checklist
+  if (result.score >= 70) return null;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4"
+      className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4"
     >
       <div className="flex items-start gap-3">
-        <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+        <AlertCircle className="h-5 w-5 text-zinc-500 shrink-0 mt-0.5" />
         <div className="flex-1">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-amber-200">
-              Marca {result.label}
+            <p className="text-sm font-medium text-zinc-300">
+              Complete sua marca
             </p>
-            <span className="text-xs text-amber-400 font-bold">{result.score}%</span>
+            <span className="text-xs text-zinc-400 font-bold">{result.score}%</span>
           </div>
 
-          <div className="h-1.5 w-full bg-amber-500/10 rounded-full overflow-hidden mb-3">
+          <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden mb-3">
             <div
-              className="h-full bg-amber-500 rounded-full transition-all"
+              className="h-full bg-[#E6B447] rounded-full transition-all"
               style={{ width: `${result.score}%` }}
             />
           </div>
 
-          <p className="text-xs text-amber-200/60 mb-3">
-            Complete o Brand Hub para resultados melhores da IA.
+          <p className="text-xs text-zinc-500 mb-3">
+            Preencha os campos abaixo para melhorar os resultados da IA.
           </p>
 
           <div className="space-y-1.5">
@@ -93,7 +94,7 @@ function DetailedView({ result, brandId }: { result: CompletenessResult; brandId
                 {field.href ? (
                   <Link
                     href={`/brands/${brandId}${field.href}`}
-                    className="text-zinc-400 hover:text-amber-300 transition-colors"
+                    className="text-zinc-400 hover:text-[#E6B447] transition-colors"
                   >
                     {field.label}
                   </Link>

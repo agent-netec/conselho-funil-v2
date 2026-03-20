@@ -15,7 +15,8 @@ import { NextRequest } from 'next/server';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
+import { consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
 import { generateWithGemini, PRO_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { loadBrandContext, formatBrandContextForPrompt } from '@/lib/intelligence/research/brand-context';
 // getResearch replaced by admin SDK inline (client SDK fails server-side)
@@ -58,11 +59,16 @@ export async function POST(req: NextRequest) {
     }
 
     let userId = '';
+    let effectiveTier: import('@/lib/tier-system').Tier = 'free';
     try {
-      userId = (await requireBrandAccess(req, brandId)).userId;
+      const access = await requireBrandAccess(req, brandId);
+      userId = access.userId;
+      effectiveTier = access.effectiveTier;
     } catch (error) {
       return handleSecurityError(error);
     }
+    requireMinTier(effectiveTier, 'pro');
+    await consumeCredits(userId, CREDIT_COSTS.chat, 'chat');
 
     // Load dossier for context (admin SDK)
     const adminDb = getAdminFirestore();

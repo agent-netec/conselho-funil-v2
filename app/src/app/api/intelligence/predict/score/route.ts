@@ -2,8 +2,9 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { parseJsonBody } from '@/app/api/_utils/parse-json';
-import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
+import { consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
 import { createApiError } from '@/lib/utils/api-response';
 import { calculateCPS } from '@/lib/intelligence/predictor/scoring-engine';
 import { calculateBenchmark } from '@/lib/intelligence/predictor/benchmark';
@@ -65,8 +66,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4. Auth — requireBrandAccess
-    const { userId, brandId: safeBrandId } = await requireBrandAccess(req, brandId);
+    // 4. Auth — requireBrandAccess + tier + credits
+    const { userId, brandId: safeBrandId, effectiveTier } = await requireBrandAccess(req, brandId);
+    requireMinTier(effectiveTier, 'pro');
+    await consumeCredits(userId, CREDIT_COSTS.predict_analyze, 'predict_analyze');
 
     // 5. Resolver UXIntelligence
     let uxData: UXIntelligence;

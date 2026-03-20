@@ -21,6 +21,21 @@ export interface CampaignContext {
     stages: string[];
     summary: string;
     counselor_reference?: string;
+
+    // Sprint 04.2 — Campos do wizard que faltavam
+    awareness?: string;             // 'unaware' | 'problem_aware' | 'solution_aware' | 'product_aware' | 'most_aware'
+    pain?: string | string[];       // dor principal ou top 3
+    objection?: string | string[];  // objeção principal ou top 3
+    differentiator?: string;        // diferencial competitivo
+
+    // Da proposta aprovada
+    proposalName?: string;
+    proposalVersion?: number;
+    scorecard?: Record<string, number>;
+
+    // Canais
+    primaryChannel?: string;
+    secondaryChannel?: string;
   };
 
   // Passo 1.5: A Oferta (Offer Lab) — opcional, presente se brand tem oferta salva
@@ -39,6 +54,23 @@ export interface CampaignContext {
     tone: string;
     keyBenefits: string[];
     counselor_reference?: string;
+
+    // Sprint 04.4 — Copy estruturada
+    structured?: {
+      headline: string;
+      subheadline: string;
+      body: string;
+      cta: string;
+      proof: string;
+    };
+    scorecard?: {
+      persuasion: number;
+      clarity: number;
+      emotional: number;
+      credibility: number;
+      actionability: number;
+    };
+    selectedVariation?: string;
   };
 
   // Passo 3: A Atenção (Social)
@@ -49,17 +81,26 @@ export interface CampaignContext {
       platform: string;
       content: string;
       style: string;
+      score?: number;        // 0-100 do scorecard
+      framework?: string;
+      approved?: boolean;    // Flag de aprovação
     }[];
     contentPlan?: {
       pillars: string[];
       calendar: { day: string; pillar: string; format: string }[];
-      posts: { title: string; hook: string; platform: string; format: string }[];
+      posts: { title: string; hook: string; platform: string; format: string; approved?: boolean }[];
     };
     platforms: string[];
     pacing?: string;
     viralTriggers?: string[];
     debate?: string;
-    evaluation?: Record<string, unknown>;
+    evaluation?: {
+      engagement?: number;
+      clarity?: number;
+      brandAlignment?: number;
+      virality?: number;
+      [key: string]: unknown;
+    };
   };
 
   // Passo 4: O Visual (Design)

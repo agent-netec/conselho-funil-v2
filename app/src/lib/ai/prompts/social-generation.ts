@@ -25,12 +25,24 @@ Sua tarefa é gerar 5 ganchos (hooks) de alta performance para a plataforma espe
    - Respeite o tom de voz e o público-alvo da marca.
    - Alinhe o gancho com a oferta principal da marca.
 
-5. **Variedade**: Forneça 5 ganchos de estilos diferentes:
+5. **Variedade**: Forneça 5 posts de estilos diferentes:
    - 1. Curiosidade (O segredo...)
    - 2. Dor/Problema (Você está errando em...)
    - 3. Resultado Imediato (Como eu fiz X em Y...)
    - 4. Contra-intuitivo (Pare de fazer X se quiser Y...)
    - 5. Autoridade/Prova (Por que os maiores especialistas fazem X...)
+
+6. **Post Completo**: Cada post deve ser COMPLETO, pronto para publicar:
+   - **hook**: 1 frase impactante que para o scroll
+   - **body**: 2-4 parágrafos curtos (Problema → Virada → Solução → Prova opcional)
+   - **cta**: 1 frase final clara de chamada para ação
+   - **hashtags**: 5-15 hashtags relevantes ao nicho
+
+   Adapte o comprimento à plataforma:
+   - Instagram feed: 150-300 palavras
+   - LinkedIn: 200-400 palavras
+   - X (Twitter): 240-280 caracteres total
+   - TikTok caption: 50-150 palavras
 
 ## Saída Esperada:
 Retorne **APENAS** o JSON no formato abaixo, sem explicações extras:
@@ -40,8 +52,12 @@ Retorne **APENAS** o JSON no formato abaixo, sem explicações extras:
   "hooks": [
     {
       "style": "nome_do_estilo",
-      "content": "conteúdo do gancho",
-      "reasoning": "por que este gancho funciona nesta plataforma",
+      "content": "texto do hook (gancho de abertura)",
+      "body": "corpo do post (2-4 parágrafos separados por \\n\\n)",
+      "cta": "chamada para ação final",
+      "hashtags": ["#hash1", "#hash2", "#hash3"],
+      "suggestedVisual": "sugestão de visual (ex: foto lifestyle com texto overlay)",
+      "reasoning": "por que este post funciona nesta plataforma",
       "postType": "reel | carousel | post | story | thread"
     }
   ],

@@ -2,14 +2,17 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { parseAIJSON } from '@/lib/ai/formatters';
-import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
+import { consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { updateUserUsage } from '@/lib/firebase/firestore';
 import { getBrand } from '@/lib/firebase/brands';
 import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { buildDesignBrainContext } from '@/lib/ai/prompts/design-brain-context';
 import { getChapeuProfilePrompt } from '@/lib/ai/prompts/design';
+import { loadBrandIntelligence } from '@/lib/intelligence/research/brand-context';
+import { loadCampaignContext } from '@/lib/ai/campaign-context';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -52,7 +55,9 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      await requireBrandAccess(request, brandId);
+      const { effectiveTier, userId: authUserId } = await requireBrandAccess(request, brandId);
+      requireMinTier(effectiveTier, 'pro');
+      await consumeCredits(authUserId, CREDIT_COSTS.design_plan, 'design_plan');
     } catch (error) {
       return handleSecurityError(error);
     }
@@ -89,6 +94,29 @@ export async function POST(request: NextRequest) {
       console.warn('⚠️ Falha ao carregar brain context do design_director:', brainErr);
     }
 
+    // Load campaign context (Golden Thread)
+    let campaignContextBlock = '';
+    try {
+      const campaignId = body.campaignId || funnelId;
+      const campaignCtx = await loadCampaignContext(campaignId);
+      if (campaignCtx) {
+        const parts: string[] = [];
+        if (campaignCtx.bigIdea) parts.push(`Big Idea: ${campaignCtx.bigIdea}`);
+        if (campaignCtx.awareness) parts.push(`Awareness: ${campaignCtx.awareness}`);
+        if (campaignCtx.tone) parts.push(`Tom: ${campaignCtx.tone}`);
+        if (campaignCtx.targetAudience) parts.push(`Público: ${campaignCtx.targetAudience}`);
+        if (campaignCtx.hooks.length > 0) parts.push(`Hooks aprovados: ${campaignCtx.hooks.slice(0, 5).join(' | ')}`);
+        if (campaignCtx.pain) parts.push(`Dor principal: ${campaignCtx.pain}`);
+        if (campaignCtx.offerPromise) parts.push(`Promessa: ${campaignCtx.offerPromise}`);
+        if (parts.length > 0) {
+          campaignContextBlock = `\n[CONTEXTO DA CAMPANHA — LINHA DE OURO]\n${parts.join('\n')}\nDados reais do manifesto — prioridade sobre inputs do frontend.\n`;
+          console.log('[Design/Plan] Campaign context injected');
+        }
+      }
+    } catch (err) {
+      console.warn('[Design/Plan] Campaign context fetch failed:', err);
+    }
+
     // Detect language
     const copyLanguage = context.language || 'português brasileiro';
 
@@ -110,14 +138,20 @@ export async function POST(request: NextRequest) {
     if (inspirationRefs?.length > 0) {
       const traits = inspirationRefs.flatMap((ref: any) => ref.extractedTraits || []);
       if (traits.length > 0) {
-        inspirationContext = `\n[INSPIRAÇÃO VISUAL]\nO usuário quer um estilo inspirado em: ${traits.join(', ')}.\nAdapte a direção visual para incorporar esses elementos mantendo compliance C.H.A.P.E.U.\n`;
+        inspirationContext = `\n[INSPIRAÇÃO VISUAL]\nO usuário quer um estilo inspirado em: ${traits.join(', ')}.\nAdapte a direção visual para incorporar esses elementos.\n`;
       }
     }
 
-    // Build C.H.A.P.E.U profile context
-    let chapeuProfileContext = '';
-    if (analysis?.chapeuProfile) {
-      chapeuProfileContext = getChapeuProfilePrompt(analysis.chapeuProfile);
+    // Build art direction profile context — user's selected approach takes priority
+    const selectedApproach = body.selectedApproach;
+    let artDirectionContext = '';
+    if (selectedApproach) {
+      artDirectionContext = `\n[ABORDAGEM ESCOLHIDA PELO USUÁRIO: ${selectedApproach}]\nO usuário escolheu a abordagem "${selectedApproach}". TODA a direção visual deve seguir esta abordagem.\n`;
+      // Try to get matching profile
+      const profilePrompt = getChapeuProfilePrompt(selectedApproach);
+      if (profilePrompt) artDirectionContext += profilePrompt;
+    } else if (analysis?.artDirection || analysis?.chapeuProfile) {
+      artDirectionContext = getChapeuProfilePrompt(analysis.artDirection || analysis.chapeuProfile);
     }
 
     // Build style direction from user selections
@@ -236,26 +270,51 @@ export async function POST(request: NextRequest) {
         if (prefs.avoidPatterns.length > 0) {
           preferencesContext += `Evitar: ${prefs.avoidPatterns.join(', ')}.\n`;
         }
-        preferencesContext += `Incline para as preferências mantendo compliance C.H.A.P.E.U.\n`;
+        preferencesContext += `Incline para as preferências do usuário.\n`;
       }
+    }
+
+    // Sprint 07 — Brand Intelligence for design direction
+    let designIntelContext = '';
+    try {
+      const intel = await loadBrandIntelligence(brandId);
+      if (intel) {
+        const parts: string[] = [];
+        if (intel.audience.awareness) parts.push(`Estágio de consciência do público: ${intel.audience.awareness}`);
+        if (intel.persona?.pains?.length) parts.push(`Dores do público: ${intel.persona.pains.slice(0, 3).join('; ')}`);
+        if (intel.spyInsights.length > 0) {
+          const emulate = intel.spyInsights.flatMap(s => s.emulate).slice(0, 3);
+          const avoid = intel.spyInsights.flatMap(s => s.avoid).slice(0, 3);
+          if (emulate.length > 0) parts.push(`Visual de concorrentes para emular: ${emulate.join('; ')}`);
+          if (avoid.length > 0) parts.push(`Visual de concorrentes para evitar: ${avoid.join('; ')}`);
+        }
+        if (parts.length > 0) {
+          designIntelContext = `\n[INTELIGÊNCIA DA MARCA]\n${parts.join('\n')}\n`;
+          console.log('[Design/Plan] Brand intelligence injected');
+        }
+      }
+    } catch (err) {
+      console.warn('[Design/Plan] Brand intelligence fetch failed:', err);
     }
 
     const prompt = `
       Você é o MKTHONEY — módulo Design Estratégico.
-      Sua missão é criar prompts visuais ESTRATÉGICOS baseados no framework C.H.A.P.E.U.
+      Sua missão é criar prompts visuais ESTRATÉGICOS com direção de arte inteligente.
 
-      ${designBrainContext ? `${designBrainContext}\n\nAplique RIGOROSAMENTE os frameworks e princípios do Diretor de Arte acima.\n` : ''}
+      ${designBrainContext ? `${designBrainContext}\n\nConsidere os frameworks e princípios do Diretor de Arte ao criar a direção visual.\n` : ''}
 
       [CONTEXTO ESTRATÉGICO]
       Objetivo: ${context.objective}
       Copy aprovada: ${context.copy}
       Hooks aprovados: ${JSON.stringify(context.hooks)}
+      ${campaignContextBlock}
       ${styleContext}
       ${paletteContext}
       ${characterContext}
       ${inspirationContext}
-      ${chapeuProfileContext}
+      ${artDirectionContext}
       ${preferencesContext}
+      ${designIntelContext}
 
       [REGRA DE IDIOMA — OBRIGATÓRIO E INEGOCIÁVEL]
       O idioma da copy aprovada é: ${copyLanguage}.
@@ -265,14 +324,16 @@ export async function POST(request: NextRequest) {
       EXCEÇÃO ÚNICA: termos técnicos consagrados do nicho (ex: "ROAS", "CPA", "Meta Ads") podem permanecer em inglês.
       Fora isso, headlines, CTAs, subtítulos e qualquer frase completa DEVEM estar em ${copyLanguage}.
 
-      [INSTRUÇÕES C.H.A.P.E.U — RIGOROSO]
-      Para cada criativo, aplique TODOS os 6 pilares:
-      1. [C] CONTRASTE ALTO: Diferença dramática entre fundo e elementos-chave. Use cores complementares, luz vs sombra, grande vs pequeno.
-      2. [H] HIERARQUIA VISUAL: Defina a "Jornada do Olhar" — qual elemento o usuário vê PRIMEIRO, SEGUNDO e TERCEIRO.
-      3. [A] ANTROPOMORFISMO: Presença humana OBRIGATÓRIA — rostos expressivos, olhar direto para câmera, emoção visível.
-      4. [P] PROVA & PROPS: Elementos que transmitem credibilidade — números, badges, selos, depoimentos visuais.
-      5. [E] ESTRUTURA & ESPAÇO: Composição em camadas com profundidade. Espaço negativo para headline e CTA.
-      6. [U] URGÊNCIA VISUAL: Elemento que gera senso de ação imediata — timer, seta, brilho, destaque no CTA.
+      [PRINCÍPIOS DE DIREÇÃO DE ARTE]
+      Para cada criativo, considere os seguintes pilares e adapte ao objetivo:
+      1. Contraste: Diferença entre fundo e elementos-chave. Adapte a intensidade ao objetivo.
+      2. Hierarquia Visual: "Jornada do Olhar" — o que o espectador vê PRIMEIRO, SEGUNDO e TERCEIRO.
+      3. Presença Humana: Quando fizer sentido para o objetivo, inclua rostos e emoção.
+      4. Credibilidade Visual: Elementos de prova quando o objetivo pedir (números, badges, depoimentos).
+      5. Composição: Organização em camadas, espaço para headline e CTA, profundidade adequada.
+      6. Direcionamento de Ação: Elemento que guia visualmente para a ação desejada.
+
+      Princípios informam, preferências do usuário decidem.
 
       ${pieceInstructions}
 

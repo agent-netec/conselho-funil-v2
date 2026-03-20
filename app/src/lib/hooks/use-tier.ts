@@ -20,6 +20,14 @@ import {
 // TYPES
 // ============================================
 
+export interface CreditInfo {
+  monthlyCredits: number;
+  creditsUsed: number;
+  remaining: number;
+  creditResetDate: Date | null;
+  daysUntilReset: number;
+}
+
 export interface UseTierReturn {
   /** Current user tier */
   tier: Tier;
@@ -33,6 +41,8 @@ export interface UseTierReturn {
   limits: TierLimits;
   /** Usage stats (brands, funnels, assets, queries) */
   usage: TierUsage;
+  /** Monthly credit info (Sprint 02) */
+  credits: CreditInfo;
   /** Is the user on trial? */
   isTrial: boolean;
   /** Has the trial expired? */
@@ -50,8 +60,7 @@ export interface TierUsage {
   activeFunnels: number;
   totalAssets: number;
   ragDocs: number;
-  monthlyQueries: number;
-  monthlyPageForensics: number;
+  monthlyCreditsUsed: number;
 }
 
 // ============================================
@@ -64,22 +73,24 @@ export interface TierUsage {
  */
 export function useTier(): UseTierReturn {
   const { user } = useAuthStore();
-  const [tier, setTier] = useState<Tier>('trial'); // Default to trial for new users
+  const [tier, setTier] = useState<Tier>('trial');
   const [trialExpiresAt, setTrialExpiresAt] = useState<Date | null>(null);
   const [usage, setUsage] = useState<TierUsage>({
     brands: 0,
     activeFunnels: 0,
     totalAssets: 0,
     ragDocs: 0,
-    monthlyQueries: 0,
-    monthlyPageForensics: 0,
+    monthlyCreditsUsed: 0,
+  });
+  const [creditInfo, setCreditInfo] = useState<CreditInfo>({
+    monthlyCredits: 0,
+    creditsUsed: 0,
+    remaining: 0,
+    creditResetDate: null,
+    daysUntilReset: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch user tier via getDoc with retry.
-  // onSnapshot is NOT used here because permission-denied errors on a watch stream
-  // permanently kill the listener (no auto-retry). getDoc allows explicit retry.
-  // Tier data changes rarely (Stripe webhooks) so one-time read is sufficient.
   const fetchTier = useCallback(async (retries = 0) => {
     if (!user?.uid) {
       setTier('trial');
@@ -96,7 +107,7 @@ export function useTier(): UseTierReturn {
           setTrialExpiresAt(data.trialExpiresAt.toDate());
         } else if (userTier === 'trial') {
           const defaultExpiry = new Date();
-          defaultExpiry.setDate(defaultExpiry.getDate() + 14);
+          defaultExpiry.setDate(defaultExpiry.getDate() + 7);
           setTrialExpiresAt(defaultExpiry);
         }
         if (data.usage) {
@@ -105,16 +116,33 @@ export function useTier(): UseTierReturn {
             activeFunnels: data.usage.activeFunnels || 0,
             totalAssets: data.usage.totalAssets || 0,
             ragDocs: data.usage.ragDocs || 0,
-            monthlyQueries: data.usage.monthlyQueries || 0,
-            monthlyPageForensics: data.usage.monthlyPageForensics || 0,
+            monthlyCreditsUsed: data.usage.monthlyCreditsUsed || 0,
           });
         }
+
+        // Sprint 02: Monthly credit info
+        const monthly = data.monthlyCredits ?? TIER_LIMITS[userTier]?.maxMonthlyCredits ?? 0;
+        const used = data.creditsUsed ?? 0;
+        let resetDate: Date | null = null;
+        let daysUntil = 0;
+        if (data.creditResetDate) {
+          resetDate = typeof data.creditResetDate.toDate === 'function'
+            ? data.creditResetDate.toDate()
+            : new Date(data.creditResetDate);
+          daysUntil = Math.max(0, Math.ceil((resetDate!.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+        }
+        setCreditInfo({
+          monthlyCredits: monthly,
+          creditsUsed: used,
+          remaining: Math.max(0, monthly - used),
+          creditResetDate: resetDate,
+          daysUntilReset: daysUntil,
+        });
       }
       setIsLoading(false);
     } catch (error: any) {
       if (error?.code === 'permission-denied' && retries < 4) {
-        // Auth token not yet propagated to Firestore — retry with backoff
-        const delay = 300 * Math.pow(2, retries); // 300ms, 600ms, 1200ms, 2400ms
+        const delay = 300 * Math.pow(2, retries);
         setTimeout(() => fetchTier(retries + 1), delay);
       } else {
         console.warn('[useTier] Could not read tier, defaulting to trial:', error?.message);
@@ -142,6 +170,7 @@ export function useTier(): UseTierReturn {
     meetsMinimum: (requiredTier: Tier) => meetsMinimumTier(effectiveTier, requiredTier),
     limits: TIER_LIMITS[effectiveTier],
     usage,
+    credits: creditInfo,
     isTrial,
     isTrialExpired: trialExpired,
     trialDaysRemaining,

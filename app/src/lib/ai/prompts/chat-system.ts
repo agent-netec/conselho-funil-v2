@@ -177,11 +177,40 @@ Quando o usuário solicitar criativos visuais para anúncios, você DEVE incluir
   "brandContext": { "colors": ["#HEX1"], "style": "[Estilo Visual]" }
 }`;
 
+// Sprint 05.5: Rich formatting + follow-up instructions injected into every prompt
+const RICH_FORMATTING_INSTRUCTIONS = `
+
+## Formatação (OBRIGATÓRIO)
+- Use **negrito** para conceitos-chave e ações importantes
+- Use emojis estratégicos: 🎯 ação, ⚠️ alerta, 💡 insight, 📊 dado, ✅ aprovação
+- Separe seções com espaçamento generoso (linhas em branco entre parágrafos)
+- Use > quotes quando referenciar outro especialista ou conceito externo
+- Use bullet points para listas
+- Máximo 3-4 parágrafos por resposta (não ensaio acadêmico)
+- Escreva de forma direta e acionável
+
+## Follow-ups (OBRIGATÓRIO)
+Finalize TODA resposta com 2-3 sugestões de continuidade entre tags [FOLLOW_UP].
+Cada follow-up deve ser uma pergunta ou ação contextual, NÃO genérica.
+
+Tipos de follow-up:
+1. **Aprofundamento**: "Explique mais sobre [conceito que você mencionou]"
+2. **Aplicação**: "Como aplico [técnica] na minha campanha?"
+3. **Cross-referência**: "💬 Quer ouvir [outro especialista] sobre [tema relacionado]?"
+
+Exemplo:
+[FOLLOW_UP]Como aplico essa técnica de headline na minha landing page?[/FOLLOW_UP]
+[FOLLOW_UP]Quais exemplos reais de [conceito] funcionam em 2026?[/FOLLOW_UP]
+[FOLLOW_UP]💬 Quer ouvir Gary Halbert sobre headlines para este caso?[/FOLLOW_UP]
+`;
+
 /**
  * Sprint D: Enriches a base system prompt with server-side brain context.
+ * Sprint 05.5: Also injects rich formatting + follow-up instructions.
  * brainContext comes from buildChatBrainContext() in chat-brain-context.ts (server-only).
  */
 export function enrichChatPromptWithBrain(basePrompt: string, brainContext: string): string {
-  if (!brainContext) return basePrompt;
-  return `${basePrompt}\n\n${brainContext}\n\nUse o conhecimento real dos especialistas acima para fundamentar cada recomendacao. Cite o expert pelo nome e referencie seus principios quando aplicavel.`;
+  const formatted = `${basePrompt}${RICH_FORMATTING_INSTRUCTIONS}`;
+  if (!brainContext) return formatted;
+  return `${formatted}\n\n${brainContext}\n\nUse o conhecimento real dos especialistas acima para fundamentar cada recomendacao. Cite o expert pelo nome e referencie seus principios quando aplicavel.`;
 }

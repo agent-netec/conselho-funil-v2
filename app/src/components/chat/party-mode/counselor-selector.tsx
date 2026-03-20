@@ -15,25 +15,56 @@ interface CounselorSelectorProps {
   onConfirm?: () => void;
 }
 
+// Sprint 05.9: Expanded smart combos by objective
 const SPECIALIST_COMBOS = [
+  {
+    name: "Quero Lançar Produto",
+    ids: ['russell_brunson', 'dan_kennedy', 'frank_kern'],
+    icon: "🚀",
+    color: "from-indigo-500/20 to-blue-500/20"
+  },
+  {
+    name: "Quero Escalar Tráfego",
+    ids: ['nicholas_kusmich', 'justin_brooke', 'savannah_sanchez'],
+    icon: "📈",
+    color: "from-blue-500/20 to-cyan-500/20"
+  },
+  {
+    name: "Conteúdo Viral",
+    ids: ['rachel_karten', 'nikita_beer', 'justin_welsh'],
+    icon: "🔥",
+    color: "from-fuchsia-500/20 to-rose-500/20"
+  },
+  {
+    name: "Melhorar Oferta",
+    ids: ['dan_kennedy', 'russell_brunson', 'perry_belcher'],
+    icon: "💎",
+    color: "from-emerald-500/20 to-green-500/20"
+  },
+  {
+    name: "Copy que Vende",
+    ids: ['gary_halbert', 'eugene_schwartz', 'joseph_sugarman'],
+    icon: "✍️",
+    color: "from-amber-500/20 to-orange-500/20"
+  },
   {
     name: "Direct Response Masters",
     ids: ['gary_halbert', 'dan_kennedy_copy', 'eugene_schwartz'],
     icon: "⚡",
-    color: "from-amber-500/20 to-orange-500/20"
+    color: "from-amber-500/20 to-yellow-500/20"
   },
   {
-    name: "The Big Three (Funnel)",
-    ids: ['russell_brunson', 'frank_kern', 'ryan_deiss'],
-    icon: "🎯",
-    color: "from-indigo-500/20 to-blue-500/20"
+    name: "Funil High Ticket",
+    ids: ['sam_ovens', 'frank_kern', 'dan_kennedy'],
+    icon: "💰",
+    color: "from-yellow-500/20 to-amber-500/20"
   },
   {
-    name: "Social Growth",
-    ids: ['justin_welsh', 'nikita_beer', 'rachel_karten'],
-    icon: "🚀",
-    color: "from-fuchsia-500/20 to-rose-500/20"
-  }
+    name: "Brand + Copy",
+    ids: ['david_ogilvy', 'gary_halbert', 'john_carlton'],
+    icon: "👔",
+    color: "from-zinc-400/20 to-zinc-500/20"
+  },
 ];
 
 const COUNCIL_LABELS: Record<string, string> = {

@@ -13,7 +13,7 @@ import { useSearchParams } from 'next/navigation';
 import { CalendarView } from '@/components/content/calendar-view';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Columns, Grid, X, Clock, Eye, CheckCircle, XCircle, Send, Shield, Sparkles, Loader2, BookmarkPlus, Repeat, Tag, ArrowLeft, User } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Columns, Grid, X, Clock, Eye, CheckCircle, XCircle, Send, Shield, Sparkles, Loader2, BookmarkPlus, Repeat, Tag, ArrowLeft, User, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import type { CalendarItem, CalendarItemStatus, ContentTemplate } from '@/types/content';
 
@@ -30,7 +30,8 @@ function getInitialDate(): Date {
   return new Date();
 }
 
-export default function ContentCalendarPage() {
+/** Reusable calendar content — used both standalone and as tab within Social */
+export function CalendarContent() {
   const { selectedBrand } = useBrandStore();
   const [items, setItems] = useState<CalendarItem[]>([]);
   const [view, setView] = useState<ViewMode>('week');
@@ -330,6 +331,50 @@ export default function ContentCalendarPage() {
     })()
     : new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(referenceDate);
 
+  // === CSV Export ===
+  const handleExportCSV = useCallback(() => {
+    if (!items.length) {
+      toast.error('Nenhum item para exportar');
+      return;
+    }
+    const escapeCSV = (str: string) => str.replace(/"/g, '""').replace(/\n/g, ' ');
+    const fmtDate = (d: any) => {
+      if (!d) return 'Sem data';
+      const date = d.toDate ? d.toDate() : new Date(d);
+      return date.toLocaleDateString('pt-BR');
+    };
+
+    const headers = ['Data', 'Plataforma', 'Formato', 'Status', 'Hook', 'Corpo', 'CTA', 'Hashtags'];
+    const rows = items.map(item => {
+      const pc = (item as any).postContent;
+      const hook = pc?.hook || item.content?.slice(0, 100) || item.title || '';
+      const body = pc?.body || item.content || '';
+      const cta = pc?.cta || '';
+      const hashtags = pc?.hashtags?.join(' ') || '';
+      return [
+        fmtDate(item.scheduledDate),
+        item.platform || '',
+        item.format || '',
+        item.status || '',
+        `"${escapeCSV(hook)}"`,
+        `"${escapeCSV(body)}"`,
+        `"${escapeCSV(cta)}"`,
+        hashtags,
+      ].join(',');
+    });
+
+    const BOM = '\uFEFF';
+    const csv = BOM + [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `calendario-${dateLabel.replace(/[/\s]/g, '-')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`${items.length} itens exportados!`);
+  }, [items, dateLabel]);
+
   return (
     <div className="flex flex-col gap-6 p-6 max-w-[1400px] mx-auto">
       {/* Header */}
@@ -347,6 +392,15 @@ export default function ContentCalendarPage() {
           >
             {generatingWeek ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             Gerar Semana
+          </button>
+          <button
+            onClick={handleExportCSV}
+            disabled={!items.length}
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-sm font-medium transition-colors disabled:opacity-40"
+            title="Exportar CSV"
+          >
+            <Download className="h-4 w-4" />
+            CSV
           </button>
           <button
             onClick={() => { setShowTemplates(!showTemplates); if (!showTemplates) fetchTemplates(); }}
@@ -677,4 +731,9 @@ export default function ContentCalendarPage() {
       )}
     </div>
   );
+}
+
+/** Standalone page route — redirects to /social?tab=calendar in production */
+export default function ContentCalendarPage() {
+  return <CalendarContent />;
 }

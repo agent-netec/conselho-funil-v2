@@ -7,10 +7,12 @@ import type { DesignAnalysis, DesignPieceRole } from '@/types/design-system';
 
 interface AnalysisResultProps {
   analysis: DesignAnalysis;
+  selectedApproach?: string;
+  onApproachSelect?: (name: string) => void;
   className?: string;
 }
 
-export function AnalysisResult({ analysis, className }: AnalysisResultProps) {
+export function AnalysisResult({ analysis, selectedApproach, onApproachSelect, className }: AnalysisResultProps) {
   return (
     <div className={cn('space-y-4', className)}>
       {/* Context Summary */}
@@ -23,14 +25,54 @@ export function AnalysisResult({ analysis, className }: AnalysisResultProps) {
             <p className="text-[10px] font-bold uppercase text-[#E6B447] tracking-wider mb-1">Análise do Diretor</p>
             <p className="text-sm text-zinc-200 leading-relaxed">{analysis.contextSummary}</p>
             <div className="mt-2 flex items-center gap-2">
-              <span className="text-[9px] uppercase font-bold text-zinc-500">Perfil C.H.A.P.E.U:</span>
-              <span className="text-[10px] font-bold text-[#E6B447] bg-[#E6B447]/10 px-2 py-0.5 rounded-full border border-[#E6B447]/20">
-                {analysis.chapeuProfile}
-              </span>
+              {analysis.artDirection && (
+                <>
+                  <span className="text-[9px] uppercase font-bold text-zinc-500">Direção de Arte:</span>
+                  <span className="text-[10px] font-bold text-[#E6B447] bg-[#E6B447]/10 px-2 py-0.5 rounded-full border border-[#E6B447]/20">
+                    {analysis.artDirection}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Approaches (Sprint 06.6) */}
+      {analysis.approaches && analysis.approaches.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-[10px] font-bold uppercase text-zinc-500 tracking-wider">
+            Abordagens Visuais ({analysis.approaches.length} opções)
+          </p>
+          <div className="grid gap-2 md:grid-cols-3">
+            {analysis.approaches.map((approach, i) => {
+              const isSelected = selectedApproach === approach.name;
+              return (
+                <button
+                  key={i}
+                  onClick={() => onApproachSelect?.(approach.name)}
+                  className={cn(
+                    'p-4 rounded-xl border text-left transition-all',
+                    isSelected
+                      ? 'border-[#E6B447]/50 bg-[#E6B447]/10 shadow-[0_0_15px_rgba(230,180,71,0.1)]'
+                      : 'border-white/[0.05] bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.04]'
+                  )}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg">{approach.icon}</span>
+                    <p className={cn('text-sm font-bold', isSelected ? 'text-[#E6B447]' : 'text-white')}>
+                      {approach.name}
+                    </p>
+                    {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[#E6B447] ml-auto" />}
+                  </div>
+                  <p className="text-[11px] text-zinc-300 leading-snug mb-2">{approach.description}</p>
+                  <p className="text-[10px] text-zinc-500 leading-snug italic">&quot;{approach.justification}&quot;</p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Challenges */}
       {analysis.challenges.length > 0 && (

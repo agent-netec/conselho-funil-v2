@@ -32,8 +32,7 @@ export interface UserTierUsage {
   activeFunnels: number;
   totalAssets: number;
   ragDocs: number;
-  monthlyQueries: number;
-  monthlyPageForensics: number;
+  monthlyCreditsUsed: number;
   lastResetAt?: Timestamp; // Monthly reset timestamp
 }
 

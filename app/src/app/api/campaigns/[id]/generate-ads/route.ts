@@ -12,6 +12,7 @@ import { buildAdsBrainContext } from '@/lib/ai/prompts/ads-brain-context';
 import { ragQuery, retrieveBrandChunks, formatBrandContextForLLM } from '@/lib/ai/rag';
 import { getAllBrandKeywordsForPromptAdmin } from '@/lib/firebase/intelligence-server';
 import { GENERATION_LIMITS } from '@/types/creative-ads';
+import { loadBrandIntelligence } from '@/lib/intelligence/research/brand-context';
 import type { UXIntelligence } from '@/types/intelligence';
 import { indexCampaignDecision } from '@/lib/ai/campaign-rag';
 
@@ -110,6 +111,39 @@ export async function POST(
       }
     }
 
+    // 3b. Sprint 07 — Brand Intelligence (persona + segments for ad targeting)
+    let personaContext = '';
+    if (brandId) {
+      try {
+        const intel = await loadBrandIntelligence(brandId);
+        if (intel) {
+          const parts: string[] = [];
+          if (intel.persona) {
+            parts.push(`## PERSONA DO PÚBLICO`);
+            parts.push(`${intel.persona.name}${intel.persona.age ? `, ${intel.persona.age}` : ''}`);
+            if (intel.persona.pains.length > 0) parts.push(`Dores: ${intel.persona.pains.join('; ')}`);
+            if (intel.persona.triggers.length > 0) parts.push(`Gatilhos de compra: ${intel.persona.triggers.join('; ')}`);
+            if (intel.persona.segments) {
+              parts.push(`\n## SEGMENTOS DE PÚBLICO`);
+              parts.push(`HOT (prontos p/ comprar): ${intel.persona.segments.hot} → Ads diretos, CTA de compra`);
+              parts.push(`WARM (considerando): ${intel.persona.segments.warm} → Prova social, benefícios`);
+              parts.push(`COLD (não conhecem): ${intel.persona.segments.cold} → Educação, problema`);
+            }
+          }
+          if (intel.spyInsights.length > 0) {
+            const emulate = intel.spyInsights.flatMap(s => s.emulate).slice(0, 3);
+            if (emulate.length > 0) parts.push(`\nElementos de concorrentes para emular: ${emulate.join('; ')}`);
+          }
+          if (parts.length > 0) {
+            personaContext = parts.join('\n');
+            console.log('[Campaigns/GenerateAds] Brand intelligence injected');
+          }
+        }
+      } catch (err) {
+        console.warn('[Campaigns/GenerateAds] Brand intelligence fetch failed:', err);
+      }
+    }
+
     // 4. Call canonical generateAds pipeline
     // lightMode: skip CPS PRO scoring + brand voice validation to stay within Vercel timeout
     const result = await generateAds(
@@ -121,7 +155,7 @@ export async function POST(
         minToneMatch: GENERATION_LIMITS.minToneMatchDefault,
         brainContext,
         ragContext,
-        brandContext,
+        brandContext: brandContext + (personaContext ? `\n\n${personaContext}` : ''),
         keywordContext,
         lightMode: true,
       },

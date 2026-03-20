@@ -6,13 +6,23 @@ import { Timestamp } from 'firebase/firestore';
 
 export type DesignPieceRole = 'hook' | 'development' | 'proof' | 'retargeting' | 'standalone';
 
+export interface DesignApproach {
+  name: string;
+  icon: string;
+  description: string;
+  justification: string;
+}
+
 export interface DesignAnalysis {
   contextSummary: string;
   awarenessStage: string;
+  approaches?: DesignApproach[];
   recommendedPieces: DesignPieceRecommendation[];
   challenges: string[];
   recommendations: string[];
-  chapeuProfile: string;
+  artDirection?: string;
+  /** @deprecated Use artDirection instead */
+  chapeuProfile?: string;
 }
 
 export interface DesignPieceRecommendation {

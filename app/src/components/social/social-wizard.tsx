@@ -25,8 +25,9 @@ import {
   Loader2, Check, Copy, Lightbulb, FileText, ArrowLeft, ArrowRight,
   Trophy, Sparkles, MessageSquare, Target, Megaphone, Building2,
   TrendingUp, CalendarPlus, LayoutGrid, BookmarkPlus, FlaskConical,
-  ThumbsUp, ThumbsDown
+  ThumbsUp, ThumbsDown, Lock, Brain
 } from 'lucide-react';
+import { useTier } from '@/lib/hooks/use-tier';
 import { cn } from '@/lib/utils';
 import { notify } from '@/lib/stores/notification-store';
 import { StructureViewer } from './structure-viewer';
@@ -72,6 +73,10 @@ const STEPS = [
 interface Hook {
   style: string;
   content: string;
+  body?: string;
+  cta?: string;
+  hashtags?: string[];
+  suggestedVisual?: string;
   reasoning: string;
   postType?: string;
 }
@@ -87,20 +92,30 @@ interface GenerationResult {
   };
 }
 
+type SocialMode = 'quick' | 'strategic';
+
 interface SocialWizardProps {
   campaignId?: string;
+  initialMode?: SocialMode;
+  /** Pre-fill topic from trends */
+  initialTopic?: string;
 }
 
-export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
+export function SocialWizard({ campaignId, initialMode, initialTopic }: SocialWizardProps) {
   const activeBrand = useActiveBrand();
   const { user } = useAuthStore();
+  const { tier } = useTier();
+  const canUseStrategic = tier === 'pro' || tier === 'agency' || tier === 'trial';
+
+  // Mode: null = not selected yet
+  const [mode, setMode] = useState<SocialMode | null>(initialMode || null);
 
   // Step management
   const [currentStep, setCurrentStep] = useState(0);
 
   // Step 1: Config
   const [platform, setPlatform] = useState(PLATFORMS[0].id);
-  const [topic, setTopic] = useState('');
+  const [topic, setTopic] = useState(initialTopic || '');
   const [campaignType, setCampaignType] = useState<CampaignType>('organic');
   const [selectedFormats, setSelectedFormats] = useState<string[]>(['reel', 'carousel', 'post']);
 
@@ -147,6 +162,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
 
     try {
       const headers = await getAuthHeaders();
+      const isQuick = mode === 'quick';
       const response = await fetch('/api/social/hooks', {
         method: 'POST',
         headers,
@@ -154,23 +170,24 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
           brandId: activeBrand?.id,
           platform,
           topic,
-          campaignType,
+          campaignType: isQuick ? 'organic' : campaignType,
           contentFormats: selectedFormats,
+          mode: isQuick ? 'quick' : 'strategic',
         }),
       });
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || 'Falha ao gerar hooks');
+        throw new Error(errData.error || 'Falha ao gerar posts');
       }
 
       const data = await response.json();
       setResult(data.data);
       setCurrentStep(1);
-      notify.success('Hooks gerados com sucesso!');
+      notify.success(isQuick ? '3 posts gerados!' : 'Hooks gerados com sucesso!');
     } catch (error) {
       console.error('Error:', error);
-      notify.error(error instanceof Error ? error.message : 'Erro ao gerar hooks. Tente novamente.');
+      notify.error(error instanceof Error ? error.message : 'Erro ao gerar posts. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -287,7 +304,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
         headers,
         body: JSON.stringify({
           brandId: activeBrand.id,
-          hooks: [{ ...hook, platform }],
+          hooks: [{ ...hook, platform, fullPost: true }],
           campaignType,
         }),
       });
@@ -321,9 +338,14 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
           brandId: activeBrand.id,
           hooks: result.hooks.map(h => ({
             content: h.content,
+            body: h.body,
+            cta: h.cta,
+            hashtags: h.hashtags,
+            suggestedVisual: h.suggestedVisual,
             style: h.style,
             platform,
             postType: h.postType || selectedFormats?.[0] || 'post',
+            fullPost: true,
           })),
           campaignType,
         }),
@@ -344,15 +366,33 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
       // or merges into the existing one — satisfies both create and update rules
       if (campaignId && user?.uid) {
         try {
+          // Sprint 04.5: Save hooks with score, framework, approved flags + evaluation
+          const scorecardData = scorecard?.dimensions || scorecard;
           await setDoc(doc(db, 'campaigns', campaignId), {
             social: {
-              hooks: result.hooks.map(h => ({ content: h.content, style: h.style })),
+              hooks: result.hooks.map((h, i) => ({
+                platform,
+                content: h.content,
+                style: h.style,
+                score: scorecardData?.[i]?.score ?? (scorecard?.overall_score || null),
+                framework: h.reasoning || null,
+                approved: true, // All hooks that reach calendar are approved
+              })),
               platforms: [platform],
               campaignType,
+              contentFormats: selectedFormats,
               scheduledCount: count,
+              ...(debate ? { debate } : {}),
+              ...(scorecard ? {
+                evaluation: {
+                  engagement: scorecard.engagement ?? scorecard.dimensions?.find?.((d: any) => d.name?.toLowerCase().includes('engag'))?.score ?? null,
+                  clarity: scorecard.clarity ?? scorecard.dimensions?.find?.((d: any) => d.name?.toLowerCase().includes('clar'))?.score ?? null,
+                  brandAlignment: scorecard.brandAlignment ?? scorecard.dimensions?.find?.((d: any) => d.name?.toLowerCase().includes('marca') || d.name?.toLowerCase().includes('brand'))?.score ?? null,
+                  virality: scorecard.virality ?? scorecard.dimensions?.find?.((d: any) => d.name?.toLowerCase().includes('viral'))?.score ?? null,
+                },
+              } : {}),
             },
             userId: user.uid,       // required for create rule
-            funnelId: campaignId,   // maintain Golden Thread link
             updatedAt: Timestamp.now(),
           }, { merge: true });
           console.log('[SocialWizard] Campaign Golden Thread updated:', campaignId);
@@ -381,6 +421,15 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
     } finally {
       setIsSendingToCalendar(false);
     }
+  };
+
+  /** Build full post text for clipboard: hook + body + cta + hashtags */
+  const buildFullPostText = (hook: Hook): string => {
+    const parts = [hook.content];
+    if (hook.body) parts.push('', hook.body);
+    if (hook.cta) parts.push('', hook.cta);
+    if (hook.hashtags?.length) parts.push('', hook.hashtags.join(' '));
+    return parts.join('\n');
   };
 
   const copyToClipboard = (text: string, index: number) => {
@@ -459,6 +508,7 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
 
   const resetWizard = () => {
     setCurrentStep(0);
+    setMode(null);
     setResult(null);
     setStructure(null);
     setScorecard(null);
@@ -502,11 +552,174 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
     </div>
   );
 
-  // === STEP 0: Config ===
+  // === MODE SELECTOR ===
+  if (!mode) {
+    return (
+      <div className="space-y-6 max-w-2xl mx-auto">
+        <div className="text-center mb-2">
+          <h2 className="text-xl font-bold text-zinc-100">Como você quer criar?</h2>
+          <p className="text-sm text-zinc-500 mt-1">Escolha o modo de geração de conteúdo</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Quick Mode */}
+          <button
+            onClick={() => setMode('quick')}
+            className="relative p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] hover:border-[#E6B447]/30 hover:bg-[#E6B447]/5 transition-all text-left group"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-10 w-10 rounded-xl bg-[#E6B447]/10 flex items-center justify-center">
+                <Zap className="h-5 w-5 text-[#E6B447]" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-zinc-100">Modo Rápido</h3>
+                <Badge variant="outline" className="border-[#E6B447]/20 text-[#E6B447] text-[10px] mt-0.5">Starter</Badge>
+              </div>
+            </div>
+            <p className="text-sm text-zinc-400 mb-3">Post completo em segundos. Tema + plataforma = 3 posts prontos para publicar.</p>
+            <div className="flex items-center gap-3 text-[11px] text-zinc-500">
+              <span>1 crédito</span>
+              <span className="text-zinc-700">|</span>
+              <span>3 posts</span>
+              <span className="text-zinc-700">|</span>
+              <span>~15s</span>
+            </div>
+          </button>
+
+          {/* Strategic Mode */}
+          <button
+            onClick={() => canUseStrategic ? setMode('strategic') : notify.info('Disponível no plano Pro')}
+            className={cn(
+              'relative p-6 rounded-2xl border transition-all text-left group',
+              canUseStrategic
+                ? 'border-white/[0.06] bg-white/[0.01] hover:border-violet-500/30 hover:bg-violet-500/5'
+                : 'border-white/[0.04] bg-white/[0.005] opacity-60'
+            )}
+          >
+            {!canUseStrategic && (
+              <div className="absolute top-3 right-3">
+                <Lock className="h-4 w-4 text-zinc-600" />
+              </div>
+            )}
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-10 w-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
+                <Brain className="h-5 w-5 text-violet-400" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-zinc-100">Modo Estratégico</h3>
+                <Badge variant="outline" className="border-violet-500/20 text-violet-400 text-[10px] mt-0.5">Pro</Badge>
+              </div>
+            </div>
+            <p className="text-sm text-zinc-400 mb-3">4 etapas com debate entre especialistas, scorecard calibrado e variações A/B.</p>
+            <div className="flex items-center gap-3 text-[11px] text-zinc-500">
+              <span>2 créditos</span>
+              <span className="text-zinc-700">|</span>
+              <span>5 posts + debate</span>
+              <span className="text-zinc-700">|</span>
+              <span>~2min</span>
+            </div>
+          </button>
+        </div>
+
+        {/* Trend Research & Profile Analysis (available before mode selection) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-4">
+          <TrendPanel />
+          <ProfileAnalyzer />
+        </div>
+      </div>
+    );
+  }
+
+  // === STEP 0: Config (Quick Mode = simplified) ===
+  if (currentStep === 0 && mode === 'quick') {
+    return (
+      <div className="space-y-6 max-w-2xl mx-auto">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-[#E6B447]" />
+            <h2 className="text-lg font-bold text-zinc-100">Modo Rápido</h2>
+          </div>
+          <button onClick={() => setMode(null)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+            Trocar modo
+          </button>
+        </div>
+
+        <Card className="p-6 bg-zinc-900/50 border-white/[0.04]">
+          <div className="space-y-4">
+            {/* Platform chips */}
+            <div>
+              <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2 block">Plataforma</label>
+              <div className="flex flex-wrap gap-2">
+                {PLATFORMS.map((p) => {
+                  const Icon = p.icon;
+                  const isActive = platform === p.id;
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => setPlatform(p.id)}
+                      className={cn(
+                        'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border',
+                        isActive
+                          ? 'bg-[#E6B447]/10 border-[#E6B447]/50 text-[#E6B447]'
+                          : 'bg-zinc-800/50 border-white/[0.04] text-zinc-500 hover:text-zinc-300'
+                      )}
+                    >
+                      <Icon className={cn('h-4 w-4', isActive ? 'text-[#E6B447]' : p.color)} />
+                      {p.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Topic */}
+            <div>
+              <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2 block">Tema / Assunto</label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Ex: Como estruturar um funil de vendas direto no Instagram..."
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+                  className="bg-zinc-800/50 border-white/[0.04] focus:border-[#E6B447]/50 h-12"
+                />
+                <Button
+                  onClick={handleGenerate}
+                  disabled={isLoading}
+                  className="h-12 px-6 bg-[#E6B447] hover:bg-[#F0C35C] text-[#0D0B09] font-bold shadow-[0_0_20px_-5px_rgba(230,180,71,0.4)]"
+                >
+                  {isLoading ? (
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Gerando...</>
+                  ) : (
+                    <><Zap className="mr-2 h-4 w-4 fill-current" />Gerar 3 Posts</>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {activeBrand && (
+              <p className="text-xs text-zinc-500 flex items-center gap-1.5">
+                <Check className="h-3 w-3 text-[#E6B447]" />
+                Marca: <span className="text-zinc-300 font-medium">{activeBrand.name}</span>
+                {activeBrand.voiceTone && <span className="text-zinc-600">| Tom: {activeBrand.voiceTone}</span>}
+              </p>
+            )}
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // === STEP 0: Config (Strategic Mode = full wizard) ===
   if (currentStep === 0) {
     return (
       <div className="space-y-6 max-w-4xl mx-auto">
-        <StepProgress />
+        <div className="flex items-center justify-between mb-2">
+          <StepProgress />
+          <button onClick={() => setMode(null)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+            Trocar modo
+          </button>
+        </div>
 
         {/* Campaign Type */}
         <Card className="p-6 bg-zinc-900/50 border-white/[0.04]">
@@ -634,7 +847,134 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
     );
   }
 
-  // === STEP 1: Generation Results ===
+  // === QUICK MODE RESULTS ===
+  if (mode === 'quick' && currentStep === 1 && result) {
+    return (
+      <div className="space-y-6 max-w-3xl mx-auto">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-[#E6B447]" />
+            <h2 className="text-lg font-bold text-zinc-100">3 Posts Prontos</h2>
+            <Badge variant="outline" className="border-[#E6B447]/20 text-[#E6B447] text-[10px]">{platform}</Badge>
+          </div>
+          <button onClick={resetWizard} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+            Nova geração
+          </button>
+        </div>
+
+        <div className="grid gap-4">
+          {result.hooks.map((hook, index) => (
+            <Card
+              key={index}
+              className="overflow-hidden bg-zinc-900/40 border-white/[0.04] hover:border-[#E6B447]/20 transition-all"
+            >
+              <div className="p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <Badge variant="outline" className="bg-[#E6B447]/10 text-[#E6B447] border-[#E6B447]/20 text-[10px] uppercase tracking-wider">
+                    {hook.style}
+                  </Badge>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleSendToCalendar(hook)}
+                      disabled={isSendingToCalendar}
+                      className="text-zinc-500 hover:text-[#E6B447] transition-colors p-1.5"
+                      title="Enviar ao Calendário"
+                    >
+                      <CalendarPlus className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => copyToClipboard(buildFullPostText(hook), index)}
+                      className="text-zinc-500 hover:text-[#E6B447] transition-colors p-1.5"
+                      title="Copiar post completo"
+                    >
+                      {copiedIndex === index ? <Check className="h-4 w-4 text-[#E6B447]" /> : <Copy className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <p className="text-base font-bold text-zinc-100 leading-relaxed">&ldquo;{hook.content}&rdquo;</p>
+
+                {hook.body && (
+                  <div className="text-sm text-zinc-300 leading-relaxed whitespace-pre-line pl-3 border-l-2 border-[#E6B447]/20">
+                    {hook.body}
+                  </div>
+                )}
+
+                {hook.cta && (
+                  <p className="text-sm font-semibold text-[#E6B447]">{hook.cta}</p>
+                )}
+
+                {hook.hashtags && hook.hashtags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {hook.hashtags.map((tag, ti) => (
+                      <span key={ti} className="text-[11px] text-[#E6B447]/60 bg-[#E6B447]/5 px-2 py-0.5 rounded-full border border-[#E6B447]/10">
+                        {tag.startsWith('#') ? tag : `#${tag}`}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {hook.suggestedVisual && (
+                  <div className="flex items-start gap-2 bg-white/[0.02] p-2 rounded-lg border border-white/[0.02]">
+                    <Sparkles className="h-3.5 w-3.5 text-violet-400 shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-zinc-500"><span className="text-zinc-400 font-medium">Visual:</span> {hook.suggestedVisual}</p>
+                  </div>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Quick actions */}
+        <Card className="p-4 bg-[#E6B447]/5 border-[#E6B447]/10">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-sm text-zinc-400">
+              {result.hooks.length} posts prontos para publicar
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleApproveAndSchedule}
+                disabled={isSendingToCalendar || scheduledCount > 0}
+                className="bg-[#E6B447] hover:bg-[#F0C35C] text-[#0D0B09] font-bold gap-2"
+              >
+                {isSendingToCalendar ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalendarPlus className="h-4 w-4" />}
+                {scheduledCount > 0 ? `${scheduledCount} no Calendário` : 'Enviar Todos ao Calendário'}
+              </Button>
+              <Button variant="outline" onClick={resetWizard} className="border-white/[0.08] text-zinc-400 hover:text-zinc-100">
+                Gerar Mais
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        {scheduledCount > 0 && (
+          <Card className="p-5 bg-[#E6B447]/5 border-[#E6B447]/20">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-10 w-10 rounded-full bg-[#E6B447]/20 flex items-center justify-center">
+                <Check className="h-5 w-5 text-[#E6B447]" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-[#E6B447]">{scheduledCount} posts enviados ao calendário!</h4>
+                <p className="text-xs text-zinc-400">Agendados como rascunhos nos próximos dias.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <a href="/social?tab=calendar">
+                <Button size="sm" variant="outline" className="border-[#E6B447]/20 text-[#E6B447] hover:bg-[#E6B447]/10 gap-1.5">
+                  <CalendarPlus className="h-3.5 w-3.5" /> Ver no Calendário
+                </Button>
+              </a>
+              <Button size="sm" variant="outline" onClick={resetWizard} className="border-white/[0.08] text-zinc-400 hover:text-zinc-100">
+                Gerar Mais Posts
+              </Button>
+            </div>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  // === STEP 1: Generation Results (Strategic) ===
   if (currentStep === 1 && result) {
     return (
       <div className="space-y-6 max-w-4xl mx-auto">
@@ -710,17 +1050,52 @@ export function SocialWizard({ campaignId }: SocialWizardProps = {}) {
                       <CalendarPlus className="h-4 w-4" />
                     </button>
                     <button
-                      onClick={() => copyToClipboard(hook.content, index)}
+                      onClick={() => copyToClipboard(buildFullPostText(hook), index)}
                       className="text-zinc-500 hover:text-rose-400 transition-colors p-1"
+                      title="Copiar post completo"
                     >
                       {copiedIndex === index ? <Check className="h-4 w-4 text-[#E6B447]" /> : <Copy className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
 
-                <p className="text-lg font-medium text-zinc-100 leading-relaxed">
+                {/* Hook (destaque) */}
+                <p className="text-lg font-bold text-zinc-100 leading-relaxed">
                   &ldquo;{hook.content}&rdquo;
                 </p>
+
+                {/* Body (parágrafos) */}
+                {hook.body && (
+                  <div className="text-sm text-zinc-300 leading-relaxed whitespace-pre-line">
+                    {hook.body}
+                  </div>
+                )}
+
+                {/* CTA */}
+                {hook.cta && (
+                  <p className="text-sm font-semibold text-[#E6B447]">
+                    {hook.cta}
+                  </p>
+                )}
+
+                {/* Hashtags */}
+                {hook.hashtags && hook.hashtags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {hook.hashtags.map((tag, ti) => (
+                      <span key={ti} className="text-[11px] text-rose-400/70 bg-rose-500/5 px-2 py-0.5 rounded-full border border-rose-500/10">
+                        {tag.startsWith('#') ? tag : `#${tag}`}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Suggested Visual (collapsible) */}
+                {hook.suggestedVisual && (
+                  <div className="flex items-start gap-2 bg-white/[0.02] p-2.5 rounded-lg border border-white/[0.02]">
+                    <Sparkles className="h-3.5 w-3.5 text-violet-400 shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-zinc-500"><span className="text-zinc-400 font-medium">Visual:</span> {hook.suggestedVisual}</p>
+                  </div>
+                )}
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div className="flex items-start gap-2 bg-white/[0.02] p-3 rounded-lg border border-white/[0.02] flex-1">

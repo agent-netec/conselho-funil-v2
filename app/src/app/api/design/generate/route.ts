@@ -3,8 +3,9 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getBrandAdmin } from '@/lib/firebase/firestore-server';
 import { updateUserUsageAdmin } from '@/lib/firebase/firestore-server';
 import { getBrandAssetsAdmin } from '@/lib/firebase/assets-server';
-import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
+import { consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { buildDesignBrainContext } from '@/lib/ai/prompts/design-brain-context';
 import { loadCampaignContext } from '@/lib/ai/campaign-context';
@@ -107,7 +108,9 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      await requireBrandAccess(request, brandId);
+      const { effectiveTier, userId: authUserId } = await requireBrandAccess(request, brandId);
+      requireMinTier(effectiveTier, 'pro');
+      await consumeCredits(authUserId, CREDIT_COSTS.design_generate, 'design_generate');
     } catch (error) {
       return handleSecurityError(error);
     }
@@ -117,10 +120,10 @@ export async function POST(request: NextRequest) {
       return createApiError(500, 'GOOGLE_AI_API_KEY não configurada');
     }
 
-    // ST-11.24 Optimization: Se o prompt já vem detalhado (do card), não precisamos gerar variantes
-    // Isso economiza tempo (uma chamada a menos de LLM) e evita timeouts de 3 imagens.
-    // HOTFIX BUG-004: Força single generation para evitar 504 timeout (reduz de ~45s para ~20s)
-    const isSingleGeneration = true; // Sempre gera apenas 1 imagem
+    // Sprint 06.4: Generate 2 variations per prompt (not 3, to avoid timeout).
+    // Direct prompt approach — no LLM pre-call for variant generation.
+    // Cost remains 5 credits for the pair.
+    const variationCount = 2;
     
     // ... (keep brand/asset loading) ...
     let brandData = null;
@@ -230,16 +233,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Sprint I: Build language + text overlay blocks ONCE, inject into ALL modes
-    const textOverlayBlock = (() => {
-      const langPart = copyLanguage
-        ? `[MANDATORY LANGUAGE RULE]\nAll visible text in this image MUST be written in ${copyLanguage}.\nNÃO use inglês para textos visíveis. Todo texto renderizado na imagem DEVE estar em ${copyLanguage}.\nThis is NON-NEGOTIABLE. Any headline, CTA, subtitle, or overlay text = ${copyLanguage} ONLY.\nException: established technical terms (ROAS, CPA, Meta Ads) may stay in English.\n`
-        : '';
-      const headlinePart = copyHeadline
-        ? `[TEXT TO RENDER]\nExact headline to display: "${copyHeadline}"\nDo NOT translate or change this text. Render it exactly as provided.\n`
-        : '';
-      return langPart + headlinePart;
-    })();
+    // Sprint 06.7: Generate images WITHOUT embedded text.
+    // Text (headline, CTA) is shown as a separate overlay on the card.
+    // This avoids AI text rendering artifacts and gives users more control.
+    const textOverlayBlock = `[CRITICAL TEXT RULE]\nDo NOT render any text, headlines, CTAs, or typography in the image.\nThe image should be a PURE VISUAL scene without any text overlays.\nText will be added separately by the user in their editor (Canva, Figma).\nFocus only on the visual composition, mood, lighting, and subjects.\n`;
 
     // Variant mode: Flash generates ENGLISH scene descriptions (image model works best in English)
     // Portuguese text is injected separately via textOverlayBlock at the final assembly point
@@ -250,13 +247,13 @@ IMPORTANT: Write ALL prompts in ENGLISH (the image model performs best with Engl
 Do NOT include any text/headline/CTA content in the prompts — text overlays will be added separately.
 Focus ONLY on the visual scene: composition, lighting, mood, subjects, props, colors.
 
-${designBrainContext ? `${designBrainContext}\n\nApply the frameworks above in each generated prompt.\n` : `Each prompt must rigorously apply the C.H.A.P.E.U Framework:
-1. [C] Context: Integrate platform and conversion objective.
-2. [H] Hierarchy: Define clear visual order (Eye Journey).
-3. [A] Atmosphere: Cinematic lighting style and emotional tone.
-4. [P] Palette & Props: Use brand palette, logo, and strategic props.
-5. [E] Structure: Layered composition with depth, respecting Safe Zones.
-6. [U] Unique Action: Planned negative space for Headline and CTA placement.
+${designBrainContext ? `${designBrainContext}\n\nApply the art direction principles above in each generated prompt.\n` : `Each prompt should apply these art direction principles:
+1. Contrast: Integrate platform context with visual contrast appropriate to the objective.
+2. Hierarchy: Define clear visual order (Eye Journey).
+3. Atmosphere: Cinematic lighting style and emotional tone.
+4. Palette & Props: Use brand palette, logo, and strategic visual elements.
+5. Structure: Layered composition with depth, respecting Safe Zones.
+6. Action: Planned negative space for Headline and CTA placement.
 `}
 Platform context: ${platformContext}
 Visual style: "${visualStyle}"
@@ -266,59 +263,27 @@ Technical heuristics: ${seniorHeuristics.lighting}, ${seniorHeuristics.compositi
 Base briefing: ${basePrompt}.
 Return ONLY the JSON array of strings.`;
 
-    let promptVariants: string[] = [];
-    
-    if (isSingleGeneration) {
-      // Sprint I: Single generation — scene in English, text overlay injected at final assembly
-      const brainBlock = designBrainContext
-        ? `[VISUAL FRAMEWORK]\nApply C.H.A.P.E.U: High Contrast, Visual Hierarchy (eye journey), Human presence (anthropomorphism), Proof elements, Emotional structure with negative space for CTA, Visual urgency.\n`
-        : '';
+    // Sprint 06.4: Build 2 prompt variants directly (no LLM pre-call)
+    const brainBlock = designBrainContext
+      ? `[VISUAL FRAMEWORK]\nApply art direction principles: High Contrast, Visual Hierarchy (eye journey), Human presence when appropriate, Proof elements, Composition with negative space for CTA.\n`
+      : '';
 
-      // Use style direction from plan if available, otherwise fall back to technical heuristics
-      const styleBlock = styleDirection
-        ? `[STYLE DIRECTION — MANDATORY]\n${styleDirection}\nFollow this style direction strictly. Do NOT default to generic "professional modern" style.\n`
-        : '';
-      const technicalBlock = !styleDirection
-        ? `[TECHNICAL]\n${seniorHeuristics.lighting} | ${seniorHeuristics.composition} | ${seniorHeuristics.sharpness} | ${logoInstruction}`
-        : `[TECHNICAL]\n${seniorHeuristics.sharpness} | ${logoInstruction}`;
+    const styleBlock = styleDirection
+      ? `[STYLE DIRECTION — MANDATORY]\n${styleDirection}\nFollow this style direction strictly. Do NOT default to generic "professional modern" style.\n`
+      : '';
+    const technicalBlock = !styleDirection
+      ? `[TECHNICAL]\n${seniorHeuristics.lighting} | ${seniorHeuristics.composition} | ${seniorHeuristics.sharpness} | ${logoInstruction}`
+      : `[TECHNICAL]\n${seniorHeuristics.sharpness} | ${logoInstruction}`;
 
-      // Scene only — textOverlayBlock is prepended at the final assembly point
-      promptVariants = [`[SCENE]\n${basePrompt}\n\n${styleBlock}${brainBlock}${technicalBlock}`];
-      console.log(`✨ Usando modo de geração única${styleDirection ? ' com style direction do usuário' : ' com brain context'}.`);
-      console.log(`[Design/Debug] styleDirection received:`, styleDirection ? styleDirection.substring(0, 200) : 'NONE');
-      console.log(`[Design/Debug] basePrompt:`, basePrompt.substring(0, 200));
-    } else {
-      try {
-        const flashModel = genAI.getGenerativeModel({ model: process.env.GEMINI_PRO_MODEL || 'gemini-2.5-pro' });
-        const flashResult = await flashModel.generateContent(promptRequest);
-        const text = flashResult.response?.text?.();
-        if (text) {
-          try {
-            const parsed = JSON.parse(text);
-            if (Array.isArray(parsed) && parsed.length >= 3) {
-              promptVariants = parsed.slice(0, 3).map((p) => String(p));
-            }
-          } catch (parseError) {
-            console.warn('⚠️ Resposta do Flash não pôde ser parseada como JSON.', parseError);
-          }
-        }
-      } catch (flashError) {
-        console.warn('⚠️ Falha ao gerar variações no Flash, caindo para fallback.', flashError);
-      }
-    }
+    // V1: Main approach — faithful to briefing
+    const v1 = `[SCENE - VARIATION 1: FAITHFUL]\n${basePrompt}\n\n${styleBlock}${brainBlock}${technicalBlock}`;
+    // V2: Alternative approach — creative interpretation with different composition
+    const v2 = `[SCENE - VARIATION 2: CREATIVE]\n${basePrompt}\n\nReinterpret the scene with a different composition angle and mood while keeping the same subject and message. Use more dramatic lighting, tighter framing, or an unexpected perspective.\n\n${styleBlock}${brainBlock}${technicalBlock}`;
 
-    if (promptVariants.length === 0) {
-      // Fallback prompts: English scene descriptions (text overlay injected at final assembly)
-      promptVariants = [
-        `[SCENE - STANDARD] ${basePrompt} | ${seniorHeuristics.lighting} | ${seniorHeuristics.composition} | ${seniorHeuristics.sharpness}`,
-      ];
-      if (!isSingleGeneration) {
-        promptVariants.push(
-          `[SCENE - ALTERNATIVE] ${basePrompt} | cinematic mood | ${seniorHeuristics.composition}`,
-          `[SCENE - CREATIVE] ${basePrompt} | bold contrast, experimental angles | ${seniorHeuristics.sharpness}`
-        );
-      }
-    }
+    let promptVariants = [v1, v2].slice(0, variationCount);
+    console.log(`✨ Gerando ${variationCount} variações${styleDirection ? ' com style direction do usuário' : ' com brain context'}.`);
+    console.log(`[Design/Debug] styleDirection received:`, styleDirection ? styleDirection.substring(0, 200) : 'NONE');
+    console.log(`[Design/Debug] basePrompt:`, basePrompt.substring(0, 200));
 
     // US-20.3: Geração de imagens com fallback chain de modelos
     // Tenta modelos em ordem de qualidade: Pro (3.0) → Flash (2.5)

@@ -13,7 +13,8 @@ export const maxDuration = 120;
 import { NextRequest } from 'next/server';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
+import { consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
 import { generateWithGemini, PRO_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { FirecrawlAdapter } from '@/lib/mcp/adapters/firecrawl';
 import { loadBrandContext, formatBrandContextForPrompt } from '@/lib/intelligence/research/brand-context';
@@ -66,11 +67,16 @@ export async function POST(req: NextRequest) {
     }
 
     let userId = '';
+    let effectiveTier: import('@/lib/tier-system').Tier = 'free';
     try {
-      userId = (await requireBrandAccess(req, brandId)).userId;
+      const access = await requireBrandAccess(req, brandId);
+      userId = access.userId;
+      effectiveTier = access.effectiveTier;
     } catch (error) {
       return handleSecurityError(error);
     }
+    requireMinTier(effectiveTier, 'pro');
+    await consumeCredits(userId, CREDIT_COSTS.deep_research, 'deep_research');
 
     // 1. Scrape URLs via Firecrawl (O-2.1)
     const firecrawl = new FirecrawlAdapter();

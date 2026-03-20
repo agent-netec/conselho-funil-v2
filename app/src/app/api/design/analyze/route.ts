@@ -5,7 +5,7 @@ export const maxDuration = 60;
 import { NextRequest } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { parseAIJSON } from '@/lib/ai/formatters';
-import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
@@ -25,7 +25,8 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      await requireBrandAccess(request, brandId);
+      const { effectiveTier } = await requireBrandAccess(request, brandId);
+      requireMinTier(effectiveTier, 'pro');
     } catch (error) {
       return handleSecurityError(error);
     }
@@ -105,16 +106,27 @@ ${designBrainContext}
 1. Resuma o que você entendeu do contexto (1-2 frases) → contextSummary
 2. Identifique o estágio de consciência do público → awarenessStage
 3. Identifique 1-3 desafios/riscos visuais → challenges[]
-4. Recomende um SISTEMA VISUAL de campanha (2-4 peças interconectadas) → recommendedPieces[]
-5. Para cada peça, defina: role (hook/development/proof/retargeting), platform, format, safeZone, aspectRatio, rationale
-6. Dê 1-3 recomendações gerais → recommendations[]
-7. Explique qual perfil C.H.A.P.E.U aplicar → chapeuProfile
+4. Apresente 2-3 ABORDAGENS VISUAIS diferentes com justificativa contextual → approaches[]
+   - Cada abordagem é uma direção criativa distinta (ex: Editorial, Conversão, Minimalista)
+   - Baseie a justificativa no awareness, objetivo e público
+5. Recomende um SISTEMA VISUAL de campanha (2-4 peças interconectadas) → recommendedPieces[]
+6. Para cada peça, defina: role (hook/development/proof/retargeting), platform, format, safeZone, aspectRatio, rationale
+7. Dê 1-3 recomendações gerais → recommendations[]
+8. Sugira a direção de arte principal → artDirection
 
 Retorne APENAS JSON no formato:
 {
   "contextSummary": "string",
   "awarenessStage": "string",
   "challenges": ["string"],
+  "approaches": [
+    {
+      "name": "string (ex: Editorial, Conversão Direta, Minimalista)",
+      "icon": "string (emoji)",
+      "description": "string (1-2 frases descrevendo a abordagem)",
+      "justification": "string (por que esta abordagem faz sentido para este contexto)"
+    }
+  ],
   "recommendedPieces": [
     {
       "role": "hook | development | proof | retargeting",
@@ -126,7 +138,7 @@ Retorne APENAS JSON no formato:
     }
   ],
   "recommendations": ["string"],
-  "chapeuProfile": "string"
+  "artDirection": "string"
 }
 `;
 

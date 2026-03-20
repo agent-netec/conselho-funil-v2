@@ -1,15 +1,28 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, CheckCircle2, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-const AWARENESS_LEVELS = [
-  { id: 'unaware', label: 'Não sabe que tem problema', emoji: '😴' },
-  { id: 'problem_aware', label: 'Sabe que tem problema', emoji: '🤔' },
-  { id: 'solution_aware', label: 'Busca soluções', emoji: '🔍' },
-  { id: 'product_aware', label: 'Conhece seu produto', emoji: '👀' },
-];
+// 03.3 — Awareness: classificação automática por 3 perguntas simples
+const AWARENESS_LABELS: Record<string, { label: string; description: string; emoji: string }> = {
+  unaware: { label: 'Inconsciente', description: 'Seu público não sabe que tem o problema', emoji: '😴' },
+  problem_aware: { label: 'Consciente do Problema', description: 'Sabem do problema, mas não buscam soluções', emoji: '🤔' },
+  solution_aware: { label: 'Consciente da Solução', description: 'Buscam soluções ativamente', emoji: '🔍' },
+  product_aware: { label: 'Consciente do Produto', description: 'Já conhecem sua marca/produto', emoji: '👀' },
+};
+
+function classifyAwareness(answers: { knowsProblem: boolean | null; seeksSolutions: boolean | null; knowsProduct: boolean | null }): string | null {
+  const { knowsProblem, seeksSolutions, knowsProduct } = answers;
+  if (knowsProblem === null) return null;
+  if (!knowsProblem) return 'unaware';
+  if (!seeksSolutions && !knowsProduct) return 'problem_aware';
+  if (seeksSolutions && !knowsProduct) return 'solution_aware';
+  if (knowsProduct) return 'product_aware';
+  return 'solution_aware';
+}
 
 interface StepAudienceProps {
   who: string;
@@ -17,6 +30,96 @@ interface StepAudienceProps {
   awareness: string;
   objections: string[];
   onUpdate: (field: string, value: any) => void;
+}
+
+/** 03.3 — Awareness via 3 Yes/No questions with auto-classification */
+function AwarenessQuestions({ awareness, onUpdate }: { awareness: string; onUpdate: (field: string, value: any) => void }) {
+  const [answers, setAnswers] = useState<{ knowsProblem: boolean | null; seeksSolutions: boolean | null; knowsProduct: boolean | null }>({
+    knowsProblem: null,
+    seeksSolutions: null,
+    knowsProduct: null,
+  });
+
+  // If awareness already set (e.g. editing), infer answers
+  useEffect(() => {
+    if (awareness && answers.knowsProblem === null) {
+      const inferred = {
+        knowsProblem: awareness !== 'unaware',
+        seeksSolutions: awareness === 'solution_aware' || awareness === 'product_aware',
+        knowsProduct: awareness === 'product_aware',
+      };
+      setAnswers(inferred);
+    }
+  }, [awareness]);
+
+  const handleAnswer = (field: keyof typeof answers, value: boolean) => {
+    const next = { ...answers, [field]: value };
+    setAnswers(next);
+    const level = classifyAwareness(next);
+    if (level) onUpdate('awareness', level);
+  };
+
+  const currentLevel = classifyAwareness(answers);
+  const levelInfo = currentLevel ? AWARENESS_LABELS[currentLevel] : null;
+
+  const questions = [
+    { key: 'knowsProblem' as const, text: 'Seu público sabe que tem o problema que você resolve?' },
+    { key: 'seeksSolutions' as const, text: 'Seu público já procura soluções ativamente?' },
+    { key: 'knowsProduct' as const, text: 'Seu público já conhece seu produto/marca?' },
+  ];
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-zinc-300 mb-2">
+        Nível de Consciência do Público *
+      </label>
+      <p className="text-xs text-zinc-600 mb-3">
+        Responda 3 perguntas simples para classificar automaticamente
+      </p>
+      <div className="space-y-3">
+        {questions.map(q => (
+          <div key={q.key} className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
+            <span className="text-sm text-zinc-300 flex-1 mr-3">{q.text}</span>
+            <div className="flex gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => handleAnswer(q.key, true)}
+                className={cn(
+                  'px-3 py-1 rounded-md text-xs font-medium transition-all',
+                  answers[q.key] === true
+                    ? 'bg-[#E6B447]/20 text-[#E6B447] border border-[#E6B447]/40'
+                    : 'bg-white/[0.02] text-zinc-500 border border-white/[0.06] hover:border-white/[0.12]'
+                )}
+              >
+                Sim
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAnswer(q.key, false)}
+                className={cn(
+                  'px-3 py-1 rounded-md text-xs font-medium transition-all',
+                  answers[q.key] === false
+                    ? 'bg-zinc-700/50 text-zinc-300 border border-zinc-600/50'
+                    : 'bg-white/[0.02] text-zinc-500 border border-white/[0.06] hover:border-white/[0.12]'
+                )}
+              >
+                Não
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      {levelInfo && (
+        <div className="mt-3 rounded-lg border border-[#E6B447]/20 bg-[#E6B447]/5 p-3 flex items-center gap-3">
+          <span className="text-xl">{levelInfo.emoji}</span>
+          <div>
+            <p className="text-sm font-medium text-[#E6B447]">{levelInfo.label}</p>
+            <p className="text-xs text-zinc-400">{levelInfo.description}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function StepAudience({ who, pain, awareness, objections, onUpdate }: StepAudienceProps) {
@@ -82,29 +185,8 @@ export function StepAudience({ who, pain, awareness, objections, onUpdate }: Ste
         />
       </div>
 
-      {/* Nível de Consciência */}
-      <div>
-        <label className="block text-sm font-medium text-zinc-300 mb-2">
-          Nível de Consciência *
-        </label>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {AWARENESS_LEVELS.map((level) => (
-            <button
-              key={level.id}
-              type="button"
-              onClick={() => onUpdate('awareness', level.id)}
-              className={`rounded-lg border p-3 text-left transition-all ${
-                awareness === level.id
-                  ? 'border-[#E6B447]/50 bg-[#E6B447]/5'
-                  : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1]'
-              }`}
-            >
-              <span className="text-xl block mb-1">{level.emoji}</span>
-              <span className="text-sm text-white">{level.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Nível de Consciência — 3 perguntas simples */}
+      <AwarenessQuestions awareness={awareness} onUpdate={onUpdate} />
 
       {/* Objeções */}
       <div>

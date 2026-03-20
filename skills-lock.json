@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "firebase": {
+      "source": "smithery.ai",
+      "sourceType": "well-known",
+      "computedHash": "56d23e93cb77bd3a0d430a33bd2ff1efb9b5b2bfc91ef5734ebd53d0355b78cf"
+    }
+  }
+}

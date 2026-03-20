@@ -373,7 +373,9 @@ function SidebarNav({ expanded, onNavigate }: { expanded: boolean; onNavigate?: 
             {/* Group items */}
             {(isGroupExpanded || !expanded) && (
               <div className="flex flex-col gap-0.5">
-                {group.items.map((item) => (
+                {group.items
+                  .filter((item) => item.status !== 'hidden')
+                  .map((item) => (
                   <SidebarNavItem
                     key={item.id}
                     item={item}
@@ -495,10 +497,10 @@ function SidebarNavItem({
   const Icon = resolveIcon(SIDEBAR_ICONS, item.icon, SIDEBAR_ICONS.Home, 'Sidebar');
   const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
 
-  const minTier: Tier = item.minTier || 'starter';
+  const minTier: Tier = item.minTier || 'free';
+  const isComingSoon = item.status === 'coming_soon' || item.comingSoon || false;
   const hasAccess = meetsMinimumTier(effectiveTier, minTier);
-  const isLocked = !hasAccess;
-  const isComingSoon = item.comingSoon || false;
+  const isLocked = !hasAccess || isComingSoon;
 
   const handleLockedClick = (e: React.MouseEvent) => {
     e.preventDefault();

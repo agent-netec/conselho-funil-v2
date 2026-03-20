@@ -3,8 +3,8 @@
  */
 export const CONFIG = {
   // US-16.1: Habilita ou desabilita o limite de créditos
-  // Mudar para true quando for para produção
-  ENABLE_CREDIT_LIMIT: false,
+  // Sprint 02: Enabled — monthly credit system is active
+  ENABLE_CREDIT_LIMIT: true,
   
   // Saldo inicial para novos usuários
   INITIAL_CREDITS: 10,

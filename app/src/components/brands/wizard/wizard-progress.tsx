@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Check, LucideIcon, Building2, Users, Package, CheckCircle, Palette, Image, BrainCircuit } from 'lucide-react';
+import { Check, LucideIcon, Building2, Users, Package, CheckCircle, Palette, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface Step {
@@ -14,10 +14,9 @@ export const BRAND_STEPS: Step[] = [
   { id: 1, title: 'Identidade', description: 'Nome, vertical e posicionamento', icon: Building2 },
   { id: 2, title: 'Público', description: 'Quem você serve?', icon: Users },
   { id: 3, title: 'Oferta', description: 'O que você vende?', icon: Package },
-  { id: 4, title: 'Visual', description: 'Cores e tipografia', icon: Palette, optional: true },
-  { id: 5, title: 'Logo', description: 'Upload e Logo Lock', icon: Image, optional: true },
-  { id: 6, title: 'IA', description: 'Personalidade da IA', icon: BrainCircuit, optional: true },
-  { id: 7, title: 'Confirmar', description: 'Revise e crie', icon: CheckCircle },
+  { id: 4, title: 'Visual + Logo', description: 'Cores, tipografia e logo', icon: Palette, optional: true },
+  { id: 5, title: 'Documentos', description: 'PDFs, URLs da marca', icon: FileText, optional: true },
+  { id: 6, title: 'Confirmar', description: 'Revise e crie', icon: CheckCircle },
 ];
 
 interface WizardProgressProps {
@@ -52,7 +51,7 @@ export function WizardProgress({ currentStep }: WizardProgressProps) {
             {index < BRAND_STEPS.length - 1 && (
               <div
                 className={cn(
-                  'h-0.5 w-4 mx-0.5 rounded-full transition-colors',
+                  'h-0.5 w-6 mx-1 rounded-full transition-colors',
                   currentStep > step.id ? 'bg-[#E6B447]' : 'bg-white/[0.06]'
                 )}
               />

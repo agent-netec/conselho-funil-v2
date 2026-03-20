@@ -11,12 +11,35 @@ import { getAdminFirestore } from '@/lib/firebase/admin';
 import { requireUser } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { Tier, TIER_LIMITS } from '@/lib/tier-system';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
     const userId = await requireUser(request);
+
+    // Sprint 02: Enforce brand limit per tier
+    const adminDb = getAdminFirestore();
+    const userSnap = await adminDb.collection('users').doc(userId).get();
+    const userData = userSnap.exists ? (userSnap.data() as Record<string, any>) : {};
+    const userTier = (userData.tier as Tier) || 'trial';
+    let effectiveTier: Tier = userTier;
+    if (userTier === 'trial') {
+      const trialExp = userData.trialExpiresAt;
+      if (trialExp) {
+        const expDate = typeof trialExp.toDate === 'function' ? trialExp.toDate() : new Date(trialExp);
+        effectiveTier = expDate < new Date() ? 'free' : 'pro';
+      } else {
+        effectiveTier = 'pro';
+      }
+    }
+    const maxBrands = TIER_LIMITS[effectiveTier].maxBrands;
+    const existingBrands = await adminDb.collection('brands').where('userId', '==', userId).count().get();
+    const brandCount = existingBrands.data().count;
+    if (brandCount >= maxBrands) {
+      return createApiError(403, `Limite de marcas atingido (${maxBrands}). Faça upgrade para criar mais marcas.`);
+    }
 
     const body = await request.json().catch(() => null);
     if (!body) {
@@ -29,7 +52,6 @@ export async function POST(request: NextRequest) {
       return createApiError(400, 'Missing required brand fields');
     }
 
-    const adminDb = getAdminFirestore();
     const now = Timestamp.now();
 
     const brandData = {

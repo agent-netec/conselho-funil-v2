@@ -6,7 +6,7 @@ import { useBrandStore } from '@/lib/stores/brand-store';
 
 /**
  * Brand Hub Redirect — L-3
- * Redireciona /brand-hub para /brands/{selectedBrandId}?tab=brandhub
+ * Redireciona /brand-hub para /brands/{selectedBrandId}/edit (visual section)
  * Se nenhuma marca selecionada, redireciona para /brands
  */
 export default function BrandHubRedirect() {
@@ -15,7 +15,7 @@ export default function BrandHubRedirect() {
 
   useEffect(() => {
     if (selectedBrand?.id) {
-      router.replace(`/brands/${selectedBrand.id}?tab=brandhub`);
+      router.replace(`/brands/${selectedBrand.id}/edit#visual`);
     } else {
       router.replace('/brands');
     }

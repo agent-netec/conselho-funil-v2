@@ -84,17 +84,29 @@ export async function POST(req: NextRequest) {
       console.log(`[Calendar/FromSocial] Creating item ${i + 1}/${hooks.length}: [${titlePrefix}] ${titleSnippet.slice(0, 30)}...`);
 
       try {
+        // Sprint 01: Support full post data (hook + body + cta + hashtags)
+        const isFullPost = hook?.fullPost && hook?.body;
+        const fullContent = isFullPost
+          ? { hook: contentStr, body: hook.body, cta: hook.cta || '', hashtags: hook.hashtags || [] }
+          : null;
+        // For display: combine hook + body + cta into a single content string
+        const displayContent = isFullPost
+          ? [contentStr, hook.body, hook.cta].filter(Boolean).join('\n\n')
+          : contentStr;
+
         const itemData = {
           title: `[${titlePrefix}] ${titleSnippet}${contentStr.length > 60 ? '...' : ''}`,
           format: mapFormat(hook?.postType),
           platform: mapPlatform(hook?.platform || ''),
           scheduledDate: Timestamp.fromDate(scheduledDate),
           status: 'draft',
-          content: contentStr,
+          content: displayContent,
+          ...(fullContent && { postContent: fullContent }),
+          ...(hook?.suggestedVisual && { suggestedVisual: hook.suggestedVisual }),
           metadata: {
             generatedBy: 'ai',
             promptParams: {
-              source: 'social_hooks',
+              source: isFullPost ? 'social_full_post' : 'social_hooks',
               campaignType: campaignType || 'organic',
               style: hook?.style || '',
             },

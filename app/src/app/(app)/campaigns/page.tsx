@@ -30,7 +30,7 @@ function getStageDone(campaign: CampaignContext) {
   };
 }
 
-function getCongruence(campaign: CampaignContext): number {
+function getProgress(campaign: CampaignContext): number {
   const done = getStageDone(campaign);
   const completed = Object.values(done).filter(Boolean).length;
   return Math.round((completed / STAGES.length) * 100);
@@ -47,27 +47,12 @@ export default function CampaignsPage() {
     async function load() {
       if (!user?.uid) return;
       try {
+        // Sprint 04.1: Only real campaigns — no virtual campaigns
         const cSnap = await getDocs(
           query(collection(db, 'campaigns'), where('userId', '==', user.uid), where('status', 'in', ['planning', 'active', 'archived']))
         );
         const cData = cSnap.docs.map(d => ({ id: d.id, ...d.data() })) as CampaignContext[];
-
-        const fSnap = await getDocs(
-          query(collection(db, 'funnels'), where('userId', '==', user.uid), where('status', 'in', ['approved', 'executing', 'completed', 'review']))
-        );
-        const fData = fSnap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
-
-        const usedFunnelIds = new Set(cData.map(c => c.funnelId).filter(Boolean));
-        const virtual: CampaignContext[] = fData
-          .filter(f => !usedFunnelIds.has(f.id))
-          .map(f => ({
-            id: f.id, funnelId: f.id, brandId: f.brandId || '', userId: f.userId || '',
-            name: f.name || 'Funil sem nome', status: 'planning' as const,
-            funnel: f.context ? { type: f.type || '', architecture: '', targetAudience: f.context?.audience?.who || '', mainGoal: f.context?.objective || '', stages: [], summary: '' } : undefined,
-            createdAt: f.createdAt, updatedAt: f.updatedAt,
-          }));
-
-        const all = [...cData, ...virtual].sort((a, b) => ((b.updatedAt as any)?.seconds || 0) - ((a.updatedAt as any)?.seconds || 0));
+        const all = cData.sort((a, b) => ((b.updatedAt as any)?.seconds || 0) - ((a.updatedAt as any)?.seconds || 0));
         setCampaigns(all);
       } catch (e) {
         console.error('Error loading campaigns:', e);
@@ -80,8 +65,8 @@ export default function CampaignsPage() {
 
   const filtered = campaigns.filter(c => c.name?.toLowerCase().includes(search.toLowerCase()));
   const totalActive = campaigns.filter(c => c.status === 'active').length;
-  const avgCongruence = campaigns.length > 0
-    ? Math.round(campaigns.reduce((sum, c) => sum + getCongruence(c), 0) / campaigns.length)
+  const avgProgress = campaigns.length > 0
+    ? Math.round(campaigns.reduce((sum, c) => sum + getProgress(c), 0) / campaigns.length)
     : 0;
 
   return (
@@ -113,9 +98,9 @@ export default function CampaignsPage() {
               <p className="text-[36px] font-mono font-black tabular-nums text-[#E6B447] leading-none">{totalActive}</p>
             </div>
             <div className="px-6 py-5 bg-[#0D0B09]">
-              <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-1">Congruência Média</p>
+              <p className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] mb-1">Progresso Médio</p>
               <p className="text-[36px] font-mono font-black tabular-nums text-[#F5E8CE] leading-none">
-                {avgCongruence}<span className="text-[11px] font-normal text-[#6B5D4A] ml-1">%</span>
+                {avgProgress}<span className="text-[11px] font-normal text-[#6B5D4A] ml-1">%</span>
               </p>
             </div>
           </div>
@@ -168,7 +153,7 @@ export default function CampaignsPage() {
             <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-[#1A1612]/50">
               <div className="col-span-4 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A]">Campanha</div>
               <div className="col-span-3 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A]">Linha de Ouro</div>
-              <div className="col-span-2 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] text-right">Congruência</div>
+              <div className="col-span-2 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] text-right">Progresso</div>
               <div className="col-span-2 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#6B5D4A] text-right">Status</div>
               <div className="col-span-1" />
             </div>
@@ -176,9 +161,9 @@ export default function CampaignsPage() {
             {/* Campaign rows */}
             {filtered.map((campaign) => {
               const done = getStageDone(campaign);
-              const congruence = getCongruence(campaign);
+              const progress = getProgress(campaign);
               const completedCount = Object.values(done).filter(Boolean).length;
-              const isComplete = congruence === 100;
+              const isComplete = progress === 100;
 
               return (
                 <Link key={campaign.id} href={`/campaigns/${campaign.id}`}>
@@ -210,13 +195,13 @@ export default function CampaignsPage() {
                       ))}
                     </div>
 
-                    {/* Congruence number */}
+                    {/* Progress number */}
                     <div className="col-span-2 text-right">
                       <span className={cn(
                         "text-2xl font-mono font-black tabular-nums",
-                        isComplete ? "text-[#E6B447]" : congruence >= 60 ? "text-[#F5E8CE]" : "text-[#AB8648]"
+                        isComplete ? "text-[#E6B447]" : progress >= 60 ? "text-[#F5E8CE]" : "text-[#AB8648]"
                       )}>
-                        {congruence}
+                        {progress}
                       </span>
                       <span className="text-[10px] text-[#6B5D4A] ml-0.5">%</span>
                     </div>

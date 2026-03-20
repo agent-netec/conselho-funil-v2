@@ -510,7 +510,7 @@ export default function BillingPage() {
                   { label: 'Marcas', used: usage.brands, limit: limits.maxBrands },
                   { label: 'Funis', used: usage.activeFunnels, limit: limits.maxActiveFunnels },
                   { label: 'Assets', used: usage.totalAssets, limit: limits.maxAssetsTotal },
-                  { label: 'Consultas', used: usage.monthlyQueries, limit: limits.monthlyQueries },
+                  { label: 'Créditos IA', used: usage.monthlyCreditsUsed, limit: limits.maxMonthlyCredits },
                 ].map((item) => {
                   const percentage = item.limit >= 100 ? 0 : Math.min((item.used / item.limit) * 100, 100);
                   const isExceeded = percentage >= 100;

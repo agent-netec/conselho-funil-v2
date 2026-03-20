@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Bot, Sparkles } from 'lucide-react';
+import { Bot, Sparkles, Target, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChatMode } from './chat-mode-selector';
 import { CHAT_MODES, COUNSELORS_REGISTRY } from '@/lib/constants';
@@ -12,67 +12,44 @@ interface ChatEmptyStateProps {
   mode: ChatMode;
 }
 
-export function ChatEmptyState({ 
-  onSuggestionClick,
-  mode,
-}: ChatEmptyStateProps) {
-  const funnelSuggestions = [
-    'Como estruturar um funil de quiz?',
-    'Minha taxa de conversão está baixa',
-    'Qual tipo de funil para high ticket?',
-    'Como aplicar a Value Ladder?',
-  ];
-
-  const copySuggestions = [
-    'Como criar headlines que convertem?',
-    'Qual copy para audiência fria?',
-    'Como estruturar uma oferta irresistível?',
-    'Me ajude com uma sequência de emails',
-  ];
-
-  const socialSuggestions = [
-    'Como viralizar no TikTok em 2025?',
-    'Ideias de hooks para Reels de 15s',
-    'Como converter seguidores em leads?',
-    'Estratégia de conteúdo para LinkedIn',
-  ];
-
-  const adsSuggestions = [
-    'Qual o melhor criativo para Meta Ads?',
-    'Como baixar o CPA no TikTok?',
-    'Estratégia de escala para $10k/dia',
-    'Como evitar bloqueios no Facebook?',
-  ];
-
-  const designSuggestions = [
-    'Como estruturar uma thumbnail de YouTube?',
-    'Briefing para carrossel do Instagram',
-    'Crie um prompt de criativo estático',
-    'Checklist de design para conversão',
-  ];
-
-  const generalSuggestions = [
+const SUGGESTIONS: Record<ChatMode, string[]> = {
+  general: [
     'Como criar urgência sem ser apelativo?',
     'Como qualificar leads no topo do funil?',
     'Preciso melhorar meu VSL script',
     'Como aumentar o LTV dos clientes?',
-  ];
+  ],
+  campaign: [
+    'Analise minha campanha e sugira melhorias',
+    'Como está o fluxo da minha Linha de Ouro?',
+    'Que tipo de copy funciona para este público?',
+    'Quais hooks sociais funcionam para esta oferta?',
+  ],
+  party: [
+    'Debatam a melhor estratégia de lançamento',
+    'Comparem abordagens para tráfego frio',
+    'Qual a melhor estrutura de oferta para high ticket?',
+    'Analisem meu funil e encontrem os gargalos',
+  ],
+};
 
-  const suggestions = 
-    mode === 'funnel' ? funnelSuggestions : 
-    mode === 'copy' ? copySuggestions : 
-    mode === 'social' ? socialSuggestions :
-    mode === 'ads' ? adsSuggestions :
-    mode === 'design' ? designSuggestions :
-    generalSuggestions;
+const MODE_DESCRIPTIONS: Record<ChatMode, string> = {
+  general: 'Pergunte sobre funis, ofertas, copy e estratégias de growth.',
+  campaign: 'Todos os 23 especialistas com contexto completo da sua campanha ativa.',
+  party: 'Selecione especialistas para um debate profundo sobre o seu tema.',
+};
 
-  const accentColor = 
-    mode === 'funnel' ? 'indigo' : 
-    mode === 'copy' ? 'amber' : 
-    mode === 'social' ? 'rose' :
-    mode === 'ads' ? 'blue' :
-    mode === 'design' ? 'gold' :
-    'gold';
+const HIGHLIGHT_COUNSELORS = [
+  'russell_brunson', 'dan_kennedy', 'frank_kern', 'eugene_schwartz',
+  'gary_halbert', 'rachel_karten', 'savannah_sanchez',
+];
+
+export function ChatEmptyState({
+  onSuggestionClick,
+  mode,
+}: ChatEmptyStateProps) {
+  const suggestions = SUGGESTIONS[mode];
+  const accentColor = mode === 'campaign' ? 'amber' : 'gold';
 
   return (
     <div className="flex h-full flex-col items-center justify-center p-4 sm:p-8">
@@ -86,28 +63,21 @@ export function ChatEmptyState({
         <div className="relative mx-auto mb-4 sm:mb-8 scale-90 sm:scale-100">
           <div className={cn(
             'absolute inset-0 rounded-3xl blur-2xl opacity-40',
-            accentColor === 'indigo' ? 'bg-indigo-500/20' : 
-            accentColor === 'amber' ? 'bg-amber-500/20' : 
-            accentColor === 'rose' ? 'bg-rose-500/20' :
-            accentColor === 'blue' ? 'bg-blue-500/20' :
-            accentColor === 'gold' ? 'bg-[#E6B447]/20' :
-            'bg-[#E6B447]/20'
+            accentColor === 'amber' ? 'bg-amber-500/20' : 'bg-[#E6B447]/20'
           )} />
           <div className={cn(
             'relative flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl sm:rounded-3xl shadow-xl mx-auto',
-            accentColor === 'indigo' 
-              ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-indigo-500/20' 
-              : accentColor === 'amber'
+            accentColor === 'amber'
               ? 'bg-gradient-to-br from-amber-500 to-amber-600 shadow-amber-500/20'
-              : accentColor === 'rose'
-              ? 'bg-gradient-to-br from-rose-500 to-rose-600 shadow-rose-500/20'
-              : accentColor === 'blue'
-              ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-blue-500/20'
-              : accentColor === 'gold'
-              ? 'bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-[#E6B447]/20'
               : 'bg-gradient-to-br from-[#E6B447] to-[#AB8648] shadow-[#E6B447]/20'
           )}>
-            <Bot className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+            {mode === 'campaign' ? (
+              <Target className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+            ) : mode === 'party' ? (
+              <Users className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+            ) : (
+              <Bot className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+            )}
           </div>
         </div>
 
@@ -115,12 +85,7 @@ export function ChatEmptyState({
           {CHAT_MODES[mode].title}
         </h2>
         <p className="text-xs sm:text-base text-zinc-500 mb-6 sm:mb-8 leading-relaxed px-6 sm:px-4">
-          {mode === 'funnel' && `Consulte especialistas em arquitetura de funil, qualificação, LTV e monetização.`}
-          {mode === 'copy' && `Consulte copywriters lendários sobre headlines, persuasão, ofertas e estrutura.`}
-          {mode === 'social' && `Consulte especialistas em redes sociais e viralização.`}
-          {mode === 'ads' && `Consulte especialistas em tráfego pago, escala e otimização de campanhas.`}
-          {mode === 'design' && `Consulte o Diretor de Design para criar briefings visuais e prompts de alta conversão.`}
-          {mode === 'general' && `Pergunte sobre funis, ofertas, copy e estratégias de growth.`}
+          {MODE_DESCRIPTIONS[mode]}
         </p>
 
         {/* Suggestions */}
@@ -134,193 +99,61 @@ export function ChatEmptyState({
               onClick={() => onSuggestionClick(suggestion)}
               className={cn(
                 'flex items-center gap-2 rounded-xl border px-3 py-2.5 sm:px-4 sm:py-3 text-[13px] sm:text-sm text-zinc-300 transition-all text-left',
-                accentColor === 'indigo'
-                  ? 'border-white/[0.04] bg-white/[0.01] hover:border-indigo-500/30 hover:bg-indigo-500/5'
-                  : accentColor === 'amber'
+                accentColor === 'amber'
                   ? 'border-white/[0.04] bg-white/[0.01] hover:border-amber-500/30 hover:bg-amber-500/5'
-                  : accentColor === 'rose'
-                  ? 'border-white/[0.04] bg-white/[0.01] hover:border-rose-500/30 hover:bg-rose-500/5'
                   : 'border-white/[0.04] bg-white/[0.01] hover:border-[#E6B447]/30 hover:bg-[#E6B447]/5'
               )}
             >
               <Sparkles className={cn(
                 'h-3.5 w-3.5 shrink-0 opacity-70',
-                accentColor === 'indigo' ? 'text-indigo-400' : accentColor === 'amber' ? 'text-amber-400' : accentColor === 'rose' ? 'text-rose-400' : 'text-[#E6B447]'
+                accentColor === 'amber' ? 'text-amber-400' : 'text-[#E6B447]'
               )} />
               <span className="line-clamp-1">{suggestion}</span>
             </motion.button>
           ))}
         </div>
 
-        {/* Counselors - Hidden on very small screens or more compact */}
-        <div className="hidden sm:block space-y-4">
-          {mode === 'funnel' && (
-            <div>
-              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Funil</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {CHAT_MODES.funnel.counselors.map((id, index) => {
-                  const counselor = COUNSELORS_REGISTRY[id];
-                  if (!counselor) return null;
-                  return (
-                    <motion.div
-                      key={id}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.2, delay: 0.5 + index * 0.05 }}
-                      className="flex items-center gap-1.5 rounded-full bg-zinc-800/50 px-3 py-1.5"
-                      title={counselor.expertise}
-                    >
-                      <span className="text-sm">{counselor.icon}</span>
-                      <span className="text-xs text-zinc-400">
-                        {counselor.name.split(' ').slice(-1)[0]}
-                      </span>
-                    </motion.div>
-                  );
-                })}
+        {/* Counselors — show for general & campaign */}
+        {(mode === 'general' || mode === 'campaign') && (
+          <div className="hidden sm:block space-y-4">
+            <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">
+              {mode === 'campaign' ? 'Especialistas com Contexto da Campanha' : '23 Especialistas MKTHONEY'}
+            </p>
+            <div className="flex flex-wrap justify-center gap-2 px-12">
+              {HIGHLIGHT_COUNSELORS.map((id, index) => {
+                const counselor = COUNSELORS_REGISTRY[id as CounselorId];
+                if (!counselor) return null;
+                return (
+                  <motion.div
+                    key={id}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.2, delay: 0.5 + index * 0.05 }}
+                    className="flex items-center gap-1.5 rounded-full bg-zinc-800/50 px-3 py-1.5"
+                    title={counselor.expertise}
+                  >
+                    <span className="text-sm">{counselor.icon}</span>
+                    <span className="text-xs text-zinc-400">
+                      {counselor.name.split(' ').slice(-1)[0]}
+                    </span>
+                  </motion.div>
+                );
+              })}
+              <div className="flex items-center gap-1.5 rounded-full bg-[#E6B447]/10 px-3 py-1.5 border border-[#E6B447]/20">
+                <span className="text-xs text-[#E6B447]">+16 experts</span>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {mode === 'copy' && (
-            <div>
-              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Copywriting</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {CHAT_MODES.copy.counselors.map((id, index) => {
-                  const counselor = COUNSELORS_REGISTRY[id];
-                  if (!counselor) return null;
-                  return (
-                    <motion.div
-                      key={id}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.2, delay: 0.7 + index * 0.05 }}
-                      className="flex items-center gap-1.5 rounded-full bg-zinc-800/50 px-3 py-1.5"
-                      title={counselor.expertise}
-                    >
-                      <span className="text-sm">{counselor.icon}</span>
-                      <span className="text-xs text-zinc-400">
-                        {counselor.name.split(' ').slice(-1)[0]}
-                      </span>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {mode === 'social' && (
-            <div>
-              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Social</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {CHAT_MODES.social.counselors.map((id, index) => {
-                  const counselor = COUNSELORS_REGISTRY[id];
-                  if (!counselor) return null;
-                  return (
-                    <motion.div
-                      key={id}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.2, delay: 0.5 + index * 0.05 }}
-                      className="flex items-center gap-1.5 rounded-full bg-zinc-800/50 px-3 py-1.5"
-                      title={counselor.expertise}
-                    >
-                      <span className="text-sm">{counselor.icon}</span>
-                      <span className="text-xs text-zinc-400">
-                        {counselor.name.split(' ').slice(-1)[0]}
-                      </span>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {mode === 'ads' && (
-            <div>
-              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Ads & Trafego</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {CHAT_MODES.ads.counselors.map((id, index) => {
-                  const counselor = COUNSELORS_REGISTRY[id];
-                  if (!counselor) return null;
-                  return (
-                    <motion.div
-                      key={id}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.2, delay: 0.5 + index * 0.05 }}
-                      className="flex items-center gap-1.5 rounded-full bg-zinc-800/50 px-3 py-1.5"
-                      title={counselor.expertise}
-                    >
-                      <span className="text-sm">{counselor.icon}</span>
-                      <span className="text-xs text-zinc-400">
-                        {counselor.name.split(' ').slice(-1)[0]}
-                      </span>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {mode === 'design' && (
-            <div>
-              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Diretor de Design</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {CHAT_MODES.design.counselors.map((id, index) => {
-                  const counselor = COUNSELORS_REGISTRY[id];
-                  if (!counselor) return null;
-                  return (
-                    <motion.div
-                      key={id}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.2, delay: 0.5 + index * 0.05 }}
-                      className="flex items-center gap-1.5 rounded-full bg-zinc-800/50 px-3 py-1.5"
-                      title={counselor.expertise}
-                    >
-                      <span className="text-sm">{counselor.icon}</span>
-                      <span className="text-xs text-zinc-400">
-                        {counselor.name}
-                      </span>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {mode === 'general' && (
-            <div>
-              <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">23 Especialistas MKTHONEY</p>
-              <div className="flex flex-wrap justify-center gap-2 px-12">
-                {['russell_brunson', 'dan_kennedy', 'frank_kern', 'eugene_schwartz', 'gary_halbert', 'savannah_sanchez', 'design_director'].map((id, index) => {
-                  const counselor = COUNSELORS_REGISTRY[id as CounselorId];
-                  if (!counselor) return null;
-                  return (
-                    <motion.div
-                      key={id}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.2, delay: 0.5 + index * 0.05 }}
-                      className="flex items-center gap-1.5 rounded-full bg-zinc-800/50 px-3 py-1.5"
-                      title={counselor.expertise}
-                    >
-                      <span className="text-sm">{counselor.icon}</span>
-                      <span className="text-xs text-zinc-400">
-                        {id === 'design_director' ? 'Design' : counselor.name.split(' ').slice(-1)[0]}
-                      </span>
-                    </motion.div>
-                  );
-                })}
-                <div className="flex items-center gap-1.5 rounded-full bg-[#E6B447]/10 px-3 py-1.5 border border-[#E6B447]/20">
-                  <span className="text-xs text-[#E6B447]">+16 experts</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Party Mode hint */}
+        {mode === 'party' && (
+          <div className="hidden sm:block">
+            <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Selecione especialistas no painel lateral</p>
+            <p className="text-[11px] text-zinc-700">Cada debate custa 2 créditos</p>
+          </div>
+        )}
       </motion.div>
     </div>
   );
 }
-

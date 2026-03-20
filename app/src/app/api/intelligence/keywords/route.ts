@@ -4,10 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { KeywordMiner } from '@/lib/intelligence/keywords/miner';
 import { createIntelligenceDocument } from '@/lib/firebase/intelligence';
 import { parseJsonBody } from '@/app/api/_utils/parse-json';
-import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { updateUserUsage } from '@/lib/firebase/firestore';
+import { consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
 import type { CreateIntelligenceInput } from '@/types/intelligence';
 
 function getRequestId(req: NextRequest) {
@@ -49,7 +50,9 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
+    const { userId: authUserId, brandId: safeBrandId, effectiveTier } = await requireBrandAccess(req, brandId);
+    requireMinTier(effectiveTier, 'pro');
+    await consumeCredits(authUserId, CREDIT_COSTS.keywords_miner, 'keywords_miner');
 
     const miner = new KeywordMiner();
     const keywords = await miner.mine(safeBrandId, seedTerm);

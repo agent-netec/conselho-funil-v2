@@ -4,10 +4,10 @@ import { generateWithGemini, isGeminiConfigured, DEFAULT_GEMINI_MODEL } from '@/
 import { parseAIJSON } from '@/lib/ai/formatters';
 import { getBrand } from '@/lib/firebase/brands';
 import { SOCIAL_HOOKS_PROMPT } from '@/lib/ai/prompts';
-import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
+import { consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { updateUserUsage } from '@/lib/firebase/firestore';
 import { loadCampaignContext } from '@/lib/ai/campaign-context';
 
 export const runtime = 'nodejs';
@@ -16,7 +16,8 @@ export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
-    const { brandId, platform, topic, campaignType, contentFormats, campaignId } = await request.json();
+    const { brandId, platform, topic, campaignType, contentFormats, campaignId, mode } = await request.json();
+    const isQuickMode = mode === 'quick';
 
     if (!brandId) {
       return createApiError(400, 'brandId é obrigatório.');
@@ -24,7 +25,17 @@ export async function POST(request: NextRequest) {
 
     let userId = '';
     try {
-      userId = (await requireBrandAccess(request, brandId)).userId;
+      const auth = await requireBrandAccess(request, brandId);
+      userId = auth.userId;
+      requireMinTier(auth.effectiveTier, 'starter');
+    } catch (error) {
+      return handleSecurityError(error);
+    }
+
+    // Consume credits based on mode: quick (1) or strategic (2)
+    const creditCost = isQuickMode ? CREDIT_COSTS.social_quick : CREDIT_COSTS.social_strategic;
+    try {
+      await consumeCredits(userId, creditCost, isQuickMode ? 'social_quick' : 'social_strategic');
     } catch (error) {
       return handleSecurityError(error);
     }
@@ -79,14 +90,60 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
     });
 
     // 3. Montar Prompt
-    const fullPrompt = SOCIAL_HOOKS_PROMPT
-      .replace('{{brandContext}}', brandContext)
-      .replace('{{platform}}', platform)
-      .replace('{{campaignType}}', campaignType || 'organic')
-      .replace('{{contentFormats}}', (contentFormats || []).join(', ') || 'Todos os formatos')
-      .replace('{{topic}}', topic)
-      .replace('{{knowledgeContext}}', knowledgeContext || 'Use conhecimento geral sobre melhores práticas de redes sociais.')
-      + campaignContext;
+    let fullPrompt: string;
+    if (isQuickMode) {
+      // Quick mode: 3 full posts, simpler prompt, no content plan
+      fullPrompt = `Você é o especialista de conteúdo social do MKTHONEY.
+
+Gere exatamente 3 posts COMPLETOS e prontos para publicar na plataforma ${platform}.
+
+## Tema: ${topic}
+
+## Contexto da Marca:
+${brandContext}
+
+## Regras:
+1. Cada post deve ser completo com: hook (gancho), body (corpo 2-4 parágrafos), cta (chamada para ação), hashtags (5-15)
+2. Adapte o comprimento à plataforma:
+   - Instagram feed: 150-300 palavras
+   - LinkedIn: 200-400 palavras
+   - X (Twitter): 240-280 caracteres total
+   - TikTok caption: 50-150 palavras
+3. Varie os estilos: 1 curiosidade, 1 emocional/identificação, 1 autoridade/dados
+4. O hook deve parar o scroll nos primeiros 0.5s
+5. O body deve desenvolver a ideia de forma envolvente
+6. O CTA deve ser claro e natural
+
+Retorne APENAS JSON:
+{
+  "platform": "${platform}",
+  "hooks": [
+    {
+      "style": "estilo",
+      "content": "hook (1 frase)",
+      "body": "corpo do post (2-4 parágrafos separados por \\n\\n)",
+      "cta": "chamada para ação",
+      "hashtags": ["#tag1", "#tag2"],
+      "suggestedVisual": "sugestão de visual",
+      "reasoning": "justificativa",
+      "postType": "post | reel | carousel"
+    }
+  ],
+  "best_practices": []
+}
+
+${knowledgeContext ? `## Heurísticas:\n${knowledgeContext}` : ''}
+${campaignContext}`;
+    } else {
+      fullPrompt = SOCIAL_HOOKS_PROMPT
+        .replace('{{brandContext}}', brandContext)
+        .replace('{{platform}}', platform)
+        .replace('{{campaignType}}', campaignType || 'organic')
+        .replace('{{contentFormats}}', (contentFormats || []).join(', ') || 'Todos os formatos')
+        .replace('{{topic}}', topic)
+        .replace('{{knowledgeContext}}', knowledgeContext || 'Use conhecimento geral sobre melhores práticas de redes sociais.')
+        + campaignContext;
+    }
 
     // 4. Gerar com Gemini
     const response = await generateWithGemini(fullPrompt, {
@@ -110,16 +167,6 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
     } catch (parseError) {
       console.error('[Social/Hooks] Parse error:', parseError, '| response[:300]:', response?.slice(0, 300));
       return createApiError(500, 'Erro ao processar resposta da IA. Tente novamente.');
-    }
-
-    // SIG-API-03: Decrementar 1 crédito por geração de hooks
-    if (userId) {
-      try {
-        await updateUserUsage(userId, -1);
-        console.log(`[Social/Hooks] 1 crédito decrementado para usuário: ${userId}`);
-      } catch (creditError) {
-        console.error('[Social/Hooks] Erro ao atualizar créditos:', creditError);
-      }
     }
 
     return createApiSuccess(result);

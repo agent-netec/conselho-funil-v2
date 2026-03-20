@@ -21,6 +21,9 @@ import { formatBrandContextForFunnel, parseAIJSON } from '@/lib/ai/formatters';
 import { requireUser } from '@/lib/auth/brand-guard';
 import { ApiError } from '@/lib/utils/api-security';
 import { logger } from '@/lib/utils/logger';
+import { checkDailyLimit, consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { Tier } from '@/lib/tier-system';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -39,7 +42,35 @@ export async function POST(request: NextRequest) {
   let _funnelId: string | undefined;
   try {
     // Auth: require authenticated user
-    await requireUser(request);
+    const userId = await requireUser(request);
+
+    // Sprint 02: Daily limit for Free tier + credit consumption
+    try {
+      const adminDb = getAdminFirestore();
+      const userSnap = await adminDb.collection('users').doc(userId).get();
+      const userData = userSnap.exists ? (userSnap.data() as Record<string, any>) : {};
+      const userTier = (userData.tier as Tier) || 'trial';
+      let effectiveUserTier: Tier = userTier;
+      if (userTier === 'trial') {
+        const trialExp = userData.trialExpiresAt;
+        if (trialExp) {
+          const expDate = typeof trialExp.toDate === 'function' ? trialExp.toDate() : new Date(trialExp);
+          effectiveUserTier = expDate < new Date() ? 'free' : 'pro';
+        } else {
+          effectiveUserTier = 'pro';
+        }
+      }
+      if (effectiveUserTier === 'free') {
+        await checkDailyLimit(userId, 'funnel');
+      } else {
+        await consumeCredits(userId, CREDIT_COSTS.chat, 'funnel_generate');
+      }
+    } catch (err: any) {
+      if (err.statusCode === 429 || err.statusCode === 402) {
+        return NextResponse.json({ error: err.message }, { status: err.statusCode });
+      }
+      console.warn('[Funnels API] Credit check error (non-blocking):', err.message);
+    }
 
     const body: GenerateRequest = await request.json();
     const { funnelId, context, adjustments, originalProposalId, baseVersion } = body;

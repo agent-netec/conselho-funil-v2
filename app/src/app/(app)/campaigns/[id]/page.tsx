@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { doc, onSnapshot, getDoc, collection, query, where, getDocs, limit, orderBy, updateDoc, setDoc, Timestamp } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Header } from '@/components/layout/header';
 import { CampaignStepper } from '@/components/campaigns/campaign-stepper';
@@ -17,7 +17,6 @@ import {
   Sparkles,
   Zap,
   ShieldCheck,
-  TrendingUp,
   Trophy,
   FileText,
   Presentation,
@@ -31,7 +30,6 @@ import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 
-import { MonitoringDashboard, Metric } from '@/components/campaigns/monitoring-dashboard';
 
 export default function CampaignCommandCenter() {
   const params = useParams();
@@ -42,16 +40,13 @@ export default function CampaignCommandCenter() {
   const [completedStages, setCompletedStages] = useState<string[]>([]);
   const [currentStageId, setCurrentStageId] = useState<string>('funnel');
 
-  const [metrics] = useState<Metric[]>([]);
-
-  const [anomalies] = useState<string[]>([]);
 
   useEffect(() => {
     if (!params.id || !user?.uid) return;
 
-    const funnelId = params.id as string;
+    const campaignId = params.id as string;
 
-    // Monitora a Campanha (Manifesto da Linha de Ouro) — with retry on permission-denied
+    // Sprint 04.1: Real campaign only — no virtual/fallback creation
     let active = true;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
     let currentUnsub: (() => void) | null = null;
@@ -59,35 +54,14 @@ export default function CampaignCommandCenter() {
     const MAX_LISTENER_RETRIES = 5;
 
     const setupCampaignListener = () => {
-    currentUnsub = onSnapshot(doc(db, 'campaigns', funnelId), async (docSnap) => {
+    currentUnsub = onSnapshot(doc(db, 'campaigns', campaignId), (docSnap) => {
       if (docSnap.exists()) {
         const campaignData = { ...docSnap.data(), id: docSnap.id } as CampaignContext;
-
-        // Resilience: se o doc da campanha existe mas sem copywriting, scanner de copy aprovada
-        if (!campaignData.copywriting && campaignData.funnelId) {
-          try {
-            const copyRef = collection(db, 'funnels', campaignData.funnelId, 'copyProposals');
-            const copySnap = await getDocs(query(copyRef, where('status', '==', 'approved'), limit(1)));
-            if (copySnap.docs.length > 0) {
-              const approvedCopy = copySnap.docs[0].data();
-              campaignData.copywriting = {
-                bigIdea: approvedCopy.content?.primary?.slice(0, 500) || 'Big Idea aprovada',
-                headlines: approvedCopy.content?.headlines || [],
-                mainScript: approvedCopy.content?.primary || '',
-                tone: approvedCopy.awarenessStage || 'problem_aware',
-                keyBenefits: [],
-                counselor_reference: approvedCopy.copywriterInsights?.[0]?.copywriterName || 'Copywriting',
-              };
-            }
-          } catch (err) {
-            console.warn('[Campaign] Fallback copy scan failed:', err);
-          }
-        }
-
         updateUnifiedState(campaignData);
       } else {
-        // Se a campanha não existe, tenta carregar do Funil
-        loadFromFunnelFallback();
+        // Campaign not found — show 404 state
+        setCampaign(null);
+        setLoading(false);
       }
     }, (error) => {
       if (error.code === 'permission-denied' && active && retryCount < MAX_LISTENER_RETRIES) {
@@ -96,83 +70,17 @@ export default function CampaignCommandCenter() {
         retryTimer = setTimeout(setupCampaignListener, 2000);
       } else if (error.code === 'permission-denied') {
         console.error('[CampaignPage] Snapshot permission-denied after max retries — giving up.');
+        setLoading(false);
       }
     });
     };
     setupCampaignListener();
 
-    // Fallback e Merge de Segurança
-    async function loadFromFunnelFallback() {
-      try {
-        const funnelSnap = await getDoc(doc(db, 'funnels', funnelId));
-        if (funnelSnap.exists()) {
-          const funnelData = funnelSnap.data();
-          
-          // Scanner de Copy
-          const copyRef = collection(db, 'funnels', funnelId, 'copyProposals');
-          const copySnap = await getDocs(query(copyRef, where('status', '==', 'approved'), limit(1)));
-          const approvedCopy = copySnap.docs.length > 0 ? copySnap.docs[0].data() : null;
-
-          const virtualCampaign: CampaignContext = {
-            id: funnelId,
-            funnelId: funnelId,
-            brandId: funnelData.brandId || '',
-            userId: funnelData.userId || '',
-            name: funnelData.name || 'Nova Campanha',
-            status: 'active',
-            funnel: {
-              type: funnelData.type || 'Funnel',
-              architecture: funnelData.architecture || '',
-              targetAudience: funnelData.targetAudience || funnelData.context?.audience?.who || '',
-              mainGoal: funnelData.mainGoal || funnelData.context?.objective || '',
-              stages: funnelData.stages || [],
-              summary: funnelData.summary || '',
-            },
-            copywriting: approvedCopy ? {
-              bigIdea: approvedCopy.content.primary?.slice(0, 500) || 'Big Idea aprovada',
-              headlines: approvedCopy.content.headlines || [],
-              mainScript: approvedCopy.content.primary || '',
-              tone: approvedCopy.awarenessStage || 'problem_aware',
-              keyBenefits: [],
-              counselor_reference: approvedCopy.copywriterInsights?.[0]?.copywriterName || 'Copywriting',
-            } : undefined,
-            createdAt: funnelData.createdAt,
-            updatedAt: funnelData.updatedAt,
-          };
-
-          // CRITICAL: Persist virtual campaign to Firestore so subsequent updates work
-          // Without this, the campaign only exists in UI and all update() calls fail
-          try {
-            const campaignDocData: Record<string, any> = {
-              funnelId: virtualCampaign.funnelId,
-              brandId: virtualCampaign.brandId,
-              userId: virtualCampaign.userId,
-              name: virtualCampaign.name,
-              status: virtualCampaign.status,
-              funnel: virtualCampaign.funnel,
-              updatedAt: Timestamp.now(),
-            };
-            if (virtualCampaign.copywriting) {
-              campaignDocData.copywriting = virtualCampaign.copywriting;
-            }
-            await setDoc(doc(db, 'campaigns', funnelId), campaignDocData, { merge: true });
-            console.log('[Campaign] Virtual campaign persisted to Firestore:', funnelId);
-          } catch (persistErr) {
-            console.warn('[Campaign] Failed to persist virtual campaign:', persistErr);
-          }
-
-          updateUnifiedState(virtualCampaign);
-        }
-      } catch (err) {
-        console.error('Erro no scanner de fallback:', err);
-      }
-    }
-
     function updateUnifiedState(data: CampaignContext) {
       // Se por algum motivo o objeto funnel estiver vindo vazio da coleção campaigns,
       // nós mantemos a estrutura básica para não quebrar a UI
       if (!data.funnel) {
-        data.funnel = { type: 'Funnel', architecture: '', targetAudience: '', mainGoal: '', stages: [], summary: '' };
+        data.funnel = { type: 'Funnel', architecture: '', targetAudience: '', mainGoal: '', stages: [], summary: '', awareness: '' };
       }
       
       setCampaign(data);
@@ -263,16 +171,16 @@ export default function CampaignCommandCenter() {
     notify.info(`Iniciando ${stageId}`, `O MKTHONEY está sendo convocado...`);
 
     if (stageId === 'funnel') {
-      router.push(`/funnels/${campaign.funnelId}?campaignId=${campaign.id}`);
+      router.push(`/funnels/${campaign.funnelId}`);
     } else if (stageId === 'offer') {
-      // Navigate to Offer Lab — save API auto-links offer to campaign via campaignId
       router.push(`/intelligence/offer-lab?campaignId=${campaign.id}`);
     } else if (stageId === 'copy') {
-      router.push(`/funnels/${campaign.funnelId}/copy?campaignId=${campaign.id}`);
+      // Sprint 04.3: Unified namespace — /campaigns/[id]/copy
+      router.push(`/campaigns/${campaign.id}/copy`);
     } else if (stageId === 'social') {
-      router.push(`/funnels/${campaign.funnelId}/social?campaignId=${campaign.id}`);
+      router.push(`/campaigns/${campaign.id}/social`);
     } else if (stageId === 'design') {
-      router.push(`/chat?mode=design&funnelId=${campaign.funnelId}&campaignId=${campaign.id}`);
+      router.push(`/campaigns/${campaign.id}/design`);
     } else if (stageId === 'ads') {
       // Se ads ainda não existe, auto-gerar via API dedicada (salva direto no Firestore)
       if (!campaign.ads) {
@@ -297,8 +205,8 @@ export default function CampaignCommandCenter() {
           setGeneratingAds(false);
         }
       }
-      // Navegar para o chat de Ads para refinamento
-      router.push(`/chat?mode=ads&funnelId=${campaign.funnelId}&campaignId=${campaign.id}`);
+      // Sprint 04.3: Unified namespace
+      router.push(`/campaigns/${campaign.id}/ads`);
     } else {
       notify.warning('Em desenvolvimento', `A etapa de ${stageId} está sendo preparada.`);
     }
@@ -354,9 +262,10 @@ export default function CampaignCommandCenter() {
               The Golden Thread
             </h2>
           </div>
-          <CampaignStepper 
-            currentStageId={currentStageId} 
-            completedStages={completedStages} 
+          <CampaignStepper
+            currentStageId={currentStageId}
+            completedStages={completedStages}
+            campaignId={campaign.id}
           />
         </section>
 
@@ -538,7 +447,7 @@ export default function CampaignCommandCenter() {
 
           <StageCard
             title="O Visual"
-            description="Design Intelligence (C.H.A.P.E.U)"
+            description="Design Intelligence"
             icon={Palette}
             status={campaign.design ? 'approved' : campaign.social ? 'ready' : 'empty'}
             summary={campaign.design ? [
@@ -573,13 +482,13 @@ export default function CampaignCommandCenter() {
           />
         </div>
 
-        {/* Monitoring Dashboard (ST-11.17 & ST-11.18) */}
+        {/* Launch Pad placeholder (Sprint 10) */}
         <section className="mt-12">
-          <MonitoringDashboard 
-            metrics={metrics} 
-            anomalies={anomalies} 
-            onRefresh={() => notify.info('Sincronizando', 'Buscando métricas da Meta Ads API...')}
-          />
+          <div className="border border-white/[0.06] rounded-xl p-8 text-center bg-white/[0.01]">
+            <Zap className="h-8 w-8 text-zinc-700 mx-auto mb-3" />
+            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-1">Launch Pad</h3>
+            <p className="text-xs text-zinc-600">Publicação e monitoramento em breve</p>
+          </div>
         </section>
       </div>
     </div>

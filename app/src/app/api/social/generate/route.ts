@@ -2,16 +2,17 @@ export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { parseAIJSON } from '@/lib/ai/formatters';
-import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
+import { consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { updateUserUsage } from '@/lib/firebase/firestore';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { loadBrain } from '@/lib/intelligence/brains/loader';
 import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
 import type { CounselorId } from '@/types';
 import { DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
 import { loadCampaignContext } from '@/lib/ai/campaign-context';
+import { loadBrandIntelligence } from '@/lib/intelligence/research/brand-context';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -85,8 +86,18 @@ export async function POST(request: NextRequest) {
       return createApiError(400, 'brandId é obrigatório.');
     }
 
+    let authUserId: string;
     try {
-      await requireBrandAccess(request, brandId);
+      const auth = await requireBrandAccess(request, brandId);
+      authUserId = auth.userId;
+      requireMinTier(auth.effectiveTier, 'starter');
+    } catch (error) {
+      return handleSecurityError(error);
+    }
+
+    // Consume credits before heavy AI work
+    try {
+      await consumeCredits(authUserId, CREDIT_COSTS.social_strategic, 'social_strategic');
     } catch (error) {
       return handleSecurityError(error);
     }
@@ -151,6 +162,32 @@ export async function POST(request: NextRequest) {
       console.warn('[Social/Generate] Erro ao buscar offer context:', err);
     }
 
+    // Sprint 07 — Brand Intelligence for social hooks
+    let intelSection = '';
+    try {
+      const intel = await loadBrandIntelligence(brandId);
+      if (intel) {
+        const parts: string[] = [];
+        if (intel.persona) {
+          parts.push(`## PERSONA DO PÚBLICO`);
+          parts.push(`${intel.persona.name}${intel.persona.age ? `, ${intel.persona.age}` : ''}`);
+          if (intel.persona.pains.length > 0) parts.push(`Dores: ${intel.persona.pains.join('; ')}`);
+          if (intel.persona.desires.length > 0) parts.push(`Desejos: ${intel.persona.desires.join('; ')}`);
+          if (intel.persona.triggers.length > 0) parts.push(`Gatilhos: ${intel.persona.triggers.join('; ')}`);
+        }
+        if (intel.keywords.topByKOS.length > 0) {
+          parts.push(`\n## KEYWORDS TOP (use como temas/hashtags)`);
+          parts.push(intel.keywords.topByKOS.join(', '));
+        }
+        if (parts.length > 0) {
+          intelSection = parts.join('\n');
+          console.log('[Social/Generate] Brand intelligence injected');
+        }
+      }
+    } catch (err) {
+      console.warn('[Social/Generate] Brand intelligence fetch failed:', err);
+    }
+
     const prompt = `
       Você é o MKTHONEY — módulo Social, composto por 4 especialistas com frameworks reais de avaliação.
       Sua missão é extrair HOOKS (ganchos de atenção) magnéticos de uma copy aprovada.
@@ -164,6 +201,8 @@ export async function POST(request: NextRequest) {
       Público-alvo: ${body.context.targetAudience}
 
       ${offerSection}
+
+      ${intelSection}
 
       ${campaignCtx ? `## LINHA DE OURO (Contexto da Campanha)
       ${campaignCtx.text}` : ''}
@@ -194,16 +233,6 @@ export async function POST(request: NextRequest) {
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
     const parsed = parseAIJSON(responseText);
-
-    // SIG-API-03: Decrementar 1 crédito por geração social
-    if (userId) {
-      try {
-        await updateUserUsage(userId, -1);
-        console.log(`[Social/Generate] 1 crédito decrementado para usuário: ${userId}`);
-      } catch (creditError) {
-        console.error('[Social/Generate] Erro ao atualizar créditos:', creditError);
-      }
-    }
 
     return createApiSuccess({
       hooks: parsed.hooks || []

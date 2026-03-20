@@ -1,11 +1,22 @@
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 
-const VERTICALS = [
-  'SaaS', 'Infoprodutos', 'E-commerce', 'Serviços', 
-  'Consultoria', 'Agência', 'Educação', 'Saúde', 'Outro'
+// 03.2 — Vertical: Autocomplete + Texto Livre (30+ sugestões por categoria)
+export const VERTICAL_GROUPS = [
+  { group: 'Digital', items: ['SaaS', 'Infoprodutos', 'E-commerce', 'App/Mobile', 'Marketplace'] },
+  { group: 'Serviços', items: ['Consultoria', 'Agência', 'Freelancer', 'Advocacia', 'Contabilidade', 'Arquitetura'] },
+  { group: 'Saúde & Bem-estar', items: ['Saúde', 'Fitness', 'Nutrição', 'Estética', 'Psicologia', 'Odontologia'] },
+  { group: 'Lifestyle', items: ['Moda', 'Beleza', 'Gastronomia', 'Viagens', 'Pets', 'Decoração'] },
+  { group: 'Finanças', items: ['Finanças', 'Investimentos', 'Seguros', 'Imobiliário', 'Contabilidade'] },
+  { group: 'Educação', items: ['Educação', 'Cursos Online', 'Coaching', 'Mentoria', 'Idiomas'] },
+  { group: 'Outros', items: ['Personal Brand', 'Mídia', 'Varejo Físico', 'Indústria', 'ONG', 'Eventos'] },
 ];
+const ALL_VERTICALS = VERTICAL_GROUPS.flatMap(g => g.items);
+// Remove duplicates
+const UNIQUE_VERTICALS = [...new Set(ALL_VERTICALS)];
 
 const VOICE_TONES = [
   { id: 'professional', label: 'Profissional', emoji: '👔' },
@@ -21,6 +32,73 @@ interface StepIdentityProps {
   positioning: string;
   voiceTone: string;
   onUpdate: (field: string, value: string) => void;
+}
+
+/** Autocomplete with free text for verticals */
+function VerticalAutocomplete({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [query, setQuery] = useState(value || '');
+  const [isOpen, setIsOpen] = useState(false);
+
+  const filtered = useMemo(() => {
+    if (!query) return VERTICAL_GROUPS;
+    const q = query.toLowerCase();
+    return VERTICAL_GROUPS
+      .map(g => ({ ...g, items: g.items.filter(i => i.toLowerCase().includes(q)) }))
+      .filter(g => g.items.length > 0);
+  }, [query]);
+
+  const handleSelect = (item: string) => {
+    setQuery(item);
+    onChange(item);
+    setIsOpen(false);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    setQuery(v);
+    onChange(v); // Accept any text (free form)
+    setIsOpen(true);
+  };
+
+  return (
+    <div className="relative">
+      <label className="block text-sm font-medium text-zinc-300 mb-2">
+        Vertical *
+      </label>
+      <Input
+        value={query}
+        onChange={handleInputChange}
+        onFocus={() => setIsOpen(true)}
+        onBlur={() => setTimeout(() => setIsOpen(false), 200)}
+        placeholder="Busque ou digite seu segmento..."
+        className="bg-white/[0.02] border-white/[0.06] text-white placeholder:text-zinc-600"
+      />
+      {isOpen && filtered.length > 0 && (
+        <div className="absolute z-50 mt-1 w-full max-h-60 overflow-y-auto rounded-lg border border-white/[0.08] bg-[#1A1612] shadow-xl">
+          {filtered.map(group => (
+            <div key={group.group}>
+              <p className="px-3 py-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#AB8648]">
+                {group.group}
+              </p>
+              {group.items.map(item => (
+                <button
+                  key={item}
+                  type="button"
+                  onMouseDown={(e) => { e.preventDefault(); handleSelect(item); }}
+                  className={cn(
+                    'w-full px-3 py-2 text-left text-sm transition-colors',
+                    item === value ? 'text-[#E6B447] bg-[#E6B447]/5' : 'text-zinc-300 hover:bg-white/[0.03]'
+                  )}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function StepIdentity({ name, vertical, positioning, voiceTone, onUpdate }: StepIdentityProps) {
@@ -54,22 +132,8 @@ export function StepIdentity({ name, vertical, positioning, voiceTone, onUpdate 
         />
       </div>
 
-      {/* Vertical */}
-      <div>
-        <label className="block text-sm font-medium text-zinc-300 mb-2">
-          Vertical *
-        </label>
-        <select
-          value={vertical}
-          onChange={(e) => onUpdate('vertical', e.target.value)}
-          className="w-full rounded-lg border border-white/[0.06] bg-white/[0.02] px-4 py-2.5 text-white focus:border-[#E6B447] focus:outline-none"
-        >
-          <option value="" className="bg-zinc-900">Selecione...</option>
-          {VERTICALS.map(v => (
-            <option key={v} value={v} className="bg-zinc-900">{v}</option>
-          ))}
-        </select>
-      </div>
+      {/* Vertical — Autocomplete + Texto Livre */}
+      <VerticalAutocomplete value={vertical} onChange={(v) => onUpdate('vertical', v)} />
 
       {/* Posicionamento */}
       <div>
