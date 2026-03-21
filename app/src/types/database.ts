@@ -215,6 +215,7 @@ export interface Brand {
     questions: string[];
     triggers: string[];
     summary: string;
+    segments?: { hot: string; warm: string; cold: string };
     source: 'research' | 'manual';
     dossierId?: string;
     savedAt: string; // ISO date

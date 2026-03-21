@@ -159,6 +159,7 @@ export default function ResearchPage() {
           questions: persona.questions,
           triggers: persona.triggers,
           summary: persona.summary,
+          ...(persona.segments?.hot ? { segments: persona.segments } : {}),
           source: 'research',
           dossierId: selected?.id || '',
           savedAt: new Date().toISOString(),

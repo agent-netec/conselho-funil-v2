@@ -47,7 +47,12 @@ Retorne JSON valido:
     "desires": ["top 3 desejos"],
     "questions": ["top 3 perguntas"],
     "triggers": ["top 3 gatilhos"],
-    "summary": "resumo executivo de 2-3 frases sobre essa persona"
+    "summary": "resumo executivo de 2-3 frases sobre essa persona",
+    "segments": {
+      "hot": "descricao curta de quem esta pronto para comprar (ja sente a dor e busca solucao)",
+      "warm": "descricao curta de quem esta considerando (sabe do problema mas avalia opcoes)",
+      "cold": "descricao curta de quem nao conhece (nao sabe que tem o problema ou nao conhece a marca)"
+    }
   }
 }
 
@@ -157,15 +162,17 @@ export async function POST(req: NextRequest) {
       return createApiError(500, 'Falha ao parsear analise de audiencia');
     }
 
-    const persona: AudiencePersona = analysis.persona || {
-      name: 'Persona genérica',
-      age: '25-45',
-      tone: analysis.tone || 'não determinado',
-      pains: (analysis.pains || []).slice(0, 3),
-      desires: (analysis.desires || []).slice(0, 3),
-      questions: (analysis.questions || []).slice(0, 3),
-      triggers: (analysis.triggers || []).slice(0, 3),
-      summary: 'Persona gerada com dados limitados.',
+    const rawPersona = analysis.persona || {};
+    const persona: AudiencePersona = {
+      name: rawPersona.name || 'Persona genérica',
+      age: rawPersona.age || '25-45',
+      tone: rawPersona.tone || analysis.tone || 'não determinado',
+      pains: (rawPersona.pains || analysis.pains || []).slice(0, 3),
+      desires: (rawPersona.desires || analysis.desires || []).slice(0, 3),
+      questions: (rawPersona.questions || analysis.questions || []).slice(0, 3),
+      triggers: (rawPersona.triggers || analysis.triggers || []).slice(0, 3),
+      summary: rawPersona.summary || 'Persona gerada com dados limitados.',
+      ...(rawPersona.segments?.hot ? { segments: rawPersona.segments } : {}),
     };
 
     // Debit 2 credits

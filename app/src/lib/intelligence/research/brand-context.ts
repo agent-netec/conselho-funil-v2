@@ -138,12 +138,22 @@ export async function loadBrandIntelligence(brandId: string): Promise<BrandIntel
     const db = getAdminFirestore();
     const brandRef = db.collection('brands').doc(brandId);
 
+    const logSubcollectionError = (collection: string, err: unknown) => {
+      const code = (err as { code?: string })?.code;
+      if (code === 'permission-denied') {
+        console.error(`[loadBrandIntelligence] PERMISSION DENIED on brands/${brandId}/${collection} — verify firestore.rules`);
+      } else {
+        console.warn(`[loadBrandIntelligence] Failed to fetch ${collection}:`, code || err);
+      }
+      return null;
+    };
+
     const [brandSnap, keywordsSnap, activeOfferSnap, researchSnap, caseStudiesSnap] = await Promise.all([
       brandRef.get(),
-      brandRef.collection('keywords').orderBy('opportunityScore', 'desc').limit(20).get().catch(() => null),
-      brandRef.collection('offers').where('status', '==', 'active').limit(1).get().catch(() => null),
-      brandRef.collection('research').orderBy('createdAt', 'desc').limit(1).get().catch(() => null),
-      brandRef.collection('case_studies').orderBy('createdAt', 'desc').limit(5).get().catch(() => null),
+      brandRef.collection('keywords').orderBy('opportunityScore', 'desc').limit(20).get().catch(err => logSubcollectionError('keywords', err)),
+      brandRef.collection('offers').where('status', '==', 'active').limit(1).get().catch(err => logSubcollectionError('offers', err)),
+      brandRef.collection('research').orderBy('createdAt', 'desc').limit(1).get().catch(err => logSubcollectionError('research', err)),
+      brandRef.collection('case_studies').orderBy('createdAt', 'desc').limit(5).get().catch(err => logSubcollectionError('case_studies', err)),
     ]);
 
     if (!brandSnap.exists) return null;
@@ -187,6 +197,7 @@ export async function loadBrandIntelligence(brandId: string): Promise<BrandIntel
       objections: d.audience?.objections ?? [],
       triggers: d.idealClient.triggers ?? [],
       summary: d.idealClient.summary ?? '',
+      ...(d.idealClient.segments?.hot ? { segments: d.idealClient.segments } : {}),
     } : null;
 
     // Keywords
@@ -309,6 +320,94 @@ function extractBullets(text: string): string[] {
     .split('\n')
     .map(l => l.replace(/^[\s\-*•]+/, '').trim())
     .filter(l => l.length > 5 && l.length < 300);
+}
+
+// ---------------------------------------------------------------------------
+// Exported helpers — selective data loading for engines that don't need full intelligence
+// ---------------------------------------------------------------------------
+
+/** Top keywords by opportunity score */
+export async function getTopKeywords(brandId: string, limit = 20): Promise<BrandIntelligence['keywords']> {
+  try {
+    const db = getAdminFirestore();
+    const snap = await db.collection(`brands/${brandId}/keywords`).orderBy('opportunityScore', 'desc').limit(limit).get();
+    const terms = snap.docs.map(d => {
+      const kd = d.data();
+      return { term: kd.term ?? '', volume: kd.volume ?? 0, difficulty: kd.difficulty ?? 0, intent: kd.intent ?? 'informational', opportunityScore: kd.opportunityScore ?? 0 };
+    });
+    return { terms, topByKOS: terms.slice(0, 5).map(k => k.term) };
+  } catch (err) {
+    console.warn('[getTopKeywords] Failed:', err);
+    return { terms: [], topByKOS: [] };
+  }
+}
+
+/** Active offer from Offer Lab */
+export async function getActiveOffer(brandId: string): Promise<BrandIntelligence['activeOffer']> {
+  try {
+    const db = getAdminFirestore();
+    const snap = await db.collection(`brands/${brandId}/offers`).where('status', '==', 'active').limit(1).get();
+    if (snap.empty) return null;
+    const o = snap.docs[0].data();
+    return { promise: o.promise ?? o.headline ?? '', price: o.price ?? 0, bonuses: o.bonuses ?? [], guarantee: o.guarantee ?? '', scarcity: o.scarcity ?? '', scoring: { total: o.scoring?.total ?? 0 } };
+  } catch (err) {
+    console.warn('[getActiveOffer] Failed:', err);
+    return null;
+  }
+}
+
+/** Latest research dossier insights */
+export async function getLatestResearch(brandId: string): Promise<BrandIntelligence['researchInsights']> {
+  try {
+    const db = getAdminFirestore();
+    const snap = await db.collection(`brands/${brandId}/research`).orderBy('createdAt', 'desc').limit(1).get();
+    return extractResearchInsights(snap.empty ? null : snap.docs[0].data());
+  } catch (err) {
+    console.warn('[getLatestResearch] Failed:', err);
+    return { trends: [], threats: [], opportunities: [], competitors: [], lastUpdated: null };
+  }
+}
+
+/** Recent spy/forensics case studies */
+export async function getSpyInsights(brandId: string, limit = 5): Promise<BrandIntelligence['spyInsights']> {
+  try {
+    const db = getAdminFirestore();
+    const snap = await db.collection(`brands/${brandId}/case_studies`).orderBy('createdAt', 'desc').limit(limit).get();
+    return snap.docs.map(d => {
+      const cs = d.data();
+      const insights = cs.insights ?? [];
+      return {
+        competitorUrl: cs.url ?? '', competitorName: cs.competitorName ?? cs.title ?? '',
+        strengths: insights.filter((i: any) => i.category === 'strength').map((i: any) => i.text),
+        weaknesses: insights.filter((i: any) => i.category === 'weakness').map((i: any) => i.text),
+        emulate: insights.filter((i: any) => i.category === 'emulate').map((i: any) => i.text),
+        avoid: insights.filter((i: any) => i.category === 'avoid').map((i: any) => i.text),
+      };
+    });
+  } catch (err) {
+    console.warn('[getSpyInsights] Failed:', err);
+    return [];
+  }
+}
+
+/** Active persona (idealClient from brand doc) */
+export async function getActivePersona(brandId: string): Promise<BrandIntelligence['persona']> {
+  try {
+    const db = getAdminFirestore();
+    const snap = await db.collection('brands').doc(brandId).get();
+    if (!snap.exists) return null;
+    const d = snap.data()!;
+    if (!d.idealClient) return null;
+    return {
+      source: d.idealClient.source ?? 'ideal_client', name: d.idealClient.name ?? '', age: d.idealClient.age ?? '',
+      pains: d.idealClient.pains ?? [], desires: d.idealClient.desires ?? [], objections: d.audience?.objections ?? [],
+      triggers: d.idealClient.triggers ?? [], summary: d.idealClient.summary ?? '',
+      ...(d.idealClient.segments?.hot ? { segments: d.idealClient.segments } : {}),
+    };
+  } catch (err) {
+    console.warn('[getActivePersona] Failed:', err);
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------------------

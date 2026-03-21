@@ -303,6 +303,24 @@ service cloud.firestore {
         allow read, write: if isAuthenticated() &&
           get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
       }
+
+      // Deep Research dossiers — used by brand-context.ts loadBrandIntelligence()
+      match /research/{docId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+      }
+
+      // Case Studies — shared between Spy Agent and Forensics, read by brand-context.ts
+      match /case_studies/{studyId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+      }
+
+      // Personalization Rules — used by personalization.ts (client SDK)
+      match /personalization_rules/{ruleId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+      }
     }
 
     // Brand Assets

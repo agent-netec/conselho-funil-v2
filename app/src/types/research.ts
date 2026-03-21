@@ -64,6 +64,7 @@ export interface AudiencePersona {
   questions: string[];
   triggers: string[];
   summary: string;
+  segments?: { hot: string; warm: string; cold: string };
 }
 
 /** Sprint O: Chat refinement message */

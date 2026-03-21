@@ -9,10 +9,61 @@ import { handleSecurityError } from '@/lib/utils/api-security';
 import { consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { loadCampaignContext } from '@/lib/ai/campaign-context';
+import { loadBrandIntelligence } from '@/lib/intelligence/research/brand-context';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { loadBrain } from '@/lib/intelligence/brains/loader';
+import { buildScoringPromptFromBrain } from '@/lib/intelligence/brains/prompt-builder';
+import type { CounselorId } from '@/types';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
+
+// ═══════════════════════════════════════════════════════
+// 4 Social Counselors — Identity Cards (from social/generate)
+// ═══════════════════════════════════════════════════════
+
+interface SocialExpertMapping {
+  counselorId: CounselorId;
+  frameworkId: string;
+}
+
+const SOCIAL_EXPERT_MAP: Record<string, SocialExpertMapping[]> = {
+  hooks_viral: [
+    { counselorId: 'rachel_karten', frameworkId: 'hook_effectiveness' },
+    { counselorId: 'nikita_beer', frameworkId: 'viral_potential' },
+  ],
+  funnel_algorithm: [
+    { counselorId: 'justin_welsh', frameworkId: 'social_funnel_score' },
+    { counselorId: 'lia_haberman', frameworkId: 'algorithm_alignment' },
+  ],
+};
+
+function buildSocialBrainContext(): string {
+  const parts: string[] = [];
+  for (const [, experts] of Object.entries(SOCIAL_EXPERT_MAP)) {
+    const expertParts: string[] = [];
+    for (const { counselorId, frameworkId } of experts) {
+      const brain = loadBrain(counselorId);
+      if (!brain) continue;
+      const frameworkJson = buildScoringPromptFromBrain(counselorId, frameworkId);
+      if (!frameworkJson) continue;
+      const redFlags = brain.redFlags.slice(0, 3).map(rf =>
+        `- **${rf.label}**: "${rf.before}" → "${rf.after}"`
+      ).join('\n');
+      expertParts.push(
+        `### ${brain.name} — ${brain.subtitle}\n` +
+        `**Principios:** ${brain.principles.slice(0, 200)}...\n` +
+        `**Framework (${frameworkId}):**\n${frameworkJson}\n` +
+        (redFlags ? `**Erros a Evitar:**\n${redFlags}` : '')
+      );
+    }
+    if (expertParts.length > 0) {
+      parts.push(expertParts.join('\n\n'));
+    }
+  }
+  return parts.join('\n\n---\n\n');
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -81,6 +132,72 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
       console.warn('[Social/Hooks] Campaign context load failed:', campErr);
     }
 
+    // 1c. Sprint 07 — Brand Intelligence (persona + keywords + spy)
+    let intelSection = '';
+    try {
+      const intel = await loadBrandIntelligence(brandId);
+      if (intel) {
+        const parts: string[] = [];
+        if (intel.persona) {
+          parts.push(`## PERSONA DO PÚBLICO (${intel.persona.source})`);
+          parts.push(`${intel.persona.name}${intel.persona.age ? `, ${intel.persona.age}` : ''}`);
+          if (intel.persona.pains.length > 0) parts.push(`Dores: ${intel.persona.pains.join('; ')}`);
+          if (intel.persona.desires.length > 0) parts.push(`Desejos: ${intel.persona.desires.join('; ')}`);
+          if (intel.persona.triggers.length > 0) parts.push(`Gatilhos: ${intel.persona.triggers.join('; ')}`);
+        }
+        if (intel.keywords.topByKOS.length > 0) {
+          parts.push(`\n## KEYWORDS TOP (use como temas/hashtags)`);
+          parts.push(intel.keywords.topByKOS.join(', '));
+        }
+        if (intel.spyInsights.length > 0) {
+          parts.push(`\n## CONCORRENTES`);
+          for (const spy of intel.spyInsights.slice(0, 2)) {
+            if (spy.emulate.length > 0) parts.push(`${spy.competitorName} — Emular: ${spy.emulate.join('; ')}`);
+            if (spy.avoid.length > 0) parts.push(`${spy.competitorName} — Evitar: ${spy.avoid.join('; ')}`);
+          }
+        }
+        if (parts.length > 0) {
+          intelSection = parts.join('\n');
+          console.log('[Social/Hooks] Brand intelligence injected (persona + keywords + spy)');
+        }
+      }
+    } catch (err) {
+      console.warn('[Social/Hooks] Brand intelligence fetch failed:', err);
+    }
+
+    // 1d. Offer Lab context (oferta ativa da marca)
+    let offerSection = '';
+    try {
+      const adminDb = getAdminFirestore();
+      const activeSnap = await adminDb.collection('brands').doc(brandId).collection('offers')
+        .where('status', '==', 'active').orderBy('updatedAt', 'desc').limit(1).get();
+      const offerSnap = activeSnap.empty
+        ? await adminDb.collection('brands').doc(brandId).collection('offers').orderBy('updatedAt', 'desc').limit(1).get()
+        : activeSnap;
+      if (!offerSnap.empty) {
+        const o = offerSnap.docs[0].data();
+        const c = o.components;
+        if (c?.coreProduct) {
+          const lines = [
+            `## OFERTA ESTRUTURADA (Offer Lab)`,
+            `**Promessa:** ${c.coreProduct.promise}`,
+            `**Preço:** R$ ${c.coreProduct.price} | **Valor Percebido:** R$ ${c.coreProduct.perceivedValue}`,
+          ];
+          if (c.bonuses?.length > 0) lines.push(`**Bônus:** ${c.bonuses.map((b: any) => b.name).join(', ')}`);
+          if (c.riskReversal) lines.push(`**Garantia:** ${c.riskReversal}`);
+          if (c.scarcity) lines.push(`**Escassez:** ${c.scarcity}`);
+          if (o.scoring?.total) lines.push(`**Score:** ${o.scoring.total}/100`);
+          offerSection = lines.join('\n');
+          console.log('[Social/Hooks] Offer Lab context injected');
+        }
+      }
+    } catch (err) {
+      console.warn('[Social/Hooks] Offer Lab fetch failed:', err);
+    }
+
+    // 1e. Brain context — identity cards dos 4 conselheiros sociais (strategic mode only)
+    const brainContext = isQuickMode ? '' : buildSocialBrainContext();
+
     // 2. Buscar heurísticas via RAG
     const queryText = `Heurísticas, ganchos e regras para ${platform}. Como viralizar e reter atenção no ${platform} com o tema ${topic}.`;
     const { context: knowledgeContext } = await ragQuery(queryText, {
@@ -102,6 +219,7 @@ Gere exatamente 3 posts COMPLETOS e prontos para publicar na plataforma ${platfo
 ## Contexto da Marca:
 ${brandContext}
 
+${offerSection ? `${offerSection}\n` : ''}
 ## Regras:
 1. Cada post deve ser completo com: hook (gancho), body (corpo 2-4 parágrafos), cta (chamada para ação), hashtags (5-15)
 2. Adapte o comprimento à plataforma:
@@ -132,6 +250,7 @@ Retorne APENAS JSON:
   "best_practices": []
 }
 
+${intelSection ? `## Inteligência da Marca:\n${intelSection}` : ''}
 ${knowledgeContext ? `## Heurísticas:\n${knowledgeContext}` : ''}
 ${campaignContext}`;
     } else {
@@ -142,6 +261,9 @@ ${campaignContext}`;
         .replace('{{contentFormats}}', (contentFormats || []).join(', ') || 'Todos os formatos')
         .replace('{{topic}}', topic)
         .replace('{{knowledgeContext}}', knowledgeContext || 'Use conhecimento geral sobre melhores práticas de redes sociais.')
+        + (brainContext ? `\n\n## IDENTITY CARDS DOS ESPECIALISTAS (Frameworks Reais)\n${brainContext}` : '')
+        + (offerSection ? `\n\n${offerSection}` : '')
+        + (intelSection ? `\n\n## Inteligência da Marca:\n${intelSection}` : '')
         + campaignContext;
     }
 
