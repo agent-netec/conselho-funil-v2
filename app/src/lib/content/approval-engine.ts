@@ -136,6 +136,38 @@ export async function transitionStatus(
     userId: userId || null,
   });
 
+  // 5c. Gap 6 — Auto-save to Vault when approved
+  if (targetStatus === 'approved') {
+    try {
+      const vaultRef = adminDb.collection('brands').doc(brandId).collection('vault_library').doc();
+      await vaultRef.set({
+        id: vaultRef.id,
+        brandId,
+        sourceInsightId: itemId,
+        status: 'approved',
+        variants: [{
+          platform: currentItem.platform || 'instagram',
+          copy: currentItem.content || currentItem.title || '',
+          mediaRefs: [],
+          metadata: {
+            calendarItemId: itemId,
+            title: currentItem.title,
+            format: currentItem.format,
+            postContent: (currentItem as any).postContent || null,
+          },
+        }],
+        approvalChain: {
+          approvedBy: userId || null,
+          approvedAt: now,
+        },
+        createdAt: now,
+      });
+    } catch (vaultErr) {
+      // Non-blocking — approval succeeds even if vault save fails
+      console.warn('[ApprovalEngine] Vault auto-save failed:', vaultErr);
+    }
+  }
+
   // 6. Retornar item atualizado
   return {
     success: true,

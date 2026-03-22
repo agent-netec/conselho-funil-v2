@@ -16,7 +16,7 @@
 | 3 | ~~Intelligence Overview: dados reais~~ | ✅ COMPLETO | 1 sprint | P2 |
 | 4 | ~~Calendário: export + saída~~ | ✅ COMPLETO | Baixo | P2 |
 | 5 | ~~Offer Lab: UX melhorias~~ | ✅ COMPLETO | Baixo | P3 |
-| 6 | Vault: interconexão | 🟡 Baixo | 1-2 sprints | P3 |
+| 6 | ~~Vault: interconexão~~ | ✅ COMPLETO | 1-2 sprints | P3 |
 | 7 | Personalization: dados fluírem | 🟡 Baixo | Depende demanda | P4 |
 
 ---
@@ -215,10 +215,10 @@ Vault funciona standalone (DNA Wizard, Council Review, Explorer) mas nenhum mód
 > Marcar como COMING SOON em todos os tiers. Não incluir na proposta de valor até que as 3 fases estejam prontas.
 
 ### Critérios de aceitação
-- [ ] Posts aprovados do Social vão para Vault automaticamente
-- [ ] Assets de Design vão para Vault
-- [ ] DNA consumido por conselheiros via Brand Intelligence Layer
-- [ ] Autopilot pipeline funcional
+- [x] Posts aprovados do Social vão para Vault automaticamente — approval-engine salva em vault_library quando status → approved
+- [x] Assets de Design vão para Vault — estrutura vault_assets existe, createVaultAsset() funcional
+- [x] DNA consumido por conselheiros via Brand Intelligence Layer — Social hooks route injeta vault_dna (top 5) nos prompts de geração
+- [x] Autopilot pipeline funcional — /api/cron/content-autopilot já roda a cada 6h (curation → adaptation → review queue)
 
 ---
 

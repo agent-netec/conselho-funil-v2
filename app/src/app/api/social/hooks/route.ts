@@ -222,7 +222,30 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
       console.warn('[Social/Hooks] Competitor profiles fetch failed:', err);
     }
 
-    // 1f. Brain context — identity cards dos 4 conselheiros sociais (strategic mode only)
+    // 1f. Vault DNA — inject Copy DNA templates for style/tone consistency (Gap 6)
+    let dnaSection = '';
+    try {
+      const adminDb = getAdminFirestore();
+      const dnaSnap = await adminDb.collection('brands').doc(brandId)
+        .collection('vault_dna').orderBy('updatedAt', 'desc').limit(5).get();
+      if (!dnaSnap.empty) {
+        const dnaLines = ['## COPY DNA (estilo e estrutura aprovados da marca)'];
+        for (const d of dnaSnap.docs) {
+          const data = d.data();
+          if (!data.name || !data.content) continue;
+          dnaLines.push(`\n### ${data.name} (${data.type || 'template'})`);
+          dnaLines.push(data.content.substring(0, 300));
+          if (data.tags?.length > 0) dnaLines.push(`Tags: ${data.tags.join(', ')}`);
+        }
+        if (dnaLines.length > 1) {
+          dnaSection = dnaLines.join('\n');
+        }
+      }
+    } catch (err) {
+      console.warn('[Social/Hooks] Vault DNA fetch failed:', err);
+    }
+
+    // 1g. Brain context — identity cards dos 4 conselheiros sociais (strategic mode only)
     const brainContext = isQuickMode ? '' : buildSocialBrainContext();
 
     // 2. Buscar heurísticas via RAG
@@ -279,6 +302,7 @@ Retorne APENAS JSON:
 
 ${intelSection ? `## Inteligência da Marca:\n${intelSection}` : ''}
 ${competitorSection ? `${competitorSection}\n` : ''}
+${dnaSection ? `${dnaSection}\n` : ''}
 ${knowledgeContext ? `## Heurísticas:\n${knowledgeContext}` : ''}
 ${campaignContext}`;
     } else {
@@ -293,6 +317,7 @@ ${campaignContext}`;
         + (offerSection ? `\n\n${offerSection}` : '')
         + (intelSection ? `\n\n## Inteligência da Marca:\n${intelSection}` : '')
         + (competitorSection ? `\n\n${competitorSection}` : '')
+        + (dnaSection ? `\n\n${dnaSection}` : '')
         + campaignContext;
     }
 
