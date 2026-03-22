@@ -5,7 +5,7 @@
 
 ## Status Geral
 
-Produto com 13 sprints completos (00–13) + 7 gaps da Seção 9 resolvidos + UI premium redesenhada. 15 de 17 módulos funcionais em produção. Duas issues críticas pendentes: bug na expiração de trial (campo errado no cron) e desalinhamento de limites entre landing page e sistema. Launch readiness: ~95%.
+Produto com 13 sprints completos (00–13) + 7 gaps da Seção 9 resolvidos + UI premium redesenhada. 15 de 17 módulos funcionais em produção. Trial e tier limits verificados e corretos. Pendências reais: setup manual de APIs externas (Meta/Google Ads) e nivelamento visual de módulos. Launch readiness: ~97%.
 
 ---
 
@@ -119,13 +119,10 @@ Produto com 13 sprints completos (00–13) + 7 gaps da Seção 9 resolvidos + UI
 
 ### URGENTE
 
-- [ ] **Bug Trial Expiration** — Cron `trial-check` busca campo `trialEndsAt` mas Firestore armazena `trialExpiresAt`. Resultado: trials nunca expiram automaticamente.
-  - Arquivo: `app/src/app/api/cron/trial-check/route.ts`
-  - Fix: alinhar nome do campo (1 linha)
+Nenhum bloqueio urgente no momento.
 
-- [ ] **Tier Limits Mismatch** — Landing page mostra Starter=1 brand, Pro=3 brands. Sistema real (`TIER_LIMITS`) permite Starter=5, Pro=15. Usuário compra achando que tem 1 e recebe 5.
-  - Arquivos: `app/src/components/landing/` (pricing), `app/src/lib/tiers/`
-  - Fix: harmonizar valores
+> ~~Bug Trial Expiration~~ — Verificado 2026-03-22: campo `trialExpiresAt` é usado uniformemente em 32 locais. Sem mismatch.
+> ~~Tier Limits Mismatch~~ — Verificado 2026-03-22: Landing page e TIER_LIMITS alinhados (Starter=3, Pro=5, Agency=25).
 
 ### ALTA
 
@@ -141,12 +138,11 @@ Produto com 13 sprints completos (00–13) + 7 gaps da Seção 9 resolvidos + UI
 
 ## Próximos Passos
 
-1. **URGENTE** — Corrigir bug `trialEndsAt` vs `trialExpiresAt` (5 min)
-2. **URGENTE** — Harmonizar tier limits entre landing page e sistema
-3. **ALTA** — Setup real Meta Ads API + Google Ads API (Sprint 12)
-4. **ALTA** — Teste end-to-end do fluxo de pagamento Stripe em produção
-5. **MEDIA** — Decidir se /content e /strategy viram rotas ou são consolidados
-6. **MEDIA** — Nivelar UI dos demais módulos ao padrão premium do Offer Lab
+1. **ALTA** — Setup real Meta Ads API + Google Ads API (Sprint 12)
+2. **ALTA** — Teste end-to-end do fluxo de pagamento Stripe em produção
+3. **MEDIA** — Decidir se /content e /strategy viram rotas ou são consolidados
+4. **MEDIA** — Nivelar UI dos demais módulos ao padrão premium do Offer Lab
+5. **BAIXA** — Completar LinkedIn adapter (Sprint 34)
 7. **BAIXA** — Completar LinkedIn adapter (Sprint 34)
 8. **BAIXA** — Integrar alertas Slack no rate limiter
 
