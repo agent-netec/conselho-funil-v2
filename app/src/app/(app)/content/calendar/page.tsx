@@ -13,7 +13,7 @@ import { useSearchParams } from 'next/navigation';
 import { CalendarView } from '@/components/content/calendar-view';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Columns, Grid, X, Clock, Eye, CheckCircle, XCircle, Send, Shield, Sparkles, Loader2, BookmarkPlus, Repeat, Tag, ArrowLeft, User, Download } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Columns, Grid, X, Clock, Eye, CheckCircle, XCircle, Send, Shield, Sparkles, Loader2, BookmarkPlus, Repeat, Tag, ArrowLeft, User, Download, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import type { CalendarItem, CalendarItemStatus, ContentTemplate } from '@/types/content';
 
@@ -375,6 +375,91 @@ export function CalendarContent() {
     toast.success(`${items.length} itens exportados!`);
   }, [items, dateLabel]);
 
+  // === PDF Export (print-friendly HTML) ===
+  const handleExportPDF = useCallback(() => {
+    if (!items.length) {
+      toast.error('Nenhum item para exportar');
+      return;
+    }
+
+    const fmtDate = (d: any) => {
+      if (!d) return 'Sem data';
+      const date = d.toDate ? d.toDate() : d.seconds ? new Date(d.seconds * 1000) : new Date(d);
+      return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+    };
+
+    const statusLabels: Record<string, string> = {
+      draft: 'Rascunho', pending_review: 'Em Revisão', approved: 'Aprovado',
+      scheduled: 'Agendado', published: 'Publicado', rejected: 'Rejeitado',
+    };
+
+    const rows = items.map(item => {
+      const pc = (item as any).postContent;
+      const hook = pc?.hook || item.content?.slice(0, 120) || item.title || '';
+      const body = pc?.body || item.content || '';
+      const cta = pc?.cta || '';
+      const hashtags = pc?.hashtags?.join(' ') || '';
+
+      return `
+        <tr>
+          <td>${fmtDate(item.scheduledDate)}</td>
+          <td><span class="badge">${item.platform || '-'}</span></td>
+          <td><span class="status status-${item.status}">${statusLabels[item.status] || item.status}</span></td>
+          <td class="content-cell">
+            <strong>${hook.substring(0, 100)}</strong>
+            ${body && body !== hook ? `<br/><span class="body">${body.substring(0, 200)}${body.length > 200 ? '...' : ''}</span>` : ''}
+            ${cta ? `<br/><em class="cta">CTA: ${cta}</em>` : ''}
+            ${hashtags ? `<br/><span class="hashtags">${hashtags}</span>` : ''}
+          </td>
+        </tr>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Calendário — ${dateLabel}</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 2rem; color: #1a1a1a; }
+  h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+  .subtitle { color: #666; font-size: 0.85rem; margin-bottom: 1.5rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th { text-align: left; padding: 8px 12px; background: #f5f0e8; border-bottom: 2px solid #e6b447; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  td { padding: 8px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+  .badge { background: #f0ebe3; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; text-transform: capitalize; }
+  .status { padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
+  .status-draft { background: #f0f0f0; color: #666; }
+  .status-approved { background: #fef3cd; color: #856404; }
+  .status-published { background: #d4edda; color: #155724; }
+  .status-pending_review { background: #fff3cd; color: #856404; }
+  .status-scheduled { background: #cce5ff; color: #004085; }
+  .status-rejected { background: #f8d7da; color: #721c24; }
+  .content-cell { max-width: 400px; }
+  .body { color: #555; font-size: 0.8rem; }
+  .cta { color: #856404; font-size: 0.8rem; }
+  .hashtags { color: #0066cc; font-size: 0.75rem; }
+  .footer { margin-top: 2rem; font-size: 0.7rem; color: #999; border-top: 1px solid #eee; padding-top: 0.5rem; }
+  @media print { body { margin: 1rem; } }
+</style></head><body>
+  <h1>Calendário Editorial</h1>
+  <p class="subtitle">${selectedBrand?.name || 'Marca'} — ${dateLabel} — ${items.length} itens</p>
+  <table>
+    <thead><tr><th>Data</th><th>Plataforma</th><th>Status</th><th>Conteúdo</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <p class="footer">Exportado em ${new Date().toLocaleDateString('pt-BR')} via MKTHONEY</p>
+</body></html>`;
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error('Popup bloqueado — permita popups para exportar PDF');
+      return;
+    }
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.onload = () => {
+      printWindow.print();
+    };
+    toast.success('Janela de impressão aberta — salve como PDF');
+  }, [items, dateLabel, selectedBrand?.name]);
+
   return (
     <div className="flex flex-col gap-6 p-6 max-w-[1400px] mx-auto">
       {/* Header */}
@@ -401,6 +486,15 @@ export function CalendarContent() {
           >
             <Download className="h-4 w-4" />
             CSV
+          </button>
+          <button
+            onClick={handleExportPDF}
+            disabled={!items.length}
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-sm font-medium transition-colors disabled:opacity-40"
+            title="Exportar PDF"
+          >
+            <FileText className="h-4 w-4" />
+            PDF
           </button>
           <button
             onClick={() => { setShowTemplates(!showTemplates); if (!showTemplates) fetchTemplates(); }}

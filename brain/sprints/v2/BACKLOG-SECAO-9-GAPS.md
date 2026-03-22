@@ -14,7 +14,7 @@
 | 1 | ~~Social: post completo (não só hooks)~~ | ✅ COMPLETO | 1 sprint | P1 |
 | 2 | ~~Predict: ações pós-geração~~ | ✅ COMPLETO | 1 sprint | P1 |
 | 3 | ~~Intelligence Overview: dados reais~~ | ✅ COMPLETO | 1 sprint | P2 |
-| 4 | Calendário: export + saída | 🟠 Médio | Baixo | P2 |
+| 4 | ~~Calendário: export + saída~~ | ✅ COMPLETO | Baixo | P2 |
 | 5 | Offer Lab: UX melhorias | 🟡 Baixo | Baixo | P3 |
 | 6 | Vault: interconexão | 🟡 Baixo | 1-2 sprints | P3 |
 | 7 | Personalization: dados fluírem | 🟡 Baixo | Depende demanda | P4 |
@@ -157,9 +157,9 @@ Conteúdo entra no calendário (via Social ou manual) mas nunca sai. Sem export 
 - Client-side CSV/PDF generation (sem server)
 
 ### Critérios de aceitação
-- [ ] Botão "Exportar CSV" funcional
-- [ ] Botão "Exportar PDF" funcional (nice-to-have)
-- [ ] Calendário e Aprovações como tabs dentro de Social
+- [x] Botão "Exportar CSV" funcional — já existia (handleExportCSV com BOM UTF-8)
+- [x] Botão "Exportar PDF" funcional — novo: abre janela print-friendly com tabela formatada (salvar como PDF)
+- [x] Calendário e Aprovações como tabs dentro de Social — já existia (/social com 3 tabs: Criar | Calendário | Aprovações)
 
 ---
 
