@@ -62,7 +62,9 @@ export default function ChatPage() {
   const modeConfig = CHAT_MODES[chatMode];
   const accentColor = modeConfig.accentColor;
 
-  const isBlocked = CONFIG.ENABLE_CREDIT_LIMIT && user?.credits !== undefined && user.credits <= 0;
+  // Credit blocking handled server-side by consumeCredits() (Sprint 02.3).
+  // Legacy 'credits' field is no longer authoritative.
+  const isBlocked = false;
 
   const {
     conversations,

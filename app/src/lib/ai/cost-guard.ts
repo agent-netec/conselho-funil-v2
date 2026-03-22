@@ -60,14 +60,8 @@ export class AICostGuard {
       }
     }
 
-    // Check user credits (legacy/global)
-    const userSnap = await adminDb.collection('users').doc(params.userId).get();
-    if (userSnap.exists) {
-      const userData = userSnap.data()!;
-      if ((userData.credits || 0) <= 0) {
-        return false;
-      }
-    }
+    // Note: User-level credit checks are handled by consumeCredits() (Sprint 02.3)
+    // which uses monthlyCredits/creditsUsed. The legacy 'credits' field is no longer authoritative.
 
     return true;
   }
@@ -110,10 +104,9 @@ export class AICostGuard {
         });
       }
 
-      // 3. Atualizar créditos do usuário (decremento simples por chamada por enquanto)
+      // 3. Track usage count (credits handled by consumeCredits — Sprint 02.3)
       await adminDb.collection('users').doc(params.userId).update({
         usage: FieldValue.increment(1),
-        credits: FieldValue.increment(-1),
       });
 
       console.log(`[AICostGuard] Logged usage for ${params.feature}: $${costEstimate.toFixed(6)}`);
