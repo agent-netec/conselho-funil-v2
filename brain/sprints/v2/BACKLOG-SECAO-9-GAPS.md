@@ -13,7 +13,7 @@
 |---|-----|---------|---------|-----------|
 | 1 | ~~Social: post completo (não só hooks)~~ | ✅ COMPLETO | 1 sprint | P1 |
 | 2 | ~~Predict: ações pós-geração~~ | ✅ COMPLETO | 1 sprint | P1 |
-| 3 | Intelligence Overview: dados reais | 🟠 Médio | 1 sprint | P2 |
+| 3 | ~~Intelligence Overview: dados reais~~ | ✅ COMPLETO | 1 sprint | P2 |
 | 4 | Calendário: export + saída | 🟠 Médio | Baixo | P2 |
 | 5 | Offer Lab: UX melhorias | 🟡 Baixo | Baixo | P3 |
 | 6 | Vault: interconexão | 🟡 Baixo | 1-2 sprints | P3 |
@@ -127,11 +127,11 @@ Dashboard de Intelligence mostra KPIs, Social Volume, Public Emotion, Sentiment 
 - `src/app/(app)/intelligence/page.tsx` — dashboard que já renderiza os componentes
 
 ### Critérios de aceitação
-- [ ] ScoutAgent conectado via cron (1x/dia)
-- [ ] Social Volume com dados reais (Google News + Reddit)
-- [ ] Sentiment/Emotion analisados via Gemini
-- [ ] Deduplicação ativa
-- [ ] Dashboard Intelligence mostra dados reais
+- [x] ScoutAgent conectado via cron (1x/dia) — `/api/cron/scout-collect` em vercel.json (07:00 UTC)
+- [x] Social Volume com dados reais (Google News + Reddit) — coleta por keyword de cada brand
+- [x] Sentiment/Emotion analisados via Gemini — batch analysis com 6 emoções + sentimento -1 a 1
+- [x] Deduplicação ativa — textHash SHA-256 verificado contra últimos 200 docs antes de salvar
+- [x] Dashboard Intelligence mostra dados reais — useIntelligenceStats lê da collection, normaliza score 0-10
 
 ---
 

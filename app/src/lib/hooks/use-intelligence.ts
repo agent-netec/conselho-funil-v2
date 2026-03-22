@@ -153,13 +153,23 @@ export function useIntelligenceStats() {
     const sentimentCounts = { positive: 0, negative: 0, neutral: 0 };
     
     documents.forEach(doc => {
-      const date = doc.collectedAt.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+      // Handle both Timestamp objects and plain objects with seconds field
+      const ts = doc.collectedAt;
+      const dateObj = ts && typeof ts.toDate === 'function' ? ts.toDate()
+        : ts && (ts as any).seconds ? new Date((ts as any).seconds * 1000)
+        : new Date();
+      const date = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
       if (!volumeMap[date]) {
         volumeMap[date] = { date, twitter: 0, reddit: 0, total: 0 };
       }
       
       if (doc.source.platform === 'twitter') volumeMap[date].twitter++;
-      if (doc.source.platform === 'reddit') volumeMap[date].reddit++;
+      else if (doc.source.platform === 'reddit') volumeMap[date].reddit++;
+      else if (doc.source.platform === 'google_news') {
+        // Count news as a separate source but group into total
+        if (!volumeMap[date].news) volumeMap[date].news = 0;
+        volumeMap[date].news++;
+      }
       volumeMap[date].total++;
 
       if (doc.analysis) {
@@ -184,7 +194,9 @@ export function useIntelligenceStats() {
     stats.socialVolume = Object.values(volumeMap).reverse().slice(0, 7);
     
     const scores = documents.filter(d => d.analysis).map(d => d.analysis!.sentimentScore);
-    stats.sentimentScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+    // Raw average is -1 to 1; normalize to 0-10 for display
+    const rawAvg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+    stats.sentimentScore = Math.round(((rawAvg + 1) / 2) * 10 * 10) / 10; // 0-10 with 1 decimal
 
     stats.fullStats = {
       brandId: activeBrand?.id || '',

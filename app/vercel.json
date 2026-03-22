@@ -25,6 +25,10 @@
     {
       "path": "/api/cron/trial-check",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/scout-collect",
+      "schedule": "0 7 * * *"
     }
   ],
   "functions": {
