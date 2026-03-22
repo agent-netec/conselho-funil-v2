@@ -1,11 +1,11 @@
 # Sprint 05 — Chat Transformation (Conselheiros com Vida)
 
+> **Status:** 🟢 COMPLETO
 > **Máxima:** Progressão Contínua — Zero Becos Sem Saída
 > **Princípio:** UX First + Diferencial do produto
 > **Bloqueado por:** Sprint 04 (Design/Ads saem do chat)
 > **Desbloqueia:** Nenhum (pode ser último sprint de UX)
 > **Ref doc master:** Seção 14.1-14.12
-> **Estimativa:** 10-14 dias (sprint mais complexo — 6 eixos de transformação)
 
 ---
 

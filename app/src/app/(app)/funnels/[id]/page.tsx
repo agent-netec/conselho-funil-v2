@@ -39,6 +39,7 @@ import { notify } from '@/lib/stores/notification-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { ShareDialog } from '@/components/funnels/share-dialog';
 import { ExportDialog } from '@/components/funnels/export-dialog';
+import { CompletionBanner } from '@/components/ui/completion-banner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 
 // Generate markdown from funnel data
@@ -963,6 +964,16 @@ export default function FunnelDetailPage() {
               )}
             </div>
           </motion.div>
+
+          {/* Sprint 08.7: Next step CTA for approved funnels */}
+          {funnel.status === 'approved' && (
+            <CompletionBanner
+              title="Funil aprovado!"
+              description="Transforme esta estrategia em uma campanha completa com copy, social e ads."
+              cta="Iniciar Campanha"
+              href={`/campaigns`}
+            />
+          )}
 
           {/* Generating State */}
           <AnimatePresence>

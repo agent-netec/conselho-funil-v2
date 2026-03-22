@@ -27,7 +27,7 @@ export class MetaMetricsAdapter extends AdsPlatformAdapter {
       until: period.end.toISOString().split('T')[0],
     });
 
-    const fields = 'campaign_id,campaign_name,spend,impressions,clicks,actions,cpc,ctr';
+    const fields = 'campaign_id,campaign_name,spend,impressions,clicks,actions,action_values,cpc,ctr';
     const adAccountId = credentials.adAccountId.startsWith('act_') 
       ? credentials.adAccountId.replace('act_', '') 
       : credentials.adAccountId;
@@ -64,6 +64,11 @@ function mapMetaInsightToRawAds(insight: any): RawAdsData {
     .filter((a: any) => a.action_type === 'offsite_conversion.fb_pixel_purchase')
     .reduce((sum: number, a: any) => sum + parseInt(a.value || '0', 10), 0);
 
+  // Sprint 12: Extrair revenue real do pixel via action_values
+  const revenue = (insight.action_values || [])
+    .filter((a: any) => a.action_type === 'offsite_conversion.fb_pixel_purchase')
+    .reduce((sum: number, a: any) => sum + parseFloat(a.value || '0'), 0);
+
   return {
     platform: 'meta',
     externalId: insight.campaign_id || '',
@@ -72,5 +77,6 @@ function mapMetaInsightToRawAds(insight: any): RawAdsData {
     clicks: parseInt(insight.clicks || '0', 10),
     impressions: parseInt(insight.impressions || '0', 10),
     conversions,
+    revenue,
   };
 }

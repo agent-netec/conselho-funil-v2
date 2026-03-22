@@ -195,7 +195,34 @@ Diferencial: ${brand.offer?.differentiator || 'N/A'}
       console.warn('[Social/Hooks] Offer Lab fetch failed:', err);
     }
 
-    // 1e. Brain context — identity cards dos 4 conselheiros sociais (strategic mode only)
+    // 1e. Competitor Profile Analysis (Gap 1D — feeds generation with competitor insights)
+    let competitorSection = '';
+    try {
+      const adminDb = getAdminFirestore();
+      const profilesSnap = await adminDb.collection('brands').doc(brandId)
+        .collection('competitor_profiles').orderBy('createdAt', 'desc').limit(3).get();
+      if (!profilesSnap.empty) {
+        const profiles = profilesSnap.docs.map(d => d.data());
+        const lines = [`## ANÁLISE DE CONCORRENTES (perfis analisados)`];
+        for (const p of profiles) {
+          const r = p.report;
+          if (!r?.profileName) continue;
+          lines.push(`\n### ${r.profileName} (${r.platform || 'N/A'})`);
+          if (r.strengths?.length > 0) lines.push(`**Emular:** ${r.strengths.slice(0, 3).join('; ')}`);
+          if (r.weaknesses?.length > 0) lines.push(`**Evitar:** ${r.weaknesses.slice(0, 3).join('; ')}`);
+          if (r.opportunities?.length > 0) lines.push(`**Oportunidades:** ${r.opportunities.slice(0, 3).join('; ')}`);
+          if (r.hookTypes?.length > 0) lines.push(`**Hooks que funcionam:** ${r.hookTypes.join(', ')}`);
+        }
+        if (lines.length > 1) {
+          competitorSection = lines.join('\n');
+          console.log(`[Social/Hooks] Competitor profiles injected (${profilesSnap.size} profiles)`);
+        }
+      }
+    } catch (err) {
+      console.warn('[Social/Hooks] Competitor profiles fetch failed:', err);
+    }
+
+    // 1f. Brain context — identity cards dos 4 conselheiros sociais (strategic mode only)
     const brainContext = isQuickMode ? '' : buildSocialBrainContext();
 
     // 2. Buscar heurísticas via RAG
@@ -251,6 +278,7 @@ Retorne APENAS JSON:
 }
 
 ${intelSection ? `## Inteligência da Marca:\n${intelSection}` : ''}
+${competitorSection ? `${competitorSection}\n` : ''}
 ${knowledgeContext ? `## Heurísticas:\n${knowledgeContext}` : ''}
 ${campaignContext}`;
     } else {
@@ -264,6 +292,7 @@ ${campaignContext}`;
         + (brainContext ? `\n\n## IDENTITY CARDS DOS ESPECIALISTAS (Frameworks Reais)\n${brainContext}` : '')
         + (offerSection ? `\n\n${offerSection}` : '')
         + (intelSection ? `\n\n## Inteligência da Marca:\n${intelSection}` : '')
+        + (competitorSection ? `\n\n${competitorSection}` : '')
         + campaignContext;
     }
 

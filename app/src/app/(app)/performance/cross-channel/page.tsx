@@ -10,16 +10,32 @@ import {
   Download,
   RefreshCcw,
   LayoutDashboard,
-  AlertCircle
+  AlertCircle,
+  Layers
 } from "lucide-react";
 import { useCrossChannelMetrics } from '@/lib/hooks/use-cross-channel-metrics';
 import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
 
 export default function CrossChannelWarRoomPage() {
   const { metrics, insights, loading, error, refresh } = useCrossChannelMetrics(30);
 
   return (
     <div className="container mx-auto py-8 px-4 space-y-8">
+      {/* Sprint 12: Tab navigation — War Room / Cross-channel */}
+      <div className="flex items-center gap-6">
+        <Link
+          href="/performance"
+          className="text-[11px] font-mono font-bold tracking-wider text-[#6B5D4A] hover:text-[#CAB792] pb-2 border-b-2 border-transparent transition-colors"
+        >
+          WAR ROOM
+        </Link>
+        <span className="text-[11px] font-mono font-bold tracking-wider text-[#E6B447] border-b-2 border-[#E6B447] pb-2 flex items-center gap-1.5">
+          <Layers className="h-3 w-3" />
+          CROSS-CHANNEL
+        </span>
+      </div>
+
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
@@ -90,6 +106,17 @@ export default function CrossChannelWarRoomPage() {
             Conecte suas contas de Meta Ads, Google Ads ou TikTok Ads para visualizar métricas cross-channel consolidadas.
           </p>
         </Card>
+      )}
+
+      {/* Sprint 12: Note when only 1 provider connected */}
+      {!loading && !error && metrics && Object.keys(metrics.channels).length === 1 && (
+        <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-[#E6B447]/5 border border-[#E6B447]/10">
+          <AlertCircle className="w-4 h-4 text-[#E6B447] flex-shrink-0" />
+          <p className="text-xs text-[#CAB792]">
+            Apenas <span className="font-semibold text-[#E6B447]">{Object.keys(metrics.channels)[0]?.toUpperCase()}</span> conectado.
+            Conecte outra plataforma para visão consolidada cross-channel.
+          </p>
+        </div>
       )}
 
       {/* Main Dashboard Component */}

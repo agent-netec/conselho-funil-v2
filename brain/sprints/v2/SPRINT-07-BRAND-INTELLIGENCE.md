@@ -1,11 +1,11 @@
 # Sprint 07 — Brand Intelligence Layer (Interconectividade)
 
+> **Status:** 🟢 COMPLETO — Auditado e corrigido (commit `fix(sprint-07)`)
 > **Máxima:** Progressão Contínua — Zero Becos Sem Saída
 > **Princípio:** Interconectividade — todos os engines alimentam e consultam
 > **Bloqueado por:** Sprint 03 (Brands P0 — estrutura de dados da marca)
 > **Desbloqueia:** Sprint 09 (Discovery), Sprint 11 (Forensics)
 > **Ref doc master:** Seção 10
-> **Estimativa:** 5-7 dias (4 etapas incrementais)
 
 ---
 

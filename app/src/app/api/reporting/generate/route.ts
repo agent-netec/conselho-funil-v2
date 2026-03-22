@@ -1,18 +1,17 @@
 export const dynamic = 'force-dynamic';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { reportingEngine } from '@/lib/reporting/engine';
-import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
+import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
  * POST /api/reporting/generate
- * Gera um insight de IA baseado em métricas fornecidas
+ * Gera um insight de IA baseado em métricas fornecidas.
+ * Sprint 08.6: Aberto a qualquer usuário autenticado com acesso à marca (não mais admin-only).
  */
 export async function POST(request: NextRequest) {
   try {
-    // 1. Segurança: Apenas admins podem disparar geração manual por enquanto
-    await verifyAdminRole(request);
-
     const body = await request.json();
     const { metrics, context } = body;
 
@@ -20,10 +19,16 @@ export async function POST(request: NextRequest) {
       return createApiError(400, 'Parâmetros metrics e context são obrigatórios');
     }
 
-    // 2. Execução do Engine
+    // Verify user has access to the brand (replaces verifyAdminRole)
+    const brandId = context?.brandId;
+    if (!brandId || brandId === 'TEST') {
+      return createApiError(400, 'brandId válido é obrigatório no context');
+    }
+    await requireBrandAccess(request, brandId);
+
+    // Execute the reporting engine
     const report = await reportingEngine.generateReport(metrics, context);
 
-    // 3. Retorno
     return createApiSuccess(report);
   } catch (error) {
     console.error('[API Reporting] Error:', error);

@@ -29,6 +29,7 @@ import { notify } from '@/lib/stores/notification-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { CompletionBanner } from '@/components/ui/completion-banner';
 
 
 export default function CampaignCommandCenter() {
@@ -93,6 +94,7 @@ export default function CampaignCommandCenter() {
       if (data.social) completed.push('social');
       if (data.design) completed.push('design');
       if (data.ads) completed.push('ads');
+      if (data.launch) completed.push('launch');
       setCompletedStages(completed);
 
       // Determine current stage (offer is optional — skip if not present)
@@ -101,7 +103,7 @@ export default function CampaignCommandCenter() {
       else if (!data.social) setCurrentStageId('social');
       else if (!data.design) setCurrentStageId('design');
       else if (!data.ads) setCurrentStageId('ads');
-      else setCurrentStageId('ads');
+      else setCurrentStageId('launch');
 
       setLoading(false);
     }
@@ -482,14 +484,73 @@ export default function CampaignCommandCenter() {
           />
         </div>
 
-        {/* Launch Pad placeholder (Sprint 10) */}
-        <section className="mt-12">
-          <div className="border border-white/[0.06] rounded-xl p-8 text-center bg-white/[0.01]">
-            <Zap className="h-8 w-8 text-zinc-700 mx-auto mb-3" />
-            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-1">Launch Pad</h3>
-            <p className="text-xs text-zinc-600">Publicação e monitoramento em breve</p>
+        {/* Sprint 08.7: Contextual next-step banners per stage */}
+        {!isCampaignComplete && campaign.funnel && !campaign.copywriting && (
+          <div className="mb-6">
+            <CompletionBanner
+              title="Estrategia definida!"
+              description="Seu funil esta pronto. Agora crie a copy persuasiva para sua campanha."
+              cta="Gerar Copy"
+              href={`/campaigns/${campaign.id}/copy`}
+            />
           </div>
-        </section>
+        )}
+        {!isCampaignComplete && campaign.copywriting && !campaign.social && (
+          <div className="mb-6">
+            <CompletionBanner
+              title="Copy aprovada!"
+              description="Sua mensagem esta definida. Crie posts e hooks para redes sociais."
+              cta="Criar Posts Sociais"
+              href={`/campaigns/${campaign.id}/social`}
+            />
+          </div>
+        )}
+        {!isCampaignComplete && campaign.social && !campaign.design && (
+          <div className="mb-6">
+            <CompletionBanner
+              title="Social pronto!"
+              description="Hooks e posts definidos. Agora crie os visuais da campanha."
+              cta="Gerar Design"
+              href={`/campaigns/${campaign.id}/design`}
+            />
+          </div>
+        )}
+        {!isCampaignComplete && campaign.design && !campaign.ads && (
+          <div className="mb-6">
+            <CompletionBanner
+              title="Design definido!"
+              description="Visuais prontos. Defina a estrategia de ads e trafego."
+              cta="Configurar Ads"
+              href={`/campaigns/${campaign.id}/ads`}
+            />
+          </div>
+        )}
+
+        {/* Sprint 08.7: All stages done → review in Launch Pad */}
+        {campaign.design && campaign.ads && (
+          <div className="mb-6">
+            <CompletionBanner
+              title="Campanha completa!"
+              description="Todas as etapas finalizadas. Revise tudo antes de publicar."
+              cta="Abrir Launch Pad"
+              href={`/campaigns/${campaign.id}/launch`}
+            />
+          </div>
+        )}
+
+        {/* Launch Pad (Sprint 10) */}
+        {isCampaignComplete && (
+          <section className="mt-12">
+            <button
+              onClick={() => router.push(`/campaigns/${campaign.id}/launch`)}
+              className="w-full border border-[#E6B447]/20 rounded-xl p-8 text-center bg-gradient-to-br from-[#E6B447]/5 to-zinc-900/50 hover:from-[#E6B447]/10 transition-all group cursor-pointer"
+            >
+              <Zap className="h-8 w-8 text-[#E6B447] mx-auto mb-3 group-hover:scale-110 transition-transform" />
+              <h3 className="text-sm font-bold text-[#E6B447] uppercase tracking-wider mb-1">Launch Pad</h3>
+              <p className="text-xs text-zinc-400">Kit de campanha, checklist, diário e feedback</p>
+            </button>
+          </section>
+        )}
       </div>
     </div>
   );

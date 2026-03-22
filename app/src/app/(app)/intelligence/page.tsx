@@ -23,7 +23,6 @@ const NAV = [
   { key: "attribution", label: "Attribution", href: "/intelligence/attribution" },
   { key: "ltv", label: "LTV", href: "/intelligence/ltv" },
   { key: "journey", label: "Journey", href: "/intelligence/journey" },
-  { key: "autopsy", label: "Autopsy", href: "/strategy/autopsy" },
   { key: "offer-lab", label: "Offer Lab", href: "/intelligence/offer-lab" },
 ] as const
 

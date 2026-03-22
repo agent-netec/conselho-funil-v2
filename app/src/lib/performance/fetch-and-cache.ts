@@ -235,6 +235,7 @@ export async function fetchRealMetrics(
       });
 
       aggregated.spend += normalized.spend;
+      aggregated.revenue += normalized.revenue;
       aggregated.clicks += normalized.clicks;
       aggregated.impressions += normalized.impressions;
       aggregated.conversions += normalized.conversions;
@@ -246,7 +247,8 @@ export async function fetchRealMetrics(
   aggregated.cpc = aggregated.clicks > 0 ? aggregated.spend / aggregated.clicks : 0;
   aggregated.cpa = aggregated.conversions > 0 ? aggregated.spend / aggregated.conversions : 0;
   aggregated.cac = aggregated.cpa;
-  aggregated.roas = aggregated.spend > 0 ? (aggregated.conversions * 100) / aggregated.spend : 0;
+  // Sprint 12: ROAS from real revenue (revenue / spend), 0 if no revenue data
+  aggregated.roas = aggregated.spend > 0 && aggregated.revenue > 0 ? aggregated.revenue / aggregated.spend : 0;
 
   metrics.push({
     id: `metric_${brandId}_aggregated_${Date.now()}`,

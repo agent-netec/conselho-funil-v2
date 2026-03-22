@@ -1,11 +1,11 @@
 # Sprint 00 — Pré-lançamento (Fundação Técnica)
 
+> **Status:** 🟢 COMPLETO
 > **Máxima:** Progressão Contínua — Zero Becos Sem Saída
 > **Princípio:** UX First
 > **Bloqueado por:** Nada (primeiro sprint)
 > **Desbloqueia:** Sprint 01, 02, 04, 05, 06
 > **Ref doc master:** Seções 1, 4, 5, 6.1, 6.6
-> **Estimativa:** 2-3 dias
 
 ---
 

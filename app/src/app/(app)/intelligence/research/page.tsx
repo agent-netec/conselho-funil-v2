@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { CompletionBanner } from '@/components/ui/completion-banner';
 
 type TabId = 'dossier' | 'audience' | 'chat';
 
@@ -492,6 +493,14 @@ export default function ResearchPage() {
                       Analisar Audiência
                     </Button>
                   </div>
+
+                  {/* Sprint 08.7: Next step after research */}
+                  <CompletionBanner
+                    title="Dossiê completo!"
+                    description="Use esses insights para criar uma campanha baseada em dados reais de mercado."
+                    cta="Criar Campanha"
+                    href="/campaigns"
+                  />
                 </div>
               )}
 

@@ -132,7 +132,42 @@ export interface CampaignContext {
     };
   };
 
-  // Passo 6: Métricas Reais (Sincronizadas via Webhook)
+  // Passo 6: Launch Pad (Sprint 10)
+  launch?: {
+    checklist?: {
+      id: string;
+      title: string;
+      description: string;
+      completed: boolean;
+      link?: string;
+    }[];
+    diary?: {
+      week: number;
+      spend: number;
+      clicks: number;
+      impressions: number;
+      conversions: number;
+      notes?: string;
+      aiInsight?: string;
+      createdAt: Timestamp;
+    }[];
+    feedback?: {
+      result: 'success' | 'failure' | 'mediocre';
+      notes?: string;
+      savedAt: Timestamp;
+    };
+    healthCheck?: {
+      url: string;
+      score: number;
+      summary: string;
+      heuristics: { hook: number; story: number; offer: number; friction: number; trust: number };
+      recommendations: { priority: string; action: string; impact: string }[];
+      checkedAt: Timestamp;
+    };
+    publishedAt?: Timestamp;
+  };
+
+  // Passo 7: Métricas Reais (Sincronizadas via Webhook)
   metrics?: {
     clicks: number;
     impressions: number;

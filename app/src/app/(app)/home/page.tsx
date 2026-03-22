@@ -1,19 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Target, Plus, ArrowRight, MessageSquare, Compass } from 'lucide-react';
+import { Sparkles, Target, Plus, ArrowRight, MessageSquare, Zap, BarChart3 } from 'lucide-react';
 import { Header } from '@/components/layout/header';
 import { useStats } from '@/lib/hooks/use-stats';
 import { useFunnels } from '@/lib/hooks/use-funnels';
 import { useBrands } from '@/lib/hooks/use-brands';
+import { useCampaigns } from '@/lib/hooks/use-campaigns';
 import { useUser } from '@/lib/hooks/use-user';
 import { useActiveBrand } from '@/lib/hooks/use-active-brand';
 import { useVerdictForBrand } from '@/lib/hooks/use-verdict';
 import { useBrandAssets } from '@/lib/hooks/use-brand-assets';
 import { StatsCards } from '@/components/dashboard/stats-cards';
-import { QuickActions } from '@/components/dashboard/quick-actions';
 import { RecentActivity } from '@/components/dashboard/recent-activity';
 import { DashboardHero, type DashboardState } from '@/components/dashboard/dashboard-hero';
 import { VerdictSummary } from '@/components/dashboard/verdict-summary';
@@ -29,11 +28,15 @@ import {
   AiConfigModal,
 } from '@/components/brand-config';
 import type { ModalKey } from '@/lib/utils/brand-completeness';
+import type { CampaignContext } from '@/types/campaign';
+import type { Brand, Funnel } from '@/types/database';
+import type { DashboardStats } from '@/types';
+import type { VerdictOutput } from '@/lib/ai/prompts/verdict-prompt';
 import Link from 'next/link';
 import Image from 'next/image';
 
 // ---------------------------------------------------------------------------
-// State resolution
+// State resolution — Sprint 08.4: expanded 7-state machine
 // ---------------------------------------------------------------------------
 
 function resolveDashboardState(params: {
@@ -43,16 +46,30 @@ function resolveDashboardState(params: {
   userLoading: boolean;
   funnelsCount: number;
   funnelsLoading: boolean;
+  campaigns: CampaignContext[];
+  campaignsLoading: boolean;
 }): DashboardState {
-  const { brands, brandsLoading, onboardingComplete, userLoading, funnelsCount, funnelsLoading } = params;
+  const {
+    brands, brandsLoading, onboardingComplete, userLoading,
+    funnelsCount, funnelsLoading, campaigns, campaignsLoading,
+  } = params;
 
-  if (brandsLoading || userLoading || funnelsLoading) return 'loading';
+  if (brandsLoading || userLoading || funnelsLoading || campaignsLoading) return 'loading';
 
   const hasBrands = brands.length > 0;
   if (!hasBrands) return 'welcome';
   if (!onboardingComplete) return 'pre-briefing';
-  if (funnelsCount > 0) return 'active';
-  return 'post-aha';
+  if (funnelsCount === 0) return 'post-aha';
+
+  // Has funnels — check campaigns
+  const activeCampaigns = campaigns.filter((c) => c.status === 'active' || c.status === 'planning');
+  if (activeCampaigns.length === 0) return 'has-funnels';
+
+  // Has campaign — check if ads connected (has ads stage data or metrics)
+  const topCampaign = activeCampaigns[0];
+  if (topCampaign && (topCampaign.ads || topCampaign.metrics)) return 'has-ads';
+
+  return 'has-campaign';
 }
 
 // ---------------------------------------------------------------------------
@@ -82,48 +99,6 @@ function DashboardSkeleton() {
 // ---------------------------------------------------------------------------
 
 function WelcomeBody({ onCreateBrand }: { onCreateBrand: () => void }) {
-  const router = useRouter();
-
-  const actions = [
-    {
-      key: 'create',
-      icon: Sparkles,
-      label: 'Criar sua marca',
-      description: 'Configure o contexto da sua marca para personalizar todas as análises.',
-      onClick: onCreateBrand,
-      accent: 'gold' as const,
-    },
-    {
-      key: 'chat',
-      icon: MessageSquare,
-      label: 'Consultar o MKTHONEY',
-      description: 'Fale com 23 especialistas de marketing ao mesmo tempo.',
-      onClick: () => router.push('/chat'),
-      accent: 'blue' as const,
-    },
-    {
-      key: 'explore',
-      icon: Compass,
-      label: 'Explorar a plataforma',
-      description: 'Veja funis, campanhas, calendario e mais.',
-      onClick: () => router.push('/funnels'),
-      accent: 'gold' as const,
-    },
-  ];
-
-  const accentColors = {
-    gold: {
-      icon: 'text-[#E6B447]',
-      bg: 'bg-[#E6B447]/10',
-      hover: 'hover:border-[#E6B447]/20',
-    },
-    blue: {
-      icon: 'text-[#5B8EC4]',
-      bg: 'bg-[#5B8EC4]/10',
-      hover: 'hover:border-[#5B8EC4]/20',
-    },
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -139,40 +114,21 @@ function WelcomeBody({ onCreateBrand }: { onCreateBrand: () => void }) {
       </h1>
       <p className="mb-8 max-w-md text-sm text-[#6B5D4A] text-center">
         23 especialistas de marketing com IA, prontos para sua marca.
+        Configure sua marca em 2 minutos e receba seu primeiro diagnostico estrategico.
       </p>
 
-      <span className="mb-4 font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#AB8648]">
-        Por onde comecar?
-      </span>
-
-      <div className="flex w-full max-w-lg flex-col gap-2">
-        {actions.map((action) => {
-          const colors = accentColors[action.accent];
-          return (
-            <button
-              key={action.key}
-              onClick={action.onClick}
-              className={`group flex items-center gap-3 rounded-xl border border-[#2A2318] bg-[#1A1612] px-4 py-3.5 text-left transition-all ${colors.hover} hover:bg-[#241F19]`}
-            >
-              <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ${colors.bg}`}>
-                <action.icon className={`h-4 w-4 ${colors.icon}`} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <span className="block text-sm font-medium text-[#F5E8CE]">{action.label}</span>
-                <span className="block text-[11px] text-[#6B5D4A]">{action.description}</span>
-              </div>
-              <ArrowRight className="h-3.5 w-3.5 flex-shrink-0 text-[#3D3428] group-hover:text-[#AB8648] transition-colors" />
-            </button>
-          );
-        })}
-      </div>
-
-      <button
-        onClick={() => router.push('/chat')}
-        className="mt-6 text-[11px] text-[#6B5D4A] hover:text-[#AB8648] transition-colors"
+      <Button
+        onClick={onCreateBrand}
+        className="bg-gradient-to-r from-[#E6B447] to-[#AB8648] text-[#0D0B09] font-semibold hover:from-[#F0C35C] hover:to-[#E6B447] px-8 py-3 text-base"
       >
-        Pular e ir para o dashboard
-      </button>
+        <Sparkles className="h-4 w-4 mr-2" />
+        Criar sua marca
+        <ArrowRight className="h-4 w-4 ml-2" />
+      </Button>
+
+      <p className="mt-4 text-[11px] text-[#6B5D4A] max-w-xs text-center">
+        Em 2 minutos, 23 conselheiros analisam seu posicionamento e oferta
+      </p>
     </motion.div>
   );
 }
@@ -215,89 +171,399 @@ function PreBriefingBody({ onStartBriefing }: { onStartBriefing: () => void }) {
 }
 
 // ---------------------------------------------------------------------------
-// Post-Aha body
+// Post-Aha body (has brand, no funnels)
 // ---------------------------------------------------------------------------
 
 function PostAhaBody({
   brand,
   verdict,
   verdictLoading,
-  verdictConversationId,
+  previousScores,
   assetCount,
   onOpenModal,
 }: {
-  brand: import('@/types/database').Brand;
-  verdict: import('@/lib/ai/prompts/verdict-prompt').VerdictOutput | null;
+  brand: Brand;
+  verdict: VerdictOutput | null;
   verdictLoading: boolean;
-  verdictConversationId: string | null;
+  previousScores?: { positioning: number | null; offer: number | null } | null;
   assetCount: number;
   onOpenModal: (modalKey: ModalKey) => void;
 }) {
   return (
     <div className="space-y-5">
-      {/* Verdict Summary — full width */}
       <VerdictSummary
         verdict={verdict}
-        conversationId={verdictConversationId}
+        previousScores={previousScores}
+        brandId={brand.id}
         isLoading={verdictLoading}
       />
 
-      {/* Two columns: Brand Progress + Next Actions */}
       <div className="grid gap-5 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <BrandProgress brand={brand} assetCount={assetCount} onOpenModal={onOpenModal} />
         </div>
 
         <div className="lg:col-span-2 space-y-3">
-          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#AB8648] flex items-center gap-2">
-            <Target className="h-3.5 w-3.5" />
-            Proximo passo
-          </span>
-
-          <Link href="/funnels/new" className="block">
-            <Card className="group border-[#2A2318] bg-[#1A1612] py-0 gap-0 rounded-xl shadow-none hover:border-[#E6B447]/20 hover:bg-[#241F19] transition-all cursor-pointer">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#E6B447]/10">
-                    <Plus className="h-4 w-4 text-[#E6B447]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="block text-sm font-medium text-[#F5E8CE] group-hover:text-[#E6B447] transition-colors">
-                      Criar seu primeiro funil
-                    </span>
-                    <span className="block text-[11px] text-[#6B5D4A]">
-                      O MKTHONEY propoe arquiteturas baseadas na sua marca
-                    </span>
-                  </div>
-                  <ArrowRight className="h-3.5 w-3.5 text-[#3D3428] group-hover:text-[#E6B447] transition-colors" />
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/chat" className="block">
-            <Card className="group border-[#2A2318] bg-[#1A1612] py-0 gap-0 rounded-xl shadow-none hover:border-[#5B8EC4]/20 hover:bg-[#241F19] transition-all cursor-pointer">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#5B8EC4]/10">
-                    <MessageSquare className="h-4 w-4 text-[#5B8EC4]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="block text-sm font-medium text-[#F5E8CE] group-hover:text-[#E6B447] transition-colors">
-                      Continuar conversa com o MKTHONEY
-                    </span>
-                    <span className="block text-[11px] text-[#6B5D4A]">
-                      Aprofunde o diagnostico e receba recomendacoes
-                    </span>
-                  </div>
-                  <ArrowRight className="h-3.5 w-3.5 text-[#3D3428] group-hover:text-[#E6B447] transition-colors" />
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+          <NextActionHeader />
+          <NextActionCard
+            href="/funnels/new"
+            icon={<Plus className="h-4 w-4 text-[#E6B447]" />}
+            iconBg="bg-[#E6B447]/10"
+            title="Criar seu primeiro funil"
+            description="O MKTHONEY propoe arquiteturas baseadas na sua marca"
+          />
+          <NextActionCard
+            href="/chat"
+            icon={<MessageSquare className="h-4 w-4 text-[#5B8EC4]" />}
+            iconBg="bg-[#5B8EC4]/10"
+            title="Continuar conversa com o MKTHONEY"
+            description="Aprofunde o diagnostico e receba recomendacoes"
+            hoverColor="hover:border-[#5B8EC4]/20"
+          />
         </div>
       </div>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Has-Funnels body (has funnels, no campaign yet)
+// ---------------------------------------------------------------------------
+
+function HasFunnelsBody({
+  verdict,
+  verdictLoading,
+  previousScores,
+  brandId,
+  funnels,
+  funnelsLoading,
+  stats,
+  statsLoading,
+}: {
+  verdict: VerdictOutput | null;
+  verdictLoading: boolean;
+  previousScores?: { positioning: number | null; offer: number | null } | null;
+  brandId?: string;
+  funnels: Funnel[] | undefined;
+  funnelsLoading: boolean | undefined;
+  stats?: DashboardStats;
+  statsLoading?: boolean;
+}) {
+  return (
+    <>
+      <div className="mb-5">
+        <VerdictSummary
+          verdict={verdict}
+          previousScores={previousScores}
+          brandId={brandId}
+          isLoading={verdictLoading}
+        />
+      </div>
+
+      <StatsCards stats={stats} isLoading={!!statsLoading} />
+
+      <div className="grid gap-5 lg:grid-cols-5">
+        <div className="lg:col-span-3">
+          <RecentActivity funnels={funnels || []} isLoading={!!funnelsLoading} />
+        </div>
+        <div className="lg:col-span-2 space-y-3">
+          <NextActionHeader />
+          <NextActionCard
+            href="/campaigns"
+            icon={<Zap className="h-4 w-4 text-[#E6B447]" />}
+            iconBg="bg-[#E6B447]/10"
+            title="Iniciar campanha"
+            description="Transforme seu funil aprovado em uma campanha completa"
+          />
+          <NextActionCard
+            href="/funnels/new"
+            icon={<Plus className="h-4 w-4 text-[#AB8648]" />}
+            iconBg="bg-[#AB8648]/10"
+            title="Criar outro funil"
+            description="Explore novas estrategias para sua marca"
+            hoverColor="hover:border-[#AB8648]/20"
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Has-Campaign body (active campaign, no ads yet)
+// ---------------------------------------------------------------------------
+
+function HasCampaignBody({
+  verdict,
+  verdictLoading,
+  previousScores,
+  brandId,
+  campaign,
+  funnels,
+  funnelsLoading,
+  stats,
+  statsLoading,
+}: {
+  verdict: VerdictOutput | null;
+  verdictLoading: boolean;
+  previousScores?: { positioning: number | null; offer: number | null } | null;
+  brandId?: string;
+  campaign: CampaignContext;
+  funnels: Funnel[] | undefined;
+  funnelsLoading: boolean | undefined;
+  stats?: DashboardStats;
+  statsLoading?: boolean;
+}) {
+  const stages = [
+    { key: 'funnel', label: 'Funil', done: Boolean(campaign.funnel) },
+    { key: 'copy', label: 'Copy', done: Boolean(campaign.copywriting) },
+    { key: 'social', label: 'Social', done: Boolean(campaign.social) },
+    { key: 'design', label: 'Design', done: Boolean(campaign.design) },
+    { key: 'ads', label: 'Ads', done: Boolean(campaign.ads) },
+  ];
+  const completed = stages.filter((s) => s.done).length;
+  const nextStage = stages.find((s) => !s.done);
+
+  return (
+    <>
+      <div className="mb-5">
+        <VerdictSummary
+          verdict={verdict}
+          previousScores={previousScores}
+          brandId={brandId}
+          isLoading={verdictLoading}
+        />
+      </div>
+
+      {/* Campaign progress card */}
+      <Link href={`/campaigns/${campaign.id}`} className="block mb-5">
+        <Card className="group border-[#2A2318] bg-[#1A1612] py-0 gap-0 rounded-xl shadow-none hover:border-[#E6B447]/20 transition-all cursor-pointer border-l-2 border-l-[#5B8EC4]/50">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#5B8EC4]">
+                  Campanha Ativa
+                </span>
+                <h3 className="text-sm font-semibold text-[#F5E8CE] mt-0.5">{campaign.name}</h3>
+              </div>
+              <span className="font-mono text-xs text-[#AB8648]">{completed}/{stages.length}</span>
+            </div>
+
+            {/* Mini stepper */}
+            <div className="flex gap-1.5 mb-3">
+              {stages.map((s) => (
+                <div key={s.key} className="flex-1 flex flex-col items-center gap-1">
+                  <div
+                    className={`h-1.5 w-full rounded-full ${
+                      s.done ? 'bg-[#E6B447]' : 'bg-[#241F19]'
+                    }`}
+                  />
+                  <span className={`text-[9px] font-mono ${s.done ? 'text-[#CAB792]' : 'text-[#3D3428]'}`}>
+                    {s.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {nextStage && (
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-[#6B5D4A]">
+                  Proximo: <span className="text-[#CAB792] font-medium">{nextStage.label}</span>
+                </span>
+                <ArrowRight className="h-3.5 w-3.5 text-[#3D3428] group-hover:text-[#E6B447] transition-colors" />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </Link>
+
+      <StatsCards stats={stats} isLoading={!!statsLoading} />
+
+      <div className="grid gap-5 lg:grid-cols-5">
+        <div className="lg:col-span-3">
+          <RecentActivity funnels={funnels || []} isLoading={!!funnelsLoading} />
+        </div>
+        <div className="lg:col-span-2 space-y-3">
+          <NextActionHeader />
+          {nextStage ? (
+            <NextActionCard
+              href={`/campaigns/${campaign.id}`}
+              icon={<Zap className="h-4 w-4 text-[#E6B447]" />}
+              iconBg="bg-[#E6B447]/10"
+              title={`Proximo: ${nextStage.label}`}
+              description={`Continue sua campanha — etapa ${nextStage.label} aguardando`}
+            />
+          ) : (
+            <NextActionCard
+              href={`/campaigns/${campaign.id}`}
+              icon={<Zap className="h-4 w-4 text-[#7A9B5A]" />}
+              iconBg="bg-[#7A9B5A]/10"
+              title="Campanha completa"
+              description="Revise todas as etapas e lance sua campanha"
+            />
+          )}
+          <NextActionCard
+            href="/funnels/new"
+            icon={<Plus className="h-4 w-4 text-[#AB8648]" />}
+            iconBg="bg-[#AB8648]/10"
+            title="Criar outro funil"
+            description="Explore novas estrategias para sua marca"
+            hoverColor="hover:border-[#AB8648]/20"
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Has-Ads body (campaign with ads/metrics connected)
+// ---------------------------------------------------------------------------
+
+function HasAdsBody({
+  verdict,
+  verdictLoading,
+  previousScores,
+  brandId,
+  campaign,
+  funnels,
+  funnelsLoading,
+  stats,
+  statsLoading,
+}: {
+  verdict: VerdictOutput | null;
+  verdictLoading: boolean;
+  previousScores?: { positioning: number | null; offer: number | null } | null;
+  brandId?: string;
+  campaign: CampaignContext;
+  funnels: Funnel[] | undefined;
+  funnelsLoading: boolean | undefined;
+  stats?: DashboardStats;
+  statsLoading?: boolean;
+}) {
+  const metrics = campaign.metrics;
+
+  return (
+    <>
+      <div className="mb-5">
+        <VerdictSummary
+          verdict={verdict}
+          previousScores={previousScores}
+          brandId={brandId}
+          isLoading={verdictLoading}
+        />
+      </div>
+
+      {/* Ads KPI strip */}
+      {metrics && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          <KpiCard label="Impressoes" value={metrics.impressions.toLocaleString('pt-BR')} />
+          <KpiCard label="Cliques" value={metrics.clicks.toLocaleString('pt-BR')} />
+          <KpiCard
+            label="Investimento"
+            value={`R$ ${metrics.spend.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+          />
+          <KpiCard
+            label="Conversoes"
+            value={metrics.conversions.toLocaleString('pt-BR')}
+            highlight
+          />
+        </div>
+      )}
+
+      <StatsCards stats={stats} isLoading={!!statsLoading} />
+
+      <div className="grid gap-5 lg:grid-cols-5">
+        <div className="lg:col-span-3">
+          <RecentActivity funnels={funnels || []} isLoading={!!funnelsLoading} />
+        </div>
+        <div className="lg:col-span-2 space-y-3">
+          <NextActionHeader />
+          <NextActionCard
+            href="/performance"
+            icon={<BarChart3 className="h-4 w-4 text-[#E6B447]" />}
+            iconBg="bg-[#E6B447]/10"
+            title="Analisar performance"
+            description="Metricas detalhadas, anomalias e insights de IA"
+          />
+          <NextActionCard
+            href={`/campaigns/${campaign.id}`}
+            icon={<Zap className="h-4 w-4 text-[#5B8EC4]" />}
+            iconBg="bg-[#5B8EC4]/10"
+            title="Ver campanha completa"
+            description={campaign.name}
+            hoverColor="hover:border-[#5B8EC4]/20"
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Shared: KPI card + Next action helpers
+// ---------------------------------------------------------------------------
+
+function KpiCard({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <Card className="border-[#2A2318] bg-[#1A1612] py-0 gap-0 rounded-xl shadow-none">
+      <CardContent className="p-4">
+        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#6B5D4A] block mb-1">
+          {label}
+        </span>
+        <span className={`text-lg font-bold tabular-nums ${highlight ? 'text-[#E6B447]' : 'text-[#F5E8CE]'}`}>
+          {value}
+        </span>
+      </CardContent>
+    </Card>
+  );
+}
+
+function NextActionHeader() {
+  return (
+    <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#AB8648] flex items-center gap-2">
+      <Target className="h-3.5 w-3.5" />
+      Proximo passo
+    </span>
+  );
+}
+
+function NextActionCard({
+  href,
+  icon,
+  iconBg,
+  title,
+  description,
+  hoverColor = 'hover:border-[#E6B447]/20',
+}: {
+  href: string;
+  icon: React.ReactNode;
+  iconBg: string;
+  title: string;
+  description: string;
+  hoverColor?: string;
+}) {
+  return (
+    <Link href={href} className="block">
+      <Card className={`group border-[#2A2318] bg-[#1A1612] py-0 gap-0 rounded-xl shadow-none ${hoverColor} hover:bg-[#241F19] transition-all cursor-pointer`}>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBg}`}>
+              {icon}
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="block text-sm font-medium text-[#F5E8CE] group-hover:text-[#E6B447] transition-colors">
+                {title}
+              </span>
+              <span className="block text-[11px] text-[#6B5D4A] truncate">
+                {description}
+              </span>
+            </div>
+            <ArrowRight className="h-3.5 w-3.5 text-[#3D3428] group-hover:text-[#E6B447] transition-colors" />
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
@@ -318,17 +584,20 @@ export default function HomePage() {
   const brands = brandsData?.brands;
   const brandsLoading = brandsData?.isLoading;
 
+  // Sprint 08.4: Campaign data for state machine
+  const { campaigns, isLoading: campaignsLoading } = useCampaigns();
+
   // Sprint R2.1: Onboarding wizard check
   const { user: firestoreUser, isLoading: userLoading } = useUser();
   const onboardingComplete = firestoreUser?.preferences?.onboardingPhase1AComplete === true;
 
-  // Sprint R2.3: Active brand for verdict + progress
+  // Sprint R2.3 + 08.5: Active brand for verdict + progress
   const activeBrand = useActiveBrand();
-  const { verdict, conversationId: verdictConversationId, isLoading: verdictLoading } =
+  const { verdict, previousScores, isLoading: verdictLoading } =
     useVerdictForBrand(activeBrand?.id);
   const { assets, isLoading: assetsLoading } = useBrandAssets(activeBrand?.id);
 
-  // State machine
+  // Sprint 08.4: Expanded state machine
   const dashboardState = resolveDashboardState({
     brands: brands || [],
     brandsLoading: !!brandsLoading,
@@ -336,11 +605,23 @@ export default function HomePage() {
     userLoading,
     funnelsCount: funnels?.length || 0,
     funnelsLoading: !!funnelsLoading,
+    campaigns,
+    campaignsLoading,
   });
 
-  // Onboarding modal: triggered manually from WelcomeBody or pre-briefing CTA
+  // Top campaign for has-campaign / has-ads states
+  const topCampaign = campaigns.filter((c) => c.status === 'active' || c.status === 'planning')[0];
+
+  // Onboarding modal: auto-trigger for new users (welcome state), or manual from pre-briefing CTA
   const [manualOnboarding, setManualOnboarding] = useState(false);
   const showOnboarding = manualOnboarding;
+
+  // Sprint 08.2: Auto-open wizard for new users after initial load
+  useEffect(() => {
+    if (dashboardState === 'welcome') {
+      setManualOnboarding(true);
+    }
+  }, [dashboardState]);
 
   // Sprint R2.4: Brand config modals state
   const [openModal, setOpenModal] = useState<ModalKey | null>(null);
@@ -371,6 +652,7 @@ export default function HomePage() {
             state={dashboardState}
             brand={activeBrand}
             verdict={verdict}
+            campaignName={topCampaign?.name}
           />
         )}
 
@@ -390,26 +672,51 @@ export default function HomePage() {
             brand={activeBrand}
             verdict={verdict}
             verdictLoading={verdictLoading}
-            verdictConversationId={verdictConversationId}
+            previousScores={previousScores}
             assetCount={assetsLoading ? 0 : assets.length}
             onOpenModal={handleOpenModal}
           />
         )}
 
-        {dashboardState === 'active' && (
-          <>
-            <StatsCards stats={stats} isLoading={statsLoading} />
+        {dashboardState === 'has-funnels' && (
+          <HasFunnelsBody
+            verdict={verdict}
+            verdictLoading={verdictLoading}
+            previousScores={previousScores}
+            brandId={activeBrand?.id}
+            funnels={funnels}
+            funnelsLoading={funnelsLoading}
+            stats={stats}
+            statsLoading={statsLoading}
+          />
+        )}
 
-            {/* Two-column bento: Recent Funnels + Quick Actions */}
-            <div className="grid gap-5 lg:grid-cols-5">
-              <div className="lg:col-span-3">
-                <RecentActivity funnels={funnels} isLoading={funnelsLoading} />
-              </div>
-              <div className="lg:col-span-2">
-                <QuickActions />
-              </div>
-            </div>
-          </>
+        {dashboardState === 'has-campaign' && topCampaign && (
+          <HasCampaignBody
+            verdict={verdict}
+            verdictLoading={verdictLoading}
+            previousScores={previousScores}
+            brandId={activeBrand?.id}
+            campaign={topCampaign}
+            funnels={funnels}
+            funnelsLoading={funnelsLoading}
+            stats={stats}
+            statsLoading={statsLoading}
+          />
+        )}
+
+        {dashboardState === 'has-ads' && topCampaign && (
+          <HasAdsBody
+            verdict={verdict}
+            verdictLoading={verdictLoading}
+            previousScores={previousScores}
+            brandId={activeBrand?.id}
+            campaign={topCampaign}
+            funnels={funnels}
+            funnelsLoading={funnelsLoading}
+            stats={stats}
+            statsLoading={statsLoading}
+          />
         )}
       </div>
     </div>

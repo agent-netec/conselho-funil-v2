@@ -1,11 +1,11 @@
 # Sprint 01 — Social Completo + Calendário Básico (Viabilizar Starter)
 
+> **Status:** 🟢 COMPLETO
 > **Máxima:** Progressão Contínua — Zero Becos Sem Saída
 > **Princípio:** UX First
 > **Bloqueado por:** Sprint 00
 > **Desbloqueia:** Sprint 02 (tier enforcement faz sentido quando Starter tem valor)
 > **Ref doc master:** Seção 6.2, Social (auditoria), Calendar (auditoria)
-> **Estimativa:** 5-7 dias
 > **CRÍTICO:** Quando trials expiram no dia 7, Starter PRECISA ter valor real. Sem Social completo e Calendário, Starter não tem proposta de valor.
 
 ---

@@ -1,11 +1,11 @@
 # Sprint 02 — Tier Enforcement + Sistema de Créditos
 
+> **Status:** 🟢 COMPLETO
 > **Máxima:** Progressão Contínua — Zero Becos Sem Saída
 > **Princípio:** UX First
 > **Bloqueado por:** Sprint 00 (tiers definidos) + Sprint 01 (Starter tem valor)
 > **Desbloqueia:** Sprint 12 (Performance/Agency depende de enforcement)
 > **Ref doc master:** Risco 5, Risco 6, Seção 6.3
-> **Estimativa:** 5-7 dias
 
 ---
 

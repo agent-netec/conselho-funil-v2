@@ -63,7 +63,12 @@ Sprint 00 (Pré-lançamento) ─────────────────
 - `SPRINT-10-EXECUTION.md` — 7 etapas Launch Pad + 5 fixes
 - `SPRINT-11-EXECUTION.md` — 5 etapas Forensics
 - `SPRINT-12-EXECUTION.md` — 6 etapas Performance/Agency
-- `SPRINT-13-FUNNEL-INTELLIGENCE.md` — 6 tarefas (plano)
+- `SPRINT-13-FUNNEL-INTELLIGENCE.md` — 6 tarefas
+
+### Backlog (Seção 9 — Features auditadas com gaps pendentes):
+- `BACKLOG-SECAO-9-GAPS.md` — 7 gaps priorizados (Social completo, Predict interconexão, Intelligence Overview, Calendário export, Offer Lab UX, Vault pipeline, Personalization flow)
+- Sugestão de Sprints 14-18 para resolver progressivamente
+- **Nenhum é blocker para lançamento**
 
 ## Legenda
 

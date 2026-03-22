@@ -127,6 +127,53 @@ export async function verifyAdminRole(request: NextRequest) {
 }
 
 /**
+ * Verifica se o usuário está autenticado (sem exigir role admin).
+ * Sprint 08.6: Substituir verifyAdminRole em rotas que devem ser acessíveis a todos os usuários.
+ */
+export async function verifyAuthenticated(request: NextRequest) {
+  const authHeader = request.headers.get('Authorization');
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new ApiError(401, 'Autenticação necessária (Bearer token ausente)');
+  }
+
+  const idToken = authHeader.split('Bearer ')[1];
+
+  try {
+    const apiKey = (process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? '').trim();
+    if (!apiKey) {
+      throw new ApiError(500, 'Configuração do Firebase ausente (API Key)');
+    }
+
+    const response = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new ApiError(401, 'Token de autenticação inválido ou expirado');
+    }
+
+    const data = await response.json();
+    const uid = data.users?.[0]?.localId;
+
+    if (!uid) {
+      throw new ApiError(401, 'Usuário não encontrado no provedor de auth');
+    }
+
+    return { id: uid };
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    console.error('Security Verification Error:', error);
+    throw new ApiError(500, 'Erro interno na verificação de segurança');
+  }
+}
+
+/**
  * Helper para padronizar a resposta de erro de segurança nas rotas Next.js
  */
 export function handleSecurityError(error: unknown) {

@@ -11,6 +11,7 @@ import { parseJsonBody } from '@/app/api/_utils/parse-json';
 import { requireBrandAccess } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
+import { consumeCredits } from '@/lib/firebase/firestore-server';
 
 /**
  * Handler para execução do diagnóstico forense de funil.
@@ -33,7 +34,21 @@ export async function POST(req: NextRequest) {
       return createApiError(400, 'Parâmetros obrigatórios ausentes (brandId, url).');
     }
 
-    const { brandId: safeBrandId } = await requireBrandAccess(req, brandId);
+    const { brandId: safeBrandId, userId: authUserId } = await requireBrandAccess(req, brandId);
+
+    // Sprint 11: Deep analysis costs 2 credits (Launch Pad health check)
+    // Quick analysis is free — caller handles credits (spy, chat)
+    if (depth === 'deep' && authUserId) {
+      try {
+        await consumeCredits(authUserId, 2, 'health_check');
+      } catch (err: any) {
+        if (err.statusCode === 402) {
+          return createApiError(402, err.message || 'Créditos insuficientes para health check (2 créditos)');
+        }
+        throw err;
+      }
+    }
+
     const startTime = Date.now();
 
     // 1. Scraping via Monara (Browser MCP) - Fallback para url-scraper local

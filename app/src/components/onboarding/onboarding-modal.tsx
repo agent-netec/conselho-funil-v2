@@ -7,7 +7,7 @@ import { OnboardingProgress } from './onboarding-progress';
 import { OnboardingStepIdentity } from './onboarding-step-identity';
 import { OnboardingStepAudience } from './onboarding-step-audience';
 import { OnboardingStepOffer } from './onboarding-step-offer';
-import { OnboardingTransition } from './onboarding-transition';
+import { VerdictFullscreen } from './verdict-fullscreen';
 import { useBrands } from '@/lib/hooks/use-brands';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
@@ -52,7 +52,7 @@ export function OnboardingModal() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showTransition, setShowTransition] = useState(false);
+  const [completedBrand, setCompletedBrand] = useState<{ id: string; name: string } | null>(null);
 
   const { create } = useBrands();
   const { setSelectedBrand } = useBrandStore();
@@ -162,7 +162,8 @@ export function OnboardingModal() {
         updatedAt: { seconds: Date.now() / 1000, nanoseconds: 0 } as any,
       });
 
-      setShowTransition(true);
+      // Sprint 08.1: Show fullscreen verdict with real AI generation
+      setCompletedBrand({ id: brandId, name: formData.name });
     } catch (error) {
       console.error('Error creating brand:', error);
       toast.error('Erro ao criar marca. Tente novamente.');
@@ -207,8 +208,9 @@ export function OnboardingModal() {
     }
   };
 
-  if (showTransition) {
-    return <OnboardingTransition />;
+  // Sprint 08.1: Show fullscreen verdict after brand creation
+  if (completedBrand) {
+    return <VerdictFullscreen brandId={completedBrand.id} brandName={completedBrand.name} />;
   }
 
   return (

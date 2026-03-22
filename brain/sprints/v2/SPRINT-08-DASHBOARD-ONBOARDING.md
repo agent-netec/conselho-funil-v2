@@ -1,11 +1,11 @@
 # Sprint 08 — Dashboard + Onboarding (Retenção)
 
+> **Status:** 🟢 COMPLETO (2026-03-21) — Auditado + 4 fixes (ver SPRINT-08-FIXES.md)
 > **Máxima:** Progressão Contínua — Zero Becos Sem Saída
 > **Princípio:** Aha moment em < 60 segundos
 > **Bloqueado por:** Sprint 03 (Brands P0)
 > **Desbloqueia:** Nenhum
 > **Ref doc master:** Seção 16.1-16.14
-> **Estimativa:** 5-7 dias
 
 ---
 

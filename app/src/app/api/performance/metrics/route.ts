@@ -1,8 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
-import { Timestamp } from 'firebase-admin/firestore';
-import { PerformanceMetric } from '@/types/performance';
-import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { withRateLimit } from '@/lib/middleware/rate-limiter';
@@ -10,18 +8,16 @@ import { fetchMetricsWithCache } from '@/lib/performance/fetch-and-cache';
 
 /**
  * GET /api/performance/metrics
- * Retorna métricas agregadas para o dashboard.
- * Query Params: brandId, startDate, endDate, period, mock?
+ * Retorna métricas reais agregadas para o dashboard.
+ * Sprint 12: Mock data removido — apenas dados reais do Meta/Google + cache.
+ * Query Params: brandId, startDate, endDate, period, fresh?
  *
- * S30-PERF-01: Fetch real de métricas Meta + Google com cache Firestore 15min.
- * P-08: mock=true continua funcionando para dev.
  * DT-12: Hybrid cache strategy via shared fetch-and-cache module.
  */
 async function handleGET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const brandId = searchParams.get('brandId');
-    const mock = searchParams.get('mock') === 'true';
     const forceFresh = searchParams.get('fresh') === 'true';
     const period = (searchParams.get('period') || 'daily') as 'hourly' | 'daily' | 'weekly';
     const startDate = searchParams.get('startDate') || undefined;
@@ -40,18 +36,12 @@ async function handleGET(req: NextRequest) {
     }
 
     try {
-      await requireBrandAccess(req, brandId);
+      const { effectiveTier } = await requireBrandAccess(req, brandId);
+      requireMinTier(effectiveTier, 'agency');
     } catch (error) {
       return handleSecurityError(error);
     }
 
-    // P-08: mock=true continua funcionando
-    if (mock) {
-      const metrics = generateMockMetrics(brandId, period);
-      return createApiSuccess({ metrics });
-    }
-
-    // S30-PERF-01: Fetch real com hybrid cache (shared module)
     const result = await fetchMetricsWithCache(brandId, { forceFresh, period });
 
     if (!result) {
@@ -69,47 +59,6 @@ async function handleGET(req: NextRequest) {
     console.error('[API Performance Metrics] Erro:', error);
     return createApiError(500, 'Erro interno ao buscar métricas.');
   }
-}
-
-/**
- * Gera dados randômicos para o dashboard (Victor UI) — mantido para mock=true.
- */
-function generateMockMetrics(brandId: string, period: string): PerformanceMetric[] {
-  const sources: ('meta' | 'google' | 'organic' | 'aggregated')[] = ['meta', 'google', 'organic', 'aggregated'];
-  const results: PerformanceMetric[] = [];
-  const now = new Date();
-
-  sources.forEach(source => {
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - i);
-
-      const baseValue = source === 'aggregated' ? 2000 : 500;
-      const variance = Math.random() * 0.4 + 0.8;
-
-      results.push({
-        id: `metric_${brandId}_${source}_${date.getTime()}`,
-        brandId,
-        source,
-        timestamp: Timestamp.fromDate(date) as any,
-        period: period as any,
-        data: {
-          spend: source === 'organic' ? 0 : baseValue * variance,
-          revenue: baseValue * 3 * variance,
-          roas: source === 'organic' ? 0 : 3 * variance,
-          cac: source === 'organic' ? 0 : 15 * variance,
-          ctr: 0.02 * variance,
-          cpc: 0.8 * variance,
-          cpa: source === 'organic' ? 0 : 10 * variance,
-          conversions: 50 * variance,
-          clicks: Math.round(1200 * variance),
-          impressions: Math.round(50000 * variance),
-        }
-      });
-    }
-  });
-
-  return results;
 }
 
 // S32-RL-02: Rate limit — 60 req/min por brand

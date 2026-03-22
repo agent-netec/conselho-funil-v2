@@ -1,9 +1,9 @@
 # Sprint 09 — Discovery Upgrades (Keywords + Spy)
 
+> **Status:** 🟢 COMPLETO (2026-03-21) — 5 etapas (ver SPRINT-09-EXECUTION.md)
 > **Máxima:** Progressão Contínua — Zero Becos Sem Saída
 > **Bloqueado por:** Sprint 07 (Brand Intelligence Layer)
 > **Ref doc master:** Seção Discovery (auditoria)
-> **Estimativa:** 5-7 dias
 
 ---
 

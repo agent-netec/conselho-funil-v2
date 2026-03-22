@@ -96,8 +96,9 @@ function generateInsights(stats: CrossChannelMetricDoc): OptimizationInsight[] {
     .filter(([platform]) => platform !== 'organic' && platform !== 'aggregated')
     .map(([platform, data]) => {
       const m = data!.metrics;
-      const roas = m.spend > 0 && m.conversions > 0
-        ? (m.conversions * 10000) / m.spend // estimated revenue per conversion
+      // Sprint 12: Use real revenue for ROAS (from pixel/conversion value)
+      const roas = m.spend > 0 && m.revenue > 0
+        ? m.revenue / m.spend
         : 0;
       return { platform, metrics: m, share: data!, roas };
     })

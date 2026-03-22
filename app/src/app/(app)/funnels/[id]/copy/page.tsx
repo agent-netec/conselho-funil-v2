@@ -625,10 +625,13 @@ export default function CopyCouncilPage() {
 
       if (data.success) {
         notify.success(data.message);
-        // ST-11.15: Se aprovou, navega de volta para o Golden Thread garantindo o save
+        // ST-11.15: Se aprovou, navega de volta para o Golden Thread (se existe) ou funil
         if (type === 'approve') {
-          const docId = campaignId || funnelId;
-          router.push(`/campaigns/${docId}`);
+          if (campaignId) {
+            router.push(`/campaigns/${campaignId}`);
+          } else {
+            router.push(`/funnels/${funnelId}`);
+          }
         }
       } else {
         notify.error('Erro', data.error);
@@ -682,7 +685,7 @@ export default function CopyCouncilPage() {
 
       <div className="flex-1 p-8">
         {/* Back link */}
-        <Link href={`/campaigns/${campaignId || funnelId}`} className="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-6 transition-colors">
+        <Link href={campaignId ? `/campaigns/${campaignId}` : `/funnels/${funnelId}`} className="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-6 transition-colors">
           <ArrowLeft className="h-4 w-4" />
           Voltar ao Comando
         </Link>

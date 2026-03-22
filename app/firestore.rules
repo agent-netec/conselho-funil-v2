@@ -321,6 +321,25 @@ service cloud.firestore {
         allow read, write: if isAuthenticated() &&
           get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
       }
+
+      // Sprint 08.5: Verdicts — stored diagnostic scores, read by dashboard
+      match /verdicts/{verdictId} {
+        allow read: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+        allow write: if false; // Admin SDK only (API route bypasses rules)
+      }
+
+      // Sprint 12: Performance configs — read/write by client config-service.ts
+      match /performance_configs/{configId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+      }
+
+      // Sprint 12: Performance anomalies — read/write by client sentry-engine.ts
+      match /performance_anomalies/{anomalyId} {
+        allow read, write: if isAuthenticated() &&
+          get(/databases/$(database)/documents/brands/$(brandId)).data.userId == request.auth.uid;
+      }
     }
 
     // Brand Assets

@@ -1,11 +1,11 @@
 # Sprint 03 — Brands P0 (Maior Impacto no Usuário)
 
+> **Status:** 🟢 COMPLETO
 > **Máxima:** Progressão Contínua — Zero Becos Sem Saída
 > **Princípio:** UX First — Max 2 cliques
 > **Bloqueado por:** Nada (paralelo ao Sprint 00)
 > **Desbloqueia:** Sprint 07 (Brand Intelligence Layer), Sprint 08 (Dashboard/Onboarding)
 > **Ref doc master:** Seção "Brands: Reestruturação Completa (P0)"
-> **Estimativa:** 7-10 dias
 > **PRIORIDADE:** P0 — é onde CADA usuário passa primeiro. UX quebrada aqui = churn imediato.
 
 ---

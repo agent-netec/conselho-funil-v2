@@ -146,9 +146,12 @@ export interface KeywordMetrics {
   trend?: number; // % de crescimento
 }
 
+export type AwarenessStage = 'unaware' | 'problem_aware' | 'solution_aware' | 'product_aware';
+
 export interface KeywordIntelligence {
   term: string;
   intent: SearchIntent;
+  awarenessStage?: AwarenessStage;
   metrics: KeywordMetrics;
   relatedTerms: string[];
   suggestedBy: 'scout' | 'analyst' | 'manual';

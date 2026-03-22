@@ -57,6 +57,8 @@ import { handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 import { withRateLimit } from '@/lib/middleware/rate-limiter';
 import { logger } from '@/lib/utils/logger';
+import { AutopsyEngine } from '@/lib/intelligence/autopsy/engine';
+import { extractContentFromUrl } from '@/lib/ai/url-scraper';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -504,6 +506,45 @@ async function handlePOST(request: NextRequest) {
     }
     if (brandIntelContext) {
       context = `${brandIntelContext}\n\n---\n\n${context}`;
+    }
+
+    // Sprint 11: URL detection — auto-diagnose landing pages mentioned in chat
+    const urlMatch = message.match(/https?:\/\/[^\s<>"']+/i);
+    if (urlMatch) {
+      const detectedUrl = urlMatch[0].replace(/[.,;:!?)]+$/, ''); // trim trailing punctuation
+      try {
+        console.log(`[Chat API] URL detected in message: ${detectedUrl} — running quick autopsy`);
+        const scraped = await extractContentFromUrl(detectedUrl, { brandId: effectiveBrandId });
+        if (scraped.content?.trim()) {
+          const report = await AutopsyEngine.analyzeContent(
+            detectedUrl,
+            scraped.content,
+            { brandId: effectiveBrandId || '', url: detectedUrl, depth: 'quick' as const },
+            { loadTimeMs: 0, techStack: [], screenshotUrl: undefined }
+          );
+          const h = report.heuristics;
+          const diagnosticCtx = [
+            `## DIAGNÓSTICO DE CONVERSÃO — ${detectedUrl}`,
+            `Score geral: ${report.score}/10`,
+            `Resumo: ${report.summary}`,
+            ``,
+            `### Scores por heurística:`,
+            `- Hook (Carlton/Halbert): ${h.hook.score}/10 [${h.hook.status}] — ${h.hook.findings.join('; ')}`,
+            `- Story (Sugarman/Schwartz): ${h.story.score}/10 [${h.story.status}] — ${h.story.findings.join('; ')}`,
+            `- Offer (Kennedy/Brunson): ${h.offer.score}/10 [${h.offer.status}] — ${h.offer.findings.join('; ')}`,
+            `- Friction (Bird/Hopkins): ${h.friction.score}/10 [${h.friction.status}] — ${h.friction.findings.join('; ')}`,
+            `- Trust (Hopkins/Ogilvy): ${h.trust.score}/10 [${h.trust.status}] — ${h.trust.findings.join('; ')}`,
+            ``,
+            `### Recomendações:`,
+            ...report.recommendations.map(r => `- [${r.priority.toUpperCase()}] ${r.action} — ${r.impact}`),
+            ``,
+            `INSTRUÇÃO: O usuário enviou uma URL. Use o diagnóstico acima para fundamentar sua resposta. Cada conselheiro deve comentar com sua expertise e voz específica sobre os findings da sua área.`,
+          ].join('\n');
+          context = `${diagnosticCtx}\n\n---\n\n${context}`;
+        }
+      } catch (urlErr) {
+        console.warn('[Chat API] URL autopsy failed (non-blocking):', (urlErr as Error).message);
+      }
     }
 
     // ST-12.5: Otimização de Resiliência - Context Truncation/Summarization

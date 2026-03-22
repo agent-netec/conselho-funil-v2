@@ -7,7 +7,6 @@ import { parseJsonBody } from '@/app/api/_utils/parse-json';
 import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
 import { ApiError, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { updateUserUsage } from '@/lib/firebase/firestore';
 import { consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
 import type { CreateIntelligenceInput } from '@/types/intelligence';
 
@@ -86,21 +85,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // SIG-API-03: Decrementar 1 crédito por mineração de keywords
-    if (userId) {
-      try {
-        await updateUserUsage(userId, -1);
-        console.log(`[Intelligence/Keywords] 1 crédito decrementado para usuário: ${userId}`);
-      } catch (creditError) {
-        console.error('[Intelligence/Keywords] Erro ao atualizar créditos:', creditError);
-      }
-    }
-
     return createApiSuccess({
       count: keywords.length,
       keywords: keywords.map(k => ({
         term: k.term,
         intent: k.intent,
+        awarenessStage: k.awarenessStage || 'problem_aware',
         volume: k.metrics.volume,
         difficulty: k.metrics.difficulty,
         opportunityScore: k.metrics.opportunityScore,
@@ -118,4 +108,5 @@ export async function POST(req: NextRequest) {
     return createApiError(500, message, { code: 'INTERNAL_ERROR', requestId });
   }
 }
+
 

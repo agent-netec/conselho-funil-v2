@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { Timestamp } from 'firebase-admin/firestore';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
-import { requireBrandAccess } from '@/lib/auth/brand-guard';
+import { requireBrandAccess, requireMinTier } from '@/lib/auth/brand-guard';
 import { handleSecurityError } from '@/lib/utils/api-security';
 import { ensureFreshToken } from '@/lib/integrations/ads/token-refresh';
 import { fetchWithRetry, sanitizeForLog } from '@/lib/integrations/ads/api-helpers';
@@ -30,7 +30,8 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      await requireBrandAccess(req, brandId);
+      const { effectiveTier } = await requireBrandAccess(req, brandId);
+      requireMinTier(effectiveTier, 'agency');
     } catch (error) {
       return handleSecurityError(error);
     }

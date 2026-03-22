@@ -13,6 +13,7 @@ import {
 interface GeminiKeywordEnrichment {
   term: string;
   intent: string;
+  awarenessStage: string;
   volume: number;
   difficulty: number;
   suggestion: string;
@@ -94,9 +95,12 @@ export class KeywordMiner {
         const difficulty = seoData?.difficulty ?? this.clamp(enrichment?.difficulty, 1, 100) ?? 30;
         const relevance = 70;
 
+        const awarenessStage = this.validateAwareness(enrichment?.awarenessStage) || 'problem_aware';
+
         return {
           term,
           intent,
+          awarenessStage,
           metrics: {
             volume,
             difficulty,
@@ -137,6 +141,11 @@ Para CADA keyword, retorne um objeto com:
   - commercial: pessoa está comparando opções (ex: "melhor", "review", "vale a pena", "vs", "comparativo")
   - navigational: pessoa procura algo específico (ex: "login", "site oficial", nome de marca)
   - informational: pessoa quer aprender (ex: "como", "o que é", "tutorial", "dicas")
+- "awarenessStage": classifique pelo nível de consciência do Schwartz:
+  - "unaware": não sabe que tem o problema (ex: "tendências 2026", "novidades do mercado")
+  - "problem_aware": sabe do problema mas não conhece soluções (ex: "como emagrecer", "dor nas costas causa")
+  - "solution_aware": conhece soluções genéricas (ex: "melhor dieta", "tratamento para dor lombar")
+  - "product_aware": conhece produtos/serviços específicos (ex: "ozempic preço", "pilates studio perto")
 ${volumeInstruction}
 - "suggestion": Uma sugestão PRÁTICA e ESPECÍFICA de como usar esta keyword em marketing digital ou tráfego pago. Seja direto e actionable. Exemplos: "Use como headline de anúncio no Google Ads com foco em preço baixo", "Crie um reels respondendo essa pergunta — gera autoridade e salva". 1-2 frases em português brasileiro.
 
@@ -159,6 +168,14 @@ ${terms.map((t, i) => `${i + 1}. "${t}"`).join('\n')}`;
     const valid = ['transactional', 'commercial', 'navigational', 'informational'];
     if (intent && valid.includes(intent)) {
       return intent as 'transactional' | 'commercial' | 'navigational' | 'informational';
+    }
+    return null;
+  }
+
+  private validateAwareness(stage: string | undefined): 'unaware' | 'problem_aware' | 'solution_aware' | 'product_aware' | null {
+    const valid = ['unaware', 'problem_aware', 'solution_aware', 'product_aware'];
+    if (stage && valid.includes(stage)) {
+      return stage as 'unaware' | 'problem_aware' | 'solution_aware' | 'product_aware';
     }
     return null;
   }

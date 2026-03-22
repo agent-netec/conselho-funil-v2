@@ -294,9 +294,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: 'offer-lab', label: 'Offer Lab', href: '/intelligence/offer-lab', icon: 'FlaskConical', minTier: 'pro' },
       { id: 'predict', label: 'Predict', href: '/intelligence/predict', icon: 'TrendingUp', minTier: 'pro' },
-      { id: 'performance', label: 'Performance', href: '/performance', icon: 'Activity', minTier: 'agency' },
-      // Hidden: Page Forensics, Cross-channel
-      { id: 'page-forensics', label: 'Forensics', href: '/strategy/autopsy', icon: 'Stethoscope', status: 'hidden' },
+      { id: 'performance', label: 'Performance', href: '/performance', icon: 'Activity', minTier: 'pro' },
     ],
   },
   {

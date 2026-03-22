@@ -1,11 +1,11 @@
 # Sprint 06 — Design Studio Consolidation
 
+> **Status:** 🟢 COMPLETO (2026-03-21) — commit `feat(sprint-06): Design Studio consolidation — all 7 tasks implemented`
 > **Máxima:** Progressão Contínua — Zero Becos Sem Saída
 > **Princípio:** UX First — 1 rota, zero duplicação
 > **Bloqueado por:** Sprint 04 (namespace `/campaigns/[id]/design`)
 > **Desbloqueia:** Nenhum (melhoria de qualidade)
 > **Ref doc master:** Seção 13.0-13.12
-> **Estimativa:** 5-7 dias
 
 ---
 

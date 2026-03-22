@@ -31,6 +31,7 @@ import { OfferLabEngine } from '@/lib/intelligence/offer/calculator';
 import { toast } from 'sonner';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import { useRouter } from 'next/navigation';
+import { CompletionBanner } from '@/components/ui/completion-banner';
 
 // AI evaluation result shape (matches evaluator.ts output)
 interface AIInsight {
@@ -443,6 +444,16 @@ export function OfferLabWizard({ brandId, onSaved, campaignId }: { brandId: stri
               </div>
             ))}
           </div>
+        )}
+
+        {/* Sprint 08.7: Next step after evaluation */}
+        {!campaignId && (
+          <CompletionBanner
+            title="Oferta avaliada!"
+            description="Sua oferta foi analisada. Crie uma campanha para coloca-la em acao."
+            cta="Criar Campanha"
+            href="/campaigns"
+          />
         )}
 
         {/* Action Buttons */}

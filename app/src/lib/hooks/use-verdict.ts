@@ -1,82 +1,80 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import { getUserConversations, getConversationMessages } from '@/lib/firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 import type { VerdictOutput } from '@/lib/ai/prompts/verdict-prompt';
-import { parseVerdictOutput } from '@/lib/ai/prompts/verdict-prompt';
+
+interface PreviousScores {
+  positioning: number | null;
+  offer: number | null;
+  generatedAt: any;
+}
 
 interface UseVerdictResult {
   verdict: VerdictOutput | null;
-  conversationId: string | null;
+  previousScores: PreviousScores | null;
   isLoading: boolean;
+  version: number;
 }
 
 /**
- * Hook to fetch the proactive verdict for a specific brand.
- * Searches conversations for the verdict message created during onboarding (R2.2).
+ * Sprint 08.5: Real-time verdict hook reading from brands/{brandId}/verdicts/latest.
+ * Uses onSnapshot for live updates (verdict appears as soon as it's generated).
  */
 export function useVerdictForBrand(brandId: string | undefined): UseVerdictResult {
-  const { user } = useAuthStore();
   const [verdict, setVerdict] = useState<VerdictOutput | null>(null);
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [previousScores, setPreviousScores] = useState<PreviousScores | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [version, setVersion] = useState(0);
 
   useEffect(() => {
-    async function loadVerdict() {
-      if (!user || !brandId) {
-        setVerdict(null);
-        setConversationId(null);
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-
-        // 1. Get conversations for user (max 50, same as existing pattern)
-        const conversations = await getUserConversations(user.uid);
-
-        // 2. Find the verdict conversation for this brand
-        const verdictConvo = conversations.find(
-          (c) => c.title?.startsWith('Veredito -') && c.brandId === brandId
-        );
-
-        if (!verdictConvo) {
-          setVerdict(null);
-          setConversationId(null);
-          setIsLoading(false);
-          return;
-        }
-
-        setConversationId(verdictConvo.id);
-
-        // 3. Get messages and find the verdict
-        const messages = await getConversationMessages(verdictConvo.id);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const verdictMsg = messages.find(
-          (m) => (m.metadata as any)?.type === 'verdict'
-        );
-
-        if (verdictMsg) {
-          // Prefer parsedVerdict from metadata, fallback to parsing content
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const parsed = (verdictMsg.metadata as any)?.parsedVerdict
-            || parseVerdictOutput(verdictMsg.content);
-          setVerdict(parsed);
-        } else {
-          setVerdict(null);
-        }
-      } catch (err) {
-        console.error('[useVerdictForBrand] Error loading verdict:', err);
-        setVerdict(null);
-      } finally {
-        setIsLoading(false);
-      }
+    if (!brandId) {
+      setVerdict(null);
+      setPreviousScores(null);
+      setIsLoading(false);
+      return;
     }
 
-    loadVerdict();
-  }, [user, brandId]);
+    setIsLoading(true);
+    const verdictRef = doc(db, 'brands', brandId, 'verdicts', 'latest');
 
-  return { verdict, conversationId, isLoading };
+    const unsubscribe = onSnapshot(
+      verdictRef,
+      (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          const v: VerdictOutput = {
+            brandName: data.brandName || '',
+            scores: data.scores || { positioning: { value: 0, label: '' }, offer: { value: 0, label: '' } },
+            analysis: data.analysis || { strengths: [], weaknesses: [] },
+            actions: data.actions || [],
+            followUpQuestion: data.followUpQuestion || '',
+          };
+          setVerdict(v);
+          setPreviousScores(data.previousScores || null);
+          setVersion(data.version || 1);
+        } else {
+          setVerdict(null);
+          setPreviousScores(null);
+          setVersion(0);
+        }
+        setIsLoading(false);
+      },
+      (error) => {
+        const code = (error as { code?: string })?.code;
+        if (code === 'permission-denied') {
+          console.error(`[useVerdictForBrand] PERMISSION DENIED on brands/${brandId}/verdicts/latest — verify firestore.rules`);
+        } else {
+          console.warn('[useVerdictForBrand] Error:', error);
+        }
+        setVerdict(null);
+        setIsLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [brandId]);
+
+  return { verdict, previousScores, isLoading, version };
 }

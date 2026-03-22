@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { Target, Sparkles, PenTool, Share2, Palette, BarChart3, Rocket } from 'lucide-react';
+import { PenTool, Share2, Palette, BarChart3, Rocket, Zap } from 'lucide-react';
 
 const STAGES = [
   { id: 'hub', label: 'Hub', icon: Rocket, href: (id: string) => `/campaigns/${id}` },
@@ -10,6 +10,7 @@ const STAGES = [
   { id: 'social', label: 'Social', icon: Share2, href: (id: string) => `/campaigns/${id}/social` },
   { id: 'design', label: 'Design', icon: Palette, href: (id: string) => `/campaigns/${id}/design` },
   { id: 'ads', label: 'Ads', icon: BarChart3, href: (id: string) => `/campaigns/${id}/ads` },
+  { id: 'launch', label: 'Launch', icon: Zap, href: (id: string) => `/campaigns/${id}/launch` },
 ] as const;
 
 interface CampaignStageStepperProps {

@@ -14,6 +14,7 @@ import { withRateLimit } from '@/lib/middleware/rate-limiter';
 import { extractContentFromUrl } from '@/lib/ai/url-scraper';
 import { updateUserUsage } from '@/lib/firebase/firestore';
 import { consumeCredits, CREDIT_COSTS } from '@/lib/firebase/firestore-server';
+import { extractOutboundLinks } from '@/lib/agents/spy/outbound-links';
 import type { CompetitorTechStack, SpyScanResult } from '@/types/competitors';
 
 const getErrorMessage = (error: unknown, fallback: string) =>
@@ -66,10 +67,14 @@ async function handlePOST(req: NextRequest) {
           }
         }
 
+        // 3. Extract outbound links from HTML
+        const outboundLinks = extractOutboundLinks(scraped.rawHtml || scraped.content, directUrl);
+
         return createApiSuccess({
           message: 'Strategic analysis completed',
           url: directUrl,
           analysis,
+          outboundLinks,
         });
       } catch (error: unknown) {
         console.error('[API Spy Analyze] Error:', error);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Sparkles, Loader2, TrendingUp, Target, ChevronDown, ShoppingCart, Eye, Compass, Info, Save, Send, Plus, Brain } from 'lucide-react';
+import { Search, Sparkles, Loader2, TrendingUp, Target, ChevronDown, ShoppingCart, Eye, Compass, Info, Save, Plus, Brain, Download, Zap } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,11 +17,35 @@ interface KeywordsMinerProps {
 interface KeywordResult {
   term: string;
   intent: string;
+  awarenessStage?: string;
   opportunityScore: number;
   volume: number;
   difficulty: number;
   suggestion?: string;
 }
+
+const AWARENESS_CONFIG: Record<string, { label: string; color: string; description: string }> = {
+  unaware: {
+    label: 'Inconsciente',
+    color: 'text-zinc-400 border-zinc-600/30 bg-zinc-600/10',
+    description: 'Não sabe que tem o problema',
+  },
+  problem_aware: {
+    label: 'Consciente do Problema',
+    color: 'text-red-400 border-red-500/30 bg-red-500/10',
+    description: 'Sabe do problema, não conhece soluções',
+  },
+  solution_aware: {
+    label: 'Consciente da Solução',
+    color: 'text-amber-400 border-amber-500/30 bg-amber-500/10',
+    description: 'Conhece soluções genéricas',
+  },
+  product_aware: {
+    label: 'Consciente do Produto',
+    color: 'text-green-400 border-green-500/30 bg-green-500/10',
+    description: 'Conhece produtos específicos',
+  },
+};
 
 interface RelatedKeyword {
   term: string;
@@ -77,6 +101,8 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
   const [activeTab, setActiveTab] = useState('miner');
   const [relatedLoading, setRelatedLoading] = useState(false);
   const [relatedData, setRelatedData] = useState<{ lsi: RelatedKeyword[]; longtail: RelatedKeyword[]; questions: RelatedKeyword[] } | null>(null);
+  const [discoveringStage, setDiscoveringStage] = useState<string | null>(null);
+  const [clusterCompetitors, setClusterCompetitors] = useState<Record<string, { url: string; name: string; type: string; relevance: number; reason: string }[]>>({});
 
   async function handleMine() {
     if (!seedTerm.trim()) {
@@ -219,6 +245,52 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
     }
   }
 
+  function handleExportCSV() {
+    if (results.length === 0) return;
+    const BOM = '\uFEFF';
+    const header = 'Termo,Volume,Dificuldade,Intenção,KOS,Cluster';
+    const rows = results.map((kw) => {
+      const term = `"${kw.term.replace(/"/g, '""')}"`;
+      return `${term},${kw.volume},${kw.difficulty},${kw.intent},${kw.opportunityScore},${kw.awarenessStage || 'problem_aware'}`;
+    });
+    const csv = BOM + [header, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `keywords-${seedTerm.replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`${results.length} keywords exportadas!`);
+  }
+
+  async function handleDiscoverForCluster(stage: string, keywords: string[]) {
+    setDiscoveringStage(stage);
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/intelligence/spy/discover', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ brandId, clusterKeywords: keywords }),
+      });
+      const data = await res.json();
+      if (res.ok && data.data?.competitors) {
+        setClusterCompetitors(prev => ({ ...prev, [stage]: data.data.competitors }));
+        if (data.data.competitors.length === 0) {
+          toast.info('Nenhum concorrente encontrado');
+        } else {
+          toast.success(`${data.data.competitors.length} concorrentes encontrados!`);
+        }
+      } else {
+        toast.error(data.error || 'Erro ao descobrir concorrentes');
+      }
+    } catch {
+      toast.error('Erro de conexão');
+    } finally {
+      setDiscoveringStage(null);
+    }
+  }
+
   return (
     <Card className="bg-zinc-900/50 border-zinc-800 h-full flex flex-col">
       <CardHeader>
@@ -259,6 +331,11 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
               Mineração
               {results.length > 0 && <Badge className="ml-1 bg-blue-500 text-white border-none h-4 text-[9px] px-1">{results.length}</Badge>}
             </TabsTrigger>
+            <TabsTrigger value="clusters" className="text-[10px] h-6 data-[state=active]:bg-purple-500/10 data-[state=active]:text-purple-400" disabled={results.length === 0}>
+              <Target className="w-3 h-3 mr-1" />
+              Schwartz
+              {results.length > 0 && <Badge className="ml-1 bg-purple-500 text-white border-none h-4 text-[9px] px-1">{Object.keys(results.reduce((acc, kw) => { acc[kw.awarenessStage || 'problem_aware'] = true; return acc; }, {} as Record<string, boolean>)).length}</Badge>}
+            </TabsTrigger>
             <TabsTrigger value="related" className="text-[10px] h-6 data-[state=active]:bg-[#E6B447]/10 data-[state=active]:text-[#E6B447]">
               <Brain className="w-3 h-3 mr-1" />
               Correlacionadas
@@ -294,6 +371,10 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
                 <Button size="sm" variant="outline" className="text-[10px] h-7 border-[#E6B447]/30 text-[#E6B447] hover:bg-[#E6B447]/10" onClick={handleRelatedKeywords} disabled={relatedLoading}>
                   {relatedLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Brain className="w-3 h-3 mr-1" />}
                   Correlacionadas
+                </Button>
+                <Button size="sm" variant="outline" className="text-[10px] h-7 border-zinc-700 text-zinc-400 hover:bg-zinc-800 ml-auto" onClick={handleExportCSV}>
+                  <Download className="w-3 h-3 mr-1" />
+                  CSV
                 </Button>
               </div>
             )}
@@ -368,9 +449,6 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
                             <Button size="sm" variant="outline" className="text-[10px] h-7 flex-1 border-green-500/30 text-green-400 hover:bg-green-500/10" onClick={(e) => { e.stopPropagation(); handleSaveKeyword(kw); }}>
                               <Save className="w-3 h-3 mr-1" /> Salvar no Brand
                             </Button>
-                            <Button size="sm" variant="outline" className="text-[10px] h-7 flex-1 border-blue-500/30 text-blue-400 hover:bg-blue-500/10" onClick={(e) => { e.stopPropagation(); toast.info('Em breve: Enviar para MKTHONEY Copy'); }}>
-                              <Send className="w-3 h-3 mr-1" /> MKTHONEY Copy
-                            </Button>
                           </div>
                         </div>
                       )}
@@ -388,6 +466,69 @@ export function KeywordsMiner({ brandId }: KeywordsMinerProps) {
                 </div>
               )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="clusters" className="flex-1 flex flex-col mt-2 m-0">
+            {results.length > 0 ? (
+              <div className="flex-1 overflow-y-auto min-h-[200px] max-h-[400px] space-y-4 pr-2 custom-scrollbar">
+                {(['unaware', 'problem_aware', 'solution_aware', 'product_aware'] as const).map((stage) => {
+                  const stageKeywords = results.filter(kw => (kw.awarenessStage || 'problem_aware') === stage);
+                  if (stageKeywords.length === 0) return null;
+                  const config = AWARENESS_CONFIG[stage];
+                  return (
+                    <div key={stage} className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={`text-[10px] ${config.color}`}>
+                          {config.label}
+                        </Badge>
+                        <Badge className="bg-zinc-800 text-zinc-400 border-none h-4 text-[9px] px-1">{stageKeywords.length}</Badge>
+                        <span className="text-[10px] text-zinc-600">{config.description}</span>
+                      </div>
+                      <div className="space-y-1">
+                        {stageKeywords.sort((a, b) => b.opportunityScore - a.opportunityScore).map((kw, i) => {
+                          const intentConfig = INTENT_CONFIG[kw.intent] || INTENT_CONFIG.informational;
+                          return (
+                            <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-zinc-950/50 border border-zinc-800/50">
+                              <span className="text-xs text-zinc-200 flex-1 truncate">{kw.term}</span>
+                              <Badge variant="outline" className={`text-[9px] h-5 ${intentConfig.color}`}>{intentConfig.label}</Badge>
+                              <span className={`text-[10px] font-mono font-bold ${getScoreColor(kw.opportunityScore)}`}>{kw.opportunityScore}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-[10px] h-7 w-full border-amber-500/20 text-amber-400 hover:bg-amber-500/10 mt-1"
+                        onClick={() => handleDiscoverForCluster(stage, stageKeywords.map(k => k.term))}
+                        disabled={discoveringStage === stage}
+                      >
+                        {discoveringStage === stage ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Zap className="w-3 h-3 mr-1" />}
+                        Descobrir quem ranqueia nesse ângulo
+                      </Button>
+                      {clusterCompetitors[stage] && clusterCompetitors[stage].length > 0 && (
+                        <div className="space-y-1 mt-1 pl-2 border-l-2 border-amber-500/20">
+                          {clusterCompetitors[stage].map((c, ci) => (
+                            <div key={ci} className="flex items-center gap-2 p-1.5 rounded bg-zinc-950/30">
+                              <span className="text-[10px] text-zinc-300 flex-1 truncate">{c.name}</span>
+                              <Badge variant="outline" className="text-[8px] h-4 text-amber-400 border-amber-500/30">{c.type}</Badge>
+                              <a href={c.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-zinc-500 hover:text-amber-400">
+                                <Zap className="w-3 h-3" />
+                              </a>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-zinc-800 rounded-xl">
+                <Target className="w-6 h-6 text-zinc-500 mb-2" />
+                <p className="text-zinc-500 text-sm">Minere keywords primeiro para ver os clusters Schwartz.</p>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="related" className="flex-1 flex flex-col mt-2 m-0">

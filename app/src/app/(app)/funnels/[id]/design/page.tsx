@@ -48,8 +48,8 @@ export default function FunnelDesignRedirect({ params }: PageProps) {
         console.error('[FunnelDesignRedirect] Error:', err);
       }
 
-      // Fallback: use funnelId as campaignId (legacy behavior)
-      router.replace(`/campaigns/${funnelId}/design`);
+      // No campaign found — go back to funnel (instead of broken legacy fallback)
+      router.replace(`/funnels/${funnelId}`);
     }
     resolve();
   }, [funnelId, searchParams, router]);

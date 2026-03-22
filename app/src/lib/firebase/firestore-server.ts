@@ -126,9 +126,11 @@ export const CREDIT_COSTS: Record<string, number> = {
   deep_research: 3,
   keywords_miner: 1,
   spy_agent: 2,
+  spy_discover: 2,
   predict_analyze: 3,
   predict_generate: 5,
   offer_lab: 2,
+  verdict_refresh: 1,
 };
 
 function getNextResetDate(current: Date): Date {

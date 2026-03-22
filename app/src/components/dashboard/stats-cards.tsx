@@ -5,8 +5,6 @@ import {
   BarChart3,
   CheckCircle2,
   MessageSquare,
-  Activity,
-  ArrowRight,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -72,88 +70,6 @@ function KpiCard({ title, value, subtitle, icon: Icon, trend, isLoading }: KpiCa
               {trend.label}
             </span>
           )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Benchmark Card (sparkline + metric)
-// ---------------------------------------------------------------------------
-
-function MiniChart({ status }: { status: string }) {
-  const points =
-    status === 'success'
-      ? '0,20 10,15 20,18 30,10 40,12 50,5'
-      : status === 'danger'
-        ? '0,5 10,12 20,10 30,18 40,15 50,20'
-        : '0,15 10,13 20,16 30,14 40,15 50,15';
-
-  const color =
-    status === 'success'
-      ? '#E6B447'
-      : status === 'danger'
-        ? '#C45B3A'
-        : status === 'warning'
-          ? '#E6B447'
-          : '#6B5D4A';
-
-  return (
-    <svg width="50" height="20" viewBox="0 0 50 25" className="opacity-50">
-      <polyline
-        fill="none"
-        stroke={color}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        points={points}
-      />
-    </svg>
-  );
-}
-
-function BenchmarkCard({
-  metric,
-  value,
-  benchmark,
-  status,
-}: {
-  metric: string;
-  value: string;
-  benchmark: string;
-  status: 'success' | 'warning' | 'danger' | 'neutral';
-}) {
-  const statusColor = {
-    success: 'text-[#E6B447] border-[#E6B447]/20',
-    warning: 'text-amber-400 border-amber-500/20',
-    danger: 'text-[#C45B3A] border-[#C45B3A]/20',
-    neutral: 'text-[#6B5D4A] border-[#3D3428]',
-  }[status];
-
-  return (
-    <Card className="border-[#2A2318] bg-[#1A1612] py-0 gap-0 rounded-lg shadow-none">
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <span
-            className={cn(
-              'font-mono text-[9px] font-bold uppercase tracking-wider border rounded px-1.5 py-0.5',
-              statusColor
-            )}
-          >
-            {status}
-          </span>
-          <MiniChart status={status} />
-        </div>
-        <p className="font-mono text-[10px] text-[#6B5D4A] uppercase tracking-wider mb-1">
-          {metric}
-        </p>
-        <div className="flex items-baseline gap-2">
-          <span className="text-lg font-bold text-[#F5E8CE] font-mono tabular-nums">{value}</span>
-          <span className="text-[10px] text-[#6B5D4A] flex items-center gap-1">
-            <ArrowRight className="h-2.5 w-2.5" />
-            2026: {benchmark}
-          </span>
         </div>
       </CardContent>
     </Card>

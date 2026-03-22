@@ -25,7 +25,7 @@ import {
   Loader2, Check, Copy, Lightbulb, FileText, ArrowLeft, ArrowRight,
   Trophy, Sparkles, MessageSquare, Target, Megaphone, Building2,
   TrendingUp, CalendarPlus, LayoutGrid, BookmarkPlus, FlaskConical,
-  ThumbsUp, ThumbsDown, Lock, Brain
+  ThumbsUp, ThumbsDown, Lock, Brain, Calendar
 } from 'lucide-react';
 import { useTier } from '@/lib/hooks/use-tier';
 import { cn } from '@/lib/utils';
@@ -144,6 +144,13 @@ export function SocialWizard({ campaignId, initialMode, initialTopic }: SocialWi
   // X-1.2: A/B variations
   const [abVariations, setAbVariations] = useState<any>(null);
   const [isGeneratingAB, setIsGeneratingAB] = useState(false);
+
+  // Gap 1E: Batch generation
+  const [showBatchConfig, setShowBatchConfig] = useState(false);
+  const [batchPostsPerWeek, setBatchPostsPerWeek] = useState(3);
+  const [batchWeeks, setBatchWeeks] = useState(4);
+  const [isGeneratingBatch, setIsGeneratingBatch] = useState(false);
+  const [batchResult, setBatchResult] = useState<{ posts: number; calendarItems: number; pillars?: string[] } | null>(null);
 
   // === Handlers ===
 
@@ -506,6 +513,45 @@ export function SocialWizard({ campaignId, initialMode, initialTopic }: SocialWi
     );
   };
 
+  // Gap 1E: Batch generate → calendar
+  const handleBatchGenerate = async () => {
+    if (!activeBrand?.id) {
+      notify.error('Selecione uma marca primeiro.');
+      return;
+    }
+    setIsGeneratingBatch(true);
+    setBatchResult(null);
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/social/batch-generate', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          brandId: activeBrand.id,
+          platform,
+          postsPerWeek: batchPostsPerWeek,
+          weeks: batchWeeks,
+        }),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Falha na geração em lote');
+      }
+      const data = await res.json();
+      setBatchResult({
+        posts: data.data?.posts || 0,
+        calendarItems: data.data?.calendarItems || 0,
+        pillars: data.data?.plan?.pillars,
+      });
+      notify.success(`${data.data?.calendarItems || 0} posts enviados ao calendário!`);
+    } catch (error: any) {
+      console.error('[Batch]', error);
+      notify.error(error?.message || 'Erro na geração em lote.');
+    } finally {
+      setIsGeneratingBatch(false);
+    }
+  };
+
   const resetWizard = () => {
     setCurrentStep(0);
     setMode(null);
@@ -620,6 +666,165 @@ export function SocialWizard({ campaignId, initialMode, initialTopic }: SocialWi
             </div>
           </button>
         </div>
+
+        {/* Gap 1E: Plano Mensal → batch → calendário */}
+        <Card className="p-5 bg-zinc-900/50 border-white/[0.04]">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-emerald-400" />
+              <h3 className="text-sm font-bold text-zinc-100">Plano de Conteúdo Mensal</h3>
+              <Badge variant="outline" className="border-emerald-500/20 text-emerald-400 text-[10px]">Batch</Badge>
+            </div>
+            {!showBatchConfig && !batchResult && (
+              <button
+                onClick={() => setShowBatchConfig(true)}
+                className="text-[11px] font-mono font-bold tracking-wider text-emerald-400 hover:text-emerald-300 transition-colors"
+              >
+                CONFIGURAR →
+              </button>
+            )}
+          </div>
+
+          {!showBatchConfig && !batchResult && (
+            <p className="text-xs text-zinc-500">
+              Gere um mês inteiro de posts prontos para publicar. Distribuídos automaticamente no calendário como rascunhos.
+            </p>
+          )}
+
+          {showBatchConfig && !batchResult && (
+            <div className="space-y-4">
+              {/* Platform selection for batch */}
+              <div>
+                <label className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 block">Plataforma</label>
+                <div className="flex flex-wrap gap-2">
+                  {PLATFORMS.map((p) => {
+                    const Icon = p.icon;
+                    const isActive = platform === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => setPlatform(p.id)}
+                        className={cn(
+                          'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border',
+                          isActive
+                            ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400'
+                            : 'bg-zinc-800/50 border-white/[0.04] text-zinc-500 hover:text-zinc-300'
+                        )}
+                      >
+                        <Icon className={cn('h-3.5 w-3.5', isActive ? 'text-emerald-400' : p.color)} />
+                        {p.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 block">Posts por semana</label>
+                  <div className="flex items-center gap-2">
+                    {[2, 3, 4, 5, 7].map(n => (
+                      <button
+                        key={n}
+                        onClick={() => setBatchPostsPerWeek(n)}
+                        className={cn(
+                          'w-9 h-9 rounded-lg text-sm font-bold transition-all border',
+                          batchPostsPerWeek === n
+                            ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400'
+                            : 'bg-zinc-800/50 border-white/[0.04] text-zinc-500 hover:text-zinc-300'
+                        )}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 block">Semanas</label>
+                  <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4].map(n => (
+                      <button
+                        key={n}
+                        onClick={() => setBatchWeeks(n)}
+                        className={cn(
+                          'w-9 h-9 rounded-lg text-sm font-bold transition-all border',
+                          batchWeeks === n
+                            ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400'
+                            : 'bg-zinc-800/50 border-white/[0.04] text-zinc-500 hover:text-zinc-300'
+                        )}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-white/[0.04]">
+                <div className="text-xs text-zinc-500">
+                  <span className="text-zinc-300 font-bold">{batchPostsPerWeek * batchWeeks} posts</span> serão gerados
+                  <span className="text-zinc-600 ml-1">({Math.ceil((batchPostsPerWeek * batchWeeks) / 3)} créditos)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowBatchConfig(false)}
+                    className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <Button
+                    onClick={handleBatchGenerate}
+                    disabled={isGeneratingBatch}
+                    size="sm"
+                    className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold gap-2"
+                  >
+                    {isGeneratingBatch ? (
+                      <><Loader2 className="h-3.5 w-3.5 animate-spin" />Gerando {batchPostsPerWeek * batchWeeks} posts...</>
+                    ) : (
+                      <><Calendar className="h-3.5 w-3.5" />Gerar Plano</>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {batchResult && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <Check className="h-5 w-5 text-emerald-400" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-emerald-400">{batchResult.calendarItems} posts no calendário!</h4>
+                  <p className="text-xs text-zinc-500">Agendados como rascunhos nas próximas {batchWeeks} semanas.</p>
+                </div>
+              </div>
+              {batchResult.pillars && batchResult.pillars.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {batchResult.pillars.map((p, i) => (
+                    <Badge key={i} variant="outline" className="border-emerald-500/20 text-emerald-400/70 text-[10px]">
+                      {p}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <a href="/social?tab=calendar">
+                  <Button size="sm" className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 gap-1.5">
+                    <CalendarPlus className="h-3.5 w-3.5" /> Ver no Calendário
+                  </Button>
+                </a>
+                <button
+                  onClick={() => { setBatchResult(null); setShowBatchConfig(false); }}
+                  className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+          )}
+        </Card>
 
         {/* Trend Research & Profile Analysis (available before mode selection) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-4">

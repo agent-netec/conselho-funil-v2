@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Check, LucideIcon, Target, Sparkles, PenTool, Share2, Palette, BarChart3 } from 'lucide-react';
+import { Check, LucideIcon, Target, Sparkles, PenTool, Share2, Palette, BarChart3, Rocket } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface CampaignStep {
@@ -17,6 +17,7 @@ export const CAMPAIGN_STAGES: CampaignStep[] = [
   { id: 'social', title: 'Social', icon: Share2, status: 'pending' },
   { id: 'design', title: 'Design', icon: Palette, status: 'pending' },
   { id: 'ads', title: 'Ads', icon: BarChart3, status: 'pending' },
+  { id: 'launch', title: 'Launch', icon: Rocket, status: 'pending' },
 ];
 
 // Sprint 04.3: Route map for clickable stepper
@@ -27,6 +28,7 @@ const STAGE_ROUTES: Record<string, (campaignId: string) => string> = {
   social: (id) => `/campaigns/${id}/social`,
   design: (id) => `/campaigns/${id}/design`,
   ads: (id) => `/campaigns/${id}/ads`,
+  launch: (id) => `/campaigns/${id}/launch`,
 };
 
 interface CampaignStepperProps {

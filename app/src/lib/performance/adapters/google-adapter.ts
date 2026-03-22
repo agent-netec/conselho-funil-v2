@@ -29,7 +29,7 @@ export class GoogleMetricsAdapter extends AdsPlatformAdapter {
 
     const gaqlQuery = [
       'SELECT campaign.id, campaign.name,',
-      'metrics.cost_micros, metrics.clicks, metrics.impressions, metrics.conversions',
+      'metrics.cost_micros, metrics.clicks, metrics.impressions, metrics.conversions, metrics.conversions_value',
       'FROM campaign',
       `WHERE segments.date BETWEEN '${startDate}' AND '${endDate}'`,
     ].join(' ');
@@ -103,5 +103,7 @@ function mapGoogleRowToRawAds(row: any): RawAdsData {
     clicks: parseInt(metrics.clicks || '0', 10),
     impressions: parseInt(metrics.impressions || '0', 10),
     conversions: parseFloat(metrics.conversions || '0'),
+    // Sprint 12: Revenue real via conversions_value (Google Ads conversion tracking)
+    revenue: parseFloat(metrics.conversionsValue || metrics.conversions_value || '0'),
   };
 }

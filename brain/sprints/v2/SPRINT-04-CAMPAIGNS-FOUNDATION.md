@@ -1,11 +1,11 @@
 # Sprint 04 — Campaigns Foundation (Linha de Ouro Real)
 
+> **Status:** 🟢 COMPLETO
 > **Máxima:** Progressão Contínua — Zero Becos Sem Saída
 > **Princípio:** UX First — Namespace unificado, zero query params
 > **Bloqueado por:** Sprint 00
 > **Desbloqueia:** Sprint 05 (Chat), Sprint 06 (Design), Sprint 10 (Launch Pad)
 > **Ref doc master:** Seção 12.1-12.9
-> **Estimativa:** 7-10 dias
 > **CRÍTICO:** Fundação arquitetural. Todos os engines downstream (Copy, Social, Design, Ads) dependem de um manifesto correto.
 
 ---

@@ -8,6 +8,7 @@ export interface RawAdsData {
   clicks: number;
   impressions: number;
   conversions: number;
+  revenue: number; // Sprint 12: real revenue from pixel/conversion value
 }
 
 // ─── AdCredentials: Discriminated Union (DT-05, S30-PRE-02) ───
@@ -54,11 +55,12 @@ export abstract class AdsPlatformAdapter {
     const ctr = raw.impressions > 0 ? raw.clicks / raw.impressions : 0;
     const cpc = raw.clicks > 0 ? raw.spend / raw.clicks : 0;
     const cpa = raw.conversions > 0 ? raw.spend / raw.conversions : 0;
-    const roas = raw.spend > 0 ? (raw.conversions * 100) / raw.spend : 0;
+    // Sprint 12: ROAS from real revenue when available, fallback to 0
+    const roas = raw.spend > 0 && raw.revenue > 0 ? raw.revenue / raw.spend : 0;
 
     return {
       spend: raw.spend,
-      revenue: 0,
+      revenue: raw.revenue,
       clicks: raw.clicks,
       impressions: raw.impressions,
       conversions: raw.conversions,

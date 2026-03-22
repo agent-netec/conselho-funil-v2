@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { anomalyDetector } from '@/lib/reporting/anomaly-detector';
 import { getLatestPrediction } from '@/lib/firebase/predictive';
 import { saveAnomalyAlert } from '@/lib/firebase/reporting';
-import { verifyAdminRole, handleSecurityError } from '@/lib/utils/api-security';
+import { verifyAuthenticated, handleSecurityError } from '@/lib/utils/api-security';
 import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
 
 /**
@@ -13,8 +13,8 @@ import { createApiError, createApiSuccess } from '@/lib/utils/api-response';
  */
 export async function POST(request: NextRequest) {
   try {
-    // 1. Segurança
-    await verifyAdminRole(request);
+    // 1. Segurança — Sprint 08.6: Acessível a todos os usuários autenticados
+    await verifyAuthenticated(request);
 
     const body = await request.json();
     const { clientId, realRoi, durationHours } = body;

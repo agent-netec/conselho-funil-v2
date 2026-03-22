@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { WarRoomDashboard } from '@/components/performance/war-room-dashboard';
 import { AlertCenter } from '@/components/performance/alert-center';
 import { SegmentFilter } from '@/components/performance/segment-filter';
@@ -12,6 +12,7 @@ import { useSegmentPerformance } from '@/lib/hooks/use-segment-performance';
 import { useBrandStore } from '@/lib/stores/brand-store';
 import { getAuthHeaders } from '@/lib/utils/auth-headers';
 import Link from 'next/link';
+import { Layers } from "lucide-react";
 
 export default function PerformanceWarRoomPage() {
   const { selectedBrand } = useBrandStore();
@@ -94,33 +95,67 @@ export default function PerformanceWarRoomPage() {
 
   useEffect(() => { fetchData(); fetchLtvSummary(); }, [selectedBrand?.id]);
 
+  // Sprint 08.6c: Debounced AI Insight with AbortController to prevent race conditions
+  const abortRef = useRef<AbortController | null>(null);
+  const insightCacheRef = useRef<Record<string, { summary: string; insights: string[]; recommendations: string[] }>>({});
+
   useEffect(() => {
-    const run = async () => {
-      if (!breakdown || metrics.length === 0) return;
+    if (!breakdown || metrics.length === 0) return;
+
+    const cacheKey = `${selectedBrand?.id}_${selectedSegment}`;
+    const cached = insightCacheRef.current[cacheKey];
+    if (cached) {
+      setAdvisorSummary(cached.summary);
+      setAdvisorInsights(cached.insights);
+      setAdvisorRecommendations(cached.recommendations);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      // Cancel any in-flight request
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+
       setAdvisorLoading(true);
       try {
         const h = await getAuthHeaders();
         const res = await fetch('/api/reporting/generate', {
           method: 'POST', headers: h,
+          signal: controller.signal,
           body: JSON.stringify({
             metrics,
             context: {
-              brandId: selectedBrand?.id ?? 'TEST', targetRoas: blendedMetrics.roas ?? 0,
+              brandId: selectedBrand?.id ?? '', targetRoas: blendedMetrics.roas ?? 0,
               alerts: anomalies, segmentData: segmentDataForAdvisor, selectedSegment,
             },
           }),
         });
+        if (controller.signal.aborted) return;
         const payload = await res.json();
         const summary = extractAdvisorSummary(payload);
-        if (summary) setAdvisorSummary(summary);
-        else if (!res.ok) setAdvisorSummary('Insight indisponível no momento.');
         const d = payload?.data || payload;
-        setAdvisorInsights(Array.isArray(d?.insights) ? d.insights : []);
-        setAdvisorRecommendations(Array.isArray(d?.recommendations) ? d.recommendations : []);
-      } catch { setAdvisorSummary('Insight indisponível no momento.'); }
-      finally { setAdvisorLoading(false); }
-    };
-    run();
+        const result = {
+          summary: summary || (res.ok ? '' : 'Insight indisponível no momento.'),
+          insights: Array.isArray(d?.insights) ? d.insights : [],
+          recommendations: Array.isArray(d?.recommendations) ? d.recommendations : [],
+        };
+        if (summary) setAdvisorSummary(result.summary);
+        else if (!res.ok) setAdvisorSummary('Insight indisponível no momento.');
+        setAdvisorInsights(result.insights);
+        setAdvisorRecommendations(result.recommendations);
+        // Cache result
+        insightCacheRef.current[cacheKey] = result;
+      } catch (e: unknown) {
+        if ((e as Error)?.name !== 'AbortError') {
+          setAdvisorSummary('Insight indisponível no momento.');
+        }
+      } finally {
+        if (!controller.signal.aborted) setAdvisorLoading(false);
+      }
+    }, 1500); // 1.5s debounce
+
+    return () => clearTimeout(timer);
   }, [segmentDataForAdvisor, selectedSegment, metrics, anomalies, selectedBrand?.id, blendedMetrics.roas]);
 
   const handleRefresh = async () => { setIsRefreshing(true); await fetchData(true); };
@@ -146,7 +181,7 @@ export default function PerformanceWarRoomPage() {
             </div>
             <div className="flex items-center gap-3">
               <span className="text-[11px] font-mono text-[#6B5D4A] tracking-wider">
-                {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                {new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
               </span>
               <button
                 onClick={handleRefresh}
@@ -164,7 +199,28 @@ export default function PerformanceWarRoomPage() {
             <KPI label="ROAS" value={blendedMetrics.roas?.toFixed(2) ?? '0.00'} unit="x" />
             <KPI label="Total Spend" value={`R$ ${((blendedMetrics.spend || 0) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`} isText />
             <KPI label="CAC" value={`R$ ${((blendedMetrics.cac || 0) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`} isText />
-            <KPI label="Revenue" value={`R$ ${((blendedMetrics.revenue || 0) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`} isText highlight />
+            <KPI
+              label="Revenue"
+              value={blendedMetrics.revenue > 0
+                ? `R$ ${blendedMetrics.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`
+                : blendedMetrics.conversions > 0 ? 'Pixel sem valor' : 'R$ 0'}
+              isText highlight
+              subtitle={blendedMetrics.revenue === 0 && blendedMetrics.conversions > 0 ? 'Configure o pixel com valor de compra' : undefined}
+            />
+          </div>
+
+          {/* Sprint 12: Tab navigation — War Room / Cross-channel */}
+          <div className="flex items-center gap-6 mb-4">
+            <span className="text-[11px] font-mono font-bold tracking-wider text-[#E6B447] border-b-2 border-[#E6B447] pb-2">
+              WAR ROOM
+            </span>
+            <Link
+              href="/performance/cross-channel"
+              className="text-[11px] font-mono font-bold tracking-wider text-[#6B5D4A] hover:text-[#CAB792] pb-2 border-b-2 border-transparent transition-colors flex items-center gap-1.5"
+            >
+              <Layers className="h-3 w-3" />
+              CROSS-CHANNEL
+            </Link>
           </div>
 
           {/* Segment filter inline */}
@@ -288,7 +344,8 @@ export default function PerformanceWarRoomPage() {
 
           {/* Right: alerts + insight */}
           <div className="lg:col-span-4 space-y-6">
-            <AlertCenter
+            {/* Sprint 12: Hide alert center when no real anomalies */}
+            {anomalies.length > 0 && <AlertCenter
               alerts={anomalies.map(a => ({
                 id: a.id, severity: a.severity,
                 status: a.status === 'new' ? 'active' : 'acknowledged',
@@ -296,8 +353,23 @@ export default function PerformanceWarRoomPage() {
                 metricType: a.metricType, createdAt: a.detectedAt,
                 context: { platform: 'Aggregated', deviation: a.deviationPercentage, entityName: selectedBrand?.name || 'Brand' }
               })) as any}
-              onAcknowledge={(id) => console.log('Acknowledge:', id)}
-            />
+              onAcknowledge={async (id) => {
+                if (!selectedBrand?.id) return;
+                try {
+                  const h = await getAuthHeaders();
+                  const res = await fetch('/api/performance/anomalies', {
+                    method: 'PATCH',
+                    headers: h,
+                    body: JSON.stringify({ brandId: selectedBrand.id, anomalyId: id }),
+                  });
+                  if (res.ok) {
+                    setAnomalies(prev => prev.map(a => a.id === id ? { ...a, status: 'acknowledged' as any } : a));
+                  }
+                } catch (e) {
+                  console.error('[Performance] Acknowledge error:', e);
+                }
+              }}
+            />}
 
             {/* AI Insight — pull-quote style */}
             <div className="border-l-2 border-[#E6B447] bg-[#0D0B09] p-5">
@@ -370,8 +442,8 @@ export default function PerformanceWarRoomPage() {
   );
 }
 
-function KPI({ label, value, unit, isText, highlight }: {
-  label: string; value: string; unit?: string; isText?: boolean; highlight?: boolean;
+function KPI({ label, value, unit, isText, highlight, subtitle }: {
+  label: string; value: string; unit?: string; isText?: boolean; highlight?: boolean; subtitle?: string;
 }) {
   return (
     <div className="px-6 py-5 bg-[#0D0B09]">
@@ -380,6 +452,7 @@ function KPI({ label, value, unit, isText, highlight }: {
         {value}
         {unit && <span className="text-[11px] font-normal text-[#6B5D4A] ml-1">{unit}</span>}
       </p>
+      {subtitle && <p className="text-[9px] font-mono text-[#C45B3A] mt-1 truncate">{subtitle}</p>}
     </div>
   );
 }

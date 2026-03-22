@@ -1,9 +1,9 @@
 # Sprint 12 — Performance / Agency Features
 
+> **Status:** 🟡 QUASE COMPLETO (2026-03-21) — Código 100%. Pendente: 12.1 (setup manual Meta/Google). Ver SPRINT-12-EXECUTION.md
 > **Máxima:** Progressão Contínua — Zero Becos Sem Saída
 > **Bloqueado por:** Sprint 02 (tier enforcement), Sprint 08 (dashboard unificada)
 > **Ref doc master:** Seção Performance (auditoria)
-> **Estimativa:** Variável (depende de setup externo)
 
 ---
 

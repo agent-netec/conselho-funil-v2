@@ -5,12 +5,20 @@ import { Badge } from '@/components/ui/badge';
 import type { Brand } from '@/types/database';
 import type { VerdictOutput } from '@/lib/ai/prompts/verdict-prompt';
 
-export type DashboardState = 'pre-briefing' | 'post-aha' | 'active' | 'loading' | 'welcome';
+export type DashboardState =
+  | 'loading'
+  | 'welcome'
+  | 'pre-briefing'
+  | 'post-aha'
+  | 'has-funnels'
+  | 'has-campaign'
+  | 'has-ads';
 
 interface DashboardHeroProps {
   state: DashboardState;
   brand?: Brand | null;
   verdict?: VerdictOutput | null;
+  campaignName?: string;
 }
 
 function getGreeting() {
@@ -26,18 +34,19 @@ function getScoreClass(value: number) {
   return 'border-[#C45B3A]/30 bg-[#C45B3A]/5 text-[#C45B3A]';
 }
 
-export function DashboardHero({ state, brand, verdict }: DashboardHeroProps) {
+const STATUS_CONFIG: Record<DashboardState, { label: string; glow: boolean }> = {
+  loading: { label: 'SYNC', glow: false },
+  welcome: { label: 'SETUP', glow: false },
+  'pre-briefing': { label: 'BRIEFING PENDENTE', glow: false },
+  'post-aha': { label: 'VEREDITO PRONTO', glow: true },
+  'has-funnels': { label: 'ESTRATÉGIA DEFINIDA', glow: true },
+  'has-campaign': { label: 'CAMPANHA ATIVA', glow: true },
+  'has-ads': { label: 'ADS CONECTADOS', glow: true },
+};
+
+export function DashboardHero({ state, brand, verdict, campaignName }: DashboardHeroProps) {
   const greeting = getGreeting();
-
-  const statusConfig: Record<DashboardState, { label: string; glow: boolean }> = {
-    loading: { label: 'SYNC', glow: false },
-    welcome: { label: 'SETUP', glow: false },
-    'pre-briefing': { label: 'BRIEFING PENDENTE', glow: false },
-    'post-aha': { label: 'VEREDITO PRONTO', glow: true },
-    active: { label: 'OPERACIONAL', glow: true },
-  };
-
-  const { label, glow } = statusConfig[state];
+  const { label, glow } = STATUS_CONFIG[state];
 
   return (
     <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#2A2318] pb-5">
@@ -66,7 +75,7 @@ export function DashboardHero({ state, brand, verdict }: DashboardHeroProps) {
 
       {/* Right: status pills */}
       <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
-        {state === 'post-aha' && verdict && (
+        {verdict && (state === 'post-aha' || state === 'has-funnels' || state === 'has-campaign' || state === 'has-ads') && (
           <>
             <Badge
               variant="outline"
@@ -83,12 +92,12 @@ export function DashboardHero({ state, brand, verdict }: DashboardHeroProps) {
           </>
         )}
 
-        {state === 'active' && (
+        {campaignName && (state === 'has-campaign' || state === 'has-ads') && (
           <Badge
             variant="outline"
-            className="border-[#3D3428] text-[#6B5D4A] font-mono text-[10px] rounded-md"
+            className="border-[#5B8EC4]/30 bg-[#5B8EC4]/5 text-[#5B8EC4] font-mono text-[10px] rounded-md max-w-[140px] truncate"
           >
-            GEMINI 2.5
+            {campaignName}
           </Badge>
         )}
       </div>
