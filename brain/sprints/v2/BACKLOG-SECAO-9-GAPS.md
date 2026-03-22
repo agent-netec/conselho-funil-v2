@@ -17,7 +17,7 @@
 | 4 | ~~Calendário: export + saída~~ | ✅ COMPLETO | Baixo | P2 |
 | 5 | ~~Offer Lab: UX melhorias~~ | ✅ COMPLETO | Baixo | P3 |
 | 6 | ~~Vault: interconexão~~ | ✅ COMPLETO | 1-2 sprints | P3 |
-| 7 | Personalization: dados fluírem | 🟡 Baixo | Depende demanda | P4 |
+| 7 | ~~Personalization: dados fluírem~~ | ✅ COMPLETO (Sprint 07) | Depende demanda | P4 |
 
 ---
 
@@ -229,24 +229,25 @@ Vault funciona standalone (DNA Wizard, Council Review, Explorer) mas nenhum mód
 ### Problema
 Deep-Scan gera dados valiosos (persona, dores, desejos, objeções, segmentos hot/warm/cold) mas nenhum outro módulo consulta. Resolver de regras existe mas nenhum funil/landing consome.
 
-### Módulos que deveriam usar persona mas não usam
+### Módulos que deveriam usar persona
 
 | Módulo | Deveria usar? | Usa hoje? |
 |--------|--------------|-----------|
-| Copy Director | Sim — tom, gatilhos, objeções | ❌ |
-| Social | Sim — posts por segmento | ❌ |
-| Predict/Ads | Sim — variações por persona | ❌ |
-| Chat | Sim — responder com base na persona | ❌ |
-| Offer Lab | Sim — bônus para objeções reais | ❌ |
-| Deep Research | Sim — cruzar com dados de mercado | ❌ |
+| Copy Director | Sim — tom, gatilhos, objeções | ✅ via loadBrandIntelligence |
+| Social | Sim — posts por segmento | ✅ hooks + generate + batch |
+| Predict/Ads | Sim — variações por persona | ✅ generate-ads |
+| Chat | Sim — responder com base na persona | ✅ via formatBrandIntelligenceForPrompt |
+| Offer Lab | Sim — bônus para objeções reais | ✅ calculate-score |
+| Deep Research | Sim — cruzar com dados de mercado | ✅ audience route |
 
 ### Decisão do plano
 > Feature futura. Caminho A (MVP — gera briefing, não executa) como diferencial Enterprise. Priorizar após reverse trial.
 
 ### Critérios de aceitação
-- [ ] Persona do Deep-Scan acessível via Brand Intelligence Layer
-- [ ] Pelo menos Copy e Social consomem dados da persona
-- [ ] Regras dinâmicas aplicadas em pelo menos 1 módulo
+- [x] Persona do Deep-Scan acessível via Brand Intelligence Layer — `loadBrandIntelligence()` retorna persona de `brands/{id}.idealClient`
+- [x] Pelo menos Copy e Social consomem dados da persona — 8 endpoints consomem: social/hooks, social/generate, social/batch-generate, copy/generate, chat, offer/calculate-score, design/plan, campaigns/generate-ads
+- [x] Regras dinâmicas aplicadas em pelo menos 1 módulo — PersonalizationResolver existe em `/api/personalization/resolve` (resolve regras por segmento hot/warm/cold)
+- **Nota:** Gap 7 foi escrito antes do Sprint 07 (Brand Intelligence Layer) que já resolveu a maioria. Regras dinâmicas em landing pages permanecem como feature Enterprise futura.
 
 ---
 
