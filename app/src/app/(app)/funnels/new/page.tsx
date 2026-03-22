@@ -29,6 +29,24 @@ export default function NewFunnelPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [template, setTemplate] = useState<LibraryTemplate | null>(null);
+  // Sprint 13.5: Pre-fill wizard with brand data when available
+  const [prefilled, setPrefilled] = useState(false);
+  useEffect(() => {
+    if (!activeBrand || prefilled) return;
+    setFormData(prev => ({
+      ...prev,
+      audience: prev.audience || (activeBrand as any).audience?.idealClient || '',
+      pain: prev.pain || (activeBrand as any).audience?.pain || '',
+      awareness: prev.awareness || (activeBrand as any).audience?.awareness || 'problem',
+      objection: prev.objection || (activeBrand as any).audience?.objections?.[0] || '',
+      differential: prev.differential || (activeBrand as any).offer?.differentiator || '',
+      product: prev.product || (activeBrand as any).offer?.what || '',
+      ticket: prev.ticket || ((activeBrand as any).offer?.ticket ? String((activeBrand as any).offer.ticket) : ''),
+      productType: prev.productType || (activeBrand as any).offer?.type || '',
+    }));
+    setPrefilled(true);
+  }, [activeBrand, prefilled]);
+
   const [formData, setFormData] = useState({
     name: '',
     objective: '' as 'leads' | 'sales' | 'calls' | 'retention' | '',
@@ -40,6 +58,7 @@ export default function NewFunnelPage() {
     ticket: '',
     productType: '',
     differential: '',
+    budget: '',
     primaryChannel: '',
     secondaryChannel: '',
   });
@@ -103,7 +122,12 @@ export default function NewFunnelPage() {
           awareness: awarenessMap[formData.awareness] || 'solution',
           ...(formData.objection ? { objection: formData.objection } : {}),
         },
-        offer: { what: formData.product, ticket: formData.ticket, type: (formData.productType?.toLowerCase() as any) || 'servico' },
+        offer: {
+          what: formData.product, ticket: formData.ticket,
+          type: (formData.productType?.toLowerCase() as any) || 'servico',
+          ...(formData.differential ? { differentiator: formData.differential } : {}),
+        },
+        ...(formData.budget ? { budget: formData.budget } : {}),
         channel: { main: formData.primaryChannel, ...(formData.secondaryChannel ? { secondary: formData.secondaryChannel } : {}) },
       };
       

@@ -227,7 +227,7 @@ export async function retrieveForFunnelCreation(
   topK = 15
 ): Promise<RetrievedChunk[]> {
   const queryText = `Funil de ${objective} Canal: ${channel} Público: ${audience}`;
-  return retrieveChunks(queryText, { topK, minSimilarity: 0.2 });
+  return retrieveChunks(queryText, { topK, minSimilarity: 0.4 }); // Sprint 13.3: raised from 0.2
 }
 
 export async function retrieveByCouncelor(queryText: string, counselor: string, topK = 5) {

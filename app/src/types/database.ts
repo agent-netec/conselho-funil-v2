@@ -355,8 +355,12 @@ export interface FunnelContext {
     what: string;
     ticket: string;
     type: 'curso' | 'servico' | 'saas' | 'mentoria' | 'produto_fisico';
+    differentiator?: string; // Sprint 13.2: diferencial competitivo
   };
-  
+
+  // Sprint 13.6: Budget de tráfego
+  budget?: string;
+
   // URL do funil (opcional, usado para Autopsy)
   url?: string;
 

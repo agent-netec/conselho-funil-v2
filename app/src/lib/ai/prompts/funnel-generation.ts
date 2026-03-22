@@ -115,6 +115,8 @@ ${context.audience.objection ? `- **Objeção Dominante:** ${context.audience.ob
 - **Produto/Serviço:** ${context.offer.what}
 - **Ticket:** ${context.offer.ticket}
 - **Tipo:** ${context.offer.type}
+${context.offer.differentiator ? `- **Diferencial Competitivo:** ${context.offer.differentiator}` : ''}
+${context.budget ? `- **Budget de Tráfego:** ${context.budget}` : ''}
 
 ### Canais
 - **Principal:** ${context.channel?.main || context.channels?.primary || 'N/A'}

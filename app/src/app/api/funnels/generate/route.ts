@@ -10,7 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ragQuery, retrieveForFunnelCreation } from '@/lib/ai/rag';
 import { generateWithGemini, isGeminiConfigured, DEFAULT_GEMINI_MODEL } from '@/lib/ai/gemini';
-import { updateFunnelAdmin, createProposalAdmin, getFunnelAdmin, getBrandAdmin } from '@/lib/firebase/firestore-server';
+import { updateFunnelAdmin, createProposalAdmin, getFunnelAdmin, getBrandAdmin, getUserFunnelsAdmin } from '@/lib/firebase/firestore-server';
 import type { FunnelContext, Proposal, Brand } from '@/types/database';
 import {
   FUNNEL_GENERATION_PROMPT,
@@ -18,6 +18,8 @@ import {
   buildFunnelContextPrompt
 } from '@/lib/ai/prompts';
 import { formatBrandContextForFunnel, parseAIJSON } from '@/lib/ai/formatters';
+import { buildFunnelBrainContext } from '@/lib/ai/prompts/funnel-brain-context';
+import { retrieveBrandChunks } from '@/lib/ai/rag';
 import { requireUser } from '@/lib/auth/brand-guard';
 import { ApiError } from '@/lib/utils/api-security';
 import { logger } from '@/lib/utils/logger';
@@ -137,10 +139,59 @@ export async function POST(request: NextRequest) {
       `[${c.metadata.counselor || 'General'}] ${c.content}`
     ).join('\n\n---\n\n');
 
-    // 3. Build the full prompt (include brand context if available)
+    // Sprint 13.1: Inject brain context (6 funnel counselor frameworks)
+    const brainContext = buildFunnelBrainContext();
+
+    // Sprint 13.3: Retrieve brand-specific knowledge from RAG
+    let brandKnowledge = '';
+    try {
+      const funnel = await getFunnelAdmin(funnelId);
+      if (funnel?.brandId) {
+        const brandChunks = await retrieveBrandChunks(funnel.brandId,
+          `${context.objective} ${context.audience?.who} ${context.offer?.what}`, 10);
+        if (brandChunks.length > 0) {
+          brandKnowledge = `\n\n## CONHECIMENTO ESPECÍFICO DA MARCA\n\n${
+            brandChunks.map(c => c.content).join('\n\n')}`;
+          console.log(`📖 ${brandChunks.length} brand-specific chunks recuperados`);
+        }
+      }
+    } catch (err) {
+      console.warn('[Funnels] Brand RAG failed (non-blocking):', (err as Error).message);
+    }
+
+    // Sprint 13.4: Load previous funnels for same brand to avoid repetition
+    let previousFunnelsContext = '';
+    try {
+      const funnel = await getFunnelAdmin(funnelId);
+      if (funnel?.brandId) {
+        const allFunnels = await getUserFunnelsAdmin(userId);
+        const sameBrand = allFunnels.filter(f => f.brandId === funnel.brandId && f.id !== funnelId);
+        if (sameBrand.length > 0) {
+          previousFunnelsContext = `\n\n## FUNIS ANTERIORES DESTA MARCA (evite repetir)\n\n${
+            sameBrand.slice(0, 5).map(f =>
+              `- "${f.name}" — Objetivo: ${f.context?.objective}, Canal: ${f.context?.channel?.main}, Status: ${f.status}`
+            ).join('\n')
+          }\n\nIMPORTANTE: Proponha estratégias DIFERENTES das listadas acima.`;
+          console.log(`🔁 ${sameBrand.length} funis anteriores carregados para deduplicação`);
+        }
+      }
+    } catch (err) {
+      console.warn('[Funnels] Previous funnels load failed (non-blocking):', (err as Error).message);
+    }
+
+    // 3. Build the full prompt (include brain + brand + knowledge contexts)
     let contextPrompt = buildFunnelContextPrompt(context, knowledgeContext, adjustments);
+    if (brainContext) {
+      contextPrompt = `${brainContext}\n\n${contextPrompt}`;
+    }
     if (brandContext) {
       contextPrompt = `${brandContext}\n\n${contextPrompt}`;
+    }
+    if (brandKnowledge) {
+      contextPrompt = `${contextPrompt}\n\n${brandKnowledge}`;
+    }
+    if (previousFunnelsContext) {
+      contextPrompt = `${contextPrompt}\n\n${previousFunnelsContext}`;
     }
     const basePrompt = isAdjustment ? FUNNEL_ADJUSTMENT_PROMPT : FUNNEL_GENERATION_PROMPT;
     const fullPrompt = `${basePrompt}\n\n${contextPrompt}`;

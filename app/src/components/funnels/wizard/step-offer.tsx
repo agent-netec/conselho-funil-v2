@@ -2,12 +2,23 @@ import { motion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
+const BUDGET_OPTIONS = [
+  { value: '', label: 'Selecione (opcional)' },
+  { value: 'Não invisto em tráfego', label: 'Não invisto em tráfego' },
+  { value: 'Até R$ 1.000/mês', label: 'Até R$ 1.000/mês' },
+  { value: 'R$ 1.000 - R$ 5.000/mês', label: 'R$ 1.000 - R$ 5.000/mês' },
+  { value: 'R$ 5.000 - R$ 20.000/mês', label: 'R$ 5.000 - R$ 20.000/mês' },
+  { value: 'R$ 20.000 - R$ 50.000/mês', label: 'R$ 20.000 - R$ 50.000/mês' },
+  { value: 'R$ 50.000+/mês', label: 'R$ 50.000+/mês' },
+];
+
 interface StepOfferProps {
   formData: {
     product: string;
     ticket: string;
     productType: string;
     differential: string;
+    budget: string;
   };
   onUpdate: (field: string, value: string) => void;
 }
@@ -78,6 +89,21 @@ export function StepOffer({ formData, onUpdate }: StepOfferProps) {
             placeholder="Ex: Integração com 50+ plataformas, setup em 15min"
             className="input-premium min-h-[80px]"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-zinc-300 mb-2">
+            Budget de Tráfego
+          </label>
+          <select
+            value={formData.budget}
+            onChange={(e) => onUpdate('budget', e.target.value)}
+            className="w-full rounded-lg border border-white/[0.06] bg-[#0D0B09] px-3 py-2.5 text-sm text-zinc-300 focus:border-[#E6B447]/50 focus:outline-none focus:ring-1 focus:ring-[#E6B447]/30"
+          >
+            {BUDGET_OPTIONS.map(o => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
         </div>
       </div>
     </motion.div>
