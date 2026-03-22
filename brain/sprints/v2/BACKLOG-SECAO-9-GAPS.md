@@ -15,7 +15,7 @@
 | 2 | ~~Predict: ações pós-geração~~ | ✅ COMPLETO | 1 sprint | P1 |
 | 3 | ~~Intelligence Overview: dados reais~~ | ✅ COMPLETO | 1 sprint | P2 |
 | 4 | ~~Calendário: export + saída~~ | ✅ COMPLETO | Baixo | P2 |
-| 5 | Offer Lab: UX melhorias | 🟡 Baixo | Baixo | P3 |
+| 5 | ~~Offer Lab: UX melhorias~~ | ✅ COMPLETO | Baixo | P3 |
 | 6 | Vault: interconexão | 🟡 Baixo | 1-2 sprints | P3 |
 | 7 | Personalization: dados fluírem | 🟡 Baixo | Depende demanda | P4 |
 
@@ -187,10 +187,10 @@ Feature completa e funcional, mas 3 gaps de UX:
 - `src/components/intelligence/offer-lab/offer-lab-wizard.tsx`
 
 ### Critérios de aceitação
-- [ ] Sugestões da IA são clicáveis
-- [ ] "Reavaliar" recalcula score após aplicar sugestões
-- [ ] "Aplicar e Regenerar" funciona em 1 clique
-- [ ] Visual premium (opcional)
+- [x] Sugestões da IA são clicáveis — StepFeedback agora tem botões de ação (MousePointerClick) que auto-aplicam sugestões nos campos
+- [x] "Reavaliar" recalcula score após aplicar sugestões — botão RefreshCw na tela de resultado AI
+- [x] "Aplicar e Regenerar" funciona em 1 clique — "Salvar e Ir para Campanha" quando campaignId presente
+- [x] Visual premium (opcional) — mantido design existente (motion, cards, gradientes já implementados)
 
 ---
 

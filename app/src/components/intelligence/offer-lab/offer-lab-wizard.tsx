@@ -21,7 +21,10 @@ import {
   CheckCircle2,
   ChevronDown,
   HelpCircle,
-  Info
+  Info,
+  RefreshCw,
+  Megaphone,
+  MousePointerClick
 } from 'lucide-react';
 
 import {
@@ -52,53 +55,113 @@ interface OfferQualityResult {
 
 // --- Step Feedback ---
 
-function StepFeedback({ step, offer }: { step: number; offer: OfferWizardState }) {
-  const tips: string[] = [];
+interface ActionableTip {
+  text: string;
+  action?: { label: string; apply: () => void };
+}
+
+function StepFeedback({ step, offer, onUpdate }: { step: number; offer: OfferWizardState; onUpdate: (o: OfferWizardState) => void }) {
+  const tips: ActionableTip[] = [];
 
   if (step === 1) {
     if (offer.promise.length > 0 && offer.promise.length <= 20)
-      tips.push('Sua promessa esta muito curta. Seja mais especifico sobre o resultado.');
+      tips.push({ text: 'Sua promessa esta muito curta. Seja mais especifico sobre o resultado.' });
     if (offer.promise.length > 20 && !/\d/.test(offer.promise))
-      tips.push('Adicione um numero a promessa (ex: "R$10k em 30 dias"). Promessas mensuraveis convertem mais.');
+      tips.push({
+        text: 'Adicione um numero a promessa. Promessas mensuraveis convertem mais.',
+        action: { label: 'Adicionar "R$10k em 30 dias"', apply: () => onUpdate({ ...offer, promise: offer.promise + ' — R$10k em 30 dias' }) },
+      });
     if (offer.promise.length > 20 && !/dia|semana|mes|mês|hora/i.test(offer.promise))
-      tips.push('Inclua um prazo (ex: "em 30 dias"). Urgencia aumenta o desejo.');
+      tips.push({
+        text: 'Inclua um prazo. Urgencia aumenta o desejo.',
+        action: { label: 'Adicionar "em 30 dias"', apply: () => onUpdate({ ...offer, promise: offer.promise + ' em 30 dias' }) },
+      });
     if (offer.corePrice > 0 && offer.perceivedValue > 0 && offer.perceivedValue / offer.corePrice < 5)
-      tips.push('Valor percebido esta baixo. O ideal e pelo menos 10x o preco.');
+      tips.push({
+        text: 'Valor percebido esta baixo. O ideal e pelo menos 10x o preco.',
+        action: { label: `Ajustar para ${(offer.corePrice * 10).toLocaleString('pt-BR')}`, apply: () => onUpdate({ ...offer, perceivedValue: offer.corePrice * 10 }) },
+      });
   }
 
   if (step === 2) {
-    if (offer.stacking.length > 0 && offer.stacking.length < 3)
-      tips.push(`Voce tem ${offer.stacking.length} item(ns). Adicione pelo menos 3 para maximizar ancoragem.`);
+    if (offer.stacking.length > 0 && offer.stacking.length < 3) {
+      const missing = 3 - offer.stacking.length;
+      tips.push({
+        text: `Voce tem ${offer.stacking.length} item(ns). Adicione pelo menos 3 para maximizar ancoragem.`,
+        action: {
+          label: `Adicionar ${missing} item(ns)`,
+          apply: () => {
+            const newItems = Array.from({ length: missing }, () => ({ id: crypto.randomUUID(), name: '', value: 0, description: '' }));
+            onUpdate({ ...offer, stacking: [...offer.stacking, ...newItems] });
+          },
+        },
+      });
+    }
     if (offer.stacking.some(s => s.name.length === 0 || s.value === 0))
-      tips.push('Preencha nome E valor de todos os itens do stack para pontuar mais.');
+      tips.push({ text: 'Preencha nome E valor de todos os itens do stack para pontuar mais.' });
   }
 
   if (step === 3) {
-    if (offer.bonuses.length === 0)
-      tips.push('Adicione pelo menos 2 bonus. Cada bonus deve resolver uma objecao especifica do cliente.');
-    if (offer.bonuses.length === 1)
-      tips.push('Adicione mais 1 bonus. O ideal e pelo menos 2 para quebrar objecoes diferentes.');
+    if (offer.bonuses.length < 2) {
+      const missing = 2 - offer.bonuses.length;
+      tips.push({
+        text: `Adicione pelo menos 2 bonus. Cada bonus deve resolver uma objecao especifica do cliente.`,
+        action: {
+          label: `Adicionar ${missing} bonus`,
+          apply: () => {
+            const newBonuses = Array.from({ length: missing }, () => ({ id: crypto.randomUUID(), name: '', value: 0, description: '' }));
+            onUpdate({ ...offer, bonuses: [...offer.bonuses, ...newBonuses] });
+          },
+        },
+      });
+    }
     if (offer.bonuses.some(b => !b.description || b.description.length === 0))
-      tips.push('Descreva qual objecao cada bonus resolve. Bonus sem objecao valem menos no score.');
+      tips.push({ text: 'Descreva qual objecao cada bonus resolve. Bonus sem objecao valem menos no score.' });
   }
 
   if (step === 4) {
     if (offer.riskReversal.length > 0 && offer.riskReversal.length <= 50)
-      tips.push('Sua garantia esta curta. Detalhe: tipo, prazo, e o que acontece se pedir reembolso.');
+      tips.push({
+        text: 'Sua garantia esta curta. Detalhe: tipo, prazo, e o que acontece se pedir reembolso.',
+        action: {
+          label: 'Expandir garantia',
+          apply: () => onUpdate({ ...offer, riskReversal: offer.riskReversal + '. Garantia incondicional de 30 dias — se nao gostar, devolvemos 100% do valor sem perguntas.' }),
+        },
+      });
     if (offer.riskReversal.length > 0 && !/dia|garantia|devolv|reembols/i.test(offer.riskReversal))
-      tips.push('Mencione "garantia", prazo em dias ou politica de devolucao para mais credibilidade.');
+      tips.push({
+        text: 'Mencione "garantia", prazo em dias ou politica de devolucao para mais credibilidade.',
+        action: {
+          label: 'Inserir garantia 30 dias',
+          apply: () => onUpdate({ ...offer, riskReversal: offer.riskReversal + ' — Garantia de 30 dias com reembolso total.' }),
+        },
+      });
     if (offer.scarcity.length === 0)
-      tips.push('Sem escassez nao ha urgencia. Adicione limite de vagas, prazo ou edicao limitada.');
+      tips.push({
+        text: 'Sem escassez nao ha urgencia. Adicione limite de vagas, prazo ou edicao limitada.',
+        action: { label: 'Inserir escassez', apply: () => onUpdate({ ...offer, scarcity: 'Apenas 50 vagas disponiveis' }) },
+      });
   }
 
   if (tips.length === 0) return null;
 
   return (
-    <div className="mt-4 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg space-y-1.5">
+    <div className="mt-4 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg space-y-2">
       {tips.map((tip, i) => (
-        <div key={i} className="flex gap-2 text-[11px] text-amber-400/90 leading-tight">
+        <div key={i} className="flex items-start gap-2 text-[11px] text-amber-400/90 leading-tight">
           <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
-          <span>{tip}</span>
+          <div className="flex-1">
+            <span>{tip.text}</span>
+            {tip.action && (
+              <button
+                onClick={tip.action.apply}
+                className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[10px] font-medium transition-colors"
+              >
+                <MousePointerClick className="w-2.5 h-2.5" />
+                {tip.action.label}
+              </button>
+            )}
+          </div>
         </div>
       ))}
     </div>
@@ -457,7 +520,7 @@ export function OfferLabWizard({ brandId, onSaved, campaignId }: { brandId: stri
         )}
 
         {/* Action Buttons */}
-        <div className="flex justify-center gap-4 pt-4">
+        <div className="flex flex-wrap justify-center gap-3 pt-4">
           <Button
             variant="outline"
             onClick={() => {
@@ -470,6 +533,18 @@ export function OfferLabWizard({ brandId, onSaved, campaignId }: { brandId: stri
             Ajustar Oferta
           </Button>
           <Button
+            variant="outline"
+            onClick={() => {
+              setAiEvaluation(null);
+              handleAiEvaluation();
+            }}
+            disabled={isEvaluating}
+            className="text-[#E6B447] border-[#E6B447]/30 hover:bg-[#E6B447]/10"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isEvaluating ? 'animate-spin' : ''}`} />
+            {isEvaluating ? 'Reavaliando...' : 'Reavaliar'}
+          </Button>
+          <Button
             onClick={handleSave}
             disabled={isSaving}
             className="bg-white text-black hover:bg-zinc-200 px-8"
@@ -477,6 +552,19 @@ export function OfferLabWizard({ brandId, onSaved, campaignId }: { brandId: stri
             {isSaving ? 'Salvando...' : 'Salvar Oferta'}
             <CheckCircle2 className="w-4 h-4 ml-2" />
           </Button>
+          {campaignId && (
+            <Button
+              onClick={async () => {
+                await handleSave();
+                router.push(`/campaigns/${campaignId}`);
+              }}
+              disabled={isSaving}
+              className="bg-[#E6B447] text-black hover:bg-[#F0C35C] px-6"
+            >
+              <Megaphone className="w-4 h-4 mr-2" />
+              Salvar e Ir para Campanha
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -600,7 +688,7 @@ export function OfferLabWizard({ brandId, onSaved, campaignId }: { brandId: stri
                     </div>
                   </div>
                 </div>
-                <StepFeedback step={1} offer={offer} />
+                <StepFeedback step={1} offer={offer} onUpdate={setOffer} />
               </div>
             )}
 
@@ -693,7 +781,7 @@ export function OfferLabWizard({ brandId, onSaved, campaignId }: { brandId: stri
                     Adicionar Item ao Stack
                   </Button>
                 </div>
-                <StepFeedback step={2} offer={offer} />
+                <StepFeedback step={2} offer={offer} onUpdate={setOffer} />
               </div>
             )}
 
@@ -790,7 +878,7 @@ export function OfferLabWizard({ brandId, onSaved, campaignId }: { brandId: stri
                   <Gift className="w-4 h-4 mr-2" />
                   Criar Novo Bonus
                 </Button>
-                <StepFeedback step={3} offer={offer} />
+                <StepFeedback step={3} offer={offer} onUpdate={setOffer} />
               </div>
             )}
 
@@ -820,7 +908,7 @@ export function OfferLabWizard({ brandId, onSaved, campaignId }: { brandId: stri
                     />
                   </div>
                 </div>
-                <StepFeedback step={4} offer={offer} />
+                <StepFeedback step={4} offer={offer} onUpdate={setOffer} />
               </div>
             )}
           </motion.div>
