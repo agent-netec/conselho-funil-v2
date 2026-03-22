@@ -243,9 +243,10 @@ export function ChatMessageBubble({
   const interactions = !isUser ? getInteractionSummary(partySections) : [];
 
   // Strip structured output tags from displayed content so they don't render as raw text
+  // No 'm' flag — $ must anchor to end of entire string, not per-line
   const cleanContent = !isUser ? contentWithoutFollowUps
-    .replace(/\[COUNCIL_OUTPUT\]:\s*\{[\s\S]*\}\s*$/m, '')
-    .replace(/\[ADS_STRATEGY\]:\s*\{[\s\S]*\}\s*$/m, '')
+    .replace(/\[COUNCIL_OUTPUT\]:?\s*\{[\s\S]*\}\s*$/, '')
+    .replace(/\[ADS_STRATEGY\]:?\s*\{[\s\S]*\}\s*$/, '')
     .trim()
     : message.content;
 

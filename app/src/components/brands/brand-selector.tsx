@@ -26,9 +26,15 @@ export function BrandSelector() {
   
   const [isOpen, setIsOpen] = useState(false);
 
-  // Auto-seleciona primeira marca se nenhuma estiver selecionada
+  // Auto-select first brand if none selected, or reset if selected brand
+  // doesn't belong to current user (stale localStorage from different account)
   useEffect(() => {
-    if (!selectedBrand && brands.length > 0 && !isLoading) {
+    if (isLoading || brands.length === 0) return;
+
+    if (!selectedBrand) {
+      setSelectedBrand(brands[0]);
+    } else if (!brands.some(b => b.id === selectedBrand.id)) {
+      console.warn('[BrandSelector] Selected brand not owned by user — resetting');
       setSelectedBrand(brands[0]);
     }
   }, [brands, selectedBrand, isLoading, setSelectedBrand]);
